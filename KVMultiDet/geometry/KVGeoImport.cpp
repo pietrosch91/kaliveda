@@ -83,6 +83,7 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
 
     KVDetector* detector = GetCurrentDetector();
     if(!detector) return;
+	 Bool_t group_inconsistency = kFALSE;
     if(fCreateArray){
         if(!fCurrentGroup){
             if(detector->GetGroup()) {
@@ -102,16 +103,18 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
                 fCurrentGroup->Add(detector);
             }
             else {
-                if(det_group!=fCurrentGroup)
-                    Warning("ParticleEntersNewVolume",
-                            "Detector %s : already belongs to %s, now seems to be in %s",
-                            detector->GetName(), det_group->GetName(),
-                            fCurrentGroup->GetName());
+                if(det_group!=fCurrentGroup){
+//                     Warning("ParticleEntersNewVolume",
+//                             "Detector %s : already belongs to %s, now seems to be in %s",
+//                             detector->GetName(), det_group->GetName(),
+//                             fCurrentGroup->GetName());
+						  group_inconsistency = kTRUE;
+					 }
             }
         }
     }
     detector->GetNode()->SetName(detector->GetName());
-    if(fLastDetector && detector!=fLastDetector) {
+	 if(fLastDetector && detector!=fLastDetector && !group_inconsistency) {
         fLastDetector->GetNode()->AddBehind(detector);
         detector->GetNode()->AddInFront(fLastDetector);
     }
@@ -131,7 +134,13 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     nuc->SetZAandE(1,1,1);
     Double_t theta,phi;
     Int_t count=0;
-    fGroupNumber=0;
+
+    // note that ImportGeometry can be called for a KVMultiDetArray
+    // which already contains detectors, groups and id telescopes
+    fGroupNumber=fArray->GetStructureTypeList("GROUP")->GetEntries();
+    Int_t ndets0 = fArray->GetDetectors()->GetEntries();
+    Int_t idtels0 = fArray->GetListOfIDTelescopes()->GetEntries();
+
     for(theta=ThetaMin; theta<=ThetaMax; theta+=dTheta){
         for(phi=PhiMin; phi<=PhiMax; phi+=dPhi){
                 nuc->SetTheta(theta);
@@ -142,6 +151,14 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                 count++;
         }
     }
+
+    // make sure detector nodes are correct
+    TIter next(fArray->GetDetectors());
+    KVDetector*d;
+    while( (d=(KVDetector*)next()) ) d->GetNode()->RehashLists();
+    // set up all detector node trajectories
+    //fArray->CalculateGeoNodeTrajectories();
+
     if(fCreateArray){
         fArray->SetGeometry(GetGeometry());
         KVGeoNavigator* nav = fArray->GetNavigator();
@@ -150,16 +167,17 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
             KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
             nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
         }
+        nav->SetNameCorrespondanceList(fDetStrucNameCorrespList);
         fArray->CalculateDetectorSegmentationIndex();
     }
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
-         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries());
+         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries()-ndets0);
     if(fCreateArray){
         fArray->CreateIDTelescopesInGroups();
         Info("ImportGeometry",
-             "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
+             "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries()-idtels0);
     }
 }
 
@@ -184,34 +202,73 @@ KVDetector* KVGeoImport::GetCurrentDetector()
     KVDetector* det = fArray->GetDetector(detector_name);
     if(!fCreateArray){
         if(det){
-            // link existing detector matrix and shape
-            det->SetMatrix(GetCurrentMatrix());
-            det->SetShape((TGeoBBox*)detector_volume->GetShape());
+            // set matrix & shape for entrance window if not done yet
+            if(!det->GetEntranceWindowMatrix()){
+                det->SetEntranceWindowMatrix(GetCurrentMatrix());
+                det->SetEntranceWindowShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            }
+            TString vol_name(GetCurrentVolume()->GetName());
+            if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+                // set matrix & shape for active layer
+                det->SetActiveLayerMatrix(GetCurrentMatrix());
+                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            }
         }
     }
-    else if(!det) {
-        det = BuildDetector(detector_name, detector_volume);
-        if(det) {
-            det->SetMatrix(GetCurrentMatrix());
-            det->SetShape((TGeoBBox*)detector_volume->GetShape());
-            fArray->Add(det);
-            Int_t nstruc = CurrentStructures().GetEntries();
-            if(nstruc){
-                // Build and add geometry structure elements
-                KVGeoStrucElement* ELEM = fArray;
-                for(register int i=0;i<nstruc;i++){
-                    KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
-                    KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
-                    if(!nextELEM){
-                        // make new structure
-                        nextELEM = new KVGeoStrucElement(elem->GetName(), elem->GetType());
-                        nextELEM->SetNumber(elem->GetNumber());
-                        ELEM->Add(nextELEM);
-                    }
-                    ELEM=nextELEM;
+    else
+    {
+        if(!det) {
+            det = BuildDetector(detector_name, detector_volume);
+            if(det) {
+                // Setting the entrance window shape and matrix
+                // ============================================
+                // for consistency, the matrix and shape MUST correspond
+                // i.e. we cannot have the matrix corresponding to the entrance window
+                // of a multilayer detector and the shape corresponding to the
+                // whole detector (all layers) - otherwise, calculation of points
+                // on detector entrance window will be false!
+//                Info("GetCurrentDetector","Setting EW matrix to current matrix:");
+//                GetCurrentMatrix()->Print();
+                det->SetEntranceWindowMatrix(GetCurrentMatrix());
+                det->SetEntranceWindowShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+                TString vol_name(GetCurrentVolume()->GetName());
+                if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+                    // first layer of detector (or only layer) is also active layer
+//                    Info("GetCurrentDetector","and also setting active layer matrix to current matrix:");
+//                    GetCurrentMatrix()->Print();
+                    det->SetActiveLayerMatrix(GetCurrentMatrix());
+                    det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
                 }
-                // add detector to last structure
-                ELEM->Add(det);
+                fArray->Add(det);
+                Int_t nstruc = CurrentStructures().GetEntries();
+                if(nstruc){
+                    // Build and add geometry structure elements
+                    KVGeoStrucElement* ELEM = fArray;
+                    for(register int i=0;i<nstruc;i++){
+                        KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
+                        KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
+                        if(!nextELEM){
+                            // make new structure
+                            nextELEM = new KVGeoStrucElement(elem->GetName(), elem->GetType());
+                            nextELEM->SetNumber(elem->GetNumber());
+                            ELEM->Add(nextELEM);
+                        }
+                        ELEM=nextELEM;
+                    }
+                    // add detector to last structure
+                    ELEM->Add(det);
+                }
+            }
+        }
+        else
+        {
+            // Detector already built, are we now in its active layer ?
+            TString vol_name(GetCurrentVolume()->GetName());
+            if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+//                Info("GetCurrentDetector","Setting active layer matrix to current matrix:");
+//                GetCurrentMatrix()->Print();
+                det->SetActiveLayerMatrix(GetCurrentMatrix());
+                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
             }
         }
     }
@@ -239,7 +296,12 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     // 6.) The name of the KVDetector object created and added to the array will be taken
     //     from the unique full path of the node corresponding to the geometrical positioning
     //     of the detector, see KVGeoNavigator::ExtractDetectorNameFromPath
+    //
+    // 7.) The 'type' of the detector will be set to the name of the material
+    //     in the detector's active layer i.e. if active layer material name is "Si",
+    //     detector type will be 'Si'
 
+//    Info("BuildDetector","%s",det_name.Data());
 
     KVDetector* d = new KVDetector;
     d->SetName(det_name);
@@ -252,6 +314,9 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     }
     else
         AddLayer(d, det_vol);
+    TString type = d->GetActiveLayer()->GetName();
+    //type.ToUpper();
+    d->SetType( type );
     return d;
 }
 

@@ -48,6 +48,7 @@ class TGraph;
 class KVDetector:public KVMaterial, public KVPosition {
 
 private:
+    KVPosition fEWPosition;//position of entrance window
     KVUniqueNameList fParentStrucList;//list of geometry structures which directly contain this detector
     KVGeoDetectorNode fNode;//positioning information relative to other detectors
     static Int_t fDetCounter;
@@ -65,6 +66,13 @@ private:
 
     Int_t fIdentP;               //! temporary counters, determine state of identified/unidentified particle flags
     Int_t fUnidentP;             //! temporary counters, determine state of identified/unidentified particle flags
+
+    /* make KVPosition methods private to avoid misuse */
+    Bool_t ROOTGeo() const { return KVPosition::ROOTGeo(); }
+    void SetMatrix(const TGeoHMatrix*m) { KVPosition::SetMatrix(m); }
+    void SetShape(TGeoBBox*s) { KVPosition::SetShape(s); }
+    TGeoHMatrix* GetMatrix() const { return KVPosition::GetMatrix(); }
+    TGeoBBox* GetShape() const { return KVPosition::GetShape(); }
 
 protected:
 
@@ -244,7 +252,7 @@ public:
     };
 
     inline UShort_t GetSegment() const;
-    inline void SetSegment(UShort_t s);
+    inline virtual void SetSegment(UShort_t s);
     Bool_t IsAnalysed() {
         return TestBit(kIsAnalysed);
     };
@@ -392,6 +400,23 @@ public:
     void AddParentStructure(KVGeoStrucElement*elem);
     void RemoveParentStructure(KVGeoStrucElement*elem);
     KVGeoStrucElement* GetParentStructure(const Char_t* type, const Char_t* name="") const;
+
+    //virtual KVGeoDNTrajectory* GetTrajectoryForReconstruction();
+
+    void SetActiveLayerMatrix(const TGeoHMatrix*);
+    void SetActiveLayerShape(TGeoBBox*);
+    TGeoHMatrix* GetActiveLayerMatrix() const;
+    TGeoBBox* GetActiveLayerShape() const;
+    void SetEntranceWindowMatrix(const TGeoHMatrix*);
+    void SetEntranceWindowShape(TGeoBBox*);
+    TGeoHMatrix* GetEntranceWindowMatrix() const;
+    TGeoBBox* GetEntranceWindowShape() const;
+    TVector3 GetRandomPointOnEntranceWindow() const;
+    TVector3 GetCentreOfEntranceWindow() const;
+    const KVPosition& GetEntranceWindow() const
+    {
+        return fEWPosition;
+    }
 
     ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };

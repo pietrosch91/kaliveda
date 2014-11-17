@@ -148,6 +148,6 @@ KVKeyHandler::~KVKeyHandler()
 Bool_t KVKeyHandler::HandleKey(Event_t *event)
 {
    // Handle keys   
-   if(fCanvas) fCanvas->HandleKey(event);
+//   if(fCanvas) fCanvas->HandleKey(event);
    return kTRUE;
 }

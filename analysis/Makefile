@@ -11,7 +11,30 @@
 #                                                                        #
 ###########################################
 
+ifeq (,$(wildcard $(ROOT_MAKEFILE_PATH)/Makefile.arch))
+SrcSuf        = cxx
+ObjSuf        = o
+ExeSuf        =
+DllSuf        = so
+OutPutOpt     = -o # keep whitespace after "-o"
+RC           := root-config
+ROOTCFLAGS   := $(shell $(RC) --cflags)
+ROOTLDFLAGS  := $(shell $(RC) --ldflags)
+ROOTLIBS     := $(shell $(RC) --libs)
+ROOTGLIBS    := $(shell $(RC) --glibs)
+OPT2          = -O2
+CXX           = g++
+CXXFLAGS      = $(OPT2) -Wall -fPIC
+LD            = g++
+LDFLAGS       = $(OPT2)
+SOFLAGS       = -shared
+CXXFLAGS     += $(ROOTCFLAGS)
+LDFLAGS      += $(ROOTLDFLAGS)
+LIBS          = $(ROOTLIBS) $(SYSLIBS)
+GLIBS         = $(ROOTGLIBS) $(SYSLIBS)
+else
 include $(ROOT_MAKEFILE_PATH)/Makefile.arch
+endif
 
 #set the option of the cp command
 ifeq ($(PLATFORM),linux)
@@ -112,6 +135,14 @@ ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVDTAN_LIBS += $(XRDPOSIX)
 endif
 
+KVTRANS = kvtreeanalyzer.cxx
+KVTRANO = kvtreeanalyzer.$(ObjSuf)
+KVTRAN  = kvtreeanalyzer$(ExeSuf)
+KVTRAN_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+KVTRAN_LIBS += $(XRDPOSIX)
+endif
+
 KVRSRDS = runsheetreader.cpp
 KVRSRDO = runsheetreader.$(ObjSuf)
 KVRSRD  = KVDataBaseGUI$(ExeSuf)
@@ -131,7 +162,7 @@ endif
 KVGUIS = KaliVedaGUI.cpp
 KVGUIO = KaliVedaGUI.$(ObjSuf)
 KVGUI  = KaliVedaGUI$(ExeSuf)
-KVGUI_LIBS = $(LIBKVINDRA) -L$(ROOTSYS)/lib -lGui
+KVGUI_LIBS = $(LIBKVINDRA) $(LIBKVMULTIDET) -L$(ROOTSYS)/lib -lGui
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVGUI_LIBS += $(XRDPOSIX)
 endif
@@ -144,15 +175,15 @@ ifeq ($(MAKE_GANTAPE_XRD),yes)
 UPDRLT_LIBS += $(XRDPOSIX)
 endif
 
-SCRIPTS = $(UPDRLT) $(KVDTAN) $(ANALOG) $(DELOG) $(KVRSRD) $(KVANAL) $(KVGUI) KVA KaliVeda
+SCRIPTS = $(UPDRLT) $(KVDTAN) $(KVTRAN) $(ANALOG) $(DELOG) $(KVRSRD) $(KVANAL) $(KVGUI) KVA KaliVeda
 
-SOURCES = $(ANALOGS) $(DELOGS) $(KVDTANS) $(KVRSRDS) $(KVANALS) $(KVGUIS) $(UPDRLTS)
+SOURCES = $(ANALOGS) $(DELOGS) $(KVDTANS) $(KVTRANS) $(KVRSRDS) $(KVANALS) $(KVGUIS) $(UPDRLTS)
 PREQ = $(SOURCES:%.cxx=%.d)
 PREREQ = $(PREQ:%.cpp=%.d)
 
 .PHONY: all install clean
 
-all: config $(ANALOG) $(DELOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
+all: config $(ANALOG) $(DELOG) $(KVDTAN) $(KVTRAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
 	$(LD) $(LDFLAGS) $^ $(ANALOG_LIBS) $(LIBS) $(OutPutOpt)$@
@@ -167,6 +198,10 @@ $(DELOG): $(DELOGO)
 
 $(KVDTAN): $(KVDTANO)
 	$(LD) $(LDFLAGS) $^ $(KVDTAN_LIBS) $(LIBS) $(OutPutOpt)$@
+	@echo "$@ done"
+
+$(KVTRAN): $(KVTRANO)
+	$(LD) $(LDFLAGS) $^ $(KVTRAN_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(KVDTANO): $(KVDTANS)
@@ -215,6 +250,7 @@ clean:
 	-rm -f $(ANALOG)
 	-rm -f $(DELOG)
 	-rm -f $(KVDTAN)
+	-rm -f $(KVTRAN)
 	-rm -f $(KVRSRD)
 	-rm -f $(KVANAL)
 	-rm -f $(KVGUI)

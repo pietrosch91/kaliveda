@@ -29,8 +29,8 @@ class KVTensP:public KVVarGlob {
 
  public:
     KVTensP(void);              // constructeur par defaut
-    KVTensP(Char_t * nom);
-    KVTensP(Char_t * nom, const Char_t * frame);
+    KVTensP(const Char_t* nom);
+    KVTensP(const Char_t* nom, const Char_t * frame);
     KVTensP(const KVTensP & a); // constructeur par Copy
 
     virtual ~ KVTensP(void);    // destructeur

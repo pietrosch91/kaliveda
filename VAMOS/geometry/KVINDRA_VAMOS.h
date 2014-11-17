@@ -18,7 +18,7 @@ class KVINDRA_VAMOS : public KVMultiDetArray
 
    void init();
 
-   virtual void Build();
+   virtual void Build(Int_t run=-1);
    virtual void Clear(Option_t *opt = "" );
    virtual KVNameValueList* DetectParticle(KVNucleus * part);
    virtual void	GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);

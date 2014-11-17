@@ -309,16 +309,18 @@ KVNucleus::KVNucleus(Int_t z, Int_t a, Double_t ekin)
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(const Char_t * symbol)
+KVNucleus::KVNucleus(const Char_t * symbol,Double_t EperA)
 {
    //Create a nucleus defined by symbol e.g. "12C", "34Mg", "42Si" etc. etc.
+	//the second argument is the kinetic energy per nucleon (E/A) in MeV/A unit
 
    init();
    Set(symbol);
+	SetKE(EperA*GetA());
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(Int_t z, Float_t t, TVector3 & p)
+KVNucleus::KVNucleus(Int_t z, Double_t t, TVector3 & p)
 {
 
 //Create nucleus with given Z, kinetic energy t and direction p
@@ -633,6 +635,22 @@ void  KVNucleus::CheckZAndA(Int_t &z, Int_t&a) const
 }
 
 //________________________________________________________________________________________
+void KVNucleus::SetExcitEnergy(Double_t ex)
+{
+	//The excitation energy is added to the mass (M=M+e) and total energy (E=E+e)
+	//No modification of the kinetic energy (Ek=E-M)
+	//linear momentum p is modified
+	
+	Double_t etot = E()-fExx;
+	
+	Double_t newp = TMath::Sqrt(GetKE()*(etot+GetMassGS()+2.*ex));
+	TVector3 unit = GetMomentum().Unit();
+	unit *= newp;
+	SetXYZM(unit.X(), unit.Y(), unit.Z(), GetMassGS()+ex);
+	fExx = ex;
+}
+
+//________________________________________________________________________________________
 
 Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a) const
 {
@@ -770,7 +788,7 @@ Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a,Int_t rct) const
 	// required nucleus.	
 	
 	CheckZAndA(z,a);
-	Double_t R;
+	Double_t R = 0;
 	Double_t A = Double_t(a);
    
 	Double_t rLD=0.9542; //for kLDModel
@@ -911,12 +929,13 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
 {
 
 	if (zz==-1) zz=GetZ();	
-	KVNumberList nla; nla.SetMinMax(zz,4*zz);
+	KVNumberList nla; 
+	nla.SetMinMax(TMath::Max(zz,1),4*TMath::Max(zz,1));
 	KVNumberList nlb;
 	nla.Begin();
 	while (!nla.End()){
 		Int_t aa = nla.Next();
-                if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
+		if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
 	}
 	return nlb;
 }
@@ -984,7 +1003,7 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    KVNucleus CN(ztot,atot);
 	
 	Double_t etot = lhs.E() + rhs.E();
-   TVector3 ptot = lhs.Vect() + rhs.Vect();
+   TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
     //Calcul de la masse du noyau compose
     //celle ci inclut une eventuelle energie d'excitation
 	
@@ -998,7 +1017,8 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
  	}
 	
-	CN.SetVect(ptot);
+	//CN.SetVect(ptot);
+	CN.SetMomentum(ptot);
 	CN.SetExcitEnergy(Excn);
 	
 	return CN;
@@ -1043,7 +1063,8 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
 			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
  		}
 		
-		RES.SetVect(pres);
+		//RES.SetVect(pres);
+		RES.SetMomentum(pres);
 		RES.SetExcitEnergy(Exres);
 	
 		return RES;

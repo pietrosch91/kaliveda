@@ -191,13 +191,8 @@ void KVSelector::Init(TTree * tree)
 {
        if(fChain) return;//Init has already been called
 
-       if(gBatchSystem){//delete any status file from previous job with same name from $HOME directory
-          TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
-          gSystem->ExpandPathName(stats);
-          gSystem->Unlink(stats);
-          stats+=".bak";
-          gSystem->Unlink(stats);
-       }
+    //delete any status file from previous job with same name from launch directory
+    gDataAnalyser->DeleteBatchStatusFile();
 
     if(!tree) return;
        
@@ -349,31 +344,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    fTreeEntry = entry;
 
-   if (!(totentry % 5000) && totentry){
-      cout << " +++ " << totentry << " events processed +++ " << endl;
-      ProcInfo_t pid;
-      if(gSystem->GetProcInfo(&pid)==0){
-         TString du = gSystem->GetFromPipe("du -hs");
-         TObjArray* toks = du.Tokenize("\t");
-         TString disk = ((TObjString*)toks->At(0))->String();
-         delete toks;
-         cout <<"     ------------- Process infos -------------" << endl;
-         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
-            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
-         // write in TEnv file in $HOME with name [jobname].status
-         // the number of events to read, number of events read, and disk used
-         if(gBatchSystem){
-            TEnv stats(Form("%s.status", gBatchSystem->GetJobName()));
-            stats.SetValue("TotalEvents", (Int_t)((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetTotalEntriesToRead());
-            stats.SetValue("EventsRead", totentry);
-            disk.Remove(TString::kTrailing, '\t');
-            disk.Remove(TString::kTrailing, ' ');
-            disk.Remove(TString::kTrailing, '\t');
-            stats.SetValue("DiskUsed", disk.Data());
-            stats.SaveLevel(kEnvUser);
-         }
-      }
-   }   
+   if(gDataAnalyser->CheckStatusUpdateInterval(totentry)) gDataAnalyser->DoStatusUpdate(totentry);
    
    // read event
    fChain->GetTree()->GetEntry(fTreeEntry);
@@ -483,13 +454,8 @@ void KVSelector::Terminate()
    EndAnalysis();               //user end of analysis routine
 	gDataAnalyser->postEndAnalysis();
 
-    if(gBatchSystem){//delete job status file from $HOME directory
-       TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
-       gSystem->ExpandPathName(stats);
-       gSystem->Unlink(stats);
-       stats+=".bak";
-       gSystem->Unlink(stats);
-    }
+    //delete job status file from $HOME directory
+    gDataAnalyser->DeleteBatchStatusFile();
 }
 
 void KVSelector::Make(const Char_t * kvsname)
@@ -630,36 +596,7 @@ void KVSelector::RecalculateGlobalVariables()
    //
    //which will be used for the next event read for processing.
 
-   if (gvlist) {
-      // 1st step: Reset global variables
-      gvlist->Reset();
-
-      //2nd step: loop over particles with correct codes
-      //          and fill global variables
-      KVINDRAReconNuc *n1 = 0;
-      // calculate 1-body variables
-      if( gvlist->Has1BodyVariables() ){
-         while ((n1 = GetEvent()->GetNextParticle("ok"))) {
-            gvlist->Fill(n1);
-         }
-      }
-      KVINDRAReconNuc *n2 = 0;
-      // calculate 2-body variables
-      // we use every pair of particles (including identical pairs) in the event
-      if( gvlist->Has2BodyVariables() ){
-         Int_t N = GetEvent()->GetMult();
-         for( int i1 = 1; i1 <= N ; i1++ ){
-            for( int i2 = 1 ; i2 <= N ; i2++ ){
-               n1 = GetEvent()->GetParticle(i1);
-               n2 = GetEvent()->GetParticle(i2);
-               if( n1->IsOK() && n2->IsOK() )
-                  gvlist->Fill2(n1,n2);
-            }
-         }
-      }
-      // calculate N-body variables
-      if( gvlist->HasNBodyVariables() ) gvlist->FillN( GetEvent() );
-   }
+   if (gvlist) gvlist->CalculateGlobalVariables(GetEvent());
 }
 
 //____________________________________________________________________________

@@ -78,17 +78,24 @@ KVCsI::KVCsI(Float_t thick, Float_t thickAl):KVINDRADetector("CsI", thick)
     //Set type of detector to "CSI"
     //By default 'thick'=0
 
-    KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
-    fAbsorbers->AddFirst(mat);
-    SetActiveLayer(1);
-
+    if(thickAl>0.0){
+        KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
+        fAbsorbers->AddFirst(mat);
+        SetActiveLayer(1);
+    }
     SetType("CSI");
     init();
 }
 
 void KVCsI::SetAlThickness(Float_t thickAl /* um */)
 {
- GetAbsorber(0)->SetThickness(thickAl*KVUnits::um);
+KVMaterial* mat = 0;
+  if(!(mat = GetAbsorber("Al"))){
+      mat = new KVMaterial("Al",thickAl*KVUnits::um);
+      fAbsorbers->AddFirst(mat);
+      SetActiveLayer(1);
+  }
+  else mat->SetThickness(thickAl*KVUnits::um);
 }
 
 //____________________________________________________________________________________________
@@ -498,6 +505,28 @@ Double_t KVCsI::GetLightFromEnergy(Int_t Z, Int_t A, Double_t E)
       Double_t lum = calib->Invert(E);
 
       return lum;
+   }
+   return -1.;
+}
+
+//__________________________________________________________________________________________//
+
+Double_t KVCsI::GetEnergyFromLight(Int_t Z, Int_t A, Double_t lum)
+{
+   //Calculate energy from a given Z and A and light output (lum)
+	//Returns -1 in case of problems (no calibration available)
+	//This method assumes that the particle is stopped in CsI
+	
+   KVLightEnergyCsI* calib = 0;
+
+   if( Z==1 && fCalZ1 ) calib = fCalZ1;
+   else calib = fCal;
+
+   if( calib && calib->GetStatus() ){
+      calib->SetZ(Z);
+      calib->SetA(A);
+      Double_t E = calib->Compute(lum);
+		return E;
    }
    return -1.;
 }

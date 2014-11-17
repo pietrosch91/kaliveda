@@ -8,12 +8,13 @@
 #include "TVector3.h"
 #include "TClonesArray.h"
 #include <KVNameValueList.h>
+#include <TGeoMatrix.h>
 class KVNucleus;
 class KVEvent;
 class TGeoManager;
 class TGeoVolume;
 class TGeoNode;
-class TGeoHMatrix;
+class TEnv;
 
 class KVGeoNavigator : public KVBase
 {
@@ -22,7 +23,7 @@ private:
     TGeoVolume* fCurrentVolume;//current volume
     TGeoNode* fCurrentNode;//current node
     TGeoNode* fCurrentDetectorNode;//node for current detector
-    TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
+    TGeoHMatrix fCurrentMatrix;//current global transformation matrix
     TString fCurrentPath;//current full path to physical node
     TClonesArray fCurrentStructures;//list of current structures deduced from path
     Int_t fCurStrucNumber;//number of current parent structures
@@ -34,6 +35,7 @@ private:
 protected:
     KVNameValueList fStrucNameFmt;//list of user-defined formats for structure names
     KVString fDetNameFmt;//user-defined format for detector names
+    TEnv* fDetStrucNameCorrespList;//list(s) of correspondance for renaming structures/detectors
     void FormatStructureName(const Char_t* type, Int_t number, KVString& name);
     void FormatDetectorName(const Char_t* basename, KVString& name);
 
@@ -44,15 +46,18 @@ public:
     void SetStructureNameFormat(const Char_t* type, const Char_t* fmt);
     void SetDetectorNameFormat(const Char_t* fmt) { fDetNameFmt=fmt; }
     const Char_t* GetDetectorNameFormat() const { return fDetNameFmt.Data(); }
+    void SetNameCorrespondanceList(const Char_t*);
+    void SetNameCorrespondanceList(const TEnv*);
+    Bool_t GetNameCorrespondance(const Char_t*, TString&);
 
     void PropagateEvent(KVEvent*, TVector3 *TheOrigin=0);
-    void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);
+    virtual void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);
     virtual void ParticleEntersNewVolume(KVNucleus *);
 
     TGeoManager* GetGeometry() const { return fGeometry; }
     TGeoVolume* GetCurrentVolume() const { return fCurrentVolume; }
     TGeoNode* GetCurrentNode() const { return fCurrentNode; }
-    TGeoHMatrix* GetCurrentMatrix() const;
+    const TGeoHMatrix* GetCurrentMatrix() const;
     Double_t GetStepSize() const { return fStepSize; }
     const TVector3& GetEntryPoint() const { return fEntryPoint; }
     const TVector3& GetExitPoint() const { return fExitPoint; }

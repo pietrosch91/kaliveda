@@ -56,19 +56,21 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun * kvrun)
         KVDBParameterSet *dbps = (KVDBParameterSet *) gain_list->At(i);
         kvd = gIndra->GetDetector(dbps->GetName());
 		  if(!kvd){
-			  Error("SetGains",
-					  "Detector %s is unknown or does not exist at the current time...???",
-					  dbps->GetName());
+			  //Error("SetGains",
+			//		  "Detector %s is unknown or does not exist at the current time...???",
+				//	  dbps->GetName());
 			  continue;
 		  }
-        oldgain = kvd->GetGain();
-		  if ( oldgain != dbps->GetParameter(0) ){
+        else{
+		  	oldgain = kvd->GetGain();
+		  	if ( oldgain != dbps->GetParameter(0) ){
 		  	  kvd->SetGain(dbps->GetParameter(0));
            //cout << "            " << kvd->GetName() << " set gain from " << oldgain << " to G=" << kvd->GetGain() << endl;
 		  	  list += kvd->GetName();
 			  list += ",";
 			  nchange += 1;
 		  }
+		 } 
 	}
 	if (nchange==0)
 		Info("SetGains","Gains of the %d detectors are the same than the run before ",ndets);
@@ -101,16 +103,19 @@ void KVINDRAUpDater_e613::SetPedestals(KVDBRun * kvrun)
 	{
 		dbps = (KVDBParameterSet *) ped_list->At(i);
 		acq = gIndra->GetACQParam(dbps->GetName());
-		if (!acq)
-			Error("SetPedestals","ACQ Parameter not defined %s",dbps->GetName());
-		oldped = acq->GetPedestal();
-		if ( oldped != Float_t(dbps->GetParameter(0)) ){
-			acq->SetPedestal(Float_t(dbps->GetParameter(0)));
-		   
-			list += acq->GetName();
-		   list += ",";
-		   nchange += 1;
+		if (!acq){
+			//Error("SetPedestals","ACQ Parameter not defined %s",dbps->GetName());
 		}
+		else{
+			oldped = acq->GetPedestal();
+			if ( oldped != Float_t(dbps->GetParameter(0)) ){
+				acq->SetPedestal(Float_t(dbps->GetParameter(0)));
+		   
+				list += acq->GetName();
+		   	list += ",";
+		   	nchange += 1;
+			}
+		}	
 	}
 	if (nchange==0)
 		Info("SetGains","Pedestals of the %d acquisition parameters are the same than the run before ",ndets);
@@ -144,10 +149,11 @@ void KVINDRAUpDater_e613::SetChVoltParameters(KVDBRun * kvrun)
         str = kvps->GetName();
         str.Remove(str.Sizeof() - 4, 3);  //Removing 3 last letters (ex : "_PG")
         kvd = gIndra->GetDetector(str.Data());
-        if (!kvd)
-            Warning("SetChVoltParameters(UInt_t)", "Dectector %s not found !",
-                    str.Data());
-        else                      // detector found
+        if (!kvd){
+        //    Warning("SetChVoltParameters(UInt_t)", "Dectector %s not found !",
+        //            str.Data());
+        }
+		  else                      // detector found
         {
             kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());
             if (!kvc)

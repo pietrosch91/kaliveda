@@ -125,6 +125,7 @@ endif
 
 export KV_BUILD_DATE = $(shell date +%F)
 export KV_BUILD_TIME = $(shell date +%T)
+export KV_ROOT_VERSION = $(shell root-config --version)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
@@ -142,11 +143,8 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
-
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
-
-doc : html byebye
+.PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) FAZIA install analysis byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -172,7 +170,8 @@ KVVersion.h : VERSION $(DATE_RECORD_FILE)
 	echo '#define KV_BUILD_TIME "$(KV_BUILD_TIME)"' >> $@;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> $@;\
 	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@;\
-	echo '#define KV_MAKEFLAGS "$(MAKEFLAGS)"' >> $@
+	echo '#define KV_MAKEFLAGS "$(MAKEFLAGS)"' >> $@;\
+	echo '#define KV_ROOT_VERSION "$(KV_ROOT_VERSION)"' >> $@
 
 $(DATE_RECORD_FILE) :
 	@if test ! -f $@; then \
@@ -215,9 +214,9 @@ analysis : .init
 VAMOS : .init
 	cd VAMOS && $(MAKE)
 
-html :
-	cd html && $(MAKE) install_html debug=$(debug)
-		
+FAZIA : .init
+	cd FAZIA && $(MAKE)
+
 cleangantape :
 	cd GanTape && rm -rf i386-linux_*
 	
@@ -232,8 +231,8 @@ ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
 	cd VAMOS && $(MAKE) clean
+	cd FAZIA && $(MAKE) clean
 	cd analysis && $(MAKE) clean
-	cd html && $(MAKE) clean
 
 distclean : clean
 	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root
@@ -249,10 +248,10 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
+	cd FAZIA && $(MAKE) install
 	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
-	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst
@@ -290,9 +289,13 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.root2
-	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+ifeq ($(GROUP),fazia)
+	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/ccali-fazia.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
-	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+endif
+else
+	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 endif
 	
 uninstall :
@@ -307,10 +310,12 @@ endif
 	cd KVIndra && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
 	cd VAMOS && $(MAKE) uninstall
+	cd FAZIA && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
+	cd FAZIA && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
 dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
@@ -318,14 +323,14 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
+	tar -czf libFAZIA-$(VERSION_NUMBER).tgz FAZIA
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
-	tar -czf html-$(VERSION_NUMBER).tgz html
 	-mkdir $(KV_DIST)
 	-cp libKV*.tgz $(KV_DIST)/
 	-cp fitltg-0.1/fitltg-0.1.tar.gz $(KV_DIST)/
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
+	-cp libFAZIA-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
-	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
 	-cp -r tools $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
@@ -337,7 +342,6 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-rm -Rf $(KV_DIST)
 	-rm -Rf lib*.tgz
 	-rm -f analysis-$(VERSION_NUMBER).tgz
-	-rm -f html-$(VERSION_NUMBER).tgz
 	
 unpack :
 	@echo Unpacking compressed archives
@@ -345,14 +349,14 @@ unpack :
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
+	-tar zxf libFAZIA-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
-	-tar zxf html-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
+	-rm libFAZIA-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
-	-rm html-$(VERSION_NUMBER).tgz
 	
 config :
 	@echo "--------------------------------------------------------------------------------"
@@ -383,3 +387,30 @@ byebye :
 #	  BASENAME=`basename $h`; \
 #	  test -r $BASENAME || ln -s $h $BASENAME; \
 #	done
+
+qtcreator:
+# fill kaliveda.files with all source files under bzr control
+# fill kaliveda.includes with output of root-config --incdir and all
+#   directories under bzr control
+	@bzr ls -R -V -k file | \egrep '\.h$$|\.cpp$$|\.c$$|\.cxx$$|\.C$$|Makefile' > kaliveda.files
+	@echo '.' > kaliveda.includes
+	@bzr ls -R -V -k directory >> kaliveda.includes
+# to fix a bug in QtCreator 3.0, copy all ROOT headers used by KV sources to local directory
+	@echo '.root-headers' >> kaliveda.includes
+	@mkdir -p .root-headers
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' */*/*.h | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' */*/*.cpp | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' analysis/*.c* | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' */*/*.C | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done

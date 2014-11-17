@@ -101,13 +101,7 @@ Double_t KVLightEnergyCsI::Compute(Double_t light) const
    //
    // This is done by inversion of the light-energy function using TF1::GetX.
 
-   //set parameters of light-energy function
-   Double_t par[6];
-   for (int i = 0; i < 4; i++)
-      par[i] = GetParameter(i);
-   par[4] = (Double_t) fZ;
-   par[5] = (Double_t) fA;
-   fLight.SetParameters(par);
+	SetParametersOfLightEnergyFunction();
    
    //invert light vs. energy function to find energy
    Double_t xmin, xmax; fLight.GetRange(xmin,xmax);
@@ -116,6 +110,16 @@ Double_t KVLightEnergyCsI::Compute(Double_t light) const
    return energy;
 }
 
+void KVLightEnergyCsI::SetParametersOfLightEnergyFunction() const
+{
+   //set parameters of light-energy function
+   Double_t par[6];
+   for (int i = 0; i < 4; i++)
+      par[i] = GetParameter(i);
+   par[4] = (Double_t) fZ;
+   par[5] = (Double_t) fA;
+   fLight.SetParameters(par);
+}
 
 //___________________________________________________________________________
 Double_t KVLightEnergyCsI::operator() (Double_t light) {
@@ -131,13 +135,20 @@ Double_t KVLightEnergyCsI::Invert(Double_t energy)
    //calculate the corresponding total light output according to the
    //calibration parameters (useful for filtering simulations).
 
-   //set parameters of light-energy function
-   Double_t par[6];
-   for (int i = 0; i < 4; i++)
-      par[i] = GetParameter(i);
-   par[4] = (Double_t) fZ;
-   par[5] = (Double_t) fA;
-   fLight.SetParameters(par);
+	SetParametersOfLightEnergyFunction();
 
    return fLight.Eval(energy);
+}
+
+//___________________________________________________________________________
+	
+TF1* KVLightEnergyCsI::GetLightEnergyFunction(UInt_t Z, UInt_t A)
+{
+	// Return pointer to TF1 used to calculate light-energy relationship
+	// for this detector, for given Z & A.
+	// WARNING: the same STATIC TF1 object is used by ALL CsI detectors
+	
+	SetZ(Z); SetA(A);
+	SetParametersOfLightEnergyFunction();
+	return &fLight;
 }

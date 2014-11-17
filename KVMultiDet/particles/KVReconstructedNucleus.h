@@ -173,10 +173,26 @@ public:
 		  else fIDTelName = "";
     };
 
-    virtual void SetIDCode(UShort_t ) {
-    };
-    virtual void SetECode(UChar_t ) {
-    };
+    virtual void SetIDCode(UShort_t s) {
+        // Set value of parameter "IDCODE"
+        GetParameters()->SetValue("IDCODE",(Int_t)s);
+    }
+    virtual Int_t GetIDCode() const
+    {
+        // Return value of parameter "IDCODE"
+        // If no value set, returns -1
+        return GetParameters()->GetIntValue("IDCODE");
+    }
+    virtual void SetECode(UChar_t s) {
+        // Set value of parameter "ECODE"
+        GetParameters()->SetValue("ECODE",(Int_t)s);
+    }
+    virtual Int_t GetECode() const
+    {
+        // Return value of parameter "ECODE"
+        // If no value set, returns -1
+        return GetParameters()->GetIntValue("ECODE");
+    }
 
     void SetIsIdentified()
     {
@@ -267,42 +283,50 @@ public:
         // mass number, A, was measured, not calculated
         return TestBit(kAMeasured);
     };
-KVIdentificationResult* GetIdentificationResult(Int_t i)
-{
-	// Returns the result of the i-th identification attempted for this nucleus.
-	// i=1 : identification telescope in which particle stopped
-	// i=2 : identification telescope immediately in front of the first
-	// etc. etc.
-	if(i && ((i-1)< IDRESULTS_DIM)){
-		fIDresults[i-1].SetNumber(i);
-		return &fIDresults[i-1];
-	}
-	else return 0;
-};
+    KVIdentificationResult* GetIdentificationResult(Int_t i)
+    {
+            // Returns the result of the i-th identification attempted for this nucleus.
+            // i=1 : identification telescope in which particle stopped
+            // i=2 : identification telescope immediately in front of the first
+            // etc. etc.
+            if(i && ((i-1)< IDRESULTS_DIM)){
+                    fIDresults[i-1].SetNumber(i);
+                    return &fIDresults[i-1];
+            }
+            else return NULL;
+    };
 
-KVIdentificationResult* GetIdentificationResult(const Char_t* idtype)
-{
-	// Return pointer to result of attempted identification of given type.
-	// This type is the type of the KVIdentificationTelescope which was used
-	// (i.e. the string returned by KVIdentificationTelescope::GetType()).
-	// Returns NULL if no identification of given type found.
-	
-	for(int i=0; i<IDRESULTS_DIM; i++){
-	    if(!strcmp(fIDresults[i].GetIDType(),idtype)){
-		    fIDresults[i].SetNumber(i+1);
-	        return &fIDresults[i];
-	    }
-	}
-	return 0;
-};
+    KVIdentificationResult* GetIdentificationResult(const Char_t* idtype)
+    {
+            // Return pointer to result of attempted identification of given type.
+            // This type is the type of the KVIdentificationTelescope which was used
+            // (i.e. the string returned by KVIdentificationTelescope::GetType()).
+            // Returns NULL if no identification of given type found.
 
-KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
-{
-	// Return pointer to result of identification attempted with a
-	// KVIdentificationTelescope of the given type.
-	// Returns NULL if no identification of given type found.
-	return GetIdentificationResult(idt->GetType());
-};
+            for(int i=0; i<IDRESULTS_DIM; i++){
+                if(!strcmp(fIDresults[i].GetIDType(),idtype)){
+                        fIDresults[i].SetNumber(i+1);
+                    return &fIDresults[i];
+                }
+            }
+            return NULL;
+    };
+
+    KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
+    {
+            // Return pointer to result of identification attempted with a
+            // KVIdentificationTelescope of the given type.
+            // Returns NULL if no identification of given type found.
+
+       if(!idt) return NULL;
+            return GetIdentificationResult(idt->GetType());
+    };
+    KVIdentificationResult* GetIdentificationResult(Int_t i) const
+    { return const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(i); }
+    KVIdentificationResult* GetIdentificationResult(const Char_t* idtype) const
+    { return const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(idtype); }
+    KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt) const
+    { return const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(idt); }
 
 	virtual void SubtractEnergyFromAllDetectors();
 	

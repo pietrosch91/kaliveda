@@ -69,7 +69,7 @@ class KVSpiderIdentificator : public TNamed
   void Init(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1, Double_t X0=-1, Double_t Y0=-1);
   void Close();
   void Clear(Option_t* option = "");
-  void SetMode(bool sicsi_=true){_sicsi=sicsi_;};
+  void SetMode(bool sicsi_=true){_sicsi=sicsi_;}
   void SetParameters(double bining_=1.);
   
   void SetHistogram(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1);
@@ -88,27 +88,27 @@ class KVSpiderIdentificator : public TNamed
   TList* GetListOfLines();
   KVSpiderLine* GetLine(int z_);
 
-  void SetX0(double x0_){_x0=x0_;};
-  void SetY0(double y0_){_y0=y0_;};
-  void SetXm(double xm_){_xm=xm_;};
-  void SetYm(double ym_){_ym=ym_;};
-  void SetAlpha(double aa_){_alpha=aa_;};
-  void UseFit(bool fit){_useFit=fit;};
+  void SetX0(double x0_){_x0=x0_;}
+  void SetY0(double y0_){_y0=y0_;}
+  void SetXm(double xm_){_xm=xm_;}
+  void SetYm(double ym_){_ym=ym_;}
+  void SetAlpha(double aa_){_alpha=aa_;}
+  void UseFit(bool fit){_useFit=fit;}
 
-  double GetX0(){return _x0;};
-  double GetY0(){return _y0;};
-  double GetXm(){return _xm;};
-  double GetYm(){return _ym;};
-  double GetTheta0(){return _ftheta;};
+  double GetX0(){return _x0;}
+  double GetY0(){return _y0;}
+  double GetXm(){return _xm;}
+  double GetYm(){return _ym;}
+  double GetTheta0(){return _ftheta;}
   void CalculateTheta();
-  void SetNangles(Int_t up, Int_t down){_nAngleUp=up;_nAngleDown=down;};
+  void SetNangles(Int_t up, Int_t down){_nAngleUp=up;_nAngleDown=down;}
   
   void Increment(Float_t x)  // *SIGNAL*
     {
     // Used by SpiderIdentification and KVSpIdGUI to send
     // signals to TGHProgressBar about the progress of the identification
     Emit("Increment(Float_t)", x);
-    };
+    }
 
   protected :
   

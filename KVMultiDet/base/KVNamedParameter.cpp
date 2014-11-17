@@ -106,11 +106,16 @@ void KVNamedParameter::Clear(Option_t*)
 
 const Char_t* KVNamedParameter::GetString() const
 {
-   // returns string if parameter value is of string type
-   // if not, print warning and return empty string
-   if (IsString()) return GetTitle();
-   Warning("GetString", "Parameter %s is of type %s", GetName(), GetTitle());
-   return "";
+   // returns string value 
+	// whatever the type of the parameter
+	
+	if (IsString()) return GetTitle();
+   static TString convert="";
+	if (IsDouble()) 
+		convert.Form("%lf",fNumber);
+	else
+		convert.Form("%d",(Int_t)fNumber);	
+	return convert.Data();
 }
 
 Double_t KVNamedParameter::GetDouble() const

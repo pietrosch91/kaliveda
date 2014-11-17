@@ -22,9 +22,41 @@ ClassImp(KVSimNucleus)
 //___________________________
 KVSimNucleus::KVSimNucleus()
 {
-	//Constructeur par defaut
+	// Default
 }
 	
+//________________________________________________________________
+
+KVSimNucleus::KVSimNucleus(Int_t z, Int_t a, Double_t ekin) : KVNucleus(z, a, ekin)
+{
+   // Z, A, and kinetic energy (MeV)
+	// See KVNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0)
+}
+
+//________________________________________________________________
+
+KVSimNucleus::KVSimNucleus(Int_t z, Double_t t, TVector3& p) : KVNucleus(z, t, p)
+{
+   // Z, kinetic energy (MeV), and unit direction
+	// See KVNucleus(Int_t z, Double_t t, TVector3 & p)
+}
+
+//________________________________________________________________
+
+KVSimNucleus::KVSimNucleus(Int_t z, Int_t a, TVector3 p) : KVNucleus(z, a, p)
+{
+   // Z, A, and momentum (MeV/c)
+	// See KVNucleus(Int_t z, Int_t a, TVector3 p)
+}
+
+//________________________________________________________________
+
+KVSimNucleus::KVSimNucleus(const Char_t* sym) : KVNucleus(sym)
+{
+   // Create a nucleus defined by symbol e.g. "12C", "34Mg", "42Si" etc. etc.
+	// See KVNucleus(const Char_t *)
+}
+
 //___________________________
 KVSimNucleus::~KVSimNucleus()
 {

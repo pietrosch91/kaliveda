@@ -40,6 +40,7 @@ KVHashList::KVHashList(Int_t capacity, Int_t rehash)
    // must be Rehashed
 
    fCollection = new THashList(capacity, rehash);
+	fCollection->SetName(GetName());
 }
 
 KVHashList::~KVHashList()
@@ -59,7 +60,7 @@ Float_t KVHashList::AverageCollisions() const
 void KVHashList::Rehash(Int_t newCapacity)
 {
    // Rehash the hashlist.
-   // These needs to be done in two cases:
+   // This needs to be done in two cases:
    //   1) If the collision rate becomes too high (i.e. the average size of the
    //   linked lists become too long - use AverageCollisions() to check if you
    //   need to rehash.) then lookup efficiency decreases since relatively long

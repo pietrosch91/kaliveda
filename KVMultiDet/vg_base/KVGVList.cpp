@@ -9,6 +9,8 @@
 #include "Riostream.h"
 #include "KVGVList.h"
 
+#include <KVEvent.h>
+
 ClassImp(KVGVList)
 //////////////////////////////////////////////////////////////////////////////////
 //    List of global variables
@@ -166,6 +168,44 @@ void KVGVList::FillN(KVEvent* r)
    }
 }
 
+void KVGVList::CalculateGlobalVariables(KVEvent* e)
+{
+   // This method will calculate all global variables defined in the list for the event 'e'.
+   // - all 1-body variables will be calculated in a single loop over the particles;
+   // - all 2-body variables will be calculated in a single loop over particle pairs;
+   // - all N-body variables will be calculated
+
+   // 1st step: Reset global variables
+   Reset();
+
+   //2nd step: loop over accepted particles
+   //          and fill global variables
+   KVNucleus *n1 = 0;
+   // calculate 1-body variables
+   if( Has1BodyVariables() ){
+      while ((n1 = e->GetNextParticle("ok"))) {
+         Fill(n1);
+      }
+   }
+   KVNucleus *n2 = 0;
+   // calculate 2-body variables
+   // we use every pair of particles (including identical pairs) in the event
+   if( Has2BodyVariables() ){
+      Int_t N = e->GetMult();
+      for( int i1 = 1; i1 <= N ; i1++ ){
+         for( int i2 = 1 ; i2 <= N ; i2++ ){
+            n1 = e->GetParticle(i1);
+            n2 = e->GetParticle(i2);
+            if( n1->IsOK() && n2->IsOK() )
+               Fill2(n1,n2);
+         }
+      }
+   }
+   // calculate N-body variables
+   if( HasNBodyVariables() ) FillN( e );
+
+}
+
 //_________________________________________________________________
 KVVarGlob *KVGVList::GetGV(const Char_t * nom)
 {
@@ -234,42 +274,45 @@ void KVGVList::MakeBranches(TTree* tree)
    // value of the variable (result of GetValue() method).
    // For multi-valued global variables we add a branch for each value with name
    //   GVname.ValueName
+   // Any variable for which KVVarGlob::SetMaxNumBranches(0) was called will not
+   // be added to the TTree.
    
    if(!tree) return;
    if(fNbIBranch>=MAX_CAP_BRANCHES && fNbBranch>=MAX_CAP_BRANCHES) return;
    
-	TIter next(this); TObject*ob;
-   while ((ob = next())) {
-      
-      if(((KVVarGlob*)ob)->GetNumberOfValues()>1){
-      	// multi-valued variable
-      	for(int i=0; i<((KVVarGlob*)ob)->GetNumberOfValues(); i++){
-      		// replace any nasty mathematical symbols which could pose problems
-      		// in names of TTree leaves/branches
-      	   TString sane_name( ((KVVarGlob*)ob)->GetValueName(i) );
-           sane_name.ReplaceAll("*", "star");
-           if(((KVVarGlob*)ob)->GetValueType(i)=='I')
-           {
-               if(fNbIBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fIBranchVar[ fNbIBranch++ ], Form("%s.%s/I", ob->GetName(), sane_name.Data()) );
-           }
-           else
-           {
-                if(fNbBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fBranchVar[ fNbBranch++ ], Form("%s.%s/D", ob->GetName(), sane_name.Data()) );
-           }
-           if(fNbIBranch==MAX_CAP_BRANCHES) break;
-           if(fNbBranch==MAX_CAP_BRANCHES) break;
-        }
-      }
-      else
-      {
-          if(((KVVarGlob*)ob)->GetValueType(0)=='I')
-          {
-             if(fNbIBranch<MAX_CAP_BRANCHES)   tree->Branch( ob->GetName(), &fIBranchVar[ fNbIBranch++ ], Form("%s/I", ob->GetName()));
-          }
-          else
-          {
+   TIter next(this); KVVarGlob*ob;
+   while ((ob = (KVVarGlob*)next())) {
+      if(ob->GetNumberOfBranches()){//skip variables for which KVVarGlob::SetMaxNumBranches(0) was called
+         if(ob->GetNumberOfValues()>1){
+            // multi-valued variable
+            for(int i=0; i<ob->GetNumberOfBranches(); i++){
+               // replace any nasty mathematical symbols which could pose problems
+               // in names of TTree leaves/branches
+               TString sane_name( ob->GetValueName(i) );
+               sane_name.ReplaceAll("*", "star");
+               if(ob->GetValueType(i)=='I')
+               {
+                  if(fNbIBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fIBranchVar[ fNbIBranch++ ], Form("%s.%s/I", ob->GetName(), sane_name.Data()) );
+               }
+               else
+               {
+                  if(fNbBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fBranchVar[ fNbBranch++ ], Form("%s.%s/D", ob->GetName(), sane_name.Data()) );
+               }
+               if(fNbIBranch==MAX_CAP_BRANCHES) break;
+               if(fNbBranch==MAX_CAP_BRANCHES) break;
+            }
+         }
+         else
+         {
+            if(ob->GetValueType(0)=='I')
+            {
+               if(fNbIBranch<MAX_CAP_BRANCHES)   tree->Branch( ob->GetName(), &fIBranchVar[ fNbIBranch++ ], Form("%s/I", ob->GetName()));
+            }
+            else
+            {
                if(fNbBranch<MAX_CAP_BRANCHES)    tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
-          }
+            }
+         }
       }
    }
 }
@@ -290,17 +333,20 @@ void KVGVList::FillBranches()
    int FLT_index=0;
 	TIter next(this); KVVarGlob*ob;
    while ((ob = (KVVarGlob*)next())) {
-            
-      if(ob->GetNumberOfValues()>1){
-      	// multi-valued variable
-        for(int j=0; j<ob->GetNumberOfValues(); j++){
-            if(ob->GetValueType(j)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
-            else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
-      	}
+      if(ob->GetNumberOfBranches()){//skip variables for which KVVarGlob::SetMaxNumBranches(0) was called
+
+         if(ob->GetNumberOfValues()>1){
+            // multi-valued variable
+            for(int j=0; j<ob->GetNumberOfBranches(); j++){
+               if(ob->GetValueType(j)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
+               else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
+            }
+         }
+         else{
+            if(ob->GetValueType(0)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
+            else fBranchVar[ FLT_index++ ] = ob->GetValue();
+         }
+
       }
-      else{
-          if(ob->GetValueType(0)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
-          else fBranchVar[ FLT_index++ ] = ob->GetValue();
-        }
    }
 }

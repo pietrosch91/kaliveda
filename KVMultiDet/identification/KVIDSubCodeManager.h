@@ -13,6 +13,9 @@ class KVIDSubCodeManager {
    UChar_t fNbits;              //number of bits used to store ID routine code de retour
    UChar_t fMSB;                //number of the Most Significant Bit used to store code de retour (LSB = bit 0)
 
+   // OBSOLETE
+   inline virtual Int_t GetIDSubCode(KVIDSubCode & concat) const;
+   virtual const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
  public:
 
@@ -28,8 +31,6 @@ class KVIDSubCodeManager {
    };
 
    inline void SetIDSubCode(KVIDSubCode & concat, UShort_t subcod) const;
-   inline virtual Int_t GetIDSubCode(KVIDSubCode & concat) const;
-   virtual const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
    inline void PrintSCM(Option_t * opt = "") const;
 

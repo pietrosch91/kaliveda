@@ -117,30 +117,6 @@ Double_t KVIDCsI::GetIDMapY(Option_t * opt)
 
 //____________________________________________________________________________________
 
-const Char_t *KVIDCsI::GetIDSubCodeString(KVIDSubCode & concat) const
-{
-   //Returns string explaining subcodes for this telescope
-
-   static TString messages[] = {
-      "ok",
-      "Z ok, mais les masses superieures a A sont possibles",
-      "Z ok, mais les masses inferieures a A sont possibles",
-      "Z ok, mais les masses superieures ou inferieures a A sont possibles",
-      "Z ok, masse hors limite superieure ou egale a A",
-      "Z ok, masse hors limite inferieure ou egale a A",
-      "au-dessus de la ligne fragment, Z est alors un Zmin",
-      "a gauche de la ligne fragment, Z est alors un Zmin et le plus probable",
-      "Z indetermine ou (x,y) hors limites",
-      "pas de lignes pour ce module",
-      "gamma"
-   };
-   Int_t code = GetIDSubCode(concat);
-   if (code == -1)
-      return SubCodeNotSet();
-   return messages[code];
-}
-
-//____________________________________________________________________________________
 
 void KVIDCsI::Initialize()
 {

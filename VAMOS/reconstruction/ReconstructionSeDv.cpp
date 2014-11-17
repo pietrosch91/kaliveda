@@ -150,6 +150,7 @@ void ReconstructionSeDv::Calculate(void)
   Double_t Vec[5],Vecp;
 
   Int_t i,j[10];
+  for (Int_t nn=0;nn<10;nn+=1) j[nn]=0;
   
   Brhot=Thetat=Phit = Patht = 0.00000;
   Vec[0] = 1.000000;

@@ -354,7 +354,9 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
                     // we will only use its coordinate system
       if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
 
+      HandleKey(px,py);
       RunAutoExec();
+
 
       break;
    case kButton1Shift:
@@ -379,7 +381,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       gPad = pad;
       if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
-      
+
       RunAutoExec();
       
       break;
@@ -397,9 +399,9 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 }
 
 //________________________________________________________________
-Bool_t KVIDGridEditorCanvas::HandleKey(Event_t *event)
+Bool_t KVIDGridEditorCanvas::HandleKey(Int_t px, Int_t py)
 {
-  if(gIDGridEditor) gIDGridEditor->HandleKey(event);
+  if(gIDGridEditor) gIDGridEditor->HandleKey(px,py);
   return kTRUE;
 }
 

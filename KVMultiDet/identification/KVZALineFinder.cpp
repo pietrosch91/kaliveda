@@ -362,7 +362,7 @@ void KVZALineFinder::SortLines(TList* Lines)
 
     KVNucleus nuc;
     TMath::Sort(nn, yy, ii, kFALSE);
-    Int_t iMostProb;
+    Int_t iMostProb=0;
     for(int i=0; i<nn; i++){if(ii[i]==0) iMostProb=i;}
     
     Int_t aMostProb =  fAList.at(zz-1);

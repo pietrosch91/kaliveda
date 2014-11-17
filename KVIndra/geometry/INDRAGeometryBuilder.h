@@ -37,7 +37,10 @@ class INDRAGeometryBuilder : public KVBase {
    Int_t fModmax;
    Double_t fRingCentreDistance;
    TGeoTranslation* fDetectorPosition;
-   TGeoTranslation* CorrectCoordinates(Double_t*);
+   TGeoVolumeAssembly* fEtalonVol;
+	Double_t fEtalonTheta[10];
+	Double_t fEtalonPhi[10];
+   void CorrectCoordinates(Double_t*, Double_t&, Double_t&);
 
 public:
    INDRAGeometryBuilder();
@@ -53,9 +56,9 @@ public:
 
    void Print(Option_t* = "") const;
 
-   void MakeFrame();
-   void MakeDetector(const Char_t* det, int ring, int mod, TVector3* som, TVector3 cen);
-   void PlaceFrame(Double_t phi);
+   void MakeFrame(TString det_type, Int_t ring_num);
+   void MakeDetector(const Char_t* det, TVector3* som, TVector3 cen);
+   void PlaceFrame(Double_t phi, Int_t copy_no);
    void PlaceDetector();
    void MakeRing(const Char_t* det, int ring);
    void MakeEtalon(int RING);
@@ -68,6 +71,8 @@ public:
    void TransformToOwnFrame(TVector3* orig, TVector3& centre, TVector3* ownframe);
 
    ClassDef(INDRAGeometryBuilder, 0) //Build INDRA geometry from Huguet CAO infos
+   void BuildEtalonVolumes();
+	Bool_t CheckDetectorPresent(TString detname);
 };
 
 #endif

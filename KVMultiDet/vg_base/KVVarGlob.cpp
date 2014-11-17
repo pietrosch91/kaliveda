@@ -145,7 +145,7 @@ void KVVarGlob::init(void)
    // one-body variable by default
    fType = kOneBody;
    fValueType='D';
-   fMaxNumBranches=0;
+   fMaxNumBranches=-1;
 }
 
 //_________________________________________________________________
@@ -167,7 +167,7 @@ KVVarGlob::KVVarGlob(void):KVBase()
 }
 
 //_________________________________________________________________
-KVVarGlob::KVVarGlob(Char_t * nom):KVBase(nom)
+KVVarGlob::KVVarGlob(const Char_t * nom):KVBase(nom)
 {
 //
 // Constructeur avec un nom

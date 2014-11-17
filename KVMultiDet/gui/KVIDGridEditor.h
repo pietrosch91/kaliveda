@@ -110,7 +110,8 @@ friend class KVIDGridEditorCanvas;
       
    Double_t fSpiderFactor;
    Int_t    fSpiderZp;
-   
+   TString  fSpiderOption;
+
    protected:
    
    Double_t GetX0();
@@ -118,7 +119,7 @@ friend class KVIDGridEditorCanvas;
    Double_t GetPdx();
    Double_t GetPdy();
    
-   Bool_t HandleKey(Event_t *event);   
+   Bool_t HandleKey(Int_t px, Int_t py);
    void MoveHor(Int_t sign);
    void MoveVert(Int_t sign);
    
@@ -218,6 +219,7 @@ friend class KVIDGridEditorCanvas;
    Int_t GetSpiderZp(){return fSpiderZp;}
    Double_t GetSpiderFactor(){return fSpiderFactor;}
    
+   void SetSpiderOption(const char* opt="DRLF"){fSpiderOption=opt;}
    void SpiderIdentification();
    void FindZALines();
    void ChangeMasses(const Char_t* Zl, Int_t dA);

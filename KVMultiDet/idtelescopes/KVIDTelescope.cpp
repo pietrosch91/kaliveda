@@ -1117,6 +1117,11 @@ Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A, Double_
     return idline->Eval(x);
 }
 
+void KVIDTelescope::SetIDCode(KVReconstructedNucleus *n, UShort_t c)
+{
+    n->SetIDCode(c);
+}
+
 //_________________________________________________________________________________________
 
 Bool_t KVIDTelescope::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t EINC)

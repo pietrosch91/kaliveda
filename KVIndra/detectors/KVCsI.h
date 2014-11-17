@@ -58,7 +58,7 @@ class KVCsI:public KVINDRADetector {
 
  public:
     KVCsI();
-    KVCsI(Float_t thick, Float_t thickAl=0. /* um */);
+    KVCsI(Float_t thick, Float_t thickAl=0 /* um */);
     virtual ~ KVCsI();
 
     void SetAlThickness(Float_t thickAl /* um */);
@@ -88,6 +88,7 @@ class KVCsI:public KVINDRADetector {
 
    Double_t GetCorrectedEnergy(KVNucleus *, Double_t lum = -1., Bool_t transmission=kTRUE);
    Double_t GetLightFromEnergy(Int_t Z, Int_t A, Double_t E = -1.);
+   Double_t GetEnergyFromLight(Int_t Z, Int_t A, Double_t lum);
 
 	void SetPinLaser(Int_t n){ if(n>0&&n<255) fPinLaser = (Char_t)n; };
 	Int_t GetPinLaser()

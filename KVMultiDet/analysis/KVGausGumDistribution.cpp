@@ -107,11 +107,11 @@ void KVGausGumDistribution::Paint(Option_t* option)
   
   fGaussComp->SetLineColor(kBlue);
   fGaussComp->SetLineStyle(9);
-  fGaussComp->SetLineWidth(1.2);
+  fGaussComp->SetLineWidth(5);
   fGaussComp->SetNpx(2000);
   
   fGumbelComp->SetLineColor(kRed);
-  fGumbelComp->SetLineWidth(1.2);
+  fGumbelComp->SetLineWidth(5);
   fGumbelComp->SetNpx(2000);
   
   fGaussComp->Paint("same");

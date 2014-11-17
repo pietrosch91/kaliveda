@@ -42,10 +42,10 @@ class KVSpiderLine : public TNamed
   void Sort(bool ascending_=true);
   void SetZ(int z_);
   void SetA(int a_);
-  void SetPower(double pow_){_pow = pow_;};
+  void SetPower(double pow_){_pow = pow_;}
   
-  void SetAcceptedPoints(Int_t n){_nAcceptedPoints = n;};
-  void ResetCounter(){_pointsCounter=0;};
+  void SetAcceptedPoints(Int_t n){_nAcceptedPoints = n;}
+  void ResetCounter(){_pointsCounter=0;}
   
   double GetX(int n_)const;
   double GetX()const;
@@ -60,11 +60,11 @@ class KVSpiderLine : public TNamed
   int GetN()const;
   int GetInterpolateN()const;
   
-  TGraph* GetLine(){return _line;};
-  TGraph* GetInterpolateLine(){return _iline;};
+  TGraph* GetLine(){return _line;}
+  TGraph* GetInterpolateLine(){return _iline;}
   virtual TF1* GetFunction(double min_=-1., double max_=-1.);
-  int GetZ(){return _z;};
-  int GetA(){return _a;};
+  int GetZ(){return _z;}
+  int GetA(){return _a;}
   
   bool GetStatus();
   void SetStatus(bool filled_=true);

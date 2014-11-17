@@ -46,4 +46,9 @@ void KVIDQALine::Copy(TObject& obj) const{
    KVIDQALine& CastedObj = (KVIDQALine&)obj;
    fMarkers->Copy((TObject &) (*CastedObj.GetMarkers()));
 }
+//________________________________________________________________
 
+void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA ){
+
+	// TO BE IMPLEMENTED
+}

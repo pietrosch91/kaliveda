@@ -412,7 +412,7 @@ Int_t KVIDentifier::InsertPoint()
    Int_t py = gPad->GetEventY();
 	
 	Info("InsertPoint","x=%d y=%d",px,py);
-	Int_t ifound;
+	Int_t ifound=-1;
    //while ( gPad->XtoAbsPixel(gPad->XtoPad(fX[ii]))>px && ii<fNpoints-1) ii+=1;
 	//Recherche en pixel absolu
 	//pour trouver le point a partir duquel le TGraph
@@ -564,7 +564,21 @@ Int_t KVIDentifier::AddPointAtTheEnd()
 	return np+1;
 
 }
+//______________________________________________________________________________
+Int_t KVIDentifier::RemoveFirstPoint()
+{
+   // Remove the first point 
+	// The KVIDentifier has to have at least 2 points
+	if(!GetEditable()) return -2;
+	if (fNpoints<2) return -3;
+	
+	RemovePoint(0);
+	gPad->Modified();
+	return fNpoints-1;
 
+}
+
+//______________________________________________________________________________
 Double_t KVIDentifier::GetPID() const
 {
 	if(OnlyZId()) return (Double_t)GetZ();

@@ -9,6 +9,7 @@ $Date: 2009/04/28 09:11:29 $
 
 #include "KVLVEntry.h"
 #include "TInterpreter.h"
+#include "TMethodCall.h"
 #include "TGPicture.h"
 #include "TGResourcePool.h"
 #include "TGTextEntry.h"
@@ -107,7 +108,85 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 	if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
 		gInterpreter->Execute(obj, obj->IsA(), "Connect",
 				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
-	}
+    }
+    
+    fColoured=kFALSE;
+    // objects of classes with a method "const Char_t* GetLVEntryColour()" will be displayed with
+    // the background colour returned by this method (either in hexadecimal format, i.e. "#f0f0f0"
+    // or by name, i.e. "pink")
+    if( obj->IsA()->GetMethodAllAny("GetLVEntryColour") ){
+       
+            TMethodCall mt;
+            mt.InitWithPrototype(obj->IsA(), "GetLVEntryColour","");
+            if (mt.IsValid())
+            {
+                if (mt.ReturnType()==TMethodCall::kString)
+                {
+                    Char_t *ret;
+                    mt.Execute(obj,"",&ret);
+		               if( fClient->GetColorByName(ret, fBGColor) ){
+                        fColoured=kTRUE;
+                     }
+                     else
+                     {
+                        Warning("KVLVEntry", "Unknown color %s requested for entry", ret);
+                     }
+                 }
+                 else
+                 {
+                    Warning("KVLVEntry", "Object of class %s has GetLVEntryColour() method with wrong return type",
+                          obj->ClassName());
+                 }
+             }
+             else
+             {
+                Warning("KVLVEntry", "GetLVEntryColour() method not valid for class %s", obj->ClassName());
+             }
+    }
+}
+
+KVLVEntry::KVLVEntry(TObject *obj, const Char_t *objclass, const KVLVContainer *cnt, UInt_t ncols, KVLVColumnData **coldata)
+    : TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
+    TString(objclass), 0, kVerticalFrame, GetWhitePixel())
+{
+    // Exactly same as default constructor, but class of object used by TGLVEntry is given separately,
+    // not neccessarily the same as obj->ClassName()
+
+     fEditMode=kFALSE;
+     if( !fgGreyPixel ){
+         if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
+         fgBGColor = fgWhitePixel;
+     }
+     fBGColor = -1;
+
+     fUserData = obj;
+     fSubnames = new TGString* [ncols];
+     fBoolean = new Bool_t [ncols];
+     for(int i=0; i<(int)ncols-1; i++){
+         fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
+         fBoolean[i] = coldata[i+1]->IsBoolean();
+     }
+     fSubnames[ncols-1] = 0;
+     fBoolean[ncols-1] = kFALSE;
+     int j;
+    for (j = 0; fSubnames[j] != 0; ++j)
+       ;
+    fCtw = new int[j+1];
+    fCtw[j] = 0;
+    for (int i = 0; fSubnames[i] != 0; ++i)
+       fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
+                                      fSubnames[i]->GetLength());
+    SetWindowName();
+
+     // to update display of object characteristics when object is changed,
+     // the object must have a "Connect" method (for signals-slots) and a "Modified"
+     // method which emits the "Modified" signal when object is changed.
+     // N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
+     // the "Modified" signal is connected to the KVLVEntry::Refresh method
+     if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
+         gInterpreter->Execute(obj, obj->IsA(), "Connect",
+                 Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+     }
 }
 
 void KVLVEntry::Refresh()
@@ -137,15 +216,19 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
 	// This is a line for line copy of TGLVEntry::DrawCopy from ROOT v5.22/00,
 	// but we alternate the background colour between white and light grey, in
 	// order to make the list easier to read.
-	// For columns with fBoolean[i]=kTRUE (set from KVLVColumnData::SetIsBoolean)
+	// 
+   // If fColoured=kTRUE (i.e. if entry has a valid GetLVEntryColor method
+   // which returns a recognised color), the requested background color is used
 
     KVLVContainer *cnt = (KVLVContainer*)GetParent();
-    if((int)fBGColor == -1 || cnt->IsBeingSorted()){
-		fBGColor = fgBGColor;
-		if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
-		else
-			fgBGColor = fgWhitePixel;
-	}
+    if(!fColoured){
+      if((int)fBGColor == -1 || cnt->IsBeingSorted()){
+		   fBGColor = fgBGColor;
+		   if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
+		   else
+			   fgBGColor = fgWhitePixel;
+	   }
+   }
 	
    Int_t ix, iy, lx, ly;
    Int_t max_ascent, max_descent;

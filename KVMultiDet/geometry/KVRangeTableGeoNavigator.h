@@ -19,6 +19,7 @@ class KVRangeTableGeoNavigator : public KVGeoNavigator
    void SetCutOffKEForPropagation(Double_t e) { fCutOffEnergy = e; }
 
    virtual void ParticleEntersNewVolume(KVNucleus *);
+   virtual void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);
 
    ClassDef(KVRangeTableGeoNavigator,0)//Propagate particles through a geometry and calculate their energy losses
 };

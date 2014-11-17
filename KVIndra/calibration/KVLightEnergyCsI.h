@@ -28,6 +28,8 @@ class KVLightEnergyCsI:public KVCalibrator {
 
    static TF1 fLight;           //function parameterising light output as function of (energy, Z, A)
 
+	void SetParametersOfLightEnergyFunction() const;
+	
  public:
     KVLightEnergyCsI();
     KVLightEnergyCsI(KVDetector * kvd);
@@ -51,6 +53,8 @@ class KVLightEnergyCsI:public KVCalibrator {
    UInt_t GetA() const {
       return fA;
    };
+	
+	TF1* GetLightEnergyFunction(UInt_t Z, UInt_t A);
 
    ClassDef(KVLightEnergyCsI, 1)        //Light-energy calibration for CsI detectors
 };

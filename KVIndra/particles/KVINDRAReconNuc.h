@@ -51,16 +51,35 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
     Bool_t fPileupChIo;//apparent pileup in ChIo, revealed by inconsistency between CsI & ChIo-CsI identifications
     Bool_t fPileupSiLi;//apparent pileup in SiLi, revealed by inconsistency between CsI & Si75-SiLi identifications
     Bool_t fPileupSi75;//apparent pileup in Si75, revealed by inconsistency between CsI/SiLi-CsI & ChIo-Si75 identifications
-   Bool_t fIncludeEtalonsInCalibration;//for etalon modules:particle passed through Si75/SiLi
+    Bool_t fIncludeEtalonsInCalibration;//for etalon modules:particle passed through Si75/SiLi
 
-	void CheckCsIEnergy();
-   
+    void CheckCsIEnergy();
+
+    //************** obsolete methods
+    Int_t GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & code) const;
+    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,KVIDSubCode & code) const;
+    //************** obsolete methods
+
+    void SetBadCalibrationStatus()
+    {
+       SetECode(kECode15);
+       SetEnergy(-1.0);
+    }
+    void SetNoCalibrationStatus()
+    {
+       SetECode(kECode0);
+       SetEnergy(0.0);
+    }
+    void DoNeutronCalibration();
+    void DoBeryllium8Calibration();
+    void DoGammaCalibration();
+    Bool_t CalculateSiliconDEFromResidualEnergy();
+    void CalculateSiLiDEFromResidualEnergy(Double_t ERES);
+    void CalculateSi75DEFromResidualEnergy(Double_t ERES);
+    void CalculateChIoDEFromResidualEnergy(Double_t ERES);
+
  public:
 
-   Int_t GetIDSubCode(const Char_t * id_tel_type,
-                       KVIDSubCode & code) const;
-    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
-                                     KVIDSubCode & code) const;
 	Bool_t AreSiCsICoherent() const
 	{
 		// RINGS 1-9
@@ -202,8 +221,27 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    KVINDRACodes & GetCodes() {
       return fCodes;
    }
-   inline virtual void SetIDCode(UShort_t code_mask);
-   inline virtual void SetECode(UChar_t code_mask);
+   virtual void SetIDCode(UShort_t code_mask)
+   {
+      // Sets code for identification
+      GetCodes().SetIDCode(code_mask);
+   }
+
+   virtual void SetECode(UChar_t code_mask)
+   {
+      //Sets code for energy calibration
+      GetCodes().SetECode(code_mask);
+   }
+   virtual Int_t GetIDCode() const
+   {
+       // Returns value of VEDA ID code
+       return const_cast<KVINDRAReconNuc*>(this)->GetCodes().GetVedaIDCode();
+   }
+   virtual Int_t GetECode() const
+   {
+       // Return value of VEDA E code
+       return const_cast<KVINDRAReconNuc*>(this)->GetCodes().GetVedaECode();
+   }
 
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
@@ -215,21 +253,5 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    ClassDef(KVINDRAReconNuc, 12) //Nucleus identified by INDRA array
 };
-
-//____________________________________________________________________________________________//
-
-inline void KVINDRAReconNuc::SetIDCode(UShort_t code_mask)
-{
-   //Sets code for identification
-   GetCodes().SetIDCode(code_mask);
-}
-
-//____________________________________________________________________________________________//
-
-inline void KVINDRAReconNuc::SetECode(UChar_t code_mask)
-{
-   //Sets code for energy calibration
-   GetCodes().SetECode(code_mask);
-}
 
 #endif

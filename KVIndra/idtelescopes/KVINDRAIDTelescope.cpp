@@ -3,6 +3,7 @@
 #include "KVTelescope.h"
 #include <KVINDRATelescope.h>
 #include <KVINDRADetector.h>
+#include <KVINDRACodes.h>
 
 ClassImp(KVINDRAIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -39,8 +40,23 @@ UShort_t KVINDRAIDTelescope::GetMultiHitFirstStageIDCode() {
    // return a general identification code (can be a bitmask) for particles which cannot
     // be identified correctly due to pile-up in a delta-E detector
     // this corresponds to VEDA ID code 8
-   return kIDCode8;
-};
+    return kIDCode8;
+}
+
+void KVINDRAIDTelescope::SetIDCode(KVReconstructedNucleus *n, UShort_t c)
+{
+    // Overrides KVIDTelescope method
+    // If 'n' is not a KVINDRAReconNuc, we use the 'simple' VEDA id codes
+    // i.e. '2' for kIDCode2, '5' for kIDCode5, etc. instead of the bitmasks
+    // used with KVINDRACodes
+
+    if(n->InheritsFrom("KVINDRAReconNuc")) n->SetIDCode(c);
+    else {
+        KVINDRACodes indracode;
+        indracode.SetIDCode(c);
+        n->SetIDCode(indracode.GetVedaIDCode());
+    }
+}
 
 KVINDRAIDTelescope::~KVINDRAIDTelescope()
 {

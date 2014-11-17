@@ -120,8 +120,37 @@ KV2Body::KV2Body():fNuclei(4, 1)
    init();
 }
 
-KV2Body::KV2Body(KVNucleus * proj, KVNucleus * cib, KVNucleus * proj_out, Double_t Ediss):fNuclei(4,
-        1)
+KV2Body::KV2Body(const Char_t* systemname) : fNuclei(4,1)
+{
+	//Set up calculation defining entrance channel following
+   //this prescription  : 
+	//[Projectile_Symbol]+[Target_Symbol]@[Incident_Energy]MeV/A
+   // Example :
+   //	129Xe+119Sn@50.0MeV/A
+	//	U+U@5MeV/A
+	// Ta+Zn
+		init();
+   	KVString sener="";
+   	Double_t  ee=0;
+      KVString syst(systemname);
+      syst.ReplaceAll(" ","");
+      KVString scouple(syst);
+      
+      if (syst.Contains("@")){
+      	syst.Begin("@");
+         scouple = syst.Next();
+         sener = syst.Next();
+      }
+      if (sener!=""){
+      	sener.ReplaceAll("MeV/A",""); 
+         ee = sener.Atof();
+      }
+      scouple.Begin("+");
+      fNuclei[1] = new KVNucleus(scouple.Next(),ee);
+		fNuclei[2] = new KVNucleus(scouple.Next());
+}
+
+KV2Body::KV2Body(KVNucleus * proj, KVNucleus * cib, KVNucleus * proj_out, Double_t Ediss):fNuclei(4,1)
 {
    //Set up calculation defining entrance channel (projectile & target nuclei or
    //single decaying nucleus), exit channel (if necessary, the remaining nucleus of the
@@ -685,8 +714,8 @@ Double_t KV2Body::ELabVsThetaLab(Double_t* x, Double_t* par)
     Double_t e1,e2;
     Int_t nsol = GetELab((Int_t)par[0],x[0],(Int_t)par[0],e1,e2);
     if(!nsol) return 0;
-    if(nsol>1) Warning("ELabVsThetaLab", "Two energies are possible for %f deg. : %f and %f",
-                       x[0],e1,e2);
+    //if(nsol>1) Warning("ELabVsThetaLab", "Two energies are possible for %f deg. : %f and %f",
+    //                   x[0],e1,e2);
     return e1;
 }
 

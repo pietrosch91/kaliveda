@@ -128,6 +128,7 @@ class KVIDentifier : public TCutG
 
 	virtual Int_t         InsertPoint(); // *MENU={Hierarchy="Modify Line.../InsertPoint"}*
 	virtual Int_t         AddPointAtTheEnd(); // *MENU={Hierarchy="Modify Line.../AddPointAtTheEnd"}*
+	virtual Int_t         RemoveFirstPoint(); // *MENU={Hierarchy="Modify Line.../RemoveFirstPoint"}*
 	virtual Int_t 			 ContinueDrawing(); // *MENU={Hierarchy="Modify Line.../ContinueDrawing"}*
 	virtual void 			ChechHierarchy(KVIDentifier* gr);
 	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU={Hierarchy="Modify Line.../RemovePoint"}*

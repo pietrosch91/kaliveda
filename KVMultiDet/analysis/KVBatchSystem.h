@@ -60,6 +60,7 @@ class KVBatchSystem : public KVBase {
    };
 
    virtual void SetDefaultJobOptions(const Char_t * opt) {
+      //fDefOpt.Form(opt,gSystem->GetGroupInfo()->fGroup.Data());
       fDefOpt = opt;
    };
    virtual const Char_t *GetDefaultJobOptions() const {

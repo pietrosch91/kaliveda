@@ -1,4 +1,4 @@
-# Specific environment configuration file for KaliVeda on CCIN2P3 machines
+# Specific environment configuration file for KaliVeda on CCIN2P3 machines (INDRA)
 
 DataRepository: ccali
 ccali.DataRepository.Type: irods

@@ -124,11 +124,16 @@
 #include "KVGumbelDistribution.h"
 #include "KVGausGumDistribution.h"
 
+class KVHistogram;
+
 class KVTreeAnalyzer : public TNamed
 {
+   static KVList* fgAnalyzerList;//! static list of all analyzers in memory
 
+   void init();
+   Bool_t fDeletedByGUIClose;//!
 
-   TTree* fTree;//! the analyzed TTree
+   TTree* fTree;//! the analyzed TTree or TChain
    KVUniqueNameList fSelections;// list of TEntryList user selections
 
    TString fSaveAnalysisFileName;//!
@@ -169,7 +174,8 @@ class KVTreeAnalyzer : public TNamed
    enum {
    		MH_OPEN_FILE,
        MH_SAVE_FILE,
-       MH_SAVE,
+      MH_SAVE,
+      MH_CLOSE,
         MH_QUIT,
        MH_APPLY_ANALYSIS,
        SEL_COMB_AND,
@@ -183,6 +189,7 @@ class KVTreeAnalyzer : public TNamed
    TGMenuBar *fMenuBar;//!
    KVListView* G_histolist;//! GUI list of histograms
    TGPictureButton* G_histo_del;//!
+   TGPictureButton* G_histo_add;//!
    TGCheckButton* G_histo_same;//!
    TGCheckButton* G_histo_app_sel;//!
    TGCheckButton* G_histo_log;//!
@@ -236,6 +243,15 @@ class KVTreeAnalyzer : public TNamed
    
    Bool_t fMethodCalled;//! allows to know if context menu methods are called
 
+   TH1*HistoToAdd1;//!
+   TH1*HistoToAdd2;//!
+   TH1*HistoAddResult;//!
+
+   TString fRelativePathToAnalysisFile;//!
+   void SetRelativePathToAnalysisFile(const Char_t* p) { fRelativePathToAnalysisFile=p; }
+
+   TString fAnalysisSaveDir;//!
+
    void ResetMethodCalled() { fMethodCalled=kFALSE; }
    Bool_t MethodNotCalled() { return !fMethodCalled; }
 
@@ -244,7 +260,7 @@ class KVTreeAnalyzer : public TNamed
    void AddSelection(TEntryList*);
    void ReconnectTree();
    
-   void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
+   void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel, const Char_t* weight="");
    void FillLeafList();
 
    void AnalysisSaveCheck();
@@ -254,21 +270,26 @@ class KVTreeAnalyzer : public TNamed
    KVTreeAnalyzer(Bool_t nogui=kTRUE);
    KVTreeAnalyzer(TTree*,Bool_t nogui=kFALSE);
    virtual ~KVTreeAnalyzer();
+   void DeleteThis() { delete this; }
    
    void Copy(TObject& obj) const;
    
    void SetTree(TTree*t);
    void OpenGUI();
-   TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0);
-   TH1* RemakeHisto(TH1* h, const Char_t* expr);
-   TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax);
+   void GUIClosed();
+   TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0, const Char_t* weight="");
+   TH1* RemakeHisto(TH1* h, const Char_t* expr, const Char_t* weight="");
+   TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax, const Char_t* weight="");
    const KVList* GetHistoList() const { return &fHistolist; }
+   TH1 *GetHistogram(const Char_t* name) const;
    TList* GetHistosByData(const Char_t* expr);
    TList* GetHistosBySelection(const Char_t* expr);
-   void ParseHistoTitle(const Char_t* title, TString& exp, TString& sel);
-   TH1* GetHisto(const Char_t* expr, const Char_t* selection);
-   void DeleteHisto(const Char_t* expr, const Char_t* selection);
+   TH1* GetHisto(const Char_t* expr, const Char_t* selection, const Char_t* weight="");
+   KVHistogram* GetHistoByTitle(const Char_t* title);
+   void DeleteHisto(const Char_t* expr, const Char_t* selection, const Char_t* weight);
    void DeleteSelectedHisto();
+   void AddSelectedHistos();
+   void HistoAddition(Double_t c1 =1, Double_t c2 = 1);
    
    Bool_t MakeSelection(const Char_t* selection);
    void UpdateEntryLists();
@@ -281,6 +302,7 @@ class KVTreeAnalyzer : public TNamed
    void SelectionChanged();
    void SetAlias(const Char_t* name, const Char_t* expr);
    void GenerateAlias();
+   TNamed* GetAlias(const Char_t* expr) { return (TNamed*)fAliasList.FindObjectByType(expr); }
    void ShowSelections() {fSelections.ls();}
    void ShowVariables() {fTree->GetListOfLeaves()->ls();}
    void ShowAliases() {fAliasList.ls();}
@@ -289,6 +311,7 @@ class KVTreeAnalyzer : public TNamed
    Bool_t IsCurrentSelection(const Char_t* sel);
    void SetSelection(TObject*);
    void SetSelection(const Char_t*);
+   TEntryList* GetSelection(const Char_t*);
    
    static KVTreeAnalyzer* OpenFile(const Char_t* filename, Bool_t nogui=kFALSE);
    void ReadFromFile(const Char_t* filename);
@@ -352,11 +375,15 @@ class KVTreeAnalyzer : public TNamed
    // For applying existing analysis to new data
    void GenerateAllSelections(TCollection*);
    void GenerateAllHistograms(TCollection*);
+   void GenerateAllAliases(TCollection* list);
    void HistoFileMenu_Apply();
    void ReapplyAnyFile(const Char_t *filepath);
-
-   ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
    void SetTreeFileName(TTree* t);
+
+   static KVList* GetListOfAnalyzers() { return fgAnalyzerList; }
+   static KVTreeAnalyzer* GetAnalyzer(const Char_t* title) { return (KVTreeAnalyzer*)fgAnalyzerList->FindObjectByTitle(title); }
+
+   ClassDef(KVTreeAnalyzer,4)//KVTreeAnalyzer
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;

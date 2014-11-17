@@ -253,7 +253,7 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
 
       Int_t run_num;
       //is this the correct name of a run in the repository ?
-      Info("Update","%s %d\n",objs->GetName(),IsRunFileName(objs->GetName()));
+      Info("Update","%s %d",objs->GetName(),IsRunFileName(objs->GetName()));
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
@@ -544,8 +544,13 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    Int_t fRunNumber;
    TDatime fDatime;
    TString kvversion, username;
-   KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
-   
+   KVDBTable *runs_table = 0;
+   if (!fDataSet->GetDataBase()){
+   	runs_table = new KVDBTable("Runs");
+   }
+   else{
+   	runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+   }
    while (fRunlist.good()) {
 
      TObjArray *toks = fLine.Tokenize('|');    // split into fields

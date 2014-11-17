@@ -18,6 +18,7 @@ class KVLVEntry : public TGLVEntry
 
 	protected:
     Bool_t fEditMode;
+   Bool_t fColoured;//=kTRUE if object has an associated color
 			
 	static Pixel_t fgBGColor;// current background color for items
 	static Pixel_t fgGreyPixel;// light grey color used to distinguish adjacent list items
@@ -26,8 +27,10 @@ class KVLVEntry : public TGLVEntry
 	Bool_t *fBoolean;//'IsBoolean' attribute of each column
 	
    public:
-   KVLVEntry(TObject* obj, const KVLVContainer *cnt,
-			UInt_t ncols, KVLVColumnData **coldata);
+    KVLVEntry(TObject* obj, const KVLVContainer *cnt,
+             UInt_t ncols, KVLVColumnData **coldata);
+    KVLVEntry(TObject* obj, const Char_t* objclass, const KVLVContainer *cnt,
+             UInt_t ncols, KVLVColumnData **coldata);
    virtual ~KVLVEntry(){
 		delete [] fBoolean;
 	};

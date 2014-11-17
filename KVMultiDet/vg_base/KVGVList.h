@@ -47,7 +47,8 @@ class KVGVList:public KVList {
    
    virtual void Fill(KVNucleus * c); 
    virtual void Fill2(KVNucleus * c1, KVNucleus* c2); 
-   virtual void FillN(KVEvent* e); 
+   virtual void FillN(KVEvent* e);
+    void CalculateGlobalVariables(KVEvent* e);
 
    KVVarGlob *GetGV(const Char_t * nom);        //find global variable with name 'nom'
 

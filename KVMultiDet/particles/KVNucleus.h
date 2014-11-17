@@ -81,9 +81,10 @@ class KVNucleus:public KVParticle {
     KVNucleus(const KVNucleus &);
    virtual void Clear(Option_t * opt = "");
     KVNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0);
-    KVNucleus(Int_t z, Float_t t, TVector3 & p);
+    KVNucleus(Int_t z, Double_t t, TVector3 & p);
     KVNucleus(Int_t z, Int_t a, TVector3 p);
-    KVNucleus(const Char_t *);
+    //KVNucleus(const Char_t *);
+    KVNucleus(const Char_t *,Double_t EperA=0);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
@@ -155,11 +156,8 @@ class KVNucleus:public KVParticle {
       fExx = 0;
 		SetXYZM(Px(), Py(), Pz(), m);
    };
-	void SetExcitEnergy(Double_t e){
-		//Modification of the Mass and the total Energy of the nucleus
-		SetMass(GetMassGS()+e);
-		fExx = e;
-	}
+	void SetExcitEnergy(Double_t e);
+	
    Double_t GetExcitEnergy() const {
       return fExx;
    };
@@ -198,8 +196,8 @@ class KVNucleus:public KVParticle {
 inline void KVNucleus::SetMassFormula(UChar_t mt)
 {
    //Set mass formula used for calculating A from Z for this nucleus
-   fMassFormula = mt;
-   SetA(GetAFromZ(GetZ(), fMassFormula));       //recalculate A and mass
+	fMassFormula = mt;
+	SetA(GetAFromZ(GetZ(), fMassFormula));       //recalculate A and mass
 }
 
 #endif

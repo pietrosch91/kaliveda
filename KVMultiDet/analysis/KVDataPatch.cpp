@@ -69,8 +69,8 @@ void KVDataPatch::Print(Option_t*) const
 {
     // Print infos on patch
 
-    cout << "PATCH NAME : [" << GetName() << "]" << endl;
-    cout << "PATCH TITLE: "<< GetTitle() << endl << endl;
+    std::cout << "PATCH NAME : [" << GetName() << "]" << std::endl;
+    std::cout << "PATCH TITLE: "<< GetTitle() << std::endl << std::endl;
     PrintPatchInfo();
-    cout << endl;
+    std::cout << std::endl;
 }

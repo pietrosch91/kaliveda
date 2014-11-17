@@ -35,6 +35,7 @@
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVNameValueList+;
 #pragma link C++ class KVBase-;//customised streamer
+#pragma link C++ class KVColouredBase+;
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
 #pragma link C++ class KVClassMonitor+;
@@ -68,4 +69,5 @@
 #pragma link C++ class KVSystemFile+;
 #pragma link C++ class KVSystemDirectory+;
 #pragma link C++ class KVEnv+;
+#pragma link C++ class KVHistogram+;
 #endif

@@ -47,8 +47,9 @@ ClassImp(KVSpIdGUI)
 //    // Default constructor
 // }
 
-KVSpIdGUI::KVSpIdGUI(KVIDGraph * g, TH2* data_histo, Double_t xm, Double_t ym, Double_t pdx, Double_t pdy)
+KVSpIdGUI::KVSpIdGUI(KVIDGraph * g, TH2* data_histo, Double_t xm, Double_t ym, Double_t pdx, Double_t pdy, const char* opt)
 {
+   fOption =opt;
    fHisto = data_histo;
    fGrid = g;
    fScaledHisto	=0;
@@ -340,7 +341,7 @@ void KVSpIdGUI::SpiderIdentification()
   fIdentificator->Disconnect("Increment(Float_t)", fProgressBar, "SetPosition(Float_t)");
   fProgressBar->Reset();
   
-  if(fDebug) fIdentificator->Draw("DRLF");
+  if(fDebug) fIdentificator->Draw(fOption.Data());
   
   TList* ll = (TList*)fIdentificator->GetListOfLines();   
    

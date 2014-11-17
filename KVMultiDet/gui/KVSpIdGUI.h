@@ -123,10 +123,11 @@ class KVSpIdGUI
    Double_t fSfy;
    
    Bool_t   fUserParameter;
+   TString  fOption;
       
    public:
    KVSpIdGUI(KVIDGraph * g = 0, TH2* data_histo=0, Double_t xm=-1., 
-   		Double_t ym=-1., Double_t pdx=-1., Double_t pdy=-1.);
+             Double_t ym=-1., Double_t pdx=-1., Double_t pdy=-1., const char* opt="DRLF");
    KVSpIdGUI (const KVSpIdGUI&) ;
    virtual ~KVSpIdGUI();
 
@@ -134,9 +135,9 @@ class KVSpIdGUI
    void CloseWindow();
    void SpiderIdentification();
    
-   void SetDebug(Bool_t deb){fDebug = deb;};
-   void SetUseCut(Bool_t uc){fUseCut = uc;};
-   void SetPiedestal(Bool_t pied){fPiedestal = pied;};
+   void SetDebug(Bool_t deb){fDebug = deb;}
+   void SetUseCut(Bool_t uc){fUseCut = uc;}
+   void SetPiedestal(Bool_t pied){fPiedestal = pied;}
    void SetUserParameter(Bool_t par);
    
    Double_t GetFactor();

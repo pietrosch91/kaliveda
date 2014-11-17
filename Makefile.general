@@ -9,7 +9,31 @@
 # ***********    DO NOT CHANGE ANYTHING THAT FOLLOWS    ****************** #
 #---------------------------------------------------------------------------
 
+ifeq (,$(wildcard $(ROOT_MAKEFILE_PATH)/Makefile.arch))
+ObjSuf        = o
+ExeSuf        =
+DllSuf        = so
+OutPutOpt     = -o # keep whitespace after "-o"
+RC           := root-config
+ROOTCFLAGS   := $(shell $(RC) --cflags)
+ROOTLDFLAGS  := $(shell $(RC) --ldflags)
+ROOTLIBS     := $(shell $(RC) --libs)
+ROOTGLIBS    := $(shell $(RC) --glibs)
+OPT2          = -O2
+CXX           = g++
+CXXFLAGS      = $(OPT2) -Wall -fPIC
+LD            = g++
+LDFLAGS       = $(OPT2)
+SOFLAGS       = -shared
+CXXFLAGS     += $(ROOTCFLAGS)
+LDFLAGS      += $(ROOTLDFLAGS)
+LIBS          = $(ROOTLIBS) $(SYSLIBS)
+GLIBS         = $(ROOTGLIBS) $(SYSLIBS)
+else
 include $(ROOT_MAKEFILE_PATH)/Makefile.arch
+endif
+LDFLAGS += -Wl,--no-as-needed -Wl,--no-undefined
+
 SrcSuf	= cpp
 
 #------------------------------------------------------------------------------
@@ -92,19 +116,19 @@ ifeq ($(PLATFORM),linux)
 ifeq ($(debug),yes)
 CXXFLAGS_NOOPT += -g
 CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT)
-LDFLAGS := $(ROOTLDFLAGS) -g $(OPT)
+LDFLAGS := $(ROOTLDFLAGS) -g $(OPT) -Wl,--no-as-needed -Wl,--no-undefined
 else
 CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT3)
-LDFLAGS := $(ROOTLDFLAGS) $(OPT3)
+LDFLAGS := $(ROOTLDFLAGS) $(OPT3) -Wl,--no-as-needed -Wl,--no-undefined
 endif
 ifeq ($(memcheck),yes)
 CXXFLAGS_NOOPTS += -g -fno-inline
 CXXFLAGS := $(CXXFLAGS_NOOPT)
-LDFLAGS += -g -fno-inline
+LDFLAGS += -g -fno-inline -Wl,--no-as-needed -Wl,--no-undefined
 endif
 ifeq ($(profile),yes)
 CXXFLAGS += -g -pg
-LDFLAGS += -g -pg
+LDFLAGS += -g -pg -Wl,--no-as-needed -Wl,--no-undefined
 endif
 endif
 
@@ -142,12 +166,16 @@ dictionaries:
 	done
 
 rootlibmap :
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_99_00)),1)
 	@cat */*LinkDef.h > tmpLinkDef.h
 	@rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c tmpLinkDef.h
 	@-cp $(MY_ROOTMAP) $(KVINSTALLDIR)/lib/
-ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_99_00)),1)
-# for ROOT v5.99+ we have to copy all the *.pcm (Cling?) files into $KVROOT/lib
+else
+# for ROOT v6 we have to copy all the *.pcm files into $KVROOT/lib
+# in addition, rootlibmap files are generated at the same time as dictionaries
+# and only need to be copied at this point
 	@-cp *.pcm $(KVINSTALLDIR)/lib/
+	@-cp *.rootmap $(KVINSTALLDIR)/lib/
 endif
 
 $(LIB_SO):        $(OBJECTS) $(DICT_OBJECTS)

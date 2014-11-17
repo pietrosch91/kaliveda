@@ -7,4 +7,5 @@
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVPtot;
 #pragma link C++ class KVZVtot;
+#pragma link C++ class KVSource;
 #endif

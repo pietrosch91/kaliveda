@@ -89,3 +89,13 @@ Int_t KVGeoDetectorNode::GetNDetsBehind() const
     // Returns number of detectors directly behind this one
     return (fBehind ? fBehind->GetEntries() : 0);
 }
+
+void KVGeoDetectorNode::RehashLists()
+{
+    // Call this method if detector names change after lists are filled
+    // (they are hash lists, if names of objects change, strange behaviour
+    // will occur: you could put the same object in a list twice)
+
+    if(fInFront) dynamic_cast<KVUniqueNameList*>(fInFront)->Rehash();
+    if(fBehind) dynamic_cast<KVUniqueNameList*>(fBehind)->Rehash();
+}

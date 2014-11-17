@@ -29,6 +29,8 @@ class KVGeoDetectorNode : public KVBase
    Int_t GetNDetsInFront() const;
    Int_t GetNDetsBehind() const;
 
+   void RehashLists();
+
    void ls(Option_t *option="") const;
 
    ClassDef(KVGeoDetectorNode,1)//Stores lists of detectors in front and behind this node

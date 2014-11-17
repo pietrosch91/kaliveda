@@ -98,7 +98,7 @@ void KVWidget::Action(Long_t parm) const
       break;
    case kDB_TABLE_LIST:
       cout << "TABLE LIST: ";
-      ((KVDataBaseBrowser *) GetObject())->FillRecordsList(parm);
+      ((KVDataBaseBrowser *) fObject)->FillRecordsList(parm);
       break;
    case kDB_RECORD_LIST:
       cout << "RECORD LIST: ";

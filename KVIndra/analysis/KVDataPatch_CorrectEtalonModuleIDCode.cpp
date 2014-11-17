@@ -92,12 +92,12 @@ void KVDataPatch_CorrectEtalonModuleIDCode::ApplyToParticle(KVNucleus *n)
 
 void KVDataPatch_CorrectEtalonModuleIDCode::PrintPatchInfo() const
 {
-    cout << "Correct bad attribution of IDCode & calibration of particles stopping" << endl;
-    cout << "in CsI detectors behind etalon telescopes." << endl;
-    cout << "Gammas (IDcode=0) and light charged particles (IDcode=2) were given" << endl;
-    cout << "IDcode=5 due to a bug in v1.8.11 (lp:bug#1271634)" << endl << endl;
-    cout << "The status of the correction can be obtained from parameter" << endl;
-    cout << "KVDataPatch_CorrectEtalonModuleIDCode: " << endl;
-    cout << "   ='correction applied' or 'correction failed'" << endl;
+    std::cout << "Correct bad attribution of IDCode & calibration of particles stopping" << std::endl;
+    std::cout << "in CsI detectors behind etalon telescopes." << std::endl;
+    std::cout << "Gammas (IDcode=0) and light charged particles (IDcode=2) were given" << std::endl;
+    std::cout << "IDcode=5 due to a bug in v1.8.11 (lp:bug#1271634)" << std::endl << std::endl;
+    std::cout << "The status of the correction can be obtained from parameter" << std::endl;
+    std::cout << "KVDataPatch_CorrectEtalonModuleIDCode: " << std::endl;
+    std::cout << "   ='correction applied' or 'correction failed'" << std::endl;
 }
 

@@ -112,6 +112,7 @@ INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
+Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
 
 # The following variable controls the way that particles are reconstructed from raw data
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
@@ -227,6 +228,7 @@ ReconIdent.DataAnalysisTask.Prereq:     recon
 ReconIdent.DataAnalysisTask.Analyser:     INDRAReconData
 ReconIdent.DataAnalysisTask.UserClass:     no
 ReconIdent.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
+ReconIdent.DataAnalysisTask.StatusUpdateInterval:     5000
 
 # By default the file containing identified events will be written in the same data repository
 # as the recon data file from which it is created.
@@ -245,6 +247,7 @@ IdentRoot.DataAnalysisTask.Prereq:     ident
 IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
 IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
+IdentRoot.DataAnalysisTask.StatusUpdateInterval:     10000
 
 +DataAnalysisTask:     ReconRoot
 ReconRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
@@ -252,6 +255,7 @@ ReconRoot.DataAnalysisTask.Prereq:     recon
 ReconRoot.DataAnalysisTask.Analyser:     INDRAReconData
 ReconRoot.DataAnalysisTask.UserClass:     no
 ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+ReconRoot.DataAnalysisTask.StatusUpdateInterval:     5000
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
@@ -259,6 +263,7 @@ ReconAnalysis.DataAnalysisTask.Prereq:     recon
 ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 ReconAnalysis.DataAnalysisTask.UserClass:     yes
 ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     GeneAnalysis
 GeneAnalysis.DataAnalysisTask.Title:     Analysis of gene data (recon)
@@ -273,6 +278,7 @@ IdentAnalysis.DataAnalysisTask.Prereq:     ident
 IdentAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 IdentAnalysis.DataAnalysisTask.UserClass:     yes
 IdentAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+IdentAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     RootAnalysis
 RootAnalysis.DataAnalysisTask.Title:     Analysis of fully calibrated data (root)
@@ -280,6 +286,7 @@ RootAnalysis.DataAnalysisTask.Prereq:     root
 RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+RootAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 #+DataAnalysisTask:     DSTtoROOT
 #DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
@@ -488,29 +495,29 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRA
 #
 # NOTE: the '^' and '$' around each URI are just for the ROOT RegExp interpreter
 #
-Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich         KVIndra         "KVIDPhoswich()"
-+Plugin.KVIDTelescope:   ^CSI$                                      KVIDCsI                  KVIndra          "KVIDCsI()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.CSI$        KVIDCsI_e475s              KVIndra      "KVIDCsI_e475s()"
-+Plugin.KVIDTelescope:    ^SI-CSI$                                KVIDSiCsI              KVIndra           "KVIDSiCsI()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI-CSI$        KVIDSiCsI5              KVIndra      "KVIDSiCsI5()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$   KVIDSi150CsI_camp5        KVIndra        "KVIDSi150CsI_camp5()"
-+Plugin.KVIDTelescope:    ^SILI-CSI$                               KVIDSiLiCsI            KVIndra         "KVIDSiLiCsI()"
-+Plugin.KVIDTelescope:    ^SI75-SILI$                            KVIDSi75SiLi           KVIndra         "KVIDSi75SiLi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$                            KVIDSi75SiLi_camp5           KVIndra         "KVIDSi75SiLi_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SILI-CSI$                            KVIDSiLiCsI_camp5           KVIndra         "KVIDSiLiCsI_camp5()"
-+Plugin.KVIDTelescope:     ^CI-SI$                                  KVIDChIoSi              KVIndra         "KVIDChIoSi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra      "KVIDChIoSi5()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
-+Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
-+Plugin.KVIDTelescope:     ^CI-SILI$                              KVIDChIoSiLi          KVIndra         "KVIDChIoSiLi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$        KVIDChIoSi75_camp5              KVIndra      "KVIDChIoSi75_camp5()"
-+Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
-+Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra         "KVIDChIoCsI_camp5()"
-+Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndra     "KVIDBlocking()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
-+Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
-+Plugin.KVIDTelescope:    ^INDRA_e613.CI-SI$         KVIDChIoSi_e613               KVIndra      "KVIDChIoSi_e613()"
+Plugin.KVIDTelescope:      ^PHOS$                  KVIDPhoswich         KVIndra         "KVIDPhoswich()"
++Plugin.KVIDTelescope:   ^CSI$                     KVIDCsI              KVIndra          "KVIDCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CSI$        KVIDCsI_e475s        KVIndra      "KVIDCsI_e475s()"
++Plugin.KVIDTelescope:    ^SI-CSI$                 KVIDSiCsI            KVIndra           "KVIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI-CSI$     KVIDSiCsI5           KVIndra      "KVIDSiCsI5()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$  KVIDSi150CsI_camp5   KVIndra        "KVIDSi150CsI_camp5()"
++Plugin.KVIDTelescope:    ^SILI-CSI$               KVIDSiLiCsI          KVIndra         "KVIDSiLiCsI()"
++Plugin.KVIDTelescope:    ^SI75-SILI$              KVIDSi75SiLi         KVIndra         "KVIDSi75SiLi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$  KVIDSi75SiLi_camp5   KVIndra         "KVIDSi75SiLi_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SILI-CSI$   KVIDSiLiCsI_camp5    KVIndra         "KVIDSiLiCsI_camp5()"
++Plugin.KVIDTelescope:     ^CI-SI$                 KVIDChIoSi           KVIndra         "KVIDChIoSi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$      KVIDChIoSi5          KVIndra      "KVIDChIoSi5()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$      KVIDChIoSi_e475s     KVIndra      "KVIDChIoSi_e475s()"
++Plugin.KVIDTelescope:     ^CI-SI75$               KVIDChIoSi75         KVIndra         "KVIDChIoSi75()"
++Plugin.KVIDTelescope:     ^CI-SILI$               KVIDChIoSiLi         KVIndra         "KVIDChIoSiLi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$    KVIDChIoSi75_camp5   KVIndra      "KVIDChIoSi75_camp5()"
++Plugin.KVIDTelescope:      ^CI-CSI$               KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
++Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$   KVIDChIoCsI_camp5    KVIndra         "KVIDChIoCsI_camp5()"
++Plugin.KVIDTelescope:      ^BIC-SIB$              KVIDBlocking         KVIndra     "KVIDBlocking()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$     KVIDChIoCsI_e475s    KVIndra      "KVIDChIoCsI_e475s()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$     KVIDSiCsI_e475s      KVIndra      "KVIDSiCsI_e475s()"
++Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$      KVIDSiCsI_e613       KVIndra      "KVIDSiCsI_e613()"
++Plugin.KVIDTelescope:    ^INDRA_e613.CI-SI$       KVIDChIoSi_e613      KVIndra      "KVIDChIoSi_e613()"
 #======================= Identification parameter files for different datasets
 # Format is
 #
@@ -536,7 +543,7 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
-INDRA_e613.IdentificationParameterFile.CI-SI:        CI_SI_e613.dat
+INDRA_e613.IdentificationParameterFile.CI-SI:        ChIo_Si_MeVMeV_e613.dat
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################

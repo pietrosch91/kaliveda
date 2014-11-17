@@ -77,7 +77,7 @@ class KVWidget:public KVBase {
    Long_t GetFunction() const {
       return fFunction;
    };
-   TObject *GetObject() const {
+   TObject *GetObject() {
       return fObject;
    };
    void SetWidget(TGFrame * wid) {

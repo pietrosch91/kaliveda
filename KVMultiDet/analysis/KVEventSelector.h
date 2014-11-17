@@ -204,7 +204,7 @@ public:
 	TH1* GetHisto(const Char_t* name) const;
    TTree* GetTree(const Char_t* name) const;
 
-   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate");
+   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate", Bool_t onlyfilled=kFALSE);
 
    virtual void SetOpt(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptGiven(const Char_t* option);
@@ -238,10 +238,12 @@ void KVEventSelector::Init(TTree *tree)
    if (!tree) return;
    fChain = tree;
    fChain->SetMakeClass(1);
-
-   Info("Init", "Analysing data in branch : %s", GetBranchName());
-   fChain->SetBranchAddress(GetBranchName() , &Event, &b_Event);
-
+	
+	if (strcmp(GetBranchName(),"")  && fChain->GetBranch(GetBranchName()) )
+	{
+   	Info("Init", "Analysing data in branch : %s", GetBranchName());
+   	fChain->SetBranchAddress(GetBranchName() , &Event, &b_Event);
+	}
 	//user additional branches addressing
 	SetAdditionalBranchAddress();
 	fEventsRead=0;

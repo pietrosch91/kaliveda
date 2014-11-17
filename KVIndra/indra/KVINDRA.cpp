@@ -136,14 +136,39 @@ void KVINDRA::BuildGeometry()
    //                 or $KVROOT/KVFiles/data/indra_struct.env
    // if no dataset-specific file found
 
-    TString path = Form("indra-struct.%s.env", fDataSet.Data() );
-    SearchKVFile(path.Data(),path,"data");
-    if(path==""){
+
+	 TString path = Form("indra-struct.%s.env", fDataSet.Data() );
+    TString path2;
+    SearchKVFile(path.Data(),path2,"data");
+    if(path2==""){
        path = "indra-struct.env";
-       SearchKVFile(path.Data(),path,"data");
+       SearchKVFile(path.Data(),path2,"data");
     }
-    fStrucInfos.ReadFile(path, kEnvAll);
+    fStrucInfos.ReadFile(path2, kEnvAll);
     
+	 KVString lruns = fStrucInfos.GetValue("AddOnForRuns","");
+	 //test if additional geometrical specification exists 
+	 if (lruns!=""){
+	 	lruns.Begin(",");
+		while (!lruns.End())
+		{
+	 		KVString sruns = lruns.Next(); 
+			KVNumberList nlr(sruns.Data());
+	 		//the current run needs specific geometry
+			if (nlr.Contains(fCurrentRun)){
+				path = fStrucInfos.GetValue(sruns.Data(),"");
+				Info("BuildGeometry","Additional geometry for run=%d in file #%s#",fCurrentRun,path.Data());
+				SearchKVFile(path.Data(),path2,"data");
+				if(path2==""){
+       			Warning("BuildGeometry","fichier %s inconnu",path.Data());
+				}
+				else{
+					fStrucInfos.ReadFile(path2, kEnvChange);	
+				}
+			}
+	 	}
+	 }
+	 
     SetName(fStrucInfos.GetValue("INDRA.Name", ""));
     SetTitle(fStrucInfos.GetValue("INDRA.Title", ""));
 
@@ -253,14 +278,16 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
 
 //_________________________________________________________________________________________
 
-void KVINDRA::Build()
+void KVINDRA::Build(Int_t run)
 {
     // Overrides KVASMultiDetArray::Build
     // Correspondance between CsI detectors and pin lasers is set up if known.
     // GG to PG conversion factors for Si and ChIo are set if known.
     //Correspondance between Si and ChIo detectors and nunmber of the QDC is made
-
-    BuildGeometry();
+	 if (run!=-1){
+			fCurrentRun = run;
+	 }
+	 BuildGeometry();
 
     MakeListOfDetectors();
 
@@ -280,6 +307,11 @@ void KVINDRA::Build()
     SetPinLasersForCsI();
     SetGGtoPGConversionFactors();
     LinkToCodeurs();
+	 
+	 if (run!=-1){
+	 	gIndra->SetParameters(run);
+	 }
+	 
 }
 
 void KVINDRA::SetArrayACQParams()
@@ -607,7 +639,7 @@ void KVINDRA::LinkToCodeurs()
 	KVFileReader flist;
 	TString fp;
 	if (!KVBase::SearchKVFile(gDataSet->GetDataSetEnv("INDRADB.Codeurs",""), fp, gDataSet->GetName())){
-		Error("LinkToCodeurs","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.Codeurs",""));
+        Warning("LinkToCodeurs","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.Codeurs",""));
 		return;
 	}
 	
@@ -769,46 +801,91 @@ void KVINDRA::SetGGtoPGConversionFactors()
 
 TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bool_t closegeo)
 {   
-   // Overrides KVASMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
-   // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
-   //
-   // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
-   // into which all the detectors of the array are placed. This should be big enough so that all detectors
-   // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
-   // going from -500cm to +500cm on each axis).
+    // Overrides KVASMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
+    // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
+    //
+    // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
+    // into which all the detectors of the array are placed. This should be big enough so that all detectors
+    // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
+    // going from -500cm to +500cm on each axis).
     //
     // If closegeo=kFALSE we leave the geometry open for other structures to be added.
 
-   if (!IsBuilt()) return NULL;
-   INDRAGeometryBuilder igb;
-   // build multidetector, but not the target. energy losses in target are handled
-   // by KVASMultiDetArray::DetectEvent
-   SetGeometry(igb.Build(kFALSE,closegeo));
-   // This is just for the etalon detectors!
-   // They are in structures like:
-   //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
-   // We need the name to be like "SILI_10"
-   GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+    if (!IsBuilt()) return NULL;
 
-   // set up shape & matrix pointers in detectors
-   Info("CreateGeoManager", "Scanning geometry shapes and matrices...");
-   KVGeoImport gimp(fGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
-   gimp.SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
-   KVEvent* evt = new KVEvent();
-   KVNucleus* nuc = evt->AddParticle();
-   nuc->SetZAandE(1,1,1);
-   KVDetector* det;
-   TIter next(GetDetectors());
-   Int_t nrootgeo=0;
-   while( (det = (KVDetector*)next()) ){
-       nuc->SetTheta(det->GetTheta());
-       nuc->SetPhi(det->GetPhi());
-       gimp.SetLastDetector(0);
-       gimp.PropagateEvent(evt);
-       nrootgeo+=(det->GetShape()&&det->GetMatrix());
-   }
-   Info("CreateGeoManager", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
-   return fGeoManager;
+    if(!gGeoManager){
+        INDRAGeometryBuilder igb;
+        // build multidetector, but not the target. energy losses in target are handled
+        // by KVASMultiDetArray::DetectEvent
+        SetGeometry(igb.Build(kFALSE,closegeo));
+    }
+    else
+        SetGeometry(gGeoManager);
+
+    GetNavigator()->SetNameCorrespondanceList("INDRA.names");
+
+    // set up shape & matrix pointers in detectors
+    Info("CreateGeoManager", "Scanning geometry shapes and matrices...");
+    KVGeoImport gimp(fGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
+    gimp.SetNameCorrespondanceList("INDRA.names");
+    KVEvent* evt = new KVEvent();
+    KVNucleus* nuc = evt->AddParticle();
+    nuc->SetZAandE(1,1,1);
+    KVDetector* det;
+    TIter next(GetDetectors());
+    Int_t nrootgeo=0;
+    while( (det = (KVDetector*)next()) ){
+        nuc->SetTheta(det->GetTheta());
+        nuc->SetPhi(det->GetPhi());
+        gimp.SetLastDetector(0);
+        gimp.PropagateEvent(evt);
+        if(!(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix())){
+            Info("CreateGeoManager","Volume checking for %s",det->GetName());
+            Double_t theta0=det->GetTheta();
+            Double_t phi0=det->GetPhi();
+            for(Double_t TH=theta0-0.5;TH<=theta0+0.5;TH+=0.1){
+                for(Double_t PH=phi0-10;PH<=phi0+10;PH+=1){
+                    nuc->SetTheta(TH);
+                    nuc->SetPhi(PH);
+                    gimp.SetLastDetector(0);
+                    gimp.PropagateEvent(evt);
+                    if(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix()) break;
+                }
+                if(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix()) break;
+            }
+        }
+        if(!(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix())){
+           Info("CreateGeoManager","Volume checking failed for : %s", det->GetName());
+        }
+        // check etalon trajectories
+        if(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix()
+                &&(det->IsCalled("CSI_1002")||det->IsCalled("CSI_1102")
+                   ||det->IsCalled("CSI_1202")||det->IsCalled("CSI_1304")
+                   ||det->IsCalled("CSI_1403")||det->IsCalled("CSI_1503")
+                   ||det->IsCalled("CSI_1602")||det->IsCalled("CSI_1702"))
+                &&det->GetNode()->GetNDetsInFront()<2){
+            Info("CreateGeoManager","Trajectory checking for %s",det->GetName());
+            Double_t theta0=det->GetTheta();
+            Double_t phi0=det->GetPhi();
+            for(Double_t TH=theta0-0.5;TH<=theta0+0.5;TH+=0.1){
+                for(Double_t PH=phi0-10;PH<=phi0+10;PH+=1){
+                    nuc->SetTheta(TH);
+                    nuc->SetPhi(PH);
+                    gimp.SetLastDetector(0);
+                    gimp.PropagateEvent(evt);
+                    if(det->GetNode()->GetNDetsInFront()==2) break;
+                }
+                if(det->GetNode()->GetNDetsInFront()==2) break;
+            }
+        }
+        nrootgeo+=(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix());
+    }
+    delete evt;
+    // calculate detector node trajectories
+    //CalculateGeoNodeTrajectories();
+    // check etalon module trajectories
+    Info("CreateGeoManager", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
+    return fGeoManager;
 }
 
 void KVINDRA::SetROOTGeometry(Bool_t on)
@@ -821,11 +898,7 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
         else {
             // ROOT geometry already exists, we need to set up the navigator
             KVASMultiDetArray::SetROOTGeometry(on);
-            // This is just for the etalon detectors!
-            // They are in structures like:
-            //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
-            // We need the name to be like "SILI_10"
-            GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+            GetNavigator()->SetNameCorrespondanceList("INDRA.names");
         }
     }
     else

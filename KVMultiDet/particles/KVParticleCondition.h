@@ -12,11 +12,15 @@ $Date: 2007/03/26 10:14:56 $
 
 #include "KVBase.h"
 #include "KVString.h"
+#include "KVHashList.h"
 class KVNucleus;
 class KVClassFactory;
 
 class KVParticleCondition : public KVBase
 { 
+   static KVHashList fgOptimized;// list of optimized particle conditions
+   Int_t fNUsing;//! number of classes using this as an optimized condition
+
    protected:
          
    KVString fCondition;//string containing selection criteria with ";" at end
@@ -44,11 +48,7 @@ class KVParticleCondition : public KVBase
    void SetParticleClassName(const Char_t* cl) { fClassName = cl; };
    void AddExtraInclude(const Char_t* inc_file);
    
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
-#else
-   virtual void Copy(TObject &);
-#endif
 
    KVParticleCondition& operator=(const KVParticleCondition&);
    KVParticleCondition& operator=(const Char_t*);
@@ -56,6 +56,7 @@ class KVParticleCondition : public KVBase
    KVParticleCondition operator||(const KVParticleCondition&);
 
    void Print(Option_t* opt="") const;
+   static void PrintOptimizedList() { fgOptimized.Print(); }
    
    ClassDef(KVParticleCondition,1)//Implements parser of particle selection criteria
 };

@@ -56,6 +56,7 @@ static void FillMethodBody(KVString& body, int type);
 	
    static void MakeClass(const Char_t * classname,
                          const Char_t * classdesc, int type = KVVarGlob::kOneBody);
+   virtual Int_t GetNumberOfValues() const { return 1; }
 
    ClassDef(KVVarGlob1, 1)      // Base class for global variables with one value 
 };

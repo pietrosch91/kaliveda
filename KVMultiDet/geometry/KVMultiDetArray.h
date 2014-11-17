@@ -92,7 +92,7 @@ public:
     void SetFilterType(Int_t t){fFilterType=t;};
     void init();
 
-    virtual void Build();
+    virtual void Build(Int_t run=-1);
     virtual void CreateIDTelescopesInGroups();
 
     virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
@@ -152,7 +152,7 @@ public:
     virtual Bool_t IsBuilt() const {
         return TestBit(kIsBuilt);
     }
-    static KVMultiDetArray *MakeMultiDetector(const Char_t * name);
+    static KVMultiDetArray *MakeMultiDetector(const Char_t * name,Int_t run=-1);
 
     Bool_t IsBeingDeleted() {
         return TestBit(kIsBeingDeleted);

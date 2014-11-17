@@ -411,8 +411,8 @@ Bool_t KVIntegerList::RemoveAll(Int_t val)
 //___________________________________________________________________________________________
 void KVIntegerList::ResetPopulation()
 { 
-//Remet à zéro à jour la population	
-	SetPopulation(0);
+//Remet à 1 la population (comme dans le ctor)
+        SetPopulation(1);
 }
 
 //___________________________________________________________________________________________
