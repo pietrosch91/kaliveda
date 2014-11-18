@@ -17,8 +17,10 @@
 #pragma link C++ class KVReconstructedEvent-;//customised streamer
 #pragma link C++ class KVTestEvent+;
 #pragma link C++ class KV2Body+;
+#pragma link C++ class KVIntegerList-;
 #pragma link C++ class KVBreakUp;
 #pragma link C++ class KVPartition+;
+#pragma link C++ class KVPartitionList+;
 #pragma link C++ class KVPartitionFromLeaf+;
 #pragma link C++ class KVPartitionFunction+;
 #pragma link C++ class KVCouple+;
