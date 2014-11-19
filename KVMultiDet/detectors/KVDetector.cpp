@@ -692,13 +692,14 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //pairwise looping through list
       for (int i = 0; i < (aligned->GetSize() - 1); i++) {
          KVDetector *det1 = (KVDetector *) aligned->At(i + 1);
+		 if ( !(det1->IsOK()) ) continue;
          KVDetector *det2 = (KVDetector *) aligned->At(i);
+		 if ( !(det2->IsOK()) ) continue;
 			
 			gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
    }
-   else
-   {
+   if( IsOK() ){
       //The following line is in case there are no detectors aligned
       //with 'this', but 'this' acts as an IDTelescope all by itself.
       //In this case we expect KVMultiDetArray::GetIDTelescopes
