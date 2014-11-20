@@ -181,20 +181,15 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //This method is called by KVGroup in order to set up all ID telescopes
     //of the array.
 
-    if ( !(de->IsOK() && e->IsOK()) ){
-        /*
-        Warning("GetIDTelescopes","Appel avec au moins un detecteur foireux %s(%d/%d), %s (%d/%d)",
-            de->GetName(),
-            de->IsPresent(),
-            de->IsDetecting(),
-            e->GetName(),
-            e->IsPresent(),
-            e->IsDetecting()
-        );
-        */
-        return;
-    }
-    KVIDTelescope *idt = 0;
+	// if both detectors are not OK then stop
+	if(!de->IsOK() && !e->IsOK()) return;
+	// if only de-detector is not OK then set up single stage telscope with e-detector
+	if( !de->IsOK() ) de = e;
+	// else if only e-detector  is not OK then set up single stage telscope with de-detector
+	else if ( !e->IsOK() ) e = de;
+	// else both detectors are OK then explore all the possiblilities!
+    
+	KVIDTelescope *idt = 0;
 
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
     Int_t de_thick = TMath::Nint(de->GetThickness());
