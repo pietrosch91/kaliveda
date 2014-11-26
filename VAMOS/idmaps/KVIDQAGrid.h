@@ -5,8 +5,8 @@
 #define __KVIDQAGRID_H
 
 #include "KVIDGrid.h"
+#include "KVIDQALine.h"
 
-class  KVIDQALine;
 class KVIDQAGrid : public KVIDGrid
 {
 	public:

@@ -2,6 +2,9 @@
 //Author: Guilain ADEMARD
 
 #include "KVIDQAMarker.h"
+#include "KVIDQALine.h"
+#include "TROOT.h"
+#include "TClass.h"
 
 ClassImp(KVIDQAMarker)
 
@@ -23,8 +26,8 @@ KVIDQAMarker::KVIDQAMarker()
 
 KVIDQAMarker::KVIDQAMarker( KVIDQALine *parent, Int_t a){
 	init();
-	fA = a;
-	fParent = parent;
+	SetParent(parent);
+	SetA(a);
 }
 //________________________________________________________________
 
@@ -35,7 +38,9 @@ KVIDQAMarker::~KVIDQAMarker(){
 
 void KVIDQAMarker::init(){
 	// Initialization of data members. Called by constructors.
-	fA = 0;
+	SetA(0);
+	fPtIdxLow = fPtIdxUp = -1;
+	SetMarkerStyle( 21 );
 }
 //________________________________________________________________
 
@@ -49,5 +54,29 @@ void KVIDQAMarker::Copy(TObject& obj) const{
 
    TMarker::Copy(obj);
    KVIDQAMarker& CastedObj = (KVIDQAMarker&)obj;
-   CastedObj.fA = fA;
+   CastedObj.SetParent(fParent);
+   CastedObj.SetA(fA);
+   CastedObj.fPtIdxLow = fPtIdxLow;
+   CastedObj.fPtIdxUp  = fPtIdxUp;
 }
+//________________________________________________________________
+
+void KVIDQAMarker::SetParent( KVIDQALine *parent ){ fParent = parent; }
+//________________________________________________________________
+
+
+ Int_t KVIDQAMarker::GetQ() const{ 
+	return (fParent ? fParent->GetQ() : 0); 
+}
+//________________________________________________________________
+
+void KVIDQAMarker::ls(Option_t *) const
+{
+   // List TNamed name and title.
+
+   TROOT::IndentLevel();
+   cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() <<" : "
+	   <<Form("PtIdxLow= %d PtIdxUp= %d X=%f Y=%f marker type=%d :",fPtIdxLow,fPtIdxUp,fX,fY,fMarkerStyle)
+        << Int_t(TestBit(kCanDelete)) << " at: "<<this<< endl;
+}
+
