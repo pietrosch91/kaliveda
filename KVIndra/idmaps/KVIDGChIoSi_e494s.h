@@ -14,6 +14,16 @@ class KVIDGChIoSi_e494s : public KVIDGChIoSi
    KVIDLine *fChIoSeuil;    // ChIo threshold line
    
    void init();
+
+ protected:
+
+   virtual Bool_t AcceptIDForTest(){
+	   // Used by test Identification.
+	   // For a general (Z,A) grid we only include particles with
+	   // GetQualityCode()<4 (i.e. well identified) or equal to kICODE9
+	   // (i.e. well identified from extrapolated ID lines).
+	   return (KVIDGChIoSi::AcceptIDForTest() || (fICode==kICODE9) );
+   };
 	
  public:
 
