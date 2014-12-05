@@ -190,7 +190,11 @@ void KVSeqCollection::Copy(TObject & obj) const
 
     TSeqCollection::Copy(obj);            //in fact this calls TObject::Copy, no Copy method defined for collection classes
     KVSeqCollection & copy = (KVSeqCollection&) obj;
-    copy.SetName( GetName() );
+
+    // The name is not copied since all lists must have
+    // individual names to ensure rapid look-up
+    // in gROOT->GetListOfCleanups() which is a THashList.
+    //copy.SetName( GetName() );
 
     //clear any pre-existing objects in copy list
     if (copy.IsOwner()) copy.Delete();
@@ -837,7 +841,8 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
 {
     // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
     // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
-    SetBit(kCleanup,enable);
+	if( enable == IsCleanup() ) return;
+	SetBit(kCleanup,enable);
     if (enable)
     {
         gROOT->GetListOfCleanups()->Add(this);
@@ -855,6 +860,7 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
 
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
+	   TString name = GetName();
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c); if (R__v) { }
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
@@ -865,6 +871,16 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
          fCollection->SetOwner(owns);
       }
       else R__b >> fCollection;
+	  // set the initial name to be sure that all lists have
+	  // individual names to ensure rapid look-up
+      // in gROOT->GetListOfCleanups() which is a THashList.
+      // Even if a clone is made.
+	  SetName( name.Data() );
+	  // if this collection has the status IsCleanup() then
+	  // add it to the list gROOT->GetListOfCleanups()
+	  if( IsCleanup() && !gROOT->GetListOfCleanups()->FindObject(this)){
+          gROOT->GetListOfCleanups()->Add(this);
+	  }
       R__b.CheckByteCount(R__s, R__c, KVSeqCollection::IsA());
    } else {
       R__c = R__b.WriteVersion(KVSeqCollection::IsA(), kTRUE);
