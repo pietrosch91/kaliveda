@@ -21,6 +21,8 @@ class KVSeqCollection : public TSeqCollection
 
     static Long64_t fSCCounter; // counter used to give unique names to all lists
     void init();
+    static Int_t fgCounter;// counts instances
+    static TSeqCollection* fgCleanups;// regroup all lists which are to be cleaned up
 
 protected:
     TSeqCollection* fCollection;//Pointer to embedded ROOT collection
