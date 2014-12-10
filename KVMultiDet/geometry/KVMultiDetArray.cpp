@@ -18,7 +18,6 @@
 #include "KVRing.h"
 #include "KVTelescope.h"
 #include "KVMaterial.h"
-#include "KVMultiDetBrowser.h"
 #include "KVTarget.h"
 #include "KVIDTelescope.h"
 #include "KV2Body.h"
