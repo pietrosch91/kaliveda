@@ -39,6 +39,12 @@ void KVIDSiLiCsI_e494s::Initialize()
     fCsI   = (KVCsI*)GetDetector(2);
 
 	Bool_t ok = fSiLi && fCsI && GetListOfIDFunctions().GetEntries();
+	if( ok ){
+		KVTGID *idf = (KVTGID *)GetListOfIDFunctions().First();
+		fThresholdX = GetThesholdFromVar( idf->GetVarX() );
+		fThresholdY = GetThesholdFromVar( idf->GetVarY() );
+		//		Info("Initialize","Thresholds for %s: X= %f, Y= %f", GetName(), fThresholdX, fThresholdY);
+	}
 
     SetBit(kReadyForID, ok);
 }
@@ -109,7 +115,7 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
     // set general ID code
     IDR->IDcode = fIDCode;
 
-    const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.);
+    const Bool_t inRange = (fThresholdX<X) &&  (X<4090.) &&  (fThresholdY<Y) &&  (Y<4090.);
 
     if(inRange) Z = IdentZ(this, funLTG_Z, "", "");
     else return kFALSE;
@@ -240,4 +246,18 @@ void KVIDSiLiCsI_e494s::RemoveIdentificationParameters()
    //Delete any KVTGID objects associated with this identification telescope
    RemoveAllTGID();
 }
+//__________________________________________________________________________//
 
+Double_t KVIDSiLiCsI_e494s::GetThesholdFromVar( const Char_t *var ){
+	// returns the threshold deduced from VarX or VarY.
+	// If the string 'var' contains the character '>', we consider
+	// that the threshold is given in the string after this character.
+
+	TString thresh = var;
+	Int_t idx = thresh.Index(">");
+	if( idx > -1 ){
+		thresh.Remove( 0, idx+1 );
+		return (thresh.IsFloat() ? thresh.Atof() : 0.);
+	}
+	return 0.;
+}
