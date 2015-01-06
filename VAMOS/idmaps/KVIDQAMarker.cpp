@@ -6,6 +6,10 @@
 #include "TROOT.h"
 #include "TClass.h"
 
+#ifndef ROOT_Buttons
+#include "Buttons.h"
+#endif
+
 ClassImp(KVIDQAMarker)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,13 +37,22 @@ KVIDQAMarker::KVIDQAMarker( KVIDQALine *parent, Int_t a){
 
 KVIDQAMarker::~KVIDQAMarker(){
    // Destructor
+
+	// delete associated ID line point.
+	Int_t i = GetPointIndex();	
+	if(i>=0){
+	  if( fParent && (fParent->KVIDZALine::RemovePoint(i)>=0) )
+ 	  	  fParent->IncrementPtIdxOfMarkers(i,-1);
+	}
 }
 //________________________________________________________________
 
 void KVIDQAMarker::init(){
 	// Initialization of data members. Called by constructors.
+	fParent = NULL;
 	SetA(0);
 	fPtIdxLow = fPtIdxUp = -1;
+	fDelta = 0;
 	SetMarkerStyle( 21 );
 }
 //________________________________________________________________
@@ -54,10 +67,11 @@ void KVIDQAMarker::Copy(TObject& obj) const{
 
    TMarker::Copy(obj);
    KVIDQAMarker& CastedObj = (KVIDQAMarker&)obj;
-   CastedObj.SetParent(fParent);
+   //CastedObj.SetParent(fParent);
    CastedObj.SetA(fA);
    CastedObj.fPtIdxLow = fPtIdxLow;
    CastedObj.fPtIdxUp  = fPtIdxUp;
+   CastedObj.fDelta    = fDelta;
 }
 //________________________________________________________________
 
@@ -79,4 +93,47 @@ void KVIDQAMarker::ls(Option_t *) const
 	   <<Form("PtIdxLow= %d PtIdxUp= %d X=%f Y=%f marker type=%d :",fPtIdxLow,fPtIdxUp,fX,fY,fMarkerStyle)
         << Int_t(TestBit(kCanDelete)) << " at: "<<this<< endl;
 }
+//________________________________________________________________
 
+void KVIDQAMarker::UpdateXandY(){
+	// Set X and Y of this marker calculated from the coordinates of low point, up point, and fDelta.
+	// fDelta is the distance between this marker end the low point,
+	// normalized to the distance between low and up points;
+	if( !fParent ) return;
+	Double_t x_low, y_low, x_up, y_up;
+	if((fParent->GetPoint(fPtIdxLow, x_low, y_low)>-1) && (fParent->GetPoint(fPtIdxUp, x_up, y_up)>-1)){
+		SetX( x_low + (x_up-x_low)*fDelta );
+		SetY( y_low + (y_up-y_low)*fDelta );
+ 	}
+}
+//________________________________________________________________
+
+void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
+
+	TMarker::ExecuteEvent( event, px, py );
+
+	static Bool_t motion = kFALSE;
+
+
+	switch (event)
+    {
+		case kButton1Motion:
+			motion = kTRUE;
+			break;
+		case kButton1Up:
+			if( motion ){
+				motion = kFALSE;
+				if( fParent && (fPtIdxLow>-1) && (fPtIdxUp>-1)){
+					if( fPtIdxLow == fPtIdxUp ){
+						fParent->SetPoint( fPtIdxLow, GetX(), GetY() );
+					}
+					else{
+						fPtIdxUp = fPtIdxLow; 
+						fDelta   = 0;
+						fParent->InsertPoint( fPtIdxUp, GetX(), GetY() );
+					}
+				}
+			}
+			break;
+	}
+}

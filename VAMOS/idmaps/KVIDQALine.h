@@ -16,20 +16,32 @@ class KVIDQALine : public KVIDZALine
 	protected:
 
 		Int_t fQ;//! dummy variable used by context menu dialog boxes
+		Int_t fNextA;//! next A value for the next call of InsertMarker
+		Bool_t fNextAinc;//! true if the next A value should increase
+
 		KVList *fMarkers; //-> list of Q-A identification markers
 
 		void init();
 		virtual void SetNameFromNucleus();
-		void IncrementPtIdxOfMarkers( Int_t idx, Int_t ival=1 );
+		virtual void UpdateLineStyle();
 
    	public:
    		KVIDQALine();
    		virtual ~KVIDQALine();
    		void Copy(TObject& obj) const;
-
+		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
 		void IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA );
 		
-		virtual Int_t InsertMarker(Int_t a=0); // *MENU={Hierarchy="Modify Line.../InsertMarker"}*
+		virtual Int_t InsertMarker(Int_t A=0); // *MENU* *ARGS={A=>fNextA}
+		virtual Int_t RemoveMarker(Int_t a=0); //*MENU*
+		virtual Int_t InsertPoint();//*MENU*
+		virtual Int_t InsertPoint(Int_t i, Double_t x, Double_t y);
+		using KVIDZALine::RemovePoint;//*MENU*
+		virtual Int_t RemovePoint(Int_t i);
+		void IncrementPtIdxOfMarkers( Int_t idx, Int_t ival=1 );
+
+		Int_t GetNextA() const { return fNextA; }
+		void  SetNextA(Int_t A) { fNextA = A; }
 
 		//---------- inline methods ---------------------//
 
@@ -48,9 +60,16 @@ class KVIDQALine : public KVIDZALine
 inline void KVIDQALine::SetNameFromNucleus() { 
 	SetName(Form("Q=%d", GetQ())); 
 	fMarkers->R__FOR_EACH(KVIDQAMarker,SetNameFromNucleus)();
+	UpdateLineStyle();
 };
-
 //_______________________________________________________________//
+
+inline void KVIDQALine::UpdateLineStyle(){
+	// Set line style 1 if Q is even and line style 9 if Q is odd
+	SetLineStyle( (GetQ()%2 ? 9 : 1) );
+}
+//_______________________________________________________________//
+
 inline void KVIDQALine::AddMarker( KVIDQAMarker *marker ){
 	// Add QA-marker to the line. It will be deleted by the line.
 	fMarkers->Add( marker );
