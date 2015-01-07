@@ -144,7 +144,7 @@ BZR_LAST_REVISION =
 endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet install byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra install byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -200,13 +200,13 @@ gan_tape : .init
 	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
-	cd fitltg-0.1 && make FFLAGS=-w && make install
+	cd fitltg-0.1 && make FFLAGS=-w && make install --no-print-directory
 		
 MultiDet : .init
 	cd KVMultiDet && $(MAKE) --no-print-directory
 
 Indra : .init
-	cd KVIndra && $(MAKE)
+	cd KVIndra && $(MAKE) --no-print-directory
 
 analysis : .init
 	cd analysis && $(MAKE)
@@ -220,21 +220,21 @@ FAZIA : .init
 cleangantape :
 	cd GanTape && rm -rf i386-linux_*
 	
-clean-kvmultidet :
-	cd KVMultiDet && $(MAKE) --no-print-directory clean
+clean-indra :
+	cd KVIndra && $(MAKE) clean --no-print-directory
 clean :
 	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
 	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
 	-rm -f .init
 	cd KVMultiDet && $(MAKE) --no-print-directory clean
-	cd fitltg-0.1 && make clean
-	cd KVIndra && $(MAKE) clean
+	cd fitltg-0.1 && make clean --no-print-directory
+	cd KVIndra && $(MAKE) clean --no-print-directory
 ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
-	cd VAMOS && $(MAKE) clean
-	cd FAZIA && $(MAKE) clean
-	cd analysis && $(MAKE) clean
+#	cd VAMOS && $(MAKE) clean
+#	cd FAZIA && $(MAKE) clean
+#	cd analysis && $(MAKE) clean
 
 distclean : clean
 	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root
@@ -249,7 +249,7 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/tools
 	-cp $(KV_CONFIG__H) $(KVINSTALLDIR)/include/
 	cd KVMultiDet && $(MAKE) --no-print-directory install
-#	cd KVIndra && $(MAKE) install
+	cd KVIndra && $(MAKE) --no-print-directory install
 #	cd VAMOS && $(MAKE) install
 #	cd FAZIA && $(MAKE) install
 	cd etc/proof && $(MAKE)

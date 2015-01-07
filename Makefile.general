@@ -133,7 +133,7 @@ endif
 
 .PHONY : all clean install uninstall removemoduledirs copymanipdirs rootlibmap
 
-all : dictionaries $(LIB_SO) $(EXTRAS) $(MODULE)/.copyheads
+all : $(MODULE)/.config dictionaries $(LIB_SO) $(EXTRAS) $(MODULE)/.copyheads
 
 dictionaries:
 	@make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$(MODULE) LIBNAME=$(PROJ_NAME) RLIBMAPDEPS="$(RLIBMAPDEPS)" INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"
@@ -142,7 +142,6 @@ $(LIB_SO): $(OBJECTS) $(DICT_OBJECTS)
 	@echo `tput setaf 5`"Building library $@"`tput sgr0`
 	@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS)
 	@echo `tput setaf 5`"$@ done"`tput sgr0`
-	@-cp $@ $(KVINSTALLDIR)/lib/
 
 .SUFFIXES: .$(SrcSuf)
 
@@ -291,11 +290,11 @@ $(MODULE)/.config : $(HEADERS) $(SOURCES)
 
 
 .$(SrcSuf).$(ObjSuf):
-	@echo `tput setaf 1`"Compiling $<..."`tput sgr0`
+	@echo `tput setaf 1`"   CXX $<..."`tput sgr0`
 	@$(CXX) $(ALL_CXXFLAGS) $(OutPutOpt)$@ -c $<
         
 %.d : %.cpp
-	@echo `tput setaf 3`"Making prerequisite $@"`tput sgr0`; 
+	@echo `tput setaf 3`"Analysing dependencies of $^"`tput sgr0`; 
 	@set -e; rm -f $@; \
 	$(CXX) -MM -MT $(subst .cpp,.$(ObjSuf),$<) $(ALL_CXXFLAGS) $< > $@
 	
