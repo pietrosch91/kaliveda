@@ -1,86 +1,53 @@
-#$Id: Makefile,v 1.99 2009/03/06 08:59:18 franklan Exp $
-#Makefile for libKVMultiDet.so
+PROJECT = KVMultiDet
+MODULES = analysis calibration data_management events geometry identification particles \
+	base daq_cec db exp_events globvars stopping gui trieur
 
-PROJ_NAME = KVMultiDet
+.PHONY: all install clean $(MODULES)
 
-MODULES = analysis base stopping calibration daq_cec data_management db detectors events geometry gui identification idmaps idtelescopes particles \
-	vg_base vg_charge vg_energy vg_multiplicity vg_shape vg_momentum trieur
+all: $(MODULES)
 
-EXTRA_HEADERS = base/KVError.h base/KVParameter.h
+install:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.KVMultiDet; \
+		make -f $$makefile MODULE=$$module install ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-ETC_DATA = data
-ETC_DATA += $(shell ls factory/*Template.[c,h]*)
+clean:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.KVMultiDet; \
+		make -f $$makefile MODULE=$$module clean ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-#list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVGRUNetClientGanilReader.cpp daq_cec/KVReg*.cpp gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
-ifeq ($(ROOTGANILTAPE),no)
-NOT_READY += daq_cec/GT*.cpp analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
-endif
-ifeq ($(WITH_OPENGL),no)
-NOT_READY += events/KVEventViewer.cpp
-endif
+base:
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+daq_cec: base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+particles: base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+identification: particles base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+events: particles base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+stopping: events base particles
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+geometry: events base stopping particles 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+calibration: geometry base stopping particles 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+db:stopping particles events base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+data_management: base db stopping particles events 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+globvars: events base particles 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+trieur: base 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+analysis: data_management db stopping globvars base events particles 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+exp_events: analysis globvars daq_cec identification base particles geometry stopping events data_management db 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+gui: analysis exp_events geometry data_management db stopping events base identification particles 
+	@$(MAKE) -f BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
 
-NOT_ROOTCINT := base/KVError.h
-
-ifeq ($(ROOTGANILTAPE),yes)
-KV_INC_EXTRAS := -I$(GANTAPE_INC) -DROOTGANILTAPE
-endif
-ifeq ($(WITH_GRU_LIB),yes)
-KV_INC_EXTRAS += -I$(GRU_DIR)/include -DWITH_GRULIB -DNET_LIB
-else
-NOT_READY += daq_cec/KVGRUTapeGanilReader.cpp
-endif
-ifeq ($(WITH_RANGE_YANEZ),yes)
-KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ
-else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
-KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ -DWITH_MODIFIED_RANGE_YANEZ
-else
-NOT_READY += stopping/KVRangeYanez.cpp stopping/KVRangeYanezMaterial.cpp
-endif
-ifeq ($(WITH_OPENGL),yes)
-KV_INC_EXTRAS += -DWITH_OPENGL
-endif
-
-include ../Makefile.general
-RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
-libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
-libPhysics.so libMathCore.so libThread.so libGui.so 
-
-ifeq ($(WITH_OPENGL),yes)
-#required for use of TGLViewer in KVEventViewer
-LINK_LIB += -L$(ROOTSYS)/lib -lRGL
-RLIBMAPDEPS += libRGL.so
-endif
-
-#required for use of TGeo* classes in KVMaterial, KVDetector, etc.
-LINK_LIB += -L$(ROOTSYS)/lib -lGeom
-RLIBMAPDEPS += libGeom.so
-
-#required for use of TSpectrum
-LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
-RLIBMAPDEPS += libSpectrum.so
-
-#required for use of TProof
-LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer -lProof
-RLIBMAPDEPS += libProof.so  libProofPlayer.so
-
-ifneq ($(ARCH),win32)
-LINK_LIB += -L$(KVROOT)/lib -lfitltg
-endif
-
-ifeq ($(ROOTGANILTAPE),yes)
-LINK_LIB += -L$(KVROOT)/lib -lgan_tape
-RLIBMAPDEPS += libgan_tape.so
-ifeq ($(MAKE_GANTAPE_XRD),yes)
-KV_INC += -DCCIN2P3_XRD
-RLIBMAPDEPS += libXrdPosix.so
-endif
-endif
-ifeq ($(WITH_GRU_LIB),yes)
-LINK_LIB += -L$(GRU_DIR)/lib -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
-endif
-ifeq ($(WITH_RANGE_YANEZ),yes)
-LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
-else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
-LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
-endif

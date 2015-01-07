@@ -144,7 +144,7 @@ BZR_LAST_REVISION =
 endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) FAZIA install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet install byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -203,7 +203,7 @@ ltgfit : .init
 	cd fitltg-0.1 && make FFLAGS=-w && make install
 		
 MultiDet : .init
-	cd KVMultiDet && $(MAKE)
+	cd KVMultiDet && $(MAKE) --no-print-directory
 
 Indra : .init
 	cd KVIndra && $(MAKE)
@@ -220,11 +220,13 @@ FAZIA : .init
 cleangantape :
 	cd GanTape && rm -rf i386-linux_*
 	
+clean-kvmultidet :
+	cd KVMultiDet && $(MAKE) --no-print-directory clean
 clean :
 	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
 	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
 	-rm -f .init
-	cd KVMultiDet && $(MAKE) clean
+	cd KVMultiDet && $(MAKE) --no-print-directory clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
 ifeq ($(ROOTGANILTAPE),yes)
@@ -245,10 +247,11 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/db
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
-	cd KVMultiDet && $(MAKE) install
-	cd KVIndra && $(MAKE) install
-	cd VAMOS && $(MAKE) install
-	cd FAZIA && $(MAKE) install
+	-cp $(KV_CONFIG__H) $(KVINSTALLDIR)/include/
+	cd KVMultiDet && $(MAKE) --no-print-directory install
+#	cd KVIndra && $(MAKE) install
+#	cd VAMOS && $(MAKE) install
+#	cd FAZIA && $(MAKE) install
 	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/

@@ -41,11 +41,11 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
     SetVarY( fTGID->GetVarY() );
     SetRuns( fTGID->GetValidRuns() );
 
-	TList   *idtels = (TList *)fTGID->GetIDTelescopes();
-	TObject *idt    = NULL;
-    TIter next_idt( idtels );
-	while( (idt = next_idt()) ) fTelescopes.Add( idt );
-    delete idtels;
+// 	TList   *idtels = (TList *)fTGID->GetIDTelescopes();
+// 	TObject *idt    = NULL;
+//     TIter next_idt( idtels );
+// 	while( (idt = next_idt()) ) fTelescopes.Add( idt );
+//     delete idtels;
 
 	TString name(fTGID->GetName()); Int_t ver=1;
 	if( gIDGridManager->GetGrid( name.Data() ) ){

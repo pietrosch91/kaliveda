@@ -4,6 +4,7 @@
 #include "KVChargeRadiusTable.h"
 #include "TEnv.h"
 #include "KVFileReader.h"
+#include "KVBase.h"
 
 ClassImp(KVChargeRadiusTable)
 
@@ -42,7 +43,7 @@ void KVChargeRadiusTable::Initialize()
 	
 	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
+	if( !KVBase::SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
 		Error("Initialize","No file found for %s",GetName());
 		return;
 	}	

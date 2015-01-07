@@ -1,0 +1,5 @@
+NOT_READY += gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
+
+
+include Makefile.KVMultiDet
+

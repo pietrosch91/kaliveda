@@ -165,7 +165,7 @@ void KVHistogram::ls(Option_t *option) const
     TROOT::DecreaseDirLevel();
 }
 
-TObject *KVHistogram::GetObject()
+TObject *KVHistogram::GetObject() const
 {
     // In order to have context menu access to the contained histogram or cut
     if(fHisto) return (TObject*)fHisto;

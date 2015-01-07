@@ -11,7 +11,6 @@ $Author: franklan $
 #include "KVDataRepository.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataSetManager.h"
-#include "KVMultiDetArray.h"
 #include "KVDataBase.h"
 #include "TSystem.h"
 #include "KVDataAnalysisTask.h"
@@ -20,7 +19,6 @@ $Author: franklan $
 #include "KVDBSystem.h"
 #include "KVDBRun.h"
 #include "TEnv.h"
-#include "KVUpDater.h"
 #include "KVAvailableRunsFile.h"
 #include "KVNumberList.h"
 #include "TPluginManager.h"
@@ -214,16 +212,12 @@ KVDataSet::KVDataSet()
 {
    //Default constructor
    fDBase = 0;
-   fUpDater = 0;
    fRepository = 0;
    fDataBase = 0;
 }
 
 KVDataSet::~KVDataSet()
 {
-   if (fUpDater)
-      delete fUpDater;
-   fUpDater = 0;
    if (fDBase) {
       delete fDBase;
       fDBase = 0;
@@ -233,17 +227,6 @@ KVDataSet::~KVDataSet()
 //       fDataBase = 0;
 //    }
    fTasks.Delete();
-}
-
-KVMultiDetArray *KVDataSet::BuildMultiDetector(Int_t run) const
-{
-   //Create & build an instance of the multidetector class needed for this dataset using static
-   //method KVMultiDetArray::MakeMultiDetector(const Char_t*).
-   //
-   //The name of the dataset must correspond to the name of one of the Plugin.KVMultiDetArray
-   //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
-
-   return KVMultiDetArray::MakeMultiDetector(GetName(),run);
 }
 
 KVAvailableRunsFile *KVDataSet::GetAvailableRunsFile(const Char_t * type)
@@ -470,7 +453,7 @@ void KVDataSet::OpenDataBase(Option_t * opt)
       }
       // make sure gDataSet is set & points to us
       gDataSet = this;
-      fDataBase = KVDataBase::MakeDataBase(GetDBName());
+      fDataBase = KVDataBase::MakeDataBase(GetDBName(), GetDataSetDir());
       if(!fDataBase){
           // no database defined for dataset
           Info("OpenDataBase", "No database defined for dataset");
@@ -750,20 +733,6 @@ Bool_t KVDataSet::GetDataSetEnv(const Char_t * type, Bool_t defval) const
    temp.Form("%s.%s", GetName(), type);
    if( gEnv->Defined(temp.Data()) ) return gEnv->GetValue(temp.Data(), kFALSE);
    return gEnv->GetValue(type, defval);
-}
-
-//__________________________________________________________________________________________________________________
-
-KVUpDater *KVDataSet::GetUpDater()
-{
-   //Return pointer to 'KVUpDater' object required to set run parameters of multidetector
-   //array associated to this dataset.
-   //
-   //The name of the dataset must correspond to the name of one of the Plugin.KVUpDater
-   //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
-
-   return (fUpDater ? fUpDater
-           : (fUpDater = KVUpDater::MakeUpDater(GetName())));
 }
 
 //__________________________________________________________________________________________________________________

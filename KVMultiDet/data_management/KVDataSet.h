@@ -17,14 +17,12 @@ $Author: franklan $
 #include "TEnv.h"
 #include "TSystem.h"
 
-class KVMultiDetArray;
 class KVDataBase;
 class KVDataSetManager;
 class KVDataRepository;
 class KVDBSystem;
 class KVDataAnalysisTask;
 class TObjArray;
-class KVUpDater;
 class KVDBRun;
 class KVAvailableRunsFile;
 
@@ -43,7 +41,6 @@ class KVDataSet:public KVBase {
    TString fDBName;             //name of database
    TString fDBFileName;         //name of file in which database is stored on disk
    KVDataBase *fDataBase;       //pointer to dataset's database
-   KVUpDater *fUpDater;         //!used to set run parameters of detectors
    KVList fAvailableRuns;       //!list of KVAvailableRunsFile objects used to read infos on available runs
    enum {
       kAvailable = BIT(14)      //flag set if this dataset is physically present on local machine
@@ -109,11 +106,6 @@ class KVDataSet:public KVBase {
    		_dt.Remove(TString::kBoth,' ');
       	return fDatatypes.Contains(_dt);
    };
-
-   virtual KVMultiDetArray *BuildMultiDetector(Int_t run=-1) const;
-
-
-   virtual KVUpDater *GetUpDater();
 
    virtual void ls(Option_t * opt = "") const;
    virtual void Print(Option_t * opt = "") const;

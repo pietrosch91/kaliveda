@@ -6,6 +6,7 @@
 #include "TEnv.h"
 #include "KVElementDensity.h"
 #include "KVUnits.h"
+#include "KVBase.h"
 
 ClassImp(KVElementDensityTable)
 
@@ -62,7 +63,7 @@ void KVElementDensityTable::Initialize()
 	
 	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
+	if( !KVBase::SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
 		Error("Initialize","No file found for %s",GetName());
 		return;
 	}	

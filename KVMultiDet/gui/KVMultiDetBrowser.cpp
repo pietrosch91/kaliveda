@@ -151,7 +151,7 @@ KVMultiDetBrowser::KVMultiDetBrowser
    // Presentation of Layers as Tab widgets
 
    fLayerBrowser =
-       new KVLayerBrowser(fDetArray->GetLayers(), this, 900, 600);
+       new KVLayerBrowser(fDetArray->GetStructureTypeList("LAYER") , this, 900, 600);
    fLBLayout =
        new TGLayoutHints(kLHintsBottom | kLHintsExpandX | kLHintsExpandY,
                          5, 5, 5, 2);
@@ -184,7 +184,7 @@ void KVMultiDetBrowser::UpdateArray()
    delete fLBLayout;
    // redraw all
    fLayerBrowser =
-       new KVLayerBrowser(fDetArray->GetLayers(), this, 900, 600);
+       new KVLayerBrowser(fDetArray->GetStructureTypeList("LAYER"), this, 900, 600);
    fLBLayout =
        new TGLayoutHints(kLHintsBottom | kLHintsExpandX | kLHintsExpandY,
                          5, 5, 5, 2);
@@ -237,7 +237,7 @@ void KVMultiDetBrowser::CloseWindow()
 
 /*   gApplication->Terminate(0); */
 
-   fDetArray->CloseBrowser();
+   //fDetArray->CloseBrowser();
 }
 
 //__________________________________________________________________________________

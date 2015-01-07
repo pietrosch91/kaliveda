@@ -4,7 +4,7 @@
 #include "KVAbundanceTable.h"
 #include "KVFileReader.h"
 #include "TEnv.h"
-//#include "KVIntegerList.h"
+#include "KVBase.h"
 
 ClassImp(KVAbundanceTable)
 
@@ -42,7 +42,7 @@ void KVAbundanceTable::Initialize()
 	
 	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
+	if( !KVBase::SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
 		Error("Initialize","No file found for %s",GetName());
 		return;
 	}	

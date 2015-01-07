@@ -120,9 +120,9 @@
 #include "TEntryList.h"
 #include "KVUniqueNameList.h"
 #include "TBrowser.h"
-#include "KVImpactParameter.h"
-#include "KVGumbelDistribution.h"
-#include "KVGausGumDistribution.h"
+// #include "KVImpactParameter.h"
+// #include "KVGumbelDistribution.h"
+// #include "KVGausGumDistribution.h"
 
 class KVHistogram;
 
@@ -216,14 +216,14 @@ class KVTreeAnalyzer : public TNamed
    TGTextButton* G_fitGG2;//!
    TGTextButton* G_fitGG3;//!
    TGTextEntry* G_make_ip_selection;//!
-   KVImpactParameter* ipscale;//!
+   //KVImpactParameter* ipscale;//!
    TGLabel* G_ip_histo;//!
-   KVGumbelDistribution *GDfirst;//!
-   KVGumbelDistribution *GDsecond;//!
-   KVGumbelDistribution *GDthird;//!
-   KVGausGumDistribution *GausGum1;//!
-   KVGausGumDistribution *GausGum2;//!
-   KVGausGumDistribution *GausGum3;//!
+//    KVGumbelDistribution *GDfirst;//!
+//    KVGumbelDistribution *GDsecond;//!
+//    KVGumbelDistribution *GDthird;//!
+//    KVGausGumDistribution *GausGum1;//!
+//    KVGausGumDistribution *GausGum2;//!
+//    KVGausGumDistribution *GausGum3;//!
    
    /* selections */
    TGGroupFrame *fMain_selectionlist;//! GUI for handling selections
@@ -294,8 +294,8 @@ class KVTreeAnalyzer : public TNamed
    Bool_t MakeSelection(const Char_t* selection);
    void UpdateEntryLists();
    void GenerateSelection();
-   void MakeIPScale();
-   void GenerateIPSelection();
+   //void MakeIPScale();
+   //void GenerateIPSelection();
    void CombineSelectionsAnd();
    void CombineSelectionsOr();
    void DeleteSelections();
@@ -337,12 +337,12 @@ class KVTreeAnalyzer : public TNamed
    void LeafChanged();
    void HistoSelectionChanged();
    void Save();
-   void FitGum1();
-   void FitGum2();
-   void FitGum3();
-   void FitGausGum1();
-   void FitGausGum2();
-   void FitGausGum3();
+//    void FitGum1();
+//    void FitGum2();
+//    void FitGum3();
+//    void FitGausGum1();
+//    void FitGausGum2();
+//    void FitGausGum3();
    
    Int_t GetNx(){return fNx;}
    Int_t GetNy(){return fNy;}

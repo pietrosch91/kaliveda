@@ -115,8 +115,8 @@ const Char_t *KVTGIDManager::GetTGIDName(const Char_t * idt_name,
 
 //______________________________________________________________________________//
 
-Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
-                               const Char_t * grid_type, const Char_t* signal_type)
+Double_t KVTGIDManager::IdentZ(const Char_t* idtelescope_name, Double_t id_map_X, Double_t id_map_Y, Double_t & funLTG,
+                               const Char_t * grid_type)
 {
    //Identification in Z of particle for ID telescope idt using Tassan-Got functional corresponding
    //to grid of type "grid_type". The "signal_type" argument is passed to GetIDMapX/Y(signal_type),
@@ -133,7 +133,7 @@ Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
    fStatus = kStatus_OK;
 
    //get Z identification object from KVTGIDManager
-   KVTGID *_tgid = GetTGID(idt->GetName(), "Z", grid_type);
+   KVTGID *_tgid = GetTGID(idtelescope_name, "Z", grid_type);
 
    //if no identification object exists, return -1
    if (!_tgid) {
@@ -141,8 +141,8 @@ Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
       return (-1.0);
    }
    //Enter current point coordinates into Z identification function
-   _tgid->SetParameter("X", idt->GetIDMapX(signal_type));
-   _tgid->SetParameter("Y", idt->GetIDMapY(signal_type));
+   _tgid->SetParameter("X", id_map_X);
+   _tgid->SetParameter("Y", id_map_Y);
 
    Double_t Zfound = -1.;
    Double_t Zmin = _tgid->GetIDmin();
@@ -174,8 +174,8 @@ Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
 
 //______________________________________________________________________________
 
-Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
-                               const Char_t * grid_type, const Char_t* signal_type, Int_t Z)
+Double_t KVTGIDManager::IdentA(const Char_t* idtelescope_name, Double_t id_map_X, Double_t id_map_Y, Double_t & funLTG,
+                               const Char_t * grid_type, Int_t Z)
 {
    //Get A identification (we already know Z) for ID telescope idt using grid "grid_type".
 	//The "signal_type" argument is passed to GetIDMapX/Y(signal_type),
@@ -195,7 +195,7 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
       return -1.;
    }
    //get A identification object from KVTGIDManager
-   KVTGID *_tgid = GetTGID(idt->GetName(), "A", grid_type);
+   KVTGID *_tgid = GetTGID(idtelescope_name, "A", grid_type);
    //if no identification object exists, return -1
    if (!_tgid) {
       fStatus = kStatus_noTGID;
@@ -207,8 +207,8 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
       return -1.;
    }
    //Initialise parameters of A identification function
-   _tgid->SetParameter("X", idt->GetIDMapX(signal_type));
-   _tgid->SetParameter("Y", idt->GetIDMapY(signal_type));
+   _tgid->SetParameter("X", id_map_X);
+   _tgid->SetParameter("Y", id_map_Y);
    _tgid->SetParameter("Z", Z);
 
    Double_t Afound = -1., Amin, Amax;

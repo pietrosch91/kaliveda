@@ -38,7 +38,7 @@ class KVHistogram : public KVBase
 
    void ls(Option_t *option = "") const;
 
-   TObject* GetObject();
+   TObject* GetObject() const;
    void ParseExpressionAndSelection();
 
    ClassDef(KVHistogram,1)//Wrapper for histograms used by KVTreeAnalyzer

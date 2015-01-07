@@ -6,7 +6,6 @@
 #include <TPluginManager.h>
 #include <TError.h>
 #include "TGeoManager.h"
-#include "KVEvent.h"
 
 #define FIND_MAT_AND_EXEC(method,defval) \
     KVIonRangeTableMaterial* M = GetMaterial(mat); \

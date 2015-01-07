@@ -14,7 +14,7 @@
 #include <KVZAFinderDialog.h>
 #include "KVTreeAnalyzer.h"
 #include <KVHistogram.h>
-
+#include "KVTestIDGridDialog.h"
 using namespace std;
 
 ClassImp(KVIDGridEditor)

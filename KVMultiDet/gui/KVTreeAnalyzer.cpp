@@ -95,13 +95,13 @@ void KVTreeAnalyzer::init()
    fSelectedSelections=0;
    fSelectedLeaves=0;
    fSelectedHistos=0;
-   ipscale=0;
-   GDfirst=new KVGumbelDistribution("Gum1",1);
-   GDsecond=new KVGumbelDistribution("Gum2",2);
-   GDthird=new KVGumbelDistribution("Gum3",3);
-   GausGum1=new KVGausGumDistribution("GausGum1",1);
-   GausGum2=new KVGausGumDistribution("GausGum2",2);
-   GausGum3=new KVGausGumDistribution("GausGum3",3);
+//    ipscale=0;
+//    GDfirst=new KVGumbelDistribution("Gum1",1);
+//    GDsecond=new KVGumbelDistribution("Gum2",2);
+//    GDthird=new KVGumbelDistribution("Gum3",3);
+//    GausGum1=new KVGausGumDistribution("GausGum1",1);
+//    GausGum2=new KVGausGumDistribution("GausGum2",2);
+//    GausGum3=new KVGausGumDistribution("GausGum3",3);
 
    fNx = fNy = 500;
    fXmin = fXmax = fYmin = fYmax = -1.;
@@ -141,7 +141,7 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    // Destructor
    SafeDelete(fSelectedSelections);
    SafeDelete(fSelectedHistos);
-   SafeDelete(ipscale);
+//   SafeDelete(ipscale);
    if(!fDeletedByGUIClose) SafeDelete(fMain_histolist);
    if(gTreeAnalyzer==this) gTreeAnalyzer=0x0;
    fgAnalyzerList->Remove(this);
@@ -1803,39 +1803,39 @@ void KVTreeAnalyzer::HistoSelectionChanged()
     }
 }
 
-void KVTreeAnalyzer::GenerateIPSelection()
-{
-   // Method called when user hits 'return' in the 'b<...' text-box
-   // of the histogram GUI.
-   // Create a new selection of events based on the impact parameter
-   // scale previously created using MakeIPScale.
-   
-   TString bmax = G_make_ip_selection->GetText();
-   Double_t Bmax = bmax.Atof();
-   TGString histotit = G_ip_histo->GetText();
-   KVString ipvar,ipsel,ipweight;
-   KVHistogram::ParseHistoTitle(histotit.Data(),ipvar,ipsel,ipweight);
-   Double_t varCut = ipscale->GetObservable(Bmax);
-   TString selection;
-   selection.Form("%s>%f", ipvar.Data(), varCut);
-   TEntryList* save_elist = fTree->GetEntryList();
-   SetSelection(ipsel);
-   MakeSelection(selection);
-   fTree->SetEntryList(save_elist);
-}
-
-void KVTreeAnalyzer::MakeIPScale()
-{
-   SafeDelete(ipscale);
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   ipscale = new KVImpactParameter(histo);
-   ipscale->MakeScale();
-   G_ip_histo->SetText(histo->GetTitle());
-   G_ip_histo->Resize();
-   G_make_ip_selection->SetEnabled(kTRUE);
-}
-
+// void KVTreeAnalyzer::GenerateIPSelection()
+// {
+//    // Method called when user hits 'return' in the 'b<...' text-box
+//    // of the histogram GUI.
+//    // Create a new selection of events based on the impact parameter
+//    // scale previously created using MakeIPScale.
+//    
+//    TString bmax = G_make_ip_selection->GetText();
+//    Double_t Bmax = bmax.Atof();
+//    TGString histotit = G_ip_histo->GetText();
+//    KVString ipvar,ipsel,ipweight;
+//    KVHistogram::ParseHistoTitle(histotit.Data(),ipvar,ipsel,ipweight);
+//    Double_t varCut = ipscale->GetObservable(Bmax);
+//    TString selection;
+//    selection.Form("%s>%f", ipvar.Data(), varCut);
+//    TEntryList* save_elist = fTree->GetEntryList();
+//    SetSelection(ipsel);
+//    MakeSelection(selection);
+//    fTree->SetEntryList(save_elist);
+// }
+// 
+// void KVTreeAnalyzer::MakeIPScale()
+// {
+//    SafeDelete(ipscale);
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    ipscale = new KVImpactParameter(histo);
+//    ipscale->MakeScale();
+//    G_ip_histo->SetText(histo->GetTitle());
+//    G_ip_histo->Resize();
+//    G_make_ip_selection->SetEnabled(kTRUE);
+// }
+// 
 void KVTreeAnalyzer::SetSelection(const Char_t* sel)
 {
    fTree->SetEntryList(GetSelection(sel));
@@ -1854,164 +1854,164 @@ void KVTreeAnalyzer::Save()
    SetAnalysisModifiedSinceLastSave(kFALSE);
 }
 
-void KVTreeAnalyzer::FitGum1()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GDfirst->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GDfirst,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
-void KVTreeAnalyzer::FitGum2()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GDsecond->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GDsecond,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
-void KVTreeAnalyzer::FitGum3()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GDthird->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GDthird,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
-void KVTreeAnalyzer::FitGausGum1()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GausGum1->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
-   histo->Fit(GausGum1,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
-   
-void KVTreeAnalyzer::FitGausGum2()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GausGum2->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
-   histo->Fit(GausGum2,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
-   
-void KVTreeAnalyzer::FitGausGum3()
-{
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
-   if(!histo) return;
-   GausGum3->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
-   histo->Fit(GausGum3,"EM");
-   TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
-   if(!stats){
-      histo->SetStats(1);
-      histo->Draw();
-      gPad->Update();
-      stats = (TPaveStats*)histo->FindObject("stats");
-   }
-   if(stats){
-      // if canvas's 'no stats' option has been set by user,
-      // there will still be no valid stats object,
-      // so this test is to avoid the ensuing seg fault
-      stats->SetFitFormat("10.9g");
-      stats->SetOptFit(111);
-   }
-   histo->SetOption("e1");
-   histo->SetMarkerStyle(24);
-   histo->SetMarkerColor(kBlue+2);
-   gPad->Modified();gPad->Update();
-   SetAnalysisModifiedSinceLastSave(kTRUE);
-}
+// void KVTreeAnalyzer::FitGum1()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GDfirst->SetParameters(histo->GetMean(),histo->GetRMS());
+//    histo->Fit(GDfirst,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
+// void KVTreeAnalyzer::FitGum2()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GDsecond->SetParameters(histo->GetMean(),histo->GetRMS());
+//    histo->Fit(GDsecond,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
+// void KVTreeAnalyzer::FitGum3()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GDthird->SetParameters(histo->GetMean(),histo->GetRMS());
+//    histo->Fit(GDthird,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
+// void KVTreeAnalyzer::FitGausGum1()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GausGum1->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+//    histo->Fit(GausGum1,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
+//    
+// void KVTreeAnalyzer::FitGausGum2()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GausGum2->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+//    histo->Fit(GausGum2,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
+//    
+// void KVTreeAnalyzer::FitGausGum3()
+// {
+//    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+//    if(!histo) return;
+//    GausGum3->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+//    histo->Fit(GausGum3,"EM");
+//    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+//    if(!stats){
+//       histo->SetStats(1);
+//       histo->Draw();
+//       gPad->Update();
+//       stats = (TPaveStats*)histo->FindObject("stats");
+//    }
+//    if(stats){
+//       // if canvas's 'no stats' option has been set by user,
+//       // there will still be no valid stats object,
+//       // so this test is to avoid the ensuing seg fault
+//       stats->SetFitFormat("10.9g");
+//       stats->SetOptFit(111);
+//    }
+//    histo->SetOption("e1");
+//    histo->SetMarkerStyle(24);
+//    histo->SetMarkerColor(kBlue+2);
+//    gPad->Modified();gPad->Update();
+//    SetAnalysisModifiedSinceLastSave(kTRUE);
+// }
    
 TList* KVTreeAnalyzer::GetHistosByData(const Char_t* expr)
 {

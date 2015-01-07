@@ -22,6 +22,7 @@ $Id: KVEvent.cpp,v 1.41 2008/12/17 11:23:12 ebonnet Exp $
 #include "TStreamerInfo.h"
 #include "KVParticleCondition.h"
 #include "TClass.h"
+#include "KVIntegerList.h"
 
 using namespace std;
 
@@ -709,3 +710,19 @@ void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, 
 		i++;
 	}
 } 
+
+void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
+{
+	// Clear & fill the KVIntegerList with the contents of this event,
+	// the option will be passed to GetNextParticle(opt).
+	// IntegerList is then 'Update()'d.
+	// (This method was originally KVIntegerList::Fill(KVEvent*,Option_t*),
+	// it was moved here in order to make KVIntegerList a base class)
+	
+	IL->Clear();
+	KVNucleus* nuc=0;
+	while ( (nuc = (KVNucleus* )GetNextParticle(opt)) ) 
+		IL->Add(nuc->GetZ());
+	IL->SetPopulation(1);
+	IL->CheckForUpdate();	
+}

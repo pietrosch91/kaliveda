@@ -13,6 +13,7 @@ $Date: 2009/01/21 08:04:20 $
 #include "TNamed.h"
 #include "KVString.h"
 #include "KVParameterList.h"
+#include "KVList.h"
 
 class KVClassMethod : public TNamed {
 

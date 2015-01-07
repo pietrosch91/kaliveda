@@ -76,9 +76,9 @@ class KVString:public TString
    virtual Int_t Sscanf(const Char_t * fmt, ...);
 
 	virtual Bool_t	Match(TString pattern);
-	virtual void Begin(TString delim);
-	virtual Bool_t End();
-	virtual KVString Next(Bool_t strip_whitespace = kFALSE);
+        virtual void Begin(TString delim) const;
+        virtual Bool_t End() const;
+        virtual KVString Next(Bool_t strip_whitespace = kFALSE) const;
 	virtual Int_t GetNValues(TString delim);
 
 #ifdef __WITH_KVSTRING_ISWHITESPACE

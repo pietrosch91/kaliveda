@@ -17,10 +17,7 @@ $Id: KVLayer.cpp,v 1.17 2006/10/19 14:32:43 franklan Exp $
  ***************************************************************************/
 #include "Riostream.h"
 #include "KVLayer.h"
-#include "KVParticle.h"
-#include "KVTelescope.h"
 #include "KVRing.h"
-#include "KVEvent.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 

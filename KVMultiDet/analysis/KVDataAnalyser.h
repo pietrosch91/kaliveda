@@ -188,6 +188,7 @@ class KVDataAnalyser : public TObject {
    void SetUserClassOptions(const Char_t* o = "") { fUserClassOptions=o; }
    const KVString& GetUserClassOptions() const { return fUserClassOptions; }
 	
+   static void RunAnalyser(const Char_t * plugin = "");
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };
 

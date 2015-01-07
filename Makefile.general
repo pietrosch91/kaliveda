@@ -40,8 +40,12 @@ SrcSuf	= cpp
 
 .SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
 
+#Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
+#Override in project's Makefile if it is not simply a subdirectory of KaliVeda
+KVPROJ_ROOT = ..
+
 #make list of all .cpp files in all subdirectories
-TEMPSOU := $(patsubst %, %/*.cpp, $(MODULES))
+TEMPSOU := $(patsubst %, %/*.cpp, $(MODULE))
 ALL_SOURCES := $(wildcard $(TEMPSOU))
 #apply wildcard to user's NOT_READY list in case there are '*.cpp' in it
 ALL_NOT_READY := $(wildcard $(NOT_READY))
@@ -51,19 +55,15 @@ ALL_NOT_READY_H := $(patsubst %.cpp,%.h,$(ALL_NOT_READY))
 SOURCES := $(filter-out $(ALL_NOT_READY),$(ALL_SOURCES))
 	  
 #define "include" paths to find all the *.h files
-KV_INC := $(patsubst %, -I%, $(MODULES))
-KV_INC += $(KV_INC_EXTRAS)
-#make sure we look for KVConfig.h in top-level source dir
-KV_INC += -I$(KVPROJ_ROOT_ABS)
-#make sure previously installed headers are consulted last
-KV_INC += -I$(KVINSTALLDIR)/include
+KV_INC := -I$(MODULE)
+KV_INC += $(KV_INC_EXTRAS) -I$(KVPROJ_ROOT)
 
 HEADERS = $(SOURCES:%.cpp=%.h) $(EXTRA_HEADERS)
 
 ####################################
 # DICTIONARIES
 # list of dictionaries by module (subdirectory)
-DICT_SOURCES := $(patsubst %, $(PROJ_NAME)%Dict.$(SrcSuf), $(MODULES))
+DICT_SOURCES := $(patsubst %, $(PROJ_NAME)%Dict.$(SrcSuf), $(MODULE))
 DICT_HEADERS := $(patsubst %.$(SrcSuf),%.h,$(DICT_SOURCES))
 DICT_OBJECTS := $(patsubst %.$(SrcSuf),%.$(ObjSuf),$(DICT_SOURCES))
 
@@ -76,30 +76,17 @@ OBJECTS = $(SOURCES:%.cpp=%.$(ObjSuf))
 
 PREREQ = $(SOURCES:%.cpp=%.d)
 
-DIST_DIR = lib$(PROJ_NAME)-$(VERSION_NUMBER)
+LIBRARY = lib$(PROJ_NAME)$(MODULE)
+DIST_DIR = $(LIBRARY)-$(VERSION_NUMBER)
 
-LIB_SO = lib$(PROJ_NAME).$(DllSuf)
-LIBVERSION = lib$(PROJ_NAME).$(VERSION_NUMBER).$(DllSuf)
+LIB_SO = $(LIBRARY).$(DllSuf)
+LIBVERSION = $(LIBRARY).$(VERSION_NUMBER).$(DllSuf)
 
-MY_ROOTMAP = lib$(PROJ_NAME).rootmap
 RLIBMAPDEPS := 
 
-#system dependent stuff------------------------------------------------------------
-ifeq ($(PLATFORM),win32)
-LIB_LIB      = lib$(PROJ_NAME).lib
-else
 LIB_LIB      = $(LIB_SO)
-endif
-
-ifeq ($(ARCH),macosx)
-LIB_DY = $(LIB_SO:%.$(DllSuf)=%.so)
-LIBDYVERSION = $(LIBVERSION:%.$(DllSuf)=%.so)
-endif
 
 CPOPT = -u
-ifeq ($(ARCH),macosx)
-CPOPT =  
-endif
 
 #-------------------------------------------------------------------------------------------
 
@@ -132,23 +119,12 @@ LDFLAGS += -g -pg -Wl,--no-as-needed -Wl,--no-undefined
 endif
 endif
 
-ifeq ($(ARCH),win32)
-#Windows/VC++
-#CXXFLAGS without optimisation
-#to avoid warnings (optimisation not available in standard edition compiler)
-CXXFLAGS := $(CXXFLAGS_NOOPT)
-endif
-
 STRICT_WARNINGS = -Wall -Wextra \
 	-Werror=overloaded-virtual -Werror=non-virtual-dtor -Werror=type-limits \
 	-Werror=sign-compare -Werror=unused-but-set-variable \
 	-Wno-format-security -Wno-unused-parameter -Wunused-but-set-parameter -Wunused-variable
 ALL_CXXFLAGS = $(STRICT_WARNINGS) $(CXXFLAGS) $(KV_INC)
 ALL_CXXFLAGS_NOOPT = $(STRICT_WARNINGS) $(CXXFLAGS_NOOPT) $(KV_INC)
-
-#Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
-#Override in project's Makefile if it is not simply a subdirectory of KaliVeda
-KVPROJ_ROOT = ..
 
 MANIP_DATA = 
 ifneq ($(MANIP_DIRS), )
@@ -157,73 +133,29 @@ endif
 
 .PHONY : all clean install uninstall removemoduledirs copymanipdirs rootlibmap
 
-all : .config dictionaries $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
+all : dictionaries $(LIB_SO) $(EXTRAS) $(MODULE)/.copyheads
 
 dictionaries:
-	@for module in $(MODULES); do \
-		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"; \
-#		[ $$? -eq 2 ] && exit 1 ; \
-	done
+	@make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$(MODULE) LIBNAME=$(PROJ_NAME) RLIBMAPDEPS="$(RLIBMAPDEPS)" INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"
 
-rootlibmap :
-ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_99_00)),1)
-	@cat */*LinkDef.h > tmpLinkDef.h
-	@rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c tmpLinkDef.h
-	@-cp $(MY_ROOTMAP) $(KVINSTALLDIR)/lib/
-else
-# for ROOT v6 we have to copy all the *.pcm files into $KVROOT/lib
-# in addition, rootlibmap files are generated at the same time as dictionaries
-# and only need to be copied at this point
-	@-cp *.pcm $(KVINSTALLDIR)/lib/
-	@-cp *.rootmap $(KVINSTALLDIR)/lib/
-endif
-
-$(LIB_SO):        $(OBJECTS) $(DICT_OBJECTS)
-ifeq ($(PLATFORM),macosx)
-# We need to make both the .dylib and the .so
-		@echo "Building SO and DYLIB file"
-		$(LD) $(SOFLAGS) $^ $(OutPutOpt) $@
-ifeq ($(MACOSX_MINOR),4)
-		ln -sf $@ $(subst .$(DllSuf),.so,$@)
-else
-		$(LD) -bundle -undefined $(UNDEFOPT) $(LDFLAGS) $^ \
-                  $(LINK_LIB) $(OutPutOpt) $(subst .$(DllSuf),.so,$@)
-endif
-else
-ifeq ($(PLATFORM),win32)
-		bindexplib lib$(PROJ_NAME) $^ > lib$(PROJ_NAME).def
-		lib -nologo -MACHINE:IX86 $^ -def:lib$(PROJ_NAME).def $(OutPutOpt)$(LIB_LIB)
-		$(LD) $(SOFLAGS) $(LDFLAGS) $^ lib$(PROJ_NAME).exp $(LIBS) $(GLIBS) $(LINK_LIB) $(OutPutOpt)$@
-else
-		@echo "Building library $@"
-		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS)
-endif
-endif
-	@echo "$@ done"
-ifeq ($(ARCH),win32)
-#dynamic path for .dll is PATH for win32vc++
-	-cp $(LIB_SO) $(KVINSTALLDIR)/bin/
-	-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/
-else
-	@-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/
-endif
+$(LIB_SO): $(OBJECTS) $(DICT_OBJECTS)
+	@echo `tput setaf 5`"Building library $@"`tput sgr0`
+	@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS)
+	@echo `tput setaf 5`"$@ done"`tput sgr0`
+	@-cp $@ $(KVINSTALLDIR)/lib/
 
 .SUFFIXES: .$(SrcSuf)
 
 ###
 
 clean :
-	@-rm -f $(PREREQ) $(OBJECTS) $(DICT_SOURCES) $(DICT_HEADERS) $(DICT_OBJECTS) lib$(PROJ_NAME)*.*
-	@-rm -f .copyheads .config .copysource
-	@-rm -f tmpLinkDef.h
-ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_99_00)),1)
-# for ROOT v5.99+ we have to clean all the *.pcm (Cling?) files
+	@-rm -f $(PREREQ) $(OBJECTS) $(DICT_SOURCES) $(DICT_HEADERS) $(DICT_OBJECTS) $(LIBRARY).*
+	@-rm -f $(MODULE)/.copyheads $(MODULE)/.config
 	@-rm -f *.pcm
-endif
 
-.copyheads: $(HEADERS)
+$(MODULE)/.copyheads: $(HEADERS)
 	@-cp $? $(KVINSTALLDIR)/include/
-	@-touch .copyheads
+	@-touch $(MODULE)/.copyheads
 
 dist :
 	-mkdir $(DIST_DIR)
@@ -241,7 +173,7 @@ endif
 	-mv $(DIST_DIR).tgz ../$(DIST_DIR).tgz
 	-rm -Rf $(DIST_DIR)
 
-install : .copysource $(MANIP_DATA)
+install : $(MANIP_DATA)
 ifeq ( $(KVINSTALLDIR),)
 	@echo "KVROOT environment variable doesn't seem to be set."
 	@echo "You must set it in order to install KaliVeda project files"
@@ -271,27 +203,9 @@ ifeq ($(PROJ_NAME),KVIndra)
 	$(MAKE) indra2root
 endif
 endif
-#this is for HTML doc generation
-	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(KVINSTALLDIR)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/src/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(KVINSTALLDIR)/src/$(subdir)))
-
-.copysource : $(SOURCES)
-	@touch .copysource
-ifeq ( $(KVINSTALLDIR),)
-	@echo "KVROOT environment variable doesn't seem to be set."
-	@echo "You must set it in order to install KaliVeda project files"
-	@echo "use 'setenv KVROOT install_path' (shell)"
-	@echo "or  'export KVROOT=install_path' (bash)"
-	@echo "use 'make install' to perform the installation"
-else
-	@-cp $? $(KVINSTALLDIR)/src/
-endif
 
 removemoduledirs :
-	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/src/$(subdir)))
+	$(foreach subdir,$(MODULE),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
 
 uninstall :
 	cd $(KVINSTALLDIR)/src && rm -f $(SOURCES)
@@ -325,15 +239,15 @@ endif
 # ($KVROOT/db/manip_dir/DataBase.root) as target, and as prerequisites
 # all files in $KVROOT/KVFiles/manip_dir
 copymanipdirs :
-	for manip_dir in $(MANIP_DIRS); do \
+	@for manip_dir in $(MANIP_DIRS); do \
 		cp -r $(CPOPT) $$manip_dir $(KVINSTALLDIR)/KVFiles/ ; \
 		echo '$$''(KVROOT)/db/'$$manip_dir"/DataBase.root : "`ls $$manip_dir` > $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 		echo "	@echo Database needs update" >> $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 	done
 
-.config : $(HEADERS) $(SOURCES)
+$(MODULE)/.config : $(HEADERS) $(SOURCES)
 	@echo "--------------------------------------------------------------------------------"
-	@echo "CONFIGURATION OF MAKEFILE FOR "$(PROJ_NAME)
+	@echo "CONFIGURATION OF MAKEFILE FOR "$(PROJ_NAME)/$(MODULE)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "SOURCES = "$(SOURCES)
 	@echo "--------------------------------------------------------------------------------"
@@ -357,6 +271,8 @@ copymanipdirs :
 	@echo "--------------------------------------------------------------------------------"
 	@echo "ALL_CXXFLAGS_NOOPT = "$(ALL_CXXFLAGS_NOOPT)
 	@echo "--------------------------------------------------------------------------------"
+	@echo "LINK_LIB = "$(LINK_LIB)
+	@echo "--------------------------------------------------------------------------------"
 	@echo "LDFLAGS = "$(LDFLAGS)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "SOFLAGS = "$(SOFLAGS)
@@ -371,16 +287,15 @@ copymanipdirs :
 	@echo "--------------------------------------------------------------------------------"
 	@echo "ARCH = "$(ARCH)
 	@echo "--------------------------------------------------------------------------------"
-	touch .config
+#touch $(MODULE)/.config
 
 
-ifneq ($(ARCH),win32)
 .$(SrcSuf).$(ObjSuf):
-	@echo Compiling $<...
+	@echo `tput setaf 1`"Compiling $<..."`tput sgr0`
 	@$(CXX) $(ALL_CXXFLAGS) $(OutPutOpt)$@ -c $<
         
 %.d : %.cpp
-#	@echo Making prerequisite $@; 
+	@echo `tput setaf 3`"Making prerequisite $@"`tput sgr0`; 
 	@set -e; rm -f $@; \
 	$(CXX) -MM -MT $(subst .cpp,.$(ObjSuf),$<) $(ALL_CXXFLAGS) $< > $@
 	
@@ -389,10 +304,4 @@ ifneq ($(ARCH),win32)
 ##### logs, we don't include this file since it may screw up things #####
 ifeq ($(findstring $(MAKECMDGOALS), clean config logs uninstall-indra2root),)
 -include $(PREREQ)
-endif
-else
-#can't do prerequisites on Win32VC++
-#have to define rule for compiling with "/Fo" (output file name) option for Win32VC++
-.$(SrcSuf).$(ObjSuf):
-	$(CXX) $(ALL_CXXFLAGS)  /Fo$@ -c $<
 endif

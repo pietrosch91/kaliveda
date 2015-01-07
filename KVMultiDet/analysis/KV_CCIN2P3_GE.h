@@ -49,7 +49,6 @@ class KV_CCIN2P3_GE:public KVBatchSystem {
    virtual void SanitizeJobName();
 
     virtual KVList* GetListOfJobs();
-   virtual void AlterJobs(TGWindow*, TList*);
 	
    ClassDef(KV_CCIN2P3_GE, 1)  //Interface to CCIN2P3-GE batch job management system
 };

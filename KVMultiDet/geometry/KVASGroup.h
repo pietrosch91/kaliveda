@@ -36,9 +36,6 @@ protected:
    TList *GetDetectorsInLayer(UInt_t lay);
    UInt_t GetDetectorLayer(KVDetector * det);
    TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
-   void AnalyseAndReconstruct(KVReconstructedEvent *);
-   void GetIDTelescopes(TCollection *);
-   void AnalyseTelescopes(KVReconstructedEvent *event, TList *kvtl);
 
    void Add(KVBase*);
    Bool_t Contains(KVBase *name) const;

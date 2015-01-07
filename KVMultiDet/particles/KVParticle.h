@@ -30,7 +30,6 @@ $Id: KVParticle.h,v 1.41 2008/05/21 13:19:56 ebonnet Exp $
 #include "TObjString.h"
 #include "KVNameValueList.h"
 
-class KVEvent;
 class KVList;
 class KVParticleCondition;
 

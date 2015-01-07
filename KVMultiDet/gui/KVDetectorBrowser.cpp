@@ -77,7 +77,7 @@ KVDetectorBrowser::KVDetectorBrowser(const TGWindow * p,
 
 void KVDetectorBrowser::CloseWindow()
 {
-   fDet->CloseBrowser();
+   //fDet->CloseBrowser();
 }
 
 //________________________________________________________________________________

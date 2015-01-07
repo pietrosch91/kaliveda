@@ -18,7 +18,6 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 #include "KVParticleCondition.h"
 #include "Riostream.h"
 #include "TMethodCall.h"
-#include "KVNumberList.h"
 #include "TPluginManager.h"
 #include "KVNDTManager.h"
 
@@ -249,11 +248,13 @@ void KVNucleus::init()
 {
    // Default intialisations
    // The mass formula is kBetaMass, i.e. the formula for the valley of beta-stability.
+	// Set up nuclear data table manager if not done already
   
    fZ = fA = 0;
    fExx = 0;
    if (!fNb_nuc){
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
+		if(!gNDTManager) gNDTManager = new KVNDTManager;
    }
    fMassFormula = kBetaMass;
    fNb_nuc++;

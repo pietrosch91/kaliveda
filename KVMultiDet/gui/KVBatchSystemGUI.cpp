@@ -2,10 +2,12 @@
 //Author: John Frankland,,,
 
 #include "KVBatchSystemGUI.h"
+#include "KVInputDialog.h"
 #include <KVBatchJob.h>
 #include <KVDatime.h>
 #include <TEnv.h>
 #include <KVBatchSystemManager.h>
+#include <KVGEBatchJob.h>
 
 ClassImp(KVBatchSystemGUI)
 
@@ -149,7 +151,17 @@ void KVBatchSystemGUI::AlterJobs()
     selected_jobs = fLVJobs->GetSelectedObjects();
     if(!selected_jobs->GetEntries()) return;
     
-    gBatchSystem->AlterJobs(MainFrame, selected_jobs);
+    //gBatchSystem->AlterJobs(MainFrame, selected_jobs);
+   KVGEBatchJob* j1 = (KVGEBatchJob*)selected_jobs->First();
+   TString resources = j1->GetResources();
+   Bool_t ok=kFALSE;
+   new KVInputDialog(MainFrame, "Modify the currently-set resources for theses jobs ?", &resources, &ok,
+         "Change the resources you want to modify; leave the other ones as they are");
+   if(ok){
+    TIter next(selected_jobs);
+    KVGEBatchJob* job;
+    while( (job = (KVGEBatchJob*)next()) ) job->AlterResources(resources);
+   }
     
     Refresh();
 }

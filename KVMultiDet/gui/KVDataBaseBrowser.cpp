@@ -74,7 +74,7 @@ KVDataBaseBrowser::KVDataBaseBrowser(const TGWindow * p,
 
 void KVDataBaseBrowser::CloseWindow()
 {
-   fDbase->CloseBrowser();
+   //fDbase->CloseBrowser();
 }
 
 //________________________________________________________________________________

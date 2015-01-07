@@ -7,7 +7,6 @@
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
 #include "KVGEBatchJob.h"
-#include "KVInputDialog.h"
 
 using namespace std;
 
@@ -383,21 +382,4 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
     }
 
     return list_of_jobs;
-}
-
-void KV_CCIN2P3_GE::AlterJobs(TGWindow* gui, TList* jobs)
-{
-   // Called by GUI in order to alter resources for jobs in list
-   
-   // get current resources of first job
-   KVGEBatchJob* j1 = (KVGEBatchJob*)jobs->First();
-   TString resources = j1->GetResources();
-   Bool_t ok=kFALSE;
-   new KVInputDialog(gui, "Modify the currently-set resources for theses jobs ?", &resources, &ok,
-         "Change the resources you want to modify; leave the other ones as they are");
-   if(ok){
-    TIter next(jobs);
-    KVGEBatchJob* job;
-    while( (job = (KVGEBatchJob*)next()) ) job->AlterResources(resources);
-   }
 }

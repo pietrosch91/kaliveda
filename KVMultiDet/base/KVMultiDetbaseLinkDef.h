@@ -3,12 +3,12 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+#pragma link C++ namespace KVUnits;
 #pragma link C++ global gHistoManipulator;
-#pragma link C++ global gNDTManager;
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
-#pragma link C++ nestedclass;
-#pragma link C++ nestedtypedef;
 #pragma extra_include "Rtypes.h";
 #pragma link C++ class Binary_t<UChar_t>+;
 #pragma link C++ class Binary_t<UShort_t>+;
@@ -69,9 +69,12 @@
 #pragma link C++ class KVSystemDirectory+;
 #pragma link C++ class KVEnv+;
 #pragma link C++ class KVHistogram+;
-#pragma link C++ class KVNuclData+;
-#pragma link C++ class NDT::value+;
-#pragma link C++ class NDT::key+;
-#pragma link C++ class KVNuclDataTable+;
-#pragma link C++ class KVNDTManager+;
+#pragma link C++ class KVPosition+;
+#pragma link C++ class KVIntegerList-;
+#pragma link C++ class KVCouple+;
+#pragma link C++ class KVPartitionGenerator+;
+#pragma link C++ class KVPartition+;
+#pragma link C++ class KVPartitionFromLeaf+;
+#pragma link C++ class KVPartitionList+;
+#pragma link C++ class KVPartitionFunction+;
 #endif

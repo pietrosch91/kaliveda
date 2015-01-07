@@ -225,19 +225,19 @@ class KVTGID:public TF1 {
     };
     void SetIDTelescopes(const TCollection*);
     void ClearIDTelescopes() { fTelescopes="/"; };
-    void AddIDTelescope(KVIDTelescope*tel)
+    void AddIDTelescope(KVBase*tel)
     {
         // Adds tel to list of ID telescopes for which this fit is valid
         fTelescopes+=tel->GetName();
         fTelescopes+="/";
     };
-    Bool_t IsValidForTelescope(KVIDTelescope* tel) const
+    Bool_t IsValidForTelescope(KVBase* tel) const
     {
         // return kTRUE if fit is good for this telescope
         TString id = Form("/%s/",tel->GetName());
         return fTelescopes.Contains(id);
     };
-    TCollection* GetIDTelescopes();
+    const KVString& GetIDTelescopes() const { return fTelescopes; }
     void WriteToAsciiFile(std::ofstream &) const;
     static KVTGID* ReadFromAsciiFile(const Char_t* name, std::ifstream &);
 

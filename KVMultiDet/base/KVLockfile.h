@@ -27,6 +27,7 @@ class KVLockfile
    void init();
    int testlock();
    void writecmd();
+	Bool_t FindExecutable(TString & exec, const Char_t * path="$(PATH)");
 
    public:
    KVLockfile(const Char_t* filename="");

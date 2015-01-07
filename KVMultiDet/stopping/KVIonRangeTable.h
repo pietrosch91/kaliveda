@@ -10,7 +10,6 @@
 class TGeoMaterial;
 class KVIonRangeTableMaterial;
 class TGeoManager;
-class KVEvent;
 class TVector3;
 
 class KVIonRangeTable : public KVBase {

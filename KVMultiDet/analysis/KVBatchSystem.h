@@ -18,7 +18,7 @@ $Date: 2008/04/03 07:35:45 $
 class KVDataAnalyser;
 class TEnv;
 class TGWindow;
-
+class KVList;
 class KVBatchSystem : public KVBase {
 
  protected:

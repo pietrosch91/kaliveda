@@ -37,6 +37,7 @@ $Id: KVRingBrowser.h,v 1.3 2006/10/19 14:32:43 franklan Exp $
 #include "TList.h"
 
 #include "KVMultiDetArray.h"
+#include "KVRing.h"
 #include "KVWidget.h"
 #include "KVWidgetList.h"
 #include "KVBrowserWidget.h"

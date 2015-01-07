@@ -43,7 +43,7 @@ void KVLayerBrowser::LayoutLayer(KVLayer * layer)
    tf = AddTab(layer->GetName());       // new tab with name of layer
 
    // display ringbrowser i.e. tabs for rings
-   KVRingBrowser *fRB = new KVRingBrowser(layer->GetRings(), tf, 800, 500);
+   KVRingBrowser *fRB = new KVRingBrowser(layer->GetStructureTypeList("RING"), tf, 800, 500);
    AddRingBrowser(fRB);         // add to list of ring browsers
    fTGL =
        new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 5,
@@ -89,7 +89,7 @@ void KVLayerBrowser::LayoutLayer(KVLayer * layer)
    tf->AddFrame(fF1, fTGL);
 
    //set pointer in layer to its layer-browser
-   layer->fBrowser = this;
+   //layer->fBrowser = this;
 }
 
 //______________________________________________________________________________________

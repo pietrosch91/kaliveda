@@ -3,12 +3,15 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+
 #pragma link C++ global gDataSetManager;
 #pragma link C++ global gDataRepository;
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
-#pragma link C++ nestedclass;
-#pragma link C++ nestedtypedef;
+
+#pragma link C++ class KVDataAnalysisTask+;
 #pragma link C++ class KVAvailableRunsFile+;
 #pragma link C++ class KVRemoteAvailableRunsFile+;
 #pragma link C++ class KVDataSet+;
@@ -16,10 +19,6 @@
 #pragma link C++ class DMSFile_t+;
 #pragma link C++ class KVDMS+;
 #pragma link C++ class KVDMSDataRepository+;
-#pragma link C++ class KVDataTransfer+;
-#pragma link C++ class KVDataTransferSFTP+;
-#pragma link C++ class KVDataTransferBBFTP+;
-#pragma link C++ class KVDataTransferXRD+;
 #pragma link C++ class KVRemoteDataRepository+;
 #pragma link C++ class KVRemoteDataSetManager+;
 #pragma link C++ class KVDataRepositoryManager+;

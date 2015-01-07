@@ -483,7 +483,7 @@ Bool_t KVString::Match(TString pattern)
 	}
 }
 
-void KVString::Begin(TString delim)
+void KVString::Begin(TString delim) const
 {
 	// Begin(), Next() and End() can be used to loop over items in
 	// a string separated by the delimiter character given as argument
@@ -510,18 +510,19 @@ void KVString::Begin(TString delim)
    //
    //      "par1|par2|par3" -> "par1" "par2" "par3"
    //      "par1"           -> "par1"
-	fEndList=kFALSE;
-	fIterIndex=0;
-	if (IsNull()) { fEndList=kTRUE;}
+        KVString* THIS = const_cast<KVString*>(this);
+        THIS->fEndList=kFALSE;
+        THIS->fIterIndex=0;
+        if (IsNull()) { THIS->fEndList=kTRUE;}
 	else {
 		if (kObjArr) delete kObjArr;
-		kObjArr = Tokenize(delim);
-	   if (!kObjArr) { fEndList=kTRUE;}
-	   else if (!kObjArr->GetEntries()) { fEndList=kTRUE; delete kObjArr; kObjArr=0;}
+                THIS->kObjArr = Tokenize(delim);
+           if (!kObjArr) { THIS->fEndList=kTRUE;}
+           else if (!kObjArr->GetEntries()) { THIS->fEndList=kTRUE; delete kObjArr; THIS->kObjArr=0;}
 	}
 }
 
-Bool_t KVString::End()
+Bool_t KVString::End() const
 {
 	// Begin(), Next() and End() can be used to loop over items in
 	// a string separated by the delimiter character given as argument
@@ -542,7 +543,7 @@ Bool_t KVString::End()
 	return fEndList;
 }
 
-KVString KVString::Next(Bool_t strip_whitespace)
+KVString KVString::Next(Bool_t strip_whitespace) const
 {
 	// Begin(), Next() and End() can be used to loop over items in
 	// a string separated by the delimiter character given as argument
@@ -570,12 +571,13 @@ KVString KVString::Next(Bool_t strip_whitespace)
 	//  Second
 	//  Third
 	
-	static KVString st;
+   KVString* THIS = const_cast<KVString*>(this);
+        static KVString st;
 	st = "";
 	if(!kObjArr) return st;
-	st = ((TObjString* )kObjArr->At(fIterIndex++))->GetString();
-	fEndList = (fIterIndex==kObjArr->GetEntries());
-	if(fEndList) {delete kObjArr; kObjArr=0;};
+        st = ((TObjString* )kObjArr->At(THIS->fIterIndex++))->GetString();
+        THIS->fEndList = (fIterIndex==kObjArr->GetEntries());
+        if(fEndList) {delete kObjArr; THIS->kObjArr=0;};
 	if(strip_whitespace) st.Remove(kBoth,' ');
 	return st;
 }

@@ -17,11 +17,8 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
  ***************************************************************************/
 
 #include "KVDataBase.h"
-#include "KVDataSet.h"
 #include "TROOT.h"
 #include "Riostream.h"
-#include "KVDataBaseBrowser.h"
-#include "KVDataSetManager.h"
 #include "TPluginManager.h"
 
 KVDataBase *gDataBase;
@@ -242,35 +239,10 @@ void KVDataBase::Print(Option_t * option) const
        endl;
 }
 
-//______________________________________________________________________________
-void KVDataBase::CloseBrowser()
-{
-//
-//close graphical configuration tool for this databse
-//
-   if (fBrowser) {
-      Warning("CloseBrowser", "Closing browser for %s", GetName());
-      delete fBrowser;
-      fBrowser = 0;
-   }
-}
-
-//______________________________________________________________________________
-void KVDataBase::StartBrowser()
-{
-//
-//open graphical configuration tool
-//
-   if (gROOT->IsBatch()) {
-      fprintf(stderr, "Browser cannot run in batch mode\n");
-   }
-   if (!fBrowser)
-      fBrowser = new KVDataBaseBrowser(gClient->GetRoot(), this, 10, 10);
-}
 
 //_________________________________________________________________________________
 
-KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
+KVDataBase *KVDataBase::MakeDataBase(const Char_t * name, const Char_t* datasetdir)
 {
    //Static function which will create and 'Build' the database object corresponding to 'name'
    //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
@@ -291,6 +263,7 @@ KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
    }
    //execute constructor/macro for database
    KVDataBase *mda = (KVDataBase *) ph->ExecPlugin(1, name);
+	mda->SetDataSetDir(datasetdir);
    //call Build() method
    mda->Build();
    return mda;
@@ -320,25 +293,5 @@ void KVDataBase::ReadObjects(TFile*)
 	// The pointer to the file being read is passed as argument.
 	
 	AbstractMethod("ReadObjects");
-}
-
-//__________________________________________________________________________________________________________________
-
-const Char_t *KVDataBase::GetDataSetDir() const
-{
-   // Returns full path to directory associated to the
-	// dataset associated with this database, i.e. the full path to
-	//
-	//    $KVROOT/KVFiles/[dataset name]
-	//
-	// Use this when building the database instead of gDataSet->GetDataSetDir,
-	// as gDataSet will not yet be positioned correctly.
-
-   if (!gDataSetManager)
-      return "";
-   KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
-   if (!ds)
-      return "";
-   return ds->GetDataSetDir();
 }
 

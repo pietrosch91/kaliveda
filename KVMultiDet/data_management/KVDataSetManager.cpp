@@ -7,11 +7,7 @@ $Author: franklan $
 
 #include "KVBase.h"
 #include "KVDataSetManager.h"
-#include "KVDataAnalysisTask.h"
-#include "KVDataAnalyser.h"
-#include "KVDataRepository.h"
 #include "KVDataRepositoryManager.h"
-#include "KVDataSet.h"
 #include "KVString.h"
 #include "TObjString.h"
 #include "TObjArray.h"
@@ -43,14 +39,6 @@ ClassImp(KVDataSetManager)
 //being 'active' or 'current', and it's address is held in the global pointer gDataRepository.
 //One can then access the corresponding dataset manager through gDataSetManager.
 //
-//DATA ANALYSIS
-//=============
-//Data analysis tasks are set up and run using KVDataAnalyser and child classes, which
-//are handled by the dataset manager:
-//
-// gDataSetManager->RunAnalyser(...)
-//
-//See arguments in method doc.
 
 KVDataSetManager *gDataSetManager;
 
@@ -361,30 +349,6 @@ KVDataSet *KVDataSetManager::GetAvailableDataSet(Int_t index) const
    if (fNavailable && index && index <= fNavailable)
       return GetDataSet(fIndex[index - 1]);
    return 0;
-}
-
-void KVDataSetManager::RunAnalyser(const Char_t * uri)
-{
-   //Set up and run data analysis task.
-   //This allows to choose a dataset and a data analysis task and then execute the task or submit a batch job.
-   //The behaviour of the data analyser object (base class KVDataAnalyser) can be modified by choosing
-   //a plugin class corresponding to one of the plugins defined in $KVROOT/KVFiles/.kvrootrc.
-
-   KVDataAnalyser *datan = 0;
-   TString tmp(uri);
-   if (tmp != "") {
-      //got plugin ?
-      TPluginHandler *ph = KVBase::LoadPlugin("KVDataAnalyser", uri);
-      if (!ph)
-         Warning("RunAnalyser", "No plugin %s found for KVDataAnalyser",
-                 uri);
-      else
-         datan = (KVDataAnalyser *) ph->ExecPlugin(0);
-   }
-   if (datan == 0)
-      datan = new KVDataAnalyser;
-   datan->RunMenus();
-   delete datan;
 }
 
 KVDataAnalysisTask *KVDataSetManager::GetTask(const Char_t * name)

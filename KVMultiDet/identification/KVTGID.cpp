@@ -532,8 +532,8 @@ void KVTGID::SetIDTelescopes(const TCollection*list)
     // any previous list is deleted.
     ClearIDTelescopes();
     TIter next(list);
-    KVIDTelescope*t;
-    while ( (t=(KVIDTelescope*)next()) ) AddIDTelescope(t);
+    KVBase*t;
+    while ( (t=(KVBase*)next()) ) AddIDTelescope(t);
 };
 
 void KVTGID::WriteToAsciiFile(ofstream & gridfile) const
@@ -668,22 +668,4 @@ KVTGID* KVTGID::ReadFromAsciiFile(const Char_t* name, ifstream & gridfile)
     return LTGfit;
 }
 
-//_____________________________________________________________________________//
 
-#include "KVMultiDetArray.h"
-
-TCollection* KVTGID::GetIDTelescopes()
-{
-    // Return TList of all ID telescopes for which fit is valid.
-    // Returns 0 if no telescopes are defined, or if gMultiDetArray object is not defined
-    // (we search for the telescopes using their name and gMultiDetArray->GetIDTelescope()).
-    // WARNING: DELETE this list after use !!!
-    if (fTelescopes=="/" || !gMultiDetArray) return 0;
-    TList* list = new TList;
-    fTelescopes.Begin("/");
-    while ( !fTelescopes.End() )
-    {
-        list->Add( gMultiDetArray->GetIDTelescope( fTelescopes.Next() ) );
-    }
-    return list;
-}

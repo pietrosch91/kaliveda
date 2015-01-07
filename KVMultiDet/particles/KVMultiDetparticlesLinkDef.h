@@ -3,13 +3,18 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ nestedclass;
-#pragma link C++ nestedtypedef;
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+#pragma link C++ global gNDTManager;
 #pragma link C++ class KVSimNucleus+;
 #pragma link C++ class KVNucleus+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;
-#pragma link C++ class KVReconstructedNucleus-;//customised streamer
+#pragma link C++ class KVNuclData+;
+#pragma link C++ class NDT::value+;
+#pragma link C++ class NDT::key+;
+#pragma link C++ class KVNuclDataTable+;
+#pragma link C++ class KVNDTManager+;
 #pragma link C++ class KVLifeTime+;
 #pragma link C++ class KVAbundance+;
 #pragma link C++ class KVChargeRadius+;

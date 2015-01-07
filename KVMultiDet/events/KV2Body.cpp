@@ -20,7 +20,6 @@ $Id: KV2Body.cpp,v 1.4 2009/02/02 13:52:29 ebonnet Exp $
 #include "KV2Body.h"
 #include "Riostream.h"
 #include "TROOT.h"
-#include "KVTelescope.h"
 
 using namespace std;
 
@@ -963,37 +962,37 @@ Double_t KV2Body::XSecRuthLabInt(Double_t *x, Double_t *par)
 }
 
 //______________________________________________________________________________________________
-Double_t KV2Body::GetIntegratedXSecRuthLab(KVTelescope* tel,Int_t OfNucleus)
-{
-   //Calculate Integrated Rutherford cross-section (barns) in the Lab using
-	//polar and azimuthal angular range of the given KVTelescope.
-	// if (OfNucleus==3) => X-section for scattered projectile
-	// if (OfNucleus==4) => X-section for scattered target
-	// 
-	//The returned value is in barns
-	
-	return GetIntegratedXSecRuthLab(tel->GetThetaMin(),tel->GetThetaMax(),tel->GetPhiMin(),tel->GetPhiMax(),OfNucleus);
-}
-
-//______________________________________________________________________________________________
-Double_t KV2Body::GetIntegratedXSecRuthLab(KVDetector* det,Int_t OfNucleus)
-{
-   //Calculate Integrated Rutherford cross-section (barns) in the Lab using
-	//polar and azimuthal angular range of the given KVDetector. These will be taken
-	//from the parent KVTelescope of the detector.
-	// if (OfNucleus==3) => X-section for scattered projectile
-	// if (OfNucleus==4) => X-section for scattered target
-	// 
-	//The returned value is in barns
-	
-    KVTelescope*tel=(KVTelescope*)det->GetParentStructure("TELESCOPE");
-	if(!det){
-	   Error("GetIntegratedXSecRuthLab(KVDetector*,Int_t)",
-	      "Detector has no parent telescope: it has not been positioned in a multidetector geometry");
-	   return 0;
-	}
-	return GetIntegratedXSecRuthLab(tel,OfNucleus);
-}
+// Double_t KV2Body::GetIntegratedXSecRuthLab(KVTelescope* tel,Int_t OfNucleus)
+// {
+//    //Calculate Integrated Rutherford cross-section (barns) in the Lab using
+// 	//polar and azimuthal angular range of the given KVTelescope.
+// 	// if (OfNucleus==3) => X-section for scattered projectile
+// 	// if (OfNucleus==4) => X-section for scattered target
+// 	// 
+// 	//The returned value is in barns
+// 	
+// 	return GetIntegratedXSecRuthLab(tel->GetThetaMin(),tel->GetThetaMax(),tel->GetPhiMin(),tel->GetPhiMax(),OfNucleus);
+// }
+// 
+// //______________________________________________________________________________________________
+// Double_t KV2Body::GetIntegratedXSecRuthLab(KVDetector* det,Int_t OfNucleus)
+// {
+//    //Calculate Integrated Rutherford cross-section (barns) in the Lab using
+// 	//polar and azimuthal angular range of the given KVDetector. These will be taken
+// 	//from the parent KVTelescope of the detector.
+// 	// if (OfNucleus==3) => X-section for scattered projectile
+// 	// if (OfNucleus==4) => X-section for scattered target
+// 	// 
+// 	//The returned value is in barns
+// 	
+//     KVTelescope*tel=(KVTelescope*)det->GetParentStructure("TELESCOPE");
+// 	if(!det){
+// 	   Error("GetIntegratedXSecRuthLab(KVDetector*,Int_t)",
+// 	      "Detector has no parent telescope: it has not been positioned in a multidetector geometry");
+// 	   return 0;
+// 	}
+// 	return GetIntegratedXSecRuthLab(tel,OfNucleus);
+// }
 
 //______________________________________________________________________________________________
 Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,Float_t phi2,Int_t OfNucleus)

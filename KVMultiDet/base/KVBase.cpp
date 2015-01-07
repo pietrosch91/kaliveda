@@ -18,6 +18,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include <cassert>
 #include "Riostream.h"
 #include "TMath.h"
+#include "TFile.h"
 #include "KVBase.h"
 #include "TClass.h"
 #include "KVString.h"
@@ -35,7 +36,6 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "KVConfig.h"
 #include "TGMimeTypes.h"
 #include "TGClient.h"
-#include "KVNDTManager.h"
 #include "TContextMenu.h"
 #include <TKey.h>
 #include "TTree.h"
@@ -230,9 +230,6 @@ void KVBase::InitEnvironment()
 		// initialisation has been performed
       fEnvIsInit = kTRUE;
 		
-		//read all nucl data table
-		gNDTManager = new KVNDTManager();
-		//gNDTManager->Print();
    }
 }
 
@@ -1103,7 +1100,7 @@ void KVBase::CombineFiles(const Char_t *file1, const Char_t *file2, const Char_t
     }
 }
 
-TObject *KVBase::GetObject()
+TObject *KVBase::GetObject() const
 {
     // Dummy method (returns NULL).
     // This method may be used in 'container' classes used with KVListView.

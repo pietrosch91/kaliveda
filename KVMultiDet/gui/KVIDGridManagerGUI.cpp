@@ -12,11 +12,11 @@
 #include <TCanvas.h>
 #include <KVNewGridDialog.h>
 #include <KVTestIDGridDialog.h>
-#include <KVCalculateChIoSiGridDialog.h>
-#include <KVMergeGridsDialog.h>
 #include "KVConfig.h"
 #include <KVIDGUITelescopeChooserDialog.h>
 #include <KVDropDownDialog.h>
+#include <KVIdentificationResult.h>
+#include <KVReconstructedNucleus.h>
 #include "TEnv.h"
 #include "KVInputDialog.h"
 #include "KVIDCutLine.h"
@@ -1126,7 +1126,7 @@ void KVIDGridManagerGUI::TestTreeGrid()
    {
    	SetStatus(Form("Test identification of data in current pad %s.",histo->GetName()));
    }
-   TFile* tmpfiles = fSelectedGrid->TestIdentificationWithTree(histo->GetName());
+   TFile* tmpfiles = TestIdentificationWithTree(fSelectedGrid, histo->GetName());
    if(!tmpfiles) {
    	SetStatus("There was a problem with the test ???");
    	return;
@@ -1138,6 +1138,123 @@ void KVIDGridManagerGUI::TestTreeGrid()
    TTree* t = (TTree*)tmpfiles->Get("tree_idresults");
    t->StartViewer();
    	SetStatus("");
+}
+
+//___________________________________________________________________________________
+
+TFile* KVIDGridManagerGUI::TestIdentificationWithTree(KVIDGraph* gr, const Char_t* name_of_data_histo)
+{
+   //This method allows to test the identification capabilities of the grid using data in a TH2F.
+   //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
+   //to this grid. Then we loop over every bin of the histogram, perform the identification (if
+   //IsIdentifiable() returns kTRUE) and fill the two histograms with the resulting identification
+   //and its dependence on the 'residual energy' i.e. the 'x'-coordinate of the 'data' histogram,
+   //each identification weighted by the contents of the original data bin.
+   //
+   //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
+   //For particles identified in Z only, this is the "real Z".
+   //For particles with A & Z identification, this is Z + 0.1*(A - 2*Z)
+
+   //Initialize the grid: calculate line widths etc.
+   gr->Initialize();
+
+   TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
+   if (!data) {
+      printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",name_of_data_histo);
+      return 0;
+   }
+
+
+   KVIdentificationResult *idr = new KVIdentificationResult;
+   KVReconstructedNucleus nuc;
+
+   // store current memory directory
+   TDirectory* CWD = gDirectory;
+
+   TTree* tid = 0;
+   if ( (tid = (TTree* )gROOT->FindObject("tree_idresults")) ) {
+      printf(" KVIDGraph::TestIdentificationWithTree effacemenent de l arbre existant\n");
+      delete tid;
+   }
+   // create temporary file for tree
+   TString fn("IDtestTree.root");
+   KVBase::GetTempFileName(fn);
+   TFile* tmpfile = new TFile(fn.Data(), "recreate");
+   TH2F* idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
+   tid = new TTree("tree_idresults","pid");
+   Float_t br_xxx,br_yyy,br_stat,br_pid;
+   Int_t br_idcode,br_isid;
+
+   tid->Branch("X",&br_xxx,"br_xxx/F");
+   tid->Branch("Y",&br_yyy,"br_yyy/F");
+   tid->Branch("Stat",&br_stat,"br_stat/F");
+
+   tid->Branch("PID",&br_pid,"br_pid/F");
+   tid->Branch("IDcode",&br_idcode,"br_idcode/I");
+   tid->Branch("IsIdentified",&br_isid,"br_isid/I");
+
+   Int_t tot_events = (Int_t) data->GetSum();
+   Int_t events_read = 0;
+   Float_t percent = 0., cumul = 10.;
+
+   //loop over data in histo
+   for (int i = 1; i <= data->GetNbinsX(); i++) {
+      for (int j = 1; j <= data->GetNbinsY(); j++) {
+
+         Stat_t poids = data->GetBinContent(i, j);
+         if (poids == 0)
+            continue;
+         br_stat=Float_t(poids);
+
+         Axis_t x0 = data->GetXaxis()->GetBinCenter(i);
+         Axis_t y0 = data->GetYaxis()->GetBinCenter(j);
+         Axis_t wx = data->GetXaxis()->GetBinWidth(i);
+         Axis_t wy = data->GetYaxis()->GetBinWidth(j);
+
+         br_xxx=Float_t(x0);
+         br_yyy=Float_t(y0);
+         //If bin content ('poids') is <=20, we perform the identification 'poids' times, each time with
+         //randomly-drawn x and y coordinates inside this bin
+         //If 'poids'>20, we perform the identification 20 times and we fill the histograms with
+         //a weight poids/20
+         Double_t x, y;
+         Int_t kmax = (Int_t) TMath::Min(20., poids);
+         //Double_t weight = (kmax == 20 ? poids / 20. : 1.);
+
+         for (int k = 0; k < kmax; k++) {
+
+            x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
+            y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
+            if (gr->IsIdentifiable(x, y)) {
+               br_isid=1;
+               gr->Identify(x, y, idr);
+               nuc.SetIdentification(idr);
+               br_pid=nuc.GetPID();
+               br_idcode=gr->GetQualityCode();
+               idmap->SetBinContent(i,j,br_idcode);
+            }
+            else{
+               br_isid=0;
+               br_pid=-1;
+               br_idcode=-1;
+               idmap->SetBinContent(i,j,br_idcode);
+            }
+            tid->Fill();
+         }
+         events_read += (Int_t) poids;
+         percent = (1. * events_read / tot_events) * 100.;
+         gr->Increment((Float_t) events_read);      //sends signal to GUI progress bar
+         if (percent >= cumul) {
+            cout << (Int_t) percent << "\% processed" << endl;
+            cumul += 10;
+         }
+         //gSystem->ProcessEvents();
+      }
+   }
+
+   delete idr;
+   CWD->cd();
+   return tmpfile;
 }
 
 void KVIDGridManagerGUI::FitGrid()

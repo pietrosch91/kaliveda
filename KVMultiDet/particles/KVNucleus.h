@@ -14,12 +14,11 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #include "TVector3.h"
 #include "TEnv.h"
 #include "KVParticle.h"
+#include "KVNumberList.h"
 #include "KVParticleCondition.h"
 #include "TLorentzRotation.h"
 #include "KVString.h"
-#include "KVDataSet.h"
 
-class KVNumberList;
 class KVLifeTime;
 class KVMassExcess;
 class KVAbundance;

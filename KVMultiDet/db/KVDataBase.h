@@ -23,20 +23,15 @@ $Id: KVDataBase.h,v 1.20 2009/01/22 13:55:00 franklan Exp $
 #include "KVDBTable.h"
 #include "KVDBRecord.h"
 
-class KVDataBaseBrowser;
 class TFile;
 
 class KVDataBase:public TFolder {
 
-   friend class KVDataBaseBrowser;
-
- private:
-
-    KVDataBaseBrowser * fBrowser;       //! GUI for viewing database
 
  protected:
 
-    TString fDataSet;           //the name of the dataset to which this database is associated
+    TString fDataSet;//the name of the dataset to which this database is associated
+    TString fDataSetDir;//the directory containing the dataset files
 
  public:
     KVDataBase();
@@ -53,19 +48,18 @@ class KVDataBase:public TFolder {
    virtual void Build();
    virtual void Print(Option_t * option = "") const;
    inline virtual void cd();
-   virtual void CloseBrowser();
-   virtual void StartBrowser();
 
-   static KVDataBase *MakeDataBase(const Char_t * name);
+   static KVDataBase *MakeDataBase(const Char_t * name, const Char_t* datasetdir);
    
    virtual void Save(const Char_t*){;};
 	
 	virtual void WriteObjects(TFile*);
 	virtual void ReadObjects(TFile*);
 	
-	const Char_t* GetDataSetDir() const;
+	const Char_t* GetDataSetDir() const { return fDataSetDir; }
+	void SetDataSetDir(const Char_t* d) { fDataSetDir = d; }
 
-    ClassDef(KVDataBase, 1)     // Base Class for a database of parameters
+    ClassDef(KVDataBase, 2)     // Base Class for a database of parameters
 };
 
 //........ global variable

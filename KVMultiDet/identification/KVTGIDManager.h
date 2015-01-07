@@ -14,7 +14,6 @@ $Id: KVTGIDManager.h,v 1.10 2008/04/04 09:06:25 franklan Exp $
 #include "Rtypes.h"
 #include "KVList.h"
 #include "KVTGID.h"
-#include "KVIDTelescope.h"
 
 class KVTGIDGrid;
 
@@ -56,10 +55,10 @@ class KVTGIDManager {
       return fID_max;
    };
 
-   virtual Double_t IdentZ(KVIDTelescope * idt, Double_t & funLTG,
-                           const Char_t * grid_type, const Char_t* signal_type);
-   virtual Double_t IdentA(KVIDTelescope * idt, Double_t & funLTG,
-                           const Char_t * grid_type, const Char_t* signal_type, Int_t Z);
+   virtual Double_t IdentZ(const Char_t*, Double_t, Double_t, Double_t & funLTG,
+                           const Char_t * grid_type);
+   virtual Double_t IdentA(const Char_t*, Double_t, Double_t, Double_t & funLTG,
+                           const Char_t * grid_type, Int_t Z);
 
    virtual KVTGIDGrid *GetTGIDGrid(KVTGID *tgid, Double_t xmax,
            Double_t xmin = 0., Int_t ID_min =

@@ -31,6 +31,7 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "KVParticleCondition.h"
 #include "KVNameValueList.h"
 #include "TMethodCall.h"
+class KVIntegerList;
 
 class KVEvent:public KVBase {
 
@@ -98,6 +99,8 @@ class KVEvent:public KVBase {
 	virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz); 
 	virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi); 
 
+	virtual void FillIntegerList(KVIntegerList*,Option_t* opt);
+	
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };
 

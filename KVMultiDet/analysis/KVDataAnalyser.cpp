@@ -1636,3 +1636,27 @@ Int_t KVDataAnalyser::GetRunNumberFromFileName(const Char_t * fileName)
 }
 
 
+void KVDataAnalyser::RunAnalyser(const Char_t * uri)
+{
+   //Set up and run data analysis task.
+   //This allows to choose a dataset and a data analysis task and then execute the task or submit a batch job.
+   //The behaviour of the data analyser object (base class KVDataAnalyser) can be modified by choosing
+   //a plugin class corresponding to one of the plugins defined in $KVROOT/KVFiles/.kvrootrc.
+
+   KVDataAnalyser *datan = 0;
+   TString tmp(uri);
+   if (tmp != "") {
+      //got plugin ?
+      TPluginHandler *ph = KVBase::LoadPlugin("KVDataAnalyser", uri);
+      if (!ph)
+         ::Warning("KVDataAnalyser::RunAnalyser", "No plugin %s found for KVDataAnalyser",
+                 uri);
+      else
+         datan = (KVDataAnalyser *) ph->ExecPlugin(0);
+   }
+   if (datan == 0)
+      datan = new KVDataAnalyser;
+   datan->RunMenus();
+   delete datan;
+}
+

@@ -138,4 +138,5 @@ public:
    void OpenRootFile();
    
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
+   TFile*TestIdentificationWithTree(KVIDGraph* gr, const Char_t* name_of_data_histo);
 };

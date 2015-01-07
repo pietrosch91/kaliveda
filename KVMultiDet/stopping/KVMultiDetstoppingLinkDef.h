@@ -3,9 +3,10 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ namespace KVUnits;
-#pragma link C++ nestedclass;
-#pragma link C++ nestedtypedef;
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+#pragma link C++ class KVMaterial+;
+#pragma link C++ class KVTarget+;
 #pragma link C++ class KVIonRangeTable+;
 #pragma link C++ class KVIonRangeTableMaterial+;
 #pragma link C++ class KVedaLossMaterial+;

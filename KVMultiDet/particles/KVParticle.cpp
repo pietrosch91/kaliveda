@@ -19,7 +19,6 @@ $Id: KVParticle.cpp,v 1.50 2009/04/28 08:59:05 franklan Exp $
 #include "Riostream.h"
 #include "KVPosition.h"
 #include "KVParticle.h"
-#include "KVEvent.h"
 #include "KVList.h"
 #include "TRotation.h"
 #include "TLorentzRotation.h"

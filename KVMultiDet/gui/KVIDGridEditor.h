@@ -30,7 +30,6 @@
 #include "KVIDZAGrid.h"
 #include "KVIDentifier.h"
 #include "KVDropDownDialog.h"
-#include "KVTestIDGridDialog.h"
 #include "KVVirtualIDFitter.h"
 #include "TMethod.h"
 #include "TContextMenu.h"

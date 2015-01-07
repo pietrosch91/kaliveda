@@ -15,6 +15,7 @@
 #include "TBox.h"
 #include "TLine.h"
 #include "KVNuclearChart.h"
+#include "KVIdentificationResult.h"
 
 TString KVTestIDGridDialog::fNameData = "htemp";
 TString KVTestIDGridDialog::fNameZreal = "hzreal";
@@ -385,6 +386,7 @@ void KVTestIDGridDialog::TestGrid()
    // close dialog
    DoClose();
 }
+
 
 void KVTestIDGridDialog::DrawChart(KVCanvas* cc, Int_t zmin, Int_t zmax, Int_t nmin, Int_t nmax)
 {

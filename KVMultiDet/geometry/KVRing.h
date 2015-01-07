@@ -29,8 +29,6 @@ $Id: KVRing.h,v 1.15 2007/10/23 14:09:02 ebonnet Exp $
 #include "KVList.h"
 #include "KVTelescope.h"
 
-class KVLayer;
-
 class KVRing : public KVGeoStrucElement, public KVPosition {
 
     void init();

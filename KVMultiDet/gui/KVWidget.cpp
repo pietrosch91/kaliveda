@@ -18,7 +18,6 @@ $Id: KVWidget.cpp,v 1.7 2006/10/19 14:32:43 franklan Exp $
 
 #include "Riostream.h"
 #include "KVWidget.h"
-#include "KVDetectorBrowser.h"
 #include "KVDataBaseBrowser.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
@@ -81,7 +80,7 @@ void KVWidget::Action(Long_t parm) const
    case CLOSE_BROWSER:
       cout << "CLOSE_BROWSER for " << fObject->
           ClassName() << " " << fObject->GetName() << endl;
-      ((KVDetectorBrowser *) fObject)->CloseWindow();
+      //((KVDetectorBrowser *) fObject)->CloseWindow();
       break;
    case kDET_CHOOSE_MATERIAL:
 //                        cout << "CHOOSE MATERIAL: ";

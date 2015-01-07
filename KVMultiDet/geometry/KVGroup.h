@@ -9,9 +9,6 @@
 class KVDetector;
 class KVNucleus;
 class KVNameValueList;
-class KVReconstructedEvent;
-class KVReconstructedNucleus;
-class KVMultiDetArray;
 
 class KVGroup : public KVGeoStrucElement {
 
@@ -49,15 +46,13 @@ public:
             return 0;
     };
     void ClearHitDetectors();
-    inline UInt_t GetNIdentified();
-    inline UInt_t GetNUnidentified();
+    //inline UInt_t GetNIdentified();
+    //inline UInt_t GetNUnidentified();
     KVList *GetParticles() {
         return fReconstructedNuclei;
     }
-    void AddHit(KVReconstructedNucleus * kvd);
-    void RemoveHit(KVReconstructedNucleus * kvd);
-
-    virtual void GetIDTelescopes(TCollection *);
+    void AddHit(KVNucleus * kvd);
+    void RemoveHit(KVNucleus * kvd);
 
     Bool_t IsRemoving() {
         return TestBit(kIsRemoving);
@@ -65,14 +60,10 @@ public:
     virtual void Sort(){};
     virtual void CountLayers(){};
 
-    void AnalyseParticles();
-    void PrepareModif(KVDetector* );
-    virtual void AnalyseAndReconstruct(KVReconstructedEvent *);
-
     ClassDef(KVGroup, 1)//Group of detectors having similar angular positions.
 };
 
-#ifndef KVRECONSTRUCTEDNUCLEUS_H
+/*#ifndef KVRECONSTRUCTEDNUCLEUS_H
 #include "KVReconstructedNucleus.h"
 #endif
 inline UInt_t KVGroup::GetNIdentified()
@@ -92,5 +83,5 @@ inline UInt_t KVGroup::GetNUnidentified()
     //number of unidentified particles reconstructed in group
     return (GetHits() - GetNIdentified());
 };
-
+*/
 #endif

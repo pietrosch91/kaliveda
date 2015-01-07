@@ -1,25 +1,26 @@
 #ifndef __KVPARAMETERLIST_H__
 #define __KVPARAMETERLIST_H__
 
-#include "KVList.h"
+#include "THashList.h"
 #include "KVParameter.h"
 #include "Riostream.h"
 #include <cstdlib>
  
 template < class T > class KVParameterList {
  private:
-   KVList * fParameters;//->persistent list of parameters
+   THashList * fParameters;//->persistent list of parameters
  
    // Add a parameter to the parameters list
    void AddParameter(TObject *);
 
  public:
    KVParameterList() {
-      fParameters = new KVList;
+      fParameters = new THashList(TCollection::kInitHashTableCapacity, 2);
    };
    virtual ~ KVParameterList() {
-         delete fParameters;
-         fParameters = 0;
+		fParameters->Delete();
+      delete fParameters;
+      fParameters = 0;
    };
 
    // Replaces any existing parameters in list 'obj' with all those defined in this list.

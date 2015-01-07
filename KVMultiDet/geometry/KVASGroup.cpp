@@ -2,7 +2,6 @@
 //Author: John Frankland,,,
 
 #include "KVASGroup.h"
-#include "KVReconstructedEvent.h"
 
 ClassImp(KVASGroup)
 
@@ -386,141 +385,8 @@ TList *KVASGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
 }
 //_________________________________________________________________________________
 
-void KVASGroup::GetIDTelescopes(TCollection * tel_list)
-{
-   //Identify all the ways of identifying particles possible from the detectors
-   //in the group, create the appropriate KVIDTelescope objects and add them to
-   //the list pointed to by tel_list.
-   //USER'S RESPONSIBILITY TO DELETE CONTENTS OF LIST!!
-   //
-   //Starting from each detector in the "detector layer" furthest from the
-   //target, we build ID telescopes from all pairs of aligned detectors.
-   //We then continue up through the layers of the group
-   //
-   //For each pair of detectors, it is KVMultiDetArray::GetIDTelescopes
-   //which determines which KVIDTelescope class to use (specialise this method
-   //in KVMultiDetArray child classes). It must also make sure that
-   //each IDTelescope is added only once (i.e. check it is not already in the
-   //list).
-
-   TList *det_lay;
-   for (int lay = GetNumberOfDetectorLayers(); lay > 0; lay--) {
-
-      det_lay = GetDetectorsInLayer(lay);
-      if (det_lay) {
-
-         TIter next_det(det_lay);
-         KVDetector *det;
-
-         while ((det = (KVDetector *) next_det())) {
-                if ( det->IsOK() ){
-                    //1st call: create ID telescopes, they will be added to the
-                //gMultiDetArray list of IDTelescopes
-                det->GetAlignedIDTelescopes(tel_list);
-                //2nd call: set up in the detector a list of pointers to the
-                //ID telescopes made up of it and all aligned detectors in front
-                //of it
-                det->GetAlignedIDTelescopes(0);
-                }
-            }
-         delete det_lay;
-      }
-   }
-}
-//_________________________________________________________________________________
-
-void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
-{
-
-    KVTelescope *t;
-    TIter nxt_tel(kvtl);
-    //get max number of detectors in telescopes of layer
-    Int_t max=0;
-    while ( (t = (KVTelescope* )nxt_tel()) )
-        if (max<t->GetDetectors()->GetSize())
-            max = t->GetDetectors()->GetSize();
-    //before, we assumed all telescopes to be same in layer:
-    //	but in fact it's not true
-    //UInt_t ndet = ((KVTelescope *) (kvtl->First()))->GetSize();
-    UInt_t ndet=max;
-
-    for (register UInt_t i = ndet; i > 0; i--) {
-
-        nxt_tel.Reset();
-        TList detlist;
-
-        //start from last detectors and move inwards
-        while ((t = (KVTelescope *) nxt_tel())) {
-            //loop over detectors in each telescope
-            if ((UInt_t)t->GetDetectors()->GetSize()>=i){
-            	KVDetector *d = t->GetDetector(i);
-            	if (d)
-            		detlist.Add(d);
-        			else
-            		Warning("AnalyseTelescopes","pointeur KVDetector NULL");
-        		}	
-        }
-
-        event->AnalyseDetectors(&detlist);
-
-    }
-}
 
 
-void KVASGroup::AnalyseAndReconstruct(KVReconstructedEvent* event)
-{
-
-    UInt_t nLayers = GetNumberOfLayers();
-
-    UInt_t initial_hits_in_group = GetHits();
-
-    if (nLayers > 1) {
-        //multilayer group
-        //Start with layer furthest from target and work inwards (but don't look at layer
-        //nearest to target)
-        for (UInt_t i = GetLayerFurthestTarget();
-             i > GetLayerNearestTarget(); i--) {
-            TList *kvtl = GetTelescopesInLayer(i);
-            if (kvtl) {
-                AnalyseTelescopes(event,kvtl);
-                delete kvtl;
-            }
-        }
-
-
-        //if nothing has been found, then check for particles stopping in layer nearest target
-        if (GetHits() == initial_hits_in_group) {
-            TList *kvtl =
-                    GetTelescopesInLayer(GetLayerNearestTarget());
-            if (kvtl) {
-                AnalyseTelescopes(event,kvtl);
-                delete kvtl;
-            }
-        }
-
-    } else {
-        //single layer group
-#ifdef KV_DEBUG
-        Info("AnalyseGroup", "Single layer group");
-#endif
-        //for a single layer group we should have
-        //kvg->GetLayerNearestTarget() = kvg->GetLayerFurthestTarget()
-        //so we can use either one as argument for kvg->GetTelescopesInLayer
-        TList *kvtl =
-                GetTelescopesInLayer(GetLayerNearestTarget());
-        if (kvtl) {
-            AnalyseTelescopes(event,kvtl);
-            delete kvtl;
-        }
-    }
-
-#ifdef KV_DEBUG
-    Info("AnalyseGroup", "OK after analysis of hit groups");
-#endif
-
-    //perform first-order coherency analysis (set fAnalStatus for each particle)
-    AnalyseParticles();
-}
 //_________________________________________________________________________________
 
 UInt_t KVASGroup::GetLayerNearestTarget() const

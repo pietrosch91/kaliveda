@@ -11,9 +11,9 @@ $Author: franklan $
 #include "KVUniqueNameList.h"
 #include "KVParameterList.h"
 
-class KVDataSet;
-class KVDataAnalysisTask;
-class KVDataRepository;
+#include "KVDataSet.h"
+#include "KVDataRepository.h"
+#include "KVDataAnalysisTask.h"
 
 class KVDataSetManager {
    
@@ -66,8 +66,6 @@ class KVDataSetManager {
                             const Char_t * username = "");
 
    virtual KVDataAnalysisTask *GetTask(const Char_t * name);
-
-   virtual void RunAnalyser(const Char_t * plugin = "");
 
    virtual void Update();
 
