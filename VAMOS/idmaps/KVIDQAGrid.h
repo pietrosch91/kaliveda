@@ -97,6 +97,14 @@ class KVIDQAGrid : public KVIDGrid
 
     KVIDGraph* MakeSubsetGraph(Int_t Qmin, Int_t Qmax, const Char_t* /*graph_class*/="");//*MENU*
     KVIDGraph* MakeSubsetGraph(TList*, TClass* /*graph_class*/=0);
+
+
+
+	TFile* FindAMarkers(const Char_t* name_of_data_histo);
+
+
+
+
    	ClassDef(KVIDQAGrid,1)//Base class for 2D Q & A identification grids
 };
 

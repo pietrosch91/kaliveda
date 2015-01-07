@@ -4,6 +4,7 @@
 #include "KVIDQAGrid.h"
 #include "TROOT.h"
 #include "TCanvas.h"
+#include "TTree.h"
 
 ClassImp(KVIDQAGrid)
 
@@ -534,6 +535,7 @@ KVIDGraph* KVIDQAGrid::MakeSubsetGraph(TList* lines, TClass* graph_class)
     }
     return new_graph;
 }
+//________________________________________________________________
 
 KVIDGraph* KVIDQAGrid::MakeSubsetGraph(Int_t Qmin, Int_t Qmax, const Char_t* graph_class)
 {
@@ -554,4 +556,114 @@ KVIDGraph* KVIDQAGrid::MakeSubsetGraph(Int_t Qmin, Int_t Qmax, const Char_t* gra
     lines->Clear();
     delete lines;
     return gr;
+}
+//________________________________________________________________
+
+TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo){
+	//
+
+	//Initialize the grid: calculate line widths etc.
+	Initialize();
+
+   	TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
+	if (!data) {
+		Error("FindAMarkers","histogram %s not found",name_of_data_histo);
+		return 0;
+	}
+
+   KVIdentificationResult *idr = new KVIdentificationResult;
+   KVReconstructedNucleus nuc;
+
+	// store current memory directory
+	TDirectory* CWD = gDirectory;
+
+	// store current status IsOnlyQId
+	Bool_t q_id = IsOnlyQId();
+
+	// create temporary file for tree
+	TString fn("IDQAGrid_FindAMarkers.root");
+	KVBase::GetTempFileName(fn);
+	TFile* tmpfile = new TFile(fn.Data(), "recreate");
+
+	KVHashList l_histos;
+	l_histos.SetOwner( kFALSE );
+	TH2F* idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
+	TH2F *hh = (TH2F* )idmap->Clone("all");
+	l_histos.Add( hh );
+	TIter next( GetIdentifiers() );
+	KVIDQALine *qline = NULL;
+	while( (qline=(KVIDQALine *)next()) ){
+		l_histos.Add( hh = (TH2F* )idmap->Clone(Form("Q%.2d",qline->GetQ())) );
+	}
+
+  	Int_t tot_events = (Int_t) data->GetSum();
+   	Int_t events_read = 0;
+   	Float_t percent = 0., cumul = 10.;
+
+   	//loop over data in histo
+	for (int i = 1; i <= data->GetNbinsX(); i++) {
+      	for (int j = 1; j <= data->GetNbinsY(); j++) {
+
+         	Stat_t poids = data->GetBinContent(i, j);
+         	if (poids == 0)
+            	continue;
+
+         	Axis_t x0 = data->GetXaxis()->GetBinCenter(i);
+         	Axis_t y0 = data->GetYaxis()->GetBinCenter(j);
+         	Axis_t wx = data->GetXaxis()->GetBinWidth(i);
+         	Axis_t wy = data->GetYaxis()->GetBinWidth(j);
+
+         	Double_t x, y;
+			Int_t kmax=20;
+
+			for (int k = 0; k < kmax; k++) {
+
+            	x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
+            	y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
+				Int_t idcode;
+            	if (IsIdentifiable(x, y) ) {
+					Identify(x, y, idr);
+					if(AcceptIDForTest()){
+						nuc.SetIdentification(idr);
+						idcode=GetQualityCode();
+               			idmap->SetBinContent(i,j,idcode);
+
+						hh = (TH2F *)l_histos.FindObject("all");
+						hh->Fill(x,y,poids/kmax);
+
+						hh = (TH2F *)l_histos.FindObject(Form("Q%.2d",idr->Z));
+						if(hh) hh->Fill(x,y,poids/kmax);
+					}
+				}
+				else{
+					idcode=-1;
+					idmap->SetBinContent(i,j,idcode);
+				}
+         	}
+         	events_read += (Int_t) poids;
+         	percent = (1. * events_read / tot_events) * 100.;
+         	Increment((Float_t) events_read);      //sends signal to GUI progress bar
+         	if (percent >= cumul) {
+            	cout << (Int_t) percent << "\% processed" << endl;
+            	cumul += 10;
+         	}
+      	}
+   	}
+
+   delete idr;
+
+
+   // build projection for each 2D maps and find KVIDQAMarker's
+   // from them
+   next.Reset();
+   while( (qline=(KVIDQALine *)next()) ){
+		hh = (TH2F *)l_histos.FindObject(Form("Q%.2d",qline->GetQ()));
+		TH1 *proj = hh->ProjectionX();
+		qline->FindAMarkers( proj );
+	}
+
+
+   	CWD->cd();
+   	SetOnlyQId( q_id );
+   	return tmpfile;
 }

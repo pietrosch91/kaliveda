@@ -18,6 +18,7 @@ class KVIDQALine : public KVIDZALine
 		Int_t fQ;//! dummy variable used by context menu dialog boxes
 		Int_t fNextA;//! next A value for the next call of InsertMarker
 		Bool_t fNextAinc;//! true if the next A value should increase
+		Int_t  fNpeaks; //! used to find mass in a distribution (see FindAMarkers)
 
 		KVList *fMarkers; //-> list of Q-A identification markers
 
@@ -39,6 +40,8 @@ class KVIDQALine : public KVIDZALine
 		using KVIDZALine::RemovePoint;//*MENU*
 		virtual Int_t RemovePoint(Int_t i);
 		void IncrementPtIdxOfMarkers( Int_t idx, Int_t ival=1 );
+
+		void FindAMarkers(TH1 *h);
 
 		Int_t GetNextA() const { return fNextA; }
 		void  SetNextA(Int_t A) { fNextA = A; }

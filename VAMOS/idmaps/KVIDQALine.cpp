@@ -4,6 +4,8 @@
 #include "KVIDQALine.h"
 #include "TPad.h"
 #include "TROOT.h"
+#include "TCanvas.h"
+#include "TSpectrum.h"
 
 ClassImp(KVIDQALine)
 
@@ -225,3 +227,32 @@ void KVIDQALine::Streamer(TBuffer &R__b)
       R__b.WriteClassBuffer(KVIDQALine::Class(),this);
    }
 }
+//________________________________________________________________
+
+void KVIDQALine::FindAMarkers(TH1 *h){
+
+	Info("FindAMarkers","IN %s",h->GetName());
+ 
+	fNpeaks = 30;
+
+   //find and fit peaks in histogram
+   TCanvas *c1 = new TCanvas();
+   h->Draw();
+   TH1F *h2 = (TH1F*)h->Clone("h2");
+   //Use TSpectrum to find the peak candidates
+   TSpectrum *s = new TSpectrum(2*fNpeaks);
+   Int_t nfound = s->Search(h,2,"");
+
+   Float_t *xpeaks = s->GetPositionX();
+   for (int p=0;p<nfound;p++) {
+      Float_t xp = xpeaks[p];
+      Int_t bin = h->GetXaxis()->FindBin(xp);
+      Float_t yp = h->GetBinContent(bin);
+
+	  cout<<"peak "<<p<<": x= "<<xp<<" y= "<<yp<<endl;
+
+   }
+
+}
+//________________________________________________________________
+
