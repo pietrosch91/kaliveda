@@ -17,13 +17,7 @@ $Id: KVChIo.cpp,v 1.55 2008/02/21 10:14:38 franklan Exp $
  ***************************************************************************/
 #include "Riostream.h"
 #include "KVChIo.h"
-#include "KVINDRA.h"
-//for GetRunCalibrationPeaks
-#include "KVINDRADB.h"
-#include "KVDBPeak.h"
-#include "KVDBAlphaPeak.h"
-#include "KVDBElasticPeak.h"
-#include "KVDBRun.h"
+#include "TClass.h"
 
 #define MAX_CANAL_GG 4000
 

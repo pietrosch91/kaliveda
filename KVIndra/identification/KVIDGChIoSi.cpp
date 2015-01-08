@@ -8,7 +8,6 @@ $Author: franklan $
 #include "KVIDGChIoSi.h"
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
-#include "KVINDRAReconNuc.h"
 #include "KVChIo.h"
 #include "KVSilicon.h"
 #include "KVINDRARRMValidator.h"
@@ -17,6 +16,7 @@ $Author: franklan $
 #include "TObjArray.h"
 #include "TROOT.h"
 #include "KVIdentificationResult.h"
+#include "KVIDTelescope.h"
 
 ClassImp(KVIDGChIoSi)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,6 @@ $Id: KVIDGCsI.h,v 1.18 2009/04/06 15:09:29 franklan Exp $
 #define KVIDGCsI_H
 
 #include "KVIDZAGrid.h"
-#include "KVIDCsIRLLine.h"
 
 class KVIDGCsI:public KVIDZAGrid
 {

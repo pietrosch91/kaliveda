@@ -1,8 +1,7 @@
 #include "KVIDGCsI.h"
 #include "KVIDCutLine.h"
 #include "KVIDCsIRLLine.h"
-#include "KVINDRAReconNuc.h"
-#include "KVINDRA.h"
+#include "KVIDTelescope.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDGCsI)
@@ -648,13 +647,16 @@ void KVIDGCsI::BackwardsCompatibilityFix()
 
     KVIDZAGrid::BackwardsCompatibilityFix();
     if ( fPar->HasParameter("IDTelescopes") ) return;
-    if ( fPar->HasParameter("Ring min") && gIndra )
+
+    Warning("BackwardsCompatibilityFix",
+            "This fix no longer works correctly. Dummy ID telescopes will be associated with this grid. There will be problems.");
+    if ( fPar->HasParameter("Ring min") )//&& gIndra ) <== SHOULD NOT DEPEND ON KVINDRA!!!
     {
         for (int r=fPar->GetIntValue("Ring min"); r<=fPar->GetIntValue("Ring max"); r++)
         {
             for (int m=fPar->GetIntValue("Mod min"); m<=fPar->GetIntValue("Mod max"); m++)
             {
-                KVIDTelescope* id = gIndra->GetIDTelescope( Form("CSI_R_L_%02d%02d", r, m) );
+                KVIDTelescope* id = new KVIDTelescope(); id->SetName(Form("CSI_R_L_%02d%02d", r,m)); // gIndra->GetIDTelescope( Form("CSI_R_L_%02d%02d", r, m) ); <== SHOULD NOT DEPEND ON KVINDRA!!!
                 if (id) AddIDTelescope(id);
             }
         }

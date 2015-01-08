@@ -17,19 +17,7 @@ $Id: KVSilicon.cpp,v 1.55 2009/04/15 09:49:19 ebonnet Exp $
  ***************************************************************************/
 #include "Riostream.h"
 #include "KVSilicon.h"
-#include "KVChIo.h"
-#include "KVTelescope.h"
-#include "KVGroup.h"
-#include "KVINDRA.h"
-//for GetRunCalibrationPeak
-#include "KVINDRADB.h"
-#include "KVDBParameterSet.h"
-#include "KVDBAlphaPeak.h"
-#include "KVDBElasticPeak.h"
-#include "KVDBRun.h"
-#include "KVNucleus.h"
-#include "TROOT.h"
-
+#include "TClass.h"
 #define MAX_CANAL_GG 4000
 
 ClassImp(KVSilicon)

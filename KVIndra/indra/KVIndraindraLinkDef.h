@@ -9,4 +9,5 @@
 #pragma link C++ class KVINDRAe503+;
 //#pragma link C++ class KVINDRAFNL+;
 #pragma link C++ class KVINDRARRMValidator+;
+#pragma link C++ class INDRAGeometryBuilder+;
 #endif

@@ -16,7 +16,6 @@
 #pragma link C++ class KVBIC-;
 #pragma link C++ class KVSiB-;
 #pragma link C++ class KVTelBlocking+;
-#pragma link C++ class INDRAGeometryBuilder+;
 #pragma link C++ class KVLightEnergyCsI+;
 #pragma link C++ class KVChannelEnergyChIo+;
 #pragma link C++ class KVChannelEnergyBrho+;
