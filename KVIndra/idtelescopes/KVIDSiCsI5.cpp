@@ -87,13 +87,13 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
       //try GG identification if SIGG is not saturated
       //the condition is applied directly to the raw channel number instead of GetIDMapY()
       //so that it is correct even if GetIDMapY rescales for the change in gain
-      Z = IdentZ(this, funLTG, "GG", "GG");
+      Z = IdentZ(GetName(), GetIDMapX("GG"), GetIDMapY("GG"), funLTG, "GG");//IdentZ(this, funLTG, "GG", "GG");
       fWhichGrid = k_GG;
    }
 
    if (Z < 0.) {
 
-      Z = IdentZ(this, funLTG, "PG1", "PG");
+      Z = IdentZ(GetName(), GetIDMapX("PG"), GetIDMapY("PG"), funLTG, "PG1"); //IdentZ(this, funLTG, "PG1", "PG");
       fWhichGrid = k_PG1;
 
    } else {
@@ -108,7 +108,7 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
 
    if (Z < 0.) {
 
-      Z = IdentZ(this, funLTG, "PG2", "PG");
+      Z = IdentZ(GetName(), GetIDMapX("PG"), GetIDMapY("PG"), funLTG, "PG2"); //IdentZ(this, funLTG, "PG2", "PG");
       fWhichGrid = k_PG2;
 
    }
@@ -155,7 +155,7 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
    //is mass identification a possibility ?
    if (HasMassID() && Zstatus == k_OK_GG) {     //only in GG...
 
-      mass = IdentA(this, funLTG_A, "GG", "GG", iz);
+      mass = IdentA(GetName(), GetIDMapX("GG"), GetIDMapY("GG"), funLTG_A, "GG", iz); //IdentA(this, funLTG_A, "GG", "GG", iz);
 
       if (GetStatus() != KVTGIDManager::kStatus_OK)     //mass ID not good ?
       {
@@ -192,7 +192,7 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
          	Int_t iz2 = (ia < 2*iz ? iz-1 : iz+1);
          	if(iz2>0){
          		Double_t old_funLTG_A = funLTG_A;
-      			Double_t new_mass = IdentA(this, funLTG_A, "GG", "GG", iz2);
+                        Double_t new_mass = IdentA(GetName(), GetIDMapX("GG"), GetIDMapY("GG"), funLTG_A, "GG", iz2); //IdentA(this, funLTG_A, "GG", "GG", iz2);
       			// is this a better solution ?
       			if(GetStatus() == KVTGIDManager::kStatus_OK){
       				Int_t new_ia = TMath::Nint(new_mass);

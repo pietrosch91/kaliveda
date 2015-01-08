@@ -164,8 +164,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	TDatime now1;
 	Info("ProcessRun","Debut Conversion au format du run %d ROOT %s",fRunNumber,now1.AsString());
 
-	gDataSet->BuildMultiDetector();
-	gIndra->SetParameters(fRunNumber);
+        KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(),fRunNumber);
 
 	KVINDRAReconEvent *evt = new KVINDRAReconEvent();
 	evt->SetTitle( gIndra->GetSystem()->GetName() );

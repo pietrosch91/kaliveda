@@ -3,6 +3,7 @@
 
 #include "KVINDRADetector.h"
 #include "KVGroup.h"
+#include "KVDataSet.h"
 
 ClassImp(KVINDRADetector)
 
@@ -61,7 +62,7 @@ void KVINDRADetector::AddACQParamType(const Char_t * type)
 	// SI_0101 will return the parameter with name "SI_0101_TOF"
 
    KVACQParam *par = new KVACQParam();
-	TString extension = gDataSet->GetDataSetEnv(Form("KVACQParam.%s.%s",GetName(),type),type);
+   TString extension = gDataSet->GetDataSetEnv(Form("KVACQParam.%s.%s",GetName(),type),type);
    TString name;
    name = this->GetName();
    name.Append("_");

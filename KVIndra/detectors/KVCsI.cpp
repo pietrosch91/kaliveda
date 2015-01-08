@@ -29,6 +29,7 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVIDCutLine.h"
 #include <TCanvas.h>
 #include "TMarker.h"
+#include "KVIDTelescope.h"
 
 using namespace std;
 

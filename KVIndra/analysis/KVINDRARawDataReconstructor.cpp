@@ -172,7 +172,7 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 
    if( gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       if( gIndra->GetTriggerInfo()->IsPhysics() ){
-         recev->ReconstructEvent( (KVDetectorEvent*)GetDetectorEvent() );
+         gIndra->ReconstructEvent(recev, (KVDetectorEvent*)GetDetectorEvent() );
          nb_recon++;
          ExtraProcessing();
       }

@@ -5,6 +5,7 @@
 #include <TStreamerInfo.h>
 #include <KVINDRAReconNuc.h>
 #include <KVTarget.h>
+#include "KVMultiDetArray.h"
 
 ClassImp(KVDataPatch_INDRA_camp5_PHDcorrection)
 

@@ -2,6 +2,7 @@
 //Author: Guilain ADEMARD
 
 #include "KVIDSiLiCsI_e494s.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDSiLiCsI_e494s)
 
@@ -111,7 +112,7 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
 
     const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.);
 
-    if(inRange) Z = IdentZ(this, funLTG_Z, "", "");
+    if(inRange) Z = IdentZ(GetName(), X, Y, funLTG_Z, ""); //IdentZ(this, funLTG_Z, "", "");
     else return kFALSE;
 
     //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
@@ -133,7 +134,7 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
     //is mass identification a possibility ?
     if(iz < 9){
 
-        mass = IdentA(this, funLTG_A, "", "", iz);
+        mass = IdentA(GetName(), X, Y, funLTG_A, "", iz); //IdentA(this, funLTG_A, "", "", iz);
 
         if (GetStatus() != KVTGIDManager::kStatus_OK){     //mass ID not good ?
 
@@ -169,7 +170,7 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
                 Int_t iz2 = (ia < 2*iz ? iz-1 : iz+1);
                 if(iz2>0){
                     Double_t old_funLTG_A = funLTG_A;
-                    Double_t new_mass = IdentA(this, funLTG_A, "", "", iz2);
+                    Double_t new_mass = IdentA(GetName(), X, Y, funLTG_A, "", iz2); //IdentA(this, funLTG_A, "", "", iz2);
                     // is this a better solution ?
                     if(GetStatus() == KVTGIDManager::kStatus_OK){
                         Int_t new_ia = TMath::Nint(new_mass);

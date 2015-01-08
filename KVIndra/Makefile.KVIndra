@@ -6,7 +6,9 @@ KVMULTIDET_LIBS=$(patsubst %,-L../KVMultiDet -lKVMultiDet%,$(KVMULTIDET_MODULES)
 	
 KV_INC_EXTRAS := $(INCLUDE_PATHS) $(EXTRA_CXX_FLAGS) $(KVMULTIDET_INCLUDES)
 
+# temporary: disable linking with other kvindra libraries
 LINK_LIB := $(LINK_LIBRARIES) $(EXTRA_LIBRARIES) $(KVMULTIDET_LIBS)
+#LINK_LIB := $(EXTRA_LIBRARIES) $(KVMULTIDET_LIBS)
 
 PROJ_NAME = KVIndra
 

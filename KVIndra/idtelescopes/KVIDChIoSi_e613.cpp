@@ -3,6 +3,7 @@
 
 #include "KVIDChIoSi_e613.h"
 #include "KVINDRACodes.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDChIoSi_e613)
 

@@ -319,12 +319,12 @@ void KVINDRAReconEvent::IdentifyEvent()
 	
 	// perform secondary reconstruction in groups with detected gammas
 	int ngamG = gammaGroups.GetEntries();
-	if(ngamG){
-		for(int i=0; i<ngamG; i++){
-            ((KVGroup*)gammaGroups.At(i))->AnalyseAndReconstruct(this);
-		}
-	}
-	if(GetMult()>mult) {
+        if(ngamG){
+           for(int i=0; i<ngamG; i++){
+              gIndra->AnalyseGroupAndReconstructEvent(this, (KVGroup*)gammaGroups.At(i));
+           }
+        }
+        if(GetMult()>mult) {
 		/*Info("IdentifyEvent", "Event#%d: Secondary reconstruction (gammas) -> %d new particles",
 			GetNumber(), GetMult()-mult);*/
 
@@ -432,7 +432,7 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
     }
    }
    // reanalyse group
-   grp->AnalyseParticles();
+   KVReconstructedNucleus::AnalyseParticlesInGroup(grp);
    
    Int_t nident=0;//number of particles identified in each step
    if(sixparts.GetEntries()){   // identify any particles added by coherency CsIR/L - SiCsI
@@ -467,7 +467,7 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
    }
    if(nident){ // newly-identified particles may change status of others in group
    	// reanalyse group
-   	grp->AnalyseParticles();
+        KVReconstructedNucleus::AnalyseParticlesInGroup(grp);
    	nident=0;
    }
    
@@ -486,7 +486,7 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
    }
    if(nident){ // newly-identified particles may change status of others in group
    	// reanalyse group
-   	grp->AnalyseParticles();
+        KVReconstructedNucleus::AnalyseParticlesInGroup(grp);
    	nident=0;
    }
    

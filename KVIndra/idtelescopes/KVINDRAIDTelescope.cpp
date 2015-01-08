@@ -4,6 +4,7 @@
 #include <KVINDRATelescope.h>
 #include <KVINDRADetector.h>
 #include <KVINDRACodes.h>
+#include "KVReconstructedNucleus.h"
 
 ClassImp(KVINDRAIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////

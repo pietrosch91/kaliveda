@@ -3,6 +3,7 @@
 
 #include "KVDataPatch_CorrectEtalonModuleIDCode.h"
 #include <KVINDRAReconNuc.h>
+#include <KVINDRAReconEvent.h>
 #include "TClass.h"
 
 ClassImp(KVDataPatch_CorrectEtalonModuleIDCode)
