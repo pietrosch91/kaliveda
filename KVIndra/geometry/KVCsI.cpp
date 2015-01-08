@@ -22,7 +22,6 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVTelescope.h"
 #include "KVACQParam.h"
 #include "KVMaterial.h"
-#include "KVINDRA.h"
 #include "KVLightEnergyCsI.h"
 #include "KVIDGCsI.h"
 #include "KVIDZALine.h"

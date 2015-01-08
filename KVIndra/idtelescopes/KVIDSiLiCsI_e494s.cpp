@@ -3,6 +3,7 @@
 
 #include "KVIDSiLiCsI_e494s.h"
 #include "KVIdentificationResult.h"
+#include "KVDataSet.h"
 
 ClassImp(KVIDSiLiCsI_e494s)
 

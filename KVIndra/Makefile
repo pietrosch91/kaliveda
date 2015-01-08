@@ -1,5 +1,5 @@
 PROJECT = KVIndra
-MODULES = analysis calibration daq_cec db detectors events geometry gui identification idmaps idtelescopes indra particles
+MODULES = analysis calibration daq_cec db events geometry gui identification idmaps idtelescopes indra particles
 
 .PHONY: all install clean $(MODULES)
 
@@ -20,28 +20,26 @@ clean:
 	done
 
 analysis:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="calibration daq_cec db detectors events geometry gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="calibration daq_cec db events geometry gui identification idmaps idtelescopes indra particles"
 calibration:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis daq_cec db detectors events geometry gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis daq_cec db events geometry gui identification idmaps idtelescopes indra particles"
 daq_cec: 
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration db detectors events geometry gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration db events geometry gui identification idmaps idtelescopes indra particles"
 db:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec detectors events geometry gui identification idmaps idtelescopes indra particles"
-detectors:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec events geometry gui identification idmaps idtelescopes indra particles"
 events:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors geometry gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db geometry gui identification idmaps idtelescopes indra particles"
 geometry:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events gui identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events gui identification idmaps idtelescopes indra particles"
 gui:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry identification idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry identification idmaps idtelescopes indra particles"
 identification: 
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry gui idmaps idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui idmaps idtelescopes indra particles"
 idmaps:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry gui identification idtelescopes indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui identification idtelescopes indra particles"
 idtelescopes:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry gui identification idmaps indra particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui identification idmaps indra particles"
 indra:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry gui identification idmaps idtelescopes particles"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui identification idmaps idtelescopes particles"
 particles:
-	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db detectors events geometry gui identification idmaps idtelescopes indra"
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="analysis calibration daq_cec db events geometry gui identification idmaps idtelescopes indra"

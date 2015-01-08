@@ -28,7 +28,6 @@ $Id: KVCsI.h,v 1.26 2009/04/09 09:25:43 ebonnet Exp $
 
 #include "KVINDRADetector.h"
 #include "KVACQParam.h"
-#include "KVINDRA.h"
 
 class KVTelescope;
 class KVLightEnergyCsI;

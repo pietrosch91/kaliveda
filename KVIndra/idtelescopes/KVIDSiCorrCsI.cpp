@@ -17,6 +17,7 @@
 
 #include "KVIDSiCorrCsI.h"
 #include "KVIdentificationResult.h"
+#include "KVDataSet.h"
 
 ClassImp(KVIDSiCorrCsI)
 

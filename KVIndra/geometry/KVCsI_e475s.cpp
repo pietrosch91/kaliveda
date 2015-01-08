@@ -9,8 +9,6 @@ $Date: 2009/04/15 09:49:19 $
 
 #include "KVCsI_e475s.h"
 #include "KVCalibrator.h"
-#include "KVFunctionCal.h"
-#include "KVDBParameterSet.h"
 #include "TClass.h"
 
 ClassImp(KVCsI_e475s)
