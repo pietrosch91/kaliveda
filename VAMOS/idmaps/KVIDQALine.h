@@ -18,7 +18,6 @@ class KVIDQALine : public KVIDZALine
 		Int_t fQ;//! dummy variable used by context menu dialog boxes
 		Int_t fNextA;//! next A value for the next call of InsertMarker
 		Bool_t fNextAinc;//! true if the next A value should increase
-		Int_t  fNpeaks; //! used to find mass in a distribution (see FindAMarkers)
 
 		KVList *fMarkers; //-> list of Q-A identification markers
 
@@ -55,7 +54,7 @@ class KVIDQALine : public KVIDZALine
 		//virtual Int_t RemoveMarker(); // *MENU={Hierarchy="Modify Line.../RemoveMarker"}*
 		//virtual Int_t RemoveMarker(Int_t a);
 
-   		ClassDef(KVIDQALine,1)//Base class for identification ridge lines and spots corresponding to different masses and charge states respectively
+   		ClassDef(KVIDQALine,1)//Base class for identification ridge lines and spots corresponding to different charge states and masses respectively
 };
 
 //_______________________________________________________________//
@@ -68,8 +67,11 @@ inline void KVIDQALine::SetNameFromNucleus() {
 //_______________________________________________________________//
 
 inline void KVIDQALine::UpdateLineStyle(){
-	// Set line style 1 if Q is even and line style 9 if Q is odd
-	SetLineStyle( (GetQ()%2 ? 9 : 1) );
+	// Set line style and color as a function of the fQ value
+	static Int_t lc[] ={ kGray+1, kGray+2, kGray+3, kBlack};
+	Int_t c = lc[fA%4];
+	SetLineColor( c );
+
 }
 //_______________________________________________________________//
 

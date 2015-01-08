@@ -13,7 +13,7 @@ ClassImp(KVIDQALine)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVIDQALine</h2>
-<h4>Base class for identification ridge lines and spots corresponding to different masses and charge states respectively</h4>
+<h4>Base class for identification ridge lines and spots corresponding to different charge states and masses respectively</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +107,6 @@ Int_t KVIDQALine::InsertMarker(Int_t a){
 		AddMarker( m );
 		m->SetPointIndex( idx );
 		m->Draw();
-//		fMarkers->ls();
-//		Info("InsertMarker","Marker inserted at X=%f, Y=%f",fX[idx],fY[idx]);  
 	}
 	return idx;
 }
@@ -209,7 +207,7 @@ void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
 			if( low < 0 ) low = 0;
 			if( up  > fNpoints-1 ) up = fNpoints-1;
 
- 		   	m->SetPointIndexes( low, up );
+ 		   	m->SetPointIndexes( low, up, m->GetDelta() );
 		}
  	}
 }
@@ -231,28 +229,98 @@ void KVIDQALine::Streamer(TBuffer &R__b)
 
 void KVIDQALine::FindAMarkers(TH1 *h){
 
-	Info("FindAMarkers","IN %s",h->GetName());
- 
-	fNpeaks = 30;
+   //find mass peaks in histogram h.
+   //Use TSpectrum to find the peak candidates.
+   //Build KVIDQAMarker for each peak found.
+   
+   TSpectrum *s = new TSpectrum(60);
+   Int_t nfound = s->Search(h,2,"goff");
 
-   //find and fit peaks in histogram
-   TCanvas *c1 = new TCanvas();
-   h->Draw();
-   TH1F *h2 = (TH1F*)h->Clone("h2");
-   //Use TSpectrum to find the peak candidates
-   TSpectrum *s = new TSpectrum(2*fNpeaks);
-   Int_t nfound = s->Search(h,2,"");
+   Info("FindAMarkers","%d masses found in histogram %s for %s line",nfound,h->GetName(),GetName());
 
+   // Clear list of IDQAMarkers to build a new one
+   fMarkers->Clear();
+
+   // Build new IDQAMarkers
    Float_t *xpeaks = s->GetPositionX();
-   for (int p=0;p<nfound;p++) {
-      Float_t xp = xpeaks[p];
-      Int_t bin = h->GetXaxis()->FindBin(xp);
-      Float_t yp = h->GetBinContent(bin);
-
-	  cout<<"peak "<<p<<": x= "<<xp<<" y= "<<yp<<endl;
-
+   for (int p=0;p<nfound;p++){
+      Double_t x = xpeaks[p];
+ 	  KVIDQAMarker *m = new KVIDQAMarker;
+	  m->SetParent( this );
+	  m->SetX( x );
+	  AddMarker( m );
    }
 
+   // sort fMarkers list from X coordinate
+   fMarkers->Sort();
+
+   // find neighbours simply looping  all points
+   // and find also the 2 adjacent points: (low2 < low < x < up < up2 )
+   // needed in case x is outside the graph ascissa interval
+   Int_t low  = -1;
+   Int_t low2 = -1;
+   TIter next( fMarkers );
+   KVIDQAMarker *m = NULL;
+
+   Int_t a = 0; // we assum that xpeaks gives A/Q
+   Bool_t stop = kFALSE;
+   KVList del_list;
+   while( (m =(KVIDQAMarker *)next()) ){
+
+	   Double_t x = m->GetX();
+	   Double_t tmp = TMath::Nint(x*GetQ());
+	   if( a<=tmp ) a=tmp;
+
+	   m->SetA( a++);
+	   Int_t up  = -1;
+   	   Int_t up2 = -1;
+
+	   if( !stop ){
+	   	   for (Int_t i = (low>-1 ? low : 0 ); i < fNpoints; ++i) {
+         	   if (fX[i] < x){
+            	   if (low == -1 || fX[i] > fX[low])  {
+               		   low2 = low;
+               		   low = i;
+            	   } else if (low2 == -1) low2 = i;
+         	   } else if (fX[i] > x) {
+            	   if (up  == -1 || fX[i] < fX[up])  {
+               		   up2 = up;
+               		   up = i;
+            	   } else if (up2 == -1) up2 = i;
+         	   } else{ // case x == fX[i]
+			 	   low = up = i;
+			 	   break;
+		 	   }
+      	   }
+	   }
+
+ 	   // treat cases when x is outside graph min max abscissa
+       if (up == -1)  {
+           up  = low;
+           low = low2;
+       }
+       if (low == -1) {
+           low = up;
+           up  = up2;
+       }
+       // treat cases when x is outside line min max abscissa
+       if ((up == -1) || (low==-1)){
+		   // list the markers which are outside line to be deleted
+		   del_list.Add(m);
+		   stop = kTRUE; 
+		   continue;
+       }
+	  
+	   // set indexes of neighbour points and the X coordinate
+	   // to the marker
+   	   m->SetPointIndexesAndX( low, up, x );
+	   m->Draw();
+   }
+ 
+   if( del_list.GetEntries() ){
+	   Warning("FindAMarkers","markers will be deleted (outside of %s-line)",GetName());
+	   del_list.ls();
+   }
 }
 //________________________________________________________________
 

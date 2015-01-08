@@ -29,11 +29,13 @@ class KVIDQAMarker : public TMarker
    		KVIDQAMarker( KVIDQALine *parent, Int_t a);
    		virtual ~KVIDQAMarker();
    		void Copy(TObject& obj) const;
+		virtual Int_t	Compare(const TObject* obj) const;
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
    		void SetParent( KVIDQALine *parent );
    		Int_t GetQ() const;
 		virtual void ls(Option_t* option = "") const;
 		virtual void UpdateXandY();
+   		void SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x );
 
    		//-------------------- inline methods ------------------//
 
@@ -41,10 +43,12 @@ class KVIDQAMarker : public TMarker
 		void SetName(const Char_t *name);
    		Int_t GetA() const;
    		void SetA( Int_t a ); // *MENU*
+		Double_t GetDelta() const;
    		Int_t GetPointIndex() const;
    		void SetPointIndex( Int_t idx );
    		void GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const;
-   		void SetPointIndexes( Int_t idx_low, Int_t idx_up, Int_t delta=0 );
+   		void SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta=0 );
+		Bool_t IsSortable() const;
 
    		ClassDef(KVIDQAMarker,1)//Base class for identification markers corresponding to differents couples of mass and charge state
 };
@@ -63,10 +67,11 @@ inline void KVIDQAMarker::SetNameFromNucleus() {
 //_____________________________________________________//
 
 inline void KVIDQAMarker::UpdateMarkerStyle(){
-	// Set marker style as a function of the fA value
-	static Int_t ms[]={ 20, 24, 21, 25, 22, 26, 29, 30};
-	Int_t s = ms[fA%8];
-	SetMarkerStyle( s );
+	// Set marker style and color as a function of the fA value
+	SetMarkerStyle( 20 );
+	static Int_t mc[] ={ kGray+1, kGray+2, kGray+3, kBlack};
+	Int_t c = mc[fA%4];
+	SetMarkerColor( c );
 }
 //_____________________________________________________//
 
@@ -74,6 +79,9 @@ inline Int_t KVIDQAMarker::GetA() const{ return fA; }
 //_____________________________________________________//
 
 inline void KVIDQAMarker::SetA( Int_t a ){ fA = a; SetNameFromNucleus();}
+//_____________________________________________________//
+
+inline Double_t KVIDQAMarker::GetDelta() const{ return fDelta; }
 //_____________________________________________________//
 
 inline Int_t KVIDQAMarker::GetPointIndex() const{ return (fPtIdxLow==fPtIdxUp ? fPtIdxLow : -1 ); }
@@ -85,16 +93,17 @@ inline void KVIDQAMarker::SetPointIndex( Int_t idx ) {
 //_____________________________________________________//
 
 inline void KVIDQAMarker::GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const { idx_low = fPtIdxLow ; idx_up = fPtIdxUp; }
-
-
 //_____________________________________________________//
 
-inline void KVIDQAMarker::SetPointIndexes( Int_t idx_low, Int_t idx_up, Int_t delta ) { 
+inline void KVIDQAMarker::SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta ) { 
 	fPtIdxLow = idx_low;
    	fPtIdxUp  = idx_up;
 	fDelta    = delta;
 	UpdateXandY();
 }
+//_____________________________________________________//
 
-
+inline Bool_t KVIDQAMarker::IsSortable() const{
+	return kTRUE;
+}
 #endif

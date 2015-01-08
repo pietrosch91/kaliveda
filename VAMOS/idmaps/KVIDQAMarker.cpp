@@ -75,6 +75,17 @@ void KVIDQAMarker::Copy(TObject& obj) const{
 }
 //________________________________________________________________
 
+Int_t KVIDQAMarker::Compare(const TObject *obj) const
+{
+    // Compares numerical valur of X coordinate for sorting lists (such as KVList)
+    
+	const KVIDQAMarker *other = dynamic_cast<const KVIDQAMarker *>(obj);
+    if(!other) return 0;
+    // check for equality
+    return ((other->GetX())>GetX() ? -1 : 1);
+}
+//________________________________________________________________
+
 void KVIDQAMarker::SetParent( KVIDQALine *parent ){ fParent = parent; }
 //________________________________________________________________
 
@@ -136,4 +147,39 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 			}
 			break;
 	}
+}
+//________________________________________________________________
+
+void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x ){
+	// Set indexes of the two neighbour points and the X coordinates of this
+	// marker. Then fDelta and Y coordinates will be calculated and set to
+	// this marker.
+
+	Info("SetPointIndexesAndX","IN low= %d, up= %d, X= %f",idx_low,idx_up,x);
+
+	if( !fParent ) return;
+
+	Double_t x_low, y_low, x_up, y_up;
+	if((fParent->GetPoint(idx_low, x_low, y_low)>-1) && (fParent->GetPoint(idx_up, x_up, y_up)>-1)){
+
+		Double_t y;
+		if( x_low == y_up ) y = y_low;
+		else y = y_up + (x-x_up)*(y_low-y_up)/(x_low-x_up);
+
+		Double_t L     = TMath::Sqrt( TMath::Power(x_up-x_low,2)+TMath::Power(y_up-y_low,2) );
+		Double_t l     = TMath::Sqrt( TMath::Power(x-x_low,2)+TMath::Power(y-y_low,2) );
+
+		if( L==0 ){ 
+			fPtIdxLow = fPtIdxUp = idx_low;
+			fDelta = 0.;
+		}
+		else{
+			fPtIdxLow = idx_low;
+   			fPtIdxUp  = idx_up;
+			fDelta = l/L;
+		}
+
+		SetX( x );
+		SetY( y_low + (y_up-y_low)*fDelta );
+ 	}
 }
