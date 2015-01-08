@@ -9,10 +9,9 @@ $Author: franklan $
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 #include "KVINDRAReconNuc.h"
-#include "KVINDRA.h"
 #include "KVChIo.h"
 #include "KVSilicon.h"
-#include "KVNewGridRRMDialog.h"
+#include "KVINDRARRMValidator.h"
 #include "TObjString.h"
 #include "KVParameter.h"
 #include "TObjArray.h"
@@ -154,7 +153,10 @@ void KVIDGChIoSi::BackwardsCompatibilityFix()
 
     KVIDZAGrid::BackwardsCompatibilityFix();
     if ( fPar->HasParameter("IDTelescopes") ) return;
-    if ( fPar->HasParameter("Rings") && gIndra )
+
+    Warning("BackwardsCompatibilityFix",
+            "This fix no longer works correctly. Dummy ID telescopes will be associated with this grid. There will be problems.");
+    if ( fPar->HasParameter("Rings") )// && gIndra ) <== SHOULD NOT DEPEND ON KVINDRA!!!
     {
         KVNumberList Rings(fPar->GetStringValue("Rings"));
         KVNumberList Modules(fPar->GetStringValue("Modules"));
@@ -167,7 +169,7 @@ void KVIDGChIoSi::BackwardsCompatibilityFix()
             while ( !Modules.End() )
             {
                 m=Modules.Next();
-                KVIDTelescope* id = gIndra->GetIDTelescope( Form("CI_SI_%02d%02d", r,m) );
+                KVIDTelescope* id = new KVIDTelescope(); id->SetName(Form("CI_SI_%02d%02d", r,m)); // gIndra->GetIDTelescope( Form("CI_SI_%02d%02d", r,m) ); <== SHOULD NOT DEPEND ON KVINDRA!!!
                 if (id) AddIDTelescope(id);
             }
         }
