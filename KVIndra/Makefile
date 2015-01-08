@@ -1,7 +1,7 @@
 PROJECT = KVIndra
 #MODULES = analysis calibration daq_cec db detectors events geometry gui identification \
 #	idmaps idtelescopes indra particles
-MODULES = daq_cec
+MODULES = daq_cec identification
 
 .PHONY: all install clean $(MODULES)
 

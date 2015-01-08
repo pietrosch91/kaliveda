@@ -25,7 +25,6 @@ $Id: KVINDRAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
 #include "KVINDRADetector.h"
 #include "KVTelescope.h"
 #include "KVINDRACodes.h"
-#include "KVINDRAReconEvent.h"
 #include "KVINDRAIDTelescope.h"
 
 class KVChIo;
