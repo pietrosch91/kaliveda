@@ -7,7 +7,6 @@
 #pragma link C++ class KVRunListLine;
 #pragma link C++ class KVINDRARunListReader;
 #pragma link C++ class KVINDRARunSheetReader;
-#pragma link C++ class KVDBParameterSet-;//customized streamer
 #pragma link C++ class KVINDRADBRun;
 #pragma link C++ class KVDBChIoPressures;
 #pragma link C++ class KVDBTape;

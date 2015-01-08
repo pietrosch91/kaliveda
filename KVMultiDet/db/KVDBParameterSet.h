@@ -18,7 +18,7 @@ $Id: KVDBParameterSet.h,v 1.13 2007/04/18 14:28:49 ebonnet Exp $
 #ifndef KVDB_PARAMETER_SET_H
 #define KVDB_PARAMETER_SET_H
 
-#include "KVDataBase.h"
+#include "KVDBRecord.h"
 #include "TString.h"
 class KVDBParameterSet:public KVDBRecord {
  protected:
