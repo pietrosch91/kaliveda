@@ -29,6 +29,8 @@ class KVIDQALine : public KVIDZALine
    		KVIDQALine();
    		virtual ~KVIDQALine();
    		void Copy(TObject& obj) const;
+		virtual void Draw(Option_t* chopt = "");
+		virtual void UnDraw();
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
 		void IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA );
 		

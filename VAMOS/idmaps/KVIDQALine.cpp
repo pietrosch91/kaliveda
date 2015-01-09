@@ -6,6 +6,7 @@
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TSpectrum.h"
+#include "KVIDGraph.h"
 
 ClassImp(KVIDQALine)
 
@@ -66,6 +67,32 @@ void KVIDQALine::Copy(TObject& obj) const{
    fMarkers->Copy((TObject &) (*CastedObj.GetMarkers()));
    CastedObj.GetMarkers()->R__FOR_EACH(KVIDQAMarker,SetParent)((&CastedObj));
 
+}
+//________________________________________________________________
+
+void KVIDQALine::Draw(Option_t* chopt){
+//Draw all KVIDQAMarkers in line on the current display, if one exists: i.e. in order to superimpose the grid
+	//If the line is already displayed (i.e. if fParent->GetPad()!=0), we call UnDraw() in order to remove them from the display.
+	//This is so that double-clicking a graph in the IDGridManagerGUI list makes them disappear if they are already drawn.
+ 	KVIDZALine::Draw(chopt);
+ 	fMarkers->R__FOR_EACH(KVIDQAMarker, Draw) ();
+}
+//________________________________________________________________
+
+void KVIDQALine::UnDraw(){
+	//Make the line and their markers disappear from the current canvas/pad
+   	//In case any objects have (accidentally) been drawn more than once, we keep calling
+   	//gPad->GetListOfPrimitives()->Remove() as long as gPad->GetListOfPrimitives()->FindObject()
+
+	if(fParent && fParent->GetPad()){
+   		//remove the rest of the markers of the line
+		TIter next_mk(fMarkers);
+		KVIDQAMarker *mk;
+		while((mk = (KVIDQAMarker *) next_mk())) {
+      		while (fParent->GetPad()->GetListOfPrimitives()->FindObject(mk))
+         		fParent->GetPad()->GetListOfPrimitives()->Remove(mk);
+		}
+   	}
 }
 //________________________________________________________________
 
@@ -314,7 +341,10 @@ void KVIDQALine::FindAMarkers(TH1 *h){
 	   // set indexes of neighbour points and the X coordinate
 	   // to the marker
    	   m->SetPointIndexesAndX( low, up, x );
-	   m->Draw();
+
+	   // draw the new marker if its parent Q-line is already drawn in the 
+	   // current pad
+	   if( gPad && gPad->GetListOfPrimitives()->FindObject(this)) m->Draw();
    }
  
    if( del_list.GetEntries() ){
@@ -322,5 +352,4 @@ void KVIDQALine::FindAMarkers(TH1 *h){
 	   del_list.ls();
    }
 }
-//________________________________________________________________
 

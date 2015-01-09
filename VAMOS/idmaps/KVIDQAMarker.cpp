@@ -183,3 +183,4 @@ void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x 
 		SetY( y_low + (y_up-y_low)*fDelta );
  	}
 }
+

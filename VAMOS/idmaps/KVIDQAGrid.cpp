@@ -673,3 +673,11 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t *
    	SetOnlyQId( q_id );
    	return tmpfile;
 }
+//________________________________________________________________
+
+void KVIDQAGrid::UnDraw(){
+	//Make the grid, its lines and their markers disappear from the current canvas/pad
+
+	if(fPad) fIdentifiers->R__FOR_EACH(KVIDQALine, UnDraw) ();
+	KVIDGrid::UnDraw();
+}
