@@ -8,10 +8,7 @@ $Date: 2009/04/06 15:22:02 $
 //Author: franklan
 
 #include "KVIDSi75SiLi_camp5.h"
-#include "KVDataSet.h"
-#include "KVIDGridManager.h"
-#include "KVINDRA.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDSi75SiLi_camp5)

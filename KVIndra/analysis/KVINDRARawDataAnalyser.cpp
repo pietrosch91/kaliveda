@@ -12,6 +12,8 @@ $Date: 2009/01/14 16:13:49 $
 #include "KVINDRA.h"
 #include "KVDataSet.h"
 #include "KVClassFactory.h"
+#include "KVINDRADB.h"
+#include <KVINDRADBRun.h>
 
 using namespace std;
 

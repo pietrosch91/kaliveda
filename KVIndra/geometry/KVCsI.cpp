@@ -23,7 +23,7 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVACQParam.h"
 #include "KVMaterial.h"
 #include "KVLightEnergyCsI.h"
-#include "KVIDGCsI.h"
+#include "KVIDZAGrid.h"
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 #include <TCanvas.h>
@@ -549,7 +549,7 @@ void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 	
 	KVIDTelescope *idcsi=(KVIDTelescope*)GetIDTelescopes()->At(0);
 	
-	KVIDGCsI* idgcsi = (KVIDGCsI*)idcsi->GetIDGrid();
+        KVIDZAGrid* idgcsi = (KVIDZAGrid*)idcsi->GetIDGrid();
 	if (!idgcsi){
 		//Warning("DeduceACQParameters","%s, No grid available",GetName());
 		return;

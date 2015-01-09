@@ -2,7 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVIDSi150CsI_camp5.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDSi150CsI_camp5)

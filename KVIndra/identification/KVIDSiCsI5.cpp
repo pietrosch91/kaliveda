@@ -16,18 +16,13 @@
  ***************************************************************************/
 
 #include "KVIDSiCsI5.h"
-#include "KVCsI.h"
-#include "KVChIo.h"
-#include "KVSilicon.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "Riostream.h"
-#include "KVDetector.h"
-#include "KVMultiDetArray.h"
-#include "KVDataSet.h"
 #include "KVTGIDZA.h"
 #include "TObjString.h"
 #include "KVIdentificationResult.h"
-
+#include "KVDataSet.h"
+#include "KVMultiDetArray.h"
 
 using namespace std;
 

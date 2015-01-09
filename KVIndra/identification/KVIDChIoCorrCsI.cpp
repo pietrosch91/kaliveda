@@ -8,9 +8,9 @@
 //Author: John Frankland,,,
 
 #include "KVIDChIoCorrCsI.h"
-#include "KVINDRA.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIdentificationResult.h"
+#include "KVIDGChIoSi_e494s.h"
 
 ClassImp(KVIDChIoCorrCsI)
 

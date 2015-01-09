@@ -7,6 +7,7 @@
 #include "KVDataSet.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
+#include "KVINDRADB.h"
 
 ClassImp(KVINDRAReconIdent)
 

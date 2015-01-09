@@ -17,6 +17,7 @@ $Author: franklan $
 #include "KVBase.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include "KVINDRADB.h"
 using namespace std;
 
 

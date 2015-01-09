@@ -9,8 +9,6 @@
 #include "KVCsI.h"
 #include "KVIDCutLine.h"
 
-class KVMultiDetArray;
-
 class KVIDSiCsI_e613 : public KVIDSiCsI
 {
 

@@ -17,11 +17,7 @@ $Id: KVIDSiCsI.cpp,v 1.15 2006/10/19 14:32:43 franklan Exp $
  ***************************************************************************/
 
 #include "KVIDSiCsI.h"
-#include "KVChIo.h"
-#include "KVSilicon.h"
-#include "KVReconstructedNucleus.h"
-#include "KVINDRAReconNuc.h"
-#include "KVINDRACodes.h"
+#include "KVINDRACodeMask.h"
 
 ClassImp(KVIDSiCsI)
 //////////////////////////////////////////////////////////////////////////////

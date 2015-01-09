@@ -11,7 +11,6 @@ $Date: 2008/07/08 12:41:56 $
 #define __KVIDCSI_E475S_H
 
 #include "KVIDCsI.h"
-#include "KVReconstructedNucleus.h"
 
 class KVIDCsI_e475s : public KVIDCsI
 {

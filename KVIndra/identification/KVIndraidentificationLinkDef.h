@@ -45,4 +45,5 @@
 #pragma link C++ class KVIDChIoSi75_e494s+;
 #pragma link C++ class KVIDSi75SiLi_e494s+;
 #pragma link C++ class KVIDSiLiCsI_e494s+;
+#pragma link C++ class KVINDRARRMValidator+;
 #endif

@@ -12,5 +12,5 @@ all:
 	link_libraries="$(patsubst %,lib$(PROJECT)%.so,$(MOD_DEPS))"; \
 	makefile=Makefile.$$module; \
 	[ ! -f $$makefile ] && makefile=Makefile.$(PROJECT); \
-	make -f $$makefile MODULE=$$module INCLUDE_PATHS="$$include_paths" LINK_LIBRARIES="$$link_libraries"; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	make -f $$makefile MODULE=$$module INCLUDE_PATHS="$$include_paths" LINK_LIBRARIES="$$link_libraries"; if [ "$$?" -ne 0 ] ; then exit 1 ; fi ; \
 	echo `tput bold``tput setaf 4`"++++++++++++++++++++++++++++++++++++++++ FINISHED MODULE $(PROJECT)/$$module"`tput sgr0`; \

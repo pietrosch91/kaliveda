@@ -10,8 +10,8 @@ $Date: 2008/12/02 16:43:30 $
 #include "KVIDCsI_e475s.h"
 #include "KVChIo_e475s.h"
 #include "KVSilicon_e475s.h"
-#include "KVString.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
+#include "KVReconstructedNucleus.h"
 
 ClassImp(KVIDCsI_e475s)
 

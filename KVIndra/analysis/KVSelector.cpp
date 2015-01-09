@@ -24,6 +24,8 @@ selection, you will not be able to regenerate them."
 #include "KVINDRAReconNuc.h"
 #include "KVINDRAReconDataAnalyser.h"
 
+#include <KVINDRADB.h>
+
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
 using namespace std;

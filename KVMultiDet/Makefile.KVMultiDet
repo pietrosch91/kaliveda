@@ -10,7 +10,7 @@ endif
 
 include ../Makefile.general
 
-RLIBMAPDEPS += $(LINK_LIB)
+RLIBMAPDEPS += $(LINK_LIBRARIES)
 
 RLIBMAPDEPS += libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \

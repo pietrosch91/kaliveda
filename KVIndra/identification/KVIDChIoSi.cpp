@@ -16,11 +16,8 @@
  ***************************************************************************/
 
 #include "KVIDChIoSi.h"
-#include "KVIDGChIoSi.h"
-#include "KVINDRAReconNuc.h"
-#include "KVINDRACodes.h"
-#include "KVINDRA.h"
 #include "KVIdentificationResult.h"
+#include "KVINDRACodeMask.h"
 
 ClassImp(KVIDChIoSi)
 /////////////////////////////////////////////////////////////////////////////

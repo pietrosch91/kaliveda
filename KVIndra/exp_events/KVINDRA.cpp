@@ -40,7 +40,6 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "KVNucleus.h"
 #include "KVDetectorEvent.h"
 #include "KVINDRAReconEvent.h"
-#include "KVINDRAUpDater.h"
 #include "TEnv.h"
 #include "KVFileReader.h"
 #include "INDRAGeometryBuilder.h"

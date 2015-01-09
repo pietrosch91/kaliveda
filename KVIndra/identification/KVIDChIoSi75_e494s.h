@@ -5,7 +5,6 @@
 #define __KVIDCHIOSI75_E494S_H
 
 #include "KVIDChIoSi75.h"
-#include "KVINDRA.h"
 
 class KVIDChIoSi75_e494s : public KVIDChIoSi75
 {

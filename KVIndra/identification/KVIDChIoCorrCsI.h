@@ -11,8 +11,6 @@ $Date: 2009/04/06 15:21:31 $
 #define __KVIDCHIOCORRCSI_H
 
 #include "KVIDZAGrid.h"
-#include "KVIDGChIoSi_e494s.h"
-#include "KVINDRAIDTelescope.h"
 #include "KVChIo.h"
 #include "KVIDChIoCsI.h"
 #include "KVCsI.h"

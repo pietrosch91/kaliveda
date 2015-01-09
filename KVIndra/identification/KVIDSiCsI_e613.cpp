@@ -1,8 +1,7 @@
 //Author: Diego Gruyer,,,
 
 #include "KVIDSiCsI_e613.h"
-#include "KVINDRA.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIdentificationResult.h"
 
 using namespace std;

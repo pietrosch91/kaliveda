@@ -25,8 +25,6 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 #include "KVList.h"
 #include "KVHashList.h"
 #include "KVACQParam.h"
-#include "KVINDRADB.h"
-#include "KVINDRADBRun.h"
 #include "KVDBSystem.h"
 #include "KVUpDater.h"
 #include "KVDataSetManager.h"
@@ -126,11 +124,7 @@ class KVINDRA:public KVASMultiDetArray {
                                          UInt_t type) const;
 
    void SetTrigger(UChar_t trig);
-   // Methodes pour interroger la base de donnees
-   inline KVINDRADBRun *GetCurrentRun() const;
-   inline Int_t GetTrigger() const;
-   inline KVDBSystem *GetSystem() const;
-   inline void ShowSystem() const;
+   UChar_t GetTrigger() const { return fTrigger; }
 
 	void SetPinLasersForCsI();
    virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
@@ -154,57 +148,6 @@ R__EXTERN KVINDRA *gIndra;
 inline void KVINDRA::cd(Option_t *)
 {
    gIndra = this;
-}
-
-inline KVINDRADBRun *KVINDRA::GetCurrentRun() const
-{
-
-   if (!gIndraDB) {
-      Warning("GetCurrentRun()", "DataBase not initialized !");
-      return 0;
-   }
-   KVINDRADBRun *run = gIndraDB->GetRun(GetCurrentRunNumber());
-   if (!run) {
-      Warning("GetCurrentRun()", "Run %u not found !",
-              GetCurrentRunNumber());
-   }
-   return run;
-}
-
-//------------- inline
-
-inline Int_t KVINDRA::GetTrigger() const
-{
-
-   if (!gIndraDB) {
-      return (Int_t) fTrigger;
-   }
-   KVINDRADBRun *run = GetCurrentRun();
-   if (run) {
-      return run->GetTrigger();
-   }
-   return 0;
-}
-
-inline KVDBSystem *KVINDRA::GetSystem() const
-{
-
-   KVINDRADBRun *run = GetCurrentRun();
-   if (run) {
-      return run->GetSystem();
-   }
-   return 0;
-}
-
-inline void KVINDRA::ShowSystem() const
-{
-
-   KVDBSystem *sys = GetSystem();
-   if (sys) {
-      std::cout << sys->GetName() << std::endl;
-   } else {
-      Warning("ShowSystem", "No system found for run");
-   }
 }
 
 #endif

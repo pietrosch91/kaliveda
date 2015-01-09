@@ -139,9 +139,10 @@ dictionaries:
 	@make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$(MODULE) LIBNAME=$(PROJ_NAME) RLIBMAPDEPS="$(RLIBMAPDEPS)" INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"
 
 $(LIB_SO): $(OBJECTS) $(DICT_OBJECTS)
-	@echo `tput setaf 5`"Building library $@"`tput sgr0`
-	@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS)
-	@echo `tput setaf 5`"$@ done"`tput sgr0`
+	@echo `tput setaf 5`"Building library $@"`tput sgr0`; \
+	$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS) ;\
+	[ $$? -ne 0 ] && exit 1; \
+	echo `tput setaf 5`"$@ done"`tput sgr0`
 
 .SUFFIXES: .$(SrcSuf)
 

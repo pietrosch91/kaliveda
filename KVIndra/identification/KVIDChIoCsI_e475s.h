@@ -12,7 +12,6 @@ $Date: 2009/04/17 08:50:02 $
 
 #include "KVIDChIoCsI.h"
 #include "KVIDZAGrid.h"
-#include "KVIDGraph.h"
 
 class KVReconstructedNucleus;
 

@@ -10,6 +10,7 @@ $Date: 2009/03/27 16:42:58 $
 #include "KVINDRAPulserDataTree.h"
 #include "KVDataSet.h"
 #include "KVINDRA.h"
+#include "KVINDRADBRun.h"
 
 using namespace std;
 

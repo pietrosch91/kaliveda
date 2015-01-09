@@ -8,8 +8,7 @@ $Date: 2009/04/06 15:21:31 $
 //Author: John Frankland,,,
 
 #include "KVIDChIoCsI_camp5.h"
-#include "KVINDRA.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDChIoCsI_camp5)

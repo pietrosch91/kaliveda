@@ -8,11 +8,10 @@ $Date: 2009/04/15 11:45:14 $
 //Author: eric bonnet,,,
 
 #include "KVIDSiCsI_e475s.h"
-#include "KVINDRA.h"
 #include "KVReconstructedNucleus.h"
-#include "KVINDRAReconNuc.h"
 #include "KVCsI_e475s.h"
 #include "KVIdentificationResult.h"
+#include "KVINDRACodeMask.h"
 
 ClassImp(KVIDSiCsI_e475s)
 

@@ -19,10 +19,8 @@
 #include "KVCsI.h"
 #include "KVIDGCsI.h"
 #include "KVReconstructedNucleus.h"
-#include "KVINDRACodes.h"
-#include "KVINDRAReconNuc.h"
+#include "KVINDRACodeMask.h"
 #include "KVIDCsIRLLine.h"
-#include "KVINDRA.h"
 #include "TMath.h"
 #include "KVIdentificationResult.h"
 

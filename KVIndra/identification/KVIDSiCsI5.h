@@ -23,8 +23,6 @@
 #include "KVSilicon.h"
 #include "KVCsI.h"
 
-class KVMultiDetArray;
-
 class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
 	KVSilicon* fSi;//!the silicon

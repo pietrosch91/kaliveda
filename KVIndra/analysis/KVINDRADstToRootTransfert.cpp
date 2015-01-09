@@ -28,6 +28,7 @@
 #include "KVDataRepository.h"
 #include "KVBatchSystem.h"
 #include "KVGANILDataReader.h"
+#include "KVINDRADB.h"
 
 typedef KVDetector* (KVINDRADstToRootTransfert::*FNMETHOD) ( int,int );
 
@@ -167,8 +168,8 @@ void KVINDRADstToRootTransfert::ProcessRun()
         KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(),fRunNumber);
 
 	KVINDRAReconEvent *evt = new KVINDRAReconEvent();
-	evt->SetTitle( gIndra->GetSystem()->GetName() );
-	evt->SetName( gIndra->GetCurrentRun()->GetName() );
+        evt->SetTitle( gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetSystem()->GetName() );
+        evt->SetName( gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetName() );
 
    // Create new ROOT file with TTree for converted events.
    
@@ -181,7 +182,8 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		TFile* fi = OutputDataset->NewRunfile("root", fRunNumber);
 	
 	KVString stit; 
-	stit.Form("%s : %s : root events converted from DST", gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle());
+        stit.Form("%s : %s : root events converted from DST",
+                  gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle());
       //tree for reconstructed events
 		data_tree = new TTree("ReconstructedEvents", stit.Data());
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
@@ -295,7 +297,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		gROOT->ProcessLine(inst.Data());
 	}
 
-	if( gIndra->GetCurrentRun()->GetEvents() ){
+        if( gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetEvents() ){
 		//check number of events against scaler info for this run
 		Double_t check_events=(1.*events_read)/((Double_t)necrit);
 		cout << "Nb. evts read from files: " << events_read << endl;

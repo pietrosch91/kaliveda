@@ -1,0 +1,8 @@
+NOT_READY += exp_events/KVINDRAFNL.cpp
+#required for use of TGeo* classes in INDRAGeometryBuilder
+EXTRA_LIBRARIES += -L$(ROOTSYS)/lib -lGeom
+
+ETC_DATA = data 
+MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_camp5 INDRA_e475s INDRA_e503 INDRA_e494s t10_02 INDRA_e613
+
+include Makefile.KVIndra
