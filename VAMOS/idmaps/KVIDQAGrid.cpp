@@ -559,8 +559,10 @@ KVIDGraph* KVIDQAGrid::MakeSubsetGraph(Int_t Qmin, Int_t Qmax, const Char_t* gra
 }
 //________________________________________________________________
 
-TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo){
-	//
+TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t *q_list){
+	// This method find automatically from the histogram the KVIDQAMarker's of each Q-line 
+	// listed in the argument q_list. The histogram must be two dimensional
+	// plot reprensenting matrix A vs A/Q or Q vs A/Q.
 
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
@@ -570,6 +572,9 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo){
 		Error("FindAMarkers","histogram %s not found",name_of_data_histo);
 		return 0;
 	}
+
+	// list of Q-line to process
+	KVNumberList ql(q_list);
 
    KVIdentificationResult *idr = new KVIdentificationResult;
    KVReconstructedNucleus nuc;
@@ -593,7 +598,8 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo){
 	TIter next( GetIdentifiers() );
 	KVIDQALine *qline = NULL;
 	while( (qline=(KVIDQALine *)next()) ){
-		l_histos.Add( hh = (TH2F* )idmap->Clone(Form("Q%.2d",qline->GetQ())) );
+		if( !ql.GetNValues() || ql.Contains(qline->GetQ()) )
+			l_histos.Add( hh = (TH2F* )idmap->Clone(Form("Q%.2d",qline->GetQ())) );
 	}
 
   	Int_t tot_events = (Int_t) data->GetSum();
@@ -652,16 +658,16 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo){
 
    delete idr;
 
-
    // build projection for each 2D maps and find KVIDQAMarker's
    // from them
    next.Reset();
    while( (qline=(KVIDQALine *)next()) ){
 		hh = (TH2F *)l_histos.FindObject(Form("Q%.2d",qline->GetQ()));
-		TH1 *proj = hh->ProjectionX();
-		qline->FindAMarkers( proj );
+		if( hh ){
+			TH1 *proj = hh->ProjectionX();
+			qline->FindAMarkers( proj );
+		}
 	}
-
 
    	CWD->cd();
    	SetOnlyQId( q_id );

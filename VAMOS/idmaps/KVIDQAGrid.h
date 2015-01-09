@@ -100,7 +100,7 @@ class KVIDQAGrid : public KVIDGrid
 
 
 
-	TFile* FindAMarkers(const Char_t* name_of_data_histo);
+	TFile* FindAMarkers(const Char_t *name_of_data_histo, const Char_t *q_list="");
 
 
 
