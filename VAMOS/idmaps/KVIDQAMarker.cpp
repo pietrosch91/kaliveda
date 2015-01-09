@@ -101,7 +101,7 @@ void KVIDQAMarker::ls(Option_t *) const
 
    TROOT::IndentLevel();
    cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() <<" : "
-	   <<Form("PtIdxLow= %d PtIdxUp= %d X=%f Y=%f marker type=%d :",fPtIdxLow,fPtIdxUp,fX,fY,fMarkerStyle)
+	   <<Form("PtIdxLow= %d, PtIdxUp= %d, fDelta= %f, X=%f, Y=%f, marker type=%d :",fPtIdxLow,fPtIdxUp,fDelta,fX,fY,fMarkerStyle)
         << Int_t(TestBit(kCanDelete)) << " at: "<<this<< endl;
 }
 //________________________________________________________________
@@ -121,6 +121,8 @@ void KVIDQAMarker::UpdateXandY(){
 
 void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 
+	if( fParent && !fParent->IsEditable() ) return; 
+
 	TMarker::ExecuteEvent( event, px, py );
 
 	static Bool_t motion = kFALSE;
@@ -134,14 +136,16 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 		case kButton1Up:
 			if( motion ){
 				motion = kFALSE;
-				if( fParent && (fPtIdxLow>-1) && (fPtIdxUp>-1)){
+				if((fPtIdxLow>-1) && (fPtIdxUp>-1)){
 					if( fPtIdxLow == fPtIdxUp ){
 						fParent->SetPoint( fPtIdxLow, GetX(), GetY() );
+						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 					else{
-						fPtIdxUp = fPtIdxLow; 
+						fPtIdxUp = fPtIdxLow = fParent->InsertPoint( fPtIdxUp, GetX(), GetY() );
 						fDelta   = 0;
 						fParent->InsertPoint( fPtIdxUp, GetX(), GetY() );
+						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 				}
 			}
@@ -154,8 +158,6 @@ void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x 
 	// Set indexes of the two neighbour points and the X coordinates of this
 	// marker. Then fDelta and Y coordinates will be calculated and set to
 	// this marker.
-
-	Info("SetPointIndexesAndX","IN low= %d, up= %d, X= %f",idx_low,idx_up,x);
 
 	if( !fParent ) return;
 
@@ -183,4 +185,3 @@ void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x 
 		SetY( y_low + (y_up-y_low)*fDelta );
  	}
 }
-
