@@ -183,25 +183,27 @@ Int_t KVIDQALine::InsertPoint(){
 }
 //________________________________________________________________
 
-Int_t KVIDQALine::InsertPoint( Int_t i, Double_t x, Double_t y){
-	Info("InsertPoint","BEFORE");
-	fMarkers->ls();
+Int_t KVIDQALine::InsertPoint( Int_t i, Double_t x, Double_t y, Double_t x_prev){
+	Info("InsertPoint","BEFORE, i=%d, x=%f, y=%f, x_prev=%f",i,x,y,x_prev);
 
 	if( (i<0) || (i>fNpoints)) return -1;
+
+	Double_t y_prev = Eval( x_prev );
+
  	Double_t **ps = ExpandAndCopy(fNpoints + 1, i);
    CopyAndRelease(ps, i, fNpoints++, i + 1);
 
    // To avoid redefenitions in descendant classes
    FillZero(i, i+ 1);
 
+   fX[i] = x_prev;
+   fY[i] = y_prev;
+   IncrementPtIdxOfMarkers(i);
+//	Info("InsertPoint","Point %d inserted at X=%f, Y=%f",i,fX[i],fY[i]);  
    fX[i] = x;
    fY[i] = y;
-	IncrementPtIdxOfMarkers(i);
-//	Info("InsertPoint","Point %d inserted at X=%f, Y=%f",i,fX[i],fY[i]);  
-	
-	Info("InsertPoint","AFTER");
-	fMarkers->ls();
 
+	Info("InsertPoint","AFTER");
 
 	return i;
 }
@@ -229,19 +231,46 @@ Int_t KVIDQALine::RemovePoint(Int_t i){
 //________________________________________________________________
 
 void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
-
+	Info("IncrementPtIdxOfMarkers","BEFORE, idx=%d, ival=%d",idx,ival);
 	TIter next( fMarkers );
 	KVIDQAMarker *m = NULL;
 	while( (m =(KVIDQAMarker *)next()) ){
 		Int_t low, up;
  		m->GetPointIndexes(low, up);
-		if( fX[idx]<m->GetX() ){
-			low += ival;
-			up  += ival;
-			if( low < 0 ) low = 0;
-			if( up  > fNpoints-1 ) up = fNpoints-1;
 
- 		   	m->SetPointIndexes( low, up, m->GetDelta() );
+		if( (idx-1) <= low ){
+			
+			Double_t delta = 0;	
+			if( (low==(idx-1)) && (low!=up)  ){
+				//vector givent by the initial low and up points
+				Double_t xi = fX[idx-1]-fX[idx+1];
+				Double_t yi = fY[idx-1]-fY[idx+1];
+				Double_t li = TMath::Sqrt( TMath::Power(xi,2)+TMath::Power(yi,2) );
+
+				//vector givent by the final low and up points
+				Double_t xf = fX[idx-1]-fX[idx];
+				Double_t yf = fY[idx-1]-fY[idx];
+				Double_t lf = TMath::Sqrt( TMath::Power(xf,2)+TMath::Power(yf,2) );
+
+				if( m->GetDelta()*li<lf ){
+ 			   		delta = m->GetDelta()*li/lf;
+				}
+				else{
+ 			   		delta = (m->GetDelta()*li-lf)/(li-lf);
+					low += ival;
+					up  += ival;
+				}
+			}
+			else{
+				delta = m->GetDelta();
+				low += ival;
+				up  += ival;
+			}
+
+			if( low < 0 ){ low = 0; delta=0.; }
+			if( up  > fNpoints-1 ){ up = fNpoints-1; delta = 1.; }
+
+ 			m->SetPointIndexes( low, up, delta );
 		}
  	}
 }

@@ -32,6 +32,7 @@ class KVIDQAMarker : public TMarker
 		virtual Int_t	Compare(const TObject* obj) const;
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
    		void SetParent( KVIDQALine *parent );
+   		void SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta=0 );
    		Int_t GetQ() const;
 		virtual void ls(Option_t* option = "") const;
 		virtual void UpdateXandY();
@@ -47,7 +48,6 @@ class KVIDQAMarker : public TMarker
    		Int_t GetPointIndex() const;
    		void SetPointIndex( Int_t idx );
    		void GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const;
-   		void SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta=0 );
 		Bool_t IsSortable() const;
 
    		ClassDef(KVIDQAMarker,1)//Base class for identification markers corresponding to differents couples of mass and charge state
@@ -93,14 +93,6 @@ inline void KVIDQAMarker::SetPointIndex( Int_t idx ) {
 //_____________________________________________________//
 
 inline void KVIDQAMarker::GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const { idx_low = fPtIdxLow ; idx_up = fPtIdxUp; }
-//_____________________________________________________//
-
-inline void KVIDQAMarker::SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta ) { 
-	fPtIdxLow = idx_low;
-   	fPtIdxUp  = idx_up;
-	fDelta    = delta;
-	UpdateXandY();
-}
 //_____________________________________________________//
 
 inline Bool_t KVIDQAMarker::IsSortable() const{

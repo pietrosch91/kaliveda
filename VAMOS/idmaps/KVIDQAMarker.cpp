@@ -89,6 +89,15 @@ Int_t KVIDQAMarker::Compare(const TObject *obj) const
 void KVIDQAMarker::SetParent( KVIDQALine *parent ){ fParent = parent; }
 //________________________________________________________________
 
+void KVIDQAMarker::SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta ) { 
+	if( !fParent ) return;
+	fDelta    = delta;
+	fPtIdxLow = idx_low;
+   	fPtIdxUp  = idx_up;
+	UpdateXandY();
+}
+
+//________________________________________________________________
 
  Int_t KVIDQAMarker::GetQ() const{ 
 	return (fParent ? fParent->GetQ() : 0); 
@@ -123,13 +132,17 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 
 	if( fParent && !fParent->IsEditable() ) return; 
 
-	TMarker::ExecuteEvent( event, px, py );
-
+	static Double_t x_prev;
 	static Bool_t motion = kFALSE;
 
+	TMarker::ExecuteEvent( event, px, py );
 
 	switch (event)
     {
+		case kButton1Down:
+			x_prev = GetX();
+			break;
+
 		case kButton1Motion:
 			motion = kTRUE;
 			break;
@@ -142,9 +155,8 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 					else{
-						fPtIdxUp = fPtIdxLow = fParent->InsertPoint( fPtIdxUp, GetX(), GetY() );
+						fPtIdxUp = fPtIdxLow = fParent->InsertPoint( fPtIdxUp, GetX(), GetY(), x_prev );
 						fDelta   = 0;
-						fParent->InsertPoint( fPtIdxUp, GetX(), GetY() );
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 				}

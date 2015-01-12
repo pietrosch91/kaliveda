@@ -37,7 +37,7 @@ class KVIDQALine : public KVIDZALine
 		virtual Int_t InsertMarker(Int_t A=0); // *MENU* *ARGS={A=>fNextA}
 		virtual Int_t RemoveMarker(Int_t a=0); //*MENU*
 		virtual Int_t InsertPoint();//*MENU*
-		virtual Int_t InsertPoint(Int_t i, Double_t x, Double_t y);
+		virtual Int_t InsertPoint(Int_t i, Double_t x, Double_t y, Double_t x_prev);
 		using KVIDZALine::RemovePoint;//*MENU*
 		virtual Int_t RemovePoint(Int_t i);
 		void IncrementPtIdxOfMarkers( Int_t idx, Int_t ival=1 );
