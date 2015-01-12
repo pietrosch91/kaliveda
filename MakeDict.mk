@@ -34,7 +34,7 @@ endif
 
 rootlibmap :
 ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_99_00)),1)
-	@rlibmap -f -r $(MOD_RMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c $(LINKDEF)
+	rlibmap -f -r $(MOD_RMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c $(LINKDEF)
 	@-cp $(MOD_RMAP) $(KVINSTALLDIR)/lib/
 else
 # for ROOT v6 we have to copy all the *.pcm files into $KVROOT/lib

@@ -10,6 +10,7 @@ $Date: 2009/03/27 16:42:58 $
 #include "KVINDRAPulserDataTree.h"
 #include "KVDataSet.h"
 #include "KVINDRA.h"
+#include "KVINDRADBRun.h"
 
 using namespace std;
 
@@ -206,7 +207,7 @@ void KVINDRAPulserDataTree::CreateTree()
 
 	fArb->Branch("Run", &fRun, "Run/I");
 
-	if(!gIndra) gDataSet->BuildMultiDetector();
+        if(!gIndra) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
 
 	KVSeqCollection *acq_pars = gIndra->GetACQParams();
 

@@ -4,8 +4,6 @@
 #include "KVLightEnergyCsIFull.h"
 using namespace std;
 
-using namespace std;
-
 ClassImp(KVLightEnergyCsIFull)
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 #include "KVDataRepository.h"
 #include "KVINDRAReconNuc.h"
 #include "KVINDRAReconDataAnalyser.h"
+#include "KVINDRADB.h"
 using namespace std;
 
 ClassImp(KVINDRAIdentRoot)

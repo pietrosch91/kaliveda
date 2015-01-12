@@ -17,6 +17,7 @@ $Date: 2009/04/15 09:52:45 $
 #include "KVChIo_e475s.h"
 #include "KVCsI_e475s.h"
 #include "KVACQParam.h"
+#include "KVINDRADB.h"
 
 #include "TList.h"
 #include "TString.h"

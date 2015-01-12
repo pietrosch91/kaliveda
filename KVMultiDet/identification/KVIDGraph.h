@@ -104,7 +104,7 @@ class KVIDGraph : public TCutG
    void AddIDTelescopes(const TList*);
    virtual void     SetName(const char *name){TNamed::SetName(name); /*Modified()*/;}; // *MENU*
    virtual void Clear(Option_t* opt=""); //  *MENU*
-   void SetIDTelescopes();// *MENU={Hierarchy="Set.../ID Telescopes"}*
+   //void SetIDTelescopes();// *MENU={Hierarchy="Set.../ID Telescopes"}*
    void SetXVariable(const char* v){ SetVarX(v);  Modified();}; //  *MENU={Hierarchy="Set.../X Variable"}* *ARGS={v=>fVarX}
    void SetYVariable(const char* v){ SetVarY(v);  Modified();};//  *MENU={Hierarchy="Set.../Y Variable"}* *ARGS={v=>fVarY}
    void SetRunList(const char* runlist){ SetRuns( KVNumberList(runlist) ); };  // *MENU={Hierarchy="Set.../List of Runs"}*

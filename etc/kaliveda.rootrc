@@ -28,15 +28,15 @@
 ####################################################################################################################
 #
 # Plugins for KVDataRepository
-Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
-+Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
-+Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
-+Plugin.KVDataRepository:    irods    IRODSDataRepository     KVMultiDet    "IRODSDataRepository()"
+Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDetdata_management    "KVDataRepository()"
++Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDetdata_management    "KVRemoteDataRepository()"
++Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDetdata_management    "SRBDataRepository()"
++Plugin.KVDataRepository:    irods    IRODSDataRepository     KVMultiDetdata_management    "IRODSDataRepository()"
 #
 # Plugins for KVAvailableRunsFile
-Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
-+Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
-+Plugin.KVAvailableRunsFile:    dms    DMSAvailableRunsFile     KVMultiDet    "DMSAvailableRunsFile(const Char_t*,KVDataSet*)"
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDetdata_management    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDetdata_management    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    dms    DMSAvailableRunsFile     KVMultiDetdata_management    "DMSAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
 # Different types of data which can be associated with datasets
 # KVDataSet.DataTypes: online raw dst recon ident root
@@ -117,18 +117,18 @@ Linux.BatchSystem.Title:    Execute task in background with output stored in log
 Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #Plugins for batch systems
-Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
-+Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDet    "KVLinuxBatch(const Char_t*)"
+Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootBatch(const Char_t*)"
++Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDetanalysis    "KVLinuxBatch(const Char_t*)"
 
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
-Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDet "KVRawDataAnalyser()"
+Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer
-Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
-+Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
-+Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDet   "KVDataTransferXRD()"
+Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDetanalysis   "KVDataTransferSFTP()"
++Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDetanalysis   "KVDataTransferBBFTP()"
++Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDetanalysis   "KVDataTransferXRD()"
 
 # Change handling of scaler buffers in GANIL data files
 KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
@@ -148,8 +148,8 @@ KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
 
 # Plugins for calculation of range & energy loss of charge particles in matter.
 # Each class must derive from KVIonRangeTable abstract base class.
-Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
-+Plugin.KVIonRangeTable:   RANGE   KVRangeYanez   KVMultiDet   "KVRangeYanez()"
+Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDetstopping   "KVedaLoss()"
++Plugin.KVIonRangeTable:   RANGE   KVRangeYanez   KVMultiDetstopping   "KVRangeYanez()"
 
 # Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
 KVMaterial.IonRangeTable:   VEDALOSS
@@ -179,29 +179,29 @@ KVDetector.Range.Npx:        20
 
 # LifeTime tables used by KVNDTManager
 KVNDTManager.LifeTimeTable:       KVLifeTimeTable
-Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
+Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDetparticles   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
 
 # ChargeRadius tables used by KVNDTManager
 KVNDTManager.ChargeRadiusTable:       KVChargeRadiusTable
-+Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDet   "KVChargeRadiusTable()"
++Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDetparticles   "KVChargeRadiusTable()"
 ChargeRadius.DataFile:	chargeradii_angeli.data
 
 # Mass Excess tables used by KVNDTManager
 KVNDTManager.MassExcessTable:      KVMassExcessTable
-+Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"
++Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDetparticles   "KVMassExcessTable()"
 MassExcess.DataFile:	massexcess_nudat2.data
 #MassExcess.DataFile: audi_wapstra_2003.data
 #MassExcess.DataFile: pace2_2009.data
 
 # Abundance tables used by KVNDTManager
 KVNDTManager.AbundanceTable:      KVAbundanceTable
-+Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
++Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDetparticles   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
 
 # Atomic element & density table used by KVNDTManager
 KVNDTManager.ElementDensityTable:      KVElementDensityTable
-+Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
++Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDetparticles   "KVElementDensityTable()"
 ElementDensity.DataFile:	element_densities.data
 
 #ROOT environment variables
@@ -214,7 +214,7 @@ Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd
 # To change the default fitter class, change the value of the following variable:
 KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter
 # and add your class to the list of KVVirtualIDFitter plugins:
-Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDet "KVTGIDFitter()"
+Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDetidentification "KVTGIDFitter()"
 
 # Default identification grid classes for ID telescopes
 # Used by KVIDGridManagerGUI when creating new grids
@@ -238,8 +238,8 @@ KVTGIDGrid.IDClass:  KVIDZALine
 # User can extend identification possibilities by adding plugins to list
 # Syntax:
 # Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
-#+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDet   "KVIDZAMap()"
+Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDetidentification   "KVIDZAGrid()"
+#+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDetidentification   "KVIDZAMap()"
 
 # Mime-types for GUI
 # These define the icons associated with different objects displayed in KVListView widgets.

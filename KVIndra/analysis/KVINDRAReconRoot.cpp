@@ -8,6 +8,7 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
 #include "KVINDRAReconNuc.h"
+#include "KVINDRADB.h"
 
 using namespace std;
 

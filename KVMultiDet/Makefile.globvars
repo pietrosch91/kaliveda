@@ -1,0 +1,4 @@
+ETC_DATA = $(shell ls factory/*Template.[c,h]*)
+
+include Makefile.KVMultiDet
+

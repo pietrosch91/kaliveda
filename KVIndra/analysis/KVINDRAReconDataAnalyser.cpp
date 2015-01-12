@@ -312,7 +312,7 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
 	// Note that at this stage we are not analysing a given run, so the parameters
 	// of the array are not set (they will be set in preInitRun()).
 		
-	if( !gIndra ) gDataSet->BuildMultiDetector();
+        if( !gIndra ) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
 }
 
 

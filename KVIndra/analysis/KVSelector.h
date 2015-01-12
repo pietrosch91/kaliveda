@@ -28,6 +28,7 @@
 #include "KVDataAnalyser.h"
 #include "KVHashList.h"
 #include "KVParameterList.h"
+#include "KVINDRADBRun.h"
 
 #include "TH1.h"
 #include "TH2.h"

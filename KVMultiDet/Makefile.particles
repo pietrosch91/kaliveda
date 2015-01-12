@@ -1,0 +1,4 @@
+ETC_DATA = data
+
+include Makefile.KVMultiDet
+

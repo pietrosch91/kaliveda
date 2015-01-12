@@ -1,7 +1,5 @@
 EXTRA_HEADERS = base/KVError.h base/KVParameter.h
 
 NOT_ROOTCINT := base/KVError.h
-
-ETC_DATA = data
 				
 include Makefile.KVMultiDet
