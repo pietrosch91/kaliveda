@@ -71,7 +71,7 @@ inline void KVIDQALine::SetNameFromNucleus() {
 inline void KVIDQALine::UpdateLineStyle(){
 	// Set line style and color as a function of the fQ value
 	static Int_t lc[] ={ kGray+1, kGray+2, kGray+3, kBlack};
-	Int_t c = lc[fA%4];
+	Int_t c = lc[GetQ()%4];
 	SetLineColor( c );
 
 }

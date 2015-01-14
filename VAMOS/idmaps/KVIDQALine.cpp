@@ -184,7 +184,6 @@ Int_t KVIDQALine::InsertPoint(){
 //________________________________________________________________
 
 Int_t KVIDQALine::InsertPoint( Int_t i, Double_t x, Double_t y, Double_t x_prev){
-	Info("InsertPoint","BEFORE, i=%d, x=%f, y=%f, x_prev=%f",i,x,y,x_prev);
 
 	if( (i<0) || (i>fNpoints)) return -1;
 
@@ -202,8 +201,6 @@ Int_t KVIDQALine::InsertPoint( Int_t i, Double_t x, Double_t y, Double_t x_prev)
 //	Info("InsertPoint","Point %d inserted at X=%f, Y=%f",i,fX[i],fY[i]);  
    fX[i] = x;
    fY[i] = y;
-
-	Info("InsertPoint","AFTER");
 
 	return i;
 }
@@ -231,7 +228,6 @@ Int_t KVIDQALine::RemovePoint(Int_t i){
 //________________________________________________________________
 
 void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
-	Info("IncrementPtIdxOfMarkers","BEFORE, idx=%d, ival=%d",idx,ival);
 	TIter next( fMarkers );
 	KVIDQAMarker *m = NULL;
 	while( (m =(KVIDQAMarker *)next()) ){
@@ -261,7 +257,7 @@ void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
 					up  += ival;
 				}
 			}
-			else{
+			else if(idx <= low){
 				delta = m->GetDelta();
 				low += ival;
 				up  += ival;
