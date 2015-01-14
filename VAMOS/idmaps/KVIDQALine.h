@@ -24,7 +24,9 @@ class KVIDQALine : public KVIDZALine
 		void init();
 		virtual void SetNameFromNucleus();
 		virtual void UpdateLineStyle();
-
+		virtual void WriteAsciiFile_extras(std::ofstream &, const Char_t * name_prefix ="");
+		virtual void ReadAsciiFile_extras(std::ifstream &);
+		virtual KVIDQAMarker* New(const Char_t*);
    	public:
    		KVIDQALine();
    		virtual ~KVIDQALine();

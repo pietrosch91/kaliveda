@@ -23,6 +23,8 @@ class KVIDQAMarker : public TMarker
 		void init();
 		virtual void SetNameFromNucleus();
 		virtual void UpdateMarkerStyle();
+		virtual void ReadAsciiFile( std::ifstream &file);
+		virtual void WriteAsciiFile( std::ofstream &file);
 
    	public:
    		KVIDQAMarker();

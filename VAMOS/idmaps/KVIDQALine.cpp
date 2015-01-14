@@ -2,11 +2,14 @@
 //Author: Guilain ADEMARD
 
 #include "KVIDQALine.h"
+#include "TClass.h"
 #include "TPad.h"
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TSpectrum.h"
 #include "KVIDGraph.h"
+
+using namespace std;
 
 ClassImp(KVIDQALine)
 
@@ -384,4 +387,65 @@ void KVIDQALine::FindAMarkers(TH1 *h){
 	   del_list.ls();
    }
 }
+//________________________________________________________________
 
+void KVIDQALine::WriteAsciiFile_extras(ofstream & file,
+                                       const Char_t * name_prefix)
+{
+    // Write each KVIDQAMarker listed in fMarkers
+
+    KVIDZALine::WriteAsciiFile_extras(file,name_prefix);
+
+	file<<"Markers:\t";
+	if( fMarkers->First() ){
+		file<<fMarkers->GetEntries()<<"\t"<<fMarkers->First()->ClassName()<<endl;
+ 		fMarkers->R__FOR_EACH(KVIDQAMarker, WriteAsciiFile) ( file );
+	}
+	else file<<0<<endl;
+}
+//________________________________________________________________
+
+void KVIDQALine::ReadAsciiFile_extras(ifstream & file)
+{
+    // Read all KVQAMarker's and set them in the list fMarkers
+
+    KVIDZALine::ReadAsciiFile_extras(file);
+
+	KVString s;
+	s.ReadLine(file);
+	TObjArray *toks = s.Tokenize("\t");
+
+	if( toks->GetEntries()>2 ){
+		Int_t Nmarkers = ((TObjString *) toks->At(1))->GetString().Atoi();
+		KVString cl = ((TObjString *) toks->At(2))->GetString();
+		if( Nmarkers>0){
+			for( Int_t i=0; i<Nmarkers; i++ ){
+				KVIDQAMarker *m = New( cl.Data() );
+				AddMarker( m );
+				m->ReadAsciiFile( file );
+			}
+		}
+	}
+	delete toks;
+}
+//________________________________________________________________
+
+KVIDQAMarker* KVIDQALine::New(const Char_t* m_class){
+   //Create new object of class "m_class" which derives from KVIDQAMarker
+
+   KVIDQAMarker *m = 0;
+   TClass *clas = TClass::GetClass(m_class);
+   if (!clas) {
+      Error("New",
+            "%s is not a valid classname. No known class.", m_class);
+   } else {
+      if (!clas->InheritsFrom(KVIDQAMarker::Class())) {
+         Error("New",
+               "%s is not a valid class deriving from KVIDQAMarker",
+               m_class);
+      } else {
+         m = (KVIDQAMarker *) clas->New();
+      }
+   }
+   return m;
+}

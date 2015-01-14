@@ -197,3 +197,23 @@ void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x 
 		SetY( y_low + (y_up-y_low)*fDelta );
  	}
 }
+//________________________________________________________________
+
+void KVIDQAMarker::WriteAsciiFile(ofstream & file)
+{
+    // Write attributes of this KVIDQAMarker in ascii file
+
+	file<<fA<<"\t"<<fPtIdxLow<<"\t"<<fPtIdxUp<<"\t"<<fDelta<<"\t"<<fX<<"\t"<<fY<<endl;
+}
+//________________________________________________________________
+
+void KVIDQAMarker::ReadAsciiFile(ifstream & file)
+{
+    // Read attributes of this KVIDQAMarker in ascii file
+
+	Int_t a;
+	file>>a>>fPtIdxLow>>fPtIdxUp>>fDelta>>fX>>fY;
+	SetA( a );
+}
+//________________________________________________________________
+
