@@ -7,8 +7,7 @@
 #include "KVHashList.h"
 #include "TNamed.h"
 #include "TRegexp.h"
-
-class KVNamedParameter;
+#include "KVNamedParameter.h"
 
 class KVNameValueList : public TNamed
 {

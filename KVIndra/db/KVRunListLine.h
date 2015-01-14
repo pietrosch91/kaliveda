@@ -6,7 +6,7 @@
 #include "TObjString.h"
 #include "TObjArray.h"
 #include "Riostream.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "KVString.h"
 #include "KVList.h"
 
@@ -22,7 +22,7 @@ class KVRunListLine {
    inline Int_t GetFieldIndex(const Char_t *) const;
 
  protected:
-    KVParameterList < Int_t > fIndexList;       //list of integer indexes corresponding to field names
+    KVNameValueList fIndexList;       //list of integer indexes corresponding to field names
 
  public: KVRunListLine();
     virtual ~ KVRunListLine();
@@ -94,7 +94,7 @@ inline Int_t KVRunListLine::GetFieldIndex(const Char_t * fname) const
    //Returns -1 if : field indices not set yet (no call to SetFields)
    //         or if : field is unknown
 
-   return (HasField(fname) ? fIndexList.GetParameter(fname) : -1);
+   return fIndexList.GetIntValue(fname);
 }
 
 //_____________________________________________________________________________________

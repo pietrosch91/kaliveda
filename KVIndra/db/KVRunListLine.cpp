@@ -114,13 +114,13 @@ void KVRunListLine::SetFields()
 
       if (field->GetString().IsAscii() && field->GetString().Length()) {
          //non-null ASCII string ? use it as column header
-         fIndexList.SetParameter(field->GetString().Data(), idx);
+         fIndexList.SetValue(field->GetString().Data(), idx);
       }
       idx++;
 
    }
 
-   if (!fIndexList.GetNPar()) {
+   if (!fIndexList.GetNpar() ) {
       //no indices set - something's wrong 
       Error(Form("%s::SetFields", IsA()->GetName()), "No indices set");
       return;
@@ -208,7 +208,7 @@ void KVRunListLine::Print() const
    cout << "Field name : current value" << endl;
    cout << "==========================" << endl;
 
-   for (Int_t j = 0; j < fIndexList.GetNPar(); j++) {
+   for (Int_t j = 0; j < fIndexList.GetNpar(); j++) {
       PrintFieldValue(fIndexList.GetParameter(j)->GetName());
    }
 }
@@ -333,8 +333,9 @@ Bool_t KVRunListLine::IsFieldHeader()
    TIter next_kw(&fFieldKeys);
    TObjString *os;
    while ((os = (TObjString *) next_kw())) {
-      if (!fLine.Contains(os->GetString()))
+      if (!fLine.Contains(os->GetString())){
          return kFALSE;
+      }
    }
    return kTRUE;
 }
@@ -354,10 +355,10 @@ Bool_t KVRunListLine::GoodRunLine()
    TObjString *os;
    while ((os = (TObjString *) next_kw())) {
       if (!HasFieldValue(os->GetString()))
-         return kFALSE;
+      {return kFALSE;}
       KVString tmp(GetField(os->GetString()));
       if (!tmp.IsDigit())
-         return kFALSE;
+      {return kFALSE;}
    }
    return kTRUE;
 }

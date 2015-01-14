@@ -2,7 +2,6 @@
 //Author: bonnet
 
 #include "KVNameValueList.h"
-#include "KVNamedParameter.h"
 #include "Riostream.h"
 #include <TEnv.h>
 #include <TROOT.h>
