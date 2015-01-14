@@ -67,13 +67,13 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
   fApFrame->AddFrame(fAEntry, new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 2, 2, 2, 2));
   fInitFrame->AddFrame(fApFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 5, 5));
     
-       /********** linearization bar **********/
-  fLinearFrame = new TGGroupFrame(fMain, "Linearization");
-  fLinearBar = new TGHProgressBar(fLinearFrame, TGProgressBar::kFancy, 300);
-  fLinearBar->SetFillType(TGProgressBar::kBlockFill);
-  fLinearBar->ShowPosition();
-  fLinearBar->SetBarColor("green");
-  fLinearFrame->AddFrame(fLinearBar,new TGLayoutHints(kLHintsExpandX | kLHintsTop,5,5,5,5));
+//       /********** linearization bar **********/
+//  fLinearFrame = new TGGroupFrame(fMain, "Linearization");
+//  fLinearBar = new TGHProgressBar(fLinearFrame, TGProgressBar::kFancy, 300);
+//  fLinearBar->SetFillType(TGProgressBar::kBlockFill);
+//  fLinearBar->ShowPosition();
+//  fLinearBar->SetBarColor("green");
+//  fLinearFrame->AddFrame(fLinearBar,new TGLayoutHints(kLHintsExpandX | kLHintsTop,5,5,5,5));
 
        /********** progress bar **********/
   fProgressFrame = new TGGroupFrame(fMain, "Progress");
@@ -101,7 +101,7 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
 
 
   fMain->AddFrame(fInitFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 10, 2));
-  fMain->AddFrame(fLinearFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
+//  fMain->AddFrame(fLinearFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
   fMain->AddFrame(fProgressFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
    fMain->AddFrame(fButtonsFrame, new TGLayoutHints(kLHintsCenterX | kLHintsTop, 2, 2, 2, 2));
 
@@ -163,10 +163,10 @@ void KVZAFinderDialog::ProcessIdentification()
   KVZALineFinder toto((KVIDZAGrid*)fGrid, fHisto);
   
 //   fLinearBar->SetRange(0, ((TH2F*)fHisto)->GetSum());
-   fLinearBar->SetRange(0, fHisto->GetNbinsX()*fHisto->GetNbinsY());
-   fLinearBar->Reset();
-  toto.Connect("IncrementLinear(Float_t)","TGHProgressBar",
-                          fLinearBar, "SetPosition(Float_t)");
+//   fLinearBar->SetRange(0, fHisto->GetNbinsX()*fHisto->GetNbinsY());
+//   fLinearBar->Reset();
+//  toto.Connect("IncrementLinear(Float_t)","TGHProgressBar",
+//                          fLinearBar, "SetPosition(Float_t)");
    fProgressBar->SetRange(0, zmax-zmin);
    fProgressBar->Reset();
   toto.Connect("Increment(Float_t)","TGHProgressBar",
