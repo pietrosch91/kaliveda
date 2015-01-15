@@ -9,7 +9,7 @@ $Author: franklan $
 #define __KVDATASETMAN_H
 
 #include "KVUniqueNameList.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 
 #include "KVDataSet.h"
 #include "KVDataRepository.h"
@@ -25,7 +25,7 @@ class KVDataSetManager {
    KVUniqueNameList fTasks;               //list of all known analysis tasks
    Int_t fNavailable;           //number of available datasets
    Int_t *fIndex;               //array of indices of available datasets
-    KVParameterList < TString > fUserGroups;    //list of user groups
+    KVNameValueList fUserGroups;    //list of user groups
 
    virtual Bool_t ReadDataSetList();
    virtual Bool_t ReadTaskList();
@@ -59,7 +59,7 @@ class KVDataSetManager {
    virtual Int_t GetNtotal() const {
       return fDataSets.GetSize();
    };
-   const KVParameterList < TString > &GetUserGroups() {
+   const KVNameValueList &GetUserGroups() {
       return fUserGroups;
    };
    virtual Bool_t CheckUser(const Char_t * groupname,

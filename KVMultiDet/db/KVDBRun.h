@@ -22,15 +22,15 @@ $Id: KVDBRun.h,v 1.15 2009/03/12 14:01:02 franklan Exp $
 #include "KVTarget.h"
 #include "KVString.h"
 #include "TDatime.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include <RQ_OBJECT.h>
 
-#define KV__GET_INT(__param) return (fIntPar.HasParameter(__param) ? fIntPar.GetParameter(__param) : 0);
-#define KV__GET_DBL(__param) return (fFloatPar.HasParameter(__param) ? fFloatPar.GetParameter(__param) : 0);
-#define KV__GET_STR(__param) return (fStringPar.HasParameter(__param) ? fStringPar.GetParameter(__param).Data() : "");
-#define KV__SET_INT(__param,__val) fIntPar.SetParameter(__param,__val);
-#define KV__SET_DBL(__param,__val) fFloatPar.SetParameter(__param,__val);
-#define KV__SET_STR(__param,__val) fStringPar.SetParameter(__param,__val);
+#define KV__GET_INT(__param) return (fParameters.HasIntParameter(__param) ? fParameters.GetIntValue(__param) : 0);
+#define KV__GET_DBL(__param) return (fParameters.HasDoubleParameter(__param) ? fParameters.GetDoubleValue(__param) : 0.);
+#define KV__GET_STR(__param) return (fParameters.HasStringParameter(__param) ? fParameters.GetStringValue(__param) : "");
+#define KV__SET_INT(__param,__val) fParameters.SetValue(__param,__val);
+#define KV__SET_DBL(__param,__val) fParameters.SetValue(__param,__val);
+#define KV__SET_STR(__param,__val) fParameters.SetValue(__param,__val);
 
 class KVDBRun:public KVDBRecord {
 
@@ -39,9 +39,7 @@ class KVDBRun:public KVDBRecord {
 
 protected:
 
-       KVParameterList<Int_t> fIntPar;//list of scalers for run
-       KVParameterList<Double_t> fFloatPar;//list of floating point parameters
-       KVParameterList<KVString> fStringPar;//list of string parameters
+       KVNameValueList fParameters;//list of named parameters for run
        TDatime fDatime;             //!set dynamically with date&time of ROOT file corresponding to run
        TString fKVVersion;             //!set dynamically with KaliVeda version used to generate ROOT file corresponding to run
        TString fUserName;             //!set dynamically with name of user who generated ROOT file corresponding to run
@@ -68,10 +66,10 @@ protected:
        //Returns kTRUE if a parameter with the given name (either integer, floating point or string) has been set.
        //For string parameters, if the parameter exists we also check if the string is empty (unless check_whitespace=kFALSE)
        Bool_t Has(const Char_t* param, Bool_t check_whitespace=kTRUE) const {
-         if(check_whitespace&&fStringPar.HasParameter(param)){
-            return !(fStringPar.GetParameter(param).IsWhitespace());
+         if(check_whitespace&&fParameters.HasStringParameter(param)){
+            return !(fParameters.GetTStringValue(param).IsWhitespace());
          }
-         return (fIntPar.HasParameter(param)||fFloatPar.HasParameter(param)||fStringPar.HasParameter(param));
+         return (fParameters.HasIntParameter(param)||fParameters.HasDoubleParameter(param)||fParameters.HasStringParameter(param));
        };
 
     KVDBRun();

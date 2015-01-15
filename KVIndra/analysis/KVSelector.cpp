@@ -1227,7 +1227,7 @@ void KVSelector::SetOpt(const Char_t* option, const Char_t* value)
 {
    //Set a value for an option
    KVString tmp(value);
-   fOptionList.SetParameter(option, tmp);
+   fOptionList.SetValue(option, tmp);
 }
 
 //_________________________________________________________________
@@ -1241,12 +1241,12 @@ Bool_t KVSelector::IsOptGiven(const Char_t* opt)
 
 //_________________________________________________________________
 
-KVString& KVSelector::GetOpt(const Char_t* opt) const
+const TString& KVSelector::GetOpt(const Char_t* opt) const
 {
    // Returns the value of the option
    // Only use after checking existence of option with IsOptGiven(const Char_t* opt)
 
-   return (KVString&)fOptionList.GetParameter(opt);
+   return fOptionList.GetTStringValue(opt);
 }
 
 //_________________________________________________________________

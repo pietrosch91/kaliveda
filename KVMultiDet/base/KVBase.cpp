@@ -25,7 +25,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TSystem.h"
 #include "TEnv.h"
 #include "TPluginManager.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "TSystemDirectory.h"
 #include "../../KVVersion.h"
 #include "../../KVBzrInfo.h"
@@ -777,14 +777,14 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    //By default we look in the current working directory, unless argument 'dir_name' is given
    //If found, the names of the two files are written in 'imp_file' and 'dec_file'
 
-   KVParameterList<int> impl_alt; int i=0;
-   impl_alt.SetParameter("%s.C", i);
-   impl_alt.SetParameter("%s.cpp", i);
-   impl_alt.SetParameter("%s.cxx", i);
-   KVParameterList<int> decl_alt;
-   decl_alt.SetParameter("%s.h", i);
-   decl_alt.SetParameter("%s.hh", i);
-   decl_alt.SetParameter("%s.H", i);
+   KVNameValueList impl_alt; int i=0;
+   impl_alt.SetValue("%s.C", i);
+   impl_alt.SetValue("%s.cpp", i);
+   impl_alt.SetValue("%s.cxx", i);
+   KVNameValueList decl_alt;
+   decl_alt.SetValue("%s.h", i);
+   decl_alt.SetValue("%s.hh", i);
+   decl_alt.SetValue("%s.H", i);
 
    TString _dir_name = dir_name; gSystem->ExpandPathName(_dir_name);
    TSystemDirectory dir("LocDir", _dir_name.Data());
@@ -792,14 +792,14 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    Bool_t ok_imp, ok_dec; ok_imp = ok_dec = kFALSE;
 
    //look for implementation file
-   for(i=0; i<impl_alt.GetNPar(); i++){
+   for(i=0; i<impl_alt.GetNpar(); i++){
       if(lf->FindObject(Form( impl_alt.GetParameter(i)->GetName(), class_name ) )){
          imp_file = Form( impl_alt.GetParameter(i)->GetName(), class_name );
          ok_imp = kTRUE;
       }
    }
    //look for header file
-   for(i=0; i<decl_alt.GetNPar(); i++){
+   for(i=0; i<decl_alt.GetNpar(); i++){
       if(lf->FindObject(Form( decl_alt.GetParameter(i)->GetName(), class_name ) )){
          dec_file = Form( decl_alt.GetParameter(i)->GetName(), class_name );
          ok_dec = kTRUE;

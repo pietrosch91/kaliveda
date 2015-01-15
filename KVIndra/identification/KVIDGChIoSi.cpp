@@ -12,7 +12,6 @@ $Author: franklan $
 #include "KVSilicon.h"
 #include "KVINDRARRMValidator.h"
 #include "TObjString.h"
-#include "KVParameter.h"
 #include "TObjArray.h"
 #include "TROOT.h"
 #include "KVIdentificationResult.h"

@@ -364,7 +364,7 @@ void KVVarGlob::SetNameIndex(const Char_t * name, Int_t index)
 {
    // Make the link between a variable name and an index
    if (!(nameList.HasParameter(name))) {
-      nameList.SetParameter(name, index);
+      nameList.SetValue(name, index);
    } else {
       Warning("SetNameIndex(const Char_t *name,Int_t index)",
               "No link between \"%s\" and the index %d: the name already exist.",
@@ -378,7 +378,7 @@ Int_t KVVarGlob::GetNameIndex(const Char_t * name)
    // return the index corresponding to name
    Int_t index = 0;
    if (nameList.HasParameter(name)) {
-      index = nameList.GetParameter(name);
+      index = nameList.GetIntValue(name);
    } else {
       Warning("GetNameIndex(const Char_t *name)",
               "The parameter \"%s\" does not exist fot the Class %s.\n 0 returned.",
@@ -408,7 +408,7 @@ void KVVarGlob::SetOption(const Char_t* option, const Char_t* value)
 {
    //Set a value for an option
    KVString tmp(value);
-   fOptions.SetParameter(option, tmp);
+   fOptions.SetValue(option, tmp);
 }
 
 //_________________________________________________________________
@@ -422,11 +422,11 @@ Bool_t KVVarGlob::IsOptionGiven(const Char_t* opt)
 
 //_________________________________________________________________
 
-KVString& KVVarGlob::GetOptionString(const Char_t* opt) const
+const TString& KVVarGlob::GetOptionString(const Char_t* opt) const
 {
    //Returns the value of the option
    
-   return (KVString&)fOptions.GetParameter(opt);
+   return fOptions.GetTStringValue(opt);
 }
 
 //_________________________________________________________________
@@ -443,7 +443,7 @@ void KVVarGlob::UnsetOption(const Char_t* opt)
 void KVVarGlob::SetParameter(const Char_t* par, Double_t value)
 {
    //Set the value for a parameter
-   fParameters.SetParameter(par,value);
+   fParameters.SetValue(par,value);
 }
 
 //_________________________________________________________________
@@ -461,7 +461,7 @@ Double_t KVVarGlob::GetParameter(const Char_t* par)
 {
    //Returns the value of the parameter 'par'
    
-   return fParameters.GetParameter(par);
+   return fParameters.GetDoubleValue(par);
 }
 
 //_________________________________________________________________

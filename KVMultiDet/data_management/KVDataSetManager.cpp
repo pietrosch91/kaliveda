@@ -130,7 +130,7 @@ void KVDataSetManager::ReadUserGroups()
       TString users =
           gEnv->
           GetValue(Form("%s.Users", group_name->String().Data()), "");
-      fUserGroups.SetParameter(group_name->String().Data(), users);
+      fUserGroups.SetValue(group_name->String().Data(), users);
    }
    delete toks;
 }
@@ -368,7 +368,7 @@ Bool_t KVDataSetManager::CheckUser(const Char_t * groupname,
        fUser.Data();
 
    if (fUserGroups.HasParameter(groupname)) {
-      if (fUserGroups.GetParameter(groupname).Contains(Username.Data()))
+      if (fUserGroups.GetTStringValue(groupname).Contains(Username.Data()))
          return kTRUE;
    }
    return kFALSE;

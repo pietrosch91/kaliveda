@@ -43,8 +43,9 @@ class KVNameValueList : public TNamed
 	
 	void SetValue(const Char_t* name,const Char_t* value);
 	void SetValue(const Char_t* name,Int_t value);
-	void SetValue(const Char_t* name,Double_t value);
-	
+        void SetValue(const Char_t* name,Double_t value);
+        void SetValue(const KVNamedParameter&);
+
 	void SetValueAt(const Char_t* name,Double_t value,Int_t idx);
 	void SetFirstValue(const Char_t* name,Double_t value);
 	void SetLastValue(const Char_t* name,Double_t value);
@@ -59,8 +60,11 @@ class KVNameValueList : public TNamed
 	KVNamedParameter* FindParameter(const Char_t* name) const;
 	KVNamedParameter* GetParameter(Int_t idx) const;
 	void RemoveParameter(const Char_t* name);
-	Bool_t HasParameter(const Char_t* name) const;
-	Int_t GetNameIndex(const Char_t* name);
+        Bool_t HasParameter(const Char_t* name) const;
+        Bool_t HasIntParameter(const Char_t* name) const;
+        Bool_t HasDoubleParameter(const Char_t* name) const;
+        Bool_t HasStringParameter(const Char_t* name) const;
+        Int_t GetNameIndex(const Char_t* name);
 	const Char_t* GetNameAt(Int_t idx) const;
 	Int_t GetNpar() const;
         Int_t GetEntries() const { return GetNpar(); }
@@ -68,17 +72,19 @@ class KVNameValueList : public TNamed
 	Int_t GetIntValue(const Char_t* name) const;
 	Double_t GetDoubleValue(const Char_t* name) const;
 	const Char_t* GetStringValue(const Char_t* name) const;
-	
+        const TString&GetTStringValue(const Char_t* name) const;
+
 	Int_t GetIntValue(Int_t idx) const;
 	Double_t GetDoubleValue(Int_t idx) const;
 	const Char_t* GetStringValue(Int_t idx) const;
-   
+        const TString&GetTStringValue(Int_t idx) const;
+
    virtual void ReadEnvFile(const Char_t* filename);
    virtual void WriteEnvFile(const Char_t* filename);
 
     void Sort() { fList.Sort(); }
    
-	ClassDef(KVNameValueList,3)//A general-purpose list of parameters
+    ClassDef(KVNameValueList,3)//A general-purpose list of parameters
 };
 
 #endif

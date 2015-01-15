@@ -48,32 +48,17 @@ ifeq ($(WITH_GRU_LIB),yes)
 CXXFLAGS += -DNET_LIB
 endif
 
-LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra
-LIBKVMULTIDET = -L$(KVROOT)/lib -lKVMultiDet
+MDETLIBS := $(wildcard $(KVROOT)/lib/libKVMultiDet*.so) 
+MDETLIBS := $(notdir $(MDETLIBS))
+MDETLIBS := $(patsubst lib%.so,-l%,$(MDETLIBS))
+LIBKVMULTIDET := -L$(KVROOT)/lib $(MDETLIBS)
 
-ifeq ($(ARCH),win32)
-LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
-else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
-endif
+INDRALIBS := $(wildcard $(KVROOT)/lib/libKVIndra*.so) 
+INDRALIBS := $(notdir $(INDRALIBS))
+INDRALIBS := $(patsubst lib%.so,-l%,$(INDRALIBS))
+LIBKVINDRA := -L$(KVROOT)/lib $(INDRALIBS)
 
-ifeq ($(ARCH),macosx)
-LIBS += -L$(ROOTSYS)/lib -lGUI
-LIBKVMULTIDET += -L$(ROOTSYS)/lib -lGeom
-LIBKVINDRA += $(LIBKVMULTIDET)
-endif
-
-ifeq ($(ARCH),win32)
-LIBS += '$(ROOTSYS)\lib\libGUI.lib'
-endif
-
-ifeq ($(ARCH),win32)
-#Windows/VC++
-#CXXFLAGS without "-O2" optimisation flag
-#to avoid warnings (optimisation not available in standard edition compiler)
-TMPFLAGS := $(filter-out -O2,$(CXXFLAGS))
-CXXFLAGS = $(TMPFLAGS)
-endif
+LINK_LIBS := -L$(KVROOT)/lib $(INDRALIBS) $(MDETLIBS)
 
 OPT = -O
 OPT2 = -O2 

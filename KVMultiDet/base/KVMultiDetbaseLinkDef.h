@@ -15,23 +15,6 @@
 #pragma link C++ class Binary_t<UInt_t>+;
 #pragma link C++ class Binary_t<Long64_t>+;
 #pragma link C++ class KVString+;
-#ifdef __WITHOUT_TPARAMETER
-#pragma link C++ class KVParameter<Int_t>+;
-#pragma link C++ class KVParameter<Double_t>+;
-#elif ! defined ( __WITH_TPARAMETER_INT )
-#pragma link C++ class KVParameter<Int_t>+;
-#endif
-#ifdef __WITHOUT_TPARAMETER
-#pragma link C++ class KVParameter<KVString>+;
-#pragma link C++ class KVParameter<TString>+;
-#else
-#pragma link C++ class TParameter<KVString>+;
-#pragma link C++ class TParameter<TString>+;
-#endif
-#pragma link C++ class KVParameterList<Int_t>+;
-#pragma link C++ class KVParameterList<Double_t>+;
-#pragma link C++ class KVParameterList<TString>+;
-#pragma link C++ class KVParameterList<KVString>+;
 #pragma link C++ class KVRungeKutta+;
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVNameValueList+;
@@ -44,7 +27,6 @@
 #pragma link C++ class KVDataBranchHandler+;
 #pragma link C++ class KVDatime+;
 #pragma link C++ class KVDatedFileManager+;
-#pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
 #pragma link C++ class KVUniqueNameList+;
 #pragma link C++ class KVList-;

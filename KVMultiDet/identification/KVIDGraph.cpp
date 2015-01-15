@@ -69,7 +69,7 @@ void KVIDGraph::init()
    fIdentifiers->SetCleanup();
    fCuts->SetCleanup();
    fXmin = fYmin = fXmax = fYmax = 0;
-   fPar = new KVGenParList;
+   fPar = new KVNameValueList;
    fLastScaleX = 1.0;
    fLastScaleY = 1.0;
    fOnlyZId = kFALSE;
@@ -135,12 +135,12 @@ void KVIDGraph::Copy(TObject & obj)
    // set mass formula of grid (and identifiers)
    grid.SetMassFormula(GetMassFormula());
    //copy all parameters EXCEPT scaling parameters
-   KVParameter<KVString> *par = 0;
-   for( int i=0; i<fPar->GetNPar(); i++) { //loop over all parameters
+   KVNamedParameter *par = 0;
+   for( int i=0; i<fPar->GetNpar(); i++) { //loop over all parameters
       par = fPar->GetParameter(i);
       TString parname(par->GetName());
       if (!parname.Contains("ScaleFactor"))
-         grid.fPar->SetParameter(par->GetName(), par->GetVal());
+         grid.fPar->SetValue(*par);
    }
    //restore scaling to this grid if there was one, and apply it to the copied grid
    if (fLastScaleX != 1 || fLastScaleY != 1) {
@@ -372,10 +372,10 @@ void KVIDGraph::WriteToAsciiFile(ofstream & gridfile)
    gridfile << "<VARY> " << GetVarY() << endl;
    //write parameters
    WriteParameterListOfIDTelescopes();
-   KVParameter<KVString> *par = 0;
-   for( int i=0; i<fPar->GetNPar(); i++) { //loop over all parameters
+   KVNamedParameter *par = 0;
+   for( int i=0; i<fPar->GetNpar(); i++) { //loop over all parameters
       par = fPar->GetParameter(i);
-      gridfile << "<PARAMETER> " << par->GetName() << "=" << par->GetVal().Data() << endl;
+      gridfile << "<PARAMETER> " << par->GetName() << "=" << par->GetString() << endl;
    }
 
    //write fOnlyZId & mass formula

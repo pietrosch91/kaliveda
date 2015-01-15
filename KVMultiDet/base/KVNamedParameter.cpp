@@ -96,6 +96,16 @@ void KVNamedParameter::Set(Int_t val)
    fNumber = val;
 }
 
+void KVNamedParameter::Set(const KVNamedParameter& p)
+{
+   // Set name, type & value of parameter according to type & value of 'p'
+
+   if(p.IsString()) Set(p.GetName(),p.GetString());
+   else if(p.IsInt()) Set(p.GetName(),p.GetInt());
+   else if(p.IsDouble()) Set(p.GetName(),p.GetDouble());
+   Warning("Set(const KVNamedParameter&)", "Unknown type of parameter argument");
+}
+
 void KVNamedParameter::Clear(Option_t*)
 {
    // Removes the name and any assigned value
@@ -105,17 +115,31 @@ void KVNamedParameter::Clear(Option_t*)
 }
 
 const Char_t* KVNamedParameter::GetString() const
-{
-   // returns string value 
-	// whatever the type of the parameter
-	
-	if (IsString()) return GetTitle();
+{   
+   // Returns value of parameter as a string, whatever the type
+   // (integer or floating values are converted to a string)
+
+   if (IsString()) return GetTitle();
    static TString convert="";
-	if (IsDouble()) 
-		convert.Form("%lf",fNumber);
-	else
-		convert.Form("%d",(Int_t)fNumber);	
-	return convert.Data();
+   if (IsDouble())
+      convert.Form("%lf",fNumber);
+   else
+      convert.Form("%d",(Int_t)fNumber);
+   return convert.Data();
+}
+
+const TString& KVNamedParameter::GetTString() const
+{
+   // Returns value of parameter as a TString, whatever the type
+   // (integer or floating values are converted to a string)
+
+   if (IsString()) return fTitle;
+   static TString convert="";
+   if (IsDouble())
+      convert.Form("%lf",fNumber);
+   else
+      convert.Form("%d",(Int_t)fNumber);
+   return convert;
 }
 
 Double_t KVNamedParameter::GetDouble() const
@@ -183,19 +207,34 @@ void KVNamedParameter::Print(Option_t* ) const
       Info("Print", "Name = %s type = %s value = %f", GetName(), GetTitle(), fNumber);
 }
 
-void KVNamedParameter::ls(Option_t* ) const
+void KVNamedParameter::ls(Option_t* option) const
 {
+   // compact listing of parameter name & value, used by KVNameValueList::Print
+   // option controls what is printed:
+   //   "" (default) : all parameters
+   //   "int" : only integer parameters
+   //   "double" : only double parameters
+   //   "string" : only string parameters
+
+   Bool_t can_print = kTRUE;
+   if(strcmp(option,"")){
+      TString opt(option);
+      opt.ToLower();
+      if(opt=="int" && !IsInt()) can_print=kFALSE;
+      else if(opt=="double" && !IsDouble()) can_print=kFALSE;
+      else if(opt=="string" && !IsString()) can_print=kFALSE;
+   }
    TROOT::IndentLevel();
    if (IsString()) {
-      cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
+      if(can_print) cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
    } else {
       switch (GetType()) {
          case kIsInt:
-            cout << "<"<<GetName() <<"="<< GetInt() <<">"<< endl;
+            if(can_print) cout << "<"<<GetName() <<"="<< GetInt() <<">"<< endl;
             break;
 
          case kIsDouble:
-            cout << "<"<< GetName() <<"="<< GetDouble() <<">"<< endl;
+            if(can_print) cout << "<"<< GetName() <<"="<< GetDouble() <<">"<< endl;
             break;
 
          default:

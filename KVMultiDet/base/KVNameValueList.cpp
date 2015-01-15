@@ -119,15 +119,17 @@ void KVNameValueList::ClearSelection(TRegexp &sel)
 }
 
 //______________________________________________
-void KVNameValueList::Print(Option_t* ) const
+void KVNameValueList::Print(Option_t* option) const
 {
-	//Print stored parameters (name, and value)
+   // Print stored parameters (name, and value)
+   // Option can be used to select type of parameters to print:
+   //   option = "int", "double", or "string"
    
    TROOT::IndentLevel();
-	cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
    TROOT::IncreaseDirLevel();
-	for (Int_t ii=0;ii<GetNpar();ii+=1){
-      GetParameter(ii)->ls();
+   for (Int_t ii=0;ii<GetNpar();ii+=1){
+      GetParameter(ii)->ls(option);
    }
    TROOT::DecreaseDirLevel();
 }
@@ -248,7 +250,16 @@ void KVNameValueList::SetValue(const Char_t* name,Double_t value)
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
-    SetValue_flt(name,value);
+   SetValue_flt(name,value);
+}
+
+void KVNameValueList::SetValue(const KVNamedParameter& p)
+{
+   // add (or replace) a parameter with the same name, type & value as 'p'
+
+   KVNamedParameter* par = FindParameter(p.GetName());
+   par ? par->Set(p) : fList.Add(new KVNamedParameter(p));
+
 }
 
 //______________________________________________
@@ -353,7 +364,31 @@ Bool_t KVNameValueList::HasParameter(const Char_t* name) const
 	//in the list
 	//kTRUE, parameter already present
 	//kFALSE, if not
-	return (FindParameter(name)!=NULL);
+   return (FindParameter(name)!=NULL);
+}
+
+Bool_t KVNameValueList::HasIntParameter(const Char_t* name) const
+{
+   // Return kTRUE if list has parameter called 'name' and it is an integer value
+
+   KVNamedParameter* p = FindParameter(name);
+   return (p && p->IsInt());
+}
+
+Bool_t KVNameValueList::HasDoubleParameter(const Char_t* name) const
+{
+   // Return kTRUE if list has parameter called 'name' and it is a double/floating-point value
+
+   KVNamedParameter* p = FindParameter(name);
+   return (p && p->IsDouble());
+}
+
+Bool_t KVNameValueList::HasStringParameter(const Char_t* name) const
+{
+   // Return kTRUE if list has parameter called 'name' and it is a string value
+
+   KVNamedParameter* p = FindParameter(name);
+   return (p && p->IsString());
 }
 
 //______________________________________________
@@ -427,6 +462,22 @@ const Char_t* KVNameValueList::GetStringValue(const Char_t* name) const
 }
 
 //______________________________________________
+const TString& KVNameValueList::GetTStringValue(const Char_t* name) const
+{
+        //return the value in TString format
+        //for a parameter using its name
+        //return string "-1" if no parameter with such name are present
+
+   KVNamedParameter* par = FindParameter(name);
+   static TString tmp("-1");
+        if (!par){
+                Error("GetStringValue(const Char_t*)", "\"%s\" does not correspond to an existing parameter, default value \"-1\" is returned",name);
+                return tmp;
+        }
+        return par->GetTString();
+}
+
+//______________________________________________
 Int_t KVNameValueList::GetNpar() const {
 	//return the number of stored parameters
 	return fList.GetEntries();
@@ -465,6 +516,19 @@ const Char_t* KVNameValueList::GetStringValue(Int_t idx) const
    return GetParameter(idx)->GetString();
 }
 	
+//______________________________________________
+const TString& KVNameValueList::GetTStringValue(Int_t idx) const
+{
+        //return the value in string format
+        //for a parameter using its position
+        //return -1 idx is greater than the number of stored parameters
+   static TString tmp("-1");
+        if (idx>=GetNpar()) {
+                Error("GetStringValue(Int_t)", "index has to be less than %d, \"-1\" is returned\n",GetNpar());
+                return tmp;
+        }
+   return GetParameter(idx)->GetTString();
+}
 Bool_t KVNameValueList::IsValue(const Char_t* name,const Char_t* value)
 {
    // Returns kTRUE if parameter with given name exists and is equal to given value

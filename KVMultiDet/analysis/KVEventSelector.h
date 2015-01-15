@@ -21,7 +21,7 @@
 #include <TH3.h>
 #include <TH2.h>
 #include <TProfile2D.h>
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "TProofOutputFile.h"
 
 class KVEventSelector : public TSelector {
@@ -59,7 +59,7 @@ protected :
    KVString fCombinedOutputFile;// optional name for single results file with trees and histos
    
    //parsed list of options given to TTree::Process
-   KVParameterList<KVString> fOptionList;
+   KVNameValueList fOptionList;
 
    void FillTH1(TH1* h1, Double_t one, Double_t two);
    void FillTProfile(TProfile* h1, Double_t one, Double_t two, Double_t three);
@@ -208,7 +208,7 @@ public:
 
    virtual void SetOpt(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptGiven(const Char_t* option);
-   virtual KVString& GetOpt(const Char_t* option) const;
+   virtual const TString& GetOpt(const Char_t* option) const;
    virtual void UnsetOpt(const Char_t* opt);
    
 	virtual void SetAdditionalBranchAddress() {

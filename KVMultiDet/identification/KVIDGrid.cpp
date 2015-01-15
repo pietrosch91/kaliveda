@@ -27,7 +27,6 @@ $Id: KVIDGrid.cpp,v 1.60 2009/05/05 15:57:52 franklan Exp $
 #include "KVTGID.h"
 #include "TVirtualFitter.h"
 #include "KVTGIDFunctions.h"
-#include "KVParameter.h"
 #include "TClass.h"
 #include "TContextMenu.h"
 #include "TSystem.h"
@@ -243,60 +242,4 @@ void KVIDGrid::Initialize()
     SortIdentifiers();
     CalculateLineWidths();
 }
-
-//___________________________________________________________________________________
-
-void KVIDGrid::Streamer(TBuffer &R__b)
-{
-    // Stream an object of class KVIDGrid.
-    //
-    // For backwards compatibility, we transform the fParameters KVList of parameters
-    // that was used in versions < 4 into the new KVGenParList format
-
-    UInt_t R__s, R__c;
-    if (R__b.IsReading())
-    {
-        Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-        if (R__v <5)
-        {
-            KVList *fParameters = 0;
-            KVBase base_obj;
-            base_obj.Streamer(R__b);
-            SetName(base_obj.GetName());
-            SetTitle(base_obj.GetName());
-            TAttLine::Streamer(R__b);
-            TQObjSender monQObject;
-            monQObject.Streamer(R__b);
-            fIdentifiers->Streamer(R__b);
-            fCuts->Streamer(R__b);
-            R__b >> fXmin;
-            R__b >> fYmin;
-            R__b >> fParameters;
-            fPar->Streamer(R__b);
-            if (fParameters)
-            {
-                //translate old parameter list
-                TIter next_param(fParameters);
-                KVParameter < Double_t > *par = 0;
-                while ((par = (KVParameter < Double_t > *)next_param()))
-                {
-                    fPar->SetValue( par->GetName(), par->GetVal() );
-                }
-                delete fParameters;
-                fParameters = 0;
-            }
-        }
-        else
-        {
-            KVIDGrid::Class()->ReadBuffer(R__b,this,R__v,R__s,R__c);
-        }
-    }
-    else
-    {
-        KVIDGrid::Class()->WriteBuffer(R__b,this);
-    }
-}
-
-
-
 

@@ -10,7 +10,7 @@ $Date: 2008/04/03 07:35:45 $
 #ifndef __KVBATCHSYSTEM_H
 #define __KVBATCHSYSTEM_H
 
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "KVNumberList.h"
 #include "KVString.h"
 #include "KVBase.h"
@@ -24,7 +24,7 @@ class KVBatchSystem : public KVBase {
  protected:
 
    KVDataAnalyser* fAnalyser;//the analyser object which requests job submission, it has all details on the job
-   KVParameterList < KVString > fParList;        //list of parameters/switches to be passed on job submission command line
+   KVNameValueList fParList;        //list of parameters/switches to be passed on job submission command line
    KVString fJobName;            //base job name
    KVString fJobSubCmd;          //shell command for submitting job
    KVString fJobScript;          //full path of shell script to be executed by batch system
@@ -41,7 +41,7 @@ class KVBatchSystem : public KVBase {
     KVBatchSystem(const Char_t* name);
     virtual ~ KVBatchSystem();
 
-    KVParameterList < KVString > &GetParameters() {
+    KVNameValueList &GetParameters() {
       return fParList;
    };
 
@@ -50,7 +50,7 @@ class KVBatchSystem : public KVBase {
    };
    virtual void SubmitTask(KVDataAnalyser* da);
    virtual void SubmitJob();
-   virtual void PrintJobs(Option_t* /* opt */ = ""){;};
+   virtual void PrintJobs(Option_t* /* opt */ = ""){;}
    virtual Bool_t CheckJobParameters();
 
    virtual void Run();

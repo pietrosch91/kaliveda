@@ -78,11 +78,11 @@ void KVDBRun::Print(Option_t * option) const
    }
    cout << "___________________________________________________" << endl;
    //print values of all parameters
-   fStringPar.Print();
+   fParameters.Print("string");
    cout << "___________________________________________________" << endl;
-   fFloatPar.Print();
+   fParameters.Print("double");
    cout << "___________________________________________________" << endl;
-   fIntPar.Print();
+   fParameters.Print("int");
    cout << "___________________________________________________" << endl;
 }
 
@@ -97,26 +97,32 @@ void KVDBRun::WriteRunListLine(ostream & outstr, Char_t delim) const
    KVString s;
    //write run number
    outstr << GetNumber() << _delim.Data();
-   //write all scalers
-   for(int i=0; i<fIntPar.GetNPar(); i++){
-      s.Form("%s=%d", fIntPar.GetParameter(i)->GetName(), fIntPar.GetParameter(i)->GetVal());
-      outstr << s.Data() << _delim.Data();
+   //write all scalers (integer values)
+   for(int i=0; i<fParameters.GetNpar(); i++){
+      if(fParameters.GetParameter(i)->IsInt()){
+         s.Form("%s=%d", fParameters.GetParameter(i)->GetName(), fParameters.GetParameter(i)->GetInt());
+         outstr << s.Data() << _delim.Data();
+      }
    }
    //write all floating point values
-   for(int i=0; i<fFloatPar.GetNPar(); i++){
-      s.Form("%s=%f", fFloatPar.GetParameter(i)->GetName(), fFloatPar.GetParameter(i)->GetVal());
-      outstr << s.Data() << _delim.Data();
+   for(int i=0; i<fParameters.GetNpar(); i++){
+      if(fParameters.GetParameter(i)->IsDouble()){
+         s.Form("%s=%f", fParameters.GetParameter(i)->GetName(), fParameters.GetParameter(i)->GetDouble());
+         outstr << s.Data() << _delim.Data();
+      }
    }
    //write all string values
-   for(int i=0; i<fStringPar.GetNPar(); i++){
-      // as we write all strings as 'parname=value', there is a problem if the string 'value'
-      // itself contains the '=' symbol !!
-      // therefore we replace any '=' in the string by '\equal' before writing in the file.
-      // when reading back (see ReadRunListLine), we replace '\equal' by '='
-      TString tmp( fStringPar.GetParameter(i)->GetVal().Data() );
-      tmp.ReplaceAll("=","\\equal");
-      s.Form("%s=%s", fStringPar.GetParameter(i)->GetName(), tmp.Data());
-      outstr << s.Data() << _delim.Data();
+   for(int i=0; i<fParameters.GetNpar(); i++){
+      if(fParameters.GetParameter(i)->IsString()){
+         // as we write all strings as 'parname=value', there is a problem if the string 'value'
+         // itself contains the '=' symbol !!
+         // therefore we replace any '=' in the string by '\equal' before writing in the file.
+         // when reading back (see ReadRunListLine), we replace '\equal' by '='
+         TString tmp( fParameters.GetParameter(i)->GetString() );
+         tmp.ReplaceAll("=","\\equal");
+         s.Form("%s=%s", fParameters.GetParameter(i)->GetName(), tmp.Data());
+         outstr << s.Data() << _delim.Data();
+      }
    }
    outstr << endl;
 }

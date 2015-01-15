@@ -11,7 +11,7 @@ $Date: 2009/04/28 09:07:47 $
 #define __KVIDGRAPH_H
 
 #include "TCutG.h"
-#include "KVGenParList.h"
+#include "KVNameValueList.h"
 #include "KVIDentifier.h"
 #include <RQ_OBJECT.h>
 #include <TH2.h>
@@ -34,7 +34,7 @@ class KVIDGraph : public TCutG
    KVList 			*fCuts;       		//-> cuts used to define area in which identification is possible
    Axis_t 			fXmin, fXmax; 		//!min/max X coordinates of graph
    Axis_t 			fYmin, fYmax; 		//!min/max Y coordinates of graph
-   KVGenParList 	*fPar;				//-> parameters associated to grid
+   KVNameValueList 	*fPar;				//-> parameters associated to grid
    Double_t 		fLastScaleX;		//last applied scaling factor on X
    Double_t 		fLastScaleY;		//last applied scaling factor on Y
    TVirtualPad 	*fPad; 				//!pad in which graph is drawn
@@ -208,7 +208,7 @@ class KVIDGraph : public TCutG
       return (KVIDentifier*)fCuts->FindObject(name);
    };
    // Return pointer to list of parameters associated to grid
-   KVGenParList *GetParameters() const {
+   KVNameValueList *GetParameters() const {
       return fPar;
    };
    KVList *GetIdentifiers() const {
@@ -355,7 +355,7 @@ class KVIDGraph : public TCutG
    virtual Int_t         RemovePoint(){return TCutG::RemovePoint();};
    virtual Int_t         RemovePoint(Int_t i){return TCutG::RemovePoint(i);};
 
-   ClassDef(KVIDGraph,1)//Base class for particle identification in a 2D map
+   ClassDef(KVIDGraph,2)//Base class for particle identification in a 2D map
 };
 
 #endif

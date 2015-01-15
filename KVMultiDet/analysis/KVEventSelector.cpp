@@ -631,7 +631,7 @@ void KVEventSelector::SetOpt(const Char_t* option, const Char_t* value)
 {
    //Set a value for an option
    KVString tmp(value);
-   fOptionList.SetParameter(option, tmp);
+   fOptionList.SetValue(option, tmp);
 }
 
 //_________________________________________________________________
@@ -645,12 +645,12 @@ Bool_t KVEventSelector::IsOptGiven(const Char_t* opt)
 
 //_________________________________________________________________
 
-KVString& KVEventSelector::GetOpt(const Char_t* opt) const
+const TString& KVEventSelector::GetOpt(const Char_t* opt) const
 {
    // Returns the value of the option
    // Only use after checking existence of option with IsOptGiven(const Char_t* opt)
    
-   return (KVString&)fOptionList.GetParameter(opt);
+   return fOptionList.GetTStringValue(opt);
 }
 
 //_________________________________________________________________
@@ -667,13 +667,13 @@ void KVEventSelector::ParseOptions()
    // Analyse comma-separated list of options given to TTree::Process
    // and store all "option=value" pairs in fOptionList.
    // Options can then be accessed using IsOptGiven(), GetOptString(), etc.
-  	//
-	//     BranchName=xxxx  :  change name of branch in TTree containing data
+   //
+   //     BranchName=xxxx  :  change name of branch in TTree containing data
    //     EventsReadInterval=N: print "+++ 12345 events processed +++" every N events
-	// 
-	// This method is called by SlaveBegin
-	//
-	
+   //
+   // This method is called by SlaveBegin
+   //
+
 	fOptionList.Clear(); // clear list
    KVString option = GetOption();
    option.Begin(",");

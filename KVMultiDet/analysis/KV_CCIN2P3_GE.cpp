@@ -75,7 +75,7 @@ void KV_CCIN2P3_GE::SetJobTimeString(const Char_t* time)
    //      SetJobTime() => use default time
    KVString tmp(time);
    if(tmp=="") tmp = Form("%d", fDefJobTime);
-   fParList.SetParameter("-l ct=", tmp);
+   fParList.SetValue("-l ct=", tmp);
    fTimeSet = kTRUE;
 }
 
@@ -86,7 +86,7 @@ void KV_CCIN2P3_GE::SetJobMemory(const Char_t * mem)
    //If mem="", use default value
    KVString tmp(mem);
    if(tmp=="") tmp = fDefJobMem;
-   fParList.SetParameter("-l vmem=", tmp);
+   fParList.SetValue("-l vmem=", tmp);
    fMemSet = kTRUE;
 }
 
@@ -97,7 +97,7 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
    //If diks="", use default value
    KVString tmp(diks);
    if(tmp=="") tmp = fDefJobDisk;
-   fParList.SetParameter("-l fsize=", tmp);
+   fParList.SetValue("-l fsize=", tmp);
    fDiskSet = kTRUE;
 }
 
@@ -166,19 +166,19 @@ void KV_CCIN2P3_GE::ChooseJobDisk()
 const Char_t* KV_CCIN2P3_GE::GetJobTime(void)
 {
 // returns the parameter string corresponding to the job CPU time
- return fParList.GetParameter("-l ct=").Data();
+ return fParList.GetStringValue("-l ct=");
 }  
 
 const Char_t* KV_CCIN2P3_GE::GetJobMemory(void)
 {
 // returns the parameter string corresponding to the job Memory
- return fParList.GetParameter("-l vmem=").Data();
+ return fParList.GetStringValue("-l vmem=");
 }
 
 const Char_t* KV_CCIN2P3_GE::GetJobDisk(void) 
 {
 // returns the parameter string corresponding to the job Disk
- return fParList.GetParameter("-l fsize=").Data();
+ return fParList.GetStringValue("-l fsize=");
 }
 
 //_______________________________________________________________________________//

@@ -179,7 +179,7 @@ void KVElasticScatter::SetDetector(const Char_t * det)
        fDetector->GetAlignedDetectors(KVGroup::kForwards);
    //we store the association between detector type and index in list
    if (!fDetInd)
-      fDetInd = new KVParameterList < int >;
+      fDetInd = new KVNameValueList;
    else
       fDetInd->Clear();
    KVDetector *d;
@@ -194,9 +194,9 @@ void KVElasticScatter::SetDetector(const Char_t * det)
          newname.Form("%s_%d", d->GetType(), j++);
          while (fDetInd->HasParameter(newname.Data()))
             newname.Form("%s_%d", d->GetType(), j++);
-         fDetInd->SetParameter(newname.Data(), i);
+         fDetInd->SetValue(newname.Data(), i);
       } else {
-         fDetInd->SetParameter(d->GetType(), i);
+         fDetInd->SetValue(d->GetType(), i);
       }
       i++;
    }
@@ -399,9 +399,8 @@ TH1F *KVElasticScatter::GetEnergy(const Char_t * type)
    //Warning: if there are several detectors of the same type in the list of detectors
    //through which the particle passes, the first one (as seen by the impinging
    //particle) will have type "type", the second "type_1", the third "type_2", etc.
-   return (fDetInd->
-           HasParameter(type) ? GetEnergy(fDetInd->
-                                          GetParameter(type)) : 0);
+
+   return (fDetInd->HasParameter(type) ? GetEnergy(fDetInd->GetIntValue(type)) : 0);
 }
 
 //__________________________________________________________________//

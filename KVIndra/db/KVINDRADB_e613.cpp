@@ -546,7 +546,7 @@ void KVINDRADB_e613::ReadVoltEnergyChIoSi()
 				TIter it(env->GetTable());
 				while ( (rec = (TEnvRec* )it.Next()) ){
 					
-					Double_t a0,a1,chi=1;
+                                        Double_t a0,a1; a0=a1=0.; Double_t chi=1;
 					TString spar(rec->GetValue());
 					toks = spar.Tokenize(",");
 					if (toks->GetEntries()>=2){

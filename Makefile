@@ -144,7 +144,7 @@ BZR_LAST_REVISION =
 endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra install byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra install analysis byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 

@@ -11,7 +11,7 @@ $Date: 2007/04/04 10:39:17 $
 #define __KVELASTICSCATTER_H
 
 #include "TVector3.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 
 class TH1F;
 class TList;
@@ -47,7 +47,7 @@ class KVElasticScatter {
    Double_t fExx;               //excited state of target nucleus
 
    TObjArray *fHistos;          //energy loss histograms for all hit detectors
-    KVParameterList < int >*fDetInd;    //detector type-index association
+    KVNameValueList* fDetInd;    //detector type-index association
 
  public:
 

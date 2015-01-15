@@ -47,8 +47,10 @@ public:
    void Set(const char*);
    void Set(Double_t);
    void Set(Int_t);
+   void Set(const KVNamedParameter&);
 
    const Char_t* GetString() const;
+   const TString& GetTString() const;
    Double_t GetDouble() const;
    Int_t GetInt() const;
 

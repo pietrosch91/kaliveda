@@ -31,6 +31,12 @@ KVLifeTimeTable::~KVLifeTimeTable()
 }
 
 //_____________________________________________
+
+// suppress spurious warnings about out-of-bounds indices in
+// the 2 lines
+//      conversion_t[ii][jj]=conversion_t[ii][jj-1]*conversion_t[jj-1][jj];
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
 void KVLifeTimeTable::init()
 {
 

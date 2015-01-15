@@ -988,16 +988,16 @@ void KVClassMethod::WriteDeclaration(KVString&decl)
 	else decl += GetClassName();
    decl += "(";
    for(int i = 1; i<=fNargs; i++){
-      decl += fFields.GetParameter(Form("Arg_%d", i)).Data();
+      decl += fFields.GetStringValue(Form("Arg_%d", i));
       if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
          decl += " ";
-         decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
+         decl += fFields.GetStringValue(Form("Arg_%d_name", i));
       }
       else
           decl += Form(" arg%d",i);
       if( fFields.HasParameter( Form("Arg_%d_default", i)) ){
          decl += " = ";
-         decl += fFields.GetParameter(Form("Arg_%d_default", i)).Data();
+         decl += fFields.GetStringValue(Form("Arg_%d_default", i));
       }
       if( i < fNargs ) decl += ", ";
    }
@@ -1022,10 +1022,10 @@ void KVClassMethod::WriteImplementation(KVString&decl)
 		decl += GetClassName();
    decl += "(";
    for(int i = 1; i<=fNargs; i++){
-      decl += fFields.GetParameter(Form("Arg_%d", i)).Data();
+      decl += fFields.GetStringValue(Form("Arg_%d", i));
       if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
          decl += " ";
-         decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
+         decl += fFields.GetStringValue(Form("Arg_%d_name", i));
       }
       else
           decl += Form(" arg%d", i);
@@ -1036,12 +1036,12 @@ void KVClassMethod::WriteImplementation(KVString&decl)
    if(IsConstructor() && fFields.HasParameter("BaseClass"))
    {
       decl+=" : ";
-      decl+=fFields.GetParameter("BaseClass").Data();
+      decl+=fFields.GetStringValue("BaseClass");
       decl+="(";
       if(!IsCopyCtor() && fNargs){
           for(int i=1; i<=fNargs; i++){
               if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
-                 decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
+                 decl += fFields.GetStringValue(Form("Arg_%d_name", i));
               }
               else
                   decl += Form("arg%d",i);
@@ -1055,10 +1055,10 @@ void KVClassMethod::WriteImplementation(KVString&decl)
    else if( !strcmp(GetAccess(), "protected") ) decl += "   // PROTECTED method\n";
    if( fFields.HasParameter("Body") ){
       //write body of method
-      decl += fFields.GetParameter("Body");
+      decl += fFields.GetStringValue("Body");
    } else {
       decl += "   // Write your code here";
-      if( fFields.HasParameter("ReturnType") && fFields.GetParameter("ReturnType") != "void" ){
+      if( fFields.HasParameter("ReturnType") && strcmp(fFields.GetStringValue("ReturnType"),"void")){
          decl += "\n   return (";
          decl += GetReturnType();
          decl += ")0;";

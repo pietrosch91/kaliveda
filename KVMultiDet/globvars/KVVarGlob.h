@@ -11,7 +11,7 @@
 #include "Riostream.h"
 #include "KVBase.h"
 #include "KVNucleus.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "KVString.h"
 #include "KVParticleCondition.h"
 
@@ -36,7 +36,7 @@ class KVVarGlob:public KVBase {
    
 // Champs Prive
  private:
-    KVParameterList < Int_t > nameList;//correspondence between variable name and index
+    KVNameValueList nameList;//correspondence between variable name and index
 
 // Methodes
  protected:
@@ -49,8 +49,8 @@ class KVVarGlob:public KVBase {
    };
 
    KVString fFrame;//(optional) name of reference frame used for kinematics
-   KVParameterList<KVString> fOptions;//list of options
-   KVParameterList<Double_t> fParameters;//list of parameters
+   KVNameValueList fOptions;//list of options
+   KVNameValueList fParameters;//list of parameters
    KVParticleCondition* fSelection;//(optional) condition used to select particles
    
    Int_t fType;   // type of variable global; = kOneBody, kTwoBody or kNBody
@@ -189,7 +189,7 @@ class KVVarGlob:public KVBase {
    
    virtual void SetOption(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptionGiven(const Char_t* option);
-   virtual KVString& GetOptionString(const Char_t* option) const;
+   virtual const TString& GetOptionString(const Char_t* option) const;
    virtual void UnsetOption(const Char_t* opt);
 
    virtual void SetParameter(const Char_t* par, Double_t value);   
@@ -206,7 +206,7 @@ class KVVarGlob:public KVBase {
    {
         // Returns number of values associated with this global variable.
         // This is the number of indices defined using SetNameIndex method.
-       return nameList.GetNPar();
+       return nameList.GetNpar();
    };
    virtual Int_t GetNumberOfBranches() const
    {
@@ -221,7 +221,7 @@ class KVVarGlob:public KVBase {
     // Returns name of value associated with index 'i',
     // as defined by using SetNameIndex method.
     for(int j=0; j<GetNumberOfValues(); j++){
-        if(nameList.GetParameter(j)->GetVal() == i) return nameList.GetParameter(j)->GetName();
+        if(nameList.GetIntValue(j) == i) return nameList.GetParameter(j)->GetName();
     }
     return "unknown";
    };

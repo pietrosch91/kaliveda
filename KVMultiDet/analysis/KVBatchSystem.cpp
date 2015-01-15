@@ -139,12 +139,12 @@ const Char_t *KVBatchSystem::GetJobSubCmdLine()
 
    static TString command_line;
    command_line.Form("%s %s ", fJobSubCmd.Data(), fDefOpt.Data());
-   if (fParList.GetNPar()) {
-      for (int i = 0; i < fParList.GetNPar(); i++) {
-         KVParameter < KVString > *par = fParList.GetParameter(i);
+   if (fParList.GetNpar()) {
+      for (int i = 0; i < fParList.GetNpar(); i++) {
+         KVNamedParameter*par = fParList.GetParameter(i);
          command_line += par->GetName();
-         if (par->GetVal() != "") {
-            command_line += par->GetVal();
+         if (par->GetTString() != "") {
+            command_line += par->GetString();
          }
          command_line += " ";
       }

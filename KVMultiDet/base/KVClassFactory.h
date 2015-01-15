@@ -12,12 +12,12 @@ $Date: 2009/01/21 08:04:20 $
 #include "TClass.h"
 #include "TNamed.h"
 #include "KVString.h"
-#include "KVParameterList.h"
+#include "KVNameValueList.h"
 #include "KVList.h"
 
 class KVClassMethod : public TNamed {
 
-   KVParameterList<KVString> fFields;//fields of method declaration
+   KVNameValueList fFields;//fields of method declaration
    Bool_t fVirtual;//kTRUE if method is 'virtual'
    Bool_t fConst;//kTRUE if method is 'const'
    Bool_t fConstructor;//kTRUE if method is a constructor
@@ -43,41 +43,41 @@ class KVClassMethod : public TNamed {
    
    void SetReturnType(const Char_t* type) {
       KVString s(type);
-      fFields.SetParameter("ReturnType", s);
+      fFields.SetValue("ReturnType", s);
    };
    void SetClassName(const Char_t* name) {
      KVString s(name);
-     fFields.SetParameter("ClassName", s);
+     fFields.SetValue("ClassName", s);
    };
    void SetBaseClass(const Char_t* name) {
      KVString s(name);
-     fFields.SetParameter("BaseClass", s);
+     fFields.SetValue("BaseClass", s);
    };
    void AddArgument(const Char_t* type, const Char_t* argname="", const Char_t* defaultvalue="") {
       KVString _type(type);
-      fFields.SetParameter( Form("Arg_%d", ++fNargs), _type);
+      fFields.SetValue( Form("Arg_%d", ++fNargs), _type);
       if( strcmp(defaultvalue,"") ){
          KVString _s (defaultvalue);
-         fFields.SetParameter( Form("Arg_%d_default", fNargs), _s);
+         fFields.SetValue( Form("Arg_%d_default", fNargs), _s);
       }
       if( strcmp(argname,"") ){
          KVString _s (argname);
-         fFields.SetParameter( Form("Arg_%d_name", fNargs), _s);
+         fFields.SetValue( Form("Arg_%d_name", fNargs), _s);
       }
    };
    
    void SetMethodBody(KVString& body)
    {
-      fFields.SetParameter("Body", body);
+      fFields.SetValue("Body", body);
    };
    
    const Char_t* GetReturnType() {
 		if( fFields.HasParameter("ReturnType") )
-      	return fFields.GetParameter("ReturnType").Data();
+        return fFields.GetStringValue("ReturnType");
 		return "";
    };
    const Char_t* GetClassName() {
-      return fFields.GetParameter("ClassName").Data();
+      return fFields.GetStringValue("ClassName");
    };
    
    void SetConst(Bool_t c = kTRUE) {

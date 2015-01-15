@@ -18,30 +18,31 @@ where:
 #include "KVDataSetManager.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataRepository.h"
+#include "KVDataAnalyser.h"
 
 int main(int argc, char **argv)
 {
    //without this, the plugins don't work for user classes
    TApplication *myapp=new TApplication("myapp",&argc,argv);
 
-	TString repo,plugin,tmp;
-	/* analyse arguments */
-	for(int i=1; i<argc; i++){
-		tmp = argv[i];
+   TString repo,plugin,tmp;
+   /* analyse arguments */
+   for(int i=1; i<argc; i++){
+      tmp = argv[i];
       if( tmp.Contains("repository=") ){
-			tmp.Remove(0,11);
-			repo=tmp;
-		}
-	}
+         tmp.Remove(0,11);
+         repo=tmp;
+      }
+   }
    gSystem->AddIncludePath("-I$KVROOT/include");
-	new KVDataRepositoryManager;
-	gDataRepositoryManager->Init();
+   new KVDataRepositoryManager;
+   gDataRepositoryManager->Init();
    if(gDataRepositoryManager->GetListOfRepositories()->GetEntries()==0) exit(1);
    if(repo!="") gDataRepositoryManager->GetRepository(repo.Data())->cd();
-	gDataSetManager->RunAnalyser("INDRA");
+   KVDataAnalyser::RunAnalyser("INDRA");
    
    delete myapp;
    delete gDataRepositoryManager;
    
-	return 0;
+   return 0;
 }

@@ -30,7 +30,7 @@
 #pragma link C++ class KVIDZALine-;
 #pragma link C++ class KVIDZLine-;
 #pragma link C++ class KVIDMap+;
-#pragma link C++ class KVIDGrid-;
+#pragma link C++ class KVIDGrid+;
 #pragma link C++ class KVIDGridManager;
 #pragma link C++ class KVIDZAGrid-;
 #pragma link C++ class KVIDZGrid-;
