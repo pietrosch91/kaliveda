@@ -320,7 +320,6 @@ void KVIDQALine::FindAMarkers(TH1 *h){
    // and find also the 2 adjacent points: (low2 < low < x < up < up2 )
    // needed in case x is outside the graph ascissa interval
    Int_t low  = -1;
-   Int_t low2 = -1;
    TIter next( fMarkers );
    KVIDQAMarker *m = NULL;
 
@@ -335,20 +334,13 @@ void KVIDQALine::FindAMarkers(TH1 *h){
 
 	   m->SetA( a++);
 	   Int_t up  = -1;
-   	   Int_t up2 = -1;
 
 	   if( !stop ){
 	   	   for (Int_t i = (low>-1 ? low : 0 ); i < fNpoints; ++i) {
          	   if (fX[i] < x){
-            	   if (low == -1 || fX[i] > fX[low])  {
-               		   low2 = low;
-               		   low = i;
-            	   } else if (low2 == -1) low2 = i;
+            	   if ((low == -1) || (fX[i] > fX[low])) low = i;
          	   } else if (fX[i] > x) {
-            	   if (up  == -1 || fX[i] < fX[up])  {
-               		   up2 = up;
-               		   up = i;
-            	   } else if (up2 == -1) up2 = i;
+            	   if ((up  == -1) || (fX[i] < fX[up])) up = i;
          	   } else{ // case x == fX[i]
 			 	   low = up = i;
 			 	   break;
@@ -356,26 +348,17 @@ void KVIDQALine::FindAMarkers(TH1 *h){
       	   }
 	   }
 
- 	   // treat cases when x is outside graph min max abscissa
-       if (up == -1)  {
-           up  = low;
-           low = low2;
-       }
-       if (low == -1) {
-           low = up;
-           up  = up2;
-       }
        // treat cases when x is outside line min max abscissa
        if ((up == -1) || (low==-1)){
 		   // list the markers which are outside line to be deleted
 		   del_list.Add(m);
-		   stop = kTRUE; 
+		   if( up == -1 ) stop = kTRUE; 
 		   continue;
        }
 	  
 	   // set indexes of neighbour points and the X coordinate
 	   // to the marker
-   	   m->SetPointIndexesAndX( low, up, x );
+	   m->SetPointIndexesAndX( low, up, x );
 
 	   // draw the new marker if its parent Q-line is already drawn in the 
 	   // current pad
@@ -383,7 +366,7 @@ void KVIDQALine::FindAMarkers(TH1 *h){
    }
  
    if( del_list.GetEntries() ){
-	   Warning("FindAMarkers","markers will be deleted (outside of %s-line)",GetName());
+	   Warning("FindAMarkers","%d markers will be deleted (outside of %s-line)",del_list.GetEntries(),GetName());
 	   del_list.ls();
    }
 }
