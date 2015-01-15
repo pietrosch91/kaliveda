@@ -13,9 +13,8 @@ class KVIDQAMarker : public TMarker
 
 	protected:
 
-		Int_t fA;      //Mass associated to this marker
-		Int_t fPtIdxLow;//index of the low closest point from this marker 
-		Int_t fPtIdxUp; //index of the up closest point from this marker 
+		Int_t fA;        //Mass associated to this marker
+		Int_t fIdx;      //index of the low closest point from this marker 
 		Double_t fDelta; // normalized position from low closest point and up closest point
 		KVIDQALine *fParent; //! parent identification line
 		TString fName;
@@ -34,11 +33,11 @@ class KVIDQAMarker : public TMarker
 		virtual Int_t	Compare(const TObject* obj) const;
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
    		void SetParent( KVIDQALine *parent );
-   		void SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta=0 );
+   		void SetPointIndex( Int_t idx, Double_t delta=0 );
    		Int_t GetQ() const;
 		virtual void ls(Option_t* option = "") const;
 		virtual void UpdateXandY();
-   		void SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x );
+   		void SetPointIndexAndX( Int_t idx, Double_t x );
 
    		//-------------------- inline methods ------------------//
 
@@ -48,8 +47,7 @@ class KVIDQAMarker : public TMarker
    		void SetA( Int_t a ); // *MENU*
 		Double_t GetDelta() const;
    		Int_t GetPointIndex() const;
-   		void SetPointIndex( Int_t idx );
-   		void GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const;
+   		void GetPointIndexAndDelta( Int_t &idx, Double_t &delta ) const;
 		Bool_t IsSortable() const;
 
    		ClassDef(KVIDQAMarker,1)//Base class for identification markers corresponding to differents couples of mass and charge state
@@ -86,15 +84,13 @@ inline void KVIDQAMarker::SetA( Int_t a ){ fA = a; SetNameFromNucleus();}
 inline Double_t KVIDQAMarker::GetDelta() const{ return fDelta; }
 //_____________________________________________________//
 
-inline Int_t KVIDQAMarker::GetPointIndex() const{ return (fPtIdxLow==fPtIdxUp ? fPtIdxLow : -1 ); }
+inline Int_t KVIDQAMarker::GetPointIndex() const{ return fIdx; }
 //_____________________________________________________//
 
-inline void KVIDQAMarker::SetPointIndex( Int_t idx ) { 
-	SetPointIndexes( idx, idx );
+inline void KVIDQAMarker::GetPointIndexAndDelta( Int_t &idx, Double_t &delta ) const{
+	idx   = fIdx;
+	delta = fDelta;
 }
-//_____________________________________________________//
-
-inline void KVIDQAMarker::GetPointIndexes( Int_t &idx_low, Int_t &idx_up ) const { idx_low = fPtIdxLow ; idx_up = fPtIdxUp; }
 //_____________________________________________________//
 
 inline Bool_t KVIDQAMarker::IsSortable() const{

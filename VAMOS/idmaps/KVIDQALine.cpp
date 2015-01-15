@@ -216,7 +216,7 @@ Int_t KVIDQALine::RemovePoint(Int_t i){
 	KVIDQAMarker *m = NULL;
 	TIter next( fMarkers );
 	while( (m =(KVIDQAMarker *)next()) ){
-		if( i == m->GetPointIndex() ) break;
+		if( (i == m->GetPointIndex()) && !m->GetDelta() ) break;
 	}
 	if( m ){
  	   	fMarkers->Remove( m );
@@ -234,14 +234,15 @@ void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
 	TIter next( fMarkers );
 	KVIDQAMarker *m = NULL;
 	while( (m =(KVIDQAMarker *)next()) ){
-		Int_t low, up;
- 		m->GetPointIndexes(low, up);
+		Int_t    idx_m;
+		Double_t delta_m;
+ 		m->GetPointIndexAndDelta(idx_m, delta_m);
 
-		if( (idx-1) <= low ){
+		if( (idx-1) <= idx_m ){
 			
 			Double_t delta = 0;	
-			if( (low==(idx-1)) && (low!=up)  ){
-				//vector givent by the initial low and up points
+			if( (idx_m==(idx-1)) && (delta_m)  ){
+				//vector givent by the initial low and up neighbour points
 				Double_t xi = fX[idx-1]-fX[idx+1];
 				Double_t yi = fY[idx-1]-fY[idx+1];
 				Double_t li = TMath::Sqrt( TMath::Power(xi,2)+TMath::Power(yi,2) );
@@ -251,25 +252,23 @@ void KVIDQALine::IncrementPtIdxOfMarkers( Int_t idx, Int_t ival ){
 				Double_t yf = fY[idx-1]-fY[idx];
 				Double_t lf = TMath::Sqrt( TMath::Power(xf,2)+TMath::Power(yf,2) );
 
-				if( m->GetDelta()*li<lf ){
- 			   		delta = m->GetDelta()*li/lf;
+				if( delta_m*li<lf ){
+ 			   		delta = delta_m*li/lf;
 				}
 				else{
- 			   		delta = (m->GetDelta()*li-lf)/(li-lf);
-					low += ival;
-					up  += ival;
+ 			   		delta = (delta_m*li-lf)/(li-lf);
+					idx_m += ival;
 				}
 			}
-			else if(idx <= low){
-				delta = m->GetDelta();
-				low += ival;
-				up  += ival;
+			else if(idx <= idx_m){
+				delta  = delta_m;
+				idx_m += ival;
 			}
 
-			if( low < 0 ){ low = 0; delta=0.; }
-			if( up  > fNpoints-1 ){ up = fNpoints-1; delta = 1.; }
+			if( idx_m < 0 ){ idx_m = 0; delta=0.; }
+			if( idx_m > fNpoints-2 ){ idx_m = fNpoints-2; delta = 1.; }
 
- 			m->SetPointIndexes( low, up, delta );
+ 			m->SetPointIndex( idx_m, delta );
 		}
  	}
 }
@@ -356,9 +355,9 @@ void KVIDQALine::FindAMarkers(TH1 *h){
 		   continue;
        }
 	  
-	   // set indexes of neighbour points and the X coordinate
-	   // to the marker
-	   m->SetPointIndexesAndX( low, up, x );
+	   // set index and the X coordinate to the marker
+	   if( low == up ) m->SetPointIndex( low );
+	   else m->SetPointIndexAndX( low, x );
 
 	   // draw the new marker if its parent Q-line is already drawn in the 
 	   // current pad

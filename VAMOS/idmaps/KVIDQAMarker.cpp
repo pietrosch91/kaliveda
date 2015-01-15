@@ -51,7 +51,7 @@ void KVIDQAMarker::init(){
 	// Initialization of data members. Called by constructors.
 	fParent = NULL;
 	SetA(0);
-	fPtIdxLow = fPtIdxUp = -1;
+	fIdx = -1;
 	fDelta = 0;
 	SetMarkerStyle( 21 );
 }
@@ -69,8 +69,7 @@ void KVIDQAMarker::Copy(TObject& obj) const{
    KVIDQAMarker& CastedObj = (KVIDQAMarker&)obj;
    //CastedObj.SetParent(fParent);
    CastedObj.SetA(fA);
-   CastedObj.fPtIdxLow = fPtIdxLow;
-   CastedObj.fPtIdxUp  = fPtIdxUp;
+   CastedObj.fIdx = fIdx;
    CastedObj.fDelta    = fDelta;
 }
 //________________________________________________________________
@@ -89,11 +88,9 @@ Int_t KVIDQAMarker::Compare(const TObject *obj) const
 void KVIDQAMarker::SetParent( KVIDQALine *parent ){ fParent = parent; }
 //________________________________________________________________
 
-void KVIDQAMarker::SetPointIndexes( Int_t idx_low, Int_t idx_up, Double_t delta ) { 
-	if( !fParent ) return;
-	fDelta    = delta;
-	fPtIdxLow = idx_low;
-   	fPtIdxUp  = idx_up;
+void KVIDQAMarker::SetPointIndex( Int_t idx, Double_t delta ) { 
+	fDelta = delta;
+	fIdx   = idx;
 	UpdateXandY();
 }
 
@@ -110,7 +107,7 @@ void KVIDQAMarker::ls(Option_t *) const
 
    TROOT::IndentLevel();
    cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() <<" : "
-	   <<Form("PtIdxLow= %d, PtIdxUp= %d, fDelta= %f, X=%f, Y=%f, marker type=%d :",fPtIdxLow,fPtIdxUp,fDelta,fX,fY,fMarkerStyle)
+	   <<Form("PtIdx= %d, fDelta= %f, X=%f, Y=%f, marker type=%d :",fIdx,fDelta,fX,fY,fMarkerStyle)
         << Int_t(TestBit(kCanDelete)) << " at: "<<this<< endl;
 }
 //________________________________________________________________
@@ -120,11 +117,20 @@ void KVIDQAMarker::UpdateXandY(){
 	// fDelta is the distance between this marker end the low point,
 	// normalized to the distance between low and up points;
 	if( !fParent ) return;
-	Double_t x_low, y_low, x_up, y_up;
-	if((fParent->GetPoint(fPtIdxLow, x_low, y_low)>-1) && (fParent->GetPoint(fPtIdxUp, x_up, y_up)>-1)){
-		SetX( x_low + (x_up-x_low)*fDelta );
-		SetY( y_low + (y_up-y_low)*fDelta );
- 	}
+	Double_t x_low, y_low;
+	if(fParent->GetPoint(fIdx, x_low, y_low)>-1){
+		if( fDelta ){ // marker is between low and up points
+			Double_t x_up, y_up;
+			if(fParent->GetPoint(fIdx+1, x_up, y_up)>-1){
+				SetX( x_low + (x_up-x_low)*fDelta );
+				SetY( y_low + (y_up-y_low)*fDelta );
+			}
+		}
+		else{         // marker is over one point
+			SetX( x_low );
+			SetY( y_low );
+		}
+	}
 }
 //________________________________________________________________
 
@@ -149,14 +155,14 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 		case kButton1Up:
 			if( motion ){
 				motion = kFALSE;
-				if((fPtIdxLow>-1) && (fPtIdxUp>-1)){
-					if( fPtIdxLow == fPtIdxUp ){
-						fParent->SetPoint( fPtIdxLow, GetX(), GetY() );
+				if((fIdx>-1)){
+					if( fDelta ){// marker is between low and up points
+							fIdx = fParent->InsertPoint( fIdx, GetX(), GetY(), x_prev );
+						fDelta   = 0;
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 					else{
-						fPtIdxUp = fPtIdxLow = fParent->InsertPoint( fPtIdxUp, GetX(), GetY(), x_prev );
-						fDelta   = 0;
+						fParent->SetPoint( fIdx, GetX(), GetY() );
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
 				}
@@ -166,32 +172,27 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 }
 //________________________________________________________________
 
-void KVIDQAMarker::SetPointIndexesAndX( Int_t idx_low, Int_t idx_up, Double_t x ){
-	// Set indexes of the two neighbour points and the X coordinates of this
+void KVIDQAMarker::SetPointIndexAndX( Int_t idx, Double_t x ){
+	// Set index of the low neighbour point and the X coordinate of this
 	// marker. Then fDelta and Y coordinates will be calculated and set to
 	// this marker.
 
 	if( !fParent ) return;
+	if( fParent->GetN()-2 <= idx ) return;
+
+	fIdx = idx;
 
 	Double_t x_low, y_low, x_up, y_up;
-	if((fParent->GetPoint(idx_low, x_low, y_low)>-1) && (fParent->GetPoint(idx_up, x_up, y_up)>-1)){
-
+	if((fParent->GetPoint(idx, x_low, y_low)>-1) && (fParent->GetPoint(idx+1, x_up, y_up)>-1)){
 		Double_t y;
-		if( x_low == y_up ) y = y_low;
+		if( x_low == x_up ) y = y_low;
 		else y = y_up + (x-x_up)*(y_low-y_up)/(x_low-x_up);
 
 		Double_t L     = TMath::Sqrt( TMath::Power(x_up-x_low,2)+TMath::Power(y_up-y_low,2) );
 		Double_t l     = TMath::Sqrt( TMath::Power(x-x_low,2)+TMath::Power(y-y_low,2) );
 
-		if( L==0 ){ 
-			fPtIdxLow = fPtIdxUp = idx_low;
-			fDelta = 0.;
-		}
-		else{
-			fPtIdxLow = idx_low;
-   			fPtIdxUp  = idx_up;
-			fDelta = l/L;
-		}
+		if( L==0 ) fDelta = 0.;
+		else fDelta = l/L;
 
 		SetX( x );
 		SetY( y_low + (y_up-y_low)*fDelta );
@@ -203,7 +204,7 @@ void KVIDQAMarker::WriteAsciiFile(ofstream & file)
 {
     // Write attributes of this KVIDQAMarker in ascii file
 
-	file<<fA<<"\t"<<fPtIdxLow<<"\t"<<fPtIdxUp<<"\t"<<fDelta<<"\t"<<fX<<"\t"<<fY<<endl;
+	file<<fA<<"\t"<<fIdx<<"\t"<<fDelta<<"\t"<<fX<<"\t"<<fY<<endl;
 }
 //________________________________________________________________
 
@@ -212,7 +213,7 @@ void KVIDQAMarker::ReadAsciiFile(ifstream & file)
     // Read attributes of this KVIDQAMarker in ascii file
 
 	Int_t a;
-	file>>a>>fPtIdxLow>>fPtIdxUp>>fDelta>>fX>>fY;
+	file>>a>>fIdx>>fDelta>>fX>>fY;
 	SetA( a );
 }
 //________________________________________________________________
