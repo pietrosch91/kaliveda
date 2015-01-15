@@ -10,4 +10,7 @@
 #pragma link C++ class KVTarget+;
 #pragma link C++ class KVTelescope+;
 #pragma link C++ class KVSignal+;
+#pragma link C++ class KVChargeSignal+;
+#pragma link C++ class KVCurrentSignal+;
+#pragma link C++ class KVPSAResult+;
 #endif

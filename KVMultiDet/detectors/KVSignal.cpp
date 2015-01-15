@@ -2,6 +2,7 @@
 //Author: ,,,
 
 #include "KVSignal.h"
+#include "KVString.h"
 
 ClassImp(KVSignal)
 
@@ -63,3 +64,43 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
    	SetPoint(np,xx[np],yy[np]);
 
 }
+
+//________________________________________________________________
+void KVSignal::DeduceFromName()
+{
+
+	fBlock = fQuartet = fTelescope = -1;
+   fType = fDet = fTelName = "";
+	KVString tmp = GetName();
+   KVString part = "";
+   if (tmp.BeginsWith("B"))
+   {
+   	//FAZIA telescope denomination
+   	tmp.Begin("-");
+      part = tmp.Next(); part.ReplaceAll("B",""); fBlock = part.Atoi();
+		part = tmp.Next(); part.ReplaceAll("Q",""); fQuartet = part.Atoi();
+		part = tmp.Next(); part.ReplaceAll("T",""); fTelescope = part.Atoi();
+		fType = tmp.Next();
+      fDet = GetTitle();
+      
+      fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
+   }
+   
+}
+//________________________________________________________________
+void KVSignal::Print(Option_t* chopt) const
+{
+	Info("Print","\nName: %s - Title: %s",GetName(),GetTitle());
+	printf("\tBlock# %d - Quartet# %d - Telescope# %d\n",fBlock,fQuartet,fTelescope);
+   printf("\tType: %s - Detecteur: %s\n",fType.Data(),fDet.Data());
+   
+}
+//________________________________________________________________
+
+KVPSAResult* KVSignal::TreateSignal(void)
+{
+	//to be implemented in child class
+   Info("TreateSignal","To be implemented in child classes");
+	return 0;
+}
+
