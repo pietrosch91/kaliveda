@@ -1,8 +1,5 @@
 ifeq ($(ROOTGANILTAPE),yes)
 	EXTRA_CXX_FLAGS += -I$(GANTAPE_INC) -DROOTGANILTAPE
-	ifeq ($(MAKE_GANTAPE_RFIO),yes)
-		EXTRA_LIBRARIES += -L/usr/local/lib -lshift
-	endif
 else
 	NOT_READY += analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
 endif

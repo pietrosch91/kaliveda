@@ -20,6 +20,7 @@ ClassImp(KVVAMOSDetector)
 
 KVString KVVAMOSDetector::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
 KVString KVVAMOSDetector::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 4:XZ, 5:YZ, 6:XYZ, 9:NO_TYPE");
+TString KVVAMOSDetector::fKVVAMOSDetectorFiredACQParameterListFormatString="KVVAMOSDetector.Fired.ACQParameterList.%s";
 
 
 KVVAMOSDetector::KVVAMOSDetector()
@@ -367,7 +368,7 @@ Bool_t KVVAMOSDetector::IsStopForT(const Char_t *type) const{
 	return kFALSE;
 }
 //________________________________________________________________
-void KVVAMOSDetector::SetFiredBitmask(){
+void KVVAMOSDetector::SetFiredBitmask(KVString&lpar){
    	// Set bitmask used to determine which acquisition parameters are
    	// taken into account by KVVAMOSDetector::Fired based on the environment variables
    	//          [dataset].KVACQParam.[par name].Working:    NO
@@ -397,8 +398,6 @@ void KVVAMOSDetector::SetFiredBitmask(){
 
 	fFiredMask.Set("");
 
-	KVString inst; inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s",GetType());
-	KVString lpar = gDataSet->GetDataSetEnv(inst);
 	TObjArray *toks = lpar.Tokenize(",");
 	if( !toks->GetEntries() ){
 		fFiredMask.Set("11111111"); 

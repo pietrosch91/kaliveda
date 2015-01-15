@@ -60,7 +60,7 @@ class KVIVReconEvent : public KVINDRAReconEvent
 
 		void ResetGetNextNucleus(){ fVAMOSev->ResetGetNextNucleus(); }
 
-		void  ReconstructVAMOSEvent(KVDetectorEvent *kvde){ fVAMOSev->ReconstructEvent( kvde ); }
+                void  ReconstructVAMOSEvent(KVMultiDetArray* mda, KVDetectorEvent *kvde){ fVAMOSev->ReconstructEvent(mda, kvde); }
 
 		virtual void SetNumber( UInt_t num ){ KVINDRAReconEvent::SetNumber( num ); fVAMOSev->SetNumber( num ); }
 

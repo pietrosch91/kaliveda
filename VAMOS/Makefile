@@ -1,43 +1,41 @@
-#$Id: Makefile,v 1.13 2009/02/06 11:33:20 franklan Exp $
-#Makefile for libVAMOS.so
+PROJECT = VAMOS
+MODULES = daq_cec analysis base reconstruction identification geometry db events particles calibration
 
-PROJ_NAME = VAMOS
+.PHONY: all install clean $(MODULES)
 
-MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration idtelescopes
+all: $(MODULES)
 
-EXTRA_HEADERS = analysis/Defines.h
+install:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.$(PROJECT); \
+		make -f $$makefile MODULE=$$module install ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-MANIP_DIRS = VAMOS_e503
-ETC_DATA = $(shell ls factory/*Template.[c,h]*)
+clean:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.$(PROJECT); \
+		make -f $$makefile MODULE=$$module clean ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-NOT_ROOTCINT := analysis/Defines.h
-
-ifeq ($(ROOTGANILTAPE),yes)
-KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
-endif
-
-NOT_READY := geometry/KVFocalPlanVamos.cpp
-
-ifeq ($(ROOTGANILTAPE),no)
-NOT_READY += daq_cec/*.cpp analysis/KVIVRawDataReconstructor.cpp analysis/KVIVRawDataAnalyser.cpp
-endif
-
-include ../Makefile.general
-
-ifeq ($(ARCH),win32)
-LINK_LIB = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
-else
-LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
-endif
-RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
-ifeq ($(ROOTGANILTAPE),yes)
-ifeq ($(MAKE_GANTAPE_RFIO),yes)
-LINK_LIB += -L/usr/local/lib -lshift
-endif
-endif
-
-
-#required for use of TGeo* classes in KVMaterial, KVDetector, etc.
-LINK_LIB += -L$(ROOTSYS)/lib -lGeom
-RLIBMAPDEPS += libGeom.so
-
+daq_cec:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+analysis:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+base:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+reconstruction:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+identification:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+geometry:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+db:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+events:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+particles:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"
+calibration:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$(MODULES)"

@@ -140,8 +140,8 @@ dictionaries:
 
 $(LIB_SO): $(OBJECTS) $(DICT_OBJECTS)
 	@echo `tput setaf 5`"Building library $@"`tput sgr0`; \
-	$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS) ;\
-	[ $$? -ne 0 ] && exit 1; \
+#	$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS) ;\
+#	[ $$? -ne 0 ] && exit 1; \
 	echo `tput setaf 5`"$@ done"`tput sgr0`
 
 .SUFFIXES: .$(SrcSuf)

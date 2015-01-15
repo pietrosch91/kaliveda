@@ -9,7 +9,7 @@
 #include "KVSiliconVamos.h"
 #include "PlaneAbsorber.h"
 #include "KVCsIVamos.h"
-#include "KVDetector.h"
+#include "KVTarget.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
 #include "TList.h"

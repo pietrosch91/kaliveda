@@ -1,0 +1,7 @@
+ifeq ($(ROOTGANILTAPE),yes)
+	EXTRA_CXX_FLAGS += -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
+else
+	NOT_READY += daq_cec/*.cpp
+endif
+
+include Makefile.VAMOS

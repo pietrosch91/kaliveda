@@ -113,7 +113,7 @@ Bool_t KVIVRawDataReconstructor::Analysis(){
 	
 	// VAMOS event reconstruction
 	if( fVAMOSDetEv->GetMult()>0){
- 		fIVevent->ReconstructVAMOSEvent( fVAMOSDetEv );
+                fIVevent->ReconstructVAMOSEvent( gVamos, fVAMOSDetEv );
  		fNbVAMOSrecon++;
 	}
 

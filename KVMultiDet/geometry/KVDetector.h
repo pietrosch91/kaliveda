@@ -299,7 +299,7 @@ public:
 
     virtual void SetFiredBitmask(KVString&);
     Binary8_t GetFiredBitmask() const { return fFiredMask; };
-	 virtual const Char_t* GetFiredACQParameterListFormatString() const { return fKVDetectorFiredACQParameterListFormatString.Data(); }
+    virtual const Char_t* GetFiredACQParameterListFormatString() const { return fKVDetectorFiredACQParameterListFormatString.Data(); }
     virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const
     {
         // Calculates & returns value of given acquisition parameter corresponding to

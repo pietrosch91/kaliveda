@@ -17,6 +17,7 @@
 #include "CsICalib.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
+#include "KVTarget.h"
 #include "KVNucleus.h"
 #include "KV2Body.h"
 #include "TString.h"

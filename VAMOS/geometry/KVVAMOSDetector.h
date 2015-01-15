@@ -15,6 +15,7 @@ class KVVAMOSDetector : public KVSpectroDetector
 
 		static KVString fACQParamTypes; //!types of available Acquision parameters
 		static KVString fPositionTypes; //!types of available positions
+                static TString fKVVAMOSDetectorFiredACQParameterListFormatString;
 
 
 	protected:
@@ -51,8 +52,9 @@ class KVVAMOSDetector : public KVSpectroDetector
    		Bool_t   IsTCalibrated(const Char_t *type) const;
    		Bool_t   IsStartForT(const Char_t *type) const;
    		Bool_t   IsStopForT(const Char_t *type) const;
-   		void     SetFiredBitmask();
-   		void     SetT0(const Char_t *type, Double_t t0 = 0.);
+                void     SetFiredBitmask(KVString&);
+                const Char_t* GetFiredACQParameterListFormatString() const { return fKVVAMOSDetectorFiredACQParameterListFormatString.Data(); }
+                void     SetT0(const Char_t *type, Double_t t0 = 0.);
 
    		virtual const Char_t *GetEBaseName() const;
    		virtual const Char_t *GetTBaseName() const;
