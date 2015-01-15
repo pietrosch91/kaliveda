@@ -5,6 +5,7 @@
 #include "KVIDQALine.h"
 #include "TROOT.h"
 #include "TClass.h"
+#include "TCanvas.h"
 
 #ifndef ROOT_Buttons
 #include "Buttons.h"
@@ -141,6 +142,12 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 	static Double_t x_prev;
 	static Bool_t motion = kFALSE;
 
+	// keep memory of the current opaque moving and reset it
+	// because if gPad->OpaqueMoving() is true then it is impossible
+	// to move this marker everywhere you want
+   Bool_t opaque  = gPad->OpaqueMoving();
+   gPad->GetCanvas()->MoveOpaque(0);
+
 	TMarker::ExecuteEvent( event, px, py );
 
 	switch (event)
@@ -157,7 +164,7 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 				motion = kFALSE;
 				if((fIdx>-1)){
 					if( fDelta ){// marker is between low and up points
-							fIdx = fParent->InsertPoint( fIdx, GetX(), GetY(), x_prev );
+						fIdx = fParent->InsertPoint( fIdx+1, GetX(), GetY(), x_prev );
 						fDelta   = 0;
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
@@ -165,10 +172,15 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 						fParent->SetPoint( fIdx, GetX(), GetY() );
 						fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 					}
+					gPad->Modified(kTRUE);
+					gPad->Update();
 				}
 			}
 			break;
 	}
+
+	// set the initial opaque moving status
+   gPad->GetCanvas()->MoveOpaque(opaque);
 }
 //________________________________________________________________
 
@@ -178,7 +190,7 @@ void KVIDQAMarker::SetPointIndexAndX( Int_t idx, Double_t x ){
 	// this marker.
 
 	if( !fParent ) return;
-	if( fParent->GetN()-2 <= idx ) return;
+	if( fParent->GetN()-2 < idx ) return;
 
 	fIdx = idx;
 

@@ -50,13 +50,13 @@ class KVIDQALine : public KVIDZALine
 		void  SetNextA(Int_t A) { fNextA = A; }
 
 		//---------- inline methods ---------------------//
-
+		
+		virtual Int_t	GetA() const;
 		virtual Int_t GetQ() const;
+		virtual Int_t	GetNumberOfMasses() const;
    		virtual void SetQ(Int_t qtnum){ SetZ( qtnum ); }; // *MENU={Hierarchy="SetNucleus.../Q"}*
 		virtual void AddMarker( KVIDQAMarker *marker );
 		KVList *GetMarkers() const;
-		//virtual Int_t RemoveMarker(); // *MENU={Hierarchy="Modify Line.../RemoveMarker"}*
-		//virtual Int_t RemoveMarker(Int_t a);
 
    		ClassDef(KVIDQALine,1)//Base class for identification ridge lines and spots corresponding to different charge states and masses respectively
 };
@@ -89,21 +89,22 @@ inline void KVIDQALine::AddMarker( KVIDQAMarker *marker ){
 inline KVList *KVIDQALine::GetMarkers() const{ return fMarkers; }
 //_______________________________________________________________//
 
+inline Int_t KVIDQALine::GetA() const{
+	// returns number of A markers
+ 	return fMarkers->GetEntries();
+};
+//_______________________________________________________________//
+
 inline Int_t KVIDQALine::GetQ() const{
 	// returns charge states
  	return GetZ();
 };
 //_______________________________________________________________//
-/*
-inline Int_t RemoveMarker(){
-	Int_t idx = RemovePoint();
-   	if( idx>=0 ){ return TCutG::RemovePoint(); } else {return -1;} 
-};
-//_______________________________________________________________//
 
-inline Int_t RemovePoint(Int_t i){
-   	return TCutG::RemovePoint(i);
+inline Int_t KVIDQALine::GetNumberOfMasses() const{
+	// returns number of masses identifiable by this line
+	// i.e. number of A markers
+ 	return fMarkers->GetEntries();
 };
-*/
 
 #endif

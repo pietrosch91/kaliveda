@@ -294,8 +294,8 @@ void KVIDQALine::FindAMarkers(TH1 *h){
    //Use TSpectrum to find the peak candidates.
    //Build KVIDQAMarker for each peak found.
    
-   TSpectrum *s = new TSpectrum(60);
-   Int_t nfound = s->Search(h,2,"goff");
+   TSpectrum s(60);
+   Int_t nfound = s.Search(h,2,"goff");
 
    Info("FindAMarkers","%d masses found in histogram %s for %s line",nfound,h->GetName(),GetName());
 
@@ -303,7 +303,7 @@ void KVIDQALine::FindAMarkers(TH1 *h){
    fMarkers->Clear();
 
    // Build new IDQAMarkers
-   Float_t *xpeaks = s->GetPositionX();
+   Float_t *xpeaks = s.GetPositionX();
    for (int p=0;p<nfound;p++){
       Double_t x = xpeaks[p];
  	  KVIDQAMarker *m = new KVIDQAMarker;
@@ -376,14 +376,12 @@ void KVIDQALine::WriteAsciiFile_extras(ofstream & file,
 {
     // Write each KVIDQAMarker listed in fMarkers
 
-    KVIDZALine::WriteAsciiFile_extras(file,name_prefix);
-
-	file<<"Markers:\t";
+    KVIDLine::WriteAsciiFile_extras(file,name_prefix);
+	file<<GetQ()<<"\t"<<fMarkers->GetEntries()<<endl;
 	if( fMarkers->First() ){
-		file<<fMarkers->GetEntries()<<"\t"<<fMarkers->First()->ClassName()<<endl;
+		file<<fMarkers->First()->ClassName()<<endl;
  		fMarkers->R__FOR_EACH(KVIDQAMarker, WriteAsciiFile) ( file );
 	}
-	else file<<0<<endl;
 }
 //________________________________________________________________
 
@@ -391,24 +389,20 @@ void KVIDQALine::ReadAsciiFile_extras(ifstream & file)
 {
     // Read all KVQAMarker's and set them in the list fMarkers
 
-    KVIDZALine::ReadAsciiFile_extras(file);
+    KVIDLine::ReadAsciiFile_extras(file);
 
-	KVString s;
-	s.ReadLine(file);
-	TObjArray *toks = s.Tokenize("\t");
-
-	if( toks->GetEntries()>2 ){
-		Int_t Nmarkers = ((TObjString *) toks->At(1))->GetString().Atoi();
-		KVString cl = ((TObjString *) toks->At(2))->GetString();
-		if( Nmarkers>0){
-			for( Int_t i=0; i<Nmarkers; i++ ){
-				KVIDQAMarker *m = New( cl.Data() );
-				AddMarker( m );
-				m->ReadAsciiFile( file );
-			}
+	Int_t q, a;
+	file>>q>>a;
+	SetQ(q);
+	if( a>0 ){
+		KVString cl;
+		cl.ReadLine(file);
+		for( Int_t i=0; i<a; i++ ){
+			KVIDQAMarker *m = New( cl.Data() );
+			AddMarker( m );
+			m->ReadAsciiFile( file );
 		}
 	}
-	delete toks;
 }
 //________________________________________________________________
 

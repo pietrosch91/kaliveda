@@ -32,9 +32,6 @@ class KVIDQAGrid : public KVIDGrid
  	Int_t fICode;   //! identification code
 	Int_t fOnlyQId; //! dummy variable used by context menu dialog boxes
 
-   
-   	protected:
-
  	void init();
     Bool_t AcceptIDForTest()
     {
@@ -54,6 +51,8 @@ class KVIDQAGrid : public KVIDGrid
    	virtual ~KVIDQAGrid();
    	void Copy(TObject& obj) const;
   
+	virtual Int_t	GetNumberOfMasses() const;
+
 	// Returns kTRUE if the graph is only to be used for Q identification
    // (no mass information). Default is to identify both Q & A.
    Bool_t OnlyQId() const { return fOnlyZId; };

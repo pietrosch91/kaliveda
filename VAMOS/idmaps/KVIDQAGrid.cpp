@@ -681,3 +681,17 @@ void KVIDQAGrid::UnDraw(){
 	if(fPad) fIdentifiers->R__FOR_EACH(KVIDQALine, UnDraw) ();
 	KVIDGrid::UnDraw();
 }
+//________________________________________________________________
+
+Int_t KVIDQAGrid::GetNumberOfMasses() const{
+	// returns number of masses identifiable by this grid
+	// i.e. sum over Q-lines of the number of A markers
+	
+	TIter next(fIdentifiers);
+	KVIDQALine *ql = NULL;
+	Int_t N=0;
+	while( (ql=(KVIDQALine *)next()) ){
+		N += ql->GetNumberOfMasses();
+	}
+	return N;
+}
