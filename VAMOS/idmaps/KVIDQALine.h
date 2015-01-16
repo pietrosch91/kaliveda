@@ -34,7 +34,7 @@ class KVIDQALine : public KVIDZALine
 		virtual void Draw(Option_t* chopt = "");
 		virtual void UnDraw();
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
-		void IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA );
+		void IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &code ) const;
 		
 		virtual Int_t InsertMarker(Int_t A=0); // *MENU* *ARGS={A=>fNextA}
 		virtual Int_t RemoveMarker(Int_t a=0); //*MENU*
@@ -49,6 +49,8 @@ class KVIDQALine : public KVIDZALine
 		Int_t GetNextA() const { return fNextA; }
 		void  SetNextA(Int_t A) { fNextA = A; }
 
+		KVIDQAMarker *FindNearestIDMarker( Double_t x, Double_t y, Double_t &dist) const;
+
 		//---------- inline methods ---------------------//
 		
 		virtual Int_t	GetA() const;
@@ -57,6 +59,7 @@ class KVIDQALine : public KVIDZALine
    		virtual void SetQ(Int_t qtnum){ SetZ( qtnum ); }; // *MENU={Hierarchy="SetNucleus.../Q"}*
 		virtual void AddMarker( KVIDQAMarker *marker );
 		KVList *GetMarkers() const;
+		KVIDQAMarker *GetMarkerAt(Int_t index) const;
 
    		ClassDef(KVIDQALine,1)//Base class for identification ridge lines and spots corresponding to different charge states and masses respectively
 };
@@ -106,5 +109,9 @@ inline Int_t KVIDQALine::GetNumberOfMasses() const{
 	// i.e. number of A markers
  	return fMarkers->GetEntries();
 };
-
+//_______________________________________________________________//
+inline KVIDQAMarker *KVIDQALine::GetMarkerAt(Int_t index) const{
+	// Return marker at position 'index' (=0,1,...) in list of A-makers (fMarkers)
+	return (KVIDQAMarker*)fMarkers->At(index);
+};
 #endif

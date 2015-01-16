@@ -5,6 +5,7 @@
 #define __KVIDQAMARKER_H
 
 #include "TMarker.h"
+#include "TMath.h"
 
 class KVIDQALine;
 class KVIDQAMarker : public TMarker
@@ -49,6 +50,7 @@ class KVIDQAMarker : public TMarker
    		Int_t GetPointIndex() const;
    		void GetPointIndexAndDelta( Int_t &idx, Double_t &delta ) const;
 		Bool_t IsSortable() const;
+		Double_t DistanceToMarker( Double_t px, Double_t py ) const;
 
    		ClassDef(KVIDQAMarker,1)//Base class for identification markers corresponding to differents couples of mass and charge state
 };
@@ -95,5 +97,13 @@ inline void KVIDQAMarker::GetPointIndexAndDelta( Int_t &idx, Double_t &delta ) c
 
 inline Bool_t KVIDQAMarker::IsSortable() const{
 	return kTRUE;
+}
+//_____________________________________________________//
+
+inline Double_t KVIDQAMarker::DistanceToMarker( Double_t px, Double_t py ) const{
+	// Compute the closest distance of approach from point (px,py) to this marker
+	Double_t X = px-fX;
+	Double_t Y = py-fY;
+	return TMath::Sqrt( X*X + Y*Y );
 }
 #endif

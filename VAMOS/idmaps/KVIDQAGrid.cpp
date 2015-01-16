@@ -425,7 +425,8 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 		if( !OnlyQId() ){
 			Int_t Ai;
 			Int_t Ar;
- 		   	closest_line->IdentA( x, y, Ai, Ar);
+			Int_t code;
+ 		   	closest_line->IdentA( x, y, Ai, Ar, code);
 		}
     }
 }
@@ -584,6 +585,7 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t *
 
 	// store current status IsOnlyQId
 	Bool_t q_id = IsOnlyQId();
+   	SetOnlyQId( kTRUE );
 
 	// create temporary file for tree
 	TString fn("IDQAGrid_FindAMarkers.root");

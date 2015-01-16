@@ -119,9 +119,86 @@ void KVIDQALine::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 }
 //________________________________________________________________
 
-void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA ){
+void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &code ) const{
 
 	// TO BE IMPLEMENTED
+	
+	// Default values
+	A     = -1;
+	realA = -1.;
+
+	Double_t dist;
+	KVIDQAMarker *mk = const_cast<KVIDQALine*>(this)->FindNearestIDMarker(x,y, dist);
+
+	if ( !mk ){
+        //no line corresponding to point was found
+        //const_cast < KVIDQAGrid * >(this)->fICode = kICODE8;        // A indetermine ou (x,y) hors limites
+        Info("IdentA","ID marker not found");
+    }
+	else{
+    	//the closest marker is found
+		/*	
+		if( dist > mk->GetWidth()/2.){
+		//the distance form the closest marker is to high
+		}	
+		else{
+		Double_t deltaA = dist/mk->GetWidth();
+		realA  = mk->GetA()+deltaA();
+		}
+		*/
+
+        Info("IdentA","ID marker found: %s",mk->GetName());
+	}
+}
+//________________________________________________________________
+
+KVIDQAMarker *KVIDQALine::FindNearestIDMarker( Double_t x, Double_t y, Double_t &dist) const{
+	// the list of Markers has to be sorted before to use this method
+
+
+ 	Int_t n_mk = GetNumberOfMasses();
+	if( n_mk == 0 ) return NULL;
+    
+	Int_t idx_low = 0;       // minimum index
+    Int_t idx_up = n_mk - 1; // maximum index
+	Double_t dist_low, dist_up;
+
+    while (idx_up > idx_low + 1)
+    {
+    	dist_low = GetMarkerAt(idx_low)->DistanceToMarker( x, y );
+    	dist_up  = GetMarkerAt(idx_up )->DistanceToMarker( x, y );
+
+        if (dist_low < dist_up)
+        {
+            //deacrease index of idx_max
+            idx_up -= (Int_t) ((idx_up - idx_low) / 2 + 0.5);
+        }
+        else
+        {
+            //increase index
+            idx_low += (Int_t) ((idx_up - idx_low) / 2 + 0.5);
+        }
+    }
+    KVIDQAMarker *mk_low = GetMarkerAt(idx_low);
+    KVIDQAMarker *mk_up  = GetMarkerAt(idx_up );
+
+	// calculate distance of point (x,y) to the two closest markers
+    dist_low = mk_low->DistanceToMarker( x, y );
+    dist_up  = mk_up->DistanceToMarker( x, y );
+
+	KVIDQAMarker *nearest = NULL;
+	if( dist_low < dist_up ){
+		dist = dist_low;
+		nearest = mk_low;
+	}
+	else{
+		dist = dist_up;
+		nearest = mk_up;
+	}
+
+	Info("FindNearestIDMarker","X %f, Y %f: low %s, dist_low %f, up %s, dist_up %f: nearest %s",x,y,mk_low->GetName(),dist_low,mk_up->GetName(),dist_up,nearest->GetName());
+
+	return nearest;
 }
 //________________________________________________________________
 
