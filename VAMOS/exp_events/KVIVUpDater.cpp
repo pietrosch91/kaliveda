@@ -13,6 +13,8 @@
 #include "KVFunctionCal.h"
 #include "KVVAMOS.h"
 
+#include <KVIDTelescope.h>
+
 using namespace std;
 
 ClassImp(KVIVUpDater)
@@ -61,7 +63,7 @@ void KVIVUpDater::SetIDGrids(UInt_t run){
 		}
 
     }
-    gIDGridManager->SetGridsInTelescopes(run);
+    gMultiDetArray->SetGridsInTelescopes(run);
 	KVRTGIDManager::SetIDFuncInTelescopes(run);
 }
 //________________________________________________________________

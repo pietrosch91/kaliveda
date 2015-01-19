@@ -7,6 +7,8 @@
 #include "KVDataSet.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
+#include "KVINDRADB.h"
+
 using namespace std;
 
 ClassImp(KVIVReconIdent)

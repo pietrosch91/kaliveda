@@ -144,7 +144,7 @@ BZR_LAST_REVISION =
 endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -209,10 +209,10 @@ Indra : .init
 	cd KVIndra && $(MAKE) --no-print-directory
 
 analysis : .init
-	cd analysis && $(MAKE)
+	cd analysis && $(MAKE) --no-print-directory
 	
 VAMOS : .init
-	cd VAMOS && $(MAKE)
+	cd VAMOS && $(MAKE) --no-print-directory
 
 FAZIA : .init
 	cd FAZIA && $(MAKE)
@@ -226,13 +226,13 @@ clean :
 	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
 	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
 	-rm -f .init
-	cd KVMultiDet && $(MAKE) --no-print-directory clean
 	cd fitltg-0.1 && make clean --no-print-directory
-	cd KVIndra && $(MAKE) clean --no-print-directory
 ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
-#	cd VAMOS && $(MAKE) clean
+	cd KVMultiDet && $(MAKE) --no-print-directory clean
+	cd KVIndra && $(MAKE) clean --no-print-directory
+	cd VAMOS && $(MAKE) clean --no-print-directory
 #	cd FAZIA && $(MAKE) clean
 #	cd analysis && $(MAKE) clean
 
@@ -250,7 +250,7 @@ install :
 	-cp $(KV_CONFIG__H) $(KVINSTALLDIR)/include/
 	cd KVMultiDet && $(MAKE) --no-print-directory install
 	cd KVIndra && $(MAKE) --no-print-directory install
-#	cd VAMOS && $(MAKE) install
+	cd VAMOS && $(MAKE) --no-print-directory install
 #	cd FAZIA && $(MAKE) install
 	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/

@@ -42,7 +42,7 @@ class KVVAMOSReconEvent : public KVReconstructedEvent
 		virtual void     IdentifyEvent_Z();
 		virtual Bool_t   IsOK();
 		virtual void     Print(Option_t * option = "") const;
-		virtual void     ReconstructEvent(KVDetectorEvent * kvde);
+                virtual void     ReconstructEvent(KVMultiDetArray*, KVDetectorEvent * kvde);
 
 
 		inline Bool_t CheckCodes(KVVAMOSCodes & code){

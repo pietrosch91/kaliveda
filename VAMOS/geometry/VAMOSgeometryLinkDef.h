@@ -8,8 +8,17 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ global gVamos;
-#pragma link C++ class KVVAMOS+;
-#pragma link C++ class KVINDRA_VAMOS+;
-#pragma link C++ class KVVAMOSReconGeoNavigator+;
 //#pragma link C++ class KVFocalPlanVamos+;
+#pragma link C++ class DriftChamberv+;
+#pragma link C++ class IonisationChamberv+;
+#pragma link C++ class DriftChamber+;
+#pragma link C++ class IonisationChamber+;
+#pragma link C++ class SeDv+;
+#pragma link C++ class SeD12v+;
+#pragma link C++ class Siv+;
+#pragma link C++ class Sive503+;
+#pragma link C++ class CsIv+;
+#pragma link C++ class KVCsIVamos+;
+#pragma link C++ class KVSiliconVamos+;
+#pragma link C++ class KVSpectroDetector+;
 #endif

@@ -12,12 +12,15 @@
 #include "KVFunctionCal.h"
 #include "KVIDGridManager.h"
 #include "KVUnits.h"
+#include "KVIDTelescope.h"
 
 #include "TSystemDirectory.h"
 #include "TPluginManager.h"
 #include "TClass.h"
 
 #include "TGeoBBox.h"
+
+#include <KVReconstructedNucleus.h>
 
 using namespace std;
 
