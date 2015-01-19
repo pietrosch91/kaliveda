@@ -1,4 +1,4 @@
-# get all headers from KVMultiDet library
+# get all headers & libraries from KVMultiDet library
 KVMULTIDET_MODULES = analysis calibration data_management events geometry identification particles \
 	base daq_cec db exp_events globvars stopping gui trieur
 KVMULTIDET_INCLUDES=$(patsubst %,-I../KVMultiDet/%,$(KVMULTIDET_MODULES))

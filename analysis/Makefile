@@ -41,24 +41,22 @@ ifeq ($(PLATFORM),linux)
 CPYOPT = "--update"
 endif
 
-KV_INC = 
+# get all headers & libraries from KVMultiDet library
+KVMULTIDET_MODULES = analysis calibration data_management events geometry identification particles \
+	base daq_cec db exp_events globvars stopping gui trieur
+KVMULTIDET_INCLUDES=$(patsubst %,-I../KVMultiDet/%,$(KVMULTIDET_MODULES))
+LIBKVMULTIDET=$(patsubst %,-L../KVMultiDet -lKVMultiDet%,$(KVMULTIDET_MODULES))
+# get all headers & libraries from KVIndra library
+KVINDRA_MODULES = analysis calibration daq_cec db exp_events geometry gui identification
+KVINDRA_INCLUDES=$(patsubst %,-I../KVIndra/%,$(KVINDRA_MODULES))
+LIBKVINDRA=$(patsubst %,-L../KVIndra -lKVIndra%,$(KVINDRA_MODULES))
 
-CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC)
+CXXFLAGS += -I.. $(KVMULTIDET_INCLUDES) $(KVINDRA_INCLUDES)
 ifeq ($(WITH_GRU_LIB),yes)
 CXXFLAGS += -DNET_LIB
 endif
 
-MDETLIBS := $(wildcard $(KVROOT)/lib/libKVMultiDet*.so) 
-MDETLIBS := $(notdir $(MDETLIBS))
-MDETLIBS := $(patsubst lib%.so,-l%,$(MDETLIBS))
-LIBKVMULTIDET := -L$(KVROOT)/lib $(MDETLIBS)
-
-INDRALIBS := $(wildcard $(KVROOT)/lib/libKVIndra*.so) 
-INDRALIBS := $(notdir $(INDRALIBS))
-INDRALIBS := $(patsubst lib%.so,-l%,$(INDRALIBS))
-LIBKVINDRA := -L$(KVROOT)/lib $(INDRALIBS)
-
-LINK_LIBS := -L$(KVROOT)/lib $(INDRALIBS) $(MDETLIBS)
+LINK_LIBS := $(LIBKVINDRA) $(LIBKVMULTIDET)
 
 OPT = -O
 OPT2 = -O2 
@@ -226,8 +224,9 @@ $(KVGUI): $(KVGUIO)
 #	$(CXX) $(CXXFLAGS) -c $<
 	
 install:
-	-chmod +x $(SCRIPTS)
-	-cp $(CPYOPT) $(SCRIPTS) $(KVINSTALLDIR)/bin/
+	@echo `tput setaf 1`"Installing executables"`tput sgr0`
+	@-chmod +x $(SCRIPTS)
+	@-cp $(CPYOPT) $(SCRIPTS) $(KVINSTALLDIR)/bin/
 
 clean:
 	-rm -f *.$(ObjSuf)

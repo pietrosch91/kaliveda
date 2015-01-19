@@ -1,11 +1,11 @@
-# get all headers from KVMultiDet library
+# get all headers & libraries from KVMultiDet library
 KVMULTIDET_MODULES = analysis calibration data_management events geometry identification particles \
 	base daq_cec db exp_events globvars stopping gui trieur
 KVMULTIDET_INCLUDES=$(patsubst %,-I../KVMultiDet/%,$(KVMULTIDET_MODULES))
 KVMULTIDET_LIBS=$(patsubst %,-L../KVMultiDet -lKVMultiDet%,$(KVMULTIDET_MODULES))
 KVMULTIDET_RMAPLIBS=$(patsubst %,libKVMultiDet%.so,$(KVMULTIDET_MODULES))
 	
-# get all headers from KVIndra library
+# get all headers & libraries from KVIndra library
 KVINDRA_MODULES = analysis calibration daq_cec db exp_events geometry gui identification
 KVINDRA_INCLUDES=$(patsubst %,-I../KVIndra/%,$(KVINDRA_MODULES))
 KVINDRA_LIBS=$(patsubst %,-L../KVIndra -lKVIndra%,$(KVINDRA_MODULES))

@@ -161,7 +161,7 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 	@-mkdir -p $(KVINSTALLDIR)/lib
 	@-mkdir -p $(KVINSTALLDIR)/bin
 	@-mkdir -p $(KVINSTALLDIR)/include
-	@cd fitltg-0.1 && ./configure --prefix=$(KVINSTALLDIR)
+	@cd fitltg-0.1 && ./configure --prefix=$(KVINSTALLDIR) --enable-silent-rules
 	@touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
@@ -200,7 +200,7 @@ gan_tape : .init
 	@cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
-	@cd fitltg-0.1 && make FFLAGS=-w && make install --no-print-directory
+	@cd fitltg-0.1 && make V=0 FFLAGS=-w && make V=0 install --no-print-directory
 		
 MultiDet : .init
 	@cd KVMultiDet && $(MAKE) --no-print-directory
