@@ -7,7 +7,7 @@
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TSpectrum.h"
-#include "KVIDGraph.h"
+#include "KVIDQAGrid.h"
 
 using namespace std;
 
@@ -38,6 +38,7 @@ KVIDQALine::~KVIDQALine(){
 
 void KVIDQALine::init(){
 	// Initialization, used by constructors.
+	// Marker width is set to zero.
 
 	fMarkers = new KVList;
 	
@@ -52,6 +53,7 @@ void KVIDQALine::init(){
 
 	//no draw points of this line, just draw its KVIDQAMarkers
 	SetMarkerStyle(1);
+	SetWidth( 0. );
 }
 //________________________________________________________________
 
@@ -67,6 +69,7 @@ void KVIDQALine::Copy(TObject& obj) const{
    KVIDQALine& CastedObj = (KVIDQALine&)obj;
    CastedObj.fNextA = fNextA;
    CastedObj.fNextAinc = fNextAinc;
+   CastedObj.fWidth = fWidth;
    fMarkers->Copy((TObject &) (*CastedObj.GetMarkers()));
    CastedObj.GetMarkers()->R__FOR_EACH(KVIDQAMarker,SetParent)((&CastedObj));
 
@@ -127,41 +130,89 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &
 	A     = -1;
 	realA = -1.;
 
-	Double_t dist;
-	KVIDQAMarker *mk = const_cast<KVIDQALine*>(this)->FindNearestIDMarker(x,y, dist);
+	Double_t dist, dist_r, dist_l;
+	Int_t     idx,  idx_r,  idx_l;
+	KVIDQAMarker *closest_mk = const_cast<KVIDQALine*>(this)->FindNearestIDMarker(x,y, idx, idx_l, idx_r, dist, dist_l, dist_r);
 
-	if ( !mk ){
-        //no line corresponding to point was found
-        //const_cast < KVIDQAGrid * >(this)->fICode = kICODE8;        // A indetermine ou (x,y) hors limites
+	if ( !closest_mk ){
+        //no marker corresponding to point was found
         Info("IdentA","ID marker not found");
     }
 	else{
     	//the closest marker is found
-		/*	
-		if( dist > mk->GetWidth()/2.){
-		//the distance form the closest marker is to high
-		}	
-		else{
-		Double_t deltaA = dist/mk->GetWidth();
-		realA  = mk->GetA()+deltaA();
-		}
-		*/
+        Info("IdentA","ID marker found: %s",closest_mk->GetName());
 
-        Info("IdentA","ID marker found: %s",mk->GetName());
+		//marker at the left of the point
+		KVIDQAMarker *l_mk = GetMarkerAt( idx_l );
+
+		//marker at the right of the point
+		KVIDQAMarker *r_mk = GetMarkerAt( idx_r );
+
+		// WARNING: the method KVIDQALine::FindNearestIDMarker always find
+		// 2 nearest markers even for point left (right) the first (last) marker. 
+		// we have to remove the second found marker for these points
+
+		if( (closest_mk == GetMarkers()->First()) && !ProjIsBetween(x,y,l_mk,r_mk) )
+			r_mk = NULL;
+		else if( closest_mk == GetMarkers()->Last() && !ProjIsBetween(x,y,l_mk,r_mk) )
+			l_mk = NULL;
+
+
+		Double_t deltaA = 0.;
+
+		// case where 2 embracing markers are found
+		if( l_mk && r_mk && (l_mk!=r_mk) ){
+    		Int_t dA = r_mk->GetQ() - l_mk->GetQ();
+    		Double_t tot_dist = ( dist_l+dist_r) / (1.0*dA);
+			deltaA = dist/tot_dist;
+
+			// if the point is on the left of the closest_mk (i.e. the
+			// closest_mk is the l_mk) we must add deltaA
+			// to A, otherwise, we must take deltaA away from A 
+			// (i.e. closest_mk is the r_mk)
+			if( closest_mk == r_mk ) deltaA *= -1.;
+
+			if( dist > closest_mk->GetWidth()/2. ){
+				if( deltaA>0) code = KVIDQAGrid::kICODE1; // "slight ambiguity of A, which could be larger"
+				else code = KVIDQAGrid::kICODE2; // "slight ambiguity of A, which could be smaller"
+			}
+			// else keep the current code obtained at Q-identification
+
+			if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
+		}
+		// case where only 1 embracing marker is found. 
+		// in this case, the distance between the point and the marker
+		// has to be lower than the marker width
+		else{
+			if( dist > closest_mk->GetWidth()/2. ){
+				// the distance from the closest marker is to high
+
+				if( closest_mk == l_mk ) code = KVIDQAGrid::kICODE6; // "(x,y) is below first marker in line"
+				else code = KVIDQAGrid::kICODE7; // "(x,y) is above last marker in line"
+			}
+			else{
+				deltaA = dist/closest_mk->GetWidth();
+				if( closest_mk == l_mk ) deltaA *= -1.;
+        		code = KVIDQAGrid::kICODE3; // "slight ambiguity of A, which could be larger or smaller"
+			}
+			if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
+		}
+
+		realA = closest_mk->GetA() + deltaA;
+    	A     = closest_mk->GetA();
 	}
 }
 //________________________________________________________________
 
-KVIDQAMarker *KVIDQALine::FindNearestIDMarker( Double_t x, Double_t y, Double_t &dist) const{
+KVIDQAMarker *KVIDQALine::FindNearestIDMarker(Double_t x, Double_t y, Int_t& idx, Int_t& idx_low, Int_t& idx_up, Double_t& dist, Double_t& dist_low, Double_t& dist_up) const{
 	// the list of Markers has to be sorted before to use this method
 
 
  	Int_t n_mk = GetNumberOfMasses();
 	if( n_mk == 0 ) return NULL;
     
-	Int_t idx_low = 0;       // minimum index
-    Int_t idx_up = n_mk - 1; // maximum index
-	Double_t dist_low, dist_up;
+	idx_low = 0;       // minimum index
+    idx_up = n_mk - 1; // maximum index
 
     while (idx_up > idx_low + 1)
     {
@@ -197,6 +248,7 @@ KVIDQAMarker *KVIDQALine::FindNearestIDMarker( Double_t x, Double_t y, Double_t 
 	}
 
 	Info("FindNearestIDMarker","X %f, Y %f: low %s, dist_low %f, up %s, dist_up %f: nearest %s",x,y,mk_low->GetName(),dist_low,mk_up->GetName(),dist_up,nearest->GetName());
+
 
 	return nearest;
 }
@@ -390,7 +442,7 @@ void KVIDQALine::FindAMarkers(TH1 *h){
    }
 
    // sort fMarkers list from X coordinate
-   fMarkers->Sort();
+   SortMarkers();
 
    // find neighbours simply looping  all points
    // and find also the 2 adjacent points: (low2 < low < x < up < up2 )
@@ -501,4 +553,85 @@ KVIDQAMarker* KVIDQALine::New(const Char_t* m_class){
       }
    }
    return m;
+}
+//________________________________________________________________
+
+void KVIDQALine::Initialize(){
+    // General initialisation method for Q-A identification line.
+    // This method MUST be called once before using the line for identifications.
+    // The ID markers are sorted.
+    // The natural marker widths of all ID markers are calculated.
+    SortMarkers();
+	CalculateMarkerWidths();
+}
+//________________________________________________________________
+
+void KVIDQALine::CalculateMarkerWidths(){
+ //Calculate natural "width" of each ID markers in the line.
+    //The markers in the line have first to sorted so that they are in order of ascending 'X'
+    //i.e. first markers has lower A, last line is the heaviest mass .
+    //
+    // The width is supposed to be the distance between the first and the
+    // last marker divided by the difference of A of both markers.
+
+	KVIDQAMarker *first = (KVIDQAMarker *)fMarkers->First();
+	KVIDQAMarker *last  = (KVIDQAMarker *)fMarkers->Last();
+	if( (!last) || (!first) ) return;
+	Double_t width = first->DistanceToMarker( last->GetX(), last->GetY() );
+	Double_t dA   = last->GetA()-first->GetA();
+	width = TMath::Abs( width/dA );
+ 	fMarkers->R__FOR_EACH(KVIDQAMarker, SetWidth) (width);
+}
+//________________________________________________________________
+
+Bool_t KVIDQALine::ProjIsBetween( Double_t x, Double_t y, KVIDQAMarker *m1, KVIDQAMarker *m2 ) const{
+	//Given a line segment defined by 2 markers m1 and m2 test if the
+   //  projection of the point P(x,y) is between both markers.
+   //                                                       
+   //      m1 x---------------------------------------x m2 
+   //                                          |
+   //                                          |
+   //                                          |
+   //                                          x
+   //                                          P (x,y)
+   //
+   // returns kFALSE if the projection is outside the segment given
+   // by both markers.
+
+	if( !m1 || !m2 ) return kFALSE;
+
+	Double_t x1 = m1->GetX();
+	Double_t x2 = m2->GetX();
+	Double_t y1 = m1->GetY();
+	Double_t y2 = m2->GetY();
+	// scale Y coordinate to A/Q
+	
+	if( IsAvsAoQ() ){
+		if( GetQ() ){
+ 		   	y  /= GetQ();
+			y1 /= GetQ();
+			y2 /= GetQ();
+		}
+		else return kFALSE;
+	}
+	else{
+		if( y>0 && y1>0 && y2>0 ){
+	   		y  = GetA()/y;
+			y1 = GetA()/y1;
+			y2 = GetA()/y2;
+		}
+		else return kFALSE;
+	}
+	TVector2 P1P2(x2-x1,y2-y1);
+	if( P1P2.Mod2() == 0 ) return kFALSE;
+	TVector2 P1M (x -x1,y -y1);
+
+	Double_t proj = (P1M*P1P2)/P1P2.Mod();
+	Info("ProjIsBetween","P1M %f, P1P2 %f, proj %f",P1M.Mod(), P1P2.Mod(), proj);
+	cout<<"P1P2"<<endl;
+	P1P2.Print();
+	cout<<"P1M"<<endl;
+	P1M.Print();
+	if( (0<=proj) && (proj<=P1P2.Mod()) ) return kTRUE;
+	return kFALSE;
 }

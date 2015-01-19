@@ -423,10 +423,32 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 
 		// if the grid is also used for A identification then start it
 		if( !OnlyQId() ){
+        	//idr->IDOK   = kFALSE;
 			Int_t Ai;
 			Int_t Ar;
 			Int_t code;
  		   	closest_line->IdentA( x, y, Ai, Ar, code);
+			idr->A   = Ai;
+   			idr->PID = Ar;
+
+			switch(code){
+     			case kICODE0:                   idr->SetComment("ok"); break;
+  				case kICODE1:                   idr->SetComment("slight ambiguity of Q or A, which could be larger"); break;
+  				case kICODE2:                   idr->SetComment("slight ambiguity of Q or A, which could be smaller"); break;
+    			case kICODE3:                  idr->SetComment("slight ambiguity of Q or A, which could be larger or smaller"); break;
+   				case kICODE4:                   idr->SetComment("point is in between two lines (markers) of different Q (A), too far from either to be considered well-identified"); break;
+  				case kICODE5:                   idr->SetComment("point is in between two lines (markers) of different Q (A), too far from either to be considered well-identified"); break;
+   				case kICODE6:                   idr->SetComment("(x,y) is below (on the left of) first line (marker) in grid (line)"); break;
+   				case kICODE7:                   idr->SetComment("(x,y) is above (on the right of) last line (marker) in grid (line)"); break;
+  				default:
+                      							idr->SetComment("no identification: (x,y) out of range covered by grid (line)");
+			}
+
+			idr->IDquality = fICode;
+    		if (fICode<kICODE4){
+        		idr->Aident = kTRUE;
+        		idr->IDOK   = kTRUE;
+			}
 		}
     }
 }
@@ -437,8 +459,23 @@ void KVIDQAGrid::Initialize(){
     // This method MUST be called once before using the grid for identifications.
     // The ID lines are sorted.
     // The natural line widths of all ID lines are calculated.
+    // Each line are initialized (see KVIDQALine::Initialize method).
+    // It determines if this grid represents A vs A/Q or Q vs A/Q map
+    // from the name of the Y variable.
 
     KVIDGrid::Initialize();
+
+	TString yvar = GetVarY();
+	yvar.ToUpper();
+	if( yvar.Contains("Q") ) yvar = "Q";
+	else yvar = "A";
+
+	KVIDQALine *line = NULL;
+	TIter next( fIdentifiers );
+	while( (line = (KVIDQALine *)next()) ){
+		line->Initialize();
+		line->SetVarY( yvar.Data() );
+	}
 }
 //________________________________________________________________
 

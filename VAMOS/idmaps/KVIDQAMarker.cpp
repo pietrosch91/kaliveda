@@ -230,3 +230,24 @@ void KVIDQAMarker::ReadAsciiFile(ifstream & file)
 }
 //________________________________________________________________
 
+Double_t KVIDQAMarker::DistanceToMarker( Double_t px, Double_t py ) const{
+	// Computes the closest distance of approach from point (px,py) to this marker.
+	// This distance is calculated on a A/Q scale i.e. if the Y coordinate is A
+	// then the Y coordinate will be divide by GetQ(). If the Y coordinate is
+	// Q then Y is change by GetA()/Y. Keep in mind that the X coordinate is supposed
+	// to give the ratio A/Q (mass number over the charge state).
+	
+	if( !fParent ) return -1.;
+
+	Double_t X = px-fX;
+	Double_t Y = 0.;
+	if( fParent->IsAvsAoQ() ){
+		if( GetQ() ) Y = (py-fY)/GetQ();
+		else return -1;
+	}
+	else{
+		if( py*fY ) Y = GetA()*(fY-py)/(fY*py);
+		else return -1.;
+	}
+	return TMath::Sqrt( X*X + Y*Y );
+}

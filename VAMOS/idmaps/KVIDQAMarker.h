@@ -19,6 +19,7 @@ class KVIDQAMarker : public TMarker
 		Double_t fDelta; // normalized position from low closest point and up closest point
 		KVIDQALine *fParent; //! parent identification line
 		TString fName;
+		Double_t fWidth; //the "width" of the marker
 
 		void init();
 		virtual void SetNameFromNucleus();
@@ -39,6 +40,7 @@ class KVIDQAMarker : public TMarker
 		virtual void ls(Option_t* option = "") const;
 		virtual void UpdateXandY();
    		void SetPointIndexAndX( Int_t idx, Double_t x );
+		Double_t DistanceToMarker( Double_t px, Double_t py ) const;
 
    		//-------------------- inline methods ------------------//
 
@@ -50,7 +52,9 @@ class KVIDQAMarker : public TMarker
    		Int_t GetPointIndex() const;
    		void GetPointIndexAndDelta( Int_t &idx, Double_t &delta ) const;
 		Bool_t IsSortable() const;
-		Double_t DistanceToMarker( Double_t px, Double_t py ) const;
+
+		Double_t GetWidth() const;
+		void     SetWidth( Double_t w );
 
    		ClassDef(KVIDQAMarker,1)//Base class for identification markers corresponding to differents couples of mass and charge state
 };
@@ -100,10 +104,8 @@ inline Bool_t KVIDQAMarker::IsSortable() const{
 }
 //_____________________________________________________//
 
-inline Double_t KVIDQAMarker::DistanceToMarker( Double_t px, Double_t py ) const{
-	// Compute the closest distance of approach from point (px,py) to this marker
-	Double_t X = px-fX;
-	Double_t Y = py-fY;
-	return TMath::Sqrt( X*X + Y*Y );
-}
+inline Double_t KVIDQAMarker::GetWidth() const{ return fWidth; }
+//_____________________________________________________//
+
+inline void KVIDQAMarker::SetWidth( Double_t w ){ fWidth = w; }
 #endif

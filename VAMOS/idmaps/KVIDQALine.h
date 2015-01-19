@@ -49,7 +49,11 @@ class KVIDQALine : public KVIDZALine
 		Int_t GetNextA() const { return fNextA; }
 		void  SetNextA(Int_t A) { fNextA = A; }
 
-		KVIDQAMarker *FindNearestIDMarker( Double_t x, Double_t y, Double_t &dist) const;
+		KVIDQAMarker * FindNearestIDMarker(Double_t x, Double_t y, Int_t& idx, Int_t& idx_low, Int_t& idx_up, Double_t& dist, Double_t& dist_low, Double_t& dist_up) const;
+
+    	virtual void Initialize();
+		virtual void CalculateMarkerWidths();
+		Bool_t ProjIsBetween( Double_t x, Double_t y, KVIDQAMarker *m1, KVIDQAMarker *m2 ) const;
 
 		//---------- inline methods ---------------------//
 		
@@ -60,7 +64,10 @@ class KVIDQALine : public KVIDZALine
 		virtual void AddMarker( KVIDQAMarker *marker );
 		KVList *GetMarkers() const;
 		KVIDQAMarker *GetMarkerAt(Int_t index) const;
-
+		void SortMarkers();
+		Bool_t IsAvsAoQ() const;
+		Bool_t IsQvsAoQ() const;
+		
    		ClassDef(KVIDQALine,1)//Base class for identification ridge lines and spots corresponding to different charge states and masses respectively
 };
 
@@ -110,8 +117,25 @@ inline Int_t KVIDQALine::GetNumberOfMasses() const{
  	return fMarkers->GetEntries();
 };
 //_______________________________________________________________//
+
 inline KVIDQAMarker *KVIDQALine::GetMarkerAt(Int_t index) const{
 	// Return marker at position 'index' (=0,1,...) in list of A-makers (fMarkers)
 	return (KVIDQAMarker*)fMarkers->At(index);
 };
+//_______________________________________________________________//
+
+inline void KVIDQALine::SortMarkers(){
+	if( !fMarkers->IsSorted() ) fMarkers->Sort();
+}
+//_______________________________________________________________//
+
+inline Bool_t KVIDQALine::IsAvsAoQ() const{
+	return (GetVarY()[0]=='A');
+}
+//_______________________________________________________________//
+
+inline Bool_t KVIDQALine::IsQvsAoQ() const{
+	return (GetVarY()[0]=='Q');
+}
+
 #endif
