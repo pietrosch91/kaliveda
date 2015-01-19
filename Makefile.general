@@ -182,10 +182,10 @@ ifeq ( $(KVINSTALLDIR),)
 	@echo "use 'make install' to perform the installation"
 else
 ifneq ($(ETC_DATA), )
-	@echo "--------------------------------------------------------------------------------"
-	@echo "ETC_DATA = |"$(ETC_DATA)"|"
-	@echo "--------------------------------------------------------------------------------"
-	-cp -r $(CPOPT) $(ETC_DATA) $(KVINSTALLDIR)/KVFiles/
+#	@echo "--------------------------------------------------------------------------------"
+#	@echo "ETC_DATA = |"$(ETC_DATA)"|"
+#	@echo "--------------------------------------------------------------------------------"
+	@-cp -r $(CPOPT) $(ETC_DATA) $(KVINSTALLDIR)/KVFiles/
 endif
 ifneq ($(PLATFORM),win32)
 	@-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/$(LIBVERSION)
@@ -197,7 +197,7 @@ ifeq ($(PLATFORM),macosx)
 	 -rm -f $(KVINSTALLDIR)/lib/$(LIB_DY)
 	 ln -s $(KVINSTALLDIR)/lib/$(LIBDYVERSION) $(KVINSTALLDIR)/lib/$(LIB_DY)
 endif
-  endif
+endif
 ifeq ($(SITE),CCIN2P3)
 ifeq ($(PROJ_NAME),KVIndra)
 	$(MAKE) indra2root

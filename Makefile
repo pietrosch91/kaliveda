@@ -155,14 +155,14 @@ changelog :
 	@bzr log --forward --short -v -n0 -r$(oldrev).. > changelog_$(VERSION_NUMBER).txt
 
 fitltg-0.1/configure: fitltg-0.1/configure.ac 
-	cd fitltg-0.1 && autoreconf -ivf
+	@cd fitltg-0.1 && autoreconf -ivf
 
 .init :
-	-mkdir -p $(KVINSTALLDIR)/lib
-	-mkdir -p $(KVINSTALLDIR)/bin
-	-mkdir -p $(KVINSTALLDIR)/include
-	cd fitltg-0.1 && ./configure --prefix=$(KVINSTALLDIR)
-	touch .init
+	@-mkdir -p $(KVINSTALLDIR)/lib
+	@-mkdir -p $(KVINSTALLDIR)/bin
+	@-mkdir -p $(KVINSTALLDIR)/include
+	@cd fitltg-0.1 && ./configure --prefix=$(KVINSTALLDIR)
+	@touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
 	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > $@;\
@@ -181,7 +181,7 @@ $(DATE_RECORD_FILE) :
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
 	@echo 'Updating KVConfig.h'
-	$(MAKE) -f Makefile.compat debug=$(debug)
+	@$(MAKE) -f Makefile.compat debug=$(debug)
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \
@@ -196,65 +196,65 @@ $(BZR_INFOS) : $(BZR_LAST_REVISION)
 	@echo '#define BZR_BRANCH_NICK "$(BZR_BRANCH_NICK)"' >> $@
 
 gan_tape : .init
-	cd GanTape && ./make_linux_i386
-	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
+	@cd GanTape && ./make_linux_i386
+	@cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
-	cd fitltg-0.1 && make FFLAGS=-w && make install --no-print-directory
+	@cd fitltg-0.1 && make FFLAGS=-w && make install --no-print-directory
 		
 MultiDet : .init
-	cd KVMultiDet && $(MAKE) --no-print-directory
+	@cd KVMultiDet && $(MAKE) --no-print-directory
 
 Indra : .init
-	cd KVIndra && $(MAKE) --no-print-directory
+	@cd KVIndra && $(MAKE) --no-print-directory
 
 analysis : .init
-	cd analysis && $(MAKE) --no-print-directory
+	@cd analysis && $(MAKE) --no-print-directory
 	
 VAMOS : .init
-	cd VAMOS && $(MAKE) --no-print-directory
+	@cd VAMOS && $(MAKE) --no-print-directory
 
 FAZIA : .init
-	cd FAZIA && $(MAKE)
+	@cd FAZIA && $(MAKE) --no-print-directory
 
 cleangantape :
-	cd GanTape && rm -rf i386-linux_*
+	@cd GanTape && rm -rf i386-linux_*
 	
 clean-indra :
-	cd KVIndra && $(MAKE) clean --no-print-directory
+	@cd KVIndra && $(MAKE) clean --no-print-directory
 clean :
-	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
-	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
-	-rm -f .init
-	cd fitltg-0.1 && make clean --no-print-directory
+	@-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
+	@-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
+	@-rm -f .init
+	@cd fitltg-0.1 && make clean --no-print-directory
 ifeq ($(ROOTGANILTAPE),yes)
-	cd GanTape && rm -rf i386-linux_*
+	@cd GanTape && rm -rf i386-linux_*
 endif
-	cd KVMultiDet && $(MAKE) --no-print-directory clean
-	cd KVIndra && $(MAKE) clean --no-print-directory
-	cd VAMOS && $(MAKE) clean --no-print-directory
-#	cd FAZIA && $(MAKE) clean
-	cd analysis && $(MAKE) clean --no-print-directory
+	@cd KVMultiDet && $(MAKE) --no-print-directory clean
+	@cd KVIndra && $(MAKE) clean --no-print-directory
+	@cd VAMOS && $(MAKE) clean --no-print-directory
+	@cd FAZIA && $(MAKE) clean --no-print-directory
+	@cd analysis && $(MAKE) clean --no-print-directory
 
 distclean : clean
 	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root
 	-rm -f $(HOME)/.KVDataAnalysisGUIrc*
 		
 install :
-	-chmod 0775 $(KVINSTALLDIR)
-	-mkdir -p $(KVINSTALLDIR)/src
-	-mkdir -p $(KVINSTALLDIR)/KVFiles
-	-mkdir -p $(KVINSTALLDIR)/db
-	-mkdir -p $(KVINSTALLDIR)/examples
-	-mkdir -p $(KVINSTALLDIR)/tools
-	-cp $(KV_CONFIG__H) $(KVINSTALLDIR)/include/
-	cd KVMultiDet && $(MAKE) --no-print-directory install
-	cd KVIndra && $(MAKE) --no-print-directory install
-	cd VAMOS && $(MAKE) --no-print-directory install
+	@-chmod 0775 $(KVINSTALLDIR)
+	@-mkdir -p $(KVINSTALLDIR)/src
+	@-mkdir -p $(KVINSTALLDIR)/KVFiles
+	@-mkdir -p $(KVINSTALLDIR)/db
+	@-mkdir -p $(KVINSTALLDIR)/examples
+	@-mkdir -p $(KVINSTALLDIR)/tools
+	@-cp $(KV_CONFIG__H) $(KVINSTALLDIR)/include/
+	@cd KVMultiDet && $(MAKE) --no-print-directory install
+	@cd KVIndra && $(MAKE) --no-print-directory install
+	@cd VAMOS && $(MAKE) --no-print-directory install
 #	cd FAZIA && $(MAKE) install
-	cd etc/proof && $(MAKE)
-	-cp tools/.nedit $(KVINSTALLDIR)/tools/
-	-cp tools/* $(KVINSTALLDIR)/tools/
+	@cd etc/proof && $(MAKE) --no-print-directory
+	@-cp tools/.nedit $(KVINSTALLDIR)/tools/
+	@-cp tools/* $(KVINSTALLDIR)/tools/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst
@@ -291,12 +291,12 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.root2
 ifeq ($(GROUP),fazia)
-	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/ccali-fazia.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	@-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/ccali-fazia.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
-	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	@-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 endif
 else
-	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	@-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/kaliveda-fazia.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 endif
 	
 uninstall :
