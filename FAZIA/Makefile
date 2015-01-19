@@ -1,37 +1,27 @@
-#$Id: Makefile,v 1.13 2009/02/06 11:33:20 franklan Exp $
-#Makefile for libFAZIA.so
+PROJECT = FAZIA
+MODULES = analysis geometry identification
 
-PROJ_NAME = FAZIA
+.PHONY: all install clean $(MODULES)
 
-MODULES = analysis fazia idtelescopes
+all: $(MODULES)
 
-MANIP_DIRS = LNS_2011 INDRAFAZIA
+install:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.$(PROJECT); \
+		make -f $$makefile MODULE=$$module install ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-ETC_DATA = data
+clean:
+	@for module in $(MODULES); do \
+		makefile=Makefile.$$module; \
+		[ ! -f $$makefile ] && makefile=Makefile.$(PROJECT); \
+		make -f $$makefile MODULE=$$module clean ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
+	done
 
-ifeq ($(ROOTGANILTAPE),yes)
-KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
-endif
-
-ifeq ($(ROOTGANILTAPE),no)
-NOT_READY += daq_cec/*.cpp analysis/KVIVRawDataReconstructor.cpp analysis/KVIVRawDataAnalyser.cpp
-endif
-
-include ../Makefile.general
-
-ifeq ($(ARCH),win32)
-LINK_LIB = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
-else
-LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
-endif
-RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
-ifeq ($(ROOTGANILTAPE),yes)
-ifeq ($(MAKE_GANTAPE_RFIO),yes)
-LINK_LIB += -L/usr/local/lib -lshift
-endif
-endif
-
-#required for use of TGeo* classes in FAZIABlock
-LINK_LIB += -L$(ROOTSYS)/lib -lGeom
-RLIBMAPDEPS += libGeom.so
-
+analysis:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+geometry:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+identification:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"

@@ -144,7 +144,7 @@ BZR_LAST_REVISION =
 endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) FAZIA install analysis byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -251,7 +251,7 @@ install :
 	@cd KVMultiDet && $(MAKE) --no-print-directory install
 	@cd KVIndra && $(MAKE) --no-print-directory install
 	@cd VAMOS && $(MAKE) --no-print-directory install
-#	cd FAZIA && $(MAKE) install
+	cd FAZIA && $(MAKE) --no-print-directory install
 	@cd etc/proof && $(MAKE) --no-print-directory
 	@-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	@-cp tools/* $(KVINSTALLDIR)/tools/

@@ -1,0 +1,7 @@
+EXTRA_LIBRARIES += -L$(ROOTSYS)/lib -lGeom
+	
+ETC_DATA = data
+
+MANIP_DIRS = LNS_2011 INDRAFAZIA
+	
+include Makefile.FAZIA

@@ -4,11 +4,11 @@
 INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2016)
 INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
-+Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    FAZIA    "KVINDRAFAZIA()"
-+Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVUpDater:    INDRAFAZIA    KVINDRAUpDater	  KVIndra	"KVINDRAUpDater()"
++Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    FAZIAgeometry    "KVINDRAFAZIA()"
++Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVUpDater:    INDRAFAZIA    KVINDRAUpDater	  KVIndradb	"KVINDRAUpDater()"
 
-+Plugin.KVIDTelescope:    ^Si1$     KVFAZIAIDSi1PSA    FAZIA    "KVFAZIAIDSi1PSA()"
++Plugin.KVIDTelescope:    ^Si1$     KVFAZIAIDSi1PSA    FAZIAidentification    "KVFAZIAIDSi1PSA()"
 
 # FAZIA Geometry used by KVINDRAFAZIA
 INDRAFAZIA.GeoType:  		 compact
@@ -53,8 +53,8 @@ RawFaziaAnalysis.DataAnalysisTask.Prereq:     raw
 RawFaziaAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 RawFaziaAnalysis.DataAnalysisTask.UserClass:     yes
 RawFaziaAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
-+Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIA "KVFAZIARawDataAnalyser()"
-+Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIA    "KVFAZIARawDataReader_LNS_2011()"
++Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
++Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIAanalysis    "KVFAZIARawDataReader_LNS_2011()"
 
 
 +DataSet:   LNS_2012
@@ -65,9 +65,9 @@ LNS_2012.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 LNS_2012.ReconstructedEventClassName:   KVINDRAReconEvent
 LNS_2012.DataSet.RunFileClass.raw:    TFile
 
-+Plugin.KVDataBase:    LNL_2007    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    LNS_2009    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    GANIL_2010    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    LNS_2011    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    LNS_2012    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNL_2007    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2009    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    GANIL_2010    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2011    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2012    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 

@@ -12,6 +12,7 @@
 #include "TROOT.h"
 #include "KVUnits.h"
 #include "TMath.h"
+#include "KVIDTelescope.h"
 
 ClassImp(KVINDRAFAZIA)
 
