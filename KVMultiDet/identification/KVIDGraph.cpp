@@ -513,7 +513,14 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
                   Strip(TString::kBoth);
             KVString value(((TObjString *) toks->At(1))->GetString());
             value.Remove( TString::kBoth, ' ');//remove whitespace
-            if(name!="" && value!="") fPar->SetValue(name.Data(), value);
+            if(name!="" && value!="") {
+               if(value.IsFloat())
+                  fPar->SetValue(name.Data(), value.Atof());
+               else if(value.IsDigit())
+                  fPar->SetValue(name.Data(), value.Atoi());
+               else
+                  fPar->SetValue(name.Data(),value.Data());
+            }
          }
          delete toks;           //must clean up
       } else if (s.BeginsWith("<LIST>")) {      // number list definition
