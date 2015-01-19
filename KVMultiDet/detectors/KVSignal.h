@@ -13,6 +13,7 @@ class KVSignal : public TGraph
 	protected:
    Int_t fBlock;
    Int_t fQuartet;
+   TString fQuartetName;
    Int_t fTelescope;
    TString fTelName;
    TString fType;
@@ -32,6 +33,7 @@ class KVSignal : public TGraph
    void Print(Option_t* chopt = "") const;
    Int_t GetBlockNumber() const { return fBlock; }
    Int_t GetQuartetNumber() const { return fQuartet; }
+   const Char_t* GetQuartetName() const { return fQuartetName.Data(); }
    Int_t GetTelescopeNumber() const { return fTelescope; }
    const Char_t* GetTelescopeName() const { return fTelName.Data(); }
    const Char_t* GetType() const { return fType.Data(); }

@@ -70,7 +70,7 @@ void KVSignal::DeduceFromName()
 {
 
 	fBlock = fQuartet = fTelescope = -1;
-   fType = fDet = fTelName = "";
+   fType = fDet = fTelName = fQuartetName = "";
 	KVString tmp = GetName();
    KVString part = "";
    if (tmp.BeginsWith("B"))
@@ -84,6 +84,7 @@ void KVSignal::DeduceFromName()
       fDet = GetTitle();
       
       fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
+      fQuartetName.Form("B%03d-Q%d",fBlock,fQuartet);
    }
    
 }
