@@ -234,7 +234,7 @@ endif
 	cd KVIndra && $(MAKE) clean --no-print-directory
 	cd VAMOS && $(MAKE) clean --no-print-directory
 #	cd FAZIA && $(MAKE) clean
-#	cd analysis && $(MAKE) clean
+	cd analysis && $(MAKE) clean --no-print-directory
 
 distclean : clean
 	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root

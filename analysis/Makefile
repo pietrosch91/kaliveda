@@ -168,26 +168,27 @@ PREREQ = $(PREQ:%.cpp=%.d)
 
 .PHONY: all install clean
 
-all: config $(ANALOG) $(DELOG) $(KVDTAN) $(KVTRAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
+all: $(ANALOG) $(DELOG) $(KVDTAN) $(KVTRAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(ANALOG_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 $(ANALOGO): $(ANALOGS)
-	$(CXX) $(CXXFLAGS) -DGRIDENGINE_LOG_READER -c $<
+	@echo `tput setaf 1`"   CXX $<..."`tput sgr0`
+	@$(CXX) $(CXXFLAGS) -DGRIDENGINE_LOG_READER -c $<
 
 $(DELOG): $(DELOGO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^  $(DELOG_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 $(KVDTAN): $(KVDTANO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(KVDTAN_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 $(KVTRAN): $(KVTRANO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(KVTRAN_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 #$(KVDTANO): $(KVDTANS)
 #	$(CXX) $(CXXFLAGS) -c $<
@@ -196,30 +197,30 @@ $(KVRSRD): $(KVRSRDO)
 ifeq ($(ARCH),win32)
 	$(LD) $(LDFLAGS) $^ $(LIBS) '$(ROOTSYS)\lib\libTreePlayer.lib' '$(ROOTSYS)\lib\libTreeViewer.lib' '$(ROOTSYS)\lib\libGed.lib' $(LINK_LIBS) $(OutPutOpt)$@
 else
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(KVRSRD_LIBS) $(LIBS) -lTreePlayer -lTreeViewer -lGed $(OutPutOpt)$@
 endif
-	@echo "$@ done"
 
 #$(KVRSRDO): $(KVRSRDS)
 #	$(CXX) $(CXXFLAGS) -c $<
 
 $(UPDRLT): $(UPDRLTO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(UPDRLT_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 #$(UPDRLTO): $(UPDRLTS)
 #	$(CXX) $(CXXFLAGS) -c $<
 
 $(KVANAL): $(KVANALO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(KVANAL_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 #$(KVANALO): $(KVANALS)
 #	$(CXX) $(CXXFLAGS) -c $<
 	
 $(KVGUI): $(KVGUIO)
+	@echo `tput setaf 5`"Building executable $@"`tput sgr0`; \
 	$(LD) $(LDFLAGS) $^ $(KVGUI_LIBS) $(LIBS) $(OutPutOpt)$@
-	@echo "$@ done"
 
 #$(KVGUIO): $(KVGUIS)
 #	$(CXX) $(CXXFLAGS) -c $<
@@ -262,11 +263,11 @@ config :
 
 ifneq ($(ARCH),win32)
 %.d : %.cxx
-	@echo Making prerequisite $@; \
+	@echo `tput setaf 3`"Analysing dependencies of $^"`tput sgr0`; \
 	set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) $< > $@
 %.d : %.cpp
-	@echo Making prerequisite $@; \
+	@echo `tput setaf 3`"Analysing dependencies of $^"`tput sgr0`; \
 	set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) $< > $@
 	
@@ -279,6 +280,8 @@ endif
 endif
 
 %.$(ObjSuf) : %.cxx
-	$(CXX) $(CXXFLAGS) -c $<
+	@echo `tput setaf 1`"   CXX $<..."`tput sgr0`
+	@$(CXX) $(CXXFLAGS) -c $<
 %.$(ObjSuf) : %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	@echo `tput setaf 1`"   CXX $<..."`tput sgr0`
+	@$(CXX) $(CXXFLAGS) -c $<
