@@ -34,7 +34,7 @@ class KVIDQALine : public KVIDZALine
 		virtual void Draw(Option_t* chopt = "");
 		virtual void UnDraw();
 		virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
-		void IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &code ) const;
+		void IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_t &code ) const;
 		
 		virtual Int_t InsertMarker(Int_t A=0); // *MENU* *ARGS={A=>fNextA}
 		virtual Int_t RemoveMarker(Int_t a=0); //*MENU*

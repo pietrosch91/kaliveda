@@ -425,11 +425,10 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 		if( !OnlyQId() ){
         	//idr->IDOK   = kFALSE;
 			Int_t Ai;
-			Int_t Ar;
+			Double_t Ar;
 			Int_t code;
  		   	closest_line->IdentA( x, y, Ai, Ar, code);
 			idr->A   = Ai;
-   			idr->PID = Ar;
 
 			switch(code){
      			case kICODE0:                   idr->SetComment("ok"); break;
@@ -444,8 +443,12 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
                       							idr->SetComment("no identification: (x,y) out of range covered by grid (line)");
 			}
 
-			idr->IDquality = fICode;
-    		if (fICode<kICODE4){
+    		if (code<kICODE4){
+				if( code>kICODE0 ){
+					const_cast < KVIDQAGrid * >(this)->fICode = code;
+					idr->IDquality = fICode;
+				}
+   				idr->PID = Ar;
         		idr->Aident = kTRUE;
         		idr->IDOK   = kTRUE;
 			}

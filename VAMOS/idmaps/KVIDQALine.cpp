@@ -122,9 +122,7 @@ void KVIDQALine::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 }
 //________________________________________________________________
 
-void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &code ) const{
-
-	// TO BE IMPLEMENTED
+void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_t &code ) const{
 	
 	// Default values
 	A     = -1;
@@ -136,11 +134,11 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &
 
 	if ( !closest_mk ){
         //no marker corresponding to point was found
-        Info("IdentA","ID marker not found");
+        //Info("IdentA","ID marker not found");
     }
 	else{
     	//the closest marker is found
-        Info("IdentA","ID marker found: %s",closest_mk->GetName());
+        //Info("IdentA","ID marker found: %s",closest_mk->GetName());
 
 		//marker at the left of the point
 		KVIDQAMarker *l_mk = GetMarkerAt( idx_l );
@@ -162,7 +160,7 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &
 
 		// case where 2 embracing markers are found
 		if( l_mk && r_mk && (l_mk!=r_mk) ){
-    		Int_t dA = r_mk->GetQ() - l_mk->GetQ();
+    		Int_t dA = r_mk->GetA() - l_mk->GetA();
     		Double_t tot_dist = ( dist_l+dist_r) / (1.0*dA);
 			deltaA = dist/tot_dist;
 
@@ -176,9 +174,9 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &
 				if( deltaA>0) code = KVIDQAGrid::kICODE1; // "slight ambiguity of A, which could be larger"
 				else code = KVIDQAGrid::kICODE2; // "slight ambiguity of A, which could be smaller"
 			}
-			// else keep the current code obtained at Q-identification
+			else code = KVIDQAGrid::kICODE0; // ok
 
-			if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
+			//if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
 		}
 		// case where only 1 embracing marker is found. 
 		// in this case, the distance between the point and the marker
@@ -195,11 +193,12 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Int_t &realA, Int_t &
 				if( closest_mk == l_mk ) deltaA *= -1.;
         		code = KVIDQAGrid::kICODE3; // "slight ambiguity of A, which could be larger or smaller"
 			}
-			if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
+			//if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
 		}
 
 		realA = closest_mk->GetA() + deltaA;
-    	A     = closest_mk->GetA();
+    	//A     = closest_mk->GetA();
+    	A     = TMath::Nint( realA ); // since some A-markers are missing in the line
 	}
 }
 //________________________________________________________________
@@ -239,15 +238,17 @@ KVIDQAMarker *KVIDQALine::FindNearestIDMarker(Double_t x, Double_t y, Int_t& idx
 
 	KVIDQAMarker *nearest = NULL;
 	if( dist_low < dist_up ){
-		dist = dist_low;
+		dist    = dist_low;
+		idx     = idx_low;
 		nearest = mk_low;
 	}
 	else{
-		dist = dist_up;
+		dist    = dist_up;
+		idx     = idx_up;
 		nearest = mk_up;
 	}
 
-	Info("FindNearestIDMarker","X %f, Y %f: low %s, dist_low %f, up %s, dist_up %f: nearest %s",x,y,mk_low->GetName(),dist_low,mk_up->GetName(),dist_up,nearest->GetName());
+	//Info("FindNearestIDMarker","X %f, Y %f: low %s, dist_low %f, up %s, dist_up %f: nearest %s",x,y,mk_low->GetName(),dist_low,mk_up->GetName(),dist_up,nearest->GetName());
 
 
 	return nearest;
@@ -627,11 +628,7 @@ Bool_t KVIDQALine::ProjIsBetween( Double_t x, Double_t y, KVIDQAMarker *m1, KVID
 	TVector2 P1M (x -x1,y -y1);
 
 	Double_t proj = (P1M*P1P2)/P1P2.Mod();
-	Info("ProjIsBetween","P1M %f, P1P2 %f, proj %f",P1M.Mod(), P1P2.Mod(), proj);
-	cout<<"P1P2"<<endl;
-	P1P2.Print();
-	cout<<"P1M"<<endl;
-	P1M.Print();
+	//Info("ProjIsBetween","P1M %f, P1P2 %f, proj %f",P1M.Mod(), P1P2.Mod(), proj);
 	if( (0<=proj) && (proj<=P1P2.Mod()) ) return kTRUE;
 	return kFALSE;
 }
