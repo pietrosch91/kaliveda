@@ -218,6 +218,7 @@ KVIDGChIoSi_e494s.IDClass:  KVIDZALine
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
 +Plugin.KVIDGraph:   KVIDGChIoSi_e494s  KVIDGChIoSi_e494s   KVIndra   "KVIDGChIoSi_e494s()"
++Plugin.KVIDGraph:   KVIDQAGrid  KVIDQAGrid   VAMOS   "KVIDQAGrid()"
 
 # Plugins for different datasets
 # Each dataset can have an associated VAMOS spectrometer.

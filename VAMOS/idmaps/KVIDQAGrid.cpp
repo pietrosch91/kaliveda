@@ -5,6 +5,7 @@
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TTree.h"
+#include "KVIDGridEditor.h"
 
 ClassImp(KVIDQAGrid)
 
@@ -609,7 +610,7 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t *
 	Initialize();
 
    	TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
-	if (!data) {
+	if (!data && (!gIDGridEditor  || !(data=(TH2F *)gIDGridEditor->GetHisto()) )){
 		Error("FindAMarkers","histogram %s not found",name_of_data_histo);
 		return 0;
 	}
