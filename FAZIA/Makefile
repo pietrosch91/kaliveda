@@ -3,9 +3,9 @@
 
 PROJ_NAME = FAZIA
 
-MODULES = analysis fazia idtelescopes
+MODULES = analysis fazia idtelescopes db
 
-MANIP_DIRS = LNS_2011 INDRAFAZIA
+MANIP_DIRS = LNS_2011 LNS_2014 INDRAFAZIA
 
 ETC_DATA = data
 

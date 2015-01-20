@@ -107,7 +107,7 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
 			break;
 
 		default:
-                        std::cout << "Error in <KVLVColumnData::GetData> : this type is not supported "
+                        std::cout << "Error in <KVLVColumnData::GetDataString> : this type is not supported "
                         << (Int_t)fMethCall->ReturnType() << std::endl;
 			break;
 	}

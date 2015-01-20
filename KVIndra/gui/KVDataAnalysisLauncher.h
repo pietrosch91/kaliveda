@@ -180,7 +180,7 @@ protected:
 
    
 public:
-	KVDataAnalysisLauncher(const TGWindow *p=0,UInt_t w=200,UInt_t h=400);
+	KVDataAnalysisLauncher(const Char_t* ExpType, const TGWindow *p=0,UInt_t w=200,UInt_t h=400);
 	~KVDataAnalysisLauncher();
 	virtual Bool_t ProcessMessage(Long_t msg, Long_t par1, Long_t par2); 
 	
