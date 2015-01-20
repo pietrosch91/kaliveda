@@ -56,7 +56,6 @@ RawFaziaAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelect
 +Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIA "KVFAZIARawDataAnalyser()"
 +Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIA    "KVFAZIARawDataReader_LNS_2011()"
 
-
 +DataSet:   LNS_2012
 LNS_2012.DataSet.Title:    FAZIA test at LNS (2012)
 LNS_2012.DataSet.RepositoryDir:   LNS_2012
@@ -65,9 +64,18 @@ LNS_2012.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 LNS_2012.ReconstructedEventClassName:   KVINDRAReconEvent
 LNS_2012.DataSet.RunFileClass.raw:    TFile
 
++DataSet:   LNS_2014
+LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
+LNS_2014.DataSet.RepositoryDir:   lns_2014
+LNS_2014.DataSet.RunFileName.raw:    run%06d.root
+LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+LNS_2014.ReconstructedEventClassName:   KVINDRAReconEvent
+LNS_2014.DataSet.RunFileClass.raw:    TFile
+
 +Plugin.KVDataBase:    LNL_2007    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    LNS_2009    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    GANIL_2010    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    LNS_2011    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    LNS_2012    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIA    "KVFAZIADB(const Char_t*)"
 
