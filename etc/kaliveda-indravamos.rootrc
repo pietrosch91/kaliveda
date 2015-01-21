@@ -215,6 +215,10 @@ KVIDGChIoSi_e494s.CutClass:  KVIDCutLine  KVIDCutContour
 KVIDGChIoSi_e494s.DefaultCutClass:  KVIDCutLine
 KVIDGChIoSi_e494s.IDClass:  KVIDZALine
 
+KVIDQAGrid.CutClass:  KVIDCutLine  KVIDCutContour
+KVIDQAGrid.DefaultCutClass:  KVIDCutLine
+KVIDQAGrid.IDClass:  KVIDQALine
+
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
 +Plugin.KVIDGraph:   KVIDGChIoSi_e494s  KVIDGChIoSi_e494s   KVIndra   "KVIDGChIoSi_e494s()"
