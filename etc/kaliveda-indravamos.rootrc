@@ -224,6 +224,13 @@ KVIDQAGrid.IDClass:  KVIDQALine
 +Plugin.KVIDGraph:   KVIDGChIoSi_e494s  KVIDGChIoSi_e494s   KVIndra   "KVIDGChIoSi_e494s()"
 +Plugin.KVIDGraph:   KVIDQAGrid  KVIDQAGrid   VAMOS   "KVIDQAGrid()"
 
+# Mime-types for GUI
+# These define the icons associated with different objects displayed in KVListView widgets.
++KaliVeda.GUI.MimeTypes: KVIDGChIoSi_e494s 
+KaliVeda.GUI.MimeTypes.KVIDGChIoSi_e494s.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes: KVIDQAGrid
+KaliVeda.GUI.MimeTypes.KVIDQAGrid.Icon:   draw_t.xpm
+
 # Plugins for different datasets
 # Each dataset can have an associated VAMOS spectrometer.
 # There must be an entry here for each dataset
