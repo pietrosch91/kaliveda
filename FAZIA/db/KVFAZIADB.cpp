@@ -128,7 +128,7 @@ void KVFAZIADB::LinkRecordToRunRange(KVDBRecord * rec, KVNumberList nl)
 void KVFAZIADB::LinkRecordToRun(KVDBRecord * rec, Int_t rnumber)
 {
 
-	KVDBRun *run = GetRun(rnumber);
+	KVFAZIADBRun *run = GetRun(rnumber);
 	if (run)
 		rec->AddLink("Runs", run);
 
@@ -172,7 +172,7 @@ void KVFAZIADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
       UInt_t first_run = run_ranges[ru_ra][0];
       UInt_t last_run = run_ranges[ru_ra][1];
       for (UInt_t i = first_run; i <= last_run; i++) {
-         KVDBRun *run = GetRun(i);
+         KVFAZIADBRun *run = GetRun(i);
          while ((rec = (KVDBRecord *) next())) {
             if (run)
                rec->AddLink("Runs", run);
@@ -207,7 +207,7 @@ void KVFAZIADB::LinkListToRunRange(TList * list, KVNumberList nl)
 void KVFAZIADB::ReadSystemList()
 {
    //Reads list of systems with associated run ranges, creates KVDBSystem
-   //records for these systems, and links them to the appropriate KVDBRun
+   //records for these systems, and links them to the appropriate KVFAZIADBRun
    //records using LinkListToRunRanges.
    //
    //There are 2 formats for the description of systems:
@@ -260,8 +260,8 @@ void KVFAZIADB::ReadSystemList()
    // we create an 'unknown' system and associate it to all runs
    KVDBSystem* sys = 0;
    TIter nextRun(GetRuns());
-   KVDBRun* run;
-   while ( (run = (KVDBRun*)nextRun()) ) {
+   KVFAZIADBRun* run;
+   while ( (run = (KVFAZIADBRun*)nextRun()) ) {
       if(!run->GetSystem()){
          if(!sys) {
             sys = new KVDBSystem("[unknown]");
@@ -313,9 +313,9 @@ void KVFAZIADB::WriteRunListFile() const
    //Write a file containing a line describing each run in the database.
    //The delimiter symbol used in each line is '|' by default.
    //The first line of the file will be a header description, given by calling
-   //KVDBRun::WriteRunListHeader() for the first run in the database.
-   //Then we call KVDBRun::WriteRunListLine() for each run.
-   //These are virtual methods redefined by child classes of KVDBRun.
+   //KVFAZIADBRun::WriteRunListHeader() for the first run in the database.
+   //Then we call KVFAZIADBRun::WriteRunListLine() for each run.
+   //These are virtual methods redefined by child classes of KVFAZIADBRun.
 
    ofstream rlistf;
    KVBase::SearchAndOpenKVFile(GetDBEnv("Runlist"), rlistf, fDataSet.Data());
@@ -326,9 +326,9 @@ void KVFAZIADB::WriteRunListFile() const
          << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
    TIter next_run(GetRuns());
    //write header in file
-   ((KVDBRun *) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
-   KVDBRun *run;
-   while ((run = (KVDBRun *) next_run())) {
+   ((KVFAZIADBRun *) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
+   KVFAZIADBRun *run;
+   while ((run = (KVFAZIADBRun *) next_run())) {
 
       run->WriteRunListLine(rlistf, GetDBEnv("Runlist.Separator")[0]);
 
@@ -382,7 +382,7 @@ void KVFAZIADB::Build()
 //____________________________________________________________________________
 void KVFAZIADB::ReadNewRunList()
 {
-   //Read new-style runlist (written using KVDBRun v.10 or later)
+   //Read new-style runlist (written using KVFAZIADBRun v.10 or later)
 
    ifstream fin;
    if (!OpenCalibFile("Runlist", fin)) {
@@ -394,14 +394,14 @@ void KVFAZIADB::ReadNewRunList()
    Info("ReadNewRunList()", "Reading run parameters ...");
 
    KVString line;
-   KVDBRun* run;
+   KVFAZIADBRun* run;
 	TObjArray* toks = 0;
    
    while( fin.good() && !fin.eof() ){
       line.ReadLine( fin );
 		
       if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
-         run = new KVDBRun;
+         run = new KVFAZIADBRun;
          //run->ReadRunListLine( line );
          toks = line.Tokenize(" | ");
          for (Int_t ii=0;ii<toks->GetEntries();ii+=1){
@@ -416,14 +416,16 @@ void KVFAZIADB::ReadNewRunList()
             }
             if (name=="Events"){
             	run->SetEvents(value.Atoi());	
-            }  
+            }
+            if (name=="Trigger"){
+            	run->SetTrigger(value.Atoi());	
+            }
          }
          delete toks;
          if( run->GetNumber()<1 ){
             delete run;
          } else {
             AddRun( run );
-            run->SetScaler("Trigger multiplicity",1);
             kLastRun = TMath::Max(kLastRun, run->GetNumber());
             kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
          }
@@ -453,13 +455,11 @@ void KVFAZIADB::PrintRuns(KVNumberList& nl) const
 	printf("------------------------------------------------------------------------------------------------------------------\n");
 	nl.Begin();
 	while( !nl.End() ){
-		KVDBRun* run = GetRun(nl.Next());
+		KVFAZIADBRun* run = GetRun(nl.Next());
 		if(!run) continue;
-/*
 		printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
 				run->GetNumber(), (run->GetSystem()?run->GetSystem()->GetName():"            "), run->GetTriggerString(),
 				run->GetEvents(), run->GetComments());
-*/
 	}
 }
 

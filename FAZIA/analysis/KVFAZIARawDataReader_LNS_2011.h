@@ -9,6 +9,7 @@
 #define KVFAZIARawDataReader_LNS_2011_h
 
 #include <KVFAZIARawDataReader.h>
+#include "TClonesArray.h"
 
 // Header file for the classes stored in the TTree if any.
 
@@ -18,6 +19,7 @@ class KVFAZIARawDataReader_LNS_2011 : public KVFAZIARawDataReader {
 public :
    
    // Declaration of leaf types
+   /*
    Float_t         tele111_si1_energy;
    Float_t         tele111_si1_A;
    Float_t         tele111_si1_Z;
@@ -235,7 +237,7 @@ public :
    Double_t        scale_elapsed;
    Double_t        scale_approx_rate;
    UInt_t          bitpattern;
-
+	
    // List of branches
    TBranch        *b_tele111_si1_energy;   //!
    TBranch        *b_tele111_si1_A;   //!
@@ -454,7 +456,9 @@ public :
    TBranch        *b_scale_elapsed;   //!
    TBranch        *b_scale_approx_rate;   //!
    TBranch        *b_bitpattern;   //!
-
+	*/
+   TClonesArray* cl;
+   
    KVFAZIARawDataReader_LNS_2011() : KVFAZIARawDataReader() { }
    virtual ~KVFAZIARawDataReader_LNS_2011() { }
    

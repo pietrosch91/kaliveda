@@ -86,7 +86,7 @@ void KVFAZIARawDataAnalyser::SubmitTask()
    fDataSet->cd();
    fSelector = 0;
    
-   theChain = new TChain("tree_PSA_signals");
+   theChain = new TChain("FAZIA");
    theChain->SetDirectory(0); // we handle delete
    
    fRunList.Begin(); Int_t run;

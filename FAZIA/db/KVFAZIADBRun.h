@@ -14,6 +14,7 @@ class KVFAZIADBRun : public KVDBRun
    KVFAZIADBRun(Int_t number, const Char_t* title = "FAZIA Run");
    virtual ~KVFAZIADBRun();
    
+   void SetTrigger(Int_t mt) { SetScaler("Trigger multiplicity",mt); };
    Int_t GetTrigger() const { return GetScaler("Trigger multiplicity"); };
    const Char_t* GetTriggerString() const { if(GetTrigger()>0) return Form("M>=%d",GetTrigger());  else return Form("xxx"); };
 

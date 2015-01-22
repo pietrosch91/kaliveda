@@ -6,7 +6,7 @@
 
 #include "KVDataBase.h"
 #include "KVDBTable.h"
-#include "KVDBRun.h"
+#include "KVFAZIADBRun.h"
 #include "KVDBRecord.h"
 
 class KVNumberList;
@@ -46,18 +46,18 @@ class KVFAZIADB : public KVDataBase
 //   virtual void GoodRunLine();
 	void AddSystem(KVDBSystem * r) { fSystems->AddRecord(r); };
 
-   void AddRun(KVDBRun * r) { fRuns->AddRecord(r); }
+   void AddRun(KVFAZIADBRun * r) { fRuns->AddRecord(r); }
    virtual void Save(const Char_t*);
 
-   KVDBRun *GetRun(Int_t run) const
+   KVFAZIADBRun *GetRun(Int_t run) const
    {
-   	//Returns KVDBRun describing run number 'run'
-   	return (KVDBRun *) fRuns->GetRecord(run);
+   	//Returns KVFAZIADBRun describing run number 'run'
+   	return (KVFAZIADBRun *) fRuns->GetRecord(run);
    }
-   KVDBRun *GetRun(const Char_t * run) const
+   KVFAZIADBRun *GetRun(const Char_t * run) const
 	{
-   	//Returns KVDBRun describing run with name "run"
-   	return (KVDBRun *) GetRuns()->FindObject(run);
+   	//Returns KVFAZIADBRun describing run with name "run"
+   	return (KVFAZIADBRun *) GetRuns()->FindObject(run);
 	}
 
    virtual TList *GetRuns() const { return fRuns->GetRecords(); }
