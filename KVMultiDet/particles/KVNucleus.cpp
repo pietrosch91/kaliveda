@@ -723,7 +723,7 @@ Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
       if(GetAbundance(z,a)>0) return 1.e+100;
       return -1.0;
    }
-   if(lf && !lf->IsAResonnance()) {
+   if(!lf->IsAResonnance()) {
       Double_t life = lf->GetValue();
       return (life<0. ? 1.e+100 : life);
    }

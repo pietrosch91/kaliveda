@@ -444,7 +444,7 @@ void KVPartitionGenerator::BreakUsing_Ztot_Zmax_Zinf_Criterion(Int_t Ztot,Int_t 
 		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
 			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
 		}
-		if (cp) delete cp; cp=0;
+		delete cp; cp=0;
 		
 		
 		Int_t mfmax=((Ztot-Zmax)/Zinf)+1;
@@ -461,7 +461,7 @@ void KVPartitionGenerator::BreakUsing_Ztot_Zmax_Zinf_Criterion(Int_t Ztot,Int_t 
 		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
 			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
 		}
-		if (cp) delete cp; cp=0;
+		delete cp; cp=0;
 		
 		
 		for (Int_t Mtot=mfmin;Mtot<=mfmax;Mtot+=1){

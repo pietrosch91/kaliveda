@@ -205,11 +205,11 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 		}
 	}	
 
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TH1 *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	if (hh->InheritsFrom("TH2")) 	gg->SetBins(nx,xmin,xmax,ny,ymin,ymax);
 	else 									gg->SetBins(nx,xmin,xmax);
@@ -290,11 +290,11 @@ TGraph* KVHistoManipulator::ScaleGraph(TGraph *hh,TF1*fx,TF1*fy){
 	// Si la fonction est un pointeur NULL, aucune transformation n est appliquee et l axe reste tel quel.
 	
 	TGraph* gg = NULL;
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TGraph *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	Int_t np = hh->GetN();
 	for (Int_t nn=0;nn<np;nn+=1){
@@ -616,8 +616,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) Mauvaise syntaxe pour TString axis (X ou Y) " << endl;
 		return NULL;
 	}
-	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momentx.Data()),"int");
-	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
+	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momentx.Data()),"int");
+	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
 	if (!cmx->IsValid()) { 
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momentx n'est pas une methode valide " << momentx.Data() << endl;
 		delete cmx; cmx=0; return NULL; 
@@ -626,8 +626,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 	
 	TMethodCall *cmy = NULL,*Ecmy = NULL;
 	if (momenty!="") 	{ 
-		cmy = new TMethodCall(); 	cmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
-		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
+		cmy = new TMethodCall(); 	cmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
+		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
 		if (!cmy->IsValid()) { 
 			cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momenty n'est pas une methode valide " << momenty.Data() << endl;
 			delete cmy; return NULL; 
