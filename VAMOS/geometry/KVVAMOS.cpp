@@ -777,26 +777,31 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     TString uri;
 
 	// prefix of the URI
-	TString prefix[2];
-	prefix[0].Form("%s.%s.",fDataSet.Data(), GetName());
-	prefix[1].Form("%s."   , GetName());
-
+	TString prefixes[5];
+	TString prefix;
+	// for E-DE identification (Z)
+	prefixes[0].Form("%s.%s."   ,fDataSet.Data(), GetName());
+	prefixes[1].Form("%s."      , GetName());
+	// for Q and A identification with A-A/Q or Q-A/Q maps 
+	prefixes[2].Form("%s.%s.QA.",fDataSet.Data(), GetName());
+	prefixes[3].Form("%s.QA."   , GetName());
+	prefixes[4]="";
 
 	//look for ID telescopes with only one of the two detectors
 	KVDetector *dets[3] = { de , e, NULL };
 	KVDetector *det     = NULL;
 
     for( UChar_t i=0; (det=dets[i]);  i++){
-		for(UChar_t j=0; j<2; j++){
+		for(UChar_t j=0; !((prefix=prefixes[j]).IsNull()); j++){
 
-			uri.Form("%s%s%d", prefix[j].Data(), det->GetType(),
+			uri.Form("%s%s%d", prefix.Data(), det->GetType(),
              		TMath::Nint(det->GetThickness()) );
     		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
         		set_up_single_stage_telescope(det,idtels,idt,uri);
 				break;
     		}
 
-    		uri.Form("%s%s", prefix[j].Data(), det->GetType());
+    		uri.Form("%s%s", prefix.Data(), det->GetType());
     		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
         		set_up_single_stage_telescope(det,idtels,idt,uri);
 				break;
@@ -811,30 +816,30 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 	Int_t de_thick = TMath::Nint(de->GetThickness());
     Int_t e_thick  = TMath::Nint(e->GetThickness() );
 
-	for(UChar_t j=0; j<2; j++){
+	for(UChar_t j=0; !((prefix=prefixes[j]).IsNull()); j++){
 
-        uri.Form("%s%s%d-%s%d", prefix[j].Data(), de->GetType(),
+        uri.Form("%s%s%d-%s%d", prefix.Data(), de->GetType(),
                 de_thick, e->GetType(), e_thick);
         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
             set_up_telescope(de,e,idtels,idt,uri);
 			break;
         }
 
-		uri.Form("%s%s%d-%s", prefix[j].Data(), de->GetType(),
+		uri.Form("%s%s%d-%s", prefix.Data(), de->GetType(),
                 de_thick, e->GetType());
         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
             set_up_telescope(de,e,idtels,idt,uri);
 			break;
         }
 
-		uri.Form("%s%s-%s%d", prefix[j].Data(), de->GetType(), e->GetType(),
+		uri.Form("%s%s-%s%d", prefix.Data(), de->GetType(), e->GetType(),
                 e_thick);
         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
             set_up_telescope(de,e,idtels,idt,uri);
 			break;
         }
 
-		uri.Form("%s%s-%s", prefix[j].Data(), de->GetType(), e->GetType());
+		uri.Form("%s%s-%s", prefix.Data(), de->GetType(), e->GetType());
         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
             set_up_telescope(de,e,idtels,idt,uri);
 			break;
@@ -843,7 +848,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     
 	if( !idt ){
     	// Make a generic de-e identification telescope
-        uri.Form("%s%s-%s", prefix[1].Data(), de->GetType(), e->GetType());
+        uri.Form("%s%s-%s", prefixes[1].Data(), de->GetType(), e->GetType());
     	idt = new KVIDTelescope;
     	set_up_telescope(de,e,idtels,idt,uri);
 		idt->SetLabel( uri );

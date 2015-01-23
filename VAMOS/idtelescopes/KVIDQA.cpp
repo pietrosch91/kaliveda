@@ -34,23 +34,13 @@ const Char_t *KVIDQA::GetArrayName(){
  	// Prefix VID for Vamos IDentification.
    	// The detectors are signified by their names i.e. KVDetector::GetName
 
-	Warning("GetArrayName","TO BE IMPLEMENTED");
-	/*
-	if( GetSize() ){
-		KVDetector *DEdet = GetDetector( 1 );
-		KVDetector *Edet  = GetDetector( 2 );
-
-		if( Edet ){
-			SetName( Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()) );
-			SetType( Form("%s_%s"    , DEdet->GetType(), Edet->GetType()) );
-		}
-		else{
-			SetName( Form("VID_%s", DEdet->GetName()) );
-			SetType( Form("%s"    , DEdet->GetType()) );
-		}
+	
+	KVDetector *det  = (KVDetector *)GetDetectors()->Last();
+	if( det ){
+		SetName( Form("VID_QA_%s", det->GetName()) );
+		SetType( Form("%s"    , det->GetType()) );
 	}
-	else SetName( "VID_EMPTY" );
-	*/
+	else SetName( "VID_QA_EMPTY" );
 
 	return fName.Data();
 }

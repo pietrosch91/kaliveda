@@ -150,6 +150,7 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.VAMOS.CHI-SI$ KVIDHarpeeICSi                VAMOS        "KVIDHarpeeICSi()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.VAMOS.QA.SI$  KVIDQA                        VAMOS        "KVIDQA()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
@@ -191,13 +192,14 @@ INDRA_e494s.IdentificationParameterFile.CI-SI75:        grilles_ChIo_Si75.dat
 INDRA_e494s.IdentificationParameterFile.SI75-SILI:      grilles_fit_Si75_SiLi.dat
 INDRA_e494s.IdentificationParameterFile.SILI-CSI:       grilles_fit_SiLi_CsI.dat
 INDRA_e494s.IdentificationParameterFile.VAMOS.CHI-SI:   grilles_VAMOS_IC_Si.dat
+INDRA_e494s.IdentificationParameterFile.VAMOS.QA.SI:    grilles_VAMOS_QA.dat
 ###############################################
 # pour FocalPlanVamos 
 VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
 VAMOS_e503.ActiveIdentifications:       SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI VAMOS.CHI-SI VAMOS.SI-CSI
-INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI VAMOS.QA.SI
 
 #================================ Plugins for detectors
 +Plugin.KVDetector:    VAMOS_e503.CSI        KVCsIVamos        VAMOS     "KVCsIVamos(Float_t)"
