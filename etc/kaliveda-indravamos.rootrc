@@ -219,6 +219,10 @@ KVIDQAGrid.CutClass:  KVIDCutLine  KVIDCutContour
 KVIDQAGrid.DefaultCutClass:  KVIDCutLine
 KVIDQAGrid.IDClass:  KVIDQALine
 
+# Definition of data columns for the ID Line list used in
+# KVIDGridManagerGUI
+KVIDQALine.DataColumns: Name | Q | Number of A, GetNumberOfMasses | OnlyQId, OnlyQId,
+
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
 +Plugin.KVIDGraph:   KVIDGChIoSi_e494s  KVIDGChIoSi_e494s   KVIndra   "KVIDGChIoSi_e494s()"

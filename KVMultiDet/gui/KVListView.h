@@ -123,6 +123,11 @@ class KVListView : public TGListView
 
     void SetUseObjLabelAsRealClass(Bool_t yes = kTRUE);
 
+	void SetObjClass( TClass *cl ){
+		fObjClass = cl;
+    	((KVLVContainer*)GetContainer())->SetObjClass(fObjClass);
+	}
+
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
 

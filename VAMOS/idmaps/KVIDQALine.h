@@ -64,6 +64,7 @@ class KVIDQALine : public KVIDZALine
 		virtual void AddMarker( KVIDQAMarker *marker );
 		KVList *GetMarkers() const;
 		KVIDQAMarker *GetMarkerAt(Int_t index) const;
+   		Bool_t OnlyQId() const;
 		void SortMarkers();
 		Bool_t IsAvsAoQ() const;
 		Bool_t IsQvsAoQ() const;
@@ -122,6 +123,9 @@ inline KVIDQAMarker *KVIDQALine::GetMarkerAt(Int_t index) const{
 	// Return marker at position 'index' (=0,1,...) in list of A-makers (fMarkers)
 	return (KVIDQAMarker*)fMarkers->At(index);
 };
+//_______________________________________________________________//
+
+inline Bool_t KVIDQALine::OnlyQId() const { return fGridOnlyZId; };
 //_______________________________________________________________//
 
 inline void KVIDQALine::SortMarkers(){

@@ -232,16 +232,8 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
 
    // list view for lines in current grid
    fIDLineList = new KVListView(KVIDentifier::Class(), line_frame, 350, 400);
-   fIDLineList->SetDataColumns(5);
-   fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
-   fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
-   fIDLineList->SetDataColumn(2, "A", "", kTextCenterX);
-   fIDLineList->SetDataColumn(3, "OnlyZId", "OnlyZId", kTextCenterX);
-   fIDLineList->SetDataColumn(4, "MassFormula", "", kTextCenterX);
-   fIDLineList->GetDataColumn(3)->SetIsBoolean();
-   fIDLineList->ActivateSortButtons();
-   fIDLineList->AllowBrowse(kFALSE);
-   //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+   BuildDefaultIDLineList();
+      //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
    //                    "SelectionChanged()");
    line_frame->AddFrame(fIDLineList, new TGLayoutHints(kLHintsTop | kLHintsExpandY | kLHintsExpandX, 2, 2, 2, 10));
 
@@ -946,6 +938,9 @@ void KVIDGridManagerGUI::ShowListOfLines()
       KVList* ids = fSelectedGrid->GetIdentifiers();
       // sort lines in order of increasing Z
       ids->Sort();
+	  if(!fLastSelectedGrid || (fLastSelectedGrid && fSelectedGrid->IsA() != fLastSelectedGrid->IsA()) ){
+  		  UpdateDataColumnsOfIDLineList();
+	  }
       fIDLineList->Display(ids);
       KVSeqCollection* cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutLine");
       fCUTLineList->Display(cutlines);
@@ -1153,4 +1148,70 @@ void KVIDGridManagerGUI::FitGrid()
     TContextMenu * cm = new TContextMenu("FitPanel", "Context menu for KVVirtualIDFitter::FitPanel");
     cm->Action(fitter,m);
     delete cm;
+}
+
+void KVIDGridManagerGUI::BuildDefaultIDLineList()
+{
+	fIDLineList->SetObjClass( KVIDentifier::Class() );
+	fIDLineList->SetDataColumns(5);
+   	fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
+   	fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
+   	fIDLineList->SetDataColumn(2, "A", "", kTextCenterX);
+   	fIDLineList->SetDataColumn(3, "OnlyZId", "OnlyZId", kTextCenterX);
+   	fIDLineList->SetDataColumn(4, "MassFormula", "", kTextCenterX);
+   	fIDLineList->ActivateSortButtons();
+   	fIDLineList->AllowBrowse(kFALSE);
+}
+
+void KVIDGridManagerGUI::UpdateDataColumnsOfIDLineList(){
+	// Changes the data columns of the IDLine list as a function
+	// of the default class of IDLines used by the seleted grid.
+	// Data column definitions are given by the environment variable
+	// DefaultIDLineClass.DataColumns in the kvrootrc file e.g.
+	//
+	// KVIDZALine.DataColumns: Name,,4 | Z | OnlyZId,OnlyZId
+	//
+	// where the description of each data column is separated by '|'.
+	// for each data column the arguments are: 
+	//
+	//   name, method, justification mode 
+	//   
+	//   If the justification mode is not given, the text will be centered.
+	//   If the method is not given, "Get<name>" method will be called.
+
+	if( !fSelectedGrid->InheritsFrom(KVIDGrid::Class()) ){
+		BuildDefaultIDLineList();
+ 	   	return;
+	}
+
+	TClass *cl = ((KVIDGrid *)fSelectedGrid)->DefaultIDLineClass();
+	KVString st;
+	st.Form("%s.DataColumns", cl->GetName());
+   	st = gEnv->GetValue(st.Data(), "");
+	if( st.IsNull() ){
+		BuildDefaultIDLineList();
+ 	   	return;
+	}
+
+	fIDLineList->SetObjClass( cl );
+	TObjArray *tok0 =st.Tokenize("|");
+	Int_t Ncol = tok0->GetEntries();
+	if(Ncol>0){
+ 	   	fIDLineList->SetDataColumns(Ncol);
+		for( Int_t i=0; i<Ncol; i++ ){
+			st = ((TObjString *)tok0->At(i))->GetString();
+			st.Begin(",");
+			KVString name, meth, mode;
+			name = st.Next(kTRUE);
+			meth = st.Next(kTRUE);
+			mode = st.Next(kTRUE);
+			Int_t imode;
+			if( mode.IsNull() ) imode = ( i==0 ? kTextLeft : kTextCenterX );
+			else imode = mode.Atoi();
+			fIDLineList->SetDataColumn(i,name.Data(),meth.Data(),imode);
+		}
+	}
+	delete tok0;
+	fIDLineList->ActivateSortButtons();
+   	fIDLineList->AllowBrowse(kFALSE);
 }

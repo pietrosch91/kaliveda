@@ -13,6 +13,7 @@ $Date: 2009/04/28 09:11:29 $
 #include "TGListView.h"
 #include "TString.h"
 #include "TMethodCall.h"
+#include "TFunction.h"
 #include "TClass.h"
 #include "TTimer.h"
 #include "Riostream.h"
@@ -47,13 +48,13 @@ class KVLVColumnData
 
 	public:
 	KVLVColumnData(TClass* cl, const Char_t* name, const Char_t* method="")
-			: fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE), fIsBoolean(kFALSE)
+			: fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE)
 	{
 		if(fMethod=="") fMethod.Form("Get%s", name);
 		fMethCall = new TMethodCall(cl, fMethod.Data(), "");
 		if( !fMethCall->IsValid() ){
 			std::cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
-				<< " is not valid" << std::endl;
+				<< " is not valid for class "<<cl->GetName() << std::endl;
 		}
                 fRetType = (Int_t)fMethCall->ReturnType();
         fDataFormat = "";
@@ -69,6 +70,9 @@ class KVLVColumnData
         default:
             break;
         }
+		if( !strcmp(fMethCall->GetMethod()->GetReturnTypeName(),"bool")
+				|| !strcmp(fMethCall->GetMethod()->GetReturnTypeName(),"Bool_t") ) fIsBoolean=kTRUE;
+		else fIsBoolean=kFALSE;
 	};
 	virtual ~KVLVColumnData()
 	{

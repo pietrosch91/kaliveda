@@ -137,5 +137,8 @@ public:
    void StartEditor();
    void OpenRootFile();
    
+   void BuildDefaultIDLineList();
+   void UpdateDataColumnsOfIDLineList();
+
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
 };
