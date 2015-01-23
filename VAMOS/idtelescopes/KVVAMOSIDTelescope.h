@@ -24,7 +24,6 @@ class KVVAMOSIDTelescope : public KVINDRAIDTelescope
    		virtual ~KVVAMOSIDTelescope();
 
    		virtual const Char_t *GetArrayName();
-
    		virtual Bool_t Identify(KVIdentificationResult *, Double_t x=-1., Double_t y=-1.);
    		virtual void Initialize();
 

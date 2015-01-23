@@ -6,5 +6,6 @@
 #pragma link C++ class KVIDHarpeeICSi+;
 #pragma link C++ class KVIDHarpeeICSi_e503+;
 #pragma link C++ class KVIDHarpeeSiCsI+;
+#pragma link C++ class KVIDQA+;
 
 #endif
