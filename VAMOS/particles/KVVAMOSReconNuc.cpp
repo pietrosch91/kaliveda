@@ -188,11 +188,10 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 		if( !stopdetOK ) continue;
 		// transmission=kFALSE if particle stop in det
 		Bool_t transmission = ( det != stopdet );
-		Double_t Edet = (det->IsECalibrated() ? det->GetEnergy() : -1);
-
-		// The stopping detector has to be calibrated, hit by only one
-		// particle and its energy has to be positive
-		if( !transmission && ((det->GetNHits() != 1) || (Edet <= 0)) ){
+        
+		// The stopping detector has to be fired, calibrated, hit by only one
+		// particle
+		if( !transmission && !((det->GetNHits() == 1) && det->Fired() && det->IsECalibrated()) ){
  			SetECode( kECode0 );
 			SetIsUncalibrated();
 			stopdetOK = kFALSE;
@@ -224,6 +223,9 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			}
       	}
 
+		det->SetEResAfterDetector( Etot );
+		Double_t Edet = det->GetCorrectedEnergy(this,-1,transmission);
+
 		// Detector is calibrated and hit by only one particle
 		if( Edet > 0 &&  det->GetNHits() == 1  ){
 			det->SetEResAfterDetector( Etot );
@@ -231,11 +233,12 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			// if Edet is greater than the maximal possible theoretical value
 			// this may be because Z or A are underestimated and one of both
 			// has to be increased (see KVDetector::GetCorrectedEnergy)
-			if( Edet > det->GetMaxDeltaE( GetZ(), GetA() ) ){
+			if(GetParameters()->GetIntValue("GetCorrectedEnergy.Warning")==1){
 				Int_t z0 = GetZ();
 				Int_t a0 = GetA();
 				Int_t z=z0, a=a0;
 				Bool_t isOK = kFALSE;
+				Edet = det->GetEnergy();
 
 //				Warning("CalibrateFromDetList","MeasuredDE>MaxDE in %s, Z= %d, A=%d, MeasuredDE= %f MeV, MaxDE %f MeV",det->GetName(), z0, a0, Edet,det->GetMaxDeltaE( z0, a0 ));
 
@@ -249,11 +252,12 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 				}
 //				Info("CalibrateFromDetList","MeasuredDE<MaxDE in %s by changing Z: %d->%d, A: %d->%d \n",det->GetName(), z0 ,z, a0 ,a);
 				SetZandA( z, a );
+				det->SetEResAfterDetector( Etot );
 				Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 				// we back to initial values of Z and A
 				SetZandA( z0, a0 );
 			}
-			else Edet  = det->GetCorrectedEnergy( this, -1, transmission );
+
 			Etot += Edet;
 			fDetE[idx] = Edet;
 //			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
