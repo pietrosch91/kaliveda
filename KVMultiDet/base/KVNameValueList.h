@@ -9,6 +9,7 @@
 #include "TRegexp.h"
 
 class KVNamedParameter;
+class KVEnv;
 
 class KVNameValueList : public TNamed
 {
@@ -75,6 +76,7 @@ class KVNameValueList : public TNamed
 	const Char_t* GetStringValue(Int_t idx) const;
    
    virtual void ReadEnvFile(const Char_t* filename);
+   virtual KVEnv* ProduceEnvFile();
    virtual void WriteEnvFile(const Char_t* filename);
 
     void Sort() { fList.Sort(); }
