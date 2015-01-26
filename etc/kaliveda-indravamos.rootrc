@@ -210,6 +210,12 @@ INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SIL
 # Mass Formula used in KVVAMOSReconNuc to deduce A from Z nuclei
 KVVAMOSReconNuc.MassFormula:        2
 
+# Default identification grid classes for ID telescopes
+# Used by KVIDGridManagerGUI when creating new grids
+#
+# The following are specific grids for specific telescopes
+KVIDTelescope.DefaultGrid.VAMOS.QA.SI:          KVIDQAGrid
+
 # Default identification/cut classes for different ID graphs
 # Used by KVIDGridManagerGUI when creating new grids
 #
@@ -221,9 +227,10 @@ KVIDQAGrid.CutClass:  KVIDCutLine  KVIDCutContour
 KVIDQAGrid.DefaultCutClass:  KVIDCutLine
 KVIDQAGrid.IDClass:  KVIDQALine
 
-# Definition of data columns for the ID Line list used in
-# KVIDGridManagerGUI
+# Definition of data columns of the KVListView lists used
+# in KVIDGridManagerGUI from the name of the object class of the lists
 KVIDQALine.DataColumns: Name | Q | Number of A, GetNumberOfMasses | OnlyQId, OnlyQId
+KVIDQAGrid.DataColumns: Name, ,1 | VarX, ,1 | VarY, ,1 | ID Telescopes, GetNamesOfIDTelescopes,1 | RunList, ,1 | OnlyQId, OnlyQId,4 |# Ident., GetNumberOfIdentifiers,2 |# Cuts, GetNumberOfCuts,2 | X scaling, GetXScaleFactor,2 | Y scaling, GetYScaleFactor,2
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list

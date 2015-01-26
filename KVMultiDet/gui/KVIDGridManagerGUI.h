@@ -88,6 +88,8 @@ class KVIDGridManagerGUI: public TGMainFrame {
       fStatusBar->SetText(text);
    };
 
+   Bool_t SetDataColumnsToList( KVListView *list );
+
 public:
 
    KVIDGridManagerGUI();
@@ -102,9 +104,11 @@ public:
    void RemoveEmptyTabs();
    void TabSelect(Int_t);
    void UpdateListOfGrids();
+   void SetDefaultDataColumnsToGridList();
 
    void ShowListOfLines();
    void UpdateListOfLines();
+   void SetDefaultDataColumnsToIDLineList();
 
    void SelectionChanged();
    Int_t GetNSelected();
@@ -137,8 +141,6 @@ public:
    void StartEditor();
    void OpenRootFile();
    
-   void BuildDefaultIDLineList();
-   void UpdateDataColumnsOfIDLineList();
 
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
 };
