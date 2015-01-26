@@ -230,7 +230,7 @@ KVIDQAGrid.IDClass:  KVIDQALine
 # Definition of data columns of the KVListView lists used
 # in KVIDGridManagerGUI from the name of the object class of the lists
 KVIDQALine.DataColumns: Name | Q | Number of A, GetNumberOfMasses | OnlyQId, OnlyQId
-KVIDQAGrid.DataColumns: Name, ,1 | VarX, ,1 | VarY, ,1 | ID Telescopes, GetNamesOfIDTelescopes,1 | RunList, ,1 | OnlyQId, OnlyQId,4 |# Ident., GetNumberOfIdentifiers,2 |# Cuts, GetNumberOfCuts,2 | X scaling, GetXScaleFactor,2 | Y scaling, GetYScaleFactor,2
+KVIDQAGrid.DataColumns: Name, ,1 | VarX, ,1 | VarY, ,1 | ToF, ,1 | ID Telescopes, GetNamesOfIDTelescopes,1 | RunList, ,1 | OnlyQId, OnlyQId,4 |# Ident., GetNumberOfIdentifiers,2 |# Cuts, GetNumberOfCuts,2 | X scaling, GetXScaleFactor,2 | Y scaling, GetYScaleFactor,2
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list

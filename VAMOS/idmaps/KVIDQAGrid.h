@@ -32,6 +32,7 @@ class KVIDQAGrid : public KVIDGrid
  	Int_t fICode;   //! identification code
 	Int_t fOnlyQId; //! dummy variable used by context menu dialog boxes
 
+
  	void init();
     Bool_t AcceptIDForTest()
     {
@@ -101,6 +102,9 @@ class KVIDQAGrid : public KVIDGrid
 
 	TFile* FindAMarkers(const Char_t *name_of_data_histo, const Char_t *q_list="");
 	void UnDraw();
+
+	const Char_t *GetToF() const{ return fPar->GetStringValue("ToF"); }
+	void  SetToF(const Char_t *tof){ fPar->SetValue("ToF",tof); Modified(); }// *MENU={Hierarchy="Set.../Time of Flight"}*
 
    	ClassDef(KVIDQAGrid,1)//Base class for 2D Q & A identification grids
 };
