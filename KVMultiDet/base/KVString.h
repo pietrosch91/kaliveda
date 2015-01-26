@@ -6,7 +6,6 @@
 #include "TString.h"
 #include "RVersion.h"
 class TObjArray;
-#include "KVConfig.h"
 
 /*
 The following macro can be used in cases where Tokenize is used

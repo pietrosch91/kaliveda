@@ -7,7 +7,6 @@
 #include "TSeqCollection.h"
 #include <RQ_OBJECT.h>
 #include "TFile.h"
-#include "KVConfig.h"
 
 class KVSeqCollection : public TSeqCollection
 {
