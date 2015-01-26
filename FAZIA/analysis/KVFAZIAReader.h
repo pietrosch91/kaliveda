@@ -10,6 +10,8 @@
 
 #include <TChain.h>
 #include <TSelector.h>
+#include <TClonesArray.h>
+#include <KVDetectorEvent.h>
 
 // Header file for the classes stored in the TTree if any.
 
@@ -17,12 +19,14 @@
 
 class KVFAZIAReader : public TSelector {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   TTree	*fChain;   //!pointer to the analyzed TTree or TChain
 	Int_t fEventNumber;
    Int_t fCurrentRun;
    Int_t fReadEntries;
+   TClonesArray* cl;
+   KVDetectorEvent* fDetEv;
    
-   KVFAZIAReader() : fChain(0) { fCurrentRun = 0; }
+   KVFAZIAReader() : fChain(0) { fCurrentRun = 0; cl=0; fDetEv = new KVDetectorEvent(); }
    virtual ~KVFAZIAReader() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -39,9 +43,11 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
    virtual void 	InitRun(){};
+   virtual void 	EndRun(){};
 	virtual Int_t GetEventNumber(){return fEventNumber;} 
    virtual Int_t GetCurrentRunNumber() {return fCurrentRun;} 
    virtual Int_t GetNumberOfReadEntries() {return fReadEntries;} 
+   KVDetectorEvent* GetDetectorEvent() const { return fDetEv; }
    
    ClassDef(KVFAZIAReader,0);
 };

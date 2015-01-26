@@ -81,10 +81,11 @@ void KVSignal::DeduceFromName()
 		part = tmp.Next(); part.ReplaceAll("Q",""); fQuartet = part.Atoi();
 		part = tmp.Next(); part.ReplaceAll("T",""); fTelescope = part.Atoi();
 		fType = tmp.Next();
-      fDet = GetTitle();
+      fDet = GetTitle(); fDet.ToUpper();
       
-      fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
-      fQuartetName.Form("B%03d-Q%d",fBlock,fQuartet);
+      fDetName.Form("%s-T%d-Q%d-B%03d",fDet.Data(),fTelescope,fQuartet,fBlock);
+		fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
+     fQuartetName.Form("B%03d-Q%d",fBlock,fQuartet);
    }
    
 }

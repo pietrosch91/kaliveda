@@ -3,7 +3,7 @@
 
 PROJ_NAME = FAZIA
 
-MODULES = analysis fazia idtelescopes db
+MODULES = analysis fazia idtelescopes db detectors
 
 MANIP_DIRS = LNS_2011 LNS_2014 INDRAFAZIA
 

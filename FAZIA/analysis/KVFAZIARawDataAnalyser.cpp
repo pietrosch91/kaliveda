@@ -14,6 +14,7 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "TObjString.h"
 #include "TChain.h"
+#include "KVMultiDetArray.h"
 //#include "KVAvailableRunsFile.h"
 
 using namespace std;
@@ -63,7 +64,7 @@ Bool_t KVFAZIARawDataAnalyser::CheckTaskVariables()
 
    cout << "============> Analysis summary <=============" << endl;
    cout << "Analysis of runs " << fRunList.
-       GetList() << " with the KVSelector ";
+       GetList() << " with the TSelector ";
    cout << "\"" << GetUserClass() << "\"." << endl;
    if (nbEventToRead) {
       cout << nbEventToRead << " events will be processed." << endl;
@@ -143,6 +144,7 @@ void KVFAZIARawDataAnalyser::SubmitTask()
     {
    	SafeDelete(fSelector);
 		 Info("SubmitTask", "Beginning TChain::Process...");
+       preInitAnalysis();
       if (nbEventToRead) {
          theChain->Process(GetUserClass(), option.Data(),nbEventToRead);
       } else {
@@ -313,7 +315,7 @@ void KVFAZIARawDataAnalyser::preInitAnalysis()
 	// Note that at this stage we are not analysing a given run, so the parameters
 	// of the array are not set (they will be set in preInitRun()).
 		
-	//if( !gIndra ) gDataSet->BuildMultiDetector();
+	if( !gMultiDetArray ) gDataSet->BuildMultiDetector();
 }
 
 
@@ -322,12 +324,12 @@ void KVFAZIARawDataAnalyser::preInitRun()
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
 	// We call gIndra->SetParameters for the current run.
 	
-	//Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
-	/*
-   gIndra->SetParameters(run);
-	ConnectRawDataTree();
+	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
+	
+   gMultiDetArray->SetParameters(run);
+	//ConnectRawDataTree();
 	PrintTreeInfos();
-	*/
+	
 }
 
 void KVFAZIARawDataAnalyser::preAnalysis()

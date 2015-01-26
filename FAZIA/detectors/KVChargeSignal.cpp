@@ -182,11 +182,13 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
    Double_t par1 = width; //2*GetRMS(2);		//Amplitude
    Double_t par2 = GetMean(1);	//Front
    
-   filter->SetParameters(par0,par1,par2);
+   filter->SetParameters(par0,par1,par2,40);
+   //filter->SetParameters(-7350,par1,590,70);
    filter->SetParLimits(1,0,width*1.1);
-   filter->SetParLimits(2,200,nn);
-   filter->FixParameter(3,0);
-   filter->FixParameter(4,1);
+   filter->SetParLimits(2,50,nn);
+   filter->SetParLimits(3,0.01,nn);
+   //filter->SetParLimits(Parameter(3,1);
+   //filter->FixParameter(4,1);
    
    /*
    filter->SetParLimits(3,-1,0.0001);
@@ -206,17 +208,20 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
    	return 0;
    }
 	
+   
    /*
    filter->ReleaseParameter(3);
    filter->SetParLimits(3,-1,0.000);
-   
+   */
+   /*
    filter->ReleaseParameter(4);
    filter->SetParLimits(4, 0,10);
-   
+   */
+   /*
    times=0;
-	nres = Int_t(Fit(filter,"0WRQ"));
+	nres = Int_t(Fit(filter,"WRQ"));
    while (nres!=0 &&  times<10){
-   	nres = Int_t(Fit(filter,"0WRQ"));
+   	nres = Int_t(Fit(filter,"WRQ"));
    	times+=1;
       printf("on recommence Fit #2 %d/10\n",times);
    }
@@ -225,13 +230,8 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
    	return 0;
    }
    */
-   Int_t np=0;
-   psa->SetValue("BaseLine.Fit",filter->GetParameter(np++));
-   psa->SetValue("Amplitude.Fit",filter->GetParameter(np++));
-   psa->SetValue("Front0.Fit",filter->GetParameter(np++));
-   psa->SetValue("Front1.Fit",filter->GetParameter(np++));
-   psa->SetValue("Temp.Fit",filter->GetParameter(np++));
-   psa->SetValue("Width",width);
+   //Int_t np=0;
+   psa->SetValue("width",width);
    
    for (Int_t nn=0;nn<filter->GetNpar();nn+=1)
    	filter->ReleaseParameter(nn);

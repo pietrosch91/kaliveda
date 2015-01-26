@@ -457,8 +457,6 @@ public :
    TBranch        *b_scale_approx_rate;   //!
    TBranch        *b_bitpattern;   //!
 	*/
-   TClonesArray* cl;
-   
    KVFAZIARawDataReader_LNS_2011() : KVFAZIARawDataReader() { }
    virtual ~KVFAZIARawDataReader_LNS_2011() { }
    

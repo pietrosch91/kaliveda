@@ -12,6 +12,7 @@ $Date: 2007/05/31 09:59:22 $
 
 #include "KVDataAnalyser.h"
 #include "KVFAZIAReader.h"
+#include "KVDetectorEvent.h"
 class TChain;
 
 class KVFAZIARawDataAnalyser:public KVDataAnalyser {
@@ -29,7 +30,7 @@ class KVFAZIARawDataAnalyser:public KVDataAnalyser {
    TObjArray* parList;
    Long64_t Entry;
 	//void ConnectRawDataTree();
-   
+
    KVString fDataVersion;//KV version used to write analysed data
    KVString fDataSeries;//KV series used to write analysed data
    Int_t fDataReleaseNum;//KV release number used to write analysed data
@@ -65,7 +66,8 @@ class KVFAZIARawDataAnalyser:public KVDataAnalyser {
    KVString GetDataVersion() const { return fDataVersion; }
    KVString GetDataSeries() const { return fDataSeries; }
    Int_t GetDataReleaseNumber() const { return fDataReleaseNum; }
-	
+   
+   
    ClassDef(KVFAZIARawDataAnalyser, 0) //For analysing reconstructed INDRA data
 };
 

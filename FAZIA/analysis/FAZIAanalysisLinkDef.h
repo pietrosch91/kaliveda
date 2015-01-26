@@ -13,4 +13,5 @@ $Id: FAZIALinkDef.h,v 1.4 2013/11/28 15:59:49 bonnet Exp $
 #pragma link C++ class KVFAZIARawDataReader+;
 #pragma link C++ class KVFAZIAReader+;
 #pragma link C++ class KVFAZIARawDataAnalyser+;
+#pragma link C++ class KVFAZIARawDataReconstructor+;
 #endif

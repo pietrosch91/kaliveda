@@ -67,7 +67,6 @@ void KVFAZIARawDataReader_LNS_2011::InitRun()
 {
    // Set branch addresses and branch pointers
    //Info("InitRun","Changement de run name=%s number=%d",fChain->GetCurrentFile()->GetName(),fChain->GetFileNumber());
-   fChain->SetBranchAddress("signals",&cl);
    /*
    fChain->SetBranchAddress("tele111_si1.energy", &tele111_si1_energy, &b_tele111_si1_energy);
    fChain->SetBranchAddress("tele111_si1.A", &tele111_si1_A, &b_tele111_si1_A);

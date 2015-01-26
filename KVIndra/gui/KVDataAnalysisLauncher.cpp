@@ -565,9 +565,9 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const Char_t* ExpType, const TGWi
     lvRuns->SetDataColumn(iicc++, "Trigger", "");
     lvRuns->SetDataColumn(iicc++, "Events", "", kTextRight);
     lvRuns->SetDataColumn(iicc++, "File written", "GetDatimeString");
-    printf("pouet\n");
+    //printf("pouet\n");
     //lvRuns->GetDataColumn(iicc)->SetIsDateTime();
-    printf("pouet\n");
+    //printf("pouet\n");
     lvRuns->SetDataColumn(iicc++, "Comments", "", kTextLeft);
     lvRuns->SetDataColumn(iicc++, "Version", "GetKVVersion");
     lvRuns->SetDataColumn(iicc++, "User", "GetUserName");

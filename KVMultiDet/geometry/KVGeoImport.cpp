@@ -5,6 +5,8 @@
 #include <KVMultiDetArray.h>
 #include <KVIonRangeTableMaterial.h>
 #include <TGeoBBox.h>
+#include <TPluginManager.h>
+
 #include <KVEvent.h>
 #include <KVGroup.h>
 #include <TGeoPhysicalNode.h>
@@ -300,11 +302,24 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     // 7.) The 'type' of the detector will be set to the name of the material
     //     in the detector's active layer i.e. if active layer material name is "Si",
     //     detector type will be 'Si'
+    // 
+    // 8.) Default class for all detectors is KVDetector
+    //     if you want to use an other class
+    //     you need to defined it using SetDetectorPlugin method and put the
+    //	  associated line in your .kvrootrc configuration file. This plugin
+    //	  has to be loaded by your KVMultiDetArray object
 
-//    Info("BuildDetector","%s",det_name.Data());
 
-    KVDetector* d = new KVDetector;
-    d->SetName(det_name);
+   KVDetector* d = 0;
+   TPluginHandler *ph=NULL;
+   if ( fDetectorPlugin=="" || !(ph = LoadPlugin("KVDetector",fDetectorPlugin)) ){
+   	d = new KVDetector;
+   }
+   else{
+   	d = (KVDetector* )ph->ExecPlugin(0);
+   }
+   
+	d->SetName(det_name);
 
     Int_t nlayer = det_vol->GetNdaughters();
     if(nlayer){

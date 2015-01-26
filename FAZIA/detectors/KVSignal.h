@@ -16,6 +16,7 @@ class KVSignal : public TGraph
    TString fQuartetName;
    Int_t fTelescope;
    TString fTelName;
+   TString fDetName;
    TString fType;
    TString fDet;
    
@@ -36,6 +37,7 @@ class KVSignal : public TGraph
    const Char_t* GetQuartetName() const { return fQuartetName.Data(); }
    Int_t GetTelescopeNumber() const { return fTelescope; }
    const Char_t* GetTelescopeName() const { return fTelName.Data(); }
+   const Char_t* GetDetectorName() const { return fDetName.Data(); }
    const Char_t* GetType() const { return fType.Data(); }
    const Char_t* GetDetector() const { return fDet.Data(); }
    
