@@ -19,7 +19,8 @@ class KVSignal : public TGraph
    TString fDetName;
    TString fType;
    TString fDet;
-   
+	Double_t fYmin,fYmax;
+  
    public:
    KVSignal();
    KVSignal(const char* name, const char* title);
@@ -40,6 +41,12 @@ class KVSignal : public TGraph
    const Char_t* GetDetectorName() const { return fDetName.Data(); }
    const Char_t* GetType() const { return fType.Data(); }
    const Char_t* GetDetector() const { return fDet.Data(); }
+   
+   void ComputeGlobals(void);
+   Double_t GetYmin() const { return fYmin; }
+   Double_t GetYmax() const { return fYmax; }
+   Double_t GetAmplitude() const { return fYmax-fYmin; }
+   
    
    ClassDef(KVSignal,2)//simple class to store TArray in a list
 };

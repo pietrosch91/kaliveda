@@ -18,6 +18,7 @@ ClassImp(KVSignal)
 KVSignal::KVSignal()
 {
    // Default constructor
+   fYmin = fYmax = 0;
 }
 
 //________________________________________________________________
@@ -25,6 +26,7 @@ KVSignal::KVSignal()
 KVSignal::KVSignal(const char* name, const char* title) : TGraph(name, title)
 {
    // Write your code here
+   fYmin = fYmax = 0;
 }
 
 //________________________________________________________________
@@ -32,6 +34,7 @@ KVSignal::KVSignal(const char* name, const char* title) : TGraph(name, title)
 KVSignal::KVSignal(const TString& name, const TString& title) : TGraph(name, title)
 {
    // Write your code here
+   fYmin = fYmax = 0;
 }
 
 KVSignal::~KVSignal()
@@ -104,5 +107,21 @@ KVPSAResult* KVSignal::TreateSignal(void)
 	//to be implemented in child class
    Info("TreateSignal","To be implemented in child classes");
 	return 0;
+}
+
+//________________________________________________________________
+
+void KVSignal::ComputeGlobals(void)
+{
+	Double_t xx,yy;
+   Int_t np=0;
+   GetPoint(np++,xx,yy);
+   fYmin=fYmax=yy;
+   
+   for (np=1;np<GetN();np+=1){
+   	GetPoint(np,xx,yy);
+      if (yy<fYmin) fYmin = yy;
+      if (yy>fYmax) fYmax = yy;
+   }
 }
 
