@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(KaliVeda)
 
-find_package(ROOT REQUIRED Hist RIO Tree MathCore Gpad Gui)
+set(ROOT_CONFIG_DEBUG yes)
+find_package(ROOT REQUIRED Geom Spectrum Proof Physics Hist RIO Tree MathCore Gpad Gui)
 message(STATUS "Found ROOT v${ROOT_VERSION}")
 
 include(${ROOT_USE_FILE})

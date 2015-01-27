@@ -92,7 +92,7 @@ class KVEventViewer : public KVBase
    void SetFixSeed(Bool_t fix, Int_t refresh=1) { fFixSeed=fix; fRefresh = refresh;}
    void SetXYMode(Bool_t mode) { fXYMode=mode; }
    // Draw event in momentum space (default is velocity space)
-   void SetDrawMomentumSpace(Bool_t on=kTRUE) { fMomentumSpace=kTRUE; }
+   void SetDrawMomentumSpace(Bool_t on=kTRUE) { fMomentumSpace=on; }
 
    void DrawNucleus(KVNucleus*, const Char_t* frame="");
    void DrawEvent(KVEvent*, const Char_t *frame="");

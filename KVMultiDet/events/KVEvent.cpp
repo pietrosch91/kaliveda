@@ -159,7 +159,7 @@ KVNucleus *KVEvent::AddParticle()
 
 //________________________________________________________________________________
 
-void KVEvent::Clear(Option_t * opt)
+void KVEvent::Clear(Option_t*)
 {
    //Reset the event to zero ready for new event.
 
