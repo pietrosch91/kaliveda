@@ -1,0 +1,10 @@
+ifeq ($(WITH_OPENGL),yes)
+	EXTRA_CXX_FLAGS += -DWITH_OPENGL
+	EXTRA_LIBRARIES += -L$(ROOTSYS)/lib -lRGL
+	RLIBMAPDEPS += libRGL.so
+else
+	NOT_READY += events/KVEventViewer.cpp
+endif
+
+include Makefile.KVMultiDet
+
