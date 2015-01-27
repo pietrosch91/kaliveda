@@ -37,6 +37,7 @@ KVFAZIA::KVFAZIA()
    gFazia = this;
    IncludeTargetInGeometry();
    fDetectorTypes="SI1,SI2,CSI";
+   fSignalTypes="QL1,I1,QH1,Q2,I2,Q3";
 }
 
 KVFAZIA::~KVFAZIA()
@@ -138,6 +139,13 @@ void KVFAZIA::Build(Int_t run)
 	// make sure that the expected number of detectors get imported!
    imp.ImportGeometry(0.25, 1, 2., 0, 14);
    
+   /*
+   KVFAZIADetector* det=0;
+   TIter next_d(GetDetectors());
+   while ( det = (KVFAZIADetector* )next_d() ){
+   	printf("%s %s %d %d %d\n",det->GetName(),det->GetFAZIAType(),det->GetBlockNumber(),det->GetQuartetNumber(),det->GetTelescopeNumber());	
+   }
+   */
 }
 
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
@@ -159,10 +167,9 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
         KVGroup* grp = 0;
         while ( (par = (KVSignal*)next_par()) ){ 
         		par->DeduceFromName();
-            par->ComputeGlobals();
             if ( (det = GetDetector( par->GetDetectorName() )) )
             {
-            	((KVFAZIADetector* )det)->AddSignal(par);
+            	((KVFAZIADetector* )det)->SetSignal(par,par->GetType());
                if ( (grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp) ) {
                	detev->AddGroup(grp);
                }

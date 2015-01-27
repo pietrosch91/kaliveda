@@ -33,7 +33,7 @@ class KVFAZIARawDataReconstructor : public KVFAZIAReader
    virtual void EndRun();
    virtual void EndAnalysis(){};
    
-   virtual void ExtraProcessing(){};
+   virtual void ExtraProcessing();
 
    ClassDef(KVFAZIARawDataReconstructor,1)//Handle reconstruction of FAZIA events
 };

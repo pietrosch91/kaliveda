@@ -11,8 +11,8 @@ class KVCurrentSignal : public KVSignal
 
    public:
    KVCurrentSignal();
-   KVCurrentSignal(const char* name, const char* title);
-   KVCurrentSignal(const TString& name, const TString& title);
+   KVCurrentSignal(const char* name);
+   
    virtual ~KVCurrentSignal();
    void Copy(TObject& obj) const;
 

@@ -19,8 +19,8 @@ class KVChargeSignal : public KVSignal
    public:
    TF1* GetFitFunction() {return fFunc1; }
    KVChargeSignal();
-   KVChargeSignal(const char* name, const char* title);
-   KVChargeSignal(const TString& name, const TString& title);
+   KVChargeSignal(const char* name);
+   
    virtual ~KVChargeSignal();
    void Copy(TObject& obj) const;
 	virtual KVPSAResult* TreateSignal(void);

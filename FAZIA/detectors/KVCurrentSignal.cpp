@@ -21,17 +21,12 @@ KVCurrentSignal::KVCurrentSignal()
 
 //________________________________________________________________
 
-KVCurrentSignal::KVCurrentSignal(const char* name, const char* title) : KVSignal(name, title)
+KVCurrentSignal::KVCurrentSignal(const char* name) : KVSignal(name, "Current")
 {
    // Write your code here
 }
 
 //________________________________________________________________
-
-KVCurrentSignal::KVCurrentSignal(const TString& name, const TString& title) : KVSignal(name, title)
-{
-   // Write your code here
-}
 
 KVCurrentSignal::~KVCurrentSignal()
 {

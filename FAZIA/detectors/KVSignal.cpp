@@ -23,18 +23,20 @@ KVSignal::KVSignal()
 
 //________________________________________________________________
 
-KVSignal::KVSignal(const char* name, const char* title) : TGraph(name, title)
+KVSignal::KVSignal(const char* name, const char* title) : TGraph()
 {
    // Write your code here
    fYmin = fYmax = 0;
+   SetNameTitle(name,title);
 }
 
 //________________________________________________________________
 
-KVSignal::KVSignal(const TString& name, const TString& title) : TGraph(name, title)
+KVSignal::KVSignal(const TString& name, const TString& title) : TGraph()
 {
    // Write your code here
    fYmin = fYmax = 0;
+   SetNameTitle(name,title);
 }
 
 KVSignal::~KVSignal()
@@ -61,11 +63,15 @@ void KVSignal::Copy(TObject& obj) const
 
 void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 {
-
 	Set(nn);
-   for (Int_t np=0;np<nn;np+=1)
+   if (nn==0) return;
+   Int_t np=0;
+   fYmin=fYmax=yy[np];
+   for (np=1;np<nn;np+=1){
    	SetPoint(np,xx[np],yy[np]);
-
+      if (yy[np]<fYmin) fYmin = yy[np];
+      if (yy[np]>fYmax) fYmax = yy[np];
+	}
 }
 
 //________________________________________________________________
@@ -96,9 +102,10 @@ void KVSignal::DeduceFromName()
 void KVSignal::Print(Option_t* chopt) const
 {
 	Info("Print","\nName: %s - Title: %s",GetName(),GetTitle());
-	printf("\tBlock# %d - Quartet# %d - Telescope# %d\n",fBlock,fQuartet,fTelescope);
-   printf("\tType: %s - Detecteur: %s\n",fType.Data(),fDet.Data());
-   
+	if (fBlock!=-1){
+   	printf("\tBlock# %d - Quartet# %d - Telescope# %d\n",fBlock,fQuartet,fTelescope);
+   	printf("\tType: %s - Detecteur: %s\n",fType.Data(),fDet.Data());
+   }
 }
 //________________________________________________________________
 

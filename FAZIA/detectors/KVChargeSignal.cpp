@@ -23,19 +23,13 @@ KVChargeSignal::KVChargeSignal()
 
 //________________________________________________________________
 
-KVChargeSignal::KVChargeSignal(const char* name, const char* title) : KVSignal(name, title)
+KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
 {
    // Write your code here
    fFunc1=fFunc2=0;
 }
 
 //________________________________________________________________
-
-KVChargeSignal::KVChargeSignal(const TString& name, const TString& title) : KVSignal(name, title)
-{
-   // Write your code here
-   fFunc1=fFunc2=0;
-}
 
 KVChargeSignal::~KVChargeSignal()
 {

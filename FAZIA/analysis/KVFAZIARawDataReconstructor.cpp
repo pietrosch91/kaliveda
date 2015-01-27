@@ -8,6 +8,8 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataRepository.h"
 #include "RVersion.h"
+#include "KVFAZIADetector.h"
+#include "KVSignal.h"
 
 ClassImp(KVFAZIARawDataReconstructor)
 
@@ -100,7 +102,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 	
    
-   recev->SetNumber( GetEventNumber() );		         
+   recev->SetNumber( GetEventNumber() );
 	//printf("!! Appel de ReconstructedEvent::ReconstructEvent()\n");
    recev->ReconstructEvent( GetDetectorEvent() );
 	
@@ -109,12 +111,38 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    	nb_recon++;
       tree->Fill();
    }
+   
+   if (nb_recon%1000==0)
+   	recev->Print();
+   
    //printf("!! Appel de ReconstructedEvent::Clear()\n");
    recev->Clear();
    //printf("!!! Appel de KVDetectorEvent::Clear()\n");
    GetDetectorEvent()->GetGroups()->Clear();
    
    return kTRUE;
+}
+
+//______________________________________________________________________________________//
+
+ void KVFAZIARawDataReconstructor::ExtraProcessing()
+{
+	KVFAZIADetector* det = 0;
+	KVSignal* sig = 0;
+	KVReconstructedNucleus* recnuc=0;
+   while ( (recnuc = recev->GetNextParticle()) )
+   {
+   	TIter next_d(recnuc->GetDetectorList());
+      while ( (det = (KVFAZIADetector* )next_d()) )
+   	{
+   		TIter next_s(det->GetListOfSignals());
+         while ( (sig = (KVSignal* )next_s()) )
+   		{
+   			recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetAmplitude());
+      	}
+      }   
+   }
+   
 }
 
 //______________________________________________________________________________________//

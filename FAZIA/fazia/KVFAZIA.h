@@ -19,6 +19,7 @@ class KVFAZIA : public KVMultiDetArray
    Bool_t fBuildTarget;	//kTRUE to include target frame in the geometry
    TString fCorrespondanceFile; //name of the file where are listed links between geometry and detector names
    KVString fDetectorTypes;
+   KVString fSignalTypes;
    
    //methods to be implemented in child classes
    virtual void BuildFAZIA();
