@@ -43,6 +43,7 @@ void KVIDQAGrid::Copy(TObject& obj) const{
 void KVIDQAGrid::init(){
     //initialisation
 	fICode = kICODE8;
+	fRealQ = -1.0;
 }
 //________________________________________________________________
 
@@ -320,6 +321,7 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 
 
 	idr->IDOK = kFALSE;
+    const_cast < KVIDQAGrid * >(this)->fRealQ = -1.0;
 
 	Int_t idx, idx_inf, idx_sup;
 	Double_t dist, dist_inf, dist_sup;
@@ -399,6 +401,7 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 		}
 
 		Q = closest_line->GetQ() + deltaQ;
+    	const_cast < KVIDQAGrid * >(this)->fRealQ = Q;
     	idr->Z   = closest_line->GetQ();
    		idr->PID = Q;
 	}
@@ -737,4 +740,143 @@ Int_t KVIDQAGrid::GetNumberOfMasses() const{
 		N += ql->GetNumberOfMasses();
 	}
 	return N;
+}
+//________________________________________________________________
+
+void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_pid,
+            TH2F * h2_pid_aoq, TH2F* h2_q_a){
+   //This method allows to test the identification capabilities of the grid using data in a TH2F.
+   //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
+   //to this grid. Then we loop over every bin of the histogram, perform the identification (if
+   //IsIdentifiable() returns kTRUE) and fill the two histograms with the resulting identification
+   //and its dependence on the 'residual energy' i.e. the 'x'-coordinate of the 'data' histogram,
+   //each identification weighted by the contents of the original data bin.
+   //
+   //The "identification" or PID we represent is the result of the KVReconstructedNucleus::GetPID()
+   //method for the identified nucleus.
+
+	//Initialize the grid: calculate line widths etc.
+	Initialize();
+
+   KVIdentificationResult *idr = new KVIdentificationResult;
+
+   h1_pid->Reset();
+   h2_pid_aoq->Reset();
+   Int_t tot_events = (Int_t) data->GetSum();
+   Int_t events_read = 0;
+   Float_t percent = 0., cumul = 10.;
+   Bool_t qaMap = (!IsOnlyQId())&&(h2_q_a);
+
+   Int_t Amin, Amax, Qmin, Qmax;
+   Double_t AoQmin, AoQmax;
+   GetLimitsOf_A_Q_AoQ( Amin, Amax, Qmin, Qmax, AoQmin, AoQmax );
+
+   // calculate coefficients for the PID formula
+   // PID = Qreal + c0*(Areal-c1*Qreal)
+   Int_t    c1 = TMath::Nint((AoQmin+AoQmax)/2);
+   Double_t c0 = TMath::Max( TMath::Abs( AoQmax*Qmax-c1*Qmin ),
+		   TMath::Abs( AoQmin*Qmin-c1*Qmin ));
+   c0 = 1./c0;
+   Int_t idx = -TMath::Nint( TMath::Log10(c0) );
+   Double_t x = TMath::Power(10.,idx);
+   c0 = Int_t( c0*x );
+   c0 /= x;
+
+   // change ranges and titles of histograms 
+   TString st_pid; 
+   if(IsOnlyQId()) st_pid = "PID=Q_{real}";
+	   else st_pid.Form("PID=Q+%.*f#times(A_{real}-%d#timesQ)",idx,c0,c1);
+   TString title;
+   title.Form("%s;%s",h1_pid->GetTitle(),st_pid.Data());
+   h1_pid->SetTitle(title.Data());
+   h1_pid->SetBins( h1_pid->GetNbinsX(), Float_t(Qmin-1), Float_t(Qmax+1) );
+
+   title.Form("%s;%s;%s",h2_pid_aoq->GetTitle(),data->GetXaxis()->GetTitle(),st_pid.Data());
+   h2_pid_aoq->SetTitle(title.Data());
+   h2_pid_aoq->SetBins( h2_pid_aoq->GetNbinsX(), AoQmin-1., AoQmax+1, h2_pid_aoq->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+
+   if(qaMap){
+   	   title.Form("%s;A_{real};Q_{real}",h2_q_a->GetTitle());
+   	   h2_q_a->SetTitle(title.Data());
+ 	   h2_q_a->SetBins( h2_q_a->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), h2_q_a->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   }
+
+   //loop over data in histo
+   for (int i = 1; i <= data->GetNbinsX(); i++) {
+      for (int j = 1; j <= data->GetNbinsY(); j++) {
+
+         Stat_t poids = data->GetBinContent(i, j);
+         if (poids == 0)
+            continue;
+
+         Axis_t x0 = data->GetXaxis()->GetBinCenter(i);
+         Axis_t y0 = data->GetYaxis()->GetBinCenter(j);
+         Axis_t wx = data->GetXaxis()->GetBinWidth(i);
+         Axis_t wy = data->GetYaxis()->GetBinWidth(j);
+         //If bin content ('poids') is <=20, we perform the identification 'poids' times, each time with
+         //randomly-drawn x and y coordinates inside this bin
+         //If 'poids'>20, we perform the identification 20 times and we fill the histograms with
+         //a weight poids/20
+         Double_t x, y;
+         Int_t kmax = (Int_t) TMath::Min(20., poids);
+         Double_t weight = (kmax == 20 ? poids / 20. : 1.);
+         for (int k = 0; k < kmax; k++) {
+
+             x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
+             y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
+             if (IsIdentifiable(x, y)) {
+               	 Identify(x, y, idr);
+               	 if(AcceptIDForTest()){
+				   	 Double_t realQ = 0.;
+				   	 Double_t realA = 0.;
+				 	 //Double_t pid   = 0.;
+
+				   	 if( idr->Aident ){
+					   	 realQ = fRealQ;
+					   	 realA = idr->PID;
+					//	 pid   = idr->Z + c0*(realA-c1*idr->Z);
+				   	 }
+				   	 else if( idr->Zident ) realQ = idr->PID;
+                 	 h1_pid->Fill(realQ, weight);
+                 	 h2_pid_aoq->Fill(x, realQ, weight);
+                 	 if(qaMap) h2_q_a->Fill(realA, gRandom->Gaus(idr->Z,0.15), weight);
+             	 }
+		 	 }
+      	 }
+         events_read += (Int_t) poids;
+         percent = (1. * events_read / tot_events) * 100.;
+         Increment((Float_t) events_read);      //sends signal to GUI progress bar
+         if (percent >= cumul) {
+            //cout << (Int_t) percent << "\% processed" << endl;
+            cumul += 10;
+         }
+         gSystem->ProcessEvents();
+      }
+   }
+
+   delete idr;
+}
+//________________________________________________________________
+
+void KVIDQAGrid::GetLimitsOf_A_Q_AoQ(Int_t &Amin, Int_t &Amax, Int_t &Qmin, Int_t &Qmax, Double_t &AoQmin, Double_t &AoQmax){
+
+	Amin = Amax = Qmin = Qmax = -1;
+	AoQmin = AoQmax = -1.;
+	TIter next_line( fIdentifiers );
+	KVIDQALine *line = NULL;
+	while( (line = (KVIDQALine *)next_line()) ){
+
+		Qmin = (Qmin<0 ? line->GetQ() : TMath::Min( Qmin, line->GetQ() ));
+		Qmax = TMath::Max( Qmax, line->GetQ() );
+
+		line->SortMarkers();
+		KVIDQAMarker *first_mk = (KVIDQAMarker *)line->GetMarkers()->First();
+		KVIDQAMarker *last_mk  = (KVIDQAMarker *)line->GetMarkers()->Last();
+		if(first_mk && last_mk){
+			Amin = (Amin<0 ? first_mk->GetA() : TMath::Min( Amin, first_mk->GetA() ));
+			Amax = TMath::Max( Amax, last_mk->GetA() );
+			AoQmin = (AoQmin<0 ? first_mk->GetX() : TMath::Min( AoQmin, first_mk->GetX() ));
+			AoQmax = TMath::Max( AoQmax, last_mk->GetX() );
+		}
+	}
 }
