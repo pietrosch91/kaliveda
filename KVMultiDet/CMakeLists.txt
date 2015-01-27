@@ -1,6 +1,12 @@
 set(KVLIBRARY_NAME KVMultiDet)
 
+#add_subdirectory(globvars)
+#add_subdirectory(identification)
+add_subdirectory(events)
 add_subdirectory(particles)
 add_subdirectory(base)
 
 add_dependencies(KVMultiDetparticles KVMultiDetbase)
+#add_dependencies(KVMultiDetidentification KVMultiDetparticles KVMultiDetbase)
+add_dependencies(KVMultiDetevents KVMultiDetparticles KVMultiDetbase)
+#add_dependencies(KVMultiDetglobvars KVMultiDetparticles KVMultiDetbase)
