@@ -71,7 +71,7 @@ KVPartition::~KVPartition()
 
 
 //___________________________________________________________________________________________
-void KVPartition::Clear(Option_t* option)
+void KVPartition::Clear(Option_t*)
 { 	
 //Methode dérivée de KVIntegerList, Reinitialisation de l'object
 	

@@ -78,7 +78,7 @@ const Char_t* KVNuclData::GetUnit() const{
 }
 
 //_________________________________
-void KVNuclData::Print(Option_t* option) const{
+void KVNuclData::Print(Option_t*) const{
 	
 	TString post=" ";
 	if (!IsMeasured()) post += "(SYST)";

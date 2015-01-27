@@ -218,7 +218,7 @@ void KVParticle::SetMomentum(Double_t T, TVector3 dir)
 };
 
 //________________________________________________________________________________________
-void KVParticle::Print(Option_t * t) const
+void KVParticle::Print(Option_t*) const
 {
 // print out characteristics of particle
 
@@ -287,7 +287,7 @@ void KVParticle::Copy(TObject & obj)
 
 
 //______________________________________________________________________________________
-void KVParticle::Clear(Option_t * opt)
+void KVParticle::Clear(Option_t*)
 {
    //Reset particle properties i.e. before creating/reading a new event
 
