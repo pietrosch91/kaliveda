@@ -57,6 +57,22 @@ void KVFAZIADetector::Copy(TObject& obj) const
    KVDetector::Copy(obj);
    //KVFAZIADetector& CastedObj = (KVFAZIADetector&)obj;
 }
+
+//________________________________________________________________
+void	KVFAZIADetector::Clear(Option_t* opt)
+{
+
+	//Info("Clear","Call %s",GetName());
+   KVDetector::Clear("");
+   if (fSignals){
+   	fSignals->Clear();
+	/*
+   	SafeDelete(fSignals);
+      fSignals=0;
+   */
+   }
+   
+}
 //________________________________________________________________
 Bool_t KVFAZIADetector::Fired(Option_t * opt)
 {
@@ -69,18 +85,39 @@ Bool_t KVFAZIADetector::Fired(Option_t * opt)
     //
     // In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
     //
- 	 Info("Fired","Appel");	
+ 	 //Info("Fired","Appel - %s",GetName());	
     if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
     if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
-
-    return kTRUE;
+	 KVSignal* sig;	
+	 if (fSignals){
+    	TIter next(fSignals);
+    	while ( (sig = (KVSignal* )next()) )
+    	{
+    		//Info("Fired","SIG=%s pour %s .... ",sig->GetType(),sig->GetDetectorName());
+      	if (sig->GetAmplitude()<20){
+         	//printf("\t\t empty  :-( %lf\n",sig->GetAmplitude());
+         }
+         else{
+      		//printf("\t\t hitted :-) %lf\n",sig->GetAmplitude());
+            //Info("Fired","YES %s %d",GetName(),GetGroupNumber());
+            return kTRUE;
+      	}
+      }
+    }
+    else{
+    	Warning("Fired","%s : No signal attached to this detector ...",GetName());
+      return kFALSE;
+    }
+    //Info("Fired","Sort - %s",GetName());
+    //Info("Fired","NO %s %d",GetName(),GetGroupNumber());
+    return kFALSE;
 }
 
 //_________________________________________________________________________________
 void KVFAZIADetector::AddSignal(KVSignal* signal)
 {	
 	if (!fSignals)	
-   	fSignals = new KVList();
+   	fSignals = new KVList(kFALSE);
 	fSignals->Add(signal);
 }
 

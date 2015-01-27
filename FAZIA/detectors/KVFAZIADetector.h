@@ -19,7 +19,8 @@ class KVFAZIADetector : public KVDetector
    KVFAZIADetector(const Char_t* type, const Float_t thick = 0.0);
    virtual ~KVFAZIADetector();
    void Copy(TObject& obj) const;
-	
+	virtual void	Clear(Option_t* opt = "");
+   
    virtual Bool_t Fired(Option_t * opt = "any");
 
 	void AddSignal(KVSignal* signal);

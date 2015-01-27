@@ -26,7 +26,7 @@
 #include "KVFAZIAReader.h"
 #include "KVDataAnalyser.h"
 
-#include "KVFAZIA_2B.h"
+#include "KVFAZIA.h"
 
 
 void KVFAZIAReader::Begin(TTree * /*tree*/)
@@ -76,16 +76,16 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    //
    // The return value is currently not used.
 	fReadEntries+=1;
-   GetDetectorEvent()->Clear();
+   
    GetEntry(entry);
-   
-   if (!gMultiDetArray)
-   	Fatal("Process","gMultiDetArray not defined");
-      
-   ((KVFAZIA_2B* )gMultiDetArray)->GetDetectedEvent(GetDetectorEvent(),cl);
-   //GetDetectorEvent()->Clear();
-   
    fEventNumber = entry;
+   
+   /*
+   printf("################################## NEW Event\n");
+   printf("!!! Appel de KVFAZIA_2B::GetDetectedEvent\n");
+   */
+   gFazia->GetDetectorEvent(GetDetectorEvent(),cl);
+   
 	/*
    if (fReadEntries%10000)
    	Info("Process","%d read entries (total=%d)",fReadEntries,nbEventToRead);
@@ -106,7 +106,8 @@ void KVFAZIAReader::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
-	EndRun();
+	Info("Terminate","%d events read",GetNumberOfReadEntries());
+   EndRun();
 }
 
 void KVFAZIAReader::Init(TTree *tree)
@@ -135,7 +136,8 @@ Bool_t KVFAZIAReader::Notify()
    // is started when using PROOF. It is normally not necessary to make changes
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
-	fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
+	fReadEntries = 0;
+   fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
    Info("Notify","Traitement du run %d",fCurrentRun);
    fChain->SetBranchAddress("signals",&cl);
    InitRun();

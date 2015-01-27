@@ -22,14 +22,26 @@ LNS_2014.DataSet.RunFileName.raw:    run%06d.root
 LNS_2014.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2014.DataSet.RunFileClass.raw:    TFile
 
++DataSet:   FAZIASYM
+FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
+FAZIASYM.DataSet.RepositoryDir:   faziasym
+FAZIASYM.DataSet.RunFileName.raw:    run%06d.root
+FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
+FAZIASYM.DataSet.RunFileClass.raw:    TFile
+
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIA    "KVFAZIADB(const Char_t*)"
++Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIA    "KVFAZIADB(const Char_t*)"
+
 +Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIA    "KVFAZIA_2B()"
-# FAZIA Geometry used by KVFAZIA_2B
-FAZIA-2B.GeoType:        2B
-FAZIA-2B.DistanceFAZIA:   100.0
-FAZIA-2B.ThetaMinCompactGeo: 6.0
++Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIA    "KVFAZIASYM()"
+
+# FAZIA Geometries
+FAZIASYM.GeoType:        compact
+FAZIASYM.DistanceFAZIA:   100.0
+FAZIASYM.ThetaMinCompactGeo: 2.0
 
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIA      "KVFAZIADetector()"
++Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIA      "KVFAZIADetector()"
 
 #gerer automaticement par KVMultiDetArray::GetIDTelescopes
 #+Plugin.KVIDTelescope:    ^Si-CsI$                 KVIDTelescope            KVMultiDet           "KVIDTelescope()"

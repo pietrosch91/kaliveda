@@ -44,9 +44,11 @@ public :
    virtual void    Terminate();
    virtual void 	InitRun(){};
    virtual void 	EndRun(){};
-	virtual Int_t GetEventNumber(){return fEventNumber;} 
+	
+   virtual Int_t GetEventNumber(){return fEventNumber;} 
    virtual Int_t GetCurrentRunNumber() {return fCurrentRun;} 
    virtual Int_t GetNumberOfReadEntries() {return fReadEntries;} 
+   
    KVDetectorEvent* GetDetectorEvent() const { return fDetEv; }
    
    ClassDef(KVFAZIAReader,0);

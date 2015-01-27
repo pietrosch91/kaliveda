@@ -1,7 +1,7 @@
 //Created by KVClassFactory on Thu May 30 10:13:17 2013
 //Author: Eric Bonnet
 
-#include "FAZIABlock.h"
+#include "KVFAZIABlock.h"
 #include "KVUnits.h"
 #include "KVMaterial.h"
 #include "TMath.h"
@@ -10,18 +10,18 @@
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
 
-ClassImp(FAZIABlock)
+ClassImp(KVFAZIABlock)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>FAZIABlock</h2>
+<h2>KVFAZIABlock</h2>
 <h4>Block of 16 telescopes FAZIA</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-FAZIABlock::FAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
+KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
 {
    // Default constructor
 
@@ -178,7 +178,7 @@ FAZIABlock::FAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
    }
 }
 
-FAZIABlock::~FAZIABlock()
+KVFAZIABlock::~KVFAZIABlock()
 {
    // Destructor
 }

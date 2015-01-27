@@ -730,7 +730,7 @@ run_number)
 
 //_____________________________________________________________________________
 
-void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params )
+void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params )
 {
    // Overrides KVASMultiDetArray::GetDetectorEvent.
    // If the list of fired acquisition parameters is given (meaning we are reading raw data)

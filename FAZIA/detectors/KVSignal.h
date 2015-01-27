@@ -20,7 +20,7 @@ class KVSignal : public TGraph
    TString fType;
    TString fDet;
 	Double_t fYmin,fYmax;
-  
+
    public:
    KVSignal();
    KVSignal(const char* name, const char* title);

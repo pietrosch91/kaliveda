@@ -99,14 +99,20 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 	//    *) event reconstruction is performed for 'Physics' events
 	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 	
-   recev->Clear();
+   
    recev->SetNumber( GetEventNumber() );		         
-	recev->ReconstructEvent( GetDetectorEvent() );
+	//printf("!! Appel de ReconstructedEvent::ReconstructEvent()\n");
+   recev->ReconstructEvent( GetDetectorEvent() );
 	
-	nb_recon++;
-	ExtraProcessing();
-
-   tree->Fill();
+   ExtraProcessing();
+	if (recev->GetMult()>0){
+   	nb_recon++;
+      tree->Fill();
+   }
+   //printf("!! Appel de ReconstructedEvent::Clear()\n");
+   recev->Clear();
+   //printf("!!! Appel de KVDetectorEvent::Clear()\n");
+   GetDetectorEvent()->GetGroups()->Clear();
    
    return kTRUE;
 }

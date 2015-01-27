@@ -1330,7 +1330,7 @@ void KVMultiDetArray::UpdateCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params)
+void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params)
 {
     // First step in event reconstruction based on current status of detectors in array.
     // Fills the given KVDetectorEvent with the list of all groups which have fired.
@@ -1368,7 +1368,7 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
     else
     {
         //loop over groups
-        KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+        TSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
 
           TIter next_grp(fGroups);
         KVGroup *grp;

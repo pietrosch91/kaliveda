@@ -1,45 +1,43 @@
-//Created by KVClassFactory on Thu Jan 22 16:02:02 2015
+//Created by KVClassFactory on Tue Jan 27 11:38:09 2015
 //Author: ,,,
 
-#include "KVFAZIA_2B.h"
-
+#include "KVFAZIASYM.h"
 #include "KVUnits.h"
 #include "KVFAZIABlock.h"
 
-ClassImp(KVFAZIA_2B)
+ClassImp(KVFAZIASYM)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVFAZIA_2B</h2>
-<h4>FAZIA set-up with two blocks used in LNS 2014 commissioning</h4>
+<h2>KVFAZIASYM</h2>
+<h4>Description of the FAZIA set up</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVFAZIA_2B::KVFAZIA_2B()
+KVFAZIASYM::KVFAZIASYM()
 {
    // Default constructor
-
 }
 
-void KVFAZIA_2B::GetGeometryParameters()
-{
-	
-   fNblocks = 2;
-	fFGeoType = "";
-   fFThetaMin = 6.1;
-   fFDist = 100.0;
-
-}
-
-
-KVFAZIA_2B::~KVFAZIA_2B()
+KVFAZIASYM::~KVFAZIASYM()
 {
    // Destructor
 }
 
-void KVFAZIA_2B::BuildFAZIA()
+void KVFAZIASYM::GetGeometryParameters()
+{
+	
+   fNblocks = 4;
+	//fFGeoType = gEnv->GetValue("FAZIASYM.GeoType", "2B");
+   fFDist    = gEnv->GetValue("FAZIASYM.DistanceFAZIA", 100.0);
+   fFThetaMin = gEnv->GetValue("FAZIASYM.ThetaMinCompactGeo", 0.5);
+
+}
+
+
+void KVFAZIASYM::BuildFAZIA()
 {
    Info("BuildFAZIA", "Compact geometry, %f cm from target, theta-min=%f deg.",
         fFDist, fFThetaMin);
@@ -68,8 +66,10 @@ void KVFAZIA_2B::BuildFAZIA()
    TVector3 centre;
    for (Int_t bb=0;bb<fNblocks;bb+=1)
    {
-   	if (bb==0) 			centre.SetXYZ(dx - centre_hole / 2, 0, distance_block_cible);
-   	else if (bb==1)	centre.SetXYZ(dx + centre_hole / 2, 0, distance_block_cible);
+   	if (bb==0) 			centre.SetXYZ(dx - centre_hole / 2, -dx - centre_hole/ 2, distance_block_cible);
+   	else if (bb==1)	centre.SetXYZ(dx + centre_hole / 2, dx - centre_hole / 2, distance_block_cible);
+   	else if (bb==2)	centre.SetXYZ(-dx + centre_hole / 2, dx + centre_hole / 2, distance_block_cible);
+   	else if (bb==3)	centre.SetXYZ(-dx - centre_hole / 2, -dx + centre_hole / 2, distance_block_cible);
    	else {
       	Warning("BuildFAZIA","Block position definition is done only for %d blocks",fNblocks);
       }
