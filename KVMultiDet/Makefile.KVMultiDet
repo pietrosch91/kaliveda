@@ -4,10 +4,6 @@ LINK_LIB := $(LINK_LIBRARIES) $(EXTRA_LIBRARIES)
 
 PROJ_NAME = KVMultiDet
 
-ifeq ($(WITH_OPENGL),yes)
-KV_INC_EXTRAS += -DWITH_OPENGL
-endif
-
 include ../Makefile.general
 
 RLIBMAPDEPS += $(LINK_LIBRARIES)
@@ -15,12 +11,6 @@ RLIBMAPDEPS += $(LINK_LIBRARIES)
 RLIBMAPDEPS += libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
 libPhysics.so libMathCore.so libThread.so libGui.so 
-
-ifeq ($(WITH_OPENGL),yes)
-#required for use of TGLViewer in KVEventViewer
-LINK_LIB += -L$(ROOTSYS)/lib -lRGL
-RLIBMAPDEPS += libRGL.so
-endif
 
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
