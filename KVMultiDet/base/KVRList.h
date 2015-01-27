@@ -26,6 +26,7 @@ $Id: KVRList.h,v 1.15 2009/01/19 12:03:10 franklan Exp $
 #include "KVBase.h"
 #include "RVersion.h"
 #include "TRefArray.h"
+#include "KVConfig.h"
 
 class KVRList:public TRefArray {
 
@@ -68,9 +69,17 @@ class KVRList:public TRefArray {
       return GetLast() + 1;
    };
    virtual void Print(Option_t * opt = "") const;
+#ifdef __WITH_NEW_TCOLLECTION_PRINT
    virtual void       Print(Option_t *option, Int_t recurse) const {TCollection::Print(option,recurse);};
    virtual void       Print(Option_t *option, const char* wildcard, Int_t recurse=1) const{TCollection::Print(option,wildcard,recurse);};
    virtual void       Print(Option_t *option, TPRegexp& regexp, Int_t recurse=1) const{TCollection::Print(option,regexp,recurse);};
+#else
+#ifdef __WITH_TCOLLECTION_PRINT_WILDCARD
+   virtual void Print(Option_t * wildcard, Option_t * opt) const {
+      TCollection::Print(wildcard, opt);
+   };
+#endif	
+#endif
 
    ClassDef(KVRList, 1)         //KV wrapper for ROOT TRefArray class
 };
