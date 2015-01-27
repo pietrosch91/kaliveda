@@ -26,6 +26,7 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "TClonesArray.h"
 #include "KVNucleus.h"
 #include "KVBase.h"
+#include "KVConfig.h"
 #include "TRotation.h"
 #include "TLorentzRotation.h"
 #include "KVParticleCondition.h"
