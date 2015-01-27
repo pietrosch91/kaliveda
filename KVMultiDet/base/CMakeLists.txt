@@ -6,5 +6,11 @@ set(libName ${KVLIBRARY_NAME}${ModuleName})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 
 #---generate library & rootmap
-KALIVEDA_LIBRARY(${libName} EXCLUDE KVVersion.h KVBzrInfo.h KVError.h DEPENDENCIES ${ROOT_LIBRARIES})
+KALIVEDA_LIBRARY(${libName} EXCLUDE KVError.h DEPENDENCIES ${ROOT_LIBRARIES})
 
+#--- generation of KVBzrInfo.h
+include(CreateBazaarVersionControlHeader)
+create_bazaar_version_control_header()
+
+#--- declare dependency of library (in fact, KVBase.o) on KVBzrInfo.h
+add_dependencies(${libName} bzrinfos)

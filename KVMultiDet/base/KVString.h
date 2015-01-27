@@ -4,6 +4,7 @@
 #define __KVSTRING_H
 
 #include "TString.h"
+#include "KVConfig.h"
 #include "RVersion.h"
 class TObjArray;
 

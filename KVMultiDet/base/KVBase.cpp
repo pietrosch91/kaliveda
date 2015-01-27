@@ -27,6 +27,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TPluginManager.h"
 #include "KVNameValueList.h"
 #include "TSystemDirectory.h"
+#include "KVConfig.h"
 #include "KVVersion.h"
 #include "KVBzrInfo.h"
 #include "TROOT.h"
