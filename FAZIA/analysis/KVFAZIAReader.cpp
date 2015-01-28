@@ -86,10 +86,9 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    */
    gFazia->GetDetectorEvent(GetDetectorEvent(),cl);
    
-	/*
-   if (fReadEntries%10000)
-   	Info("Process","%d read entries (total=%d)",fReadEntries,nbEventToRead);
-   */
+	if (fReadEntries%10000)
+   	Info("Process","%d read entries",fReadEntries);
+   
    return Analysis();
 }
 

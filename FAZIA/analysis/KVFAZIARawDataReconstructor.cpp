@@ -103,21 +103,13 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 	
    
    recev->SetNumber( GetEventNumber() );
-	//printf("!! Appel de ReconstructedEvent::ReconstructEvent()\n");
    recev->ReconstructEvent( GetDetectorEvent() );
 	
    ExtraProcessing();
-	if (recev->GetMult()>0){
-   	nb_recon++;
-      tree->Fill();
-   }
-   
-   if (nb_recon%1000==0)
-   	recev->Print();
-   
-   //printf("!! Appel de ReconstructedEvent::Clear()\n");
+	nb_recon++;
+	tree->Fill();
+
    recev->Clear();
-   //printf("!!! Appel de KVDetectorEvent::Clear()\n");
    GetDetectorEvent()->GetGroups()->Clear();
    
    return kTRUE;

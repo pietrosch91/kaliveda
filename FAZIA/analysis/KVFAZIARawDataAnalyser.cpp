@@ -15,7 +15,8 @@ $Date: 2007/11/15 14:59:45 $
 #include "TObjString.h"
 #include "TChain.h"
 #include "KVMultiDetArray.h"
-//#include "KVAvailableRunsFile.h"
+#include "KVAvailableRunsFile.h"
+#include "KVFAZIADBRun.h"
 
 using namespace std;
 
@@ -105,6 +106,7 @@ void KVFAZIARawDataAnalyser::SubmitTask()
       theChain->Add( fullPathToRunfile );
       if(f && !f->IsZombie()){
          // update run infos in available runs file if necessary
+         
          /*
          KVAvailableRunsFile* ARF = gDataSet->GetAvailableRunsFile(fDataType.Data());
          if( ARF->InfosNeedUpdate(run, gSystem->BaseName( fullPathToRunfile )) ){
@@ -180,13 +182,13 @@ void KVFAZIARawDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t sav
    
    
    KVDataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
-   /*
+   
    if(fDataSelector!="none"&&fDataSelector!=""){
       fBatchEnv->SetValue("KVDataSelector", fDataSelector.Data());
       if( fDataSelectorImp!="" ) fBatchEnv->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
       if( fDataSelectorDec!="" ) fBatchEnv->SetValue("KVDataSelectorDec", fDataSelectorDec.Data());
    }
-   */
+   
    if(save) fBatchEnv->SaveLevel(kEnvUser);
 	
 }
@@ -204,7 +206,7 @@ Bool_t KVFAZIARawDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
    
    if(!KVDataAnalyser::ReadBatchEnvFile(filename)) return ok;
    
-   /*
+   
    fDataSelector = fBatchEnv->GetValue("KVDataSelector", "");
    if( fDataSelector != "" && fDataSelector!="none" ){
       //if names of source files for selector are known, and if current working directory
@@ -224,7 +226,7 @@ Bool_t KVFAZIARawDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          gSystem->CopyFile(path_src.Data(), path_trg.Data());
       }
    }
-   */
+   
    ok = kTRUE;
    
    return ok;
@@ -267,14 +269,14 @@ KVNumberList KVFAZIARawDataAnalyser::PrintAvailableRuns(KVString & datatype)
 
    KVNumberList all_runs=
        fDataSet->GetRunList(datatype.Data(), fSystem);
-   /*
-   KVINDRADBRun *dbrun;
+   
+   KVFAZIADBRun *dbrun;
    
    //first read list and find what triggers are available
    int triggers[10], n_trigs = 0;
    all_runs.Begin();
    while ( !all_runs.End() ) {
-      dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      dbrun = (KVFAZIADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
       if (!KVBase::
           ArrContainsValue(n_trigs, triggers, dbrun->GetTrigger())) {
          triggers[n_trigs++] = dbrun->GetTrigger();
@@ -289,7 +291,7 @@ KVNumberList KVFAZIARawDataAnalyser::PrintAvailableRuns(KVString & datatype)
       cout << " ---> Trigger M>" << triggers[ord_trig[trig]] << endl;
       all_runs.Begin();
       while ( !all_runs.End() ) {
-         dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         dbrun = (KVFAZIADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
          if (dbrun->GetTrigger() == triggers[ord_trig[trig]]) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
             cout << Form("\t(%7d events)", dbrun->GetEvents());
@@ -303,7 +305,7 @@ KVNumberList KVFAZIARawDataAnalyser::PrintAvailableRuns(KVString & datatype)
       trig++;
       cout << endl;
    }
-   */
+   
    return all_runs;
 }
 
@@ -379,15 +381,15 @@ void KVFAZIARawDataAnalyser::ConnectRawDataTree()
 	Entry=0;
 }
 */
-/*
+
 TEnv* KVFAZIARawDataAnalyser::GetReconDataTreeInfos() const
 {
 	return (TEnv*)theChain->GetTree()->GetUserInfo()->FindObject("TEnv");
 }
-*/
+
 void KVFAZIARawDataAnalyser::PrintTreeInfos()
 {
-/*
+
 	// Print informations on currently analysed TTree
 	TEnv* treeInfos = GetReconDataTreeInfos();
 	if(!treeInfos) return;
@@ -426,5 +428,5 @@ cout << "Number of events requested : " << treeInfos->GetValue("NbToRead","(unkn
       fDataSeries="";
       fDataReleaseNum=-1;
    }
-*/
+
 }

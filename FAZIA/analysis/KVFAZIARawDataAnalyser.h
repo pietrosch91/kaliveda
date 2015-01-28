@@ -61,7 +61,7 @@ class KVFAZIARawDataAnalyser:public KVDataAnalyser {
    void preInitRun();
 	virtual void RegisterUserClass(TObject*obj) {fSelector=(KVFAZIAReader*)obj;};
 	void PrintTreeInfos();
-   //TEnv* GetReconDataTreeInfos() const;
+	TEnv* GetReconDataTreeInfos() const;
    
    KVString GetDataVersion() const { return fDataVersion; }
    KVString GetDataSeries() const { return fDataSeries; }
