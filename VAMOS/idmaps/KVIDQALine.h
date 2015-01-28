@@ -55,6 +55,8 @@ class KVIDQALine : public KVIDZALine
 		virtual void CalculateMarkerWidths();
 		Bool_t ProjIsBetween( Double_t x, Double_t y, KVIDQAMarker *m1, KVIDQAMarker *m2 ) const;
 
+		void IncrementAMarkers( Int_t val=1, Option_t *dir="all" );//*MENU*
+
 		//---------- inline methods ---------------------//
 		
 		virtual Int_t	GetA() const;

@@ -107,8 +107,8 @@ class KVIDQAGrid : public KVIDGrid
 	const Char_t *GetToF() const{ return fPar->GetStringValue("ToF"); }
 	void  SetToF(const Char_t *tof){ fPar->SetValue("ToF",tof); Modified(); }// *MENU={Hierarchy="Set.../Time of Flight"}*
 
-	void TestIdentification(TH2F * data, TH1F * h1_pid,
-            TH2F * h2_pid_aoq, TH2F* h2_q_a=0);
+	void TestIdentification(TH2F * data, TH1F * h1_q,
+            TH2F * h2_q_qxaoq, TH2F* h2_q_a=0);
 
 	void GetLimitsOf_A_Q_AoQ(Int_t &Amin, Int_t &Amax, Int_t &Qmin, Int_t &Qmax, Double_t &AoQmin, Double_t &AoQmax);
 

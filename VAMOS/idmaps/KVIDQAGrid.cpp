@@ -743,25 +743,32 @@ Int_t KVIDQAGrid::GetNumberOfMasses() const{
 }
 //________________________________________________________________
 
-void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_pid,
-            TH2F * h2_pid_aoq, TH2F* h2_q_a){
+void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
+            TH2F * h2_q_qxaoq, TH2F* h2_q_a){
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
    //to this grid. Then we loop over every bin of the histogram, perform the identification (if
    //IsIdentifiable() returns kTRUE) and fill the two histograms with the resulting identification
-   //and its dependence on the 'residual energy' i.e. the 'x'-coordinate of the 'data' histogram,
+   //and its dependence on the 'x'-coordinate of the 'data' histogram,
    //each identification weighted by the contents of the original data bin.
    //
-   //The "identification" or PID we represent is the result of the KVReconstructedNucleus::GetPID()
-   //method for the identified nucleus.
+   // Returned histograms:
+   //   h1_q       -- 1D histogram with distribution of identified charge states (Qreal).
+   //   h2_q_qxaoq -- 2D map showing the distibrution on Qreal vs Qint*X plot.
+   //                 where Qint is the integer value of Qreal and X the
+   //                 X-coordinate of the initial data plot.
+   //   h2_q_a     -- 2D map showing the distribution on Qreal vs Areal plot
+   //                 where Areal is the mass identified with the markers.
+   //                 This map is filled only if the grid has OnlyQId()=false.
+
 
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
 
    KVIdentificationResult *idr = new KVIdentificationResult;
 
-   h1_pid->Reset();
-   h2_pid_aoq->Reset();
+   h1_q->Reset();
+   h2_q_qxaoq->Reset();
    Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
    Float_t percent = 0., cumul = 10.;
@@ -770,35 +777,23 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_pid,
    Int_t Amin, Amax, Qmin, Qmax;
    Double_t AoQmin, AoQmax;
    GetLimitsOf_A_Q_AoQ( Amin, Amax, Qmin, Qmax, AoQmin, AoQmax );
-
-   // calculate coefficients for the PID formula
-   // PID = Qreal + c0*(Areal-c1*Qreal)
-   Int_t    c1 = TMath::Nint((AoQmin+AoQmax)/2);
-   Double_t c0 = TMath::Max( TMath::Abs( AoQmax*Qmax-c1*Qmin ),
-		   TMath::Abs( AoQmin*Qmin-c1*Qmin ));
-   c0 = 1./c0;
-   Int_t idx = -TMath::Nint( TMath::Log10(c0) );
-   Double_t x = TMath::Power(10.,idx);
-   c0 = Int_t( c0*x );
-   c0 /= x;
+   Amin = AoQmin*Qmin;
+   Amax = AoQmax*Qmax;
 
    // change ranges and titles of histograms 
-   TString st_pid; 
-   if(IsOnlyQId()) st_pid = "PID=Q_{real}";
-	   else st_pid.Form("PID=Q+%.*f#times(A_{real}-%d#timesQ)",idx,c0,c1);
    TString title;
-   title.Form("%s;%s",h1_pid->GetTitle(),st_pid.Data());
-   h1_pid->SetTitle(title.Data());
-   h1_pid->SetBins( h1_pid->GetNbinsX(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   title.Form("%s;Q_{real}",h1_q->GetTitle());
+   h1_q->SetTitle(title.Data());
+   h1_q->SetBins( data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
 
-   title.Form("%s;%s;%s",h2_pid_aoq->GetTitle(),data->GetXaxis()->GetTitle(),st_pid.Data());
-   h2_pid_aoq->SetTitle(title.Data());
-   h2_pid_aoq->SetBins( h2_pid_aoq->GetNbinsX(), AoQmin-1., AoQmax+1, h2_pid_aoq->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   title.Form("%s;Q_{int}#times(%s);Q_{real}",h2_q_qxaoq->GetTitle(),data->GetXaxis()->GetTitle());
+   h2_q_qxaoq->SetTitle(title.Data());
+   h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
 
    if(qaMap){
    	   title.Form("%s;A_{real};Q_{real}",h2_q_a->GetTitle());
    	   h2_q_a->SetTitle(title.Data());
- 	   h2_q_a->SetBins( h2_q_a->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), h2_q_a->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+ 	   h2_q_a->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
    }
 
    //loop over data in histo
@@ -833,13 +828,14 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_pid,
 
 				   	 if( idr->Aident ){
 					   	 realQ = fRealQ;
-					   	 realA = idr->PID;
+					 realA = idr->PID;
 					//	 pid   = idr->Z + c0*(realA-c1*idr->Z);
 				   	 }
 				   	 else if( idr->Zident ) realQ = idr->PID;
-                 	 h1_pid->Fill(realQ, weight);
-                 	 h2_pid_aoq->Fill(x, realQ, weight);
-                 	 if(qaMap) h2_q_a->Fill(realA, gRandom->Gaus(idr->Z,0.15), weight);
+                 	 h1_q->Fill(realQ, weight);
+                 	 h2_q_qxaoq->Fill(x*idr->Z, realQ, weight);
+                 	 if(qaMap) h2_q_a->Fill(realA, realQ, weight);
+                 	 //if(qaMap) h2_q_a->Fill(idr->Z*x, realQ, weight);
              	 }
 		 	 }
       	 }

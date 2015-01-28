@@ -40,10 +40,9 @@ KVIDQAMarker::~KVIDQAMarker(){
    // Destructor
 
 	// delete associated ID line point.
-	Int_t i = GetPointIndex();	
-	if(i>=0){
-	  if( fParent && (fParent->KVIDZALine::RemovePoint(i)>=0) )
- 	  	  fParent->IncrementPtIdxOfMarkers(i,-1);
+	if(fIdx>0 && (fDelta==0)){
+	  if( fParent && (fParent->KVIDZALine::RemovePoint(fIdx)>=0) )
+ 	  	  fParent->IncrementPtIdxOfMarkers(fIdx,-1);
 	}
 }
 //________________________________________________________________
@@ -238,9 +237,9 @@ Double_t KVIDQAMarker::DistanceToMarker( Double_t px, Double_t py ) const{
 	// to give the ratio A/Q (mass number over the charge state).
 	
 	if( !fParent ) return -1.;
-
 	Double_t X = px-fX;
 	Double_t Y = 0.;
+	/*
 	if( fParent->IsAvsAoQ() ){
 		if( GetQ() ) Y = (py-fY)/GetQ();
 		else return -1;
@@ -249,5 +248,6 @@ Double_t KVIDQAMarker::DistanceToMarker( Double_t px, Double_t py ) const{
 		if( py*fY ) Y = GetA()*(fY-py)/(fY*py);
 		else return -1.;
 	}
+	*/
 	return TMath::Sqrt( X*X + Y*Y );
 }

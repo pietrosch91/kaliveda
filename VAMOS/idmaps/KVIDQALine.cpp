@@ -123,7 +123,7 @@ void KVIDQALine::ExecuteEvent(Int_t event, Int_t px, Int_t py){
 //________________________________________________________________
 
 void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_t &code ) const{
-	
+
 	// Default values
 	A     = -1;
 	realA = -1.;
@@ -155,28 +155,16 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_
 		else if( closest_mk == GetMarkers()->Last() && !ProjIsBetween(x,y,l_mk,r_mk) )
 			l_mk = NULL;
 
-
 		Double_t deltaA = 0.;
 
 		// case where 2 embracing markers are found
 		if( l_mk && r_mk && (l_mk!=r_mk) ){
-    		Int_t dA = r_mk->GetA() - l_mk->GetA();
-    		Double_t tot_dist = ( dist_l+dist_r) / (1.0*dA);
-			deltaA = dist/tot_dist;
-
-			// if the point is on the left of the closest_mk (i.e. the
-			// closest_mk is the l_mk) we must add deltaA
-			// to A, otherwise, we must take deltaA away from A 
-			// (i.e. closest_mk is the r_mk)
-			if( closest_mk == r_mk ) deltaA *= -1.;
-
 			if( dist > closest_mk->GetWidth()/2. ){
-				if( deltaA>0) code = KVIDQAGrid::kICODE1; // "slight ambiguity of A, which could be larger"
+				if( closest_mk == l_mk ) code = KVIDQAGrid::kICODE1; // "slight ambiguity of A, which could be larger"
 				else code = KVIDQAGrid::kICODE2; // "slight ambiguity of A, which could be smaller"
 			}
 			else code = KVIDQAGrid::kICODE0; // ok
 
-			//if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
 		}
 		// case where only 1 embracing marker is found. 
 		// in this case, the distance between the point and the marker
@@ -184,20 +172,16 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_
 		else{
 			if( dist > closest_mk->GetWidth()/2. ){
 				// the distance from the closest marker is to high
-
 				if( closest_mk == l_mk ) code = KVIDQAGrid::kICODE6; // "(x,y) is below first marker in line"
 				else code = KVIDQAGrid::kICODE7; // "(x,y) is above last marker in line"
 			}
 			else{
-				deltaA = dist/closest_mk->GetWidth();
-				if( closest_mk == l_mk ) deltaA *= -1.;
         		code = KVIDQAGrid::kICODE3; // "slight ambiguity of A, which could be larger or smaller"
 			}
-			//if(deltaA>0.5)	Info("IdentA","deltaA= %f, Aclosest= %d, Aleft= %d, Aright= %d, icode= %d, X= %f, Y= %f", deltaA, closest_mk->GetA(), l_mk->GetA(), r_mk->GetA(), code, x, y);
 		}
 
+		deltaA = (x-closest_mk->GetX())*GetQ();
 		realA = closest_mk->GetA() + deltaA;
-    	//A     = closest_mk->GetA();
     	A     = TMath::Nint( realA ); // since some A-markers are missing in the line
 	}
 }
@@ -631,4 +615,47 @@ Bool_t KVIDQALine::ProjIsBetween( Double_t x, Double_t y, KVIDQAMarker *m1, KVID
 	//Info("ProjIsBetween","P1M %f, P1P2 %f, proj %f",P1M.Mod(), P1P2.Mod(), proj);
 	if( (0<=proj) && (proj<=P1P2.Mod()) ) return kTRUE;
 	return kFALSE;
+}
+//________________________________________________________________
+
+void KVIDQALine::IncrementAMarkers( Int_t val, Option_t *dir){
+	// Increment A value of A-markers from the mouse position.
+	// In option 'dir', set the direction of the A-marker to be incremented.
+	//   dir -- left, rigth, above, below, all 
+
+	Int_t px = gPad->GetEventX();
+   	Int_t py = gPad->GetEventY();
+	Double_t x = gPad->PadtoX(gPad->AbsPixeltoX(px));
+	Double_t y = gPad->PadtoY(gPad->AbsPixeltoY(py));
+
+	Int_t opt = 0;
+	if( !strcmp(dir,"right") ) opt = 1;
+	else if( !strcmp(dir,"left") ) opt = 2;
+	else if( !strcmp(dir,"above") ) opt = 3;
+	else if( !strcmp(dir,"below") ) opt = 4;
+
+	TIter next( fMarkers );
+	KVIDQAMarker *mk = NULL;
+	while( (mk=(KVIDQAMarker *)next()) ){
+		Int_t a = mk->GetA() + val;
+		Bool_t inc = kFALSE;
+		switch( opt ){
+			case 0: 
+				inc = kTRUE;
+				break;
+			case 1:
+				if( mk->GetX()>=x ) inc = kTRUE;
+				break;
+			case 2:
+				if( mk->GetX()<=x ) inc = kTRUE;
+				break;
+			case 3:
+				if( mk->GetY()>=y ) inc = kTRUE;
+				break;
+			case 4:
+				if( mk->GetY()<=y ) inc = kTRUE;
+				break;
+		}
+		if( inc ) mk->SetA( a );
+	}
 }
