@@ -1142,6 +1142,7 @@ void KVIDGridEditor::MakeTransformation()
         {
             DeleteCut((KVIDentifier*)select);
         }
+		else if(select->InheritsFrom("KVIDQAMarker")) select->Delete();
     }
     if((event==kButton1Up)&&(select)&&(!dlmode))
     {
