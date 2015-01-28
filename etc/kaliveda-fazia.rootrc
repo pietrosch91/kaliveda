@@ -70,6 +70,16 @@ FaziaReconstruction.DataAnalysisTask.UserClass:     no
 FaziaReconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 +Plugin.TSelector:   FAZIARawDataRecon      KVFAZIARawDataReconstructor  FAZIA "KVFAZIARawDataReconstructor()"
 
++DataAnalysisTask:     FaziaReconAnalysis
+FaziaReconAnalysis.DataAnalysisTask.Title:     Analysis of FAZIA reconstructed events (recon)
+FaziaReconAnalysis.DataAnalysisTask.Prereq:     recon
+FaziaReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
+FaziaReconAnalysis.DataAnalysisTask.UserClass:     yes
+FaziaReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/TSelector
+FaziaReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
++Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIA "KVFAZIAReconDataAnalyser()"
++Plugin.TSelector:  FAZIASelector    KVEventSelector      KVMultiDet    "KVEventSelector()"
+
 ###
 #	Old dataset of FAZIA
 ###
