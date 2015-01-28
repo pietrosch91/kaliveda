@@ -61,7 +61,8 @@ void KVFAZIARawDataReconstructor::InitRun()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
  
-	if(!recev) recev = new KVReconstructedEvent;
+	Info("InitRun", "");
+   if(!recev) recev = new KVReconstructedEvent;
    //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
   
    // get dataset to which we must associate new run
@@ -104,9 +105,10 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    
    recev->SetNumber( GetEventNumber() );
    recev->ReconstructEvent( GetDetectorEvent() );
-	
+
    ExtraProcessing();
-	nb_recon++;
+
+   nb_recon++;
 	tree->Fill();
 
    recev->Clear();
@@ -141,20 +143,22 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 void KVFAZIARawDataReconstructor::EndRun()
 {
+   Info("EndRun", "");
    SafeDelete(recev);
    
 	cout << endl << " *** Number of reconstructed FAZIA events : "
 		<< nb_recon << " ***" << endl<< endl;
 	file->cd();
-//		gDataAnalyser->WriteBatchInfo(tree);
-		tree->Write();//write tree to file
+	gDataAnalyser->WriteBatchInfo(tree);
+	tree->Write();//write tree to file
       
-      // get dataset to which we must associate new run
-      KVDataSet* OutputDataset =
-         gDataRepositoryManager->GetDataSet(
-            gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
-               gDataRepository->GetName()),
-            gDataSet->GetName() );
-		//add new file to repository
-		OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
+	// get dataset to which we must associate new run
+	KVDataSet* OutputDataset =
+		gDataRepositoryManager->GetDataSet(
+			gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
+			gDataRepository->GetName()),
+			gDataSet->GetName() );
+	//add new file to repository
+	OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
+
 }

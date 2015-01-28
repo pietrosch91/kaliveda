@@ -317,7 +317,8 @@ void KVFAZIARawDataAnalyser::preInitAnalysis()
 	// Note that at this stage we are not analysing a given run, so the parameters
 	// of the array are not set (they will be set in preInitRun()).
 		
-	if( !gMultiDetArray ) gDataSet->BuildMultiDetector();
+	Info("preInitAnalysis","");
+   if( !gMultiDetArray ) gDataSet->BuildMultiDetector();
 }
 
 
@@ -326,9 +327,10 @@ void KVFAZIARawDataAnalyser::preInitRun()
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
 	// We call gIndra->SetParameters for the current run.
 	
-	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
-	
-   gMultiDetArray->SetParameters(run);
+	Info("preInitRun","");
+   
+   Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
+	gMultiDetArray->SetParameters(run);
 	//ConnectRawDataTree();
 	PrintTreeInfos();
 	
@@ -336,7 +338,8 @@ void KVFAZIARawDataAnalyser::preInitRun()
 
 void KVFAZIARawDataAnalyser::preAnalysis()
 {
-	// Read and set raw data for the current reconstructed event
+	Info("preAnalysis","");
+   // Read and set raw data for the current reconstructed event
 	//if(!theRawData) return;
 	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
 	//Long64_t rawEntry = fSelector->GetEventNumber() - 1;
