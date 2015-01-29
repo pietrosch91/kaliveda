@@ -153,7 +153,7 @@ void KVNucleusBox::ExecuteEvent(Int_t event, Int_t px, Int_t py)
     TBox::ExecuteEvent(event,px,py);
 }
 
-void KVNucleusBox::SetShowSymbol(Int_t value)
+void KVNucleusBox::SetShowSymbol(Int_t )
 {
 //    fNuclearChart->ShowSymbol(value);
 

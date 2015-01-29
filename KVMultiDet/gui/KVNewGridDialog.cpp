@@ -101,7 +101,7 @@ ClassImp(KVNewGridDialog)
 //////////////////////////////////////////
 void KVNewGridDialog::init_interface(const TGWindow * p,
                                      const TGWindow * main, UInt_t w,
-                                     UInt_t h, Option_t * dialog_type)
+                                     UInt_t h, Option_t *)
 {
    //initlalisations, creations of main dialog window
 

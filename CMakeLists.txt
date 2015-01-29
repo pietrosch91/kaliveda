@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(KaliVeda)
 
-find_package(ROOT REQUIRED Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui)
+find_package(ROOT REQUIRED Graf Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui Net)
 message(STATUS "Found ROOT v${ROOT_VERSION}")
-#--set cpp flag in KVConfig.h
+#--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
 endif()
@@ -28,42 +28,47 @@ include(KaliVedaMacros)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#----------------------Build options
+
+
+
+
+#----------------------------------------------------------
+#----------------------BUILD OPTIONS-----------------------
+#----------------------------------------------------------
 include(CMakeDependentOption)
 
+#---Built-in package for reading GANIL acquisition data
+option(USE_BUILTIN_GRU
+		"Use built-in package for reading GANIL acquisition data (not MFM format)"
+		OFF)
+if(USE_BUILTIN_GRU)
+	set(WITH_BUILTIN_GRU yes)
+endif()
+
 #---GRU Ganil ROOT Utilities for reading GANIL acquisition data
-find_package(GRU)
-if(GRU_FOUND)
-	set(WITH_GRULIB yes) #--- for #define WITH_GRULIB
-	include_directories(${GRU_INC_DIR})
-	link_directories(${GRU_LIB_DIR})
-endif(GRU_FOUND)
+option(USE_GRU
+		"Use GANIL ROOT utilities (GRU) library for reading data (including MFM format)"
+		OFF)
+if(USE_GRU)
+	find_package(GRU)
+	if(GRU_FOUND)
+		set(WITH_GRULIB yes) #--- for #define WITH_GRULIB
+		include_directories(${GRU_INC_DIR})
+		link_directories(${GRU_LIB_DIR})
+	endif(GRU_FOUND)
+endif()
 
 #---Ricardo Yanez 'range' tables
 option(USE_RANGE
 		"Build classes using Ricardo Yanez's 'range' library"
 		OFF)
 if(USE_RANGE)
-	# try to deduce whereabouts from LD_LIBRARY_PATH
-	message(STATUS "Using Ricardo Yanez's 'range' library...")
-	message(STATUS "   --- looking for librange.so...")
-	find_library(RANGE_LIB range HINTS ${RANGE_LIB_DIR} ENV LD_LIBRARY_PATH DOC "I am looking for librange.so...")
-	if(NOT RANGE_LIB)
-		message(FATAL_ERROR "Can't find 'range' library & header. Use cmake -DRANGE_LIB_DIR=... -DRANGE_INC_DIR=...")
+	find_package(Range)
+	if(RANGE_FOUND)
+		set(WITH_RANGE_YANEZ yes)
+		include_directories(${RANGE_INC_DIR})
+		link_directories(${RANGE_LIB_DIR})
 	endif()
-	get_filename_component(RANGE_LIBDIR ${RANGE_LIB} DIRECTORY)
-	get_filename_component(RANGE_DIR ${RANGE_LIBDIR} DIRECTORY)
-	message(STATUS "   --- found in ${RANGE_LIBDIR}...")
-	message(STATUS "   --- looking for range.h...")
-	find_file(RANGE_INCDIR range.h HINTS ${RANGE_INC_DIR} ${RANGE_DIR}/include)
-	if(NOT RANGE_INCDIR)
-		message(FATAL_ERROR "Can't find header range.h for ${RANGE_LIBDIR}/librange.so. Use cmake -DRANGE_INC_DIR=")
-	endif()
-	get_filename_component(RANGE_INCDIR ${RANGE_INCDIR} DIRECTORY)
-	message(STATUS "   --- found in ${RANGE_INCDIR}...")
-	set(WITH_RANGE_YANEZ yes)
-	include_directories(${RANGE_INCDIR})
-	link_directories(${RANGE_LIBDIR})
 endif(USE_RANGE)
 CMAKE_DEPENDENT_OPTION(USE_MODIFIED_RANGE
 	"Using modified version of range library with special treatment of gaseous materials..."
@@ -74,6 +79,19 @@ CMAKE_DEPENDENT_OPTION(USE_MODIFIED_RANGE
 if(USE_MODIFIED_RANGE)
 	set(WITH_MODIFIED_RANGE_YANEZ yes)
 endif()
+
+#--- ID Grid fitting routines provided by Laurent Tassan-Got
+option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" OFF)
+if(USE_FITLTG)
+	set(WITH_FITLTG yes)
+endif()
+#----------------------------------------------------------
+#------------------END BUILD OPTIONS-----------------------
+#----------------------------------------------------------
+
+
+
+
 
 #---Set the library version in the main CMakeLists.txt------------------------------------------
 file(READ ${CMAKE_SOURCE_DIR}/VERSION versionstr)	

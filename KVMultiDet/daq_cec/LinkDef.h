@@ -7,14 +7,10 @@
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedefs;
 #pragma link C++ class KVRawDataReader+;
-#ifdef ROOTGANILTAPE
+#ifdef WITH_BUILTIN_GRU
 #pragma link C++ class GTOneScaler+;
 #pragma link C++ class GTScalers+;
 #pragma link C++ class GTDataParameters+;
 #pragma link C++ class GTGanilData+;
-#endif
-#ifdef WITH_GRULIB
-//#pragma link C++ class KVGRUNetClientGanilReader+;
-#pragma link C++ class KVGRUTapeGanilReader+;
 #endif
 #endif

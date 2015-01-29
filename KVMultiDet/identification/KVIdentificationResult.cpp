@@ -70,7 +70,7 @@ void KVIdentificationResult::Reset()
     deltaEpedestal = deltaEpedestal_UNKNOWN;
 }
 
-void KVIdentificationResult::Print(Option_t* opt) const
+void KVIdentificationResult::Print(Option_t* ) const
 {
 	printf("Identification #%d  -  Type:%s ", GetNumber(), GetIDType());
 	if(!IDattempted) {

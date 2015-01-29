@@ -175,7 +175,7 @@ void KVUpDater::SetCalibrationParameters(UInt_t run)
     SetCalibParameters(kvrun);
 }
 
-void KVUpDater::SetCalibParameters(KVDBRun * run)
+void KVUpDater::SetCalibParameters(KVDBRun *)
 {
    // Generic (empty) method. Override in child classes to set specific calibrations.
 }

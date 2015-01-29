@@ -23,7 +23,7 @@ if(GRU_LIB)
 		
 		get_filename_component(GRU_INC_DIR ${GRU_INC_DIR} DIRECTORY)
 		message(STATUS "...found headers in ${GRU_INC_DIR}")
-		set(GRU_INC_DIR ${GRU_INC_DIR} ${searchpath1}/MFMlib)
+		set(GRU_INC_DIR ${GRU_INC_DIR} ${searchpath1}/MFMlib ${searchpath1}/vigru)
 		set(GRU_FOUND TRUE)
 		
 	else(GRU_INC_DIR)

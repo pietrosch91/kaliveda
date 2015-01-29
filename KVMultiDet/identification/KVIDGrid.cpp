@@ -24,16 +24,13 @@ $Id: KVIDGrid.cpp,v 1.60 2009/05/05 15:57:52 franklan Exp $
 #include "TObjArray.h"
 #include "TROOT.h"
 #include "KVString.h"
-#include "KVTGID.h"
 #include "TVirtualFitter.h"
-#include "KVTGIDFunctions.h"
 #include "TClass.h"
 #include "TContextMenu.h"
 #include "TSystem.h"
 #include "TF1.h"
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
-#include "KVTGIDFitter.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

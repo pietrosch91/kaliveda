@@ -1,21 +1,27 @@
 #ifdef __CINT__
 #include "RVersion.h"
+#include "KVConfig.h"
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedefs;
+
 #pragma link C++ global gIDGridManager;
+
+#ifdef WITH_FITLTG
 #pragma link C++ namespace KVTGIDFunctions;
-#pragma link C++ class KVIdentificationResult+;
-#pragma link C++ class KVIDSubCodeManager+;
-#pragma link C++ class KVVirtualIDFitter+;
+#pragma link C++ class KVTGIDFitter+;
 #pragma link C++ class KVTGID-;
 #pragma link C++ class KVTGIDZ+;
 #pragma link C++ class KVTGIDZA+;
 #pragma link C++ class KVTGIDManager+;
-#pragma link C++ class KVTGIDFitter+;
 #pragma link C++ class KVTGIDGrid+;
+#endif
+
+#pragma link C++ class KVIdentificationResult+;
+#pragma link C++ class KVIDSubCodeManager+;
+#pragma link C++ class KVVirtualIDFitter+;
 #pragma link C++ class KVDroite+;
 #pragma link C++ class KVSpiderLine+;
 #pragma link C++ class KVSpiderPSALine+;

@@ -9,13 +9,7 @@
 #pragma link C++ global gIDGridEditor;
 #pragma link C++ global gTreeAnalyzer;
 #pragma link C++ class KVBrowser;
-//#pragma link C++ class KVBrowserWidget;
-//#pragma link C++ class KVBrowserNameDialog;
-//#pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBaseBrowser;
-//#pragma link C++ class KVLayerBrowser;
-//#pragma link C++ class KVMultiDetBrowser;
-//#pragma link C++ class KVRingBrowser;
 #pragma link C++ class KVWidget;
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KVMergeGridsDialog+;

@@ -151,7 +151,7 @@ KVMultiDetArray::~KVMultiDetArray()
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::Build(Int_t run)
+void KVMultiDetArray::Build(Int_t )
 {
 
 
@@ -333,7 +333,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
 
 }
 
-void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
+void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString&)
 {
     //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
 
@@ -351,7 +351,7 @@ void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollect
     }
 }
 
-void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri)
+void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& )
 {
     idt->AddDetector(det);
     idt->SetGroup(det->GetGroup());
@@ -1122,8 +1122,8 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
 }
 
 //____________________________________________________________________________________________
-void KVMultiDetArray::ReplaceDetector(const Char_t * name,
-                                      KVDetector * new_kvd)
+void KVMultiDetArray::ReplaceDetector(const Char_t * ,
+                                      KVDetector * )
 {
     //Replace (and destroy) the named detector in the array with a detector based on the prototype
     //given by the pointer new_kvd.
@@ -1145,7 +1145,7 @@ void KVMultiDetArray::ReplaceDetector(const Char_t * name,
 
 //____________________________________________________________________________________________
 
-KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * name) const
+KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * ) const
 {
     // Return pointer to telescope in array with name given by "name"
     return 0;
@@ -1195,7 +1195,7 @@ void KVMultiDetArray::MakeListOfDetectors()
 }
 
 //_________________________________________________________________________________
-void KVMultiDetArray::Clear(Option_t * opt)
+void KVMultiDetArray::Clear(Option_t * )
 {
     //Reset all groups (lists of detected particles etc.)
     //and detectors in groups (energy losses, ACQparams etc. etc.)
@@ -1477,7 +1477,7 @@ void KVMultiDetArray::SetTargetThickness(const Float_t thickness)
     }
 }
 
-void KVMultiDetArray::RemoveGroup(KVGroup * grp)
+void KVMultiDetArray::RemoveGroup(KVGroup *)
 {
     //Remove (i.e. destroy) all the telescopes belonging to a given group
 //    if (grp) {

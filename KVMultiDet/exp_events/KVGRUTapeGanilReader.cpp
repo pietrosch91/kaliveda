@@ -62,7 +62,7 @@ KVGRUTapeGanilReader::KVGRUTapeGanilReader(const Char_t* filename)
 void KVGRUTapeGanilReader::ConnectRawDataParameters()
 {
 	GEvent* the_event=(GEvent*)fGRUAcq->GetEvent();
-	GDataParameters* the_parameters=fGRUAcq->GetDataParameters();
+	DataParameters* the_parameters=fGRUAcq->GetDataParameters();
 	Int_t nbparams = the_parameters->GetNbParameters();
 	TString par_name;
 	for(int i=0; i<nbparams; i++)

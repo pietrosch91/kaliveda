@@ -201,7 +201,7 @@ void KVIDentifier::ReadAsciiFile(ifstream & file)
 
 //_____________________________________________________________________________________________
 
-Int_t KVIDentifier::Compare(const TObject * obj) const
+Int_t KVIDentifier::Compare(const TObject *) const
 {
     //Dummy method used for sorting, can be redefined in more specific implementations.
     //A priori we don't know how to "order" the identification cuts.

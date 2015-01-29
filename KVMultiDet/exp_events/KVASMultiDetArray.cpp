@@ -388,7 +388,7 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
     }
 }
 //_______________________________________________________________________________________
-void KVASMultiDetArray::MergeGroups(KVASGroup * kg1, KVASGroup * kg2)
+void KVASMultiDetArray::MergeGroups(KVASGroup * , KVASGroup * )
 {
     //Merge two existing groups into a new single group.
 

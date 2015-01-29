@@ -238,7 +238,7 @@ KVSpIdGUI::~KVSpIdGUI()
 
 //________________________________________________________________
 
-KVSpIdGUI::KVSpIdGUI (const KVSpIdGUI& obj) 
+KVSpIdGUI::KVSpIdGUI (const KVSpIdGUI&) 
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example

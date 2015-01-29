@@ -36,7 +36,7 @@ KVIDCutLine::~KVIDCutLine()
 
 //__________________________________________________________
 
-void KVIDCutLine::WriteAsciiFile_extras(ofstream & file, const Char_t * name_prefix)
+void KVIDCutLine::WriteAsciiFile_extras(ofstream & file, const Char_t * )
 {
    // Write accepted direction for cut
 	

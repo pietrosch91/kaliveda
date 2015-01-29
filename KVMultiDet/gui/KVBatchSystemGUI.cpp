@@ -125,7 +125,7 @@ KVBatchSystemGUI::~KVBatchSystemGUI()
 void KVBatchSystemGUI::Refresh()
 {
    KVDatime now;
-   Info("Refresh", Form("Updating... [%s]",now.AsSQLString()));
+   Info("Refresh", "Updating... [%s]",now.AsSQLString());
     if(!gBatchSystemManager) new KVBatchSystemManager;
     if(!gBatchSystem) gBatchSystemManager->GetDefaultBatchSystem()->cd();
     KVList* newjobs = gBatchSystem->GetListOfJobs();

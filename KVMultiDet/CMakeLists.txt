@@ -1,5 +1,8 @@
 set(KVLIBRARY_NAME KVMultiDet)
 
+add_subdirectory(identification)
+add_subdirectory(exp_events)
+add_subdirectory(gui)
 add_subdirectory(globvars)
 add_subdirectory(trieur)
 add_subdirectory(stopping)

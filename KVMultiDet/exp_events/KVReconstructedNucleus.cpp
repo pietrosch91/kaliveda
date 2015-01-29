@@ -124,7 +124,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
 
 //___________________________________________________________________________
 
-void KVReconstructedNucleus::Print(Option_t * option) const
+void KVReconstructedNucleus::Print(Option_t * ) const
 {
 
 	int ndets=GetNumDet();
