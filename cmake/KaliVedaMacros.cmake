@@ -1,6 +1,36 @@
 include(CMakeParseArguments)
 
 #---------------------------------------------------------------------------------------------------
+#---KALIVEDA_SET_INCLUDE_DIRS(library MODULES mod1 mod2 ...)
+#---------------------------------------------------------------------------------------------------
+function(KALIVEDA_SET_INCLUDE_DIRS)
+
+	CMAKE_PARSE_ARGUMENTS(ARG "" "" "MODULES" ${ARGN})
+    
+	set(lib ${ARG_UNPARSED_ARGUMENTS})
+   foreach(mod ${ARG_MODULES})
+		include_directories(${CMAKE_SOURCE_DIR}/${lib}/${mod})
+   endforeach()
+
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
+#---KALIVEDA_SET_MODULE_DEPS(<variable> library MODULES mod1 mod2 ...)
+#---------------------------------------------------------------------------------------------------
+function(KALIVEDA_SET_MODULE_DEPS variable)
+
+	CMAKE_PARSE_ARGUMENTS(ARG "" "" "MODULES" ${ARGN})
+    
+	set(lib ${ARG_UNPARSED_ARGUMENTS})
+	set(modlist)
+   foreach(mod ${ARG_MODULES})
+		set(modlist ${modlist} ${lib}${mod})
+   endforeach()
+	set(${variable} ${modlist} PARENT_SCOPE)
+
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
 #---KALIVEDA__INSTALL_HEADERS([dir1 dir2 ...] OPTIONS [options])
 #---------------------------------------------------------------------------------------------------
 function(KALIVEDA_INSTALL_HEADERS)
@@ -65,7 +95,7 @@ function(KALIVEDA_LIBRARY libname)
   
   if(${ROOT_VERSION} VERSION_LESS 6)
     ROOT_GENERATE_DICTIONARY(G__${libname} ${headerfiles} LINKDEF LinkDef.h OPTIONS -p)
-    ROOT_GENERATE_ROOTMAP(${libname} LINKDEF LinkDef.h DEPENDENCIES ${ARG_DEPENDENCIES})
+    ROOT_GENERATE_ROOTMAP(${libname} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h DEPENDENCIES ${ARG_DEPENDENCIES})
   else()
     ROOT_GENERATE_DICTIONARY(G__${libname} ${headerfiles} MODULE ${libname} LINKDEF LinkDef.h OPTIONS -p)    
   endif()

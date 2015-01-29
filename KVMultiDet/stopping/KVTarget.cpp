@@ -440,7 +440,7 @@ KVTarget::~KVTarget()
 
 //________________________________________________________________________
 
-void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
+void KVTarget::DetectParticle(KVNucleus * kvp, TVector3*)
 {
    //Simulate passage of a particle through a target.
    //Energy losses are calculated and the particle is slowed down.
@@ -533,7 +533,7 @@ void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
 
 //________________________________________________________________
 
-Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
+Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3*)
 {
    //Simulate passage of a particle through a target.
    //Energy losses are calculated but the particle's energy is not modified.

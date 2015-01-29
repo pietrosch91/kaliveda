@@ -480,7 +480,7 @@ void KVDataSet::OpenDataBase(Option_t * opt)
 
 //___________________________________________________________________________________________________________________
 
-void KVDataSet::ls(Option_t * opt) const
+void KVDataSet::ls(Option_t*) const
 {
    //Print dataset information
    cout << "Dataset name=" << GetName() << " (" << GetTitle() << ")";

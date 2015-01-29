@@ -265,7 +265,7 @@ KVTrieurBloc & KVTrieurBloc::operator =(const KVTrieurBloc & a)
 }
 
 //_____________________________________________________
-Int_t KVTrieurBloc::GetNumCase(void *argus ...)
+Int_t KVTrieurBloc::GetNumCase(void * ...)
 {
 //
 // On retourne le numero de case

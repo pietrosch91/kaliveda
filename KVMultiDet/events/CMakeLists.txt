@@ -1,19 +1,17 @@
 set(ModuleName events)
+set(ModDeps base particles)
 
 set(libName ${KVLIBRARY_NAME}${ModuleName})
 
-include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/KVMultiDet/base ${CMAKE_SOURCE_DIR}/KVMultiDet/particles)
+KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES ${ModDeps})
+KALIVEDA_SET_MODULE_DEPS(kvdeps KVMultiDet MODULES ${ModDeps})
 
 #---Need ROOT with OpenGL support for KVEventViewer
 if(ROOT_opengl_FOUND)
-	add_definitions(-DWITH_OPENGL)
    find_library(ROOT_OPENGL_LIBRARY RGL HINTS ${ROOT_LIBRARY_DIR})
-	set(extra_root_libs ${ROOT_OPENGL_LIBRARY})
-	KALIVEDA_LIBRARY(${libName} DEPENDENCIES ${ROOT_LIBRARIES} ${extra_root_libs} KVMultiDetbase KVMultiDetparticles)
+	KALIVEDA_LIBRARY(${libName} DEPENDENCIES ${ROOT_LIBRARIES} ${ROOT_OPENGL_LIBRARY} ${kvdeps})
 else()
 	#---No OpenGL support : no KVEventViewer
-	set(exclude_class KVEventViewer)
-	KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${exclude_class} DEPENDENCIES ${ROOT_LIBRARIES} KVMultiDetbase KVMultiDetparticles)
+	KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE KVEventViewer DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps})
 endif()

@@ -401,7 +401,7 @@ Double_t KVMaterial::GetEffectiveAreaDensity(TVector3 & norm,
 }
 
 //___________________________________________________________________________________
-void KVMaterial::Print(Option_t * option) const
+void KVMaterial::Print(Option_t*) const
 {
    //Show information on this material
    cout << "KVMaterial: " << GetName() << " (" << GetType() << ")" << endl;
@@ -617,7 +617,7 @@ void KVMaterial::DetectParticle(KVNucleus * kvp, TVector3 * norm)
 
 //__________________________________________________________________________________________
 
-void KVMaterial::Clear(Option_t * opt)
+void KVMaterial::Clear(Option_t*)
 {
    //Reset absorber - set energy lost by particles to zero
    fELoss = 0.0;

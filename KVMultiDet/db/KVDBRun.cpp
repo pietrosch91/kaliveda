@@ -66,7 +66,7 @@ KVDBRun::~KVDBRun()
 
 //___________________________________________________________________________
 
-void KVDBRun::Print(Option_t * option) const
+void KVDBRun::Print(Option_t*) const
 {
    cout << "___________________________________________________" << endl
        << GetName() << "  (" << GetTitle() << ")" << endl;
@@ -88,7 +88,7 @@ void KVDBRun::Print(Option_t * option) const
 
 //___________________________________________________________________________
 
-void KVDBRun::WriteRunListLine(ostream & outstr, Char_t delim) const
+void KVDBRun::WriteRunListLine(ostream & outstr, Char_t) const
 {
    //Write informations on run in format used for runlists, i.e. a line of fields separated by the
    //separator character '|' (the 'delim' argument is obsolete and is not used)
@@ -192,7 +192,7 @@ void KVDBRun::ReadRunListLine(const KVString& line)
 
 //___________________________________________________________________________
 
-void KVDBRun::WriteRunListHeader(ostream & outstr, Char_t delim) const
+void KVDBRun::WriteRunListHeader(ostream & outstr, Char_t) const
 {
    //Write the version flag
 

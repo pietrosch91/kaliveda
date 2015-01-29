@@ -6,7 +6,7 @@
 
 #include "KVRawDataReader.h"
 #include "KVHashList.h"
-class GAcq;
+#include "GAcq.h"
 #include "KVACQParam.h"
 
 class KVGRUTapeGanilReader : public KVRawDataReader

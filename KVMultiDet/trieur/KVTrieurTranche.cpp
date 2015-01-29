@@ -261,7 +261,7 @@ KVTrieurTranche & KVTrieurTranche::operator =(const KVTrieurTranche & a)
 }
 
 //_____________________________________________________
-Int_t KVTrieurTranche::GetNumCase(void *argus ...)
+Int_t KVTrieurTranche::GetNumCase(void* ...)
 {
 //
 // On retourne le numero de case

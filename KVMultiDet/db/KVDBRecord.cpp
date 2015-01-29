@@ -176,7 +176,7 @@ KVRList *KVDBRecord::GetLinks(const Char_t * key) const
 
 //___________________________________________________________________________
 
-void KVDBRecord::Print(Option_t * option) const
+void KVDBRecord::Print(Option_t*) const
 {
 
    cout << "_______________________________________________________" <<
@@ -194,7 +194,7 @@ void KVDBRecord::Print(Option_t * option) const
 
 //___________________________________________________________________________
 
-void KVDBRecord::ls(Option_t * option) const
+void KVDBRecord::ls(Option_t*) const
 {
    TNamed::ls();
 }

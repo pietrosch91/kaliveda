@@ -195,7 +195,7 @@ void KVDBParameterSet::SetParamNames(const Char_t * name, ...)
 }
 
 //_____________________________________________________________________________
-void KVDBParameterSet::Print(Option_t * option) const
+void KVDBParameterSet::Print(Option_t*) const
 {
    KVDBRecord::Print();
    const int max_disp_param = 10;

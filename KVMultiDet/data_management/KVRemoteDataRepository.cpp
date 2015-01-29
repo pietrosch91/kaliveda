@@ -77,8 +77,8 @@ KVRemoteDataRepository::~KVRemoteDataRepository()
 
 //___________________________________________________________________________
 
-Bool_t KVRemoteDataRepository::CheckSubdirExists(const Char_t * dir,
-                                                 const Char_t * subdir)
+Bool_t KVRemoteDataRepository::CheckSubdirExists(const Char_t* ,
+                                                 const Char_t*)
 {
    //Returns kTRUE if the following path is valid
    //      /root_of_data_repository/dir/[subdir]
@@ -92,9 +92,9 @@ Bool_t KVRemoteDataRepository::CheckSubdirExists(const Char_t * dir,
 //___________________________________________________________________________
 
 Bool_t KVRemoteDataRepository::GetFileInfo(KVDataSet*,
-                                           const Char_t * datatype,
-                                           const Char_t * runfile,
-                                           FileStat_t & fs)
+                                           const Char_t * ,
+                                           const Char_t * ,
+                                           FileStat_t & )
 {
    //Checks if the run file of given type is physically present in dataset subdirectory,
    //i.e. (schematically), if
@@ -113,8 +113,8 @@ Bool_t KVRemoteDataRepository::GetFileInfo(KVDataSet*,
 //___________________________________________________________________________
 
 Bool_t KVRemoteDataRepository::CheckFileStatus(KVDataSet*,
-                                               const Char_t * datatype,
-                                               const Char_t * runfile)
+                                               const Char_t *  ,
+                                               const Char_t *  )
 {
    //Checks if the run file of given type is physically present in dataset subdirectory,
    //i.e. (schematically), if
@@ -132,12 +132,9 @@ Bool_t KVRemoteDataRepository::CheckFileStatus(KVDataSet*,
 //___________________________________________________________________________
 
 void KVRemoteDataRepository::CopyFileFromRepository(KVDataSet*,
-                                                    const Char_t *
-                                                    datatype,
-                                                    const Char_t *
-                                                    filename,
-                                                    const Char_t *
-                                                    destination)
+                                                    const Char_t * ,
+                                                    const Char_t * ,
+                                                    const Char_t * )
 {
    //Copy file [datasetdir]/[datatype]/[filename] from the repository to [destination]
    //We check if the file to copy exists.
@@ -148,10 +145,10 @@ void KVRemoteDataRepository::CopyFileFromRepository(KVDataSet*,
 
 //___________________________________________________________________________
 
-void KVRemoteDataRepository::CopyFileToRepository(const Char_t * source,
+void KVRemoteDataRepository::CopyFileToRepository(const Char_t * ,
                                                   KVDataSet*,
-                                                  const Char_t * datatype,
-                                                  const Char_t * filename)
+                                                  const Char_t *  ,
+                                                  const Char_t *  )
 {
    //Copy file [source] to [datasetdir]/[datatype]/[filename] in the repository
    //For remote repositories, this uses the bbftp protocol (if available).
@@ -162,7 +159,7 @@ void KVRemoteDataRepository::CopyFileToRepository(const Char_t * source,
 //___________________________________________________________________________
 
 void KVRemoteDataRepository::MakeSubdirectory(KVDataSet*,
-                                              const Char_t * datatype)
+                                              const Char_t *  )
 {
    //Create a new subdirectory in the repository
    //Impossible on distant data repositories.
@@ -172,8 +169,7 @@ void KVRemoteDataRepository::MakeSubdirectory(KVDataSet*,
 //___________________________________________________________________________
 
 KVUniqueNameList *KVRemoteDataRepository::GetDirectoryListing(KVDataSet*,
-                                                    const Char_t *
-                                                    datatype)
+                                                    const Char_t * )
 {
    //Impossible on distant data repositories.
    //Will return 0 (null pointer).
@@ -184,9 +180,9 @@ KVUniqueNameList *KVRemoteDataRepository::GetDirectoryListing(KVDataSet*,
 //___________________________________________________________________________
 
 void KVRemoteDataRepository::DeleteFile(KVDataSet*,
-                                        const Char_t * datatype,
-                                        const Char_t * filename,
-                                        Bool_t confirm)
+                                        const Char_t *  ,
+                                        const Char_t *  ,
+                                        Bool_t  )
 {
    //Delete repository file [datasetdir]/[datatype]/[filename]
    //Impossible on distant data repositories.

@@ -107,7 +107,7 @@ void KVACQParam::Copy(TObject & obj)
    ((KVACQParam &) obj).SetNbBits(GetNbBits());
 }
 
-void KVACQParam::Print(Option_t * opt) const
+void KVACQParam::Print(Option_t*) const
 {
    cout << "_________________________________________" << endl;
    cout << " KVACQParam: " << GetName() << " " << GetType() << endl;
@@ -117,7 +117,7 @@ void KVACQParam::Print(Option_t * opt) const
    cout << "_________________________________________" << endl;
 }
 
-void KVACQParam::ls(Option_t * option) const
+void KVACQParam::ls(Option_t*) const
 {
    //Dump name of parameter, raw coder value, and "randomised" value
    cout << ClassName() << " : " << GetName() << " raw=" << GetCoderData()

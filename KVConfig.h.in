@@ -1,3 +1,14 @@
+#ifndef KV_CONFIG__H
+#define KV_CONFIG__H
+
+// KaliVeda configuration flags for current build
+#cmakedefine WITH_RANGE_YANEZ
+#cmakedefine WITH_MODIFIED_RANGE_YANEZ
+#cmakedefine WITH_OPENGL
+#cmakedefine WITH_GRULIB
+
+
+
 //-----------------------------------ROOT-version dependent compiler flags
 //-----------------------------------to handle backwards compatibility
 //
@@ -5,8 +16,6 @@
 // backwards compatibility is not assured !
 // some solutions are given...
 
-#ifndef KV_CONFIG__H
-#define KV_CONFIG__H
 
 //---------------------------TGButton::SetEnabled available from v5.02/00 onwards
 //SOLUTION:

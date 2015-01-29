@@ -221,7 +221,7 @@ KVDBRecord *KVDataBase::GetRecord(const Char_t * table_name,
 }
 
 //__________________________________________________________________________
-void KVDataBase::Print(Option_t * option) const
+void KVDataBase::Print(Option_t*) const
 {
 
 

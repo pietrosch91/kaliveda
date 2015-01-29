@@ -5,7 +5,6 @@
 #include "GTape.h"
 #include "GEvent.h"
 #include "GDataParameters.h"
-#include "GAcq.h"
 #include "KVACQParam.h"
 #include "KVDataSet.h"
 #include "KVMultiDetArray.h"

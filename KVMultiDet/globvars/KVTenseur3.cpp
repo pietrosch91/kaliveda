@@ -184,7 +184,7 @@ KVTenseur3 & KVTenseur3::operator =(const KVTenseur3 & t)
 }
 
 //_________________________________________________________________
-void KVTenseur3::Print(Option_t * opt) const
+void KVTenseur3::Print(Option_t*) const
 {
 //
 // Affichage

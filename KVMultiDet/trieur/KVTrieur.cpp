@@ -281,7 +281,7 @@ void KVTrieur::SetNbCases(Int_t n)
 }
 
 //________________________________________________________
-Int_t KVTrieur::GetNumCase(void *argus ...)
+Int_t KVTrieur::GetNumCase(void* ...)
 {
 //
 // On retourne le numero de case
@@ -291,7 +291,7 @@ Int_t KVTrieur::GetNumCase(void *argus ...)
 }
 
 //________________________________________________________
-Int_t KVTrieur::GetNumCase(Double_t x)
+Int_t KVTrieur::GetNumCase(Double_t)
 {
 //
 // On retourne le numero de case
