@@ -1,6 +1,4 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "FC.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -83,7 +81,7 @@ c     * Calculation of the functional and its gradient *
 c     *             at each data point                 *
 c     **************************************************
 */
-void F77_FUNC(miniuser,MINIUSER)(int *ip, double* x, double *ecart, double* grd, int *iwf)
+void FC_GLOBAL(miniuser,MINIUSER)(int *ip, double* x, double *ecart, double* grd, int *iwf)
 {
 	static 	double	rmn, rmn1, rmns1, g, eta;
           	double	z, a, alg, zlg, z2a, z2amu, zal ,zalm, rho, xx, yy;
@@ -145,7 +143,7 @@ void F77_FUNC(miniuser,MINIUSER)(int *ip, double* x, double *ecart, double* grd,
       re = g*xxc;
       rle = log(re);
       rea = pow(re,rmn1);
-      penu = 0.;
+      penu = enu = 0.;
       if (para001.jxt != 0){
         enu = pow(re, xt[4]);
         penu = xt[5]*z2amu*enu;
@@ -191,8 +189,8 @@ void F77_FUNC(miniuser,MINIUSER)(int *ip, double* x, double *ecart, double* grd,
 
 /* declarations needed by fitede */
 		
-void F77_FUNC(mini8drv,MINI8DRV)(int*,double*,double*,double*,double*,int*,int*,double*,int*,int*);
-void F77_FUNC(mini8,MINI8)(int*,int*,int*,double*,
+void FC_GLOBAL(mini8drv,MINI8DRV)(int*,double*,double*,double*,double*,int*,int*,double*,int*,int*);
+void FC_GLOBAL(mini8,MINI8)(int*,int*,int*,double*,
       int*,double*,double*,double*,double*,double*,double*,double*,int*,int*,int*,double*,int*,int*);
 	
 /*
@@ -200,7 +198,7 @@ c                    ******************
 c                    *  Specific fit  *
 c                    ******************
 */
-void F77_FUNC(fitede,FITEDE)(int *npts, float *zd, float *ad, float *xd, float *yd,
+void FC_GLOBAL(fitede,FITEDE)(int *npts, float *zd, float *ad, float *xd, float *yd,
 		int *ixt, int *ih, float *sc, float *bl, float *bu, float *par,
 		int *istate, int *irc)
 {
@@ -260,7 +258,7 @@ void F77_FUNC(fitede,FITEDE)(int *npts, float *zd, float *ad, float *xd, float *
         for(i=1; i<=para001.mm; i++){
           dx[i-1] = 0.0000001;
         }
-        F77_FUNC(mini8drv,MINI8DRV)(&para001.mm,x,dx,g,h,iw,&liw,w,&lw,&iout);
+        FC_GLOBAL(mini8drv,MINI8DRV)(&para001.mm,x,dx,g,h,iw,&liw,w,&lw,&iout);
         for(i=1; i<=para001.mm; i++){
           istate[i-1] = 0;
 		  }
@@ -276,7 +274,7 @@ void F77_FUNC(fitede,FITEDE)(int *npts, float *zd, float *ad, float *xd, float *
         for(i=1; i<=para001.mm; i++){
           dx[i-1] = 0.2;
         }
-        F77_FUNC(mini8,MINI8)(&para001.mm,&iprint,&mxcall,&tolg,
+        FC_GLOBAL(mini8,MINI8)(&para001.mm,&iprint,&mxcall,&tolg,
             &ibound,bl8,bu8,dx,x,&f,g,h,istate,iw,&liw,w,&lw,irc);
 	   }
       for(i=1; i<=para001.mm; i++){

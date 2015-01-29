@@ -9,11 +9,9 @@ KALIVEDA_SET_MODULE_DEPS(kvdeps KVMultiDet MODULES ${ModDeps})
 
 if(NOT WITH_FITLTG)
 	set(do_not_compile KVTGIDFitter KVTGIDFunctions KVTGIDGrid KVTGID KVTGIDManager KVTGIDZA KVTGIDZ)
+else()
+	include_directories(${FitLTG_SOURCE_DIR}/src)
 endif()
 
 #---generate library & rootmap
-if(do_not_compile)
-	KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${do_not_compile} DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps})
-else()
-	KALIVEDA_LIBRARY(${libName} DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps})
-endif()
+KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${do_not_compile} DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps} ${FITLTG_LIB})

@@ -78,7 +78,7 @@ void KVRTGIDManager::AddTGID(KVTGID * _tgid)
 }
 //________________________________________________________________
 
-KVTGID *KVRTGIDManager::GetTGID(const Char_t * idt_name,
+KVTGID *KVRTGIDManager::GetTGID(const Char_t * ,
                                const Char_t * id_type,
                                const Char_t * grid_type){
    //Overrides the same method of KVTGIDManager. This method
@@ -121,7 +121,7 @@ void KVRTGIDManager::SetTGID(KVTGID * _tgid)
 }
 //________________________________________________________________
 
-void KVRTGIDManager::RemoveTGID(const Char_t * name)
+void KVRTGIDManager::RemoveTGID(const Char_t * )
 {
    	//Remove the identification object with name from the local list.
 

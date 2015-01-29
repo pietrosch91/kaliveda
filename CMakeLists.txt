@@ -81,9 +81,11 @@ if(USE_MODIFIED_RANGE)
 endif()
 
 #--- ID Grid fitting routines provided by Laurent Tassan-Got
-option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" OFF)
+option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" ON)
 if(USE_FITLTG)
 	set(WITH_FITLTG yes)
+	add_subdirectory(fitltg-0.1)
+	set(FITLTG_LIB fitltg)
 endif()
 #----------------------------------------------------------
 #------------------END BUILD OPTIONS-----------------------
