@@ -39,6 +39,9 @@ class KVFAZIA : public KVMultiDetArray
 	Int_t GetNumberOfBlocks() const { return fNblocks; }
    void IncludeTargetInGeometry(Bool_t include=kTRUE) { fBuildTarget=include; }
    
+   const Char_t* GetDetectorTypes() const { return fDetectorTypes.Data(); }
+   const Char_t* GetSignalTypes() const { return fSignalTypes.Data(); }
+   
    ClassDef(KVFAZIA,1)//Base class for description of the FAZIA set up
 };
 

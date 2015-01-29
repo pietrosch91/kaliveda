@@ -86,8 +86,8 @@ void KVFAZIA_2B::BuildFAZIA()
    	phi = centre.Phi() * TMath::RadToDeg();
    	*/
       theta=theta_min+arc;
-      if (bb==0) phi=0;
-      else if (bb==1) phi=180;
+      if (bb==0) phi=90;
+      else if (bb==1) phi=360-90;
       
       rot2.SetAngles(phi + 90., theta, 0.);
    	rot1.SetAngles(-1.*phi, 0., 0.);
