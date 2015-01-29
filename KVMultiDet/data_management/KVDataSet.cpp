@@ -604,19 +604,23 @@ void KVDataSet::SetAnalysisTasks(const KVSeqCollection * task_list)
 	// whose pre-requisite datatype is present for this dataset.
 	// Any dataset-specific "tweaking" of the task (including the prerequisite datatype) is done here.
 
+   TString availables = gEnv->GetValue(Form("%s.DataAnalysisTask",GetName()),"");
    fTasks.Delete();
    TIter nxt(task_list);
    KVDataAnalysisTask *dat;
    while ((dat = (KVDataAnalysisTask *) nxt())) {
       //make new copy of default analysis task
-      KVDataAnalysisTask* new_task = new KVDataAnalysisTask( *dat );
-      //check if any dataset-specific parameters need to be changed
-      new_task->SetParametersForDataSet(this);
-      if (HasDataType(new_task->GetPrereq())){
-         fTasks.Add( new_task );
-      }
-		else
-			delete new_task;
+      if ( availables=="" || availables.Contains(dat->GetName()))
+      {
+      	KVDataAnalysisTask* new_task = new KVDataAnalysisTask( *dat );
+      	//check if any dataset-specific parameters need to be changed
+      	new_task->SetParametersForDataSet(this);
+      	if (HasDataType(new_task->GetPrereq())){
+      	   fTasks.Add( new_task );
+     	 }
+			else
+				delete new_task;
+   	}
    }
 }
 

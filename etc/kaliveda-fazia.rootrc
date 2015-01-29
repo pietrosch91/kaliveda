@@ -21,6 +21,7 @@ LNS_2014.DataSet.RepositoryDir:   lns_2014
 LNS_2014.DataSet.RunFileName.raw:    run%06d.root
 LNS_2014.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2014.DataSet.RunFileClass.raw:    TFile
+LNS_2014.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 
 +DataSet:   FAZIASYM
 FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
@@ -52,31 +53,17 @@ FAZIASYM.ThetaMinCompactGeo: 2.0
 +DataRepository: fazia_sps
 fazia_sps.DataRepository.RootDir: /sps/hep/fazia/data
 
-+DataAnalysisTask:     RawFaziaAnalysis
-RawFaziaAnalysis.DataAnalysisTask.Title:     Analysis of raw FAZIA data
-RawFaziaAnalysis.DataAnalysisTask.Prereq:     raw
-RawFaziaAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
-RawFaziaAnalysis.DataAnalysisTask.UserClass:     yes
-RawFaziaAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
+LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
 +Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIA "KVFAZIARawDataAnalyser()"
 +Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIA    "KVFAZIARawDataReader_LNS_2011()"
 
-+DataAnalysisTask:     FaziaReconstruction
-FaziaReconstruction.DataAnalysisTask.Title:     Event FAZIA reconstruction from raw data (raw->recon)
-FaziaReconstruction.DataAnalysisTask.Prereq:     raw
-FaziaReconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
-FaziaReconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
-FaziaReconstruction.DataAnalysisTask.UserClass:     no
-FaziaReconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
+LNS_2014.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+LNS_2014.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 +Plugin.TSelector:   FAZIARawDataRecon      KVFAZIARawDataReconstructor  FAZIA "KVFAZIARawDataReconstructor()"
 
-+DataAnalysisTask:     FaziaReconAnalysis
-FaziaReconAnalysis.DataAnalysisTask.Title:     Analysis of FAZIA reconstructed events (recon)
-FaziaReconAnalysis.DataAnalysisTask.Prereq:     recon
-FaziaReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
-FaziaReconAnalysis.DataAnalysisTask.UserClass:     yes
-FaziaReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/TSelector
-FaziaReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+LNS_2014.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
+LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/TSelector
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIA "KVFAZIAReconDataAnalyser()"
 +Plugin.TSelector:  FAZIASelector    KVEventSelector      KVMultiDet    "KVEventSelector()"
 
