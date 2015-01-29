@@ -44,6 +44,7 @@ function(KALIVEDA_INSTALL_HEADERS)
     install(DIRECTORY ${d} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
                            COMPONENT headers
 									FILES_MATCHING PATTERN "*.h"
+                           PATTERN "doc" EXCLUDE
                            PATTERN ".svn" EXCLUDE
                            REGEX "LinkDef" EXCLUDE
                            ${ARG_OPTIONS})

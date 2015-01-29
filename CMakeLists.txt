@@ -109,7 +109,7 @@ set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
 include(CreateKaliVedaVersionHeader)
 create_kaliveda_version_header()
 
-include(HandleRootBackwardsCompatibilityIssues)
-handle_root_backwards_compatibility_issues()
+include(CreateConfigHeader)
+create_config_header()
 
 add_subdirectory(KVMultiDet)

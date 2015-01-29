@@ -1,4 +1,4 @@
-macro( handle_root_backwards_compatibility_issues )
+macro( create_config_header )
 
 	set(__WITHOUT_TGBUTTON_SETENABLED)
 	if(ROOT_VERSION VERSION_LESS 5.02.00)
@@ -99,5 +99,9 @@ macro( handle_root_backwards_compatibility_issues )
 		${CMAKE_SOURCE_DIR}/KVConfig.h.in
 		${CMAKE_BINARY_DIR}/KVConfig.h
 	)
+	install(FILES ${CMAKE_BINARY_DIR}/KVConfig.h
+				DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+            COMPONENT headers
+	)
 	
-endmacro( handle_root_backwards_compatibility_issues )
+endmacro( create_config_header )
