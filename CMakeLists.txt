@@ -35,12 +35,14 @@ include(KaliVedaMacros)
 #----------------------------------------------------------
 #----------------------BUILD OPTIONS-----------------------
 #----------------------------------------------------------
+include(FeatureSummary)
 include(CMakeDependentOption)
 
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
 		"Use built-in package for reading GANIL acquisition data (not MFM format)"
 		OFF)
+add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
 endif()
@@ -49,6 +51,7 @@ endif()
 option(USE_GRU
 		"Use GANIL ROOT utilities (GRU) library for reading data (including MFM format)"
 		OFF)
+add_feature_info(gru USE_GRU "Use GANIL ROOT utilities (GRU) library for reading data (including MFM format)")
 if(USE_GRU)
 	find_package(GRU)
 	if(GRU_FOUND)
@@ -62,6 +65,7 @@ endif()
 option(USE_RANGE
 		"Build classes using Ricardo Yanez's 'range' library"
 		OFF)
+add_feature_info(range USE_RANGE "Build classes using Ricardo Yanez's 'range' library")
 if(USE_RANGE)
 	find_package(Range)
 	if(RANGE_FOUND)
@@ -82,6 +86,7 @@ endif()
 
 #--- ID Grid fitting routines provided by Laurent Tassan-Got
 option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" ON)
+add_feature_info(fitltg USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids")
 if(USE_FITLTG)
 	set(WITH_FITLTG yes)
 	add_subdirectory(fitltg-0.1)
@@ -91,7 +96,8 @@ endif()
 #------------------END BUILD OPTIONS-----------------------
 #----------------------------------------------------------
 
-
+Feature_Summary(WHAT ENABLED_FEATURES DESCRIPTION "------ENABLED FEATURES:")
+Feature_Summary(WHAT DISABLED_FEATURES DESCRIPTION "------DISABLED FEATURES:")
 
 
 
