@@ -121,3 +121,7 @@ include(CreateConfigHeader)
 create_config_header()
 
 add_subdirectory(KVMultiDet)
+get_property(KVMultiDet_MOD_LIST GLOBAL PROPERTY KVMultiDet_MOD_LIST)
+get_property(KVMultiDet_LIB_LIST GLOBAL PROPERTY KVMultiDet_LIB_LIST)
+
+add_subdirectory(KVIndra)

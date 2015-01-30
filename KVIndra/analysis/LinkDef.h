@@ -1,8 +1,9 @@
 #ifdef __CINT__
+#include "KVConfig.h"
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#ifdef ROOTGANILTAPE
+#ifdef WITH_BUILTIN_GRU
 #pragma link C++ class KVINDRARawDataAnalyser;
 #pragma link C++ class KVINDRARawDataReconstructor;
 #endif

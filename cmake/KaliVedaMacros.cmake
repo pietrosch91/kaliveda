@@ -3,14 +3,28 @@ include(CMakeParseArguments)
 #---------------------------------------------------------------------------------------------------
 #---KALIVEDA_SET_INCLUDE_DIRS(library MODULES mod1 mod2 ...)
 #---------------------------------------------------------------------------------------------------
-function(KALIVEDA_SET_INCLUDE_DIRS)
+function(KALIVEDA_SET_INCLUDE_DIRS lib)
 
 	CMAKE_PARSE_ARGUMENTS(ARG "" "" "MODULES" ${ARGN})
     
-	set(lib ${ARG_UNPARSED_ARGUMENTS})
    foreach(mod ${ARG_MODULES})
 		include_directories(${CMAKE_SOURCE_DIR}/${lib}/${mod})
    endforeach()
+
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
+#---CHANGE_LIST_TO_STRING(mystring list1 list2 list3)
+#---------------------------------------------------------------------------------------------------
+function(CHANGE_LIST_TO_STRING mystring)
+
+	CMAKE_PARSE_ARGUMENTS(ARG "" "" "" ${ARGN})
+	set(mylist ${ARG_UNPARSED_ARGUMENTS})
+	set(stringy)
+   foreach(l ${mylist})
+		set(stringy "${stringy}${l} ")
+   endforeach()
+	set(${mystring} "${stringy}" PARENT_SCOPE)
 
 endfunction()
 
@@ -115,6 +129,10 @@ endfunction()
 #   EXTRA_LIBS = extra libraries/targets this module depends on
 #  To exclude some headers from dictionary generation: DICT_EXCLUDE toto.h titi.h ...
 #  To exclude some classes from shared library: LIB_EXCLUDE Class1 Class2 ...
+#
+#  For each module we fill the following GLOBAL properties:
+#        ${PARENT}_MOD_LIST : list of all modules in ${PARENT}
+#        ${PARENT}_LIB_LIST : list of all library targets in ${PARENT}
 #---------------------------------------------------------------------------------------------------
 function(BUILD_KALIVEDA_MODULE kvmod)
 
@@ -123,6 +141,8 @@ function(BUILD_KALIVEDA_MODULE kvmod)
   CMAKE_PARSE_ARGUMENTS(ARG "" "PARENT" "KVMOD_DEPENDS;DICT_EXCLUDE;LIB_EXCLUDE;EXTRA_LIBS" ${ARGN})
 
   set(libName ${ARG_PARENT}${kvmod})
+  
+  set_property(GLOBAL APPEND PROPERTY ${ARG_PARENT}_MOD_LIST ${kvmod})
 
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
   KALIVEDA_SET_INCLUDE_DIRS(${ARG_PARENT} MODULES ${ARG_KVMOD_DEPENDS})
@@ -131,4 +151,66 @@ function(BUILD_KALIVEDA_MODULE kvmod)
   #---generate library & rootmap
   KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${ARG_LIB_EXCLUDE} DICT_EXCLUDE ${ARG_DICT_EXCLUDE}
 						DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps} ${ARG_EXTRA_LIBS})
+  
+  set_property(GLOBAL APPEND PROPERTY ${ARG_PARENT}_LIB_LIST ${libName})
+
+endfunction()
+
+
+#---------------------------------------------------------------------------------------------------
+#---BUILD_KALIVEDA_SUBPROJECT([DATASETS ds1 ds2 ...])
+#                             [IGNORE_DIRS dir1 dir2 ...])
+#
+#---CMakeLists.txt for a KaliVeda subproject i.e. KVMultiDet, KVIndra, ...
+#---DATASETS = list of dataset subdirectories
+#---IGNORE_DIRS = subdirectories to ignore
+#---------------------------------------------------------------------------------------------------
+function(BUILD_KALIVEDA_SUBPROJECT)
+
+  CMAKE_PARSE_ARGUMENTS(ARG "" "" "DATASETS;IGNORE_DIRS" ${ARGN})
+	
+	#---get name of directory = name of subproject
+	get_filename_component(KVSUBPROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	message(STATUS "Configuring ${KVSUBPROJECT}...")
+
+	#---get list of modules (=subdirectories)
+	file(GLOB module_list RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
+	
+	#---remove dataset dirs, etc.
+	set(to_be_removed CMakeLists.txt etc data factory)
+	list(REMOVE_ITEM module_list ${to_be_removed} ${ARG_DATASETS} ${ARG_IGNORE_DIRS})
+	
+	#---configure modules
+	foreach(mod ${module_list})
+		add_subdirectory(${mod})
+	endforeach(mod)
+
+	#---install configuration files
+	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/etc)
+		install(DIRECTORY etc DESTINATION .)
+	endif()
+
+	#---everything in data/ is installed in ${CMAKE_INSTALL_PREFIX}/KVFiles/data
+	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/data)
+		install(DIRECTORY data DESTINATION KVFiles)
+	endif()
+
+	#---everything in factory/ is installed in ${CMAKE_INSTALL_PREFIX}/KVFiles
+	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/factory)
+		install(DIRECTORY factory/ DESTINATION KVFiles)
+	endif()
+
+	#---install dataset directories in ${CMAKE_INSTALL_PREFIX}/KVFiles
+	if(ARG_DATASETS)
+		foreach(d ${ARG_DATASETS})
+			install(DIRECTORY ${d} DESTINATION KVFiles)
+			#---write Makefile for automatic database updating
+			file(GLOB contents RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/${d} ${d}/*)
+			CHANGE_LIST_TO_STRING(st_contents ${contents})
+			file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile "$(KVROOT)/db/${d}/DataBase.root : ${st_contents}\n")
+			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile "	@echo Database needs update\n")
+			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile DESTINATION KVFiles/${d} RENAME Makefile)
+		endforeach()
+	endif()
+
 endfunction()
