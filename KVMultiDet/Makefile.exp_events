@@ -1,9 +1,0 @@
-ifeq ($(ROOTGANILTAPE),yes)
-	EXTRA_CXX_FLAGS = -I$(GANTAPE_INC) -DROOTGANILTAPE
-#	EXTRA_LIBRARIES = -L$(KVINSTALLDIR)/lib -lgan_tape
-else
-	NOT_READY += exp_events/KVGANILDataReader.cpp exp_events/KVRawDataAnalyser.cpp
-endif
-
-include Makefile.KVMultiDet
-

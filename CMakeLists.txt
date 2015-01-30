@@ -8,6 +8,7 @@ message(STATUS "Found ROOT v${ROOT_VERSION}")
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
+   find_library(ROOT_OPENGL_LIBRARY RGL HINTS ${ROOT_LIBRARY_DIR})
 endif()
 
 include(${ROOT_USE_FILE})
@@ -42,9 +43,7 @@ option(USE_BUILTIN_GRU
 add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
-message(STATUS "before cflags=${CMAKE_C_FLAGS} cxxflags=${CMAKE_CXX_FLAGS}")
 	add_subdirectory(GanTape)
-message(STATUS "after cflags=${CMAKE_C_FLAGS} cxxflags=${CMAKE_CXX_FLAGS}")
 	include_directories(${BUILTIN_GRU_INC_DIR})
 endif()
 

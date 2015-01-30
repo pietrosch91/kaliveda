@@ -140,6 +140,7 @@ UInt_t KVBase::fNbObj = 0;
 TString KVBase::KVRootDir = "";
 TString KVBase::KVBinDir = "";
 TString KVBase::KVFilesDir = "";
+TString KVBase::KVEtcDir = "";
 
 Bool_t KVBase::fEnvIsInit = kFALSE;
 
@@ -160,6 +161,12 @@ const Char_t *KVBase::GetKVFilesDir(void)
    // Initialises environment if neccesary.
    if (!fEnvIsInit) InitEnvironment();
    return KVFilesDir.Data();
+}
+const Char_t *KVBase::GetKVEtcDir(void)
+{
+   // Initialises environment if neccesary.
+   if (!fEnvIsInit) InitEnvironment();
+   return KVEtcDir.Data();
 }
 
 //_______________
@@ -203,25 +210,11 @@ void KVBase::InitEnvironment()
       KVFilesDir = StrDup(tmp.Data());
       AssignAndDelete(tmp, gSystem->ConcatFileName(KVRootDir.Data(), "bin"));
       KVBinDir = StrDup(tmp.Data());
+      AssignAndDelete(tmp, gSystem->ConcatFileName(KVRootDir.Data(), "etc"));
+      KVEtcDir = StrDup(tmp.Data());
       //set up environment using kvrootrc file
       if (!gEnv->Defined("DataSet.DatabaseFile")) {
-         AssignAndDelete(tmp,
-                         gSystem->ConcatFileName(KVFilesDir.Data(),
-                                                 ".kvrootrc"));
-         gEnv->ReadFile(tmp.Data(), kEnvGlobal);
-
-         AssignAndDelete(tmp,
-                         gSystem->ConcatFileName(gSystem->Getenv("HOME"),
-                                                 ".kvrootrc"));
-         gEnv->ReadFile(tmp.Data(), kEnvUser);
-         tmp = "./.kvrootrc";
-         gEnv->ReadFile(tmp.Data(), kEnvLocal);
-
-			// load plugin handlers
-         gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
-
-			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
-			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
+			ReadConfigFiles();
       }
 
       //generate new seed from system clock
@@ -231,6 +224,47 @@ void KVBase::InitEnvironment()
       fEnvIsInit = kTRUE;
 		
    }
+}
+
+void KVBase::ReadConfigFiles()
+{
+    // Read all configuration files
+    // System config files are read first in the order they appear in file
+    //    ${KVROOT}/etc/config.files
+    // Then we read any of the following files if they exist:
+    //    ${HOME}/.kvrootrc
+    //    ${PWD}/.kvrootrc
+
+    TString tmp;
+    AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),"config.files"));
+    ifstream conflist;
+    conflist.open(tmp.Data());
+    if(!conflist.good()){
+        ::Fatal("KVBase::ReadConfigFiles", "Cannot open %s", tmp.Data());
+        return;
+    }
+    TString file;
+    file.ReadLine(conflist);
+    while(conflist.good()){
+        if(file!="") {
+		  		file.Remove(TString::kBoth,' ');
+    			AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),file.Data()));
+		  		gEnv->ReadFile(tmp.Data(), kEnvGlobal);
+			}
+			file.ReadLine(conflist);
+    }
+
+    AssignAndDelete(tmp,gSystem->ConcatFileName(gSystem->Getenv("HOME"),".kvrootrc"));
+    gEnv->ReadFile(tmp.Data(), kEnvUser);
+
+    tmp = "./.kvrootrc";
+    gEnv->ReadFile(tmp.Data(), kEnvLocal);
+
+    // load plugin handlers
+    gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
+
+    // load mime types/icon definitions when not in batch (i.e. GUI-less) mode
+    if(!gROOT->IsBatch()) ReadGUIMimeTypes();
 }
 
 //_______________________________________________________________________________

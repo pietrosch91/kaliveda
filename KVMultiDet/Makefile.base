@@ -1,5 +1,0 @@
-EXTRA_HEADERS = base/KVError.h
-
-NOT_ROOTCINT := base/KVError.h
-				
-include Makefile.KVMultiDet

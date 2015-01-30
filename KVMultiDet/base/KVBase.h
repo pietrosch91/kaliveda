@@ -33,11 +33,13 @@ class KVBase:public TNamed {
    static TString KVRootDir;    //!
    static TString KVBinDir;     //!
    static TString KVFilesDir;   //!
+   static TString KVEtcDir;   //!
 
    static Bool_t fEnvIsInit;//! set when environment is initialised
 
    void init();
 	static void ReadGUIMimeTypes();
+   static void ReadConfigFiles();
 
  public:
 
@@ -112,6 +114,7 @@ class KVBase:public TNamed {
    static const Char_t *GetKVRootDir(void);
    static const Char_t *GetKVBinDir(void);
    static const Char_t *GetKVFilesDir(void);
+   static const Char_t *GetKVEtcDir(void);
    static const Char_t *bzrRevisionId();
    static const Char_t *bzrRevisionDate();
    static const Char_t *bzrBranchNick();

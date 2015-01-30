@@ -103,3 +103,32 @@ function(KALIVEDA_LIBRARY libname)
   ROOT_LINKER_LIBRARY(${libname} ${sourcefiles} G__${libname}.cxx DEPENDENCIES ${ARG_DEPENDENCIES})
   KALIVEDA_INSTALL_HEADERS()
 endfunction()
+
+#---------------------------------------------------------------------------------------------------
+#---BUILD_KALIVEDA_MODULE(kvmod PARENT kvtopdir [KVMOD_DEPENDS kvmod1 kvmod2...] [EXTRA_LIBS lib1 lib2...] 
+#             [DICT_EXCLUDE toto.h titi.h ...] [LIB_EXCLUDE Class1 Class2...])
+#
+#---Build the current module, i.e. a subdirectory in KVMultiDet/, KVIndra/, etc.
+#   PARENT = name of top-level directory i.e. KVMultiDet
+#   KVMOD_DEPENDS = list of modules in same top-level directory that this module depends on
+#                   i.e. they must & will be built first
+#   EXTRA_LIBS = extra libraries/targets this module depends on
+#  To exclude some headers from dictionary generation: DICT_EXCLUDE toto.h titi.h ...
+#  To exclude some classes from shared library: LIB_EXCLUDE Class1 Class2 ...
+#---------------------------------------------------------------------------------------------------
+function(BUILD_KALIVEDA_MODULE kvmod)
+
+  message(STATUS "   ...module ${kvmod}")
+
+  CMAKE_PARSE_ARGUMENTS(ARG "" "PARENT" "KVMOD_DEPENDS;DICT_EXCLUDE;LIB_EXCLUDE;EXTRA_LIBS" ${ARGN})
+
+  set(libName ${ARG_PARENT}${kvmod})
+
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+  KALIVEDA_SET_INCLUDE_DIRS(${ARG_PARENT} MODULES ${ARG_KVMOD_DEPENDS})
+  KALIVEDA_SET_MODULE_DEPS(kvdeps ${ARG_PARENT} MODULES ${ARG_KVMOD_DEPENDS})
+
+  #---generate library & rootmap
+  KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${ARG_LIB_EXCLUDE} DICT_EXCLUDE ${ARG_DICT_EXCLUDE}
+						DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps} ${ARG_EXTRA_LIBS})
+endfunction()

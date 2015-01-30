@@ -5,7 +5,7 @@ macro( create_bazaar_version_control_header )
 	# * if Bazaar is not available, this must be a .tgz with an existing KVBzrInfo.h in the source directory,
 	#     therefore we copy the existing file
 	
-	find_package(Bazaar)
+	find_package(Bazaar QUIET)
 	
 	if(Bazaar_FOUND)
 	

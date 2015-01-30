@@ -63,7 +63,9 @@ if( Bazaar_EXECUTABLE )
         set( Bazaar_FOUND TRUE )
         string( REGEX REPLACE "^[\n]*Bazaar \\(bzr\\) ([0-9.a-z]+).*"
                 "\\1" Bazaar_VERSION "${_bzr_version_output}" )
-        message( STATUS "Bazaar version control system version ${Bazaar_VERSION} found." )
+        if( NOT Bazaar_FIND_QUIETLY )
+           message( STATUS "Bazaar version control system version ${Bazaar_VERSION} found." )
+		  endif()
     endif( ${_bzr_version_result} EQUAL 0 )
 
     # restore the previous LC_ALL
