@@ -366,22 +366,39 @@ void KVTestIDGridDialog::TestGrid()
 
 
    // show results in canvas
-   TCanvas *C = new TCanvas;
-   C->SetTitle(Form("ID test : grid %s : histo %s", fSelectedGrid->GetName(), hdata->GetName()));
-   C->Divide(1,2);
-   C->cd(1);
+   KVCanvas *C = new KVCanvas;
+   C->SetTitle(Form("ID test : grid %s : histo %s (pid)", fSelectedGrid->GetName(), hdata->GetName()));
+//   C->Divide(1,2);
+//   C->cd(1);
    gPad->SetGridx();
    gPad->SetGridy();
    hzreal->SetStats(kFALSE);
    hzreal->Draw();
-   C->cd(2)->SetLogz(kTRUE);
-   gPad->SetGridx();
-   gPad->SetGridy();
+
+   C = new KVCanvas;
+   C->SetLogz(kTRUE);
+   C->SetGridx();
+   C->SetGridy();
    gStyle->SetPalette(1);
    hzvse->SetStats(kFALSE);
    hzvse->Draw("zcol");
-   
-      
+
+//   // show results in canvas
+//   TCanvas *C = new TCanvas;
+//   C->SetTitle(Form("ID test : grid %s : histo %s", fSelectedGrid->GetName(), hdata->GetName()));
+//   C->Divide(1,2);
+//   C->cd(1);
+//   gPad->SetGridx();
+//   gPad->SetGridy();
+//   hzreal->SetStats(kFALSE);
+//   hzreal->Draw();
+//   C->cd(2)->SetLogz(kTRUE);
+//   gPad->SetGridx();
+//   gPad->SetGridy();
+//   gStyle->SetPalette(1);
+//   hzvse->SetStats(kFALSE);
+//   hzvse->Draw("zcol");
+
    // close dialog
    DoClose();
 }
