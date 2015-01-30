@@ -33,19 +33,13 @@
 #include <TObjArray.h>
 class GTOneScaler;
 
-#ifndef __GanAcqBuf_H
-//extern "C"
-//{// This might be written better
-typedef struct SCALE {int bidon;} scale;
-//}
-#endif
 
 class GTScalers : public TObject
 {
 public:
   GTScalers       (void    );
   ~GTScalers      (void    );
-  void Fill       (scale *s);       // Vocabulary: Set or Fill ?
+  void Fill       (void*   );       // Vocabulary: Set or Fill ?
   void DumpScalers(void    );
 
   const GTOneScaler* GetScalerPtr (Int_t index) const;

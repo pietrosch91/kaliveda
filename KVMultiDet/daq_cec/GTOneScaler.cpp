@@ -58,7 +58,7 @@ void GTOneScaler::Set(scale_struct *s)
 
 //______________________________________________________________________________
 
-void GTOneScaler::ls(Option_t* opt) const
+void GTOneScaler::ls(Option_t*) const
 {
    TROOT::IndentLevel();
    cout << "SCALER: fLabel="<<fLabel<<" fStatus="<<fStatus<<" fCount="<<fCount<<" fFreq="<<fFreq<<endl;

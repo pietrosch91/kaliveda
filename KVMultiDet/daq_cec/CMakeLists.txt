@@ -12,4 +12,5 @@ if(NOT WITH_BUILTIN_GRU)
 endif()
 
 #---generate library & rootmap
-KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${excluded_classes} DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps})
+KALIVEDA_LIBRARY(${libName} LIB_EXCLUDE ${excluded_classes}
+						DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps} ${BUILTIN_GRU_LIB})

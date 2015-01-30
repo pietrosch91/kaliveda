@@ -29,9 +29,6 @@ include(KaliVedaMacros)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 
-
-
-
 #----------------------------------------------------------
 #----------------------BUILD OPTIONS-----------------------
 #----------------------------------------------------------
@@ -41,10 +38,14 @@ include(CMakeDependentOption)
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
 		"Use built-in package for reading GANIL acquisition data (not MFM format)"
-		OFF)
+		ON)
 add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
+message(STATUS "before cflags=${CMAKE_C_FLAGS} cxxflags=${CMAKE_CXX_FLAGS}")
+	add_subdirectory(GanTape)
+message(STATUS "after cflags=${CMAKE_C_FLAGS} cxxflags=${CMAKE_CXX_FLAGS}")
+	include_directories(${BUILTIN_GRU_INC_DIR})
 endif()
 
 #---GRU Ganil ROOT Utilities for reading GANIL acquisition data
