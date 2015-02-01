@@ -779,6 +779,7 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
    GetLimitsOf_A_Q_AoQ( Amin, Amax, Qmin, Qmax, AoQmin, AoQmax );
    Amin = AoQmin*Qmin;
    Amax = AoQmax*Qmax;
+   Info("TestIdentification","Amin %d, Amax %d, Qmin %d, Qmax %d, AoQmin %f, AoQmax %f",Amin,Amax,Qmin,Qmax,AoQmin,AoQmax);
 
    // change ranges and titles of histograms 
    TString title;
@@ -788,7 +789,8 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
 
    title.Form("%s;Q_{int}#times(%s);Q_{real}",h2_q_qxaoq->GetTitle(),data->GetXaxis()->GetTitle());
    h2_q_qxaoq->SetTitle(title.Data());
-   h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   //h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(AoQmin-1), Float_t(AoQmax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
 
    if(qaMap){
    	   title.Form("%s;A_{real};Q_{real}",h2_q_a->GetTitle());
@@ -833,7 +835,8 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
 				   	 }
 				   	 else if( idr->Zident ) realQ = idr->PID;
                  	 h1_q->Fill(realQ, weight);
-                 	 h2_q_qxaoq->Fill(x*idr->Z, realQ, weight);
+                 	 //h2_q_qxaoq->Fill(x*idr->Z, realQ, weight);
+                 	 h2_q_qxaoq->Fill(x, realQ, weight);
                  	 if(qaMap) h2_q_a->Fill(realA, realQ, weight);
                  	 //if(qaMap) h2_q_a->Fill(idr->Z*x, realQ, weight);
              	 }
@@ -871,8 +874,32 @@ void KVIDQAGrid::GetLimitsOf_A_Q_AoQ(Int_t &Amin, Int_t &Amax, Int_t &Qmin, Int_
 		if(first_mk && last_mk){
 			Amin = (Amin<0 ? first_mk->GetA() : TMath::Min( Amin, first_mk->GetA() ));
 			Amax = TMath::Max( Amax, last_mk->GetA() );
-			AoQmin = (AoQmin<0 ? first_mk->GetX() : TMath::Min( AoQmin, first_mk->GetX() ));
-			AoQmax = TMath::Max( AoQmax, last_mk->GetX() );
+		}
+		AoQmin = (AoQmin<0 ? line->GetX()[0] : TMath::Min( AoQmin, line->GetX()[0] ));
+		AoQmax = TMath::Max( AoQmax, line->GetX()[line->GetN()-1] );
+
+	}
+}
+//________________________________________________________________
+
+void KVIDQAGrid::QAConvertYaxis(){
+
+	Bool_t isAvsAoQ = (GetVarY()[0]=='A');
+	if( isAvsAoQ ) SetVarY("Q");
+	else SetVarY("A");
+	TIter next( fIdentifiers );
+	KVIDQALine *line = NULL;
+	while( (line = (KVIDQALine *)next()) ){
+		line->SetVarY( GetVarY() );
+		Int_t N = line->GetN();
+		for(Int_t i=0; i<N; i++ ){
+			Double_t x = line->GetX()[i];
+			Double_t y = line->GetY()[i];
+			if( isAvsAoQ ) y /= x;
+			else y *= x;
+			line->SetPoint(i,x,y);
+				line->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 		}
 	}
+	Modified();
 }

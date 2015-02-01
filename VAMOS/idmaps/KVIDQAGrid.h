@@ -31,6 +31,7 @@ class KVIDQAGrid : public KVIDGrid
 
  	Int_t fICode;   //! identification code
 	Int_t fOnlyQId; //! dummy variable used by context menu dialog boxes
+	Char_t *fToF; //! dummy variable used by context menu dialog boxes
 	Double_t fRealQ;//! current identified real Q
 
 
@@ -112,6 +113,7 @@ class KVIDQAGrid : public KVIDGrid
 
 	void GetLimitsOf_A_Q_AoQ(Int_t &Amin, Int_t &Amax, Int_t &Qmin, Int_t &Qmax, Double_t &AoQmin, Double_t &AoQmax);
 
+	void QAConvertYaxis();//*MENU*
 
    	ClassDef(KVIDQAGrid,1)//Base class for 2D Q & A identification grids
 };

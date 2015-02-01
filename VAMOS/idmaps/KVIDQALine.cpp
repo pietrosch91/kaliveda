@@ -135,6 +135,7 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_
 	if ( !closest_mk ){
         //no marker corresponding to point was found
         //Info("IdentA","ID marker not found");
+		realA = x*GetQ();
     }
 	else{
     	//the closest marker is found
@@ -182,8 +183,8 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_
 
 		deltaA = (x-closest_mk->GetX())*GetQ();
 		realA = closest_mk->GetA() + deltaA;
-    	A     = TMath::Nint( realA ); // since some A-markers are missing in the line
 	}
+    A     = TMath::Nint( realA ); // since some A-markers are missing in the line
 }
 //________________________________________________________________
 
