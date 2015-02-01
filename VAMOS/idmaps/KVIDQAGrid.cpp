@@ -883,6 +883,7 @@ void KVIDQAGrid::GetLimitsOf_A_Q_AoQ(Int_t &Amin, Int_t &Amax, Int_t &Qmin, Int_
 //________________________________________________________________
 
 void KVIDQAGrid::QAConvertYaxis(){
+	// convert Q-vs-A/Q grid into A-vs-A/Q grid, and vice versa
 
 	Bool_t isAvsAoQ = (GetVarY()[0]=='A');
 	if( isAvsAoQ ) SetVarY("Q");
