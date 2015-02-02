@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(KaliVeda)
 
-find_package(ROOT REQUIRED Graf Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui Net)
+find_package(ROOT REQUIRED Rint Graf Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui Net)
 message(STATUS "Found ROOT v${ROOT_VERSION}")
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
@@ -153,3 +153,5 @@ endif()
 if(USE_FAZIA)
 	add_subdirectory(FAZIA)
 endif()
+
+add_subdirectory(analysis)
