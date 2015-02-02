@@ -8,6 +8,7 @@ MODULES = analysis fazia idtelescopes db detectors
 MANIP_DIRS = FAZIASYM LNS_2014 INDRAFAZIA 
 
 ETC_DATA = data
+ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 ifeq ($(ROOTGANILTAPE),yes)
 KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check

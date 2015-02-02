@@ -63,9 +63,9 @@ LNS_2014.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/T
 +Plugin.TSelector:   FAZIARawDataRecon      KVFAZIARawDataReconstructor  FAZIA "KVFAZIARawDataReconstructor()"
 
 LNS_2014.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
-LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/TSelector
+LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIA "KVFAZIAReconDataAnalyser()"
-+Plugin.TSelector:  FAZIASelector    KVEventSelector      KVMultiDet    "KVEventSelector()"
++Plugin.KVEventSelector:  FAZIASelector    KVFAZIASelector      FAZIA    "KVFAZIASelector()"
 
 ###
 #	Old dataset of FAZIA
