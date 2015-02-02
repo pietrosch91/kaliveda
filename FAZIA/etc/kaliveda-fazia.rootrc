@@ -5,8 +5,8 @@ INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2016)
 INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    FAZIAgeometry    "KVINDRAFAZIA()"
-+Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
-+Plugin.KVUpDater:    INDRAFAZIA    KVINDRAUpDater	  KVIndradb	"KVINDRAUpDater()"
++Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
++Plugin.KVUpDater: INDRAFAZIA KVINDRAUpDater KVIndradb "KVINDRAUpDater()"
 
 +Plugin.KVIDTelescope:    ^Si1$     KVFAZIAIDSi1PSA    FAZIAidentification    "KVFAZIAIDSi1PSA()"
 

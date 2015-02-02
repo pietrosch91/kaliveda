@@ -243,15 +243,13 @@ void KVBase::ReadConfigFiles()
         ::Fatal("KVBase::ReadConfigFiles", "Cannot open %s", tmp.Data());
         return;
     }
-    TString file;
+    KVString file;
     file.ReadLine(conflist);
-    while(conflist.good()){
-        if(file!="") {
-		  		file.Remove(TString::kBoth,' ');
-    			AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),file.Data()));
-		  		gEnv->ReadFile(tmp.Data(), kEnvGlobal);
-			}
-			file.ReadLine(conflist);
+	 conflist.close();
+	 file.Begin(";");
+    while(!file.End()){
+    		AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),file.Next().Data()));
+		  	gEnv->ReadFile(tmp.Data(), kEnvGlobal);
     }
 
     AssignAndDelete(tmp,gSystem->ConcatFileName(gSystem->Getenv("HOME"),".kvrootrc"));

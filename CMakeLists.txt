@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(KaliVeda)
 
+#--look for ROOT & all essential libraries
 find_package(ROOT REQUIRED Rint Graf Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui Net)
 message(STATUS "Found ROOT v${ROOT_VERSION}")
 #--optional support for OpenGL
@@ -115,9 +116,9 @@ add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
 #------------------END BUILD OPTIONS-----------------------
 #----------------------------------------------------------
 
+#------------------Print BUILD OPTIONS-----------------------
 Feature_Summary(WHAT ENABLED_FEATURES DESCRIPTION "------ENABLED FEATURES:")
 Feature_Summary(WHAT DISABLED_FEATURES DESCRIPTION "------DISABLED FEATURES:")
-
 
 
 #---Set the library version in the main CMakeLists.txt------------------------------------------
@@ -133,9 +134,11 @@ set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
 		)
 		
 
+#---configure the KVVersion.h file
 include(CreateKaliVedaVersionHeader)
 create_kaliveda_version_header()
 
+#---configure the KVConfig.h file
 include(CreateConfigHeader)
 create_config_header()
 
@@ -154,4 +157,9 @@ if(USE_FAZIA)
 	add_subdirectory(FAZIA)
 endif()
 
-add_subdirectory(analysis)
+add_subdirectory(execs)
+
+#---set up list of '.rootrc' config files to be read by KVBase::InitEnvironment
+get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
+configure_file(etc/config.files.in etc/config.files)
+install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION etc)

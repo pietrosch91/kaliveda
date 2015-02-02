@@ -188,6 +188,8 @@ function(BUILD_KALIVEDA_SUBPROJECT)
 
 	#---install configuration files
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/etc)
+		file(GLOB kvrootrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/etc etc/*.rootrc)
+  		set_property(GLOBAL APPEND PROPERTY KALIVEDA_CONF_FILES ${kvrootrc})
 		install(DIRECTORY etc DESTINATION .)
 	endif()
 
