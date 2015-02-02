@@ -133,6 +133,7 @@ endfunction()
 #  For each module we fill the following GLOBAL properties:
 #        ${PARENT}_MOD_LIST : list of all modules in ${PARENT}
 #        ${PARENT}_LIB_LIST : list of all library targets in ${PARENT}
+#        KALIVEDA_LIB_LIST  : global list of all library targets
 #---------------------------------------------------------------------------------------------------
 function(BUILD_KALIVEDA_MODULE kvmod)
 
@@ -153,6 +154,7 @@ function(BUILD_KALIVEDA_MODULE kvmod)
 						DEPENDENCIES ${ROOT_LIBRARIES} ${kvdeps} ${ARG_EXTRA_LIBS})
   
   set_property(GLOBAL APPEND PROPERTY ${ARG_PARENT}_LIB_LIST ${libName})
+  set_property(GLOBAL APPEND PROPERTY KALIVEDA_LIB_LIST ${libName})
 
 endfunction()
 
