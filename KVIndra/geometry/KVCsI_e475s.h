@@ -42,7 +42,7 @@ class KVCsI_e475s : public KVCsI
 	Double_t	GetCalibratedEnergy();
 	Double_t	GetEnergy();
  
- 	Double_t GetLightFromEnergy(UInt_t Z, UInt_t A, Double_t E = -1.){return -1;};
+ 	Double_t GetLightFromEnergy(UInt_t , UInt_t , Double_t  = -1.){return -1;};
     Double_t GetCorrectedEnergy(KVNucleus*, Double_t e = -1., Bool_t transmission=kTRUE);
 
    Short_t GetCalcACQParam(KVACQParam*, Double_t) const;

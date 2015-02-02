@@ -775,7 +775,7 @@ void KVINDRAUpDater::SetCsIPedestals(KVDBRun * kvrun)
 
 //_______________________________________________________________________________________
 
-void KVINDRAUpDater::SetPHDs(KVDBRun * kvrun)
+void KVINDRAUpDater::SetPHDs(KVDBRun *)
 {
     //If the environment variable
     //   name_of_dataset.INDRADB.PHD:      name_of_file

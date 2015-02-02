@@ -30,8 +30,8 @@ class KVIDSiCsI_e613 : public KVIDSiCsI
   virtual void Initialize(void);
   virtual Double_t GetIDMapX(Option_t * opt = "");
   virtual Double_t GetIDMapY(Option_t * opt = "");
-  virtual Double_t GetPedestalX(Option_t * opt = ""){return 0.;};
-  virtual Double_t GetPedestalY(Option_t * opt = ""){return 0.;};
+  virtual Double_t GetPedestalX(Option_t*  = ""){return 0.;};
+  virtual Double_t GetPedestalY(Option_t*  = ""){return 0.;};
   
   Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 

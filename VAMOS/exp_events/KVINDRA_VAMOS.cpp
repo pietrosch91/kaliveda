@@ -68,7 +68,7 @@ KVINDRA_VAMOS::~KVINDRA_VAMOS()
 }
 //________________________________________________________________
 
-void KVINDRA_VAMOS::Build(Int_t run){
+void KVINDRA_VAMOS::Build(Int_t){
 	// Overrides KVMultiDetArray::Build in order to set the name of the
 	// couple INDRA+VAMOS. Set up the geometry of INDRA and VAMOS,
 	// associate the acquistion parameters with detectors, etc...
@@ -125,7 +125,7 @@ void KVINDRA_VAMOS::Clear(Option_t *opt ){
 }
 //________________________________________________________________
 
-void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params){
+void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* , KVSeqCollection*){
 
 	// This method is obsolete. To have access to the detector events of INDRA
 	// and VAMOS prefer using:

@@ -153,7 +153,7 @@ Double_t KVCsI_e475s::GetEnergy()
 
 //______________________________________________________________________________
 
-Short_t KVCsI_e475s::GetCalcACQParam(KVACQParam* ACQ, Double_t) const
+Short_t KVCsI_e475s::GetCalcACQParam(KVACQParam*, Double_t) const
 {
    // Calculates & returns value of given acquisition parameter corresponding to the
    // current value of fEcalc, i.e. the calculated residual energy loss in the detector

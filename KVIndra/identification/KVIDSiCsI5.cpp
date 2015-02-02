@@ -112,7 +112,7 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
 }
 
 //______________________________________________________________________________
-Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
+Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t , Double_t )
 {
    //Identification of particles using Si(300)-CsI matrices for 5th campaign.
    //First of all, Z identification is attempted with KVIDSiCsI5::IdentZ.
@@ -230,7 +230,7 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 
 //__________________________________________________________________________//
 
-void KVIDSiCsI5::Print(Option_t * opt) const
+void KVIDSiCsI5::Print(Option_t *) const
 {
    cout << "KVIDSiCsI5 : " << GetName() << endl;
    if (GetListOfIDFunctions().GetSize() > 0) {
@@ -246,7 +246,7 @@ void KVIDSiCsI5::Print(Option_t * opt) const
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
+Double_t KVIDSiCsI5::GetIDMapX(Option_t *)
 {
    //Calculates current X coordinate for identification.
    //It is the CsI detector's total light output calculated from current values of 'R' and 'L'
@@ -261,7 +261,7 @@ Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
 }
 //__________________________________________________________________________//
 
-Double_t KVIDSiCsI5::GetPedestalX(Option_t * opt)
+Double_t KVIDSiCsI5::GetPedestalX(Option_t *)
 {
    //Returns pedestal of X coordinate for identification.
    //It is the CsI detector's total light output calculated values of 'R' and 'L'

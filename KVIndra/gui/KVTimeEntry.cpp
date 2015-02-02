@@ -32,7 +32,7 @@ ClassImp(KVTimeEntry)
 //__________________________________________
 KVTimeEntry::KVTimeEntry(const TGWindow *parent, Double_t val,
                  Int_t digitwidth, Int_t id,
-                 EStyle style,
+                 EStyle ,
                  EAttribute attr,
                  ELimit limits,
                  Double_t min, Double_t max):
@@ -88,7 +88,7 @@ KVTimeEntry::~KVTimeEntry()
 }
 
 //__________________________________________
-void KVTimeEntry::IncreaseNumber(EStepSize step, Int_t sign, Bool_t logstep ) 
+void KVTimeEntry::IncreaseNumber(EStepSize step, Int_t sign, Bool_t ) 
 {
 //
 // Increse or Decrease value according to the step

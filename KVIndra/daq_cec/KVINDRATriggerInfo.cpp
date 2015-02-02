@@ -46,7 +46,7 @@ ClassImp(KVINDRATriggerInfo)
    fSTAT_EVE_PAR = fR_DEC_PAR = fVXCONFIG_PAR = 0;
 };
 
-void KVINDRATriggerInfo::Print(Option_t * opt)
+void KVINDRATriggerInfo::Print(Option_t *)
 {
    //Print contents of trigger registers, in binary, hexadecimal and decoded forms
 

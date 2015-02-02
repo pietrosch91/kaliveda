@@ -38,7 +38,7 @@ KVIDSiLiCsI::~KVIDSiLiCsI()
 {
 }
 
-void KVIDSiLiCsI::Calibrate(KVReconstructedNucleus * part)
+void KVIDSiLiCsI::Calibrate(KVReconstructedNucleus *)
 {
    //Redefinition of KVIDSiCsI method
    //Should take into account different structure of etalon telescope (CI - SI75 - SILI - CSI)

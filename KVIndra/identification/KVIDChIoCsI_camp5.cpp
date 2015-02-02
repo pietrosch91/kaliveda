@@ -63,7 +63,7 @@ void KVIDChIoCsI_camp5::Initialize()
 }
 
 
-Double_t KVIDChIoCsI_camp5::GetIDMapX(Option_t * opt)
+Double_t KVIDChIoCsI_camp5::GetIDMapX(Option_t *)
 {
    //Calculates current X coordinate for identification.
    //It is the CsI detector's total light output calculated from current values of 'R' and 'L'

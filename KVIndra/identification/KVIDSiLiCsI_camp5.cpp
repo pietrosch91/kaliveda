@@ -62,7 +62,7 @@ void KVIDSiLiCsI_camp5::Initialize()
 
 //___________________________________________________________________________________________
 
-Double_t KVIDSiLiCsI_camp5::GetIDMapX(Option_t * opt)
+Double_t KVIDSiLiCsI_camp5::GetIDMapX(Option_t *)
 {
    //X-coordinate for SiLi-CsI identification map is raw "R" coder value for CsI detector
    return (Double_t) fCsI->GetACQData("R");

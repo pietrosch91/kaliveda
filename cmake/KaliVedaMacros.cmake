@@ -164,6 +164,7 @@ endfunction()
 #---CMakeLists.txt for a KaliVeda subproject i.e. KVMultiDet, KVIndra, ...
 #---DATASETS = list of dataset subdirectories
 #---IGNORE_DIRS = subdirectories to ignore
+#
 #---------------------------------------------------------------------------------------------------
 function(BUILD_KALIVEDA_SUBPROJECT)
 

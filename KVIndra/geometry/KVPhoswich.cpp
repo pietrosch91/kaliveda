@@ -39,7 +39,7 @@ KVPhoswich::KVPhoswich()
 }
 
 //______________________________________________________________________________
-KVPhoswich::KVPhoswich(Float_t thick):KVINDRADetector("NE102",0.05)
+KVPhoswich::KVPhoswich(Float_t ):KVINDRADetector("NE102",0.05)
 {
    //Build phoswich telescope from two layers of plastic - (NE102) and (NE115).
    // 'thick' is a dummy argument, it is not used

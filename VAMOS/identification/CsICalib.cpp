@@ -391,7 +391,7 @@ void CsICalib::CalculateESi(Double_t chan){	//UShort_t chan
 }
 
 //Complete procedure for to get the energy losses from simulation
-void  CsICalib::CompleteSimulation(Double_t chan){	//UShort_t chan	
+void  CsICalib::CompleteSimulation(Double_t ){	//UShort_t chan	
 
   //L->Log<<"light before calculating : "<<LightCsI<<endl;
   eEnergyCsI=lum->Compute(LightCsI);				//Get the ECsI from the known (Z,A) and the calibration 

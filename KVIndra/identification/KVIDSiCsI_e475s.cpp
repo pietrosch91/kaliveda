@@ -58,14 +58,14 @@ void KVIDSiCsI_e475s::Initialize(void)
 }
 //________________________________________________________________________________________//
 
-Double_t KVIDSiCsI_e475s::GetIDMapX(Option_t * opt)
+Double_t KVIDSiCsI_e475s::GetIDMapX(Option_t *)
 {
 
     return ((KVCsI_e475s* )GetDetector(2))->GetCalibratedEnergy();
 }
 //________________________________________________________________________________________//
 
-Double_t KVIDSiCsI_e475s::GetIDMapY(Option_t * opt)
+Double_t KVIDSiCsI_e475s::GetIDMapY(Option_t *)
 {
 
     return GetDetector(1)->GetEnergy();

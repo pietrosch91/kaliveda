@@ -48,7 +48,7 @@ KVDB_BIC_Pressures::~KVDB_BIC_Pressures()
    //Destructor
 }
 
-void KVDB_BIC_Pressures::Print(Option_t * option) const
+void KVDB_BIC_Pressures::Print(Option_t *) const
 {
    cout << "_____________________________________________________________"
        << endl << "BIC Pressures :" << endl << GetName() << " " <<
