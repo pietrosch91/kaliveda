@@ -1,5 +1,4 @@
 *.d
-*.in
 *.la
 *.lo
 *.rootmap
