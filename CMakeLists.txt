@@ -92,6 +92,25 @@ if(USE_FITLTG)
 	add_subdirectory(fitltg-0.1)
 	set(FITLTG_LIB fitltg)
 endif()
+
+#--- Libraries for INDRA data
+option(USE_INDRA "Build libraries for analysis of INDRA data" OFF)
+
+#--- Libraries for INDRA-VAMOS data
+option(USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data" OFF)
+if(USE_INDRAVAMOS)
+	set(USE_INDRA ON)
+endif()
+
+#--- Libraries for FAZIA data
+option(USE_FAZIA "Build libraries for analysis of FAZIA data" OFF)
+if(USE_FAZIA)
+	set(USE_INDRA ON)
+endif()
+add_feature_info(indra USE_INDRA "Build libraries for analysis of INDRA data")
+add_feature_info(indravamos USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data")
+add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
+
 #----------------------------------------------------------
 #------------------END BUILD OPTIONS-----------------------
 #----------------------------------------------------------
@@ -123,7 +142,14 @@ create_config_header()
 add_subdirectory(KVMultiDet)
 get_property(KVMultiDet_MOD_LIST GLOBAL PROPERTY KVMultiDet_MOD_LIST)
 get_property(KVMultiDet_LIB_LIST GLOBAL PROPERTY KVMultiDet_LIB_LIST)
-add_subdirectory(KVIndra)
-get_property(KVIndra_MOD_LIST GLOBAL PROPERTY KVIndra_MOD_LIST)
-get_property(KVIndra_LIB_LIST GLOBAL PROPERTY KVIndra_LIB_LIST)
-add_subdirectory(VAMOS)
+if(USE_INDRA)
+	add_subdirectory(KVIndra)
+	get_property(KVIndra_MOD_LIST GLOBAL PROPERTY KVIndra_MOD_LIST)
+	get_property(KVIndra_LIB_LIST GLOBAL PROPERTY KVIndra_LIB_LIST)
+endif()
+if(USE_INDRAVAMOS)
+	add_subdirectory(VAMOS)
+endif()
+if(USE_FAZIA)
+	add_subdirectory(FAZIA)
+endif()

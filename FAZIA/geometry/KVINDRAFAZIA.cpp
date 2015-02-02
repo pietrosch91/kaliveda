@@ -46,7 +46,7 @@ KVINDRAFAZIA::~KVINDRAFAZIA()
    // Destructor
 }
 
-void KVINDRAFAZIA::Build(Int_t run)
+void KVINDRAFAZIA::Build(Int_t)
 {
    // Build the combined INDRA & FAZIA arrays
 
