@@ -967,7 +967,7 @@ void DriftChamberv::inAttach(TTree *inT)
   inT->SetBranchAddress("STRNr4",Q_Raw_Nr+3*64);
 
 }
-void DriftChamberv::outAttach(TTree *outT)
+void DriftChamberv::outAttach(TTree *)
 {
 
 #ifdef DEBUG

@@ -408,7 +408,7 @@ void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
+Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. First the method searchs 
 	// peaks. If there is to many peaks (>maxNpeaks) the method returns -1
@@ -557,7 +557,7 @@ UChar_t KVSeD::GetRawPositionError(Double_t *EXYZf){
 }
 //________________________________________________________________
 
-UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
+UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
@@ -612,7 +612,7 @@ UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 }
 //________________________________________________________________
 
-void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Int_t){
 	// Returns in the DXYZf array the errors of each coordinate of the position returned by
 	// GetPosition(...) in the focal-plane frame of reference.
 

@@ -1,0 +1,5 @@
+BUILD_KALIVEDA_MODULE(identification
+	PARENT ${KVSUBPROJECT}
+	KVMOD_DEPENDS calibration geometry
+	EXTRA_LIBS ${KVMultiDet_LIB_LIST}
+)

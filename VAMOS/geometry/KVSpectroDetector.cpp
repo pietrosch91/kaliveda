@@ -342,7 +342,7 @@ Int_t KVSpectroDetector::Compare(const TObject* obj) const{
 }
 //________________________________________________________________
 
-void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
+void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * ){
 	// To be implemented. See the same method in KVDetector
 	Warning("DetectParticle","To be implemented");
 }
@@ -398,7 +398,7 @@ TGeoHMatrix &KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i ) const{
 }
 //________________________________________________________________
 
-Double_t KVSpectroDetector::GetELostByParticle(KVNucleus *, TVector3 * norm){
+Double_t KVSpectroDetector::GetELostByParticle(KVNucleus *, TVector3 * ){
 	// To be implemented. See the same method in KVDetector
 	Warning("GetELostByParticle","To be implemented");
 
@@ -557,7 +557,7 @@ Int_t KVSpectroDetector::GetMult(Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * norm){
+Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * ){
 	// To be implemented. See the same method in KVDetector
 	Warning("GetParticleEIncFromERes","To be implemented");
 

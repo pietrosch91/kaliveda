@@ -128,7 +128,7 @@ void KVGeoStrucElement::Remove(KVBase *element)
     }
 }
 
-void KVGeoStrucElement::Clear(Option_t *opt)
+void KVGeoStrucElement::Clear(Option_t*)
 {
     // Empty lists of detectors, daughter structures, and parent structures
     fDetectors.Clear();

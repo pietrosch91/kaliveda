@@ -43,7 +43,7 @@ KVGeoDetectorNode::~KVGeoDetectorNode()
     SafeDelete(fBehind);
 }
 
-void KVGeoDetectorNode::ls(Option_t *option) const
+void KVGeoDetectorNode::ls(Option_t*) const
 {
     std::cout << "Detector Node " << GetName() << std::endl;
     if(fInFront){

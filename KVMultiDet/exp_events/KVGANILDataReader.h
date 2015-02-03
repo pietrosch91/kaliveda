@@ -9,9 +9,7 @@
 #include "KVACQParam.h"
 #include "KVHashList.h"
 #include "TTree.h"
-
-class GTGanilData;
-
+#include "GTGanilData.h"
 
 class KVGANILDataReader : public KVRawDataReader
 {

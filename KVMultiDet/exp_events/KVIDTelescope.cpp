@@ -370,7 +370,7 @@ Double_t KVIDTelescope::GetIDMapX(Option_t * opt)
     return GetDetector(2)->GetEnergy();
 }
 
-Double_t KVIDTelescope::GetPedestalX(Option_t * opt)
+Double_t KVIDTelescope::GetPedestalX(Option_t *)
 {
     // Returns the pedestal associated with the 2nd detector of the telescope,
     // optionally depending on the given option string.
@@ -379,7 +379,7 @@ Double_t KVIDTelescope::GetPedestalX(Option_t * opt)
     return 0.;
 }
 
-Double_t KVIDTelescope::GetPedestalY(Option_t * opt)
+Double_t KVIDTelescope::GetPedestalY(Option_t *)
 {
     // Returns the pedestal associated with the 1st detector of the telescope,
     // optionally depending on the given option string.
@@ -464,7 +464,7 @@ void KVIDTelescope::SetLabelFromURI(const Char_t* uri)
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray* MDA)
+Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray*)
 {
     // Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     // kind (label) in the multidetector array. Therefore this method need only be called once, and not

@@ -4,9 +4,9 @@
 #define __KVSTRING_H
 
 #include "TString.h"
+#include "KVConfig.h"
 #include "RVersion.h"
 class TObjArray;
-#include "KVConfig.h"
 
 /*
 The following macro can be used in cases where Tokenize is used

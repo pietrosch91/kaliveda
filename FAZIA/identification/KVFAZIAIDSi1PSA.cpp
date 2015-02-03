@@ -34,7 +34,7 @@ KVFAZIAIDSi1PSA::~KVFAZIAIDSi1PSA()
 	delete fRearThreshold;
 }
 
-Bool_t KVFAZIAIDSi1PSA::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t EINC)
+Bool_t KVFAZIAIDSi1PSA::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t)
 {
     // Return kTRUE if energy of ION is > minimum incident energy required for identification
     // in charge (Z) given by figure 9 of "Comparison of charged particle identification

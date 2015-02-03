@@ -27,10 +27,9 @@
  * At least 1 (Z,A) pair must contain 2 points.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-void F77_FUNC(globede,GLOBEDE)(const int *,const float *,const float *,
+#include "FC.h"
+
+void FC_GLOBAL(globede,GLOBEDE)(const int *,const float *,const float *,
    const float *,const float *,const int *,const int*,float *,int *,int *) ;
 
 /*  
@@ -92,6 +91,6 @@ int globede_c(int npts,const float *zd,const float *ad,const float *xd,
   lnpts = npts ;
   lixt = ixt ;
   lih = ih ;
-  F77_FUNC(globede,GLOBEDE)(&lnpts,zd,ad,xd,yd,&lixt,&lih,par,istate,&irc) ;
+  FC_GLOBAL(globede,GLOBEDE)(&lnpts,zd,ad,xd,yd,&lixt,&lih,par,istate,&irc) ;
   return irc ;
 }

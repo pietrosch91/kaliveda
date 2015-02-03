@@ -60,7 +60,7 @@ void KVIDSi150CsI_camp5::Initialize()
 
 //___________________________________________________________________________________________
 
-Double_t KVIDSi150CsI_camp5::GetIDMapX(Option_t * opt)
+Double_t KVIDSi150CsI_camp5::GetIDMapX(Option_t *)
 {
     //X-coordinate for Si150-CsI identification map is corrected light output of CsI
     return fCsI->GetCorrectedLumiereTotale();
@@ -68,7 +68,7 @@ Double_t KVIDSi150CsI_camp5::GetIDMapX(Option_t * opt)
 
 //____________________________________________________________________________________
 
-Double_t KVIDSi150CsI_camp5::GetIDMapY(Option_t * opt)
+Double_t KVIDSi150CsI_camp5::GetIDMapY(Option_t *)
 {
     //Y-coordinate for Si150-CsI identification map is raw "PG" coder value of Silicon
     return (Double_t)fSIPG->GetData();
@@ -76,7 +76,7 @@ Double_t KVIDSi150CsI_camp5::GetIDMapY(Option_t * opt)
 
 //____________________________________________________________________________________
 
-Double_t KVIDSi150CsI_camp5::GetPedestalY(Option_t * opt)
+Double_t KVIDSi150CsI_camp5::GetPedestalY(Option_t *)
 {
     //Y-coordinate pedestal for Si150-CsI identification map is "PG" pedestal for Silicon
     return (Double_t)fSIPG->GetPedestal();

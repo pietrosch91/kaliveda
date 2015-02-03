@@ -144,7 +144,7 @@ ClassImp(KVSelector)
 //
 //////////////////////////////////////////////////////////////////
 
-KVSelector::KVSelector(TTree * tree)
+KVSelector::KVSelector(TTree *)
 {
    //ctor
    fChain=0;
@@ -314,7 +314,7 @@ void KVSelector::Begin(TTree *)
     fTimer->Start(kTRUE);
 }
 
-void KVSelector::SlaveBegin(TTree * tree)
+void KVSelector::SlaveBegin(TTree *)
 {
    // Function called before starting the event loop.
    // When running with PROOF SlaveBegin() is called in each slave
@@ -392,7 +392,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       TString mes("End of run after ");
       mes += (totentry);
       mes += " events.";
-      Info("Process", mes.Data());
+      Info("Process", "%s", mes.Data());
 	
 	gDataAnalyser->preEndRun();
       EndRun();                 //user routine end of run
@@ -639,8 +639,8 @@ void KVSelector::BuildEventList(void)
 
    if (fDataSelector.Length()) {
       Info("BuildEventList()",
-           Form("Building TEventList for the KVDataSelector \"%s\".",
-                GetDataSelector()));
+           "Building TEventList for the KVDataSelector \"%s\".",
+                GetDataSelector());
       TObjArray *lof = 0;
       Long64_t *toff = 0;
       if (fTreeOffset) {
@@ -808,9 +808,8 @@ void KVSelector::LoadDataSelector(void)
                deleteSources = kTRUE;
             } else {
                Warning("LoadDataSelector(void)",
-                       Form
-                       ("No implementation and/or declaration file found for \"%s\".",
-                        fDataSelector.Data()));
+                       "No implementation and/or declaration file found for \"%s\".",
+                        fDataSelector.Data());
             }
             if(fileDataSelector){
                fileDataSelector->Close();
@@ -892,9 +891,8 @@ void KVSelector::SaveCurrentDataSelection(void)
       if(dataselector_lock.Lock(fname.Data())) fileDataSelector = new TFile(fname.Data(), option.Data());
       if (!fileDataSelector || (fileDataSelector && fileDataSelector->IsZombie())) {
          Error("SaveCurrentDataSelection(void)",
-               Form
-               ("Opening the file \"%s\" with the option \"%s\" is not possible.\nNothing saved.",
-                fname.Data(), option.Data()));
+               "Opening the file \"%s\" with the option \"%s\" is not possible.\nNothing saved.",
+                fname.Data(), option.Data());
          gFile = curfile;
          return;
       }

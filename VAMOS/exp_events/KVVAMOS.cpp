@@ -660,7 +660,7 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
 }
 //________________________________________________________________
 
-void KVVAMOS::Build(Int_t run){
+void KVVAMOS::Build(Int_t){
 	// Build the VAMOS spectrometer: detectors, geometry, identification
 	// telescopes, acquisition parameters and calibrators. 
 	//
@@ -685,7 +685,7 @@ void KVVAMOS::Build(Int_t run){
 }
 //________________________________________________________________
 
-void KVVAMOS::Clear(Option_t *opt ){
+void KVVAMOS::Clear(Option_t *){
 	// Call "Clear" method of each and every detector in VAMOS,
 	// to reset energy loss and KVDetector::IsAnalysed() state
 	// plus ACQ parameters set to zero

@@ -104,7 +104,8 @@
 #if defined ( __unix ) || ( __unix__)
 #include "ERR_GAN.H"	/* GANIL errors definitions */
 #else
-#include "ERR$GAN.H"	/* GANIL errors definitions */
+ /*#include "ERR$GAN.H" GANIL errors definitions */
+#error "should not have come here"
 #endif
 #include "STR_EVT.H"	/* structure of event description */
 #include "EQUIPDES.H"   /* equipment descriptors */

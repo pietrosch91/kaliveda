@@ -4,6 +4,7 @@
  *              *****************************************************
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <fit_ede.h>
 
@@ -20,24 +21,31 @@ static char line[LNSTR] ;
 
 float geta(float Z,int ityp) ;
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	printf("sizeof(double)=%d\n",sizeof(double));
+    if ( argc != 2 ) /* argc should be 2 for correct execution */
+    {
+        /* We print argv[0] assuming it is the program name */
+        printf( "usage: %s [path to ChioSi_new.dat]", argv[0] );
+		  exit(EXIT_FAILURE);
+    }
+	printf("sizeof(double)=%lu\n",sizeof(double));
 	
   int i, iz, ia, np, npts ;
   float aa, xx, yy ;
   FILE *fd ;
   
       /* Ouverture fichier de donnees */
-  fd = fopen("testdata/ChioSi_new.dat","r") ;
+  fd = fopen(argv[1],"r") ;
   if (fd == NULL)
   {
-    printf("Fichier de data introuvable\n") ;
-    return 1 ;
+    printf("Fichier de data %s introuvable\n", argv[1]) ;
+    exit(EXIT_FAILURE);
   }
        /* Chargement des data */
-  npts = 0 ;
-  for (i=0 ; i<11 ; i++) fgets(line,LNSTR,fd) ;
+  npts = 0 ;char* fgets_result;
+  for (i=0 ; i<11 ; i++) fgets_result = fgets(line,LNSTR,fd) ;
+  if(fgets_result){ ; }
   while (1)
   {
     if (fgets(line,LNSTR,fd) == NULL) break ;
@@ -79,7 +87,7 @@ int main(void)
   for (i=0 ; i<npts ; i++)
     printf(" %3d  %3d   %6.1f   %6.1f   %6.1f\n",(int)(zd[i]+0.5),
            (int)(ad[i]+0.5),xd[i],yd[i],fede(zd[i],ad[i],xd[i])) ;
-  return 0 ;
+  return EXIT_SUCCESS ;
 }
 
 /*

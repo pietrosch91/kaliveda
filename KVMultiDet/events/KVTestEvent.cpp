@@ -168,7 +168,7 @@ void KVTestEvent::Generate()
    }
 }
 
-void KVTestEvent::Print(Option_t * t) const
+void KVTestEvent::Print(Option_t*) const
 {
 //
 //Print out list of all particles in event 

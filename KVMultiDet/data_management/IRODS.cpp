@@ -96,7 +96,7 @@ Int_t IRODS::forcedelete(const Char_t* path)
 	return execCommand();
 }
 
-Int_t IRODS::chmod(const Char_t* path, UInt_t mode)
+Int_t IRODS::chmod(const Char_t*, UInt_t)
 {
 	// Change access permissions for file/directory
 	

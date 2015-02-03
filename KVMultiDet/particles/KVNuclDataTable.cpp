@@ -223,7 +223,7 @@ void KVNuclDataTable::InfoOnMeasured() const
 	line += " IS NOT available, Methodes KVNuclDataTable::IsMeasured and";
 	line += " KVNuclData::IsMeasured will always return kFALSE";
 	
-	Warning("InfoOnMeasured",line.Data());
+	Warning("InfoOnMeasured","%s",line.Data());
 	
 
 }

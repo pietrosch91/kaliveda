@@ -1,5 +1,0 @@
-NOT_READY += geometry/KVFocalPlanVamos.cpp
-
-EXTRA_LIBRARIES += -L$(ROOTSYS)/lib -lGeom
-			
-include Makefile.VAMOS

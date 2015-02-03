@@ -895,7 +895,7 @@ KVDataAnalysisLauncher::~KVDataAnalysisLauncher()
 
 // On va maintenant agir si un evenemnt se produit
 //__________________________________________
-Bool_t KVDataAnalysisLauncher::ProcessMessage(Long_t msg, Long_t par1, Long_t par2)
+Bool_t KVDataAnalysisLauncher::ProcessMessage(Long_t msg, Long_t , Long_t )
 {
 // Process messages
 #ifdef KVDAL_DEBUG 

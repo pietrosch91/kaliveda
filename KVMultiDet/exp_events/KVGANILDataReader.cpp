@@ -419,7 +419,7 @@ GTGanilData* KVGANILDataReader::GetGanTapeInterface()
 
  //____________________________________________________________________________
 
- KVGANILDataReader* KVGANILDataReader::Open(const Char_t* filename, Option_t* opt)
+ KVGANILDataReader* KVGANILDataReader::Open(const Char_t* filename, Option_t*)
  {
     //Static method, used by KVDataSet::Open
     return new KVGANILDataReader(filename);

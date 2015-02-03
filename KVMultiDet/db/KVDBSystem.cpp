@@ -422,7 +422,7 @@ void KVDBSystem::Print(Option_t *) const
 
 }
 
-void KVDBSystem::ls(Option_t * option) const
+void KVDBSystem::ls(Option_t*) const
 {
    KVNumberList r; GetRunList(r);
    cout << "KVDBSystem : " << GetName() << " Runs : " << r.AsString() << endl;

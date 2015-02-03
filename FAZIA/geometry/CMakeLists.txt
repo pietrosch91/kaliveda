@@ -1,0 +1,7 @@
+#---set paths to find all KVIndra headers
+KALIVEDA_SET_INCLUDE_DIRS(KVIndra MODULES ${KVIndra_MOD_LIST})
+
+BUILD_KALIVEDA_MODULE(geometry
+	PARENT ${KVSUBPROJECT}
+	EXTRA_LIBS ${KVIndra_LIB_LIST} ${KVMultiDet_LIB_LIST}
+)

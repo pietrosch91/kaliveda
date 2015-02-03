@@ -8,6 +8,7 @@
 #include "KVNameValueList.h"
 #include "range.h"
 #include "Riostream.h"
+#include "KVConfig.h"
 using namespace std;
 
 //Int_t KVRangeYanezMaterial::fTableType = 1;//Hubert-Bimbot-Gauvin, valid for 2.5<E/A<100 MeV
@@ -150,7 +151,7 @@ void KVRangeYanezMaterial::PrepareRangeLibVariables(Int_t Z, Int_t A)
    Ap=A;
 }
 
-TF1* KVRangeYanezMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat)
+TF1* KVRangeYanezMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t)
 {
    // Return function giving energy loss (in MeV) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
@@ -162,7 +163,7 @@ TF1* KVRangeYanezMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Doubl
    return fDeltaE;
 }
    
-TF1* KVRangeYanezMaterial::GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat)
+TF1* KVRangeYanezMaterial::GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t)
 {
    // Return function giving residual energy (in MeV) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
@@ -174,7 +175,7 @@ TF1* KVRangeYanezMaterial::GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_
    return fEres;
 }
    
-TF1* KVRangeYanezMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
+TF1* KVRangeYanezMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t)
 {
    // Return function giving range (in g/cm**2) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing this material.
@@ -219,7 +220,7 @@ void KVRangeYanezMaterial::Initialize()
    }
 }
    
-Double_t KVRangeYanezMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat)
+Double_t KVRangeYanezMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t)
 {
    // Overrides KVIonRangeTableMaterial method to use the egassap() function of  the Range C library.
    // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in g/cm**2).

@@ -214,7 +214,7 @@ Bool_t KVDataRepository::Init()
 
 //___________________________________________________________________________
 
-void KVDataRepository::Print(Option_t * opt) const
+void KVDataRepository::Print(Option_t*) const
 {
    //Print info on repository
    Info("Print", "configuration of repository is as follows - ");

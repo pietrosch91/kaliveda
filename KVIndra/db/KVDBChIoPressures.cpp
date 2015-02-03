@@ -84,7 +84,7 @@ void KVDBChIoPressures::InitCommon()
 }
 
 //____________________________________________________________________________
-void KVDBChIoPressures::Print(Option_t * option) const
+void KVDBChIoPressures::Print(Option_t *) const
 {
    cout << "_____________________________________________________________"
        << endl << "ChIo Pressures :" << endl << GetName() << " " <<

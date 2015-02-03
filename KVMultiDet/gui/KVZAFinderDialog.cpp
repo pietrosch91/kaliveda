@@ -119,7 +119,7 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
 }
 
 //________________________________________________________________
-KVZAFinderDialog::KVZAFinderDialog (const KVZAFinderDialog& obj) 
+KVZAFinderDialog::KVZAFinderDialog (const KVZAFinderDialog&) 
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example

@@ -1,3 +1,0 @@
-EXTRA_LIBRARIES += -L$(ROOTSYS)/lib -lGeom
-			
-include Makefile.VAMOS

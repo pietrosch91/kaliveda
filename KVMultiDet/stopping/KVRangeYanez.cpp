@@ -165,6 +165,11 @@ void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a)
    }
    else
    {
+		if(!gNDTManager){
+			Error("AddElementalMaterial",
+			"Nuclear data tables have not been initialised");
+			return;
+		}
       KVElementDensity*ed = (KVElementDensity*)gNDTManager->GetData(z,a,"ElementDensity");
       if(!ed){
          Error("AddElementalMaterial", 
@@ -230,6 +235,11 @@ KVIonRangeTableMaterial* KVRangeYanez::MakeNaturallyOccuringElementMixture(Int_t
    // create a material containing the naturally occuring isotopes of the given element,
    // weighted according to their abundance.
       
+	if(!gNDTManager){
+		Error("MakeNaturallyOccuringElementMixture",
+		"Nuclear data tables have not been initialised");
+		return NULL;
+	}
    KVElementDensity*ed = (KVElementDensity*)gNDTManager->GetData(z,z,"ElementDensity");
    if(!ed){
       Error("AddElementalMaterial",

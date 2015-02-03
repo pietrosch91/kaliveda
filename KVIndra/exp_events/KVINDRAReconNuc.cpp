@@ -1423,7 +1423,7 @@ void KVINDRAReconNuc::CheckCsIEnergy()
     if(csi && GetZ()>0 && GetZ()<3 && (csi->GetEnergy() > csi->GetMaxDeltaE(GetZ(), GetA()))) SetECode(kECode3);
 }
 
-Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & code) const
+Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode &) const
 {
     // OBSOLETE METHOD
 
@@ -1442,7 +1442,7 @@ Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & cod
 
 //______________________________________________________________________________________________//
 
-const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *id_tel_type,KVIDSubCode &code) const
+const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *id_tel_type,KVIDSubCode &) const
 {
     // OBSOLETE METHOD
 

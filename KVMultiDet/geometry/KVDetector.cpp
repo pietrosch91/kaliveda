@@ -503,7 +503,7 @@ void KVDetector::SetPedestal(const Char_t *name, Float_t ped)
 
 //_______________________________________________________________
 
-void KVDetector::Clear(Option_t * opt)
+void KVDetector::Clear(Option_t*)
 {
    //Set energy loss(es) etc. to zero
 

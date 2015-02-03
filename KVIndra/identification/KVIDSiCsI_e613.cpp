@@ -69,7 +69,7 @@ void KVIDSiCsI_e613::Initialize()
 }
 
 
-Double_t KVIDSiCsI_e613::GetIDMapX(Option_t * opt)
+Double_t KVIDSiCsI_e613::GetIDMapX(Option_t *)
 {
   //Calculates current X coordinate for identification.
   //It is the CsI detector's total light output calculated from current values of 'R' and 'L'.

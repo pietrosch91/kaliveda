@@ -108,7 +108,7 @@ void KVWidget::Action(Long_t parm) const
 }
 
 //___   ____________________________________________________________________________
-void KVWidget::Print(Option_t * opt) const
+void KVWidget::Print(Option_t *) const
 {
    cout << " KVWidget ID = " << fWidID << endl;
    Action();

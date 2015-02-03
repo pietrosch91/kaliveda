@@ -144,7 +144,7 @@ void KVHistogram::SetWeight(const Char_t* weight)
    fParams.SetValue("WEIGHT", weight);
 }
 
-void KVHistogram::ls(Option_t *option) const
+void KVHistogram::ls(Option_t*) const
 {
     TROOT::IndentLevel();
     TROOT::IncreaseDirLevel();

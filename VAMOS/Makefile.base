@@ -1,5 +1,0 @@
-EXTRA_HEADERS = base/Defines.h
-
-NOT_ROOTCINT := base/Defines.h
-			
-include Makefile.VAMOS

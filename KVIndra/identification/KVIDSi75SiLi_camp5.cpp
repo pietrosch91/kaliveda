@@ -71,7 +71,7 @@ void KVIDSi75SiLi_camp5::Initialize()
 
 //___________________________________________________________________________________________
 
-Double_t KVIDSi75SiLi_camp5::GetIDMapX(Option_t * opt)
+Double_t KVIDSi75SiLi_camp5::GetIDMapX(Option_t *)
 {
     //X-coordinate for Si75-SiLi identification map is raw "PG" coder value for SiLi detector
     return (Double_t)fSiLi->GetACQData("PG");

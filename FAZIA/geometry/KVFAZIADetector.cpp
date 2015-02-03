@@ -61,7 +61,7 @@ void KVFAZIADetector::Copy(TObject& obj) const
 }
 
 //________________________________________________________________
-void	KVFAZIADetector::Clear(Option_t* opt)
+void	KVFAZIADetector::Clear(Option_t*)
 {
 
 	//Info("Clear","Call %s",GetName());
@@ -76,7 +76,7 @@ void	KVFAZIADetector::Clear(Option_t* opt)
 void KVFAZIADetector::SetName(const char* name)
 {
 	TNamed::SetName(name);
-	Bool_t results = SetProperties();
+	/*Bool_t results =*/ SetProperties();
 }
 
 //________________________________________________________________
@@ -119,7 +119,7 @@ Bool_t KVFAZIADetector::SetProperties()
    return kTRUE;
 }
 //________________________________________________________________
-Bool_t KVFAZIADetector::Fired(Option_t * opt)
+Bool_t KVFAZIADetector::Fired(Option_t *)
 {
     // Returns kTRUE if detector was hit (fired) in an event
     //

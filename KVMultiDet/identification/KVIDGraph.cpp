@@ -185,7 +185,7 @@ KVIDGraph::~KVIDGraph()
 
 //________________________________________________________________________________
 
-void KVIDGraph::Clear(Option_t * opt)
+void KVIDGraph::Clear(Option_t * )
 {
    // reset the grid (destroying any previously defined identifiers) ready to start anew.
    // resets axis limits
@@ -678,7 +678,7 @@ KVIDentifier* KVIDGraph::Add(TString type, TString classname)
 
 //_______________________________________________________________________________________________//
 
-void KVIDGraph::Draw(Option_t * opt)
+void KVIDGraph::Draw(Option_t * )
 {
    //Draw all objects in graph on the current display, if one exists: i.e. in order to superimpose the grid
    //on a 2D display of data, use KVIDGraph::Draw() (no option "same" needed).
@@ -766,7 +766,7 @@ void KVIDGraph::ResetDraw()
 
 //_______________________________________________________________________________________________//
 
-void KVIDGraph::Print(Option_t * opt) const
+void KVIDGraph::Print(Option_t * ) const
 {
    //Print out all objects in graph
 

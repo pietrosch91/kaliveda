@@ -100,7 +100,7 @@ KVCalibrator::KVCalibrator(const KVCalibrator & obj) : KVBase()
 }
 
 //___________________________________________________________________________
-void KVCalibrator::Print(Option_t * opt) const
+void KVCalibrator::Print(Option_t*) const
 {
    //Print a description of the calibration object, including a list of its parameters
    cout << "_________________________________________________" << endl

@@ -79,7 +79,7 @@ void KVIDGridManager::DeleteGrid ( KVIDGraph * grid, Bool_t update )
    if ( !update ) fGrids->Connect ( "Modified()", "KVIDGridManager", this, "Modified()" );
 }
 
-void KVIDGridManager::Clear ( Option_t * opt )
+void KVIDGridManager::Clear ( Option_t * )
 {
    //Delete all grids and empty list, ready to start anew
 
@@ -198,7 +198,7 @@ void KVIDGridManager::GetListOfIDTelescopeLabels ( KVString& list )
    if(list.EqualTo(",")) list = "";
 }
 
-void KVIDGridManager::Initialize ( Option_t* opt )
+void KVIDGridManager::Initialize ( Option_t* )
 {
    // Initialize all grids in ID grid manager's list, i.e. we call the Initialize() method
    // of every grid/graph.

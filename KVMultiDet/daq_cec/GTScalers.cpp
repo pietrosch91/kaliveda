@@ -60,8 +60,10 @@ GTScalers::~GTScalers(void)
 
 
 //______________________________________________________________________________
-void GTScalers::Fill(scale *s)
+void GTScalers::Fill(void* echelle)
 {
+
+	scale* s = (scale*)echelle;
 //  cout <<s->Length<<endl;
 //  cout <<s->Nb_channel<<endl; // This is number of actual scalers
 //  cout <<s->Acq_status<<endl;

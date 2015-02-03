@@ -99,7 +99,7 @@ Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 
 //____________________________________________________________________________________
 
-Double_t KVIDCsI::GetIDMapX(Option_t * opt)
+Double_t KVIDCsI::GetIDMapX(Option_t *)
 {
    //X-coordinate for CsI identification map is raw "L" coder value
    return (Double_t) fCsI->GetACQData("L");
@@ -107,7 +107,7 @@ Double_t KVIDCsI::GetIDMapX(Option_t * opt)
 
 //____________________________________________________________________________________
 
-Double_t KVIDCsI::GetIDMapY(Option_t * opt)
+Double_t KVIDCsI::GetIDMapY(Option_t *)
 {
    //Y-coordinate for CsI identification map is raw "R" coder value
    return (Double_t) fCsI->GetACQData("R");

@@ -1,4 +1,0 @@
-EXTRA_CXX_FLAGS = -I$(KVPROJ_ROOT_ABS)/fitltg-0.1/src
-EXTRA_LIBRARIES = -L$(KVINSTALLDIR)/lib -lfitltg
-
-include Makefile.KVMultiDet

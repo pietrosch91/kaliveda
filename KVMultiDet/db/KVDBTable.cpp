@@ -77,7 +77,7 @@ void KVDBTable::RemoveRecord(KVDBRecord * rec)
 
 //___________________________________________________________________________________//
 
-void KVDBTable::ls(Option_t * opt) const
+void KVDBTable::ls(Option_t*) const
 {
    cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() <<
        endl;

@@ -108,7 +108,7 @@ void KVFAZIA::BuildTarget()
    }
 }
 
-void KVFAZIA::Build(Int_t run)
+void KVFAZIA::Build(Int_t)
 {
    // Build the combined INDRA & FAZIA arrays
 	GetGeometryParameters();

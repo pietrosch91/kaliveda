@@ -260,7 +260,7 @@ KVTrieurLin & KVTrieurLin::operator =(const KVTrieurLin & a)
 //
 // On retourne le numero de case
 //
-Int_t KVTrieurLin::GetNumCase(void *argus ...)
+Int_t KVTrieurLin::GetNumCase(void* ...)
 {
    cout << "Utiliser KVTrieurLin::GetNum_Case(Double_t x)" << endl;
    return -1;

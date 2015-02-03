@@ -216,7 +216,7 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
 }
 //__________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_e494s::SetIdentificationParameters(const KVMultiDetArray* MDA) 
+Bool_t KVIDSi75SiLi_e494s::SetIdentificationParameters(const KVMultiDetArray*) 
 {
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not

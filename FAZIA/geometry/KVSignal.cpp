@@ -46,7 +46,7 @@ KVSignal::~KVSignal()
 
 //________________________________________________________________
 
-void KVSignal::Copy(TObject& obj) const
+void KVSignal::Copy(TObject&) const
 {
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
@@ -99,7 +99,7 @@ void KVSignal::DeduceFromName()
    
 }
 //________________________________________________________________
-void KVSignal::Print(Option_t* chopt) const
+void KVSignal::Print(Option_t*) const
 {
 	Info("Print","\nName: %s - Title: %s",GetName(),GetTitle());
 	if (fBlock!=-1){

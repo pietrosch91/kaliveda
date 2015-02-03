@@ -676,7 +676,7 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 }
 //________________________________________________________________
 
-Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop){
+Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector* , KVVAMOSDetector *stop){
 	// Set the corrected flight distance/time  which will give the real velocity
 	// of the nucleus prior to entering VAMOS. It is the distance/time between the nucleus's
 	// exit in the stripping foil, if this nucleus loses energy inside this foil,

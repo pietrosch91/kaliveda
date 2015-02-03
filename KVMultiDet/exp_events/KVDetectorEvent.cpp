@@ -62,7 +62,7 @@ KVDetectorEvent::~KVDetectorEvent()
     fHitGroups = 0;
 }
 
-void KVDetectorEvent::Clear(Option_t * opt)
+void KVDetectorEvent::Clear(Option_t * )
 {
     // Reset the list of hit groups, ready for analysis of a new event.
     // Each 'hit' group is cleared (energy losses in detectors set to zero, etc.).
@@ -72,7 +72,7 @@ void KVDetectorEvent::Clear(Option_t * opt)
 }
 
 //____________________________________________________________________________
-void KVDetectorEvent::Print(Option_t * t) const
+void KVDetectorEvent::Print(Option_t *) const
 {
    //Print a listing of hit groups with fired detectors
 

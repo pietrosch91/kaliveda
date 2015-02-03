@@ -495,7 +495,7 @@ void KVVarGlob::Fill(KVNucleus*)
 
 //_________________________________________________________________
 
-void KVVarGlob::Fill2(KVNucleus*n1,KVNucleus*n2)
+void KVVarGlob::Fill2(KVNucleus*,KVNucleus*)
 {
    // virtual method which must be overriden in child classes
    // describing two-body global variables.

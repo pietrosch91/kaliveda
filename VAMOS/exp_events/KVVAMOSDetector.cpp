@@ -253,7 +253,7 @@ Bool_t KVVAMOSDetector::GetPositionInVamos(Double_t &X, Double_t &Y){
 }
 //________________________________________________________________
 
-UChar_t KVVAMOSDetector::GetRawPosition(Double_t *XYZf){
+UChar_t KVVAMOSDetector::GetRawPosition(Double_t *){
 	// Method overwritten and useful in child classes describing detectors
 	// used to measured position for the reconstruction of  nucleus 
 	// trajectory. For example, see this same method in the class KVSeD.

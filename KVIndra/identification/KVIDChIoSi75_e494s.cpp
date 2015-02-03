@@ -30,7 +30,7 @@ KVIDChIoSi75_e494s::~KVIDChIoSi75_e494s()
 
 //________________________________________________________________
 
-Double_t KVIDChIoSi75_e494s::GetIDMapX(Option_t *opt){
+Double_t KVIDChIoSi75_e494s::GetIDMapX(Option_t *){
 	// This method gives the X-coordinate in a 2D identification map
 	// associated with the ChIo-Si75 identification telescope.
 	// The X-coordinate is the Si75 current low gain coder data minus the
@@ -48,7 +48,7 @@ Double_t KVIDChIoSi75_e494s::GetIDMapX(Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVIDChIoSi75_e494s::GetIDMapY(Option_t *opt){
+Double_t KVIDChIoSi75_e494s::GetIDMapY(Option_t *){
 	// This method gives the Y-coordinate in a 2D identification map
 	// associated with the ChIo-Si75 identification telescope.
 	// The Y-coordinate is the ChIo current low gain coder data.

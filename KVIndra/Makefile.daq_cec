@@ -1,3 +1,0 @@
-NOT_READY += daq_cec/KVS*.cpp
-
-include Makefile.KVIndra

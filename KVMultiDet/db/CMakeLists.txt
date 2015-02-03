@@ -1,0 +1,4 @@
+BUILD_KALIVEDA_MODULE(db
+	PARENT ${KVSUBPROJECT}
+	KVMOD_DEPENDS base events particles stopping
+)

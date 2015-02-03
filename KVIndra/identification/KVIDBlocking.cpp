@@ -24,7 +24,7 @@ ClassImp(KVIDBlocking)
 //KVIDBlocking
 //
 //Identification in BIC-SiB blocking telescopes of E416(a)
-Bool_t KVIDBlocking::SetIDGrid(KVIDGrid * grid)
+Bool_t KVIDBlocking::SetIDGrid(KVIDGrid *)
 {
    //No grids for the moment
    return kFALSE;
