@@ -1201,6 +1201,7 @@ void KVDataAnalysisLauncher::SelectAll(void)
 {
 	// Select all runs currently in the displayed list of runs
 	lvRuns->SelectAll(); 
+   UpdateListOfSelectedRuns();
 }
 
 //__________________________________________
@@ -1208,6 +1209,7 @@ void KVDataAnalysisLauncher::DeselectAll(void)
 {
 	// Deselect all runs currently in the displayed list of runs
 	lvRuns->UnSelectAll(); 
+   UpdateListOfSelectedRuns();
 }
 
 //__________________________________________

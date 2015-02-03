@@ -781,5 +781,47 @@ void KVLVContainer::SelectAll()
     // Override method in TGContainer
     // If multiple selection is not enabled, do nothing
 
-    if(GetMultipleSelection()) TGLVContainer::SelectAll();
+	if(!GetMultipleSelection()) return;
+
+	// Select all items in the container.
+   // SelectAll() signal emitted.
+
+   TIter next(fList);
+   TGFrameElement *el;
+   TGFrame *fr;
+   TGPosition pos = GetPagePosition();
+
+   while ((el = (TGFrameElement *) next())) {
+      fr = el->fFrame;
+      if (!fr->IsActive()) {
+         ActivateItemFromSelectAll(el);
+      }
+   }
+   fSelected = fTotal;
+   
+   SendMessage(fMsgWindow, MK_MSG(kC_CONTAINER, kCT_SELCHANGED),
+                  fTotal, fSelected);
+	Emit("SelectAll()");
+
+}
+void KVLVContainer::ActivateItemFromSelectAll(TGFrameElement *el)
+{
+   // Activate item.
+
+   TGFrame *fr = el->fFrame;
+   fr->Activate(kTRUE);
+
+   if (fLastActiveEl != el) {
+      fLastActiveEl = el;
+      CurrentChanged(fLastActiveEl->fFrame->GetX(), fLastActiveEl->fFrame->GetY());
+      CurrentChanged(fLastActiveEl->fFrame);
+      fSelected++;
+   }
+
+   if (!fSelected) fSelected = 1;
+
+   //SendMessage(fMsgWindow, MK_MSG(kC_CONTAINER, kCT_SELCHANGED), fTotal, fSelected);
+
+   TGPosition pos = GetPagePosition();
+   DrawRegion(fr->GetX() - pos.fX, fr->GetY() - pos.fY, fr->GetWidth(), fr->GetHeight());
 }
