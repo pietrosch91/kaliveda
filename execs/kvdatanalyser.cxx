@@ -13,6 +13,7 @@ where:
    if not given, default repository is used.
    */
 
+#include <cstdlib>
 #include "TString.h"
 #include "TApplication.h"
 #include "KVDataSetManager.h"
