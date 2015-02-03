@@ -8,6 +8,7 @@
 #include "KVDataAnalysisTask.h"
 #include "KVGEBatchJob.h"
 #include "KVInputDialog.h"
+#include "KVDataRepository.h"
 
 using namespace std;
 
@@ -244,24 +245,35 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 
 	KVBatchSystem::ChangeDefJobOpt(da);
 	KVString taskname = da->GetAnalysisTask()->GetName();
-	Bool_t recId = (taskname=="Reconstruction"||taskname=="ReconIdent"||taskname=="IdentRoot");
+   KVString rootdir = gDataRepository->GetRootDirectory();
+   Bool_t repIsSPS = rootdir.BeginsWith("/sps/");
+	
 	KVString wrkdir( gSystem->WorkingDirectory() );
 	KVString oldoptions( GetDefaultJobOptions() );
-	if( wrkdir.Contains("/sps/") && !oldoptions.Contains("sps") ){
-		if( recId ){
-			// submitting recon/ident job from /sps directory. do not add sps ressource
-			Warning("ChangeDefJobOpt",
-					"Your job is being submitted from %s.\nHowever, for reconstruction/identification tasks, we do not declare the 'u_sps_indra' ressource, so that the number of jobs which can be treated concurrently will not be limited.",
-					wrkdir.Data());
-		}
-		else
-		{
-			oldoptions += " -l sps=1";
-			SetDefaultJobOptions( oldoptions.Data() );
-			Warning("ChangeDefJobOpt",
-				"Your job is being submitted from %s.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.",
+   
+	
+   Bool_t NeedToAddSPS = wrkdir.Contains("/sps/"); //where KaliVedaGUI has been launched ?
+   if (NeedToAddSPS){	//KaliVedaGUI launched from sps ... 
+   	if ( !da->GetAnalysisTask()->WithUserClass() ) //but ... no user class needed ...
+ 		{
+   		NeedToAddSPS = kFALSE;	// ... by default no need of sps  ...
+      	if (repIsSPS) 	NeedToAddSPS = kTRUE; // ... except if data repository is on sps
+   	}
+   }
+   else{ //not from sps ...
+   	if (repIsSPS) 	NeedToAddSPS = kTRUE; //... but data repository is on sps
+   }
+   
+   if (NeedToAddSPS)
+   	NeedToAddSPS = !oldoptions.Contains("sps");
+   
+   
+	if( (NeedToAddSPS) ){
+   	oldoptions += " -l sps=1";
+		SetDefaultJobOptions( oldoptions.Data() );
+		Warning("ChangeDefJobOpt",
+					"Your job is using sps ressource.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.",
 				wrkdir.Data());
-		}
 	}	
 }
 
