@@ -484,11 +484,36 @@ nedit.highlightPatterns: Ada:Default\n\
 		info:"(?# version 0.1; author/maintainer: Joor Loohuis, joor@loohuis-consulting.nl)":::Comment::D\n\
 	}\n\
 	CSS:Default\n\
-	Regex:Default
+	Regex:Default\n\
+	Fortran90:1:30{\n\
+		Comment:"!":"$"::Comment::\n\
+		Continuation:"&":::Flag::\n\
+		String:"'":"'":"\\n([^ \\t]| [^ \\t]|  [^ \\t]|   [^ \\t]|    [^ \\t]|     [ \\t0]| *\\t[^1-9])":String::\n\
+		Keywords:"<(ACCEPT|[Aa]ccept|ASSIGN|[Aa]ssign|AUTOMATIC|[Aa]utomatic|BACKSPACE|[Bb]ackspace|BLOCK|[Bb]lock|CALL|[Cc]all|CLOSE|[Cc]lose|COMMON|[Cc]ommon|CONTINUE|[Cc]ontinue|DATA|[Dd]ata|DECODE|[Dd]ecode|DELETE|[Dd]elete|DIMENSION|[Dd]imension|DO|[Dd]o|ELSE|[Ee]lse|ELSEIF|[Ee]lseif|ENCODE|[Ee]ncode|END *FILE|[Ee]nd *[Ff]ile|ENDFILE|[Ee]ndfile|END|[Ee]nd|ENDIF|[Ee]ndif|ENTRY|[Ee]ntry|EQUIVALENCE|[Ee]quivalence|EXIT|[Ee]xit|EXTERNAL|[Ee]xternal|FORMAT|[Ff]ormat|FUNCTION|[Ff]unction|GOTO|[Gg]oto|IF|[Ii]f|IMPLICIT|[Ii]mplicit|INCLUDE|[Ii]nclude|INQUIRE|[Ii]nquire|INTRINSIC|[Ii]ntrinsic|LOGICAL|[Ll]ogical|MAP|[Mm]ap|NONE|[Nn]one|ON|[Oo]n|OPEN|[Oo]pen|PARAMETER|[Pp]arameter|PAUSE|[Pp]ause|POINTER|[Pp]ointer|PRINT|[Pp]rint|PROGRAM|[Pp]rogram|READ|[Rr]ead|RECORD|[Rr]ecord|RETURN|[Rr]eturn|REWIND|[Rr]ewind|SAVE|[Ss]ave|STATIC|[Ss]tatic|STOP|[Ss]top|STRUCTURE|[Ss]tructure|SUBROUTINE|[Ss]ubroutine|SYSTEM|[Ss]ystem|THEN|[Tt]hen|TO|[Tt]o|TYPE|[Tt]ype|UNION|[Uu]nion|UNLOCK|[Uu]nlock|VIRTUAL|[Vv]irtual|VOLATILE|[Vv]olatile|WHILE|[Ww]hile|WRITE|[Ww]rite)>":::Keyword::D\n\
+		Data Types:"<(BYTE|[Bb]yte|CHARACTER|[Cc]haracter|COMPLEX|[Cc]omplex|DOUBLE *COMPLEX|[Dd]ouble *[Cc]omplex|DOUBLE *PRECISION|[Dd]ouble *[Pp]recision|DOUBLE|[Dd]ouble|INTEGER|[Ii]nteger|REAL|[Rr]eal)(\\*[0-9]+)?>":::Keyword::D\n\
+		F90 Keywords:"<(ALLOCATABLE|[Aa]llocatable|ALLOCATE|[Aa]llocate|CASE|[Cc]ase|CASE|[Cc]ase|CONTAINS|[Cc]ontains|CYCLE|[Cc]ycle|DEALLOCATE|[Dd]eallocate|ELSEWHERE|[Ee]lsewhere|ENDWHERE|[Ee]ndwhere|INTENT|[Ii]ntent|INTERFACE|[Ii]nterface|MODULE|[Mm]odule|NAMELIST|[Nn]amelist|OPTIONAL|[Oo]ptional|PRIVATE|[Pp]rivate|PROCEDURE|[Pp]rocedure|PUBLIC|[Pp]ublic|REWRITE|[Rr]ewrite|SELECT|[Ss]elect|USE|[Uu]se|WHERE|[Ww]here)>":::Keyword::D\n\
+		Numeric const:"<[0-9]+(\\.[0-9]*)?([DEde][-+]?[0-9]*)?|\\.[0-9]+([DEde][-+]?[0-9]*)?>":::Numeric Const::D\n\
+	}\n\
+	CMake:1:0{\n\
+		comment:"#.*":::Comment::\n\
+		string:"""":"""":"\\n":String2::\n\
+		string escape chars:"\\\\(?:.|\\n)":::String1:string:\n\
+		var reference:"(\\$\\{\\w+\\})|(@\\w+@)":::Identifier::\n\
+		var reference in string:"(?:\\$\\{\\w+\\})|(?:@\\w+@)":::Identifier1:string:\n\
+		punctuation:"[()]":::Keyword::\n\
+		known functions:"(<(?:ADD_CUSTOM_COMMAND|ADD_CUSTOM_TARGET|ADD_DEFINITIONS|ADD_DEPENDENCIES|ADD_EXECUTABLE|ADD_LIBRARY|ADD_SUBDIRECTORY|ADD_TEST|AUX_SOURCE_DIRECTORY|BUILD_COMMAND|BUILD_NAME|CMAKE_MINIMUM_REQUIRED|CONFIGURE_FILE|CREATE_TEST_SOURCELIST|ELSE|ELSEIF|ENABLE_LANGUAGE|ENABLE_TESTING|ENDFOREACH|ENDIF|ENDMACRO|ENDWHILE|EXECUTE_PROCESS|EXEC_PROGRAM|EXPORT_LIBRARY_DEPENDENCIES|FILE|FIND_FILE|FIND_LIBRARY|FIND_PACKAGE|FIND_PATH|FIND_PROGRAM|FLTK_WRAP_UI|FOREACH|GET_CMAKE_PROPERTY|GET_DIRECTORY_PROPERTY|GET_FILENAME_COMPONENT|GET_SOURCE_FILE_PROPERTY|GET_TARGET_PROPERTY|GET_TEST_PROPERTY|IF|INCLUDE|INCLUDE_DIRECTORIES|INCLUDE_EXTERNAL_MSPROJECT|INCLUDE_REGULAR_EXPRESSION|INSTALL|INSTALL_FILES|INSTALL_PROGRAMS|INSTALL_TARGETS|LINK_DIRECTORIES|LINK_LIBRARIES|LIST|LOAD_CACHE|LOAD_COMMAND|MACRO|MAKE_DIRECTORY|MARK_AS_ADVANCED|MATH|MESSAGE|OPTION|OUTPUT_REQUIRED_FILES|QT_WRAP_CPP|QT_WRAP_UI|REMOVE|REMOVE_DEFINITIONS|SEPARATE_ARGUMENTS|SET|SET_DIRECTORY_PROPERTIES|SET_SOURCE_FILES_PROPERTIES|SET_TARGET_PROPERTIES|SET_TESTS_PROPERTIES|SITE_NAME|SOURCE_GROUP|STRING|SUBDIRS|SUBDIR_DEPENDS|TARGET_LINK_LIBRARIES|TRY_COMPILE|TRY_RUN|USE_MANGLED_MESA|UTILITY_SOURCE|VARIABLE_REQUIRES|VTK_MAKE_INSTANTIATOR|VTK_WRAP_JAVA|VTK_WRAP_PYTHON|VTK_WRAP_TCL|WHILE|WRITE_FILE|add_custom_command|add_custom_target|add_definitions|add_dependencies|add_executable|add_library|add_subdirectory|add_test|aux_source_directory|build_command|build_name|cmake_minimum_required|configure_file|create_test_sourcelist|else|elseif|enable_language|enable_testing|endforeach|endif|endmacro|endwhile|execute_process|exec_program|export_library_dependencies|file|find_file|find_library|find_package|find_path|find_program|fltk_wrap_ui|foreach|get_cmake_property|get_directory_property|get_filename_component|get_source_file_property|get_target_property|get_test_property|if|include|include_directories|include_external_msproject|include_regular_expression|install|install_files|install_programs|install_targets|link_directories|link_libraries|list|load_cache|load_command|macro|make_directory|mark_as_advanced|math|message|option|output_required_files|qt_wrap_cpp|qt_wrap_ui|remove|remove_definitions|separate_arguments|set|set_directory_properties|set_source_files_properties|set_target_properties|set_tests_properties|site_name|source_group|string|subdirs|subdir_depends|target_link_libraries|try_compile|try_run|use_mangled_mesa|utility_source|variable_requires|vtk_make_instantiator|vtk_wrap_java|vtk_wrap_python|vtk_wrap_tcl|while|write_file)>)\\s*\\(":::Keyword::\n\
+		known function names:"\\1":""::Identifier2:known functions:C\n\
+		keywords:"(?:<(?:ABSOLUTE|AFTER|ALL|AND|APPEND|ARCHIVE|ARCHIVE DESTINATION|ARGS|ASCII|BEFORE|CACHE|CLEAR|CMAKE_FLAGS|CODE|COMMAND|COMMANDS|COMMAND_NAME|COMMENT|COMPARE EQUAL|COMPARE GREATER|COMPARE LESS|COMPARE NOTEQUAL|COMPILE_DEFINITIONS|COMPONENT|COMPONENTS|CONFIGURATIONS|CONFIGURE|COPYONLY|CVS|DBAR|DEFINED|DEPENDS|DESTINATION|DIRECTORY|DIRECTORY_PERMISSIONS|DOC|EQUAL|ERROR_FILE|ERROR_QUIET|ERROR_STRIP_TRAILING_WHITESPACE|ERROR_VARIABLE|ESCAPE_QUOTES|EXCLUDE|EXCLUDE_FROM_ALL|EXISTS|EXPORT_MACRO|EXPR|EXT|EXTRA_INCLUDE|FATAL_ERROR|FILE|FILES|FILE_PERMISSIONS|FORCE|FUNCTION|GET|GLOB|GLOB_RECURSE|GREATER|GROUP_EXECUTE GROUP_READ|GROUP_SIZE|HEADER_LOCATION|INCLUDES|INCLUDE_INTERNALS|INPUT_FILE|INSERT|IS_DIRECTORY|IS_NEWER_THAN|LENGTH|LESS|LIBRARY|LIBRARY DESTINATION|MACOSX_BUNDLE|MAIN_DEPENDENCY|MAKECOMMAND|MAKE_DIRECTORY|MATCHES|MESSAGE|MODULE|NAME|NAMES|NAME_WE|NOT|NO_CMAKE_ENVIRONMENT_PATH|NO_CMAKE_PATH|NO_CMAKE_SYSTEM_PATH|NO_DEFAULT_PATH|NO_MODULE|NO_SYSTEM_ENVIRONMENT_PATH|OFF|ON|ONLY|OPTIONAL|OPTION_VAR|OR|OUTPUT|OUTPUT_FILE|OUTPUT_QUIET|OUTPUT_STRIP_TRAILING_WHITESPACE|OUTPUT_VARIABLE|PATH|PATHS|PATH_SUFFIXES|PATTERN|PERMISSIONS|PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ|POST_BUILD|PREORDER|PRE_BUILD|PRE_LINK|PROGRAM|PROGRAMS|PROGRAM_ARGS|PROPERTIES|QUIET|RANGE|READ|READ_WITH_PREFIX|REGEX|REGEX MATCH|REGEX MATCHALL|REGEX REPLACE|REGULAR_EXPRESSION|RELATIVE|RELATIVE_PATH|REMOVE|REMOVE_AT|REMOVE_ITEM|REMOVE_RECURSE|RENAME|REPLACE|REQUIRED|RESULT_VAR|RESULT_VARIABLE|RETURN_VALUE|REVERSE|RUNTIME|RUNTIME DESTINATION|RUNTIME_DIRECTORY|RUN_RESULT_VAR COMPILE_RESULT_VAR|SCRIPT|SEND_ERROR|SHARED|SORT|SOURCES|STATIC|STATUS|STREQUAL|STRGREATER|STRLESS|SUBSTRING|SYSTEM|TARGET|TARGETS|TEST_VARIABLE RESULT_VARIABLE|TIMEOUT|TOLOWER|TOUPPER|TO_CMAKE_PATH|TO_NATIVE_PATH|USE_SOURCE_PERMISSIONS|VARIABLE|VERBATIM|VERSION|WORKING_DIRECTORY|WRITE|absolute|after|all|and|append|archive|archive destination|args|ascii|before|cache|clear|cmake_flags|code|command|commands|command_name|comment|compare equal|compare greater|compare less|compare notequal|compile_definitions|component|components|configurations|configure|copyonly|cvs|dbar|defined|depends|destination|directory|directory_permissions|doc|equal|error_file|error_quiet|error_strip_trailing_whitespace|error_variable|escape_quotes|exclude|exclude_from_all|exists|export_macro|expr|ext|extra_include|fatal_error|file|files|file_permissions|force|function|get|glob|glob_recurse|greater|group_execute group_read|group_size|header_location|includes|include_internals|input_file|insert|is_directory|is_newer_than|length|less|library|library destination|macosx_bundle|main_dependency|makecommand|make_directory|matches|message|module|name|names|name_we|not|no_cmake_environment_path|no_cmake_path|no_cmake_system_path|no_default_path|no_module|no_system_environment_path|off|on|only|optional|option_var|or|output|output_file|output_quiet|output_strip_trailing_whitespace|output_variable|path|paths|path_suffixes|pattern|permissions|permissions owner_execute owner_write owner_read|post_build|preorder|pre_build|pre_link|program|programs|program_args|properties|quiet|range|read|read_with_prefix|regex|regex match|regex matchall|regex replace|regular_expression|relative|relative_path|remove|remove_at|remove_item|remove_recurse|rename|replace|required|result_var|result_variable|return_value|reverse|runtime|runtime destination|runtime_directory|run_result_var compile_result_var|script|send_error|shared|sort|sources|static|status|strequal|strgreater|strless|substring|system|target|targets|test_variable result_variable|timeout|tolower|toupper|to_cmake_path|to_native_path|use_source_permissions|variable|verbatim|version|working_directory|write|debug|optimized)>)|@ONLY":::Keyword::\n\
+		properties:"<(?:ABSTRACT|ADDITIONAL_MAKE_CLEAN_FILES|BUILD_WITH_INSTALL_RPATH|CACHE_VARIABLES|CLEAN_DIRECT_OUTPUT|COMPILE_FLAGS|CONFIG|CXX|DEBUG_LOCATION|DEBUG_OUTPUT_NAME|DEBUG_POSTFIX|DEFINE_SYMBOL|DEFINITION|DEFINITIONS|EXCLUDE_FROM_DEFAULT_BUILD|EXECUTABLE|FAIL_REGULAR_EXPRESSION|GENERATED|HEADER_FILE_ONLY|IMPORT_PREFIX|IMPORT_SUFFIX|INSTALL_NAME_DIR|INSTALL_RPATH|INSTALL_RPATH_USE_LINK_PATH|LINKER_LANGUAGE|LINK_FLAGS|LINK_FLAGS_DEBUG|LINK_FLAGS_MINSIZEREL|LINK_FLAGS_RELEASE|LINK_FLAGS_RELWITHDEBINFO|LISTFILE_STACK|LOCATION|MACROS|MINSIZEREL_LOCATION|MINSIZEREL_OUTPUT_NAME|MINSIZEREL_POSTFIX|MODULE_LIBRARY|OBJECT_DEPENDS|OUTPUT_NAME|PARENT_DIRECTORY|PASS_REGULAR_EXPRESSION|POST_INSTALL_SCRIPT|PREFIX|PRE_INSTALL_SCRIPT|PROJECT_LABEL|RELEASE_LOCATION|RELEASE_OUTPUT_NAME|RELEASE_POSTFIX|RELWITHDEBINFO_LOCATION|RELWITHDEBINFO_OUTPUT_NAME|RELWITHDEBINFO_POSTFIX|SHARED_LIBRARY|SKIP_BUILD_RPATH|SOVERSION|STATIC_LIBRARY|SUFFIX|SYMBOLIC|UTILITY|VARIABLES|VS_KEYWORD|WILL_FAIL|WRAP_EXCLUDE|abstract|additional_make_clean_files|build_with_install_rpath|cache_variables|clean_direct_output|compile_flags|config|cxx|debug_location|debug_output_name|debug_postfix|define_symbol|definition|definitions|exclude_from_default_build|executable|fail_regular_expression|generated|header_file_only|import_prefix|import_suffix|install_name_dir|install_rpath|install_rpath_use_link_path|linker_language|link_flags|link_flags_debug|link_flags_minsizerel|link_flags_release|link_flags_relwithdebinfo|listfile_stack|location|macros|minsizerel_location|minsizerel_output_name|minsizerel_postfix|module_library|object_depends|output_name|parent_directory|pass_regular_expression|post_install_script|prefix|pre_install_script|project_label|release_location|release_output_name|release_postfix|relwithdebinfo_location|relwithdebinfo_output_name|relwithdebinfo_postfix|shared_library|skip_build_rpath|soversion|static_library|suffix|symbolic|utility|variables|vs_keyword|will_fail|wrap_exclude)>":::Label::\n\
+		ProjectDecl:"PROJECT\\s*\\((\\w+)((?:\\s+(?iC|C\\+\\+|Java|None))*)\\s*\\)":::Storage Type::\n\
+		projectdecl:"project\\s*\\((\\w+)((?:\\s+(?iC|C\\+\\+|Java|None))*)\\s*\\)":::Storage Type::\n\
+		ProjectName:"\\1\\2":""::Character Const:ProjectDecl:C\n\
+	}
 nedit.languageModes: 	Ada:.ada .ad .ads .adb .a:::::::\n\
 	Awk:.awk:::::::\n\
 	C++:.cc .h .C .H .i .cxx .hxx .cpp::::::".,/\\`'!|@#%^&*()-=+{}[]"":;<>?~":\n\
 	C:.c::::::".,/\\`'!|@#%^&*()-=+{}[]"":;<>?~":\n\
+	CMake:CMakeLists.txt .cmake:::None:::".,/\\`'!|@#%^&*()-=+{}[]"":;<>?~":\n\
 	CSS:css::Auto:None:::".,/\\`'!|@#%^&*()=+{}[]"":;<>?~":\n\
 	Csh:.csh .cshrc .tcshrc .login .logout:"^[ \\t]*#[ \\t]*![ \\t]*/bin/t?csh"::::::\n\
 	Fortran:.f .f77 .for .incl .F .FOR:::::::\n\
@@ -496,7 +521,7 @@ nedit.languageModes: 	Ada:.ada .ad .ads .adb .a:::::::\n\
 	JavaScript:.js:::::::\n\
 	LaTeX:.tex .sty .cls .dtx .ins:::::::\n\
 	Lex:.lex:::::::\n\
-	Makefile:Makefile makefile .gmk Makefile.general:::None:8:8::\n\
+	Makefile:Makefile.* Makefile makefile .gmk Makefile.general .am .mk .m4 Makefile.in:::None:8:8::\n\
 	Matlab:.m .oct .sci:::::::\n\
 	NEdit Macro:.nm .neditmacro:::::::\n\
 	Pascal:.pas .p .int:::::::\n\
@@ -513,13 +538,15 @@ nedit.languageModes: 	Ada:.ada .ad .ads .adb .a:::::::\n\
 	XML:.xml .xsl .dtd:"\\<(?i\\?xml|!doctype)"::None:::"<>/=""'()+*?|":\n\
 	X Resources:.Xresources .Xdefaults .nedit nedit.rc:"^[!#].*([Aa]pp|[Xx]).*[Dd]efaults"::::::\n\
 	Yacc:.y::::::".,/\\`'!|@#%^&*()-=+{}[]"":;<>?~":\n\
-	CSS2:css::Auto:None:::".,/\\`'!|@#%^&*()=+{}[]"":;<>?~":
+	CSS2:css::Auto:None:::".,/\\`'!|@#%^&*()=+{}[]"":;<>?~":\n\
+	Fortran90:.f90:::::::
 nedit.styles: 	Plain:black:Plain\n\
 	Comment:Slate grey:Bold Italic\n\
 	Keyword:blue:Bold\n\
 	Operator:dark blue:Bold\n\
 	Bracket:dark blue:Bold\n\
 	Storage Type:green3:Bold\n\
+	Label:green3:Bold\n\
 	Storage Type1:saddle brown:Bold\n\
 	String:darkGreen:Plain\n\
 	String1:SeaGreen:Plain\n\
@@ -576,6 +603,9 @@ nedit.sortOpenPrevMenu: True
 nedit.statisticsLine: True
 nedit.iSearchLine: False
 nedit.sortTabs: False
+nedit.dragDropTabs: False
+nedit.dragDropTabsCursor: False
+nedit.dragDropTabsAnimation: False
 nedit.tabBar: True
 nedit.tabBarHideOne: True
 nedit.toolTips: True
@@ -589,8 +619,8 @@ nedit.searchMethod: Literal
 nedit.textRows: 30
 nedit.textCols: 80
 nedit.tabDistance: 3
-nedit.emulateTabs: 3
-nedit.insertTabs: False
+nedit.emulateTabs: 0
+nedit.insertTabs: True
 nedit.textFont: -adobe-courier-bold-r-normal--14-140-75-75-m-90-iso8859-1
 nedit.boldHighlightFont: -adobe-courier-bold-r-normal--14-140-75-75-m-90-iso8859-1
 nedit.italicHighlightFont: -adobe-courier-bold-o-normal--14-140-75-75-m-90-iso8859-1
