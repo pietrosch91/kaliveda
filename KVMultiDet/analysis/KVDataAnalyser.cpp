@@ -1326,6 +1326,7 @@ void KVDataAnalyser::SubmitTask()
    //In batch mode, the job is submitted to the chosen batch system.
 
    KVString task_data_analyser = fTask->GetDataAnalyser();
+   Info("SubmitTask","fTask->GetDataAnalyser()=%s",task_data_analyser.Data());
    KVDataAnalyser *the_analyser = 0;
    if( task_data_analyser=="UserClass" ){
       //the user-provided class is to be used as analyser
@@ -1335,6 +1336,9 @@ void KVDataAnalyser::SubmitTask()
    {
       the_analyser = GetAnalyser( fTask->GetDataAnalyser() );
    }
+   if (!the_analyser)
+   	Fatal("SubmitTask","the_analyser is 0x0, go to crash");
+      
    the_analyser->SetParent(this);
    the_analyser->SetDataSet(fDataSet);
    the_analyser->SetAnalysisTask(fTask);

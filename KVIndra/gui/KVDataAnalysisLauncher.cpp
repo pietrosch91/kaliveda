@@ -21,11 +21,10 @@
 #include "KVDataSetManager.h"
 #include "KVDataSet.h"
 #include "KVDataAnalysisTask.h"
-#include "KVINDRADBRun.h"
 #include "KVDBSystem.h"
 #include "KV2Body.h"
 #include "KVNucleus.h"
-#include "KVINDRADB.h"
+
 #include "KVINDRAReconDataAnalyser.h"
 #include "KVBatchSystemManager.h"
 #include "TSystemDirectory.h"
@@ -379,7 +378,7 @@ Bool_t KVGDirectoryList::CanAdd(const Char_t *fn)
 ClassImp(KVDataAnalysisLauncher)
 
 //__________________________________________
-KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t h):TGMainFrame(p,w,h)
+KVDataAnalysisLauncher::KVDataAnalysisLauncher(const Char_t* ExpType, const TGWindow *p,UInt_t w,UInt_t h):TGMainFrame(p,w,h)
 {
    // Main window width and height can be set using .kvrootrc variables:
 	//     KaliVedaGUI.MainGUIWidth:       800
@@ -553,17 +552,22 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
                                10,10,15,15));
 
 // Frame pour la liste des runs
- TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
-	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, fMainGuiWidth, 250);
-    lvRuns->SetDataColumns(7);
+
+   TClass* cl = new TClass( Form("KV%sDBRun",ExpType) );
+   TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
+	lvRuns = new KVListView(cl, cfRuns, fMainGuiWidth, 250);
+
+   lvRuns->SetDataColumns(7);
 	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
     int iicc=0;
     lvRuns->SetDataColumn(iicc++, "Run", "GetNumber");
     //lvRuns->SetDataColumn(iicc++, "System", "GetSystemName");
-    lvRuns->SetDataColumn(iicc++, "Trigger", "GetTriggerString");
+    lvRuns->SetDataColumn(iicc++, "Trigger", "");
     lvRuns->SetDataColumn(iicc++, "Events", "", kTextRight);
-    lvRuns->SetDataColumn(iicc, "File written", "GetDatime");
-    lvRuns->GetDataColumn(iicc++)->SetIsDateTime();
+    lvRuns->SetDataColumn(iicc++, "File written", "GetDatimeString");
+    //printf("pouet\n");
+    //lvRuns->GetDataColumn(iicc)->SetIsDateTime();
+    //printf("pouet\n");
     lvRuns->SetDataColumn(iicc++, "Comments", "", kTextLeft);
     lvRuns->SetDataColumn(iicc++, "Version", "GetKVVersion");
     lvRuns->SetDataColumn(iicc++, "User", "GetUserName");
@@ -1015,7 +1019,9 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t *dataset)
   
   GetDataAnalyser()->SetDataSet(gDataSet);
   //no systems defined for dataset ?
-  noSystems=(!gIndraDB || !gIndraDB->GetSystems()->GetSize());
+//  noSystems=(!gIndraDB || !gIndraDB->GetSystems()->GetSize());
+  
+  noSystems=(!gDataBase || ! ((KVDBTable* )((KVDataBase* )gROOT->FindObjectAny(gDataSet->GetName()))->GetTable("Systems"))->GetRecords()->GetSize());
   if(noSystems) lvSystems->RemoveAll();
   
   Int_t i=0;
@@ -1195,6 +1201,7 @@ void KVDataAnalysisLauncher::SelectAll(void)
 {
 	// Select all runs currently in the displayed list of runs
 	lvRuns->SelectAll(); 
+   UpdateListOfSelectedRuns();
 }
 
 //__________________________________________
@@ -1202,6 +1209,7 @@ void KVDataAnalysisLauncher::DeselectAll(void)
 {
 	// Deselect all runs currently in the displayed list of runs
 	lvRuns->UnSelectAll(); 
+   UpdateListOfSelectedRuns();
 }
 
 //__________________________________________

@@ -78,7 +78,7 @@ void KVGroup::Reset()
 {
    //Reset the group, i.e. wipe the list of reconstructed nuclei and call "Clear" method of
    //each and every detector in the group.
-
+	//Info("Reset","Call %s",GetName());
    if (fReconstructedNuclei && fReconstructedNuclei->GetSize()) {
       fReconstructedNuclei->Clear();
    }

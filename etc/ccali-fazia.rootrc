@@ -1,14 +1,14 @@
 # Specific environment configuration file for KaliVeda on CCIN2P3 machines (FAZIA)
 
-DataRepository: ccali_fazia
-ccali_fazia.DataRepository.Type: irods
-ccali_fazia.DataRepository.RootDir:       /fazia
-ccali_fazia.DataRepository.ReadProtocol:     root
-ccali_fazia.DataRepository.CacheAvailable: yes
-ccali_fazia.DataRepository.MaxCacheTime: 86400
-ccali_fazia.DataRepository.CanWrite: NO
-ccali_fazia.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
-ccali_fazia.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/fazia
+#DataRepository: ccali_fazia
+#ccali_fazia.DataRepository.Type: irods
+#ccali_fazia.DataRepository.RootDir:       /fazia
+#ccali_fazia.DataRepository.ReadProtocol:     root
+#ccali_fazia.DataRepository.CacheAvailable: yes
+#ccali_fazia.DataRepository.MaxCacheTime: 86400
+#ccali_fazia.DataRepository.CanWrite: NO
+#ccali_fazia.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+#ccali_fazia.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/fazia
 
 +BatchSystem:    GE
 GE.BatchSystem.Title:   Use Grid Engine batch system

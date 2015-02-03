@@ -2,7 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVINDRAFAZIA.h"
-#include "FAZIABlock.h"
+#include "KVFAZIABlock.h"
 #include "INDRAGeometryBuilder.h"
 #include "KVMaterial.h"
 #include "TGeoManager.h"
@@ -96,7 +96,7 @@ void KVINDRAFAZIA::BuildFAZIACompact()
    TGeoTranslation trans;
    trans.SetDz(distance_block_cible + thick_si1 / 2.);
 
-   FAZIABlock* block = new FAZIABlock;
+   KVFAZIABlock* block = new KVFAZIABlock;
 
    TGeoRotation rot1, rot2;
    TGeoHMatrix h;

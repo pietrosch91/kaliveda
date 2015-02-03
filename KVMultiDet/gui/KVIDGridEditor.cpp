@@ -1173,6 +1173,7 @@ void KVIDGridEditor::MakeTransformation()
             }
         }
     }
+
     if((event==kButton1Shift)&&(select)&&(!dlmode))
     {
         if(!select->InheritsFrom("KVIDZALine")||ListOfLines->IsEmpty());
@@ -1182,18 +1183,67 @@ void KVIDGridEditor::MakeTransformation()
             if(ListOfLines->Contains(select)) return;
             Int_t LastZ = ((KVIDZALine*)ListOfLines->At(ListOfLines->GetSize()-1))->GetZ();
             Int_t SeleZ = line->GetZ();
-            Int_t found;
-            for(int Z=TMath::Min(SeleZ,LastZ); Z<=TMath::Max(SeleZ,LastZ); Z++)
+            Int_t LastA = ((KVIDZALine*)ListOfLines->At(ListOfLines->GetSize()-1))->GetA();
+            Int_t SeleA = line->GetA();
+            Int_t zmin, zmax, amin, amax;
+            if(LastZ==SeleZ)
             {
-                line = ((KVIDZAGrid*)TheGrid)->GetZLine(Z,found);
-                if((!line)||(found==-1)) continue;
-                if(ListOfLines->Contains(line)) continue;
-                if(line->GetZ()==SeleZ) continue;
-                line->SetLineColor(SelectedColor);
-                ListOfLines->AddLast(line);
+                zmin=LastZ; zmax=LastZ;
+                amin = TMath::Min(LastA,SeleA);
+                amax = TMath::Max(LastA,SeleA);
+            }
+            else if(LastZ<SeleZ)
+            {
+                zmin = LastZ; amin = LastA;
+                zmax = SeleZ; amax = SeleA;
+            }
+            else
+            {
+                zmax = LastZ; amax = LastA;
+                zmin = SeleZ; amin = SeleA;
+            }
+
+
+            for(int Z=zmin; Z<=zmax; Z++)
+            {
+                KVList* tmpl = (KVList*)TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+                TIter it(tmpl); line=0;
+                while((line=(KVIDZALine*)it()))
+                {
+                    if(ListOfLines->Contains(line)) continue;
+                    if((zmax==zmin))
+                    {
+                        if((line->GetA()>amin)&&(line->GetA()<amax))
+                        {
+                        line->SetLineColor(SelectedColor);
+                        ListOfLines->AddLast(line);
+                        }
+                        continue;
+                    }
+                    if((line->GetZ()==zmin)&&(line->GetA()>amin))
+                    {
+                        line->SetLineColor(SelectedColor);
+                        ListOfLines->AddLast(line);
+                        continue;
+                    }
+                    if((line->GetZ()==zmax)&&(line->GetA()<amax))
+                    {
+                        line->SetLineColor(SelectedColor);
+                        ListOfLines->AddLast(line);
+                        continue;
+                    }
+                    if((line->GetZ()!=zmax)&&(line->GetZ()!=zmin))
+                    {
+                        line->SetLineColor(SelectedColor);
+                        ListOfLines->AddLast(line);
+                        continue;
+                    }
+                }
+                delete tmpl;
             }
         }
     }
+
     if((event==kButton1Double)&&(!drawmode))
     {
         if(!select->InheritsFrom("KVIDentifier"))

@@ -1,5 +1,5 @@
 PROJECT = FAZIA
-MODULES = analysis geometry identification
+MODULES = analysis geometry identification db
 
 .PHONY: all install clean $(MODULES)
 
@@ -19,9 +19,11 @@ clean:
 		make -f $$makefile MODULE=$$module clean ; if [ "$$?" -ne 0 ] ; then break ; fi ; \
 	done
 
-analysis:
+analysis: db geometry
 	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
 geometry:
 	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
 identification:
+	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"
+db:
 	@$(MAKE) -f ../BuildModule.mk PROJECT=$(PROJECT) MODULE=$@ MOD_DEPS="$^"

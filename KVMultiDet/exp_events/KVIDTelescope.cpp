@@ -721,7 +721,7 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 }
 
 //_____________________________________________________________________________________________________//
-KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA,Int_t npoints)
+KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange, Int_t deltaA, Int_t npoints, Double_t lifetime, UChar_t massformula, Double_t xfactor)
 {
     //Genere une grille dE-E (perte d'energie - energie residuelle) pour une gamme en Z donnee
     // - Zrange definit l'ensemble des charges pour lequel les lignes vont etre calculees
@@ -763,13 +763,13 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
 
     nlz.Begin(); while (!nlz.End()){
         Int_t zz = nlz.Next();
-        part.SetZ(zz);
+        part.SetZ(zz,massformula);
         Int_t aref = part.GetA();
 //        printf("%d\n",zz);
         for (Int_t aa=aref-deltaA; aa<=aref+deltaA; aa+=1){
             part.SetA(aa);
 //            printf("+ %d %d %d\n",aa,aref,part.IsKnown());
-            if (part.IsKnown()){
+            if (part.IsKnown()&&(part.GetLifeTime()>lifetime)){
 
                 //loop over energy
       		//first find :
@@ -832,7 +832,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
             		E2 = (E2max + E2min) / 2.;
                     }
       		}
-
+            E2 *= xfactor;
                 if((!strcmp(det_eres->GetType(),"CSI"))&&(E2>5000)) E2=5000;
 //                printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
                 KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");

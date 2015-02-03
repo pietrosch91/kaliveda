@@ -146,7 +146,7 @@ class KVIDTelescope:public KVBase {
    };
 
 	const Char_t* GetDefaultIDGridClass();
-	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
+    KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange, Int_t deltaMasse, Int_t npoints, Double_t lifetime=-10/*s*/, UChar_t massformula=0, Double_t xfactor=1.);
 	KVIDGrid* CalculateDeltaE_EGrid(TH2* haa_zz, Bool_t Zonly, Int_t npoints);
     // status codes for GetMeanDEFromID
     enum{

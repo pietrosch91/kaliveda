@@ -31,6 +31,7 @@ $Date: 2009/04/07 14:54:15 $
 #include "TSpline.h"
 #include "TStyle.h"
 #include "TCanvas.h"
+#include "TMultiGraph.h"
 
 
 using namespace std;
@@ -205,11 +206,11 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 		}
 	}	
 
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TH1 *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	if (hh->InheritsFrom("TH2")) 	gg->SetBins(nx,xmin,xmax,ny,ymin,ymax);
 	else 									gg->SetBins(nx,xmin,xmax);
@@ -290,11 +291,11 @@ TGraph* KVHistoManipulator::ScaleGraph(TGraph *hh,TF1*fx,TF1*fy){
 	// Si la fonction est un pointeur NULL, aucune transformation n est appliquee et l axe reste tel quel.
 	
 	TGraph* gg = NULL;
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TGraph *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	Int_t np = hh->GetN();
 	for (Int_t nn=0;nn<np;nn+=1){
@@ -616,8 +617,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) Mauvaise syntaxe pour TString axis (X ou Y) " << endl;
 		return NULL;
 	}
-	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momentx.Data()),"int");
-	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
+	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momentx.Data()),"int");
+	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
 	if (!cmx->IsValid()) { 
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momentx n'est pas une methode valide " << momentx.Data() << endl;
 		delete cmx; cmx=0; return NULL; 
@@ -626,8 +627,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 	
 	TMethodCall *cmy = NULL,*Ecmy = NULL;
 	if (momenty!="") 	{ 
-		cmy = new TMethodCall(); 	cmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
-		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
+		cmy = new TMethodCall(); 	cmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
+		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
 		if (!cmy->IsValid()) { 
 			cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momenty n'est pas une methode valide " << momenty.Data() << endl;
 			delete cmy; return NULL; 
@@ -1542,7 +1543,6 @@ Double_t KVHistoManipulator::GetLikelihood(TH1* h1, TF1* f1,Bool_t norm,Double_t
 }
 
 //______________________________________________________________________________________________
-
 TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
 {
 	// Create and fill a TGraph containing, for each point in G1 and G2,
@@ -1570,3 +1570,135 @@ TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
 	return Gdiv;
 }
 
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TGraph* G1)
+{
+	/*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits = new Double_t[4];
+   Double_t xx,yy;
+   for (Int_t ii=0;ii<G1->GetN(); ii+=1)
+	{
+   	G1->GetPoint(ii,xx,yy);
+      if (ii==0){
+      	limits[0] = limits[2] = xx;
+       	limits[1] = limits[3] = yy;
+     	}
+      else{
+      	if (xx<limits[0]) limits[0]=xx;
+      	if (yy<limits[1]) limits[1]=yy;
+       	if (xx>limits[2]) limits[2]=xx;
+      	if (yy>limits[3]) limits[3]=yy;
+     }
+   }
+
+	return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TMultiGraph* mgr)
+{
+	
+   /*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits=0;
+   Double_t* temp=0;
+   
+   TList* lg = mgr->GetListOfGraphs();
+   TGraph* gr = 0;
+   for (Int_t ii=0;ii<lg->GetEntries(); ii+=1)
+	{
+   	gr = (TGraph* )lg->At(ii);
+      if (ii==0) {
+      	limits = GetLimits(gr);
+      } 
+      else{
+      	temp = GetLimits(gr);
+			if (temp[0]<limits[0]) limits[0]=temp[0];
+      	if (temp[1]<limits[1]) limits[1]=temp[1];
+       	if (temp[2]>limits[2]) limits[2]=temp[2];
+      	if (temp[3]>limits[3]) limits[3]=temp[3];
+	 	}
+	}
+   
+   return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TProfile* G1)
+{
+	/*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits = new Double_t[4];
+   Double_t xx,yy;
+   Bool_t first=kTRUE;
+   for (Int_t ii=1;ii<=G1->GetNbinsX(); ii+=1)
+	{
+   	Double_t stat = G1->GetBinEntries(ii);
+      if (stat>0){
+      	xx = G1->GetBinCenter(ii);
+         yy = G1->GetBinContent(ii); 
+      	if (first){
+      		first=kFALSE;
+            limits[0] = limits[2] = xx;
+      	 	limits[1] = limits[3] = yy;
+     		}
+      	else{
+      		if (xx<limits[0]) limits[0]=xx;
+      		if (yy<limits[1]) limits[1]=yy;
+      	 	if (xx>limits[2]) limits[2]=xx;
+      		if (yy>limits[3]) limits[3]=yy;
+     		}	
+   	}
+   }
+
+	return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TSeqCollection* mgr)
+{
+	
+   /*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits=0;
+   Double_t* temp=0;
+   
+   TProfile* gr = 0;
+   for (Int_t ii=0;ii<mgr->GetEntries(); ii+=1)
+	{
+   	gr = (TProfile* )mgr->At(ii);
+      if (ii==0) {
+      	limits = GetLimits(gr);
+      } 
+      else{
+      	temp = GetLimits(gr);
+			if (temp[0]<limits[0]) limits[0]=temp[0];
+      	if (temp[1]<limits[1]) limits[1]=temp[1];
+       	if (temp[2]>limits[2]) limits[2]=temp[2];
+      	if (temp[3]>limits[3]) limits[3]=temp[3];
+	 	}
+	}
+   
+   return limits;
+
+}

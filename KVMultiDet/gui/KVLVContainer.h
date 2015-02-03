@@ -128,6 +128,7 @@ class KVLVContainer : public TGLVContainer
 	void DeleteColData();
 	void default_init();
 
+virtual void   ActivateItemFromSelectAll(TGFrameElement *el);
    public:
 
 	KVLVContainer(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1,

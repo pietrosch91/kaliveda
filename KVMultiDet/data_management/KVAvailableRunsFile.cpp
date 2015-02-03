@@ -621,7 +621,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
                a_run->SetUserName(username);
 					a_run->BlockSignals(kFALSE);
 				//}
-            if(a_run) sys_list->Add(a_run);
+            sys_list->Add(a_run);
          }
       }
      }

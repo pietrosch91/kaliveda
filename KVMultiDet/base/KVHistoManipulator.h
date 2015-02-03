@@ -23,6 +23,7 @@ $Date: 2009/04/07 14:54:15 $
 
 class TCanvas;
 class KVNumberList;
+class TMultiGraph;
 
 class KVHistoManipulator
 {
@@ -115,7 +116,11 @@ class KVHistoManipulator
 	Double_t GetLikelihood(TH1* h1, TF1* f1,Bool_t norm=kTRUE,Double_t* para=0);
 	
 	TGraph* DivideGraphs(TGraph* G1, TGraph* G2);
-	
+	Double_t * GetLimits(TGraph* G1);
+   Double_t * GetLimits(TProfile* G1);
+   Double_t * GetLimits(TMultiGraph* mgr);
+   Double_t * GetLimits(TSeqCollection* mgr);
+   
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };
 
