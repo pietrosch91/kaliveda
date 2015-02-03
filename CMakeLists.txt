@@ -1,5 +1,5 @@
 #--- Top-level CMake file for KaliVeda
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(KaliVeda)
 
@@ -44,7 +44,7 @@ include(CMakeDependentOption)
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
 		"Use built-in package for reading GANIL acquisition data (not MFM format)"
-		ON)
+		ON)		
 add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
