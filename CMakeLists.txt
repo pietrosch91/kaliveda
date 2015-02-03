@@ -3,13 +3,20 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(KaliVeda)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
+
 #--look for ROOT & all essential libraries
-find_package(ROOT REQUIRED Rint Graf Geom Spectrum Proof Physics Hist RIO Tree MathCore Matrix Gpad Gui Net)
-message(STATUS "Found ROOT v${ROOT_VERSION}")
+find_package(ROOT
+	REQUIRED Rint Graf Geom Spectrum Proof Physics Hist
+	RIO Tree MathCore Matrix Gpad Gui Net)
+
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
    find_library(ROOT_OPENGL_LIBRARY RGL HINTS ${ROOT_LIBRARY_DIR})
+	message(STATUS "ROOT with OpenGL support library")
+else()
+	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
 endif()
 
 include(${ROOT_USE_FILE})
@@ -20,12 +27,9 @@ if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 link_directories(${ROOT_LIBRARY_DIRS})
 include(RootInstallDirs)
-# needed for v6: sets cxx11 options (perhaps always needed?)
-#message(STATUS "ROOT_CXX_FLAGS = ${ROOT_CXX_FLAGS}")
-#set(CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
+
 include_directories(${CMAKE_BINARY_DIR})
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 include(KaliVedaMacros)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
