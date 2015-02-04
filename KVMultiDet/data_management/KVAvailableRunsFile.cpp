@@ -102,6 +102,36 @@ const Char_t *KVAvailableRunsFile::GetFileName()
    return filename.Data();
 }
 
+const Char_t*KVAvailableRunsFile::GetFilePath()
+{
+   // Returns the full path to the directory where the available runs file is stored.
+   // This is by default
+   //    $KVROOT/KVFiles/[dataset]
+   //
+   // However by setting the config variable
+   //   KVAvailableRunsFile.RunFileDirectory:   /some/path
+   //
+   // files will be stored/looked for in
+   //   /some/path/[dataset]
+   //
+   // You can use environment variables - $(VAR) - in the path
+
+   static TString filepath;
+   if(!fDataSet){
+      Error("GetFilePath", "Dataset has not been set for this file.");
+      filepath = "";
+   }
+   else
+   {
+      TString p = gEnv->GetValue("KVAvailableRunsFile.RunFileDirectory", "");
+      if( p == "" ) filepath = fDataSet->GetDataSetDir();
+      else {
+         gSystem->ExpandPathName(p);
+         AssignAndDelete(filepath, gSystem->ConcatFileName(p.Data(), fDataSet->GetName()));
+      }
+   }
+   return filepath.Data();
+}
 //__________________________________________________________________________________________________________________
 
 Int_t KVAvailableRunsFile::IsRunFileName(const Char_t * filename)
@@ -213,7 +243,7 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
 
       TString runlist;
       AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                   gSystem->ConcatFileName(GetFilePath(),
                                            GetFileName()));
    if(!no_existing_file){
       // read all existing informations
@@ -881,7 +911,7 @@ Bool_t KVAvailableRunsFile::OpenAvailableRunsFile()
 
    TString runlist;             //absolute path to runs file
    AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                   gSystem->ConcatFileName(GetFilePath(),
                                            GetFileName()));
    fRunlist.clear();            // clear any error flags (EOF etc.) before trying to open file
    if (!SearchAndOpenKVFile(runlist, fRunlist, "", &runlist_lock)) {
@@ -1236,7 +1266,7 @@ void KVAvailableRunsFile::RemoveDuplicateLines(KVNumberList lines_to_be_removed)
    CloseAvailableRunsFile();
    TString fRunlist_path;
    AssignAndDelete(fRunlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                   gSystem->ConcatFileName(GetFilePath(),
                                            GetFileName()));
    //keep lock on runsfile
    if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;

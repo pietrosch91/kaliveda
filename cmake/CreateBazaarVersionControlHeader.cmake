@@ -19,6 +19,7 @@ macro( create_bazaar_version_control_header )
 				OUTPUT ${CMAKE_BINARY_DIR}/KVBzrInfo.h
 				COMMAND ${CMAKE_SOURCE_DIR}/tools/update_bzrinfo.sh ${Bazaar_EXECUTABLE} ${CMAKE_BINARY_DIR}/KVBzrInfo.h
 				DEPENDS ${BZR_LAST_REVISION}
+				WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 			)
 			add_custom_target(bzrinfos DEPENDS ${CMAKE_BINARY_DIR}/KVBzrInfo.h)
 			 

@@ -23,3 +23,6 @@ GE.BatchSystem.DefaultJobDisk:   100M
 #GE.BatchSystem.RunsPerJob:    1
 
 Default.BatchSystem:   GE
+
+# available run files are centralised in one place
+KVAvailableRunsFile.RunFileDirectory: $(THRONG_DIR)/KaliVeda/KVFiles
