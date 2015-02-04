@@ -80,6 +80,9 @@ class KVNameValueList : public TNamed
    virtual void WriteEnvFile(const Char_t* filename);
 
     void Sort() { fList.Sort(); }
+
+    KVNameValueList operator += (KVNameValueList & nvl);
+
    
 	ClassDef(KVNameValueList,3)//A general-purpose list of parameters
 };
