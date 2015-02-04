@@ -7,3 +7,5 @@
 	If this fails, paths can be given with
 	
 	cmake -DUSE_RANGE -DRANGE_LIB_DIR=[path to librange.so] -DRANGE_INC_DIR=[path to range.h]
+
+#Other options
