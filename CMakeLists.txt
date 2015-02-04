@@ -165,6 +165,17 @@ add_subdirectory(execs)
 
 #---set up list of '.rootrc' config files to be read by KVBase::InitEnvironment
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
+#-at IN2P3 Computing Centre, we need to tack on some infos for access
+#-to the batch system & data repositories
+if($ENV{SITE} STREQUAL "CCIN2P3")
+	if($ENV{GROUP} STREQUAL "indra")
+		list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
+		install(FILES etc/ccali.rootrc DESTINATION etc)
+	elseif($ENV{GROUP} STREQUAL "fazia")
+		list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
+		install(FILES etc/ccali-fazia.rootrc DESTINATION etc)
+	endif()
+endif()
 configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION etc)
 
