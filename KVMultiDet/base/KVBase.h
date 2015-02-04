@@ -108,6 +108,7 @@ class KVBase:public TNamed {
 
    static const Char_t *GetKVVersion();
    static const Char_t *GetKVBuildDate();
+   static const Char_t *GetKVBuildType();
    static const Char_t *GetKVBuildUser();
    static const Char_t *GetKVSourceDir();
 

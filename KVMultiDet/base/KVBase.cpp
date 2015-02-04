@@ -203,7 +203,7 @@ void KVBase::InitEnvironment()
 				GetKVVersion(), GetKVBuildDate());
       ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
       	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
-      KVRootDir = gSystem->Getenv("KVROOT");
+      KVRootDir = KV_ROOT;
       TString tmp;
       AssignAndDelete(tmp,
                       gSystem->ConcatFileName(KVRootDir.Data(), "KVFiles"));
@@ -667,6 +667,15 @@ const Char_t *KVBase::GetKVBuildDate()
 {
    //Returns KaliVeda build date
    static TString tmp(KV_BUILD_DATE);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::GetKVBuildType()
+{
+   //Returns KaliVeda build type (cmake build: Release, Debug, RelWithDebInfo, ...)
+   static TString tmp(KV_BUILD_TYPE);
    return tmp.Data();
 }
 
