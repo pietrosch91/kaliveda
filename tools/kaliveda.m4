@@ -5,7 +5,7 @@ dnl Synopsis:
 dnl
 dnl  KV_PATH([ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]])
 dnl
-dnl We look for libKVMultiDet.so in $KVROOT/lib
+dnl We look for libKVMultiDetbase.so in $KVROOT/lib
 dnl $KVROOT can be overridden using --with-kvroot=/my/installation/directory
 dnl
 dnl Some examples: 
@@ -38,7 +38,7 @@ AC_DEFUN([KV_PATH],
     mykvrootlib="$mykvroot/lib"
     mykvrootinc="$mykvroot/bin"
     
-   AC_PATH_PROG(KVLIBDIR, libKVMultiDet.so , no, $mykvrootlib)
+   AC_PATH_PROG(KVLIBDIR, libKVMultiDetbase.so , no, $mykvrootlib)
    
   if test ! "x$KVLIBDIR" = "xno" ; then 
     # define some variables 

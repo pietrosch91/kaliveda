@@ -182,3 +182,12 @@ set(incdir ${CMAKE_INSTALL_PREFIX}/include)
 set(bindir ${CMAKE_INSTALL_PREFIX}/bin)
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION bin)
+
+#---install scripts from tools/ directory in ${CMAKE_INSTALL_PREFIX}/bin
+install(PROGRAMS tools/SetUpKaliVeda.sh tools/SetUpROOT.sh tools/WhichROOT
+   tools/SetUpKaliVeda.csh tools/SetUpROOT.csh tools/SetUpKaliVedaDirectories.sh
+   tools/SetUpROOTDirectories.sh tools/WhichKaliVeda
+   DESTINATION bin)
+#---install other stuff from tools/ directory in ${CMAKE_INSTALL_PREFIX}/etc
+install(FILES tools/.nedit DESTINATION etc RENAME nedit.cf)
+install(FILES tools/kaliveda.m4 DESTINATION etc)
