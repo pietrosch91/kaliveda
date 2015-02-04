@@ -154,15 +154,9 @@ if [ "$KV_LDPATH_BACKUP" == "0" ]; then
 else
 	   export LD_LIBRARY_PATH=${KVROOT}/lib:${KV_LDPATH_BACKUP}
 fi
-if [ $ROOT_INCLUDE_PATH ]; then
-	   export ROOT_INCLUDE_PATH=${KVROOT}/include:${ROOT_INCLUDE_PATH}
-else
-	   export ROOT_INCLUDE_PATH=${KVROOT}/include
-fi
 #
 #                   print result
 #
 echo "KVROOT = $KVROOT"
 echo "PATH = $PATH"
 echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-echo "ROOT_INCLUDE_PATH = $ROOT_INCLUDE_PATH"

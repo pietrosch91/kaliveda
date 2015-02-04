@@ -148,16 +148,10 @@ if ( "$KV_LDPATH_BACKUP" == "0" ) then
 else
 	   setenv LD_LIBRARY_PATH ${KVROOT}/lib:${KV_LDPATH_BACKUP}
 endif
-if ( $?ROOT_INCLUDE_PATH ) then
-	   setenv ROOT_INCLUDE_PATH ${KVROOT}/include:${ROOT_INCLUDE_PATH}
-else
-	   setenv ROOT_INCLUDE_PATH ${KVROOT}/include
-endif
 #
 #                   print result
 #
 echo "KVROOT = $KVROOT"
 echo "PATH = $PATH"
 echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-echo "ROOT_INCLUDE_PATH = $ROOT_INCLUDE_PATH"
 exit
