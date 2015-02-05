@@ -149,7 +149,7 @@ class KVIDGraph : public TCutG
    KVIDentifier* Add(TString, TString);
    virtual void DrawAndAdd(const Char_t* type="ID", const Char_t* classname="KVIDentifier");
    void Print(Option_t * opt = "") const;
-   void TestIdentification(TH2F * data, TH1F * id_real,
+   virtual void TestIdentification(TH2F * data, TH1F * id_real,
                            TH2F * id_real_vs_e_res, TH2F* z_a_real=0);
 	
    static KVIDGraph *AddGraphs(KVIDGraph * g1, Int_t id1_min, Int_t id1_max,

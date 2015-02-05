@@ -783,17 +783,16 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
 
    // change ranges and titles of histograms 
    TString title;
-   title.Form("%s;Q_{real}",h1_q->GetTitle());
+   title = "Q_{real} distribution;Q_{real}";
    h1_q->SetTitle(title.Data());
    h1_q->SetBins( data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
 
-   title.Form("%s;Q_{int}#times(%s);Q_{real}",h2_q_qxaoq->GetTitle(),data->GetXaxis()->GetTitle());
+   title.Form("A vs. Q_{real};Q_{int}#times(%s);Q_{real}",data->GetXaxis()->GetTitle());
    h2_q_qxaoq->SetTitle(title.Data());
-   //h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
-   h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(AoQmin-1), Float_t(AoQmax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
+   h2_q_qxaoq->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
 
    if(qaMap){
-   	   title.Form("%s;A_{real};Q_{real}",h2_q_a->GetTitle());
+   	   title = "A vs. Q_{real};A_{real};Q_{real}";
    	   h2_q_a->SetTitle(title.Data());
  	   h2_q_a->SetBins( data->GetNbinsX(), Float_t(Amin-1), Float_t(Amax+1), data->GetNbinsY(), Float_t(Qmin-1), Float_t(Qmax+1) );
    }
@@ -826,25 +825,21 @@ void KVIDQAGrid::TestIdentification(TH2F * data, TH1F * h1_q,
                	 if(AcceptIDForTest()){
 				   	 Double_t realQ = 0.;
 				   	 Double_t realA = 0.;
-				 	 //Double_t pid   = 0.;
 
 				   	 if( idr->Aident ){
 					   	 realQ = fRealQ;
-					 realA = idr->PID;
-					//	 pid   = idr->Z + c0*(realA-c1*idr->Z);
+					 	 realA = idr->PID;
 				   	 }
 				   	 else if( idr->Zident ) realQ = idr->PID;
                  	 h1_q->Fill(realQ, weight);
-                 	 //h2_q_qxaoq->Fill(x*idr->Z, realQ, weight);
-                 	 h2_q_qxaoq->Fill(x, realQ, weight);
+                 	 h2_q_qxaoq->Fill(x*idr->Z, realQ, weight);
                  	 if(qaMap) h2_q_a->Fill(realA, realQ, weight);
-                 	 //if(qaMap) h2_q_a->Fill(idr->Z*x, realQ, weight);
              	 }
 		 	 }
       	 }
          events_read += (Int_t) poids;
          percent = (1. * events_read / tot_events) * 100.;
-         Increment((Float_t) events_read);      //sends signal to GUI progress bar
+         if( events_read % (tot_events/10) == 0 ) Increment((Float_t) events_read);//sends signal to GUI progress bar
          if (percent >= cumul) {
             //cout << (Int_t) percent << "\% processed" << endl;
             cumul += 10;
