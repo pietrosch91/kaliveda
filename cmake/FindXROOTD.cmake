@@ -12,7 +12,7 @@
 #  XROOTD_NOOLDCLNT - No old client available: use built-in version
 #
 
-if(XROOTD_XrdClient_LIBRARY AND XROOTD_INCLUDE_DIR)
+if(XROOTD_XrdPosix_LIBRARY AND XROOTD_INCLUDE_DIR)
   set(XROOTD_FIND_QUIETLY TRUE)
 endif()
 
@@ -69,78 +69,42 @@ if(XROOTD_FOUND)
   # Search for the required libraries; this depends on packaging ...
 
   if(XROOTD_OLDPACK)
-    foreach(l XrdNet XrdOuc XrdSys XrdClient Xrd)
+    foreach(l XrdPosixPreload XrdPosix)
       find_library(XROOTD_${l}_LIBRARY
          NAMES ${l}
          HINTS ${searchpath}
          PATH_SUFFIXES lib)
-      list(APPEND XROOTD_LIBRARIES ${XROOTD_${l}_LIBRARY})
+      if(XROOTD_${l}_LIBRARY)
+		  list(APPEND XROOTD_LIBRARIES ${XROOTD_${l}_LIBRARY})
+		endif()
     endforeach()
-
-    if(${xrdversnum} GREATER 20100729)
-      find_library(XROOTD_XrdNetUtil_LIBRARY
-        NAMES XrdNetUtil
-        HINTS ${searchpath}
-        PATH_SUFFIXES lib)
-      list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdNetUtil_LIBRARY})
-    endif ()
   else()
 
-    # libXrdMain (dropped in versions >= 4)
-    find_library(XROOTD_XrdMain_LIBRARY
-       NAMES XrdMain
-       HINTS ${searchpath}
-       PATH_SUFFIXES lib)
-    if (XROOTD_XrdMain_LIBRARY)
-       list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdMain_LIBRARY})
-    else ()
-       set(XROOTD_NOMAIN TRUE)
-       if(NOT XROOTD_FIND_QUIETLY)
-          message(STATUS "             libXrdMain not found: xproofd will be a wrapper around xrootd")
-       endif ()
-    endif ()
 
-    # libXrdUtils
-    find_library(XROOTD_XrdUtils_LIBRARY
-       NAMES XrdUtils
-       HINTS ${searchpath}
-       PATH_SUFFIXES lib)
-    if (XROOTD_XrdUtils_LIBRARY)
-       list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdUtils_LIBRARY})
-    endif ()
-
-    # libXrdClient (old client; will be dropped at some point)
-    find_library(XROOTD_XrdClient_LIBRARY
-       NAMES XrdClient
-       HINTS ${searchpath}
-       PATH_SUFFIXES lib)
-    if (XROOTD_XrdClient_LIBRARY)
-       list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdClient_LIBRARY})
-    else ()
-       set(XROOTD_NOOLDCLNT TRUE)
-       if(NOT XROOTD_FIND_QUIETLY)
-          message(STATUS "             libXrdClient not found: use built-in")
-       endif ()
-    endif ()
-
-    # libXrdCl
-    if(${xrdversnum} GREATER 300030000)
-       find_library(XROOTD_XrdCl_LIBRARY
-          NAMES XrdCl
-          HINTS ${searchpath}
-          PATH_SUFFIXES lib)
-       if (XROOTD_XrdCl_LIBRARY)
-          list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdCl_LIBRARY})
-       endif ()
-    endif ()
+    foreach(l XrdPosixPreload XrdPosix)
+      find_library(XROOTD_${l}_LIBRARY
+         NAMES ${l}
+         HINTS ${searchpath}
+         PATH_SUFFIXES lib)
+      if (XROOTD_${l}_LIBRARY)
+         list(APPEND XROOTD_LIBRARIES ${XROOTD_${l}_LIBRARY})
+         if(NOT XROOTD_FIND_QUIETLY)
+           message(STATUS "             lib${l} found")
+         endif()
+      else ()
+         if(NOT XROOTD_FIND_QUIETLY)
+           message(STATUS "             lib${l} not found")
+         endif()
+		endif()
+    endforeach()
 
   endif()
 
   if(XROOTD_LIBRARIES)
     set(XROOTD_FOUND TRUE)
     if(NOT XROOTD_FIND_QUIETLY )
-      message(STATUS "             include_dirs: ${XROOTD_INCLUDE_DIRS}")
-      message(STATUS "             libraries: ${XROOTD_LIBRARIES}")
+      message(STATUS "             XROOTD_INCLUDE_DIR: ${XROOTD_INCLUDE_DIR}")
+      message(STATUS "             XROOTD_LIBRARIES: ${XROOTD_LIBRARIES}")
     endif()
   else ()
     set(XROOTD_FOUND FALSE)
@@ -148,13 +112,7 @@ if(XROOTD_FOUND)
 endif()
 
 mark_as_advanced(XROOTD_INCLUDE_DIR
-                 XROOTD_XrdMain_LIBRARY
-                 XROOTD_XrdUtils_LIBRARY
-                 XROOTD_XrdClient_LIBRARY
-                 XROOTD_XrdCl_LIBRARY
-                 XROOTD_XrdNetUtil_LIBRARY
-                 XROOTD_XrdNet_LIBRARY
-                 XROOTD_XrdSys_LIBRARY
-                 XROOTD_XrdOuc_LIBRARY
-                 XROOTD_Xrd_LIBRARY )
+                 XROOTD_XrdPosix_LIBRARY
+                 XROOTD_XrdPosixPreload_LIBRARY
+					  )
 

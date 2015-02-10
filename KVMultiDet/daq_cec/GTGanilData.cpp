@@ -14,6 +14,7 @@
  ***************************************************************************/
 
 #include "Riostream.h"
+#include "KVConfig.h"
 #ifdef CCIN2P3_XRD
 #include "TSystem.h"
 #endif

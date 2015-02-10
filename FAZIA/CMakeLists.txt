@@ -1,6 +1,6 @@
 #---list of datasets
-set(datasets FAZIASYM LNS_2014 INDRAFAZIA)
-set(ignored GANIL_2010 LNL_2007 LNS_2009 LNS_2011 LNS_2012)
+set(datasets LNS_2014 INDRAFAZIA)
+set(ignored FAZIASYM GANIL_2010 LNL_2007 LNS_2009 LNS_2011 LNS_2012)
 
 #---set paths to find all KVMultiDet headers
 KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES ${KVMultiDet_MOD_LIST})

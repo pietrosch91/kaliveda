@@ -55,6 +55,14 @@ option(USE_BUILTIN_GRU
 add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
+	if(DEFINED ENV{SITE})
+   	if($ENV{SITE} STREQUAL "CCIN2P3")	#-at IN2P3 Computing Centre, build with support for xrootd
+			find_package(XROOTD)
+			if(XROOTD_FOUND)
+				set(CCIN2P3_XRD yes)
+			endif()
+		endif()
+	endif()
 	add_subdirectory(GanTape)
 	include_directories(${BUILTIN_GRU_INC_DIR})
 endif()
@@ -181,7 +189,7 @@ add_subdirectory(execs)
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
 #-at IN2P3 Computing Centre, we need to tack on some infos for access
 #-to the batch system & data repositories
-if($ENV{SITE})
+if(DEFINED ENV{SITE})
    if($ENV{SITE} STREQUAL "CCIN2P3")
 	   if($ENV{GROUP} STREQUAL "indra")
 		   list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)

@@ -50,9 +50,6 @@ FAZIASYM.ThetaMinCompactGeo: 2.0
 +Plugin.KVIDTelescope:    ^Si$                 KVFAZIAIDSi1PSA            FAZIAidentification           "KVFAZIAIDSi1PSA()"
 +Plugin.KVIDTelescope:    ^CsI$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
 
-+DataRepository: fazia_sps
-fazia_sps.DataRepository.RootDir: /sps/hep/fazia/data
-
 LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
 +Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
