@@ -1601,11 +1601,17 @@ kvenv->SetValue("KVBase::GetKVRootDir()",KVBase::GetKVRootDir(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVBinDir()",KVBase::GetKVBinDir(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVFilesDir()",KVBase::GetKVFilesDir(),kEnvUser);
 
+#ifdef WITH_BZR_INFOS
 kvenv->SetValue("KVBase::bzrRevisionId()",KVBase::bzrRevisionId(),kEnvUser);
 kvenv->SetValue("KVBase::bzrRevisionDate()",KVBase::bzrRevisionDate(),kEnvUser);
 kvenv->SetValue("KVBase::bzrBranchNick()",KVBase::bzrBranchNick(),kEnvUser);
 kvenv->SetValue("KVBase::bzrRevisionNumber()",KVBase::bzrRevisionNumber());
 kvenv->SetValue("KVBase::bzrIsBranchClean()",KVBase::bzrIsBranchClean());
+#endif
+#ifdef WITH_GIT_INFOS
+kvenv->SetValue("KVBase::gitBranch()",KVBase::gitBranch(),kEnvUser);
+kvenv->SetValue("KVBase::gitCommit()",KVBase::gitCommit(),kEnvUser);
+#endif
 
 kvenv->SetValue("gROOT->GetVersion()",gROOT->GetVersion(),kEnvUser);
 

@@ -21,7 +21,7 @@ macro( create_bazaar_version_control_header )
 				DEPENDS ${BZR_LAST_REVISION}
 				WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 			)
-			add_custom_target(bzrinfos DEPENDS ${CMAKE_BINARY_DIR}/KVBzrInfo.h)
+			add_custom_target(vcsinfos DEPENDS ${CMAKE_BINARY_DIR}/KVBzrInfo.h)
 			 
 		else(EXISTS ${CMAKE_SOURCE_DIR}/.bzr)
 			

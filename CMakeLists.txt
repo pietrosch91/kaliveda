@@ -34,7 +34,14 @@ include(KaliVedaMacros)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
+#---Version control informations
+set(WITH_GIT_INFOS)
+set(WITH_BZR_INFOS)
+if(EXISTS ${PROJECT_SOURCE_DIR}/.git OR EXISTS ${PROJECT_SOURCE_DIR}/KVGitInfo.h)
+   set(WITH_GIT_INFOS yes)
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/.bzr OR EXISTS ${PROJECT_SOURCE_DIR}/KVBzrInfo.h)
+   set(WITH_BZR_INFOS yes)
+endif()
 #----------------------------------------------------------
 #----------------------BUILD OPTIONS-----------------------
 #----------------------------------------------------------
@@ -167,14 +174,16 @@ add_subdirectory(execs)
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
 #-at IN2P3 Computing Centre, we need to tack on some infos for access
 #-to the batch system & data repositories
-if($ENV{SITE} STREQUAL "CCIN2P3")
-	if($ENV{GROUP} STREQUAL "indra")
-		list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
-		install(FILES etc/ccali.rootrc DESTINATION etc)
-	elseif($ENV{GROUP} STREQUAL "fazia")
-		list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
-		install(FILES etc/ccali-fazia.rootrc DESTINATION etc)
-	endif()
+if($ENV{SITE})
+   if($ENV{SITE} STREQUAL "CCIN2P3")
+	   if($ENV{GROUP} STREQUAL "indra")
+		   list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
+		   install(FILES etc/ccali.rootrc DESTINATION etc)
+	   elseif($ENV{GROUP} STREQUAL "fazia")
+		   list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
+		   install(FILES etc/ccali-fazia.rootrc DESTINATION etc)
+	   endif()
+   endif()
 endif()
 configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION etc)

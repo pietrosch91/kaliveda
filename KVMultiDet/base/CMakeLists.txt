@@ -4,9 +4,9 @@ BUILD_KALIVEDA_MODULE(base
 	EXTRA_LIBS ${GRU_LIB}
 )
 
-#--- generation of KVBzrInfo.h
-include(CreateBazaarVersionControlHeader)
-create_bazaar_version_control_header()
+#--- generation of KVBzrInfo.h or KVGitInfo.h
+include(CreateVersionControlHeader)
+create_version_control_header()
 
-#--- declare dependency of library (in fact, KVBase.o) on KVBzrInfo.h
-add_dependencies(KVMultiDetbase bzrinfos)
+#--- declare dependency of library (in fact, KVBase.o) on KV***Info.h
+add_dependencies(KVMultiDetbase vcsinfos)

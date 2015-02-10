@@ -2,6 +2,7 @@
 //Author: bonnet
 
 #include "KVAutoFit.h"
+#include "KVConfig.h"
 #include "Riostream.h"
 #include "TStyle.h"
 #include "TSystem.h"
@@ -456,7 +457,12 @@ TF1* f1;
 ofstream fout(Form("%s",hfit->GetName()));
 TIter it(lfunc);
 fout<<"// Sauvegarde des fonctions générée par le classe="<<GetName() <<endl;
+#ifdef WITH_BZR_INFOS
 fout<<"// Revision bzr de KV rev="<<KVBase::bzrRevisionNumber() << endl;
+#endif
+#ifdef WITH_GIT_INFOS
+fout<<"// From "<<KVBase::gitBranch()<<"@"<<KVBase::gitCommit() << endl;
+#endif
 fout<< lfunc->GetEntries() << endl;
 while ( (f1 = (TF1* )it.Next()) ){
 	fout<< f1->GetName() << endl;

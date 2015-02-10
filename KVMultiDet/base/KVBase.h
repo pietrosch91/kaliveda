@@ -11,6 +11,7 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #ifndef KVBASE_H
 #define KVBASE_H
 
+#include "KVConfig.h"
 #include "TRandom3.h"
 #include "TNamed.h"
 #include "RVersion.h"
@@ -116,11 +117,17 @@ class KVBase:public TNamed {
    static const Char_t *GetKVBinDir(void);
    static const Char_t *GetKVFilesDir(void);
    static const Char_t *GetKVEtcDir(void);
+#ifdef WITH_BZR_INFOS
    static const Char_t *bzrRevisionId();
    static const Char_t *bzrRevisionDate();
    static const Char_t *bzrBranchNick();
    static Int_t bzrIsBranchClean();
    static Int_t bzrRevisionNumber();
+#endif
+#ifdef WITH_GIT_INFOS
+   static const Char_t *gitBranch();
+   static const Char_t *gitCommit();
+#endif
 
    static Bool_t FindExecutable(TString & exec, const Char_t * path =
                                 "$(PATH)");

@@ -27,9 +27,13 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TPluginManager.h"
 #include "KVNameValueList.h"
 #include "TSystemDirectory.h"
-#include "KVConfig.h"
 #include "KVVersion.h"
+#ifdef WITH_BZR_INFOS
 #include "KVBzrInfo.h"
+#endif
+#ifdef WITH_GIT_INFOS
+#include "KVGitInfo.h"
+#endif
 #include "TROOT.h"
 #include "TDatime.h"
 #include "THashList.h"
@@ -201,8 +205,13 @@ void KVBase::InitEnvironment()
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
 				GetKVVersion(), GetKVBuildDate());
+#ifdef WITH_BZR_INFOS
       ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
       	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
+#endif
+#ifdef WITH_GIT_INFOS
+      ::Info("KVBase::InitEnvironment", "(git : %s@%s)",gitBranch(),gitCommit());
+#endif
       KVRootDir = KV_ROOT;
       TString tmp;
       AssignAndDelete(tmp,
@@ -689,7 +698,24 @@ const Char_t *KVBase::GetKVSourceDir()
 }
 
 //__________________________________________________________________________________________________________________
+#ifdef WITH_GIT_INFOS
+const Char_t *KVBase::gitBranch()
+{
+   // Returns git branch of sources 
+   static TString tmp(KV_GIT_BRANCH);
+   return tmp.Data();
+}
 
+//__________________________________________________________________________________________________________________
+const Char_t *KVBase::gitCommit()
+{
+   // Returns last git commit of sources 
+   static TString tmp(KV_GIT_COMMIT);
+   return tmp.Data();
+}
+#endif
+//__________________________________________________________________________________________________________________
+#ifdef WITH_BZR_INFOS
 const Char_t *KVBase::bzrRevisionId()
 {
    // Returns Bazaar branch revision-id of sources 
@@ -732,7 +758,7 @@ Int_t KVBase::bzrRevisionNumber()
 	// Returns Bazaar branch revision number of sources 
   	return BZR_REVISION_NUMBER;
 }
-
+#endif
 //__________________________________________________________________________________________________________________
 
 Bool_t KVBase::FindExecutable(TString & exec, const Char_t * path)
