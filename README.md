@@ -19,3 +19,7 @@ Make sure path to installed libraries is in LD_LIBRARY_PATH, then all classes wi
 
     $ g++ `root-config --cflags` -I`kaliveda-config --incdir` -c MyCode.cxx
     $ g++ `root-config --ldflags` MyCode.o -L`kaliveda-config --libdir` `kaliveda-config --libs` `root-config --glibs`
+
+## More information
+
+See the website http://indra.in2p3.fr/KaliVedaDoc
