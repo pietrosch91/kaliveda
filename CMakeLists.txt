@@ -119,6 +119,13 @@ option(USE_FAZIA "Build libraries for analysis of FAZIA data" OFF)
 if(USE_FAZIA)
 	set(USE_INDRA ON)
 endif()
+
+#--- Enable build of all libraries
+if(USE_ALL)
+	set(USE_INDRA ON)
+	set(USE_INDRAVAMOS ON)
+	set(USE_FAZIA ON)
+endif()
 add_feature_info(indra USE_INDRA "Build libraries for analysis of INDRA data")
 add_feature_info(indravamos USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data")
 add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
