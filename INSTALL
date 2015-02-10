@@ -1,111 +1,65 @@
-How to build and install KaliVeda
-=================================
+# How to build and install the KaliVeda toolkit
 
-0. Prerequisites
-----------------
-It is assumed that you have a correctly installed and fully functioning version of ROOT (http://root.cern.ch).
-Most notably, we assume that the ROOTSYS environment variable is positioned and contains the path to
-the top-level directory of your ROOT installation, and that the $ROOTSYS/lib and $ROOTSYS/bin directories
-are included in the system search paths for shared libraries and executables, respectively.
-See below (2.1) if ROOT is installed but ROOTSYS is not defined on your system.
+## 0. Prerequisites
+### ROOT
+At least version 5.32, works with version 6 from 6.02 onwards.
+### CMake
+At least version 2.8 of cmake is required.
 
-0.1 Prerequisites for bazaar branch builds
-------------------------------------------
-If you obtain the sources as a bazaar branch from https://launchpad.net/kaliveda, you must have all GNU build tools installed:
-automake, autoconf, autoreconf, libtool, etc. etc.
+## 1. Build & Install
 
-1. Setting the installation location (KVROOT)
----------------------------------------------
-The environment variable KVROOT must be defined by the user.
-It must contain the full path to the directory in which you wish to install KaliVeda.
-This directory must exist before installation begins.
-* We strongly recommend that you keep source and installation directories SEPARATE,
-in other words: DON'T MAKE KVROOT POINT INSIDE THE SOURCE TREE! *
-KVROOT is needed both during installation, and every time that KaliVeda libraries etc. are used.
-Therfore it is best to define this variable in a script which is automatically executed at login
-(.bash_profile, .cshrc, etc. etc.)
+In the following, S is the path (full or relative) to the source directory, B is the out-of-source build directory, and I is the full path to the directory where the toolkit will be installed after building.
 
-You must also add the following directories to the system-dependent search paths for executables
-and shared libraries (the exact procedure will depend on your operating system):
+Create the build directory and run cmake to configure the build. The simplest build (only basic libraries - see below for build options) looks like:
 
-	add the directory "$KVROOT/bin" to "PATH" (or equivalent executable search path)
-	add the directory "$KVROOT/lib" to "LD_LIBRARY_PATH" (or equivalent shared library search path)
+    $ mkdir B
+    $ cd B
+    $ cmake S -DCMAKE_INSTALL_PREFIX=I
 
-e.g. on a Linux C-shell system:
+Then to build and install the toolkit:
 
-	setenv LD_LIBRARY_PATH ${KVROOT}/lib:${LD_LIBRARY_PATH}
-	setenv PATH ${KVROOT}/bin:${PATH}
-
-*** N.B. Definition and handling of KVROOT, PATH, LD_LIBRARY_PATH can be done using the
-    included SetKaliVedaVersion script. See 	http://indra.in2p3.fr/KaliVedaDoc/appli.html#SetKaliVedaVersion_version_name_path.
+    $ make [-jN]
+    $ make install
     
-2. Building and installing
---------------------------
-If you obtained the source tree in the form of a compressed archive (tarball or ".tgz"), you must
-first of all type the following command in the top-level directory:
+(if you have a N-processor machine, you can do 'make -jN' in order to speed up the build with a parallel make). In order to use the toolkit, it may be necessary to add I/bin to your PATH variable, and I/lib to your LD_LIBRARY_PATH variable, if executables and libraries in these two locations are not already automatically found on your system.
 
-	make unpack
+### 1.1 Build options
 
-In order to compile all sources, and install all libraries and executables, type the following command in
-the top-level directory of the source tree:
+By default, only the base classes of the toolkit are built. For experiment-specific libraries, give the following options to cmake:
 
-	make
-	
-2.1 If ROOTSYS is not defined OR if ROOT is installed in e.g. /usr/local/bin
-----------------------------------------------------------------------------
-If your installation of ROOT is NOT in a single directory (maybe ROOTSYS is not defined), then you need to
-give the path to the ROOT makefile called "Makefile.arch" in order to build KaliVeda.
-In most normal ROOT installations, this file is in $ROOTSYS/test (for ROOT upto v5.30) or in $ROOTSYS/etc (from v5.32 onwards).
-For example, if the ROOT executables are installed in /usr/local/bin, and the ROOT libraries in /usr/local/lib/root,
-then Makefile.arch may be in /usr/local/share/root/etc (the exact location depends on the version of ROOT.
-If this is not the right directory, you will have to search for it), in which case you should type:
+* INDRA: to build the libraries needed for analysis of INDRA data, do
 
-   make ROOT_MAKEFILE_PATH=/usr/local/share/root/etc
-   
-2.2 Debug build
----------------
-If you want to compile KaliVeda with the maximum of debugging information (to use with e.g. gdb), then type:
-
-   make debug=yes
-   
-3 Optional extras
-=================
-
-   3.1 Building GANIL acquisition library with Xrootd support
-   ----------------------------------------------------------
-   In order to read raw GANIL acquisition data over the network using Xrootd, type:
-   
-      make MAKE_GANTAPE_XRD=yes
-
-   For ROOT version 5.32 and later, xrootd is no longer installed as a ROOT package,
-   but as an external package. In this case, the XRDSYS variable must be defined
-   and contain the path to the xrootd installation. 
-
-   3.2 Use interface to Ricardo Yanez's 'Range' dE/dx and range library
-   --------------------------------------------------------------------
-   The default KVedaLoss range and energy loss classes are limited to a restricted
-   list of "known" materials. If you want to calculate energy losses etc. for
-   materials which are not included in KVedaLoss, you need to install Ricardo Yanez's
-   'Range' library, which is available here: http://www.calel.org/range.html
-   
-   To build the KaliVeda interface classes to 'Range', you need to give the path
-   to the installation directory:
-   
-      make WITH_RANGE_YANEZ=yes RANGE_YANEZ_DIR=$HOME
+    $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_INDRA=yes
       
-   In this example, the library is installed in the $HOME directory: in this case,
-   the files $HOME/include/range.h and $HOME/lib/librange.so must exist.
+* INDRA-VAMOS: to build the libraries needed for analysis of INDRA-VAMOS data, do
+
+    $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_INDRAVAMOS=yes
+
+* FAZIA: to build the libraries needed for analysis of FAZIA data, do
+
+    $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_FAZIA=yes
+
+Note that the last two options automatically enable building of the INDRA libraries which are needed by them. To enable building of all optional libraries, you can do:
+
+    $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_ALL=yes
+
+### 1.2 Optional extras
+
+####Use interface to Ricardo Yanez's 'Range' dE/dx and range library
+
+The default KVedaLoss range and energy loss classes are limited to a restricted
+list of "known" materials. If you want to calculate energy losses etc. for
+materials which are not included in KVedaLoss, you need to install Ricardo Yanez's
+'Range' library, which is available here: http://www.calel.org/range.html
    
-   3.3 Installing documentation
-   ----------------------------
-   If you want to install a local copy of the KaliVeda web site, including the full documentation of all classes,
-   type the following command in the top-level directory of the KaliVeda sources:
+To build the KaliVeda interface classes to 'Range', add the following option to the cmake command line:
+   
+    -DUSE_RANGE=yes
+      
+If the library is not found, you can give the the path to the installation (should contain both lib/ and include/ directories):
 
-	   make doc
+    -DUSE_RANGE=yes -DRANGE_DIR=[path to range lib & headers]
 
-   Open the file KVROOT/KaliVedaDoc/KaliVeda.html in a web browser.
-
-	
 4. Configuration
 ----------------
 Many aspects of the KaliVeda environment (such as the location of the data repository you use for data
