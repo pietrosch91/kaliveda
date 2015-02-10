@@ -10,6 +10,7 @@
 #include "RVersion.h"
 #include "KVFAZIADetector.h"
 #include "KVSignal.h"
+#include "KVPSAResult.h"
 
 ClassImp(KVFAZIARawDataReconstructor)
 
@@ -61,7 +62,7 @@ void KVFAZIARawDataReconstructor::InitRun()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
  
-	Info("InitRun", "");
+    Info("InitRun", "called...");
    if(!recev) recev = new KVReconstructedEvent;
    //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
   
@@ -132,7 +133,10 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    		TIter next_s(det->GetListOfSignals());
          while ( (sig = (KVSignal* )next_s()) )
    		{
-   			recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetAmplitude());
+              sig->Init();
+              KVNameValueList* psa = sig->TreateSignal();
+              if(psa) *(recnuc->GetParameters()) += *psa;
+            //recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetAmplitude());
       	}
       }   
    }
@@ -143,7 +147,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 void KVFAZIARawDataReconstructor::EndRun()
 {
-   Info("EndRun", "");
+   Info("EndRun", "called");
    SafeDelete(recev);
    
 	cout << endl << " *** Number of reconstructed FAZIA events : "
