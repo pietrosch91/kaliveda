@@ -59,6 +59,11 @@ class KVSignal : public TGraph
    Double_t GetYmin() const { return fYmin; }
    Double_t GetYmax() const { return fYmax; }
    
+   TArrayF* GetArray(){return &fAdc;}
+   Double_t GetChannelWidth(){return fChannelWidth;}
+   Int_t GetNSamples(){return fAdc.GetSize();}
+
+   void SetChannelWidth(double tau){fChannelWidth=tau;}
    void SetMaxT(double t){fAdc.Set((int)(t/fChannelWidth));}
    void SetNSamples(int nn){fAdc.Set(nn);}
    void Multiply(Double_t fact);
@@ -88,7 +93,7 @@ class KVSignal : public TGraph
    int FFT(bool p_bInverseTransform, double *p_lpRealOut, double *p_lpImagOut);
    TH1* FFT2Histo(int output, TH1* hh=0);  // 0 modulo, 1 modulo db (normalized), 2, re, 3 im
 
-   void ApplyModifications(TGraph* newSignal);
+   void ApplyModifications(TGraph* newSignal=0);
 
    ClassDef(KVSignal,2)//simple class to store TArray in a list
 };

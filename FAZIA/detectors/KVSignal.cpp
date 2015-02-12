@@ -481,19 +481,15 @@ TH1* KVSignal::FFT2Histo(int output, TH1 *hh)  // 0 modulo, 1 modulo db (normali
       switch(output){
       case 0: // modulo
     h->Fill(h->GetBinCenter(i+1),sqrt(re[i]*re[i]+im[i]*im[i]));
-//    h->SetBinContent(i+1,sqrt(re[i]*re[i]+im[i]*im[i]));
     break;
       case 1: // modulo db
     h->Fill(h->GetBinCenter(i+1),log(sqrt(re[i]*re[i]+im[i]*im[i]))*8.68588963806503500e+00); // numero=20./log(10.)
-//    h->SetBinContent(i+1,log(sqrt(re[i]*re[i]+im[i]*im[i]))*8.68588963806503500e+00); // numero=20./log(10.)
     break;
       case 2:
     h->Fill(h->GetBinCenter(i+1),re[i]);
-//    h->SetBinContent(i+1,re[i]);
     break;
       case 3:
     h->Fill(h->GetBinCenter(i+1),im[i]);
-//    h->SetBinContent(i+1,im[i]);
     break;
       default:
     printf("ERROR in %s: output=%d not valid!!\n", __PRETTY_FUNCTION__, output);
