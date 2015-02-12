@@ -15,6 +15,7 @@ class KVChargeSignal : public KVSignal
    protected: 
    TF1* fFunc1;
    TF1* fFunc2;
+   TGraph* bidim;
    
    public:
    TF1* GetFitFunction() {return fFunc1; }
@@ -25,6 +26,9 @@ class KVChargeSignal : public KVSignal
    void Copy(TObject& obj) const;
 	virtual KVPSAResult* TreateSignal(void);
    virtual KVPSAResult* TreateSignal(TF1* filter);
+   
+   Double_t GetMaxFluctuationsWindow(Double_t* window,Int_t width=10);
+   TGraph* GetCorre()const {return bidim; }
    
    ClassDef(KVChargeSignal,1)//digitized charge signal
 };

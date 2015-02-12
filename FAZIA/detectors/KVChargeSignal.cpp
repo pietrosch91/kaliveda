@@ -3,6 +3,8 @@
 
 #include "KVChargeSignal.h"
 #include "KVPSAResult.h"
+#include "TH1F.h"
+#include "TMath.h"
 
 ClassImp(KVChargeSignal)
 
@@ -19,6 +21,7 @@ KVChargeSignal::KVChargeSignal()
 {
    // Default constructor
    fFunc1=fFunc2=0;
+   bidim=0;
 }
 
 //________________________________________________________________
@@ -27,6 +30,7 @@ KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
 {
    // Write your code here
    fFunc1=fFunc2=0;
+   bidim=0;
 }
 
 //________________________________________________________________
@@ -232,4 +236,86 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
    
    return psa;
 
+}
+
+Double_t KVChargeSignal::GetMaxFluctuationsWindow(Double_t* window,Int_t width)
+{
+	if (!window) return 0; 
+	TH1F* h2 = new TH1F("windows","windows",(TMath::Nint(GetAmplitude())+1),GetYmin()-0.5,GetYmax()+0.5);
+	TGraph* gmoy = new TGraph();
+	TGraph* grms = new TGraph();
+   if (bidim) delete bidim; bidim = new TGraph();
+   Double_t xx,yy;         
+   Int_t nsamples = GetN()/width;
+	
+   printf("npoints=%d - nsamples=%d - width=%d\n",GetN(),nsamples,width);
+   
+   Double_t rms_max=0;
+	Int_t irms_max=-1;
+	for (Int_t ii=0;ii<nsamples;ii+=1)
+	{
+		h2->Reset();
+		Double_t xinf=0;
+      for (Int_t nn=0;nn<width;nn+=1){
+			GetPoint(width*ii+nn,xx,yy);
+			if (nn==0) xinf=xx;
+         h2->Fill(yy);
+		}
+		Double_t xmoy = xinf;
+      Double_t rms = h2->GetRMS();
+      Double_t mean = h2->GetMean();
+      printf("%d %lf %lf %lf\n",ii,xmoy,rms,mean);
+      gmoy->SetPoint(ii,xmoy,mean);
+		grms->SetPoint(ii,xmoy,rms);
+		bidim->SetPoint(ii,mean,rms);
+		if (rms>rms_max)
+		{
+			//endroit ou les fluctuations sont maximums
+			rms_max=h2->GetRMS();
+			irms_max = ii;
+		}
+	}
+	
+   Int_t ideb = irms_max;
+	Double_t ybefore = rms_max;
+	Double_t yafter=-1;
+	Int_t iparcours = ideb-1;
+            
+	grms->GetPoint(iparcours,xx,yafter);
+	while (yafter<ybefore){
+		ybefore=yafter;
+		iparcours-=1;
+		grms->GetPoint(iparcours,xx,yafter);
+	}
+	Double_t xgauche=0;
+	grms->GetPoint(iparcours+1,xgauche,yy);
+	//xgauche-=width/2.;
+	Double_t ybas=0;
+	gmoy->GetPoint(iparcours+1,xx,ybas);
+	        
+	ideb = irms_max;
+	ybefore = rms_max;
+	iparcours = ideb+1;
+            
+	grms->GetPoint(iparcours,xx,yafter);
+	while (yafter<ybefore){
+		ybefore=yafter;
+		iparcours+=1;
+		grms->GetPoint(iparcours,xx,yafter);
+	}
+	Double_t xdroite=0;
+	grms->GetPoint(iparcours-1,xdroite,yy);
+	//xdroite+=width/2.;
+   Double_t yhaut=0;
+	gmoy->GetPoint(iparcours-1,xx,yhaut);
+	
+	window[0] = xgauche;
+   window[1] = xdroite;
+	window[2] = ybas;
+   window[3] = yhaut;
+	
+   delete h2;
+   delete gmoy;
+   delete grms;
+	return rms_max;
 }
