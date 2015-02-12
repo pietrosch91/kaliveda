@@ -471,7 +471,7 @@ void KVIDGridEditor::AddGridOption(TString label, KVHashList* thelist)
 TString KVIDGridEditor::ListOfHistogramInMemory()
 {
 //  if(!gFile) return "";
-
+  Info("ListOfHistogramInMemory","Appel");
   TString HistosNames = "";
 
   TFile *f;
@@ -492,6 +492,33 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
           {
               HistosNames += Form(" %s", key->GetName());
           }
+      }
+  }
+  
+  TIter nextc(gROOT->GetListOfCanvases());
+  TCanvas* canv = 0;
+  while ((canv = (TCanvas*)nextc())) {
+      //printf("%s\n",canv->GetName());
+      if ( strcmp(canv->GetName(),"gIDGridEditorCanvas") ){
+      TIter next_step1(canv->GetListOfPrimitives());
+      TObject* obj1 = 0;
+      while((obj1=next_step1()))
+      {
+          //printf("%s\n",obj1->GetName());
+          if(obj1->InheritsFrom("TPad")){
+				TObject* obj2 = 0;
+            TIter next_step2(((TPad* )obj1)->GetListOfPrimitives());
+          	while((obj2=next_step2())){
+          		printf("%s\n",obj2->GetName());
+               if (obj2->InheritsFrom("TH2")){
+            		HistosNames += Form(" %s", ((TH2*)obj2)->GetName());
+            	}
+            }
+          }
+          else if (obj1->InheritsFrom("TH2")){
+          	HistosNames += Form(" %s", ((TH2*)obj1)->GetName());
+			 }
+      }
       }
   }
 
@@ -761,6 +788,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
         if((TheHistoChoice=(TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
         else if((TheHistoChoice=(TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
         else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
+        else if ( (TheHistoChoice = FindInCanvases(Answer.Data())) ) TheHisto = TheHistoChoice;
         else Answer = "Dummy";
         }
 
@@ -812,6 +840,26 @@ void KVIDGridEditor::SetHisto(TH2* hh)
     return;
 
   }
+
+//________________________________________________________________
+TH2* KVIDGridEditor::FindInCanvases(const Char_t* histoname)
+{
+
+	TIter nextc(gROOT->GetListOfCanvases());
+   TCanvas* cc = 0;
+   TObject* obj = 0;
+   while ( (cc = (TCanvas* )nextc()) )
+   {
+   	if ( strcmp(cc->GetName(),"gIDGridEditorCanvas") ){
+      	if ( (obj = cc->FindObject(histoname)) )
+      	{
+   			return (TH2* )obj;
+      	}
+   	}
+	}
+   return 0;
+
+}
 
 //________________________________________________________________
 void KVIDGridEditor::DrawAtt(Bool_t piv)
