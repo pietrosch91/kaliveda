@@ -5,6 +5,8 @@ project(KaliVeda)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 
+include(SetRPATHConf)
+
 #--look for ROOT & all essential libraries
 find_package(ROOT
 	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
