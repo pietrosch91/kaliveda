@@ -11,7 +11,7 @@ TSED2_HF: 0. -0.022823 -5.6213e-07 6.5741e-11 -4.1364e-15 1.3266e-19 -1.7054e-24
 
 
 # Time T0 (in ns) for TSED2_HF
-#calculated by GA 08/04/14
+# 40Ar+60Ni, calculated by GA 08/04/14
 TYPE: T0_HF
 FUNCTION:
  
