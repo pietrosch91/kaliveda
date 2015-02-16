@@ -47,57 +47,45 @@ SED2: 468.56
 RUNS: 282-334
 SED2: 403.3
 
-# 36Ar+58,60Ni, calculated by GA 05/06/14
-RUNS: 337-382
-SED2: 394.864
-
-RUNS: 383-391
-SED2: 394.61
-
+# 36Ar+58Ni, calculated by GA 30/01/15 by adjusting A/Q=3 line
+# target 0.3 mg/cm2, theta_vamos= 0 deg
+RUNS: 337-391
+SED2: 403.
 RUNS: 392-411
-SED2: 396.307
-
-RUNS: 412-435
-SED2: 396.321
-
-RUNS: 436-438
-SED2: 394.707
-
-RUNS: 439-442
-SED2: 395.484
-
-RUNS: 443-450
-SED2: 394.75
-
-RUNS: 451-468
-SED2: 395.837
-
-RUNS: 469-471
-SED2: 396.71
-
-RUNS: 472-474
-SED2: 395.013
-
-RUNS: 475-478
-SED2: 396.881
-
+SED2: 400.
+# target 2.5 mg/cm2, theta_vamos= 0 deg
+RUNS: 436-442
+SED2: 394.7
+# target 0.3 mg/cm2, theta_vamos= 4 deg
 RUNS: 479-481
-SED2: 396.621
-
+SED2: 403.
 RUNS: 482-485
-SED2: 396.766
-
-RUNS: 486-505
-SED2: 394.572
-
-RUNS: 506-515
-SED2: 392.645
-
-RUNS: 516-526
-SED2: 393.631
-
+SED2: 402.
+RUNS: 486-490
+SED2: 403.
+# target 0.3 mg/cm2, theta_vamos= 8 deg
+RUNS: 491-496
+SED2: 398.5
+# target 0.3 mg/cm2, theta_vamos= 4 deg
+RUNS: 516-518
+SED2: 399.
+# target 0.3 mg/cm2, theta_vamos= 0 deg
 RUNS: 527-532
-SED2: 392.502
+SED2: 398.5
+
+# 36Ar+60Ni, calculated by GA 05/06/14
+# target 0.33 mg/cm2, theta_vamos= 0 deg
+RUNS: 412-468
+SED2: 396.321
+# target 0.33 mg/cm2, theta_vamos= 4 deg
+RUNS: 469-478
+SED2: 396.7
+# target 0.33 mg/cm2, theta_vamos= 8 deg
+RUNS: 497-505
+SED2: 394.572
+# target 0.33 mg/cm2, theta_vamos= 4 deg
+RUNS: 506-509
+SED2: 392.645
 
 
 # Xf-correction of T0 (in ns) for TSED2_HF
