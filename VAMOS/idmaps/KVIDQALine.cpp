@@ -134,8 +134,9 @@ void KVIDQALine::IdentA( Double_t x, Double_t y, Int_t &A, Double_t &realA, Int_
 
 	if ( !closest_mk ){
         //no marker corresponding to point was found
-        //Info("IdentA","ID marker not found");
+        //we assume that realA = Q * A/Q and set kICODE0
 		realA = x*GetQ();
+		code = KVIDQAGrid::kICODE0;
     }
 	else{
     	//the closest marker is found
