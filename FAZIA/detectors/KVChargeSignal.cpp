@@ -3,8 +3,8 @@
 
 #include "KVChargeSignal.h"
 #include "KVPSAResult.h"
-#include "TH1F.h"
 #include "TMath.h"
+#include "TH1F.h"
 
 ClassImp(KVChargeSignal)
 
@@ -29,8 +29,22 @@ KVChargeSignal::KVChargeSignal()
 KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
 {
    // Write your code here
-   fFunc1=fFunc2=0;
-   bidim=0;
+    fFunc1=fFunc2=0;
+    bidim=0;
+    SetDefaultValues();
+}
+
+void KVChargeSignal::SetDefaultValues()
+{
+    if(fType.Contains("QL")) fChannelWidth = 4.;
+    else                      fChannelWidth = 10.;
+    fFirstBL = 0;
+    fLastBL  = 100;
+    if(fType.Contains("QL")) fTauRC = 250.;
+    else                      fTauRC = 4.;
+    fTrapRiseTime = 2.;
+    fTrapFlatTop  = 1.;
+    fGaussSigma   = 0.4;
 }
 
 //________________________________________________________________
@@ -56,10 +70,43 @@ void KVChargeSignal::Copy(TObject& obj) const
 }
 
 //________________________________________________________________
-KVPSAResult* KVChargeSignal::TreateSignal(void)
+KVPSAResult* KVChargeSignal::TreateSignal(Bool_t with_pole_zero_correction)
 {
 	//to be implemented in child class
    KVPSAResult* psa = new KVPSAResult(GetName());
+
+   Init();
+
+   ComputeBaseLine();
+   Add(-1.*fBaseLine);
+   ApplyModifications();
+
+   if(with_pole_zero_correction) PoleZeroSuppression(fTauRC);
+   FIR_ApplyTrapezoidal(fTrapRiseTime,fTrapFlatTop);
+
+   ComputeAmplitude();
+
+   Init();
+   ComputeRiseTime();
+
+   // storing result
+   psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
+   psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),fSigmaBase);
+   psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
+   psa->SetValue(Form("%s.%s.RiseTime",fDetName.Data(),fType.Data()),fRiseTime);
+
+   // storing parameters
+   psa->SetValue(Form("%s.%s.ShaperType",fDetName.Data(),fType.Data()),"trapezoidal");
+   psa->SetValue(Form("%s.%s.ShaperRiseTime",fDetName.Data(),fType.Data()),fTrapRiseTime);
+   psa->SetValue(Form("%s.%s.ShaperFlatTop",fDetName.Data(),fType.Data()),fTrapFlatTop);
+   psa->SetValue(Form("%s.%s.WithPoleZeroCorrection",fDetName.Data(),fType.Data()),with_pole_zero_correction);
+   psa->SetValue(Form("%s.%s.TauRC",fDetName.Data(),fType.Data()),fTauRC);
+   psa->SetValue(Form("%s.%s.BaseLineLength",fDetName.Data(),fType.Data()),fLastBL-fFirstBL);
+   psa->SetValue(Form("%s.%s.ChannelWidth",fDetName.Data(),fType.Data()),fChannelWidth);
+
+   return psa;
+
+
 	/*
    Int_t xmin_bl = 0;
 	Int_t xmax_bl = 200;
@@ -92,7 +139,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(void)
    	times+=1;
    }
    if (nres1!=0){
-   	Error("TreateSignal","%s : Fit #1 of the signal failed",GetName());
+    Error("TreateSignal","%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
    	return 0;
    }
 	for (Int_t nn=0;nn<fFunc1->GetNpar();nn+=1)
@@ -101,7 +148,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(void)
    
    Int_t nres2 = Int_t(Fit(fFunc2,"0WRQ"));
    if (nres2!=0){
-   	Warning("TreateSignal","%s : Fit #2 of the signal failed",GetName());
+    Warning("TreateSignal","%s : Fit #2 of the signal failed",fDetName.Data(),fType.Data());
    	psa->SetValue("BaseLine.Fit",fFunc1->GetParameter(0));
    	psa->SetValue("Amplitude.Fit",fFunc1->GetParameter(1));
    	psa->SetValue("Front0.Fit",fFunc1->GetParameter(2));
@@ -202,7 +249,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
       //printf("on recommence Fit #1 %d/10\n",times);
    }
    if (nres!=0){
-   	Error("TreateSignal","%s : Fit #1 of the signal failed",GetName());
+    Error("TreateSignal","%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
    	return 0;
    }
 	
@@ -224,7 +271,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
       printf("on recommence Fit #2 %d/10\n",times);
    }
    if (nres!=0){
-   	Error("TreateSignal","%s : Fit #2 of the signal failed",GetName());
+    Error("TreateSignal","%s : Fit #2 of the signal failed",fDetName.Data(),fType.Data());
    	return 0;
    }
    */

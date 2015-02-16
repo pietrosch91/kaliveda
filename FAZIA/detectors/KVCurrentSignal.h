@@ -5,6 +5,7 @@
 #define __KVCURRENTSIGNAL_H
 
 #include "KVSignal.h"
+#include "KVPSAResult.h"
 
 class KVCurrentSignal : public KVSignal
 {
@@ -15,6 +16,10 @@ class KVCurrentSignal : public KVSignal
    
    virtual ~KVCurrentSignal();
    void Copy(TObject& obj) const;
+
+   virtual void SetDefaultValues();
+
+   virtual KVPSAResult* TreateSignal(Bool_t with_pole_zero_correction=kTRUE);
 
    ClassDef(KVCurrentSignal,1)//digitized intensity signal
 };

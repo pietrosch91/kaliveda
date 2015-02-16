@@ -2,6 +2,7 @@
 //Author: ,,,
 
 #include "KVCurrentSignal.h"
+#include "TMath.h"
 
 ClassImp(KVCurrentSignal)
 
@@ -48,3 +49,35 @@ void KVCurrentSignal::Copy(TObject& obj) const
    //KVCurrentSignal& CastedObj = (KVCurrentSignal&)obj;
 }
 
+void KVCurrentSignal::SetDefaultValues()
+{
+    fChannelWidth = 4.;
+    fFirstBL = 0;
+    fLastBL  = 30;
+    fTauRC = -1;
+    fTrapRiseTime = -1;
+    fTrapFlatTop  = -1;
+    fGaussSigma   = -1;
+}
+
+KVPSAResult *KVCurrentSignal::TreateSignal(Bool_t with_pole_zero_correction)
+{
+    //to be implemented in child class
+   KVPSAResult* psa = new KVPSAResult(GetName());
+
+   Init();
+
+   fBaseLine  = FindMedia(fFirstBL, fLastBL);
+   fSigmaBase = FindSigma2(fFirstBL, fLastBL);
+
+   Add(-1.*fBaseLine);
+   ComputeAmplitude();
+
+   // storing result
+   psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
+   psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),TMath::Sqrt(fSigmaBase));
+   psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
+
+   return psa;
+
+}
