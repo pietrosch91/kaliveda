@@ -1,0 +1,49 @@
+Source: kaliveda
+Section: science
+Priority: optional
+Maintainer: John Frankland <frankland@ganil.fr>
+Build-Depends: debhelper (>= 9), bzr, root-system (>= 5.34.0),
+ libroot-gui-dev (>= 5.34.0), libroot-io-dev (>= 5.34.0), libroot-net-dev (>= 5.34.0),
+ libroot-graf3d-g3d-dev (>= 5.34.0), libroot-tree-dev (>= 5.34.0), gfortran,
+ libroot-graf2d-postscript-dev (>= 5.34.0), libroot-math-physics-dev (>= 5.34.0),
+ libroot-proof-dev (>= 5.34.0), libroot-proof-proofplayer-dev (>= 5.34.0),
+ libroot-geom-dev (>= 5.34.0), libroot-hist-spectrum-dev (>= 5.34.0),
+ libroot-graf3d-gl-dev (>= 5.34.0)
+Standards-Version: 3.9.4
+Homepage: http://indra.in2p3.fr/KaliVedaDoc
+
+Package: libkaliveda
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (C++ library)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the shared libraries for all base classes.
+
+Package: libkaliveda-dev
+Section: libdevel
+Architecture: any
+Depends: libkaliveda (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the header files required for compiling
+ with the libraries contained in package libkaliveda.
+
+Package: kaliveda-tools
+Architecture: any
+Depends: libkaliveda-dev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the following tools:
+ .
+     kaliveda       - command-line tool to launch the ROOT interpreter
+                      using the KaliVeda toolkit
+     kaliveda-sim   - graphical interface for filtering and analysing
+                      simulated data with the KaliVeda toolkit
+     kvtreeanalyzer - graphical interface for analysis of TTree data
