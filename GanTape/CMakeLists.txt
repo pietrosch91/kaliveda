@@ -20,4 +20,4 @@ if(CCIN2P3_XRD)
 	target_link_libraries(gan_tape ${XROOTD_LIBRARIES})
 endif()
 
-install(TARGETS gan_tape LIBRARY DESTINATION lib)
+install(TARGETS gan_tape EXPORT KaliVedaExports LIBRARY DESTINATION lib)

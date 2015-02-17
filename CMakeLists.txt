@@ -5,6 +5,7 @@ project(KaliVeda)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 
+#--set RPATH on all libraries and executables
 include(SetRPATHConf)
 
 #--look for ROOT & all essential libraries
@@ -156,6 +157,7 @@ string(REGEX REPLACE "([0-9]+)[.][0-9]+[/][0-9]+" "\\1" KV_MAJOR_VERSION ${versi
 string(REGEX REPLACE "[0-9]+[.]([0-9]+)[/][0-9]+" "\\1" KV_MINOR_VERSION ${versionstr})
 string(REGEX REPLACE "[0-9]+[.][0-9]+[/]([0-9]+)" "\\1" KV_PATCH_VERSION ${versionstr})
 set(KV_VERSION "${KV_MAJOR_VERSION}.${KV_MINOR_VERSION}.${KV_PATCH_VERSION}")	
+set(KV_VERSION_STRING "${versionstr}")	
 set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
       VERSION ${KV_VERSION}
       SOVERSION ${KV_MAJOR_VERSION}
@@ -228,3 +230,6 @@ install(PROGRAMS tools/SetUpKaliVeda.sh tools/SetUpROOT.sh tools/WhichROOT
 #---install other stuff from tools/ directory in ${CMAKE_INSTALL_PREFIX}/etc
 install(FILES tools/.nedit DESTINATION etc RENAME nedit.cf)
 install(FILES tools/kaliveda.m4 DESTINATION etc)
+
+#---install exported targets file for use by other projects
+install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION lib/${CMAKE_PROJECT_NAME} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)

@@ -72,6 +72,7 @@ set(ROOT_DEFINITIONS ${ROOT_CXX_FLAGS})
 separate_arguments(ROOT_DEFINITIONS)
 set(ROOT_EXECUTABLE ${ROOT_root_CMD})
 
+#--set all ROOT flags corresponding to enabled features
 execute_process(
   COMMAND ${ROOT_CONFIG_EXECUTABLE} --features
   OUTPUT_VARIABLE _root_options
@@ -81,6 +82,8 @@ foreach(_opt ${_root_options})
   set(ROOT_${_opt}_FOUND TRUE)
   set(${_opt} TRUE)
 endforeach()
+#--unset 'soversion' if enabled - it will cause problems
+set(soversion FALSE)
 
 #---set ROOT module include path depending on major version
 if(${ROOT_VERSION} VERSION_LESS 6)

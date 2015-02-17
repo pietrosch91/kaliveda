@@ -6,7 +6,10 @@
 #define KV_ROOT "${KV_ROOT}"
 
 /* String with version information */
-#define KV_VERSION "${KV_VERSION}"
+#define KV_VERSION "${KV_VERSION_STRING}"
+#define KV_MAJOR_VERSION ${KV_MAJOR_VERSION}
+#define KV_MINOR_VERSION ${KV_MINOR_VERSION}
+#define KV_PATCH_VERSION ${KV_PATCH_VERSION}
 
 /* Date when project was built */
 #define KV_BUILD_DATE "${KV_BUILD_DATE}"

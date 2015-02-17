@@ -2,7 +2,7 @@ add_library(fitltg SHARED fede.c fit_ede.c fit_ede_f.f)
 
 include_directories(${PROJECT_BINARY_DIR})
 
-install(TARGETS fitltg LIBRARY DESTINATION lib)
+install(TARGETS fitltg EXPORT KaliVedaExports LIBRARY DESTINATION lib)
 
 #install(FILES fit_ede.h DESTINATION include COMPONENT headers)
 

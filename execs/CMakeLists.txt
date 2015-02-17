@@ -1,11 +1,3 @@
-#ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
-# before ROOT 5.32 xrootd libraries were in main ROOT installation
-#XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
-#else
-# since 5.32 xrootd is installed separately in $XRDSYS directory
-#XRDPOSIX = -L$(XRDSYS)/lib64 -lXrdPosixPreload
-#endif
-
 #---set paths to find all KVMultiDet headers
 KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES ${KVMultiDet_MOD_LIST})
 
@@ -46,7 +38,7 @@ foreach(t ${build_targets})
 endforeach()
 
 #---install built executables
-install(TARGETS ${build_targets} RUNTIME DESTINATION bin) 
+install(TARGETS ${build_targets} EXPORT ${CMAKE_PROJECT_NAME}Exports RUNTIME DESTINATION bin) 
 
 #---install shell scripts
 set(scripts KVA KaliVeda)
