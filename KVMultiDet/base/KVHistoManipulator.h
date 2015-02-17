@@ -120,6 +120,7 @@ class KVHistoManipulator
    Double_t * GetLimits(TProfile* G1);
    Double_t * GetLimits(TMultiGraph* mgr);
    Double_t * GetLimits(TSeqCollection* mgr);
+   void ApplyCurrentLimitsToAllCanvas(Bool_t AlsoLog=kFALSE);
    
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };

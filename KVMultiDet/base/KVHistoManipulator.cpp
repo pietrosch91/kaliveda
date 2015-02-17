@@ -1702,3 +1702,94 @@ Double_t * KVHistoManipulator::GetLimits(TSeqCollection* mgr)
    return limits;
 
 }
+
+//______________________________________________________________________________________________
+void KVHistoManipulator::ApplyCurrentLimitsToAllCanvas(Bool_t AlsoLog)
+{
+
+	//Getthe limits of the histogram in the current pad
+   //and apply them to the others histogram drawn on the others pads
+
+	if (!gPad) return;
+   TObject* obj = 0;
+   TVirtualPad* tmp = gPad;
+   TIter nextp(gPad->GetListOfPrimitives());
+   TH1* h1 = 0;
+   while ( (obj = nextp()) )
+	{
+   	if (obj->InheritsFrom("TH1")){
+      	h1 = (TH1F* )obj;
+      }
+   }
+	if (h1){
+   	Double_t x1=h1->GetXaxis()->GetFirst();
+   	Double_t x2=h1->GetXaxis()->GetLast();
+   	Double_t y1,y2;
+   	Double_t z1,z2;
+      
+      if (h1->GetDimension()==1){	//TH1 ou TProfile
+      	y1=h1->GetMinimum();
+      	y2=h1->GetMaximum();
+      }
+      else{
+      	y1=h1->GetYaxis()->GetFirst();
+         y2=h1->GetYaxis()->GetLast();
+      }
+      
+      if (h1->GetDimension()==2){	//TH2 ou TProfile2D
+      	z1=h1->GetMinimum();
+      	z2=h1->GetMaximum();
+      }
+      else{
+         z1=h1->GetZaxis()->GetFirst();
+         z2=h1->GetZaxis()->GetLast();
+      }
+      
+      printf("%lf %lf - %lf %lf - %lf %lf\n",x1,x2,y1,y2,z1,z2);
+   	
+      Int_t nc=1;
+		TCanvas* cc = gPad->GetCanvas();
+   	TVirtualPad* pad = 0;
+   	while ( (pad = cc->GetPad(nc)) )
+   	{
+   		if (tmp!=pad){
+         	pad->cd();
+         	if (AlsoLog)
+         	{
+         		gPad->SetLogx(tmp->GetLogx());
+         		gPad->SetLogy(tmp->GetLogy());
+         		gPad->SetLogz(tmp->GetLogz());
+         	}
+         	TIter nextq(gPad->GetListOfPrimitives());
+   			TH1* h1 = 0;
+   			while ( (obj = nextq()) )
+				{
+   				if (obj->InheritsFrom("TH1")){
+						h1 = (TH1F* )obj;
+						
+         	      h1->GetXaxis()->SetRange(x1,x2);
+						if (h1->GetDimension() == 1){
+         	      	h1->SetMinimum(y1); 
+         	         h1->SetMaximum(y2);
+         	      }
+         	      else{
+         	      	h1->GetYaxis()->SetRange(y1,y2);
+						}
+         	      if (h1->GetDimension() == 2){
+         	      	h1->SetMinimum(z1); 
+         	         h1->SetMaximum(z2);
+         	      }
+         	      else{
+         	      	h1->GetZaxis()->SetRange(y1,y2);
+						}
+         	   }
+				}
+				gPad->Update();
+         }
+         nc+=1;
+   	}
+      cc->Paint();
+      cc->Update();
+	}
+	gPad = tmp;
+}

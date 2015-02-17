@@ -753,6 +753,9 @@ Bool_t KVCanvas::HandleKey(Int_t , Int_t py)
 
 //    Info("HandleKey","key pressed : %d %d",px,py);
 
+    TObject *obj=0;
+    TIter next(GetListOfPrimitives());
+
     if(!fEnabledShortcuts) return kTRUE;
 
     if(fSelected->InheritsFrom("TFrame")) fSelected = FindHisto();
@@ -855,8 +858,24 @@ Bool_t KVCanvas::HandleKey(Int_t , Int_t py)
         break;
 
     case kKey_g:
-        if(GetGridx()&&GetGridy())SetGrid(0,0);
-        else SetGrid();
+        if(GetGridx()&&GetGridy())
+        {
+            SetGrid(0,0);
+            while ((obj = next())) {
+                if (obj->InheritsFrom(TPad::Class())) {
+                    ((TPad*)obj)->SetGrid(0,0);
+                }
+            }
+        }
+        else
+        {
+            SetGrid();
+            while ((obj = next())) {
+                if (obj->InheritsFrom(TPad::Class())) {
+                    ((TPad*)obj)->SetGrid();
+                }
+            }
+        }
         Modified();
         Update();
         break;

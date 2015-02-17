@@ -13,4 +13,5 @@
 #pragma link C++ class KVChargeSignal+;
 #pragma link C++ class KVCurrentSignal+;
 #pragma link C++ class KVPSAResult+;
+#pragma link C++ class KVDigitalFilter+;
 #endif
