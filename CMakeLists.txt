@@ -233,3 +233,18 @@ install(FILES tools/kaliveda.m4 DESTINATION etc)
 
 #---install exported targets file for use by other projects
 install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION lib/${CMAKE_PROJECT_NAME} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)
+
+#---generate config & version files for other projects using find_package()
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/KaliVedaConfig.cmake.in
+                                 ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake
+                                 INSTALL_DESTINATION ${libdir}/KaliVeda
+                                 PATH_VARS incdir libdir bindir
+                                 )
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersion.cmake
+                                    VERSION ${KV_VERSION}
+                                    COMPATIBILITY SameMajorVersion
+                                    )
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersion.cmake
+          ${CMAKE_SOURCE_DIR}/cmake/KaliVedaUseFile.cmake DESTINATION ${libdir}/KaliVeda
+           )
