@@ -1,0 +1,26 @@
+#
+#---Config file for KaliVeda framework to be used with find_package()
+#
+
+set(KALIVEDA_VERSION @KV_VERSION@)
+
+@PACKAGE_INIT@
+
+#---set some useful paths
+set_and_check(KALIVEDA_INCLUDE_DIR "@PACKAGE_incdir@")
+set_and_check(KALIVEDA_LIB_DIR "@PACKAGE_libdir@")
+set_and_check(KALIVEDA_BIN_DIR "@PACKAGE_bindir@")
+
+#---set list of all installed libraries using exported targets
+include(${KALIVEDA_LIB_DIR}/KaliVeda/KaliVeda-targets.cmake)
+set(KALIVEDA_LIBRARIES "@KALIVEDA_LIB_LIST@")
+
+#---set installed components
+set(KALIVEDA_INDRA_FOUND @USE_INDRA@)
+set(KALIVEDA_INDRAVAMOS_FOUND @USE_INDRAVAMOS@)
+set(KALIVEDA_FAZIA_FOUND @USE_FAZIA@)
+
+#---set path to 'use file'
+set(KALIVEDA_USE_FILE ${KALIVEDA_LIB_DIR}/KaliVeda/KaliVedaUseFile.cmake)
+
+check_required_components(KaliVeda)
