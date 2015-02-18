@@ -10,7 +10,6 @@
 /usr/share/kaliveda/data/rangeyanez_compounds.data
 /usr/share/kaliveda/etc/kaliveda.rootrc
 /usr/share/kaliveda/etc/config.files
-/usr/share/kaliveda/etc/installed-libs/kaliveda
 /usr/share/kaliveda/templates/KVVarGlobMeanTemplate.h
 /usr/share/kaliveda/templates/KVVarGlobTemplate.cpp
 /usr/share/kaliveda/templates/KVVarGlob1Template.h

@@ -33,7 +33,7 @@ Description: KaliVeda data analysis framework (development files)
  This package contains the header files required for compiling
  with the libraries contained in package libkaliveda.
 
-Package: kaliveda-tools
+Package: kaliveda
 Architecture: any
 Depends: libkaliveda-dev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
 Description: KaliVeda data analysis framework
