@@ -140,6 +140,10 @@ utilities for handling them are defined. They are static methods<br>
 
 #define xstr(s) str(s)
 #define str(s) #s
+UInt_t KVBase::fNbObj = 0;
+TString KVBase::fWorkingDirectory = "$(HOME)/.kaliveda";
+Bool_t KVBase::fEnvIsInit = kFALSE;
+
 const Char_t* KVBase::GetETCDIRFilePath(const Char_t* namefile)
 {
    if(strcmp(namefile,"")) return Form("%s/%s", xstr(ETCDIR), namefile);
@@ -169,12 +173,6 @@ const Char_t* KVBase::GetBINDIRFilePath(const Char_t* namefile)
    if(strcmp(namefile,"")) return Form("%s/%s", xstr(BINDIR), namefile);
    return Form("%s", xstr(BINDIR));
 }
-
-UInt_t KVBase::fNbObj = 0;
-#ifdef WITH_GNU_INSTALL
-TString KVBase::fWorkingDirectory = "$(HOME)/.kaliveda";
-#endif
-Bool_t KVBase::fEnvIsInit = kFALSE;
 
 //_______________
 void KVBase::init()
