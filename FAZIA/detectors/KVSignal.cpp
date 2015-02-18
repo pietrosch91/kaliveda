@@ -32,7 +32,26 @@ KVSignal::KVSignal(const char* name, const char* title) : TGraph()
 {
     // Write your code here
     fYmin = fYmax = 0;
+    fAmplitude=0;
+    fRiseTime=0;
+    fIMax=0;
+    fTMax=0;
+    fBaseLine=0;
+    fSigmaBase=0;
+
+    fChannelWidth=-1;
+    fFirstBL=-1;
+    fLastBL=-1;
+    fTauRC=-1;
+    fTrapRiseTime=-1;
+    fTrapFlatTop=-1;
+    fGaussSigma=-1;
+    fWithPoleZeroCorrection=kFALSE;
+
     SetNameTitle(name,title);
+    DeduceFromName();
+    SetDefaultValues();
+
 }
 
 //________________________________________________________________
@@ -41,7 +60,25 @@ KVSignal::KVSignal(const TString& name, const TString& title) : TGraph()
 {
     // Write your code here
     fYmin = fYmax = 0;
+    fAmplitude=0;
+    fRiseTime=0;
+    fIMax=0;
+    fTMax=0;
+    fBaseLine=0;
+    fSigmaBase=0;
+
+    fChannelWidth=-1;
+    fFirstBL=-1;
+    fLastBL=-1;
+    fTauRC=-1;
+    fTrapRiseTime=-1;
+    fTrapFlatTop=-1;
+    fGaussSigma=-1;
+    fWithPoleZeroCorrection=kFALSE;
+
     SetNameTitle(name,title);
+    DeduceFromName();
+    SetDefaultValues();
 }
 
 KVSignal::~KVSignal()
@@ -128,10 +165,10 @@ void KVSignal::Print(Option_t* chopt) const
 }
 //________________________________________________________________
 
-KVPSAResult* KVSignal::TreateSignal(Bool_t with_pole_zero_correction)
+KVPSAResult* KVSignal::TreateSignal()
 {
     //to be implemented in child class
-    Info("TreateSignal","To be implemented in child classes %d",(int)with_pole_zero_correction);
+    Info("TreateSignal","To be implemented in child classes");
     return 0;
 }
 

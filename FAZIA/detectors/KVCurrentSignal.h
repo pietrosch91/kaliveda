@@ -19,7 +19,7 @@ class KVCurrentSignal : public KVSignal
 
    virtual void SetDefaultValues();
 
-   virtual KVPSAResult* TreateSignal(Bool_t with_pole_zero_correction=kTRUE);
+   virtual KVPSAResult* TreateSignal();
 
    ClassDef(KVCurrentSignal,1)//digitized intensity signal
 };

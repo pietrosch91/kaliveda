@@ -31,20 +31,17 @@ KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
    // Write your code here
     fFunc1=fFunc2=0;
     bidim=0;
-    SetDefaultValues();
 }
 
 void KVChargeSignal::SetDefaultValues()
 {
-    if(fType.Contains("QL")) fChannelWidth = 4.;
-    else                      fChannelWidth = 10.;
-    fFirstBL = 0;
-    fLastBL  = 100;
-    if(fType.Contains("QL")) fTauRC = 250.;
-    else                      fTauRC = 4.;
-    fTrapRiseTime = 2.;
-    fTrapFlatTop  = 1.;
-    fGaussSigma   = 0.4;
+    if(fType.Contains("QL")) SetChannelWidth(4.);
+    else                     SetChannelWidth(10.);
+    SetBaseLineLength(100);
+    if(fType.Contains("QL")) SetTauRC(250.);
+    else                     SetTauRC(40.);
+    SetTrapShaperParameters(2.,1.);
+    SetPoleZeroCorrection();
 }
 
 //________________________________________________________________
@@ -70,7 +67,7 @@ void KVChargeSignal::Copy(TObject& obj) const
 }
 
 //________________________________________________________________
-KVPSAResult* KVChargeSignal::TreateSignal(Bool_t with_pole_zero_correction)
+KVPSAResult* KVChargeSignal::TreateSignal()
 {
 	//to be implemented in child class
    KVPSAResult* psa = new KVPSAResult(GetName());
@@ -81,7 +78,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(Bool_t with_pole_zero_correction)
    Add(-1.*fBaseLine);
    ApplyModifications();
 
-   if(with_pole_zero_correction) PoleZeroSuppression(fTauRC);
+   if(fWithPoleZeroCorrection) PoleZeroSuppression(fTauRC);
    FIR_ApplyTrapezoidal(fTrapRiseTime,fTrapFlatTop);
 
    ComputeAmplitude();
@@ -99,7 +96,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(Bool_t with_pole_zero_correction)
    psa->SetValue(Form("%s.%s.ShaperType",fDetName.Data(),fType.Data()),"trapezoidal");
    psa->SetValue(Form("%s.%s.ShaperRiseTime",fDetName.Data(),fType.Data()),fTrapRiseTime);
    psa->SetValue(Form("%s.%s.ShaperFlatTop",fDetName.Data(),fType.Data()),fTrapFlatTop);
-   psa->SetValue(Form("%s.%s.WithPoleZeroCorrection",fDetName.Data(),fType.Data()),with_pole_zero_correction);
+   psa->SetValue(Form("%s.%s.WithPoleZeroCorrection",fDetName.Data(),fType.Data()),fWithPoleZeroCorrection);
    psa->SetValue(Form("%s.%s.TauRC",fDetName.Data(),fType.Data()),fTauRC);
    psa->SetValue(Form("%s.%s.BaseLineLength",fDetName.Data(),fType.Data()),fLastBL-fFirstBL);
    psa->SetValue(Form("%s.%s.ChannelWidth",fDetName.Data(),fType.Data()),fChannelWidth);

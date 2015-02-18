@@ -51,16 +51,11 @@ void KVCurrentSignal::Copy(TObject& obj) const
 
 void KVCurrentSignal::SetDefaultValues()
 {
-    fChannelWidth = 4.;
-    fFirstBL = 0;
-    fLastBL  = 30;
-    fTauRC = -1;
-    fTrapRiseTime = -1;
-    fTrapFlatTop  = -1;
-    fGaussSigma   = -1;
+    SetChannelWidth(4.);
+    SetBaseLineLength(30);
 }
 
-KVPSAResult *KVCurrentSignal::TreateSignal(Bool_t with_pole_zero_correction)
+KVPSAResult *KVCurrentSignal::TreateSignal()
 {
     //to be implemented in child class
    KVPSAResult* psa = new KVPSAResult(GetName());
