@@ -19,7 +19,6 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #include "KVLockfile.h"
 #include "Riostream.h"
 
-#define KVROOT_NOT_DEFINED "Define KVROOT environment variable before using"
 
 class KVString;
 class TPluginHandler;
@@ -30,13 +29,8 @@ class KVBase:public TNamed {
    UInt_t fNumber;              // for numbering objects
    TString fSLabel;             //label for the object
 
-//names of $KVROOT, $KVROOT/bin and $KVROOT/KVFiles directories
-   static TString KVRootDir;    //!
-   static TString KVBinDir;     //!
-   static TString KVFilesDir;   //!
-   static TString KVEtcDir;   //!
-
    static Bool_t fEnvIsInit;//! set when environment is initialised
+   static TString fWorkingDirectory;//! user working directory for e.g. database files
 
    void init();
 	static void ReadGUIMimeTypes();
@@ -60,6 +54,7 @@ class KVBase:public TNamed {
    const Char_t *GetType() const {
       return GetTitle();
    };
+   static const Char_t* WorkingDirectory() { return fWorkingDirectory.Data(); }
    virtual Bool_t IsType(const Char_t* typ) const
    {
       // Returns true if GetType() returns the given type name
@@ -75,7 +70,6 @@ class KVBase:public TNamed {
    virtual void Print(Option_t * option = "") const;
    virtual void List() {
    };
-   static const Char_t *GetKVRoot();
    virtual void SetNumber(UInt_t num) {
       fNumber = num;
    };
@@ -113,10 +107,6 @@ class KVBase:public TNamed {
    static const Char_t *GetKVBuildUser();
    static const Char_t *GetKVSourceDir();
 
-   static const Char_t *GetKVRootDir(void);
-   static const Char_t *GetKVBinDir(void);
-   static const Char_t *GetKVFilesDir(void);
-   static const Char_t *GetKVEtcDir(void);
 #ifdef WITH_BZR_INFOS
    static const Char_t *bzrRevisionId();
    static const Char_t *bzrRevisionDate();
@@ -128,6 +118,13 @@ class KVBase:public TNamed {
    static const Char_t *gitBranch();
    static const Char_t *gitCommit();
 #endif
+
+   static const Char_t* GetETCDIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetDATADIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetDATABASEFilePath();
+   static const Char_t* GetLIBDIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetINCDIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetBINDIRFilePath(const Char_t* namefile="");
 
    static Bool_t FindExecutable(TString & exec, const Char_t * path =
                                 "$(PATH)");

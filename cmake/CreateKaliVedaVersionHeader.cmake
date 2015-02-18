@@ -13,6 +13,6 @@ macro( create_kaliveda_version_header )
 	set(KV_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 	
 	configure_file(${CMAKE_SOURCE_DIR}/KVVersion.h.in ${CMAKE_BINARY_DIR}/KVVersion.h)
-   install(FILES ${CMAKE_BINARY_DIR}/KVVersion.h DESTINATION include)
+   install(FILES ${CMAKE_BINARY_DIR}/KVVersion.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 endmacro( create_kaliveda_version_header )

@@ -55,7 +55,7 @@ function(KALIVEDA_INSTALL_HEADERS)
     set(dirs .)
   endif()
   foreach(d ${dirs})
-    install(DIRECTORY ${d} DESTINATION ${KV_INC_DIR}
+    install(DIRECTORY ${d} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
                            COMPONENT headers
 									FILES_MATCHING PATTERN "*.h"
                            PATTERN "doc" EXCLUDE
@@ -192,29 +192,29 @@ function(BUILD_KALIVEDA_SUBPROJECT)
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/etc)
 		file(GLOB kvrootrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/etc etc/*.rootrc)
   		set_property(GLOBAL APPEND PROPERTY KALIVEDA_CONF_FILES ${kvrootrc})
-		install(DIRECTORY etc DESTINATION ${KV_ETCROOT_DIR})
+		install(DIRECTORY etc DESTINATION ${CMAKE_INSTALL_SYSCONFROOTDIR})
 	endif()
 
-	#---everything in data/ is installed in ${CMAKE_INSTALL_PREFIX}/${KV_DATA_DIR}
+	#---everything in data/ is installed in ${CMAKE_INSTALL_DATADIR}
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/data)
-		install(DIRECTORY data DESTINATION ${KV_DATAROOT_DIR})
+		install(DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATADIR})
 	endif()
 
-	#---everything in factory/ is installed in ${CMAKE_INSTALL_PREFIX}/KVFiles
+	#---everything in factory/ is installed in ${CMAKE_INSTALL_TMPLDIR}
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/factory)
-		install(DIRECTORY factory/ DESTINATION ${KV_TMPL_DIR})
+		install(DIRECTORY factory/ DESTINATION ${CMAKE_INSTALL_TMPLDIR})
 	endif()
 
-	#---install dataset directories in ${CMAKE_INSTALL_PREFIX}/${KV_DATASET_DIR}
+	#---install dataset directories in ${CMAKE_INSTALL_DATASETDIR}
 	if(ARG_DATASETS)
 		foreach(d ${ARG_DATASETS})
-			install(DIRECTORY ${d} DESTINATION ${KV_DATASET_DIR})
+			install(DIRECTORY ${d} DESTINATION ${CMAKE_INSTALL_DATASETDIR})
 			#---write Makefile for automatic database updating
 			file(GLOB contents RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/${d} ${d}/*)
 			CHANGE_LIST_TO_STRING(st_contents ${contents})
-			file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile "$(KVROOT)/db/${d}/DataBase.root : ${st_contents}\n")
+			file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile "$(KV_WORK_DIR)/db/${d}/DataBase.root : ${st_contents}\n")
 			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile "	@echo Database needs update\n")
-			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile DESTINATION ${KV_DATASET_DIR}/${d} RENAME Makefile)
+			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${d}_Makefile DESTINATION ${CMAKE_INSTALL_DATASETDIR}/${d} RENAME Makefile)
 		endforeach()
 	endif()
 

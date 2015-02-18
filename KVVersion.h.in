@@ -28,3 +28,24 @@
 
 /* String with ROOT version information */
 #define KV_ROOT_VERSION "${ROOT_VERSION}"
+
+/* Directory with class templates */
+#define TEMPLATEDIR ${CMAKE_INSTALL_FULL_TMPLDIR}
+
+/* Directory with configuration files */
+#define ETCDIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}
+
+/* Directory with data files used by classes */
+#define DATADIR ${CMAKE_INSTALL_FULL_DATAROOTDIR}
+
+/* Directory containing class libraries */
+#define LIBDIR ${CMAKE_INSTALL_FULL_LIBDIR}
+
+/* Directory containing header files */
+#define INCDIR ${CMAKE_INSTALL_FULL_INCLUDEDIR}
+
+/* Directory containing executables */
+#define BINDIR ${CMAKE_INSTALL_FULL_BINDIR}
+
+/* Directory containing dataset files */
+#define DATASETDIR ${CMAKE_INSTALL_FULL_DATASETDIR}

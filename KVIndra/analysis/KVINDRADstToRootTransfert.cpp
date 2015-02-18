@@ -106,7 +106,7 @@ void KVINDRADstToRootTransfert::InitRun()
 void KVINDRADstToRootTransfert::ReadDST(){
 
 	KVString inst;
-	inst.Form(".! %s/veda2root_kali",gDataSet->GetKVBinDir());
+	inst.Form(".! %s",KVBase::GetBINDIRFilePath("veda2root_kali"));
 	gROOT->ProcessLine(inst.Data());
 
 }

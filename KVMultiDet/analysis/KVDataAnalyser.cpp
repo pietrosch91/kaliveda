@@ -1592,14 +1592,10 @@ for (Int_t kk=0;kk<hh->GetEntries();kk+=1){
 	else kvenv->SetValue(hh->At(kk)->GetName(),((TEnvRec* )hh->At(kk))->GetValue(),kEnvUser);
 }
 		
-kvenv->SetValue("KVBase::GetKVRoot()",KVBase::GetKVRoot(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVVersion()",KVBase::GetKVVersion(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVBuildDate()",KVBase::GetKVBuildDate(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVBuildUser()",KVBase::GetKVBuildUser(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVSourceDir()",KVBase::GetKVSourceDir(),kEnvUser);
-kvenv->SetValue("KVBase::GetKVRootDir()",KVBase::GetKVRootDir(),kEnvUser);
-kvenv->SetValue("KVBase::GetKVBinDir()",KVBase::GetKVBinDir(),kEnvUser);
-kvenv->SetValue("KVBase::GetKVFilesDir()",KVBase::GetKVFilesDir(),kEnvUser);
 
 #ifdef WITH_BZR_INFOS
 kvenv->SetValue("KVBase::bzrRevisionId()",KVBase::bzrRevisionId(),kEnvUser);

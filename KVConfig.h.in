@@ -5,6 +5,7 @@
 // depending on available external software
 #cmakedefine WITH_GIT_INFOS
 #cmakedefine WITH_BZR_INFOS
+#cmakedefine WITH_GNU_INSTALL
 #cmakedefine WITH_RANGE_YANEZ
 #cmakedefine WITH_MODIFIED_RANGE_YANEZ
 #cmakedefine WITH_OPENGL

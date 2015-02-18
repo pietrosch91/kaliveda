@@ -296,13 +296,13 @@ void KVDataSet::OpenDBFile(const Char_t * full_path_to_dbfile)
 
 const Char_t* KVDataSet::GetFullPathToDB()
 {
-   // Returns full path to file where database is written on disk ($KVROOT/db/[dataset]/DataBase.root)
+   // Returns full path to file where database is written on disk 
 
    TString dbfile = GetDBFileName();
    static TString dbfile_fullpath;
    TString tmp;
-   AssignAndDelete(dbfile_fullpath, gSystem->ConcatFileName(GetKVRootDir(), "db"));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(dbfile_fullpath.Data(), GetName()));
+   
+   AssignAndDelete(tmp, gSystem->ConcatFileName(GetDATABASEFilePath(), GetName()));
    AssignAndDelete(dbfile_fullpath, gSystem->ConcatFileName(tmp.Data(), dbfile.Data()));
    return dbfile_fullpath.Data();
 }
@@ -418,18 +418,18 @@ void KVDataSet::OpenDataBase(Option_t * opt)
 {
    //Open the database for this dataset.
 	//If the database does not exist or is older than the source files
-	//in $KVROOT/KVFiles/[dataset], the database is automatically rebuilt
+	//the database is automatically rebuilt
 	//(see DataBaseNeedUpdate()).
    //Use opt="UPDATE" to force rebuilding of the database.
    //
-   //First, we look in $KVROOT/db/[dataset] to see if the database file exists
+   //First, we look in to see if the database file exists
    //(if no database file name given, use default name for database file defined in
-   //$KVROOT/KVFiles/.kvrootrc).
+   //.rootrc config files).
    //If so, we open the database contained in the file, after first loading the required plugin
    //library if needed.
    //
    //The name of the dataset must correspond to the name of one of the Plugin.KVDataBase
-   //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
+   //plugins defined in the .rootrc configuration files
 	//
 	//WARNING: if the database needs to be (re)built, we set gDataSet to
 	//point to this dataset in case it was not already done,
@@ -667,19 +667,15 @@ TList *KVDataSet::GetListOfAvailableSystems(KVDataAnalysisTask* datan, KVDBSyste
 
 void KVDataSet::SetName(const char *name)
 {
-   //Set name of dataset. Also sets name of calibration/database directory for data set, according
-   //to :
-   //      $KVROOT/KVFiles/<name_of_dataset>
+   //Set name of dataset. Also sets name of calibration/database directory for data set
    TNamed::SetName(name);
-   AssignAndDelete(fCalibDir,
-                   gSystem->ConcatFileName(KVBase::GetKVFilesDir(), name));
+   fCalibDir = GetDATADIRFilePath(name);
 }
 
 const Char_t *KVDataSet::GetDataSetDir() const
 {
    //Returns full path to directory containing database and calibration/identification parameters etc.
-   //for this dataset. This directory has the following name:
-   //      $KVROOT/KVFiles/<name_of_dataset>
+   //for this dataset.
    return fCalibDir.Data();
 }
 
@@ -1593,7 +1589,7 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
 Bool_t KVDataSet::OpenDataSetFile(const Char_t* filename, ifstream &file)
 {
    //Look for (and open for reading, if found) the named file in the directory which
-   //contains the files for this dataset, i.e. $KVROOT/KVFiles/name_of_dataset
+   //contains the files for this dataset
    return SearchAndOpenKVFile(filename, file, GetName());
 }
 
@@ -1631,9 +1627,8 @@ KVDataAnalysisTask *KVDataSet::GetAnalysisTaskAny(const Char_t* keywords) const
 Bool_t KVDataSet::DataBaseNeedsUpdate()
 {
 	// Returns kTRUE if database needs to be regenerated from source files,
-	// i.e. if source files in $KVROOT/KVFiles/"name_of_dataset"
-	// are more recent than DataBase.root
-	// In case no directory exists in $KVROOT/KVFiles/ (dataset added 'on the fly')
+	// i.e. if source files are more recent than DataBase.root
+	// In case no directory exists for dataset (dataset added 'on the fly')
 	// we create the directory and fill it with dummy files (Makefile, Runlist.csv, Systems.dat)
 
 	TString pwd = gSystem->pwd();
@@ -1655,7 +1650,7 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
 		path += "/";
 		TString filename = path + "Makefile";
 		ofstream of1(filename.Data());
-		of1 << "$(KVROOT)/db/" << GetName() << "/DataBase.root : Runlist.csv Systems.dat" << endl;
+		of1 << "$(KV_WORK_DIR)/db/" << GetName() << "/DataBase.root : Runlist.csv Systems.dat" << endl;
 		of1 << "\t@echo Database needs update" << endl;
 		of1.close();
 		filename = path + "Runlist.csv";

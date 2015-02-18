@@ -138,40 +138,43 @@ utilities for handling them are defined. They are static methods<br>
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+#define xstr(s) str(s)
+#define str(s) #s
+const Char_t* KVBase::GetETCDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(ETCDIR), namefile);
+   return Form("%s", xstr(ETCDIR));
+}
+const Char_t* KVBase::GetDATADIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(DATADIR), namefile);
+   return Form("%s", xstr(DATADIR));
+}
+const Char_t* KVBase::GetDATABASEFilePath()
+{
+   return Form("%s/db", fWorkingDirectory.Data());
+}
+const Char_t* KVBase::GetLIBDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(LIBDIR), namefile);
+   return Form("%s", xstr(LIBDIR));
+}
+const Char_t* KVBase::GetINCDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(INCDIR), namefile);
+   return Form("%s", xstr(INCDIR));
+}
+const Char_t* KVBase::GetBINDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(BINDIR), namefile);
+   return Form("%s", xstr(BINDIR));
+}
 
 UInt_t KVBase::fNbObj = 0;
-
-TString KVBase::KVRootDir = "";
-TString KVBase::KVBinDir = "";
-TString KVBase::KVFilesDir = "";
-TString KVBase::KVEtcDir = "";
-
+#ifdef WITH_GNU_INSTALL
+TString KVBase::fWorkingDirectory = "$(HOME)/.kaliveda";
+#endif
 Bool_t KVBase::fEnvIsInit = kFALSE;
-
-const Char_t *KVBase::GetKVRootDir(void)
-{
-   // Initialises environment if neccesary.
-   if (!fEnvIsInit) InitEnvironment();
-   return KVRootDir.Data();
-}
-const Char_t *KVBase::GetKVBinDir(void)
-{
-   // Initialises environment if neccesary.
-   if (!fEnvIsInit) InitEnvironment();
-   return KVBinDir.Data();
-}
-const Char_t *KVBase::GetKVFilesDir(void)
-{
-   // Initialises environment if neccesary.
-   if (!fEnvIsInit) InitEnvironment();
-   return KVFilesDir.Data();
-}
-const Char_t *KVBase::GetKVEtcDir(void)
-{
-   // Initialises environment if neccesary.
-   if (!fEnvIsInit) InitEnvironment();
-   return KVEtcDir.Data();
-}
 
 //_______________
 void KVBase::init()
@@ -188,13 +191,21 @@ void KVBase::init()
 void KVBase::InitEnvironment()
 {
    // STATIC method to Initialise KaliVeda environment
-   // Stores paths to essential KaliVeda files using KVROOT environment variable
-   // (which must be set by the user before using or indeed installing KaliVeda).
-   // Reads config file $KVROOT/KVFiles/.kvrootrc and sets up environment
+   // Reads config files in $(pkgdatadir)/etc and sets up environment
    // (data repositories, datasets, etc. etc.)
+   // Adds directory where kaliveda shared libs are installed to the dynamic
+   // path - for finding and loading plugins (even those which are in libkaliveda.so)
    // Resets the gRandom random number sequence using a clock-based seed
    // (i.e. random sequences do not repeat).
+#ifdef WITH_GNU_INSTALL
+   // Sets location of user's working directory which is by default
+   //    $(HOME)/.kaliveda
+   // but can be changed with variable
+   //    KaliVeda.WorkingDirectory:   [directory]
+   // in configuration file. [directory] must be an absolute pathname,
+   // can use shell variables like $(HOME).
    //
+#endif
    // Normally, the first object created which inherits from KVBase will
    // perform this initialisation; if you need to set up the environment before
    // creating a KVBase object, or if you just want to be absolutely sure that
@@ -212,20 +223,33 @@ void KVBase::InitEnvironment()
 #ifdef WITH_GIT_INFOS
       ::Info("KVBase::InitEnvironment", "(git : %s@%s)",gitBranch(),gitCommit());
 #endif
-      KVRootDir = KV_ROOT;
-      TString tmp;
-      AssignAndDelete(tmp,
-                      gSystem->ConcatFileName(KVRootDir.Data(), "KVFiles"));
-      KVFilesDir = StrDup(tmp.Data());
-      AssignAndDelete(tmp, gSystem->ConcatFileName(KVRootDir.Data(), "bin"));
-      KVBinDir = StrDup(tmp.Data());
-      AssignAndDelete(tmp, gSystem->ConcatFileName(KVRootDir.Data(), "etc"));
-      KVEtcDir = StrDup(tmp.Data());
+      // Add path to kaliveda libraries to dynamic loader path
+      // This is needed to find plugins (even those in libkaliveda.so)
+      // and also to be able to compile with kaliveda in the interpreter
+      TString libdir = GetLIBDIRFilePath();
+      gSystem->AddDynamicPath(libdir);
+      // Add path to kaliveda header files
+      // This is needed to be able to compile with kaliveda in the interpreter
+      TString incdir = GetINCDIRFilePath();
+      incdir.Prepend("-I");
+      gSystem->AddIncludePath(incdir);
+      
       //set up environment using kvrootrc file
       if (!gEnv->Defined("DataSet.DatabaseFile")) {
 			ReadConfigFiles();
       }
-
+#ifdef WITH_GNU_INSTALL
+      // set working directory & create if needed
+      fWorkingDirectory = gEnv->GetValue("KaliVeda.WorkingDirectory", "$(HOME)/.kaliveda");
+      gSystem->ExpandPathName(fWorkingDirectory);
+      gSystem->mkdir(fWorkingDirectory, kTRUE);
+#else
+      // set environment variable used in database makefiles
+      fWorkingDirectory = KV_ROOT;
+#endif
+      // set environment variable used in database makefiles
+      gSystem->Setenv("KV_WORK_DIR", fWorkingDirectory);
+      
       //generate new seed from system clock
       gRandom->SetSeed(0);
 		
@@ -239,13 +263,12 @@ void KVBase::ReadConfigFiles()
 {
     // Read all configuration files
     // System config files are read first in the order they appear in file
-    //    ${KVROOT}/etc/config.files
+    //    ${ETCDIR}/config.files
     // Then we read any of the following files if they exist:
     //    ${HOME}/.kvrootrc
     //    ${PWD}/.kvrootrc
 
-    TString tmp;
-    AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),"config.files"));
+    TString tmp = GetETCDIRFilePath("config.files");
     ifstream conflist;
     conflist.open(tmp.Data());
     if(!conflist.good()){
@@ -257,8 +280,8 @@ void KVBase::ReadConfigFiles()
 	 conflist.close();
 	 file.Begin(";");
     while(!file.End()){
-    		AssignAndDelete(tmp,gSystem->ConcatFileName(KVEtcDir.Data(),file.Next().Data()));
-		  	gEnv->ReadFile(tmp.Data(), kEnvGlobal);
+    		tmp=GetETCDIRFilePath(file.Next().Data());
+		gEnv->ReadFile(tmp.Data(), kEnvGlobal);
     }
 
     AssignAndDelete(tmp,gSystem->ConcatFileName(gSystem->Getenv("HOME"),".kvrootrc"));
@@ -355,14 +378,6 @@ const Char_t *KVBase::GetLabel() const
    return fSLabel.Data();
 }
 
-const Char_t *KVBase::GetKVRoot()
-{
-   // Returns string containing full path to $KVROOT directory.
-   // Initialises environment if neccesary.
-   if (!fEnvIsInit) InitEnvironment();
-   return KVBase::KVRootDir.Data();
-};
-
 Bool_t KVBase::ArrContainsValue(Int_t n, Int_t * arr, Int_t val)
 {
    //Utility function which returns kTRUE if value "val" is among the values
@@ -424,10 +439,6 @@ Bool_t SearchFile(const Char_t * name, TString & fullpath, int ndirs, ...)
    //      SearchFile("toto.dat", fullpath, 2, gSystem->pwd(), gSystem->HomeDirectory());
    //
    //means: search for a file 'toto.dat' in current working directory, then user's home directory.
-   //
-   //      SearchFile("toto.dat", fullpath, 3, gKVFilesDir, gKVRootDir, gRootDir);
-   //
-   //means: search for a file 'toto.dat' in $KVROOT/KVFiles, in $KVROOT, and finally in $ROOTSYS
 
    if (ndirs <= 0)
       return kFALSE;
@@ -458,8 +469,8 @@ Bool_t KVBase::SearchKVFile(const Char_t * name, TString & fullpath,
    //search for files in the following order:
    //  if 'name' = absolute path the function returns kTRUE if the file exists
    //  if name != absolute path:
-   //      1. a. if 'kvsubdir'="" (default) look for file in $KVROOT/KVFiles directory
-   //      1. b. if 'kvsubdir'!="" look for file in $KVROOT/KVFiles/'kvsubdir'
+   //      1. a. if 'kvsubdir'="" (default) look for file in $(pkgdatadir) directory
+   //      1. b. if 'kvsubdir'!="" look for file in $(pkgdatadir)/'kvsubdir'
    //      2. look for file with this name in user's home directory
    //      3. look for file with this name in working directory
    //in all cases the function returns kTRUE if the file was found.
@@ -471,12 +482,13 @@ Bool_t KVBase::SearchKVFile(const Char_t * name, TString & fullpath,
       return !gSystem->AccessPathName(name);
    }
 
-   TString kvfile_dir(GetKVFilesDir());
+   TString kvfile_dir;
    if (strcmp(kvsubdir, "")) {
-      //KVFiles subdirectory name given
-      AssignAndDelete(kvfile_dir,
-                      gSystem->ConcatFileName(GetKVFilesDir(), kvsubdir));
+      //subdirectory name given
+      kvfile_dir = GetDATADIRFilePath(kvsubdir);
    }
+   else
+   	kvfile_dir = GetDATADIRFilePath();
    return SearchFile(name, fullpath, 3, kvfile_dir.Data(),
                      gSystem->HomeDirectory(), gSystem->pwd());
 }
@@ -490,8 +502,8 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ifstream & file, const C
    //search for ascii file (and open it, if found) in the following order:
    //  if 'name' = absolute path the function returns kTRUE if the file exists
    //  if name != absolute path:
-   //      1. a. if 'kvsubdir'="" (default) look for file in $KVROOT/KVFiles directory
-   //      1. b. if 'kvsubdir'!="" look for file in $KVROOT/KVFiles/'kvsubdir'
+   //      1. a. if 'kvsubdir'="" (default) look for file in $(pkdatadir) directory
+   //      1. b. if 'kvsubdir'!="" look for file in $(pkdatadir)/'kvsubdir'
    //      2. look for file with this name in user's home directory
    //      3. look for file with this name in working directory
    //if the file is not found, kFALSE is returned.
@@ -525,11 +537,11 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
    //open for writing an ascii file in the location determined in the following way:
    //  if 'name' = absolute path we use the full path
    //  if name != absolute path:
-   //      1. a. if 'kvsubdir'="" (default) file will be in $KVROOT/KVFiles directory
+   //      1. a. if 'kvsubdir'="" (default) file will be in $(pkdatadir) directory
    //      1. b. if 'kvsubdir'!="":
    //               if 'kvsubdir' is an absolute pathname, file in 'kvsubdir'
-   //               if 'kvsubdir' is not an absolute pathname (e.g. name of a dataset),
-   //                    file will be in '$KVROOT/KVFiles/kvsubdir
+   //               if 'kvsubdir' is not an absolute pathname,
+   //                    file will be in '$(pkdatadir)/kvsubdir'
    //if an existing file is found, a warning is printed and the existing file 'toto' is renamed
    //"toto.date". where 'date' is created with TDatime::AsSQLDate
    // file' is then an ofstream connected to the opened file
@@ -545,14 +557,11 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(kvsubdir, name));
    } else if(strcmp(kvsubdir,"")){
-      KVString path;
-      AssignAndDelete(path,
-                      gSystem->ConcatFileName(GetKVFilesDir(), kvsubdir));
+      KVString path=GetDATADIRFilePath(kvsubdir);
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(path.Data(), name));
    } else {
-      AssignAndDelete(fullpath,
-                      gSystem->ConcatFileName(GetKVFilesDir(), name));
+      fullpath=GetDATADIRFilePath(name);
    }
    //Backup file if necessary
    BackupFileWithDate( fullpath.Data() );

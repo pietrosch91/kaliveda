@@ -288,10 +288,7 @@ void KVDataSetManager::CheckAvailability()
       //overwriting any previous version. if no datasets were found, we try the cache
       //file (if it exists)
       if(fNavailable && fRepository){//if no repository is associated, no need to keep file
-         TString runlist;
-         AssignAndDelete(runlist,
-                      gSystem->ConcatFileName(KVBase::GetKVFilesDir(),
-                                              fCacheFileName.Data()));
+         TString runlist=KVBase::GetDATADIRFilePath(fCacheFileName.Data());
          gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
          //set access permissions to 664
          gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));

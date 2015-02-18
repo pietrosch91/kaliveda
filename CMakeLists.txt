@@ -26,7 +26,7 @@ if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 link_directories(${ROOT_LIBRARY_DIRS})
-include(RootInstallDirs)
+include(KaliVedaInstallDirs)
 
 include_directories(${CMAKE_BINARY_DIR})
 
@@ -52,23 +52,9 @@ include(CMakeDependentOption)
 option(gnuinstall "Use GNU-style installation directories (e.g. for packaging)" OFF)
 add_feature_info(gnuinstall gnuinstall "Use GNU-style installation directories (e.g. for packaging)")
 if(gnuinstall)
-   set(KV_DATA_DIR share/kaliveda/data)
-   set(KV_DATASET_DIR share/kaliveda)
-   set(KV_DATAROOT_DIR share/kaliveda)
-   set(KV_INC_DIR include/kaliveda)
-   set(KV_TOOLS_DIR share/kaliveda/tools)
-   set(KV_ETC_DIR share/kaliveda/etc)
-   set(KV_ETCROOT_DIR share/kaliveda)
-   set(KV_TMPL_DIR share/kaliveda/templates)
+   set(WITH_GNU_INSTALL yes)
 else(gnuinstall)
-   set(KV_DATA_DIR KVFiles/data)
-   set(KV_DATASET_DIR KVFiles)
-   set(KV_DATAROOT_DIR KVFiles)
-   set(KV_INC_DIR include)
-   set(KV_TOOLS_DIR tools)
-   set(KV_ETC_DIR etc)
-   set(KV_ETCROOT_DIR .)
-   set(KV_TMPL_DIR KVFiles)
+   set(WITH_GNU_INSTALL)
 endif(gnuinstall)
 
 #---Built-in package for reading GANIL acquisition data
@@ -217,15 +203,15 @@ if(DEFINED ENV{SITE})
    if($ENV{SITE} STREQUAL "CCIN2P3")
 	   if($ENV{GROUP} STREQUAL "indra")
 		   list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
-		   install(FILES etc/ccali.rootrc DESTINATION ${KV_ETC_DIR})
+		   install(FILES etc/ccali.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 	   elseif($ENV{GROUP} STREQUAL "fazia")
 		   list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
-		   install(FILES etc/ccali-fazia.rootrc DESTINATION ${KV_ETC_DIR})
+		   install(FILES etc/ccali-fazia.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 	   endif()
    endif()
 endif()
 configure_file(etc/config.files.in etc/config.files)
-install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${KV_ETC_DIR})
+install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---configure and install kaliveda-config script
 get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
@@ -236,35 +222,32 @@ foreach(l ${KALIVEDA_LIB_LIST})
 	set(kaliveda_libraries "${kaliveda_libraries}${space}-l${l}")
 	set(space " ")
 endforeach()
-set(libdir ${CMAKE_INSTALL_PREFIX}/lib)
-set(incdir ${CMAKE_INSTALL_PREFIX}/${KV_INC_DIR})
-set(bindir ${CMAKE_INSTALL_PREFIX}/bin)
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
-install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION bin)
+install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-#---install scripts from tools/ directory in ${CMAKE_INSTALL_PREFIX}/bin
+#---install scripts from tools/ directory in ${CMAKE_INSTALL_BINDIR}
 install(PROGRAMS tools/SetUpKaliVeda.sh tools/SetUpROOT.sh tools/WhichROOT
    tools/SetUpKaliVeda.csh tools/SetUpROOT.csh tools/SetUpKaliVedaDirectories.sh
-   tools/SetUpROOTDirectories.sh tools/WhichKaliVeda
-   DESTINATION bin)
-#---install other stuff from tools/ directory in ${CMAKE_INSTALL_PREFIX}/${KV_TOOLS_DIR}
-install(FILES tools/.nedit DESTINATION ${KV_TOOLS_DIR} RENAME nedit.cf)
-install(FILES tools/kaliveda.m4 DESTINATION ${KV_TOOLS_DIR})
+   tools/SetUpROOTDirectories.sh tools/WhichKaliVeda tools/thiskaliveda.sh tools/thiskaliveda.csh
+   DESTINATION ${CMAKE_INSTALL_BINDIR})
+#---install other stuff from tools/ directory in ${CMAKE_INSTALL_SYSCONFDIR}
+install(FILES tools/.nedit DESTINATION ${CMAKE_INSTALL_SYSCONFDIR} RENAME nedit.cf)
+install(FILES tools/kaliveda.m4 DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---install exported targets file for use by other projects
-install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION lib/${CMAKE_PROJECT_NAME} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)
+install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)
 
 #---generate config & version files for other projects using find_package()
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/KaliVedaConfig.cmake.in
                                  ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake
-                                 INSTALL_DESTINATION ${libdir}/KaliVeda
-                                 PATH_VARS incdir libdir bindir
+                                 INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
+                                 PATH_VARS CMAKE_INSTALL_FULL_INCLUDEDIR CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_FULL_BINDIR CMAKE_INSTALL_FULL_CMAKEPKGDIR
                                  )
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersion.cmake
                                     VERSION ${KV_VERSION}
                                     COMPATIBILITY SameMajorVersion
                                     )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersion.cmake
-          ${CMAKE_SOURCE_DIR}/cmake/KaliVedaUseFile.cmake DESTINATION ${libdir}/KaliVeda
+          ${CMAKE_SOURCE_DIR}/cmake/KaliVedaUseFile.cmake DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
            )

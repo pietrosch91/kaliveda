@@ -80,9 +80,12 @@ Bool_t KVedaLoss::init_materials() const
    fMaterials->SetName("VEDALOSS materials list");
    fMaterials->SetOwner();
 
-   TString DataFilePath = gEnv->GetValue("KVedaLoss.RangeTables", "");
-   gSystem->ExpandPathName(DataFilePath);
-
+   TString DataFilePath;
+   if(!KVBase::SearchKVFile(gEnv->GetValue("KVedaLoss.RangeTables", "kvloss.data"), DataFilePath, "data")) {
+      Error("init_materials()", "Range tables file %s not found", gEnv->GetValue("KVedaLoss.RangeTables", "kvloss.data"));
+      return kFALSE;
+   }
+      
    Char_t name[25], gtype[25], state[10];
    Float_t Amat = 0.;
    Float_t Dens = 0.;

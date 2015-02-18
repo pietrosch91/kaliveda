@@ -44,9 +44,9 @@ if [ "$?" -ne "0" ]; then
 fi
 
 VERSION="@KV_VERSION_STRING@"
-libdir=@libdir@
-incdir=@incdir@
-bindir=@bindir@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+bindir=@CMAKE_INSTALL_FULL_BINDIR@
 #features= "@features@"
 libs="@kaliveda_libraries@"
 
