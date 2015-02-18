@@ -45,25 +45,13 @@ function(KALIVEDA_SET_MODULE_DEPS variable)
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
-#---KALIVEDA__INSTALL_HEADERS([dir1 dir2 ...] OPTIONS [options])
+#---KALIVEDA__INSTALL_HEADERS(file1 file2 ... OPTIONS [options])
 #---------------------------------------------------------------------------------------------------
 function(KALIVEDA_INSTALL_HEADERS)
   CMAKE_PARSE_ARGUMENTS(ARG "" "" "OPTIONS" ${ARGN})
-  if( ARG_UNPARSED_ARGUMENTS )
-    set(dirs ${ARG_UNPARSED_ARGUMENTS})
-  else()
-    set(dirs .)
-  endif()
-  foreach(d ${dirs})
-    install(DIRECTORY ${d} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-                           COMPONENT headers
-									FILES_MATCHING PATTERN "*.h"
-                           PATTERN "doc" EXCLUDE
-                           PATTERN ".svn" EXCLUDE
-                           REGEX "LinkDef" EXCLUDE
+  install(FILES ${ARG_UNPARSED_ARGUMENTS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+                           COMPONENT dev
                            ${ARG_OPTIONS})
-#    set_property(GLOBAL APPEND PROPERTY ROOT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/${d})
-  endforeach()
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
@@ -115,7 +103,7 @@ function(KALIVEDA_LIBRARY libname)
     ROOT_GENERATE_DICTIONARY(G__${libname} ${headerfiles} MODULE ${libname} LINKDEF LinkDef.h OPTIONS -p)    
   endif()
   ROOT_LINKER_LIBRARY(${libname} ${sourcefiles} G__${libname}.cxx DEPENDENCIES ${ARG_DEPENDENCIES})
-  KALIVEDA_INSTALL_HEADERS()
+  KALIVEDA_INSTALL_HEADERS(${headerfiles} ${ARG_DICT_EXCLUDE})
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
