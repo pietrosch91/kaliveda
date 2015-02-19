@@ -1,3 +1,18 @@
+/usr/lib/libKVMultiDetanalysis.so
+/usr/lib/libKVMultiDetdata_management.so
+/usr/lib/libKVMultiDetparticles.so
+/usr/lib/libKVMultiDetglobvars.so
+/usr/lib/libKVMultiDetgui.so
+/usr/lib/libKVMultiDetevents.so
+/usr/lib/libKVMultiDetdaq_cec.so
+/usr/lib/libKVMultiDetdb.so
+/usr/lib/libKVMultiDetbase.so
+/usr/lib/libKVMultiDetexp_events.so
+/usr/lib/libKVMultiDetcalibration.so
+/usr/lib/libKVMultiDetgeometry.so
+/usr/lib/libKVMultiDetidentification.so
+/usr/lib/libKVMultiDetstopping.so
+/usr/lib/libKVMultiDettrieur.so
 /usr/include/kaliveda/KVDataRepository.h
 /usr/include/kaliveda/KVGANILDataReader.h
 /usr/include/kaliveda/KVEkin.h
@@ -272,3 +287,8 @@
 /usr/share/kaliveda/etc/kaliveda.m4
 /usr/share/kaliveda/etc/nedit.cf
 /usr/bin/kaliveda-config
+/usr/lib/kaliveda/KaliVedaUseFile.cmake
+/usr/lib/kaliveda/KaliVeda-targets.cmake
+/usr/lib/kaliveda/KaliVedaConfigVersion.cmake
+/usr/lib/kaliveda/KaliVeda-targets-relwithdebinfo.cmake
+/usr/lib/kaliveda/KaliVedaConfig.cmake
