@@ -278,8 +278,10 @@ void KVBase::ReadConfigFiles()
 	 conflist.close();
 	 file.Begin(";");
     while(!file.End()){
-    		tmp=GetETCDIRFilePath(file.Next().Data());
-		gEnv->ReadFile(tmp.Data(), kEnvGlobal);
+    	tmp=GetETCDIRFilePath(file.Next().Data());
+      //skip over any missing files - this is needed when installing from
+      //e.g. ubuntu packages if not all packages are installed
+		if(!gSystem->AccessPathName(tmp.Data())) gEnv->ReadFile(tmp.Data(), kEnvGlobal);
     }
 
     AssignAndDelete(tmp,gSystem->ConcatFileName(gSystem->Getenv("HOME"),".kvrootrc"));
