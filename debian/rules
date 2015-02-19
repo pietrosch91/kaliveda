@@ -3,4 +3,4 @@
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- -Dgnuinstall=yes -DCMAKE_BUILD_TYPE=RelWithDebInfo
+	dh_auto_configure -- -DUSE_INDRA=yes -Dgnuinstall=yes -DCMAKE_BUILD_TYPE=RelWithDebInfo

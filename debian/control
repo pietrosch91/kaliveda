@@ -49,3 +49,37 @@ Description: KaliVeda data analysis framework (development files)
  This package contains the header files required for development
  using the libraries contained in package libkaliveda.
 
+Package: kaliveda-indra
+Architecture: any
+Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the following tools for analysis of INDRA data:
+ .
+     KaliVedaGUI    - graphical interface for data analysis
+     KVDataBaseGUI  - graphical interface for managing INDRA experiment databases
+
+Package: libkaliveda-indra
+Section: libs
+Architecture: any
+Depends: libkaliveda (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the runtime shared libraries needed
+ by package kaliveda-indra for analysis of INDRA data.
+
+Package: libkaliveda-indra-dev
+Section: libdevel
+Architecture: any
+Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the header files required for development
+ using the libraries contained in package libkaliveda-indra.
+
