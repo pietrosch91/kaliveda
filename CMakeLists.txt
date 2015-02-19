@@ -262,3 +262,10 @@ if(WITH_GIT_INFOS)
       )
    add_custom_target(dist DEPENDS ${CMAKE_BINARY_DIR}/${tarball})
 endif()
+if(WITH_BZR_INFOS)
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${tarball}
+      COMMAND bzr export --root=${tarprefix}/ ${CMAKE_CURRENT_BINARY_DIR}/${tarball}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      )
+   add_custom_target(dist DEPENDS ${CMAKE_BINARY_DIR}/${tarball})
+endif()
