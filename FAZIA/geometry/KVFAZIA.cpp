@@ -12,6 +12,7 @@
 #include "KVEnv.h"
 #include "TSystem.h"
 #include "KVDataSet.h"
+#include "KVConfig.h"
 
 //#include "TGeoBox.h"
 #include "TGeoCompositeShape.h"
@@ -50,8 +51,11 @@ KVFAZIA::~KVFAZIA()
 void KVFAZIA::GenerateCorrespondanceFile()
 {
 	
-   
-   fCorrespondanceFile.Form("%s/%s-%s.names",GetKVFilesDir(),gSystem->Getenv("USER"),ClassName());
+#ifdef WITH_GNU_INSTALL   
+   fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::WorkingDir(),gSystem->Getenv("USER"),ClassName());
+#else
+   fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::GetDATADIRFilePath(),gSystem->Getenv("USER"),ClassName());
+#endif
    Info("GenerateCorrespondanceFile","Creation de %s",fCorrespondanceFile.Data());
    KVEnv env;
    for (Int_t bb=fStartingBlockNumber;bb<fNblocks;bb+=1)
