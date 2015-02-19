@@ -52,7 +52,7 @@ void KVFAZIA::GenerateCorrespondanceFile()
 {
 	
 #ifdef WITH_GNU_INSTALL   
-   fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::WorkingDir(),gSystem->Getenv("USER"),ClassName());
+   fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::WorkingDirectory(),gSystem->Getenv("USER"),ClassName());
 #else
    fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::GetDATADIRFilePath(),gSystem->Getenv("USER"),ClassName());
 #endif
