@@ -27,11 +27,9 @@ base_installed_headers=`basename -a $installed_headers`
 for header in $base_installed_headers; do
    if stringContain $header "$base_source_headers"; then
       SUBPROJ_HEADERS="$SUBPROJ_HEADERS $header"
-   else
-      echo "$header not found in $3 source directory";
    fi
 done
-if [ "$3"="KVMultiDet" ]; then
+if [ "x$3" = "xKVMultiDet" ]; then
   SUBPROJ_HEADERS="$SUBPROJ_HEADERS KVConfig.h KVVersion.h"
 fi
 
@@ -64,6 +62,26 @@ etcfiles=`ls $1/$3/etc`
 # cmake helper files
 cmakefiles=`find usr/lib -name '*.cmake'`
 
+# dataset directories
+src_datasets=`find $1/$3 -name Runlist.csv`
+echo "src_datasets=$src_datasets"
+if [ "x$src_datasets" != "x" ]; then
+   # names of source dataset directories
+   tmp1=`dirname $src_datasets`
+echo "tmp1=$tmp1"
+   dataset_dirs=`basename -a $tmp1`
+echo "dataset_dirs=$dataset_dirs"
+   # look for installed versions
+   for ds in $dataset_dirs; do
+      # look for installed directory
+      tmp1=`find usr -name $ds`
+      if [ "x$tmp1" != "x" ]; then
+         dataset_files="$dataset_files `find $tmp1 -type f`"
+      fi
+   done
+fi
+echo "dataset_files=$dataset_files"
+
 # write files
 cd $1
 tool_install_file=$1/debian/$4.install
@@ -92,7 +110,7 @@ done
 for lib in $libs; do
    echo "/$lib" >> $install_file
 done
-if [ "$3"="KVMultiDet" ]; then
+if [ "x$3" = "xKVMultiDet" ]; then
   extras="/usr/share/kaliveda/etc/config.files /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
   tools="/usr/bin/update_runlist /usr/bin/kvtreeanalyzer /usr/bin/KaliVeda /usr/bin/kvdatanalyser /usr/bin/KaliVedaAnalysis"
   dev_extras="/usr/share/kaliveda/etc/kaliveda.m4 /usr/share/kaliveda/etc/nedit.cf /usr/bin/kaliveda-config"
@@ -108,13 +126,17 @@ if [ "$3"="KVMultiDet" ]; then
   for e in $cmakefiles; do
      echo "/$e" >> $dev_install_file
   done
-elif [ "$3"="KVIndra" ]; then
+elif [ "x$3" = "xKVIndra" ]; then
   tools="/usr/bin/KaliVedaGUI /usr/bin/KVDataBaseGUI"
   for t in $tools; do
      echo "$t" >> $tool_install_file
   done
 fi
-
+if [ "x$dataset_files" != "x" ]; then
+   for file in $dataset_files; do
+      echo "/$file" >> $install_file
+   done
+fi
 # make '.dirs' files
 dirname `cat $install_file` | sort -u > $dirs_file
 dirname `cat $dev_install_file` | sort -u > $dev_dirs_file
