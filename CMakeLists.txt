@@ -251,3 +251,14 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersi
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfigVersion.cmake
           ${CMAKE_SOURCE_DIR}/cmake/KaliVedaUseFile.cmake DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
            )
+
+#---add a 'make dist' target
+set(tarprefix "kaliveda-${KV_VERSION}")
+set(tarball "${tarprefix}.tar.gz")
+if(WITH_GIT_INFOS)
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${tarball}
+      COMMAND git archive --prefix=${tarprefix}/ -o ${CMAKE_CURRENT_BINARY_DIR}/${tarball} HEAD
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      )
+   add_custom_target(dist DEPENDS ${CMAKE_BINARY_DIR}/${tarball})
+endif()
