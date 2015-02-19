@@ -51,10 +51,10 @@ for dlib in $allibs; do
 done
 
 # data
-datafiles=`ls $1/$3/data`
+[ -d $1/$3/data ] && datafiles=`ls $1/$3/data`
 
 # templates
-tmplfiles=`ls $1/$3/factory`
+[ -d $1/$3/factory ] && tmplfiles=`ls $1/$3/factory`
 
 # etc
 etcfiles=`ls $1/$3/etc`
@@ -64,13 +64,10 @@ cmakefiles=`find usr/lib -name '*.cmake'`
 
 # dataset directories
 src_datasets=`find $1/$3 -name Runlist.csv`
-echo "src_datasets=$src_datasets"
 if [ "x$src_datasets" != "x" ]; then
    # names of source dataset directories
    tmp1=`dirname $src_datasets`
-echo "tmp1=$tmp1"
    dataset_dirs=`basename -a $tmp1`
-echo "dataset_dirs=$dataset_dirs"
    # look for installed versions
    for ds in $dataset_dirs; do
       # look for installed directory
@@ -80,7 +77,6 @@ echo "dataset_dirs=$dataset_dirs"
       fi
    done
 fi
-echo "dataset_files=$dataset_files"
 
 # write files
 cd $1
@@ -140,4 +136,4 @@ fi
 # make '.dirs' files
 dirname `cat $install_file` | sort -u > $dirs_file
 dirname `cat $dev_install_file` | sort -u > $dev_dirs_file
-dirname `cat $tool_install_file` | sort -u > $tool_dirs_file
+[ -f $tool_install_file ] && dirname `cat $tool_install_file` | sort -u > $tool_dirs_file

@@ -83,3 +83,47 @@ Description: KaliVeda data analysis framework (development files)
  This package contains the header files required for development
  using the libraries contained in package libkaliveda-indra.
 
+Package: libkaliveda-indravamos
+Section: libs
+Architecture: any
+Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the runtime shared libraries needed
+ for analysis of INDRA-VAMOS data.
+
+Package: libkaliveda-indravamos-dev
+Section: libdevel
+Architecture: any
+Depends: libkaliveda-indravamos (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the header files required for development
+ using the libraries contained in package libkaliveda-indravamos.
+
+Package: libkaliveda-fazia
+Section: libs
+Architecture: any
+Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the runtime shared libraries needed
+ for analysis of FAZIA and INDRA-FAZIA data.
+
+Package: libkaliveda-fazia-dev
+Section: libdevel
+Architecture: any
+Depends: libkaliveda-fazia (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Description: KaliVeda data analysis framework (development files)
+ KaliVeda is an OO framework for simulation and analysis of
+ heavy-ion collisions in the Fermi energy domain, based on ROOT.
+ .
+ This package contains the header files required for development
+ using the libraries contained in package libkaliveda-fazia.
+
