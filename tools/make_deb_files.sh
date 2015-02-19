@@ -12,7 +12,7 @@
 stringContain() { [ -z "${2##*$1*}" ]; }
 
 if [ $# -lt 4 ]; then
-   echo "`basename $0` [source dir] [destdir] [subproject] [package]"
+   echo "`basename $0` [source dir] [build dir] [subproject] [package]"
    exit 0
 fi
 
@@ -36,20 +36,7 @@ if [ "$3"="KVMultiDet" ]; then
 fi
 
 # libraries
-libs=`find usr/lib -name lib$3'*'.$version`
 allibs=`find usr/lib -name lib$3'*' | grep -v pcm`
-# remove from allibs any lib which is in libs
-for dlib in $allibs; do
-   good="yes"
-   for lib in $libs; do
-      if [ "$dlib" = "$lib" ]; then
-         good="no"
-      fi
-   done
-   if [ "x$good" = "xyes" ]; then
-      devlibs="$devlibs $dlib"
-   fi
-done
 
 # data
 datafiles=`ls $1/$3/data`
@@ -66,7 +53,7 @@ install_file=$1/debian/$4.install
 dev_install_file=$1/debian/$4-dev.install
 dirs_file=$1/debian/$4.dirs
 dev_dirs_file=$1/debian/$4-dev.dirs
-
+rm -f $install_file $dev_install_file $dirs_file $dev_dirs_file
 for file in $datafiles; do
    echo "/usr/share/kaliveda/data/$file" >> $install_file
 done
@@ -76,13 +63,10 @@ done
 for etc in $etcfiles; do
    echo "/usr/share/kaliveda/etc/$etc" >> $install_file
 done
-for lib in $devlibs; do
-   echo "/$lib" >> $dev_install_file
-done
 for header in $SUBPROJ_HEADERS; do
    echo "/usr/include/kaliveda/$header" >> $dev_install_file
 done
-for lib in $libs; do
+for lib in $allibs; do
    echo "/$lib" >> $install_file
 done
 if [ "$3"="KVMultiDet" ]; then
