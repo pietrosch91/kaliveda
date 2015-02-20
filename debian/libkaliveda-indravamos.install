@@ -1,7 +1,6 @@
 /usr/share/kaliveda/templates/KVIVSelectorTemplate.cpp
 /usr/share/kaliveda/templates/KVIVSelectorTemplate.h
 /usr/share/kaliveda/etc/kaliveda-indravamos.rootrc
-/usr/lib/libVAMOSanalysis.rootmap
 /usr/lib/libVAMOSdb.so.1
 /usr/lib/libVAMOScalibration.so.1.10.00
 /usr/lib/libVAMOSgeometry.so.1
@@ -9,15 +8,8 @@
 /usr/lib/libVAMOSidentification.so.1.10.00
 /usr/lib/libVAMOSidentification.so.1
 /usr/lib/libVAMOSexp_events.so.1
-/usr/lib/libVAMOScalibration.rootmap
-/usr/lib/libVAMOSdaq_cec.rootmap
 /usr/lib/libVAMOSdaq_cec.so.1.10.00
 /usr/lib/libVAMOSanalysis.so.1.10.00
-/usr/lib/libVAMOSbase.rootmap
-/usr/lib/libVAMOSexp_events.rootmap
-/usr/lib/libVAMOSreconstruction.rootmap
-/usr/lib/libVAMOSidentification.rootmap
-/usr/lib/libVAMOSdb.rootmap
 /usr/lib/libVAMOSgeometry.so.1.10.00
 /usr/lib/libVAMOSanalysis.so.1
 /usr/lib/libVAMOSbase.so.1
@@ -25,7 +17,6 @@
 /usr/lib/libVAMOScalibration.so.1
 /usr/lib/libVAMOSbase.so.1.10.00
 /usr/lib/libVAMOSdb.so.1.10.00
-/usr/lib/libVAMOSgeometry.rootmap
 /usr/lib/libVAMOSdaq_cec.so.1
 /usr/lib/libVAMOSreconstruction.so.1
 /usr/share/kaliveda/VAMOS_e503/DriftChamber.cal

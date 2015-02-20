@@ -8,11 +8,15 @@ endif()
 
 set(build_targets
 	analyse_logs delete_logs kvdatanalyser kvtreeanalyzer
-	KaliVedaAnalysis update_runlist
+	KaliVedaAnalysis update_runlist kaliveda kaliveda-sim
 )
 if(USE_INDRA)
 	list(APPEND build_targets KVDataBaseGUI KaliVedaGUI)
 endif()
+
+set(kaliveda_SRC kaliveda.cpp)
+
+set(kaliveda-sim_SRC kaliveda-sim.cpp)
 
 set(analyse_logs_SRC analyse_logs.cxx)
 

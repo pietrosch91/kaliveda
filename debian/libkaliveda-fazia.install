@@ -3,14 +3,10 @@
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.cpp
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.h
 /usr/share/kaliveda/etc/kaliveda-fazia.rootrc
-/usr/lib/libFAZIAdb.rootmap
 /usr/lib/libFAZIAidentification.so.1
 /usr/lib/libFAZIAdb.so.1
 /usr/lib/libFAZIAidentification.so.1.10.00
 /usr/lib/libFAZIAdb.so.1.10.00
-/usr/lib/libFAZIAidentification.rootmap
-/usr/lib/libFAZIAgeometry.rootmap
-/usr/lib/libFAZIAanalysis.rootmap
 /usr/lib/libFAZIAanalysis.so.1.10.00
 /usr/lib/libFAZIAanalysis.so.1
 /usr/lib/libFAZIAgeometry.so.1.10.00

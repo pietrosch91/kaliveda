@@ -3,10 +3,10 @@ $Id: kvdatanalyser.cxx,v 1.6 2008/02/08 08:22:57 franklan Exp $
 
 KaliVeda.C
 
-Application for launching KaliVeda INDRA data analysis tasks
+Application for launching KaliVeda data analysis tasks
 Usage:
 
-	kvdatanalyser [repository=...]
+	kvdatanalyser [repository=...] [plugin=...]
 	
 where:
    [repository] is the name of a known data repository (as defined in .kvrootrc)
@@ -34,13 +34,17 @@ int main(int argc, char **argv)
          tmp.Remove(0,11);
          repo=tmp;
       }
+      else if( tmp.Contains("plugin=") ){
+         tmp.Remove(0,7);
+         plugin=tmp;
+      }
    }
    gSystem->AddIncludePath("-I$KVROOT/include");
    new KVDataRepositoryManager;
    gDataRepositoryManager->Init();
    if(gDataRepositoryManager->GetListOfRepositories()->GetEntries()==0) exit(1);
    if(repo!="") gDataRepositoryManager->GetRepository(repo.Data())->cd();
-   KVDataAnalyser::RunAnalyser("INDRA");
+   KVDataAnalyser::RunAnalyser(plugin);
    
    delete myapp;
    delete gDataRepositoryManager;
