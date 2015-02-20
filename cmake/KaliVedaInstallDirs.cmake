@@ -64,6 +64,11 @@ else()
   set(CMAKE_INSTALL_SYSCONFDIR "etc")
 endif()
 if(gnuinstall)
+  set(CMAKE_INSTALL_MANDIR "share/man")
+else()
+  set(CMAKE_INSTALL_MANDIR "man")
+endif()
+if(gnuinstall)
   set(CMAKE_INSTALL_SYSCONFROOTDIR "share/kaliveda")
 else()
   set(CMAKE_INSTALL_SYSCONFROOTDIR ".")
@@ -87,6 +92,7 @@ set(CMAKE_INSTALL_CMAKEPKGDIR "${CMAKE_INSTALL_LIBDIR}/kaliveda")
 
 mark_as_advanced(
   CMAKE_INSTALL_BINDIR
+  CMAKE_INSTALL_MANDIR
   CMAKE_INSTALL_LIBDIR
   CMAKE_INSTALL_INCLUDEDIR
   CMAKE_INSTALL_SYSCONFDIR
@@ -102,6 +108,7 @@ mark_as_advanced(
 #
 foreach(dir BINDIR
             LIBDIR
+            MANDIR
             INCLUDEDIR
             SYSCONFDIR
             DATAROOTDIR

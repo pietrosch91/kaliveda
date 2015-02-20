@@ -46,7 +46,17 @@ if ($?thiskaliveda) then
 
 setenv KVROOT "`(cd ${thiskaliveda}/..;pwd)`"
 
+# is it an old-style or a GNU-style install ?
+set new_mandir="share/man"
+if ( -d ${KVROOT}/KVFiles ) then
+   set new_mandir="man"
+endif
 if ($?old_KVROOT) then
+   # was it an old-style or a GNU-style install ?
+   set old_mandir="share/man"
+   if ( -d ${old_KVROOT}/KVFiles ) then
+      set old_mandir="man"
+   endif
    setenv PATH `echo $PATH | sed -e "s;:$old_KVROOT/bin:;:;g" \
                                  -e "s;:$old_KVROOT/bin;;g"   \
                                  -e "s;$old_KVROOT/bin:;;g"   \
@@ -58,6 +68,24 @@ if ($?old_KVROOT) then
                                  -e "s;$old_KVROOT/lib:;;g"   \
                                  -e "s;$old_KVROOT/lib;;g"`
    endif
+   if ($?MANPATH) then
+      setenv MANPATH `echo $MANPATH | \
+                             sed -e "s;:$old_KVROOT/${old_mandir}:;:;g" \
+                                 -e "s;:$old_KVROOT/${old_mandir};;g"   \
+                                 -e "s;$old_KVROOT/${old_mandir}:;;g"   \
+                                 -e "s;$old_KVROOT/${old_mandir};;g"`
+   endif
+endif
+
+if ($?MANPATH) then
+# Nothing to do
+else
+   # Grab the default man path before setting the path to avoid duplicates
+   if ( -X manpath ) then
+      set default_manpath = `manpath`
+   else
+      set default_manpath = `man -w`
+   endif
 endif
 
 set path = ($KVROOT/bin $path)
@@ -68,8 +96,16 @@ else
    setenv LD_LIBRARY_PATH $KVROOT/lib
 endif
 
+if ($?MANPATH) then
+   setenv MANPATH `dirname $KVROOT/${new_mandir}/man1`:$MANPATH
+else
+   setenv MANPATH `dirname $KVROOT/${new_mandir}/man1`:$default_manpath
+endif
+
 endif # if ("$thiskaliveda" != "")
 
 set thiskaliveda=
+set old_mandir=
+set new_mandir=
 set old_KVROOT=
 

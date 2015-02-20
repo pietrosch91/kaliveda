@@ -41,7 +41,17 @@ else
     KVROOT=$(cd ${thiskaliveda}/..;pwd); export KVROOT
 fi
 
+# is it an old-style or a GNU-style install ?
+new_mandir="share/man"
+if [ -d "${KVROOT}/KVFiles" ]; then
+   new_mandir="man"
+fi
 if [ -n "${old_KVROOT}" ] ; then
+   # was it an old-style or a GNU-style install ?
+   old_mandir="share/man"
+   if [ -d "${old_KVROOT}/KVFiles" ]; then
+      old_mandir="man"
+   fi
    if [ -n "${PATH}" ]; then
       drop_from_path "$PATH" ${old_KVROOT}/bin
       PATH=$newpath
@@ -49,6 +59,19 @@ if [ -n "${old_KVROOT}" ] ; then
    if [ -n "${LD_LIBRARY_PATH}" ]; then
       drop_from_path $LD_LIBRARY_PATH ${old_KVROOT}/lib
       LD_LIBRARY_PATH=$newpath
+   fi
+   if [ -n "${MANPATH}" ]; then
+      drop_from_path $MANPATH ${old_KVROOT}/${old_mandir}
+      MANPATH=$newpath
+   fi
+fi
+
+if [ -z "${MANPATH}" ]; then
+   # Grab the default man path before setting the path to avoid duplicates
+   if `which manpath > /dev/null 2>&1` ; then
+      default_manpath=`manpath`
+   else
+      default_manpath=`man -w 2> /dev/null`
    fi
 fi
 
@@ -62,6 +85,12 @@ if [ -z "${LD_LIBRARY_PATH}" ]; then
    LD_LIBRARY_PATH=$KVROOT/lib; export LD_LIBRARY_PATH       # Linux, ELF HP-UX
 else
    LD_LIBRARY_PATH=$KVROOT/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
+fi
+
+if [ -z "${MANPATH}" ]; then
+   MANPATH=`dirname $KVROOT/${new_mandir}/man1`:${default_manpath}; export MANPATH
+else
+   MANPATH=`dirname $KVROOT/${new_mandir}/man1`:$MANPATH; export MANPATH
 fi
 
 unset old_KVROOT

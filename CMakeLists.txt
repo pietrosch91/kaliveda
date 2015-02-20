@@ -269,3 +269,6 @@ if(WITH_BZR_INFOS)
       )
    add_custom_target(dist DEPENDS ${CMAKE_BINARY_DIR}/${tarball})
 endif()
+
+#---install man pages for KaliVeda
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
