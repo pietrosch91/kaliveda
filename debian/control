@@ -31,7 +31,7 @@ Package: libkaliveda
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework (shared libraries)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -52,7 +52,7 @@ Description: KaliVeda data analysis framework (development files)
 Package: kaliveda-indra
 Architecture: any
 Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework
+Description: KaliVeda data analysis framework for INDRA
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -65,7 +65,7 @@ Package: libkaliveda-indra
 Section: libs
 Architecture: any
 Depends: libkaliveda (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for INDRA (shared libraries)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -76,7 +76,7 @@ Package: libkaliveda-indra-dev
 Section: libdevel
 Architecture: any
 Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for INDRA (development files)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -87,7 +87,7 @@ Package: libkaliveda-indravamos
 Section: libs
 Architecture: any
 Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for INDRAVAMOS (shared libs)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -98,7 +98,7 @@ Package: libkaliveda-indravamos-dev
 Section: libdevel
 Architecture: any
 Depends: libkaliveda-indravamos (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for INDRAVAMOS (development files)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -109,7 +109,7 @@ Package: libkaliveda-fazia
 Section: libs
 Architecture: any
 Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for FAZIA/INDRAFAZIA (shared libs)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
@@ -120,7 +120,7 @@ Package: libkaliveda-fazia-dev
 Section: libdevel
 Architecture: any
 Depends: libkaliveda-fazia (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
-Description: KaliVeda data analysis framework (development files)
+Description: KaliVeda data analysis framework for FAZIA/INDRAFAZIA (development files)
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
  .
