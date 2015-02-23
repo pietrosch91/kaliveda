@@ -14,7 +14,7 @@ Homepage: http://indra.in2p3.fr/KaliVedaDoc
 
 Package: kaliveda
 Architecture: any
-Depends: libkaliveda (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Depends: libkaliveda-dev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
 Description: KaliVeda data analysis framework
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
@@ -51,7 +51,7 @@ Description: KaliVeda data analysis framework (development files)
 
 Package: kaliveda-indra
 Architecture: any
-Depends: libkaliveda-indra (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
+Depends: libkaliveda-indra-dev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, root-system (>= 5.34.0)
 Description: KaliVeda data analysis framework for INDRA
  KaliVeda is an OO framework for simulation and analysis of
  heavy-ion collisions in the Fermi energy domain, based on ROOT.
