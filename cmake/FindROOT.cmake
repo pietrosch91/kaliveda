@@ -92,6 +92,10 @@ if(${ROOT_VERSION} VERSION_LESS 6)
 else()
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/root6)
 #	set(ROOT_USE_FILE ${PROJECT_SOURCE_DIR}/cmake/root6/ROOTUseFile.cmake)
+   #---for ROOT6 option 'cxx11' should always be set, but sometimes it is not
+   #   in the root-config --features list (???)
+   set(ROOT_cxx11_FOUND TRUE)
+   set(cxx11 TRUE)
 endif()
 set(ROOT_USE_FILE ${PROJECT_SOURCE_DIR}/cmake/ROOTUseFile.cmake)
 

@@ -8,6 +8,19 @@
 # Based on root-config.in by:
 # Author: Fons Rademakers, 06/06/99
 
+get_lib_list()
+{
+   # $1 = KVMultiDet etc.
+   # $2 = /usr/lib etc.
+   
+   unset lib_list
+   tmp=`find $2 -name 'lib'$1'*.so'`
+   if [ ! -z "$tmp" ]; then
+      tmp2=`basename -a -s .so $tmp`
+      lib_list=`echo $tmp2 | sed 's/lib'$1'/-l'$1'/g'`
+   fi
+}
+
 readlink=readlink
 if [ `uname` = "AIX" ]; then
    readlink=echo
@@ -48,7 +61,15 @@ libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
 #features= "@features@"
-libs="@kaliveda_libraries@"
+get_lib_list KVMultiDet "$libdir"
+multidetlibs="$lib_list"
+get_lib_list KVIndra $libdir
+indralibs="$lib_list"
+get_lib_list VAMOS $libdir
+vamoslibs=$lib_list
+get_lib_list FAZIA $libdir
+fazialibs=$lib_list
+libs="$fazialibs $vamoslibs $indralibs $multidetlibs"
 
 usage="\
 Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir] [--help]"
