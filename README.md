@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/kaliveda-dev/kaliveda.png?label=ready&title=Ready)](http://waffle.io/kaliveda-dev/kaliveda)
 # KaliVeda Data Analysis Toolkit
 
 KaliVeda is an object-oriented toolkit based on ROOT for the analysis of heavy-ion collisions in the Fermi energy domain.
@@ -68,4 +69,4 @@ Build the executable 'toto' by doing:
 
 See the website http://indra.in2p3.fr/KaliVedaDoc
 
-[![Stories in Ready](https://badge.waffle.io/kaliveda-dev/kaliveda.png?label=ready&title=Ready)](http://waffle.io/kaliveda-dev/kaliveda)
+
