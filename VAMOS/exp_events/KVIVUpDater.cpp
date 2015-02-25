@@ -5,7 +5,10 @@
 #include "KVINDRA.h"
 #include "KVMultiDetArray.h"
 #include "KVIDGridManager.h"
+#include "KVConfig.h"
+#ifdef WITH_FITLTG
 #include "KVRTGIDManager.h"
+#endif
 #include "KVDBParameterSet.h"
 #include "KVINDRADetector.h"
 #include "KVINDRADB.h"
@@ -52,19 +55,25 @@ void KVIVUpDater::SetIDGrids(UInt_t run){
     TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
 
     KVIDTelescope  *idt    = NULL;
+#ifdef WITH_FITLTG
 	KVRTGIDManager *rtgidm = NULL;
+#endif
 
     while ((idt = (KVIDTelescope *) next_idt()))
     {
         idt->RemoveGrids();
+#ifdef WITH_FITLTG
 		if(idt->InheritsFrom("KVRTGIDManager")){
  			rtgidm = (KVRTGIDManager *)idt->IsA()->DynamicCast(KVRTGIDManager::Class(),idt);
  			rtgidm->RemoveAllTGID();
 		}
+#endif
 
     }
     gMultiDetArray->SetGridsInTelescopes(run);
+#ifdef WITH_FITLTG
 	KVRTGIDManager::SetIDFuncInTelescopes(run);
+#endif
 }
 //________________________________________________________________
 

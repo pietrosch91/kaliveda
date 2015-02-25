@@ -2,7 +2,10 @@
 //Author: franklan
 
 #include "KVINDRAe503.h"
+#include "KVConfig.h"
+#ifdef WITH_FITLTG
 #include "KVRTGIDManager.h"
+#endif
 
 ClassImp(KVINDRAe503)
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +43,8 @@ void KVINDRAe503::SetGroupsAndIDTelescopes(){
    // SetIdentifications() in order to reinitialize all that.
 
 
+#ifdef WITH_FITLTG
 	KVRTGIDManager::Clear();
+#endif
 	KVINDRA::SetGroupsAndIDTelescopes();
 }
