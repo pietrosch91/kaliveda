@@ -67,3 +67,5 @@ Build the executable 'toto' by doing:
 ## More information
 
 See the website http://indra.in2p3.fr/KaliVedaDoc
+
+[![Stories in Ready](https://badge.waffle.io/kaliveda-dev/kaliveda.png?label=ready&title=Ready)](http://waffle.io/kaliveda-dev/kaliveda)
