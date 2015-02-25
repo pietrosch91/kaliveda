@@ -86,7 +86,6 @@ void KVVAMOSReconNuc::init()
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
 
 	fStripFoilEloss = 0;
-	fToF = fFlightDist = 0;
 	fDetE = NULL;
 }
 //________________________________________________________________
@@ -314,7 +313,7 @@ void KVVAMOSReconNuc::GetAnglesFromStoppingDetector(Option_t *){
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetRealA() const{
+Double_t KVVAMOSReconNuc::GetRealA( const Char_t *tof_name ) const{
 	// Returns the real value of the mass number calculated for the 
 	// measured energy and the measured time of flight.
 	// Begin_Latex 
@@ -325,14 +324,14 @@ Double_t KVVAMOSReconNuc::GetRealA() const{
 	//   u     : atomic mass unit in MeV/c^2
 	//   gamma : Lorentz factor calculated from the velocity
 	//           deduced from the time of flight measurment
+	//           with name tof_name
 	//
-	//This method overrides the same method in the mother class.
 
-	return CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), GetBetaFromToF() );
+	return CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), GetBeta(tof_name) );
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
+Double_t KVVAMOSReconNuc::GetRealAoverQ( const Char_t *tof_name ) const{
 	// returns the ratio between the mass number A and the charge state Q
 	// calculated from the measurment of the Time of Flight of the nucleus.
 	// The returned value is real. Returns zero if the time of flight is
@@ -345,12 +344,25 @@ Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
 	//   C             : speed of light in vacuum in cm/ns 
 	//   beta and gamma: relativistic quantities calculated from the velocity
 	//                   deduced from the time of flight measurment
+	//                   with name tof_name
 	
-	return GetMassOverQ()/u();
+	return GetMassOverQ(tof_name)/u();
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetMassOverQ() const{
+Double_t KVVAMOSReconNuc::GetRealQ( const Char_t *tof_name ) const{
+	// Returns the real value of the charge state calculated for the 
+	// measured energy and the measured time of flight (tof_name).
+
+	Double_t beta = GetBeta(tof_name);
+	Double_t A = CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), beta );
+	Double_t AoQ = CalculateMassOverQ( GetBrho(), beta )/u();
+	return A/AoQ;
+}
+
+//________________________________________________________________
+
+Double_t KVVAMOSReconNuc::GetMassOverQ( const Char_t *tof_name ) const{
 	// returns the ratio between the mass (MeV/c^2) and the charge state Q
 	// calculated from the measurment of the Time of Flight of the nucleus.
 	// The returned value is real. Returns zero if the time of flight is
@@ -362,8 +374,9 @@ Double_t KVVAMOSReconNuc::GetMassOverQ() const{
 	//   C             : speed of light in vacuum in cm/ns 
 	//   beta and gamma: relativistic quantities calculated from the velocity
 	//                   deduced from the time of flight measurment
+	//                   with name tof_name
 	
-	return CalculateMassOverQ( GetBrho(), GetBetaFromToF() );
+	return CalculateMassOverQ( GetBrho(), GetBeta(tof_name) );
 }
 //________________________________________________________________
 
@@ -382,7 +395,7 @@ void KVVAMOSReconNuc::IdentifyZ()
    	//Unidentified nuclei receive the general ID code for non-identified particles (kIDCode14)
 
    	Bool_t ok = kFALSE;
- 	KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+ 	KVSeqCollection *idt_list = GetIDTelescopes();
     if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
@@ -404,10 +417,10 @@ void KVVAMOSReconNuc::IdentifyZ()
 					if( !ok && IDR->IDOK ){
 						ok = kTRUE;
 						SetIsZidentified();
-       					KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( IDR->GetType() );
+       					KVIDTelescope* idt = (KVIDTelescope*)idt_list->FindObjectByType( IDR->GetType() );
         				if( !idt ){
         					Warning("IdentifyZ", "cannot find ID telescope with type %s", IDR->GetType());
-        					GetIDTelescopes()->ls();
+        					idt_list->ls();
         					IDR->Print();
         				}
         				SetIdentifyingTelescope(  idt );
@@ -433,6 +446,57 @@ void KVVAMOSReconNuc::IdentifyQandA()
 {
    	// VAMOS-specific Q and A identification.
    	Warning("IdentifyQandA()","TO BE IMPLEMENTED");
+
+	Bool_t ok = kFALSE;
+ 	KVSeqCollection *idt_list = GetIDTelescopes();
+    if (idt_list && idt_list->GetSize() > 0) {
+
+        KVIDTelescope *idt;
+        TIter next(idt_list);
+        Int_t idnumber = 1;
+        while ((idt = (KVIDTelescope *) next())) {
+
+			// if it is not a ID-telescope for Q and A identification
+			// then go to the next one
+			if( !idt->InheritsFrom(KVIDQA::Class()) ) continue;
+
+			KVIDQA *qa_idt = (KVIDQA *)idt;
+
+			/*
+            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+
+            if ( IDR ){
+                if(qa_idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+                    IDR->IDattempted = kTRUE;
+                    qa_idt->Identify( IDR );
+   					// for all nuclei we take the first identification which gives IDOK==kTRUE
+					if( !ok && IDR->IDOK ){
+						ok = kTRUE;
+						SetIsQandAidentified();
+       					KVIDTelescope* idt = (KVIDTelescope*)idt_list->FindObjectByType( IDR->GetType() );
+        				if( !idt ){
+        					Warning("IdentifyQandA", "cannot find ID telescope with type %s", IDR->GetType());
+        					idt_list->ls();
+        					IDR->Print();
+        				}
+        				SetIdentifyingTelescope(  idt );
+        				SetIdentification( IDR );
+					}
+                }
+                else
+                    IDR->IDattempted = kFALSE;
+			}
+			*/
+		}
+	}
+
+   	if(!ok){
+      	/******* UNIDENTIFIED PARTICLES *******/
+
+      	/*** general ID code for non-identified particles ***/
+      	SetTCode( kTCode0 );
+   	}
+
 }
 //________________________________________________________________
 
@@ -754,7 +818,7 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	return kTRUE;
 }
 //________________________________________________________________
-
+/*
 void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	// Set the best calibrated time of flight (ToF) and correct the path to 
 	// set the distance associated to this ToF. The best ToF is found from
@@ -769,68 +833,83 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	//    covered between the focal plan and the start detector for HF-time. 
 	//  - the distance between the two detectors.
 
-	TIter next_det( GetDetectorList() );
-	KVVAMOSDetector *det   = NULL;
-	KVVAMOSDetector *stop  = NULL;
-	const Char_t *t_type   = NULL;
-	const Char_t *par_name = NULL;
-	KVACQParam *par        = NULL;
-	Bool_t ok              = kFALSE;
-	Double_t calibT        = 0; 
-	Bool_t isT_HF          = kFALSE;
 
 	// loop over the time acquisition parameters
 	for( Short_t i=0; !ok && (par_name = GetCodes().GetToFName(i)); i++ ){
 
-		par = gVamos->GetVACQParam( par_name );
-		if( !par ) continue;
-
-		t_type = par_name+1;
-		isT_HF = !strcmp("HF",par->GetLabel());
-		
-		next_det.Reset();
-		stop = NULL;
-		// look for start and stop detectors
-		while( (det = (KVVAMOSDetector *)next_det()) ){
-
-			// for HF time we only need the start detector
-			if( isT_HF ){
-			 	if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
-					ok = kTRUE;
-					break;
- 				}
-			}
-			// otherwise we need start and stop detectors
-			else{
- 				if( !stop && det->IsStopForT( t_type ) ){
-					stop = det;
-				}
-				else if( stop && det->IsStartForT( t_type )  && (calibT = det->GetCalibT( t_type ))>0 ){
-					ok = kTRUE;
-					break;
-				}
-			}
-		}
+		ok = GetCorrFlightDistanceAndTime( fFlightDist, fToF, par_name );
 	}
 
 	if( !ok ){ 
 		SetTCode( kTCode0 );
 		return;
 	}
-
-
-	// FIRST METHODE
+	
 	ok &= SetFlightDistance( det, stop );
  	fToF = ( isT_HF ? GetCorrectedT_HF( calibT, fFlightDist ) : calibT );
 
-	// SECOND METHODE
-//	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
-
 	SetTCode(( ok ? par->GetName() : "") );
+}
+*/
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t tof, const Char_t *tof_name ) const{
+	// Returns true if the corrected fligh distance (dist) and the corrected time of flight (tof)
+	// is correctly calculated. 
+	// The first calibrated and fired acq. parameter belonging both to
+	// the start detector and to the stop detector (only to the start detector 
+	// for an HF-time)  of the list fDetList will be chosen, and the total flight distance
+	// will be equal to:
+	//  - the path (from target point to focal plan) corrected on the distance
+	//    covered between the focal plan and the start detector for HF-time. 
+	//  - the distance between the two detectors.
+
+
+	dist = tof = -1.;
+
+	KVACQParam *par = gVamos->GetVACQParam( tof_name );
+	if( !par ) return kFALSE;
+
+	const Char_t *t_type = tof_name+1;
+	Bool_t isT_HF        = !strcmp("HF",par->GetLabel());
+	Bool_t ok            = kFALSE;
+	Double_t calibT      = 0; 
+
+	TIter next_det( GetDetectorList() );
+	KVVAMOSDetector *det   = NULL;
+	KVVAMOSDetector *stop  = NULL;
+	// look for start and stop detectors
+	while( (det = (KVVAMOSDetector *)next_det()) ){
+
+		// for HF time we only need the start detector
+		if( isT_HF ){
+			if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
+				ok = kTRUE;
+				break;
+ 			}
+		}
+		// otherwise we need start and stop detectors
+		else{
+ 			if( !stop && det->IsStopForT( t_type ) ){
+				stop = det;
+			}
+			else if( stop && det->IsStartForT( t_type )  && (calibT = det->GetCalibT( t_type ))>0 ){
+				ok = kTRUE;
+				break;
+			}
+		}
+	}
+
+	if( !ok ) return kFALSE;
+	
+	dist = GetPath( det, stop );
+ 	tof  = ( isT_HF ? GetCorrectedT_HF( calibT, dist ) : calibT );
+
+	return kTRUE;
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist){
+Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist) const {
 	// Returns the corrected time of flight obtained from beam pulse HF, by 
 	// removing or adding N times the beam pulse period. N is fitted by 
 	// minimizing the difference between the measured energy (Emeas) and the energy (E) deduced
@@ -862,155 +941,6 @@ Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist){
 	Double_t alpha = 1./(GetEnergy()/GetMass()+1.);
 	Int_t n = TMath::Nint((dist/(C()*TMath::Sqrt(1.-alpha*alpha))-tof)/gVamos->GetBeamPeriod());
 	return tof + n*gVamos->GetBeamPeriod();
-}
-//________________________________________________________________
-
-Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop){
-	// Set the corrected flight distance/time  which will give the real velocity
-	// of the nucleus prior to entering VAMOS. It is the distance/time between the nucleus's
-	// exit in the stripping foil, if this nucleus loses energy inside this foil,
-	// otherwise in the target, and the entry in the first crossed detector.
-	//
-	// WARNING: this method has to be called after the energy calibration.
-
-	fFlightDist = 0.;
-	fToF        = 0.;
-
-	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
-	if( GetPath()<=0. ) return kFALSE;
-	
-
-	//Find the first crossed detector and its DeltaPath
-	Double_t DeltaPath = 0.;	
-	KVVAMOSDetector *cros_det = NULL;
-	Int_t Ndet = GetDetectorList()->GetEntries() ;
-	for( Int_t i=Ndet-1; i>=0; i-- ){
-		cros_det = (KVVAMOSDetector *)GetDetectorList()->At(i);
-		DeltaPath = GetDeltaPath( cros_det );
-		if( DeltaPath != 0. ) break;
-		cros_det = NULL;
-	}
-
-	if( !cros_det ){ 
-		Error("SetCorrectedFlightDistance","First crossed detector not found");
-		return kFALSE;
-	}
-
-
-	fFlightDist = GetPath();
-	fToF        = tof;
-
-	cout<<endl;
-	Info("SetCorrectedFlightDistance","Initial Path= %f cm, and ToF= %f ns", fFlightDist, fToF);
-	
-	static KVNucleus nuc;
-	nuc.SetZandA( GetZ(), GetA() );
-
-	Double_t Zlab     = TMath::Abs( GetLabDirection().Z() );
-	Bool_t   isT_HF   = ( stop ? kFALSE : kTRUE );
-
-	if( Zlab ){
-
-		//Calculate the effective thickness of the target in cm
-		Double_t targ_thick = 0.; //in cm
-		TIter next( gMultiDetArray->GetTarget()->GetLayers() );
-		KVMaterial *mat = NULL;
-   		while ((mat = (KVMaterial *) next())){
-      		targ_thick += mat->GetThickness();
-   		}
-		targ_thick = targ_thick/Zlab/2.;
-
-		//Calculate the distance between target point-stripping foil 
-		Double_t strip_foil_dist  = gVamos->GetStripFoilPosition()/Zlab;
-
-		//Calculate the effective thickness of the stripping foil 
-		Double_t strip_foil_thick = gVamos->GetStripFoil()->GetThickness()/Zlab;
-
-		if( isT_HF ){
-			//TIME: remove the DeltaT in the target
-			nuc.SetEnergy( GetEnergy() );
-			fToF -= targ_thick/nuc.GetV().Mag();
-			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(target)= %f ns", targ_thick/nuc.GetV().Mag());
-
-			//TIME: remove the TOF between the target and the stripping foil
-			nuc.SetEnergy( GetEnergy() - GetTargetEnergyLoss() );
-			fToF -= ( strip_foil_dist - targ_thick )/nuc.GetV().Mag();
-			Info("SetCorrectedFlightDistance","TIME: removing T(target-strip_foil)= %f ns", ( strip_foil_dist - targ_thick )/nuc.GetV().Mag());
-
-			//TIME: remove the DeltaT in the stripping foil
-			fToF -= strip_foil_thick/nuc.GetV().Mag();
-			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(strip_foil)= %f ns",strip_foil_thick/nuc.GetV().Mag());
-		}
-
-		if( GetStripFoilEnergyLoss()>0. ){
-
-			//DISTANCE: remove the distance between target-stripping foil
-			fFlightDist -= strip_foil_dist;
-			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilPosition= %f cm", strip_foil_dist);
-
-			//DISTANCE: remove the stripping foil effective thickness
-			fFlightDist -= strip_foil_thick;
-			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilThickness= %f cm", strip_foil_thick);
-		}
-		else{
-			//DISTANCE: remove the half of the target effective thickness
-			fFlightDist -= targ_thick;
-			Info("SetCorrectedFlightDistance","DISTANCE: removing Thick_Target= %f cm", targ_thick);
-		}
-	}
-
-
-	//DISTANCE: remove the DeltaPath of the first crossed detector
-	fFlightDist += DeltaPath;
-	Info("SetCorrectedFlightDistance","adding DeltaPath(%s)= %f cm: final FlightDist= %f cm", cros_det->GetName(), DeltaPath, fFlightDist);
-
-
-	if( isT_HF ){
-		//TIME: remove DeltaT/ToF in/between layers placed before the active
-		//layer of the first crossed detector
-		KVVAMOSDetector *det = NULL;
-		for( Int_t i=Ndet-1; i>=0; i-- ){
-			det = (KVVAMOSDetector *)GetDetectorList()->At(i);
-			// I STOP HERE
-			// I STOP HERE
-			// I STOP HERE
-		
-			if( det == cros_det ) break;
-		}
-	}
-
-	//TIME CORRECTION FOR NOT T_HF IS NOT IMPLEMENTED
-
-	return kTRUE;
-}
-//________________________________________________________________
-
-Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop){
-	// Sets the flight distance from the start detector to the stop detector.
-	// If stop=NULL then the corresponding time of flight 
-	// is assumed to be measured from the beam HF and the distance will be
-	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
-	// the trajectory position at the focal plane (FP) and the trajectory position
-	// at the start detector if this detector is localised behinds the FP (or
-	// forwards the FP).
-
-	fFlightDist = 0;
-
-	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
-	fFlightDist = GetPath( start, stop );
-
-	if( fFlightDist > 0. ) return kTRUE;
-
-	static Int_t n=0;
-	if( (n <10) || (n%100==0)){
-	TString warn;
-	if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
-	else  warn.Form("target point and detector %s",start->GetName());
-	Warning("SetFlightDistance","Warn %d: Impossible to set flight distance between %s; FPCode%d (%s)",n,warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
-	}
-	n++;
-
-	return kFALSE;
 }
 //________________________________________________________________
 

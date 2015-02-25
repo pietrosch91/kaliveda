@@ -235,11 +235,7 @@ void KVVAMOSReconEvent::IdentAndCalibEvent(){
 		//-----------------------
 		// Calibration
 		//-----------------------
-		if (d->IsZidentified() && !d->IsCalibrated()){
-            d->Calibrate();
-			// Time/Distance of Flight calibration
-			d->SetFlightDistanceAndTime();
-      	}
+		if (d->IsZidentified() && !d->IsCalibrated()) d->Calibrate();
 
 		//--------------------------------------------------------------------------
 		//All particles which have previously Z-identified (IsZidentified=kTRUE) and 

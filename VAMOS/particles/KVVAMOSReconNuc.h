@@ -25,15 +25,11 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
 		Double_t               fStripFoilEloss; // calculated energy lost in the stripping foil
-		Float_t                fToF;            //Time of Flight value in ns
-		Float_t                fFlightDist;     //Flight distance in cm
 
 		Float_t               *fDetE;           //!array with the corrected energy lost in each detector of fDetList
 
 		virtual void CalibrateFromDetList();
 		virtual void MakeDetectorList();
-		virtual Bool_t SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
-		virtual Bool_t SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
 		KVVAMOSReconGeoNavigator *GetNavigator();
 
    	public:
@@ -44,7 +40,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void Copy (TObject&) const;
 		void init();
 
-		virtual Float_t  GetCorrectedT_HF( Float_t tof, Float_t dist);
+				Bool_t   GetCorrFlightDistanceAndTime( Double_t &dist, Double_t tof, const Char_t *tof_name ) const;
+		virtual Float_t  GetCorrectedT_HF( Float_t tof, Float_t dist)   const;
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
@@ -55,11 +52,20 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 				Float_t  GetEnergy( const Char_t *det_label )        const;
 				Float_t  GetEnergyAfter( const Char_t *det_label )   const;
 				Float_t  GetEnergyBefore( const Char_t *det_label )  const;
-		        Double_t GetMassOverQ()                              const;
+		        Double_t GetMassOverQ( const Char_t *tof_name )      const;
                 Float_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
                 Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
+
+				Double_t GetRealA( const Char_t *tof_name )          const;
+		        Double_t GetRealAoverQ( const Char_t *tof_name )     const;
+		        Double_t GetRealQ( const Char_t *tof_name )          const;
+				/*
 		        Double_t GetRealA()                                  const;
 		        Double_t GetRealAoverQ()                             const;
+		        Double_t GetRealQ()                                  const;
+				*/
+
+				
  		virtual void     IdentifyZ();
  		virtual void     IdentifyQandA();
 		virtual void     ReconstructTrajectory();
@@ -68,7 +74,6 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual Bool_t   ReconstructLabTraj();
 
 		virtual void     Propagate(ECalib cal = kNoCalib);
-		virtual void     SetFlightDistanceAndTime();
 
 
 		//-------------- inline methods -----------------//
@@ -76,16 +81,15 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Double_t beta );
 		static  Double_t         CalculateMassOverQ( Float_t Brho, Double_t beta );
 		static  Double_t         CalculateRealA( Int_t Z,Double_t E, Double_t beta );
-		        Double_t         GetBetaFromToF()                    const;
+		        Double_t         GetBeta( const Char_t *tof_name )   const;
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
 				using    KVReconstructedNucleus::GetDetector;
 				KVDetector      *GetDetector( const Char_t *det_label );
 				Float_t          GetEnergy( Int_t idx_det )          const;
 				Double_t         GetEnergyBeforeVAMOS()              const;
-				Float_t          GetFlightDistance()                 const;
    		const   TVector3        &GetFocalPlaneDirection()            const;
-				Double_t         GetGammaFromToF()                   const;
+				Double_t         GetGamma( const Char_t *tof_name )  const;
    		const   TVector3        &GetLabDirection()                   const;
                 Float_t          GetPath()                           const;
                 Float_t          GetPhiF()                           const;
@@ -95,14 +99,11 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
         	    Float_t          GetThetaF()                         const;
 	            Float_t          GetThetaL()                         const;
                 Float_t          GetThetaV()                         const;
-				Float_t          GetTimeOfFlight()                   const;
-				Float_t          GetToF()                            const;
-				Double_t         GetVelocityFromToF()                const;
                 Float_t          GetXf()                             const;
 	            Float_t          GetYf()                             const;
+				using KVReconstructedNucleus::GetVelocity;
+				Double_t         GetVelocity(const Char_t *tof_name) const;
    		virtual	void             SetECode(UChar_t code_mask);
-		virtual void             SetFlightDistanceAndTime(Float_t dist, Float_t time);
-		virtual Bool_t           SetFlightDistanceAndTime(Float_t time, KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL);
    		virtual void             SetFPCode(UInt_t code_mask);
  		virtual void             SetIDCode(UShort_t code_mask);
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
@@ -215,8 +216,8 @@ inline Double_t KVVAMOSReconNuc::CalculateMassOverQ( Float_t Brho, Double_t beta
 }
 //____________________________________________________________________________________________//
 
-inline Double_t KVVAMOSReconNuc::GetBetaFromToF() const{
-	return GetVelocityFromToF()/C();
+inline Double_t KVVAMOSReconNuc::GetBeta( const Char_t *tof_name ) const{
+	return GetVelocity(tof_name)/C();
 }
 //____________________________________________________________________________________________//
 
@@ -252,11 +253,6 @@ inline Double_t KVVAMOSReconNuc::GetEnergyBeforeVAMOS() const{
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetFlightDistance() const{
-	return fFlightDist;
-}
-//____________________________________________________________________________________________//
-
 inline const TVector3 &KVVAMOSReconNuc::GetFocalPlaneDirection() const{
 	// Returns the trajectory normalized direction in the focal-plane frame
 	// of reference
@@ -264,8 +260,8 @@ inline const TVector3 &KVVAMOSReconNuc::GetFocalPlaneDirection() const{
 }
 //____________________________________________________________________________________________//
 
-inline Double_t KVVAMOSReconNuc::GetGammaFromToF() const{
-	Double_t b = GetBetaFromToF();
+inline Double_t KVVAMOSReconNuc::GetGamma( const Char_t *tof_name ) const{
+	Double_t b = GetBeta(tof_name);
 	return 1.0/TMath::Sqrt( 1 - b*b );
 }
 //____________________________________________________________________________________________//
@@ -326,21 +322,6 @@ inline Float_t KVVAMOSReconNuc::GetThetaV() const{
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetTimeOfFlight() const{
-	return fToF;
-}
-//____________________________________________________________________________________________//
-
-inline Float_t KVVAMOSReconNuc::GetToF() const{
-	return GetTimeOfFlight();
-}
-//____________________________________________________________________________________________//
-
-inline Double_t KVVAMOSReconNuc::GetVelocityFromToF() const{
-return (fToF ? fFlightDist/fToF : 0); 
-}
-//____________________________________________________________________________________________//
-
 inline Float_t KVVAMOSReconNuc::GetXf() const{
 	return fRT.pointFP[0];
 }
@@ -351,31 +332,17 @@ inline Float_t KVVAMOSReconNuc::GetYf() const{
 }
 //____________________________________________________________________________________________//
 
+inline Double_t KVVAMOSReconNuc::GetVelocity(const Char_t *tof_name) const{
+	Double_t t, d;
+	if( GetCorrFlightDistanceAndTime( d, t, tof_name ) ) return d/t;
+	return 0.;
+}
+//____________________________________________________________________________________________//
+
 inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
 {
    	//Sets code for energy calibration
    	GetCodes().SetECode(code_mask);
-}
-//____________________________________________________________________________________________//
-		
-inline void KVVAMOSReconNuc::SetFlightDistanceAndTime(Float_t dist, Float_t time){
-	//Sets flight distance in cm and the time of flight in ns;
-	//This will change the TCode ( kTCode0 )
-	fFlightDist = dist;
-	fToF = time;
-	SetTCode( kTCode0 );
-}
-//____________________________________________________________________________________________//
-		
-inline Bool_t KVVAMOSReconNuc::SetFlightDistanceAndTime(Float_t time, KVVAMOSDetector *start, KVVAMOSDetector *stop){
-	//Sets flight distance from the start and the stop detector, and sets the time 
-	//of flight in ns;
-	//This will change the TCode ( kTCode0 ) and return kTRUE if the distance
-	//can be calculated by the reconstructed trajectory between start and stop
-	//detectors
-	fToF = time;
-	SetTCode( kTCode0 );
-	return SetFlightDistance( start, stop );
 }
 //____________________________________________________________________________________________//
 
