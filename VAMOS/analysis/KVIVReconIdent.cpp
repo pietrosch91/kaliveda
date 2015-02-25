@@ -128,20 +128,8 @@ Bool_t KVIVReconIdent::Analysis(void){
 	       // old recon ROOT files
 
 	   	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
-	   	   // Z-identification
-	   	   IVevent->IdentifyVAMOSEvent_Z();
-
-	   	   // first calibration with only Z known and mean A from mass formula
-	   	   IVevent->CalibrateVAMOSEvent();
-		   //
-		   //	   // firt A-identification
-		   //	   IVevent->IdentifyVAMOSevent_A();
-		   //
-		   //	   // second calibration with Z and A known
-		   //	   IVevent->CalibrateVAMOSevent();
-		   //
-		   //	   //second A-identification
-		   //	   IVevent->IdentifyVAMOSevent_A();
+	   	   // Z-identification, calibration and Q-A identification
+	   	   IVevent->IdentAndCalibVAMOSEvent();
    	   }
    }
 

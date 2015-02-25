@@ -19,6 +19,10 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		KVVAMOSCodes fCodes; //Focal plane Pos. recon., calib. and ident. codes
 	protected:
 
+		enum {
+        	kIsQAidentified = BIT(23)  //flag set when Q and A identification of particle is complete
+    	};
+
 		KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
 		Double_t               fStripFoilEloss; // calculated energy lost in the stripping foil
 		Float_t                fToF;            //Time of Flight value in ns
@@ -56,7 +60,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
 		        Double_t GetRealA()                                  const;
 		        Double_t GetRealAoverQ()                             const;
- 		virtual void     Identify();
+ 		virtual void     IdentifyZ();
+ 		virtual void     IdentifyQandA();
 		virtual void     ReconstructTrajectory();
 		virtual void     ReconstructFPtraj();
 		virtual Bool_t   ReconstructFPtrajByFitting();
@@ -105,7 +110,13 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void             SetTCode(const Char_t *parname);
 		        void             SetXYf(Float_t x, Float_t y);
 
-		
+				Bool_t IsZidentified()                              const;
+				Bool_t IsQandAidentified()                          const;
+				void SetIsZidentified();
+				void SetIsZunidentified();
+				void SetIsQandAidentified();
+				void SetIsQandAunidentified();
+
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
 
@@ -408,5 +419,24 @@ inline void KVVAMOSReconNuc::SetXYf(Float_t x, Float_t y){
 	fRT.pointFP[0] = x;
 	fRT.pointFP[1] = y;
 }
+//____________________________________________________________________________________________//
+
+inline Bool_t KVVAMOSReconNuc::IsZidentified() const{ return IsIdentified(); }
+//____________________________________________________________________________________________//
+
+inline Bool_t KVVAMOSReconNuc::IsQandAidentified() const{ return TestBit(kIsQAidentified); }
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetIsZidentified() { SetIsIdentified();         }
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetIsZunidentified() { SetIsUnidentified();       }
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetIsQandAidentified() { SetBit(kIsQAidentified);   }
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetIsQandAunidentified() { ResetBit(kIsQAidentified); }
+
 
 #endif

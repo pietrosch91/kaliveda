@@ -8,6 +8,7 @@
 #include "KVTarget.h"
 #include "TGraphErrors.h"
 #include "TROOT.h"
+#include "KVIDQA.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -105,9 +106,6 @@ void KVVAMOSReconNuc::Calibrate(){
     //   gVamos->GetStripFoilEnergyLossCorrection();
     //   gMultiDetArray->GetTargetEnergyLossCorrection().
 
-
-	//	Info("Calibrate","IN");
-
 	CalibrateFromDetList();
 
     if ( IsCalibrated() && GetEnergy()>0 ){
@@ -132,17 +130,12 @@ void KVVAMOSReconNuc::Calibrate(){
 
         	//add correction for target energy loss - moving charged particles only
         	if( gMultiDetArray->GetTarget() ){
-				gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
-          		gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
 				E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
         		SetTargetEnergyLoss( E_targ );
 				SetEnergy( E_tot += E_targ );
 			}
         }
     }
-
-//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f, momentum= %f",GetEnergy(), GetTheta(), GetPhi(), GetMomentum().Mag());
-//    cout<<endl;
 }
 //________________________________________________________________
 		
@@ -374,14 +367,11 @@ Double_t KVVAMOSReconNuc::GetMassOverQ() const{
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::Identify()
+void KVVAMOSReconNuc::IdentifyZ()
 {
    	// VAMOS-specific Z identification.
-   	// Here we attribute the general identification codes depending on the
-   	// result of KVReconstructedNucleus::Identify and the subcodes from the different
+   	// Here we attribute the general identification codes and the subcodes from the different
    	// identification algorithms:
-   	// If the particle's mass A was NOT measured, we make sure that it is calculated
-   	// from the measured Z using the mass formula defined by default
    	//
    	//IDENTIFIED NUCLEI
    	//Identified nuclei with ID code = 2 with subcodes 4 & 5
@@ -391,41 +381,58 @@ void KVVAMOSReconNuc::Identify()
    	//UNIDENTIFIED NUCLEI
    	//Unidentified nuclei receive the general ID code for non-identified particles (kIDCode14)
 
-   	KVReconstructedNucleus::Identify();
-
-   	KVIdentificationResult partID;
    	Bool_t ok = kFALSE;
+ 	KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+    if (idt_list && idt_list->GetSize() > 0) {
 
-   	// for all nuclei we take the first identification which gives IDOK==kTRUE
-   	Int_t id_no = 1;
-   	KVIdentificationResult *pid = GetIdentificationResult(id_no);
-   	while( pid ){
-	   	if( pid->IDattempted && pid->IDOK ){
-		   	ok = kTRUE;
-		   	partID = *pid;
-		   	break;
-	   	}
-	   	++id_no;
-	   	pid = GetIdentificationResult(id_no);
-   	}
+        KVIDTelescope *idt;
+        TIter next(idt_list);
+        Int_t idnumber = 1;
+        while ((idt = (KVIDTelescope *) next())) {
 
-   	if(ok){
-       	SetIsIdentified();
-       	KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
-        if( !idt ){
-        	Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
-        	GetIDTelescopes()->ls();
-        	partID.Print();
-        }
-        SetIdentifyingTelescope(  idt );
-        SetIdentification( &partID );
-   	}
-	else{
+			// if it is not a ID-telescope for Z-identification
+			// then go to the next one
+			if( idt->InheritsFrom(KVIDQA::Class()) ) continue;
+
+            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+
+            if ( IDR ){
+                if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+                    IDR->IDattempted = kTRUE;
+                    idt->Identify( IDR );
+   					// for all nuclei we take the first identification which gives IDOK==kTRUE
+					if( !ok && IDR->IDOK ){
+						ok = kTRUE;
+						SetIsZidentified();
+       					KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( IDR->GetType() );
+        				if( !idt ){
+        					Warning("IdentifyZ", "cannot find ID telescope with type %s", IDR->GetType());
+        					GetIDTelescopes()->ls();
+        					IDR->Print();
+        				}
+        				SetIdentifyingTelescope(  idt );
+        				SetIdentification( IDR );
+					}
+                }
+                else
+                    IDR->IDattempted = kFALSE;
+			}
+		}
+	}
+
+   	if(!ok){
       	/******* UNIDENTIFIED PARTICLES *******/
 
       	/*** general ID code for non-identified particles ***/
       	SetIDCode( kIDCode14 );
    	}
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::IdentifyQandA()
+{
+   	// VAMOS-specific Q and A identification.
+   	Warning("IdentifyQandA()","TO BE IMPLEMENTED");
 }
 //________________________________________________________________
 

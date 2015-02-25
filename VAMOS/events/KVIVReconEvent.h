@@ -54,9 +54,8 @@ class KVIVReconEvent : public KVINDRAReconEvent
 		Int_t GetINDRAMult(Option_t * opt = ""){ return KVINDRAReconEvent::GetMult( opt ); }
 
 		Int_t GetVAMOSMult(Option_t * opt = ""){ return fVAMOSev->GetMult( opt ); }
-		void  IdentifyVAMOSEvent_A(){ fVAMOSev->IdentifyEvent_A(); }
 
-		void  IdentifyVAMOSEvent_Z(){ fVAMOSev->IdentifyEvent_Z(); }
+		void  IdentAndCalibVAMOSEvent(){ fVAMOSev->IdentAndCalibEvent(); }
 
 		void ResetGetNextNucleus(){ fVAMOSev->ResetGetNextNucleus(); }
 
