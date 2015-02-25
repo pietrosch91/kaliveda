@@ -115,6 +115,10 @@ endif()
 
 #--- ID Grid fitting routines provided by Laurent Tassan-Got
 option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" ON)
+if(USE_FITLTG)
+	#---check if fitltg module can be built; if not, option is disabled by default
+	include(CheckFitLTG)
+endif()
 add_feature_info(fitltg USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids")
 if(USE_FITLTG)
 	set(WITH_FITLTG yes)
