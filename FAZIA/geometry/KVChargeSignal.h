@@ -27,7 +27,7 @@ class KVChargeSignal : public KVSignal
    
    virtual ~KVChargeSignal();
    void Copy(TObject& obj) const;
-    virtual KVPSAResult* TreateSignal(Bool_t with_pole_zero_correction=kTRUE);
+    virtual KVPSAResult* TreateSignal();
    virtual KVPSAResult* TreateSignal(TF1* filter);
    
    Double_t GetMaxFluctuationsWindow(Double_t* window,Int_t width=10);

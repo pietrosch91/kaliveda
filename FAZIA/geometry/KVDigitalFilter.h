@@ -104,7 +104,7 @@ public:
 
 
     inline const double & GetTauClk(){return tau_clk;}
-    inline const int GetNCoeff(){return Ncoeff;}
+    inline int GetNCoeff(){return Ncoeff;}
     /************************ FILTRAGGIO ********************************/
     void ApplyTo(double *data, const int N, int reverse=0) const;
     void ApplyTo(float  *data, const int N, int reverse=0) const;

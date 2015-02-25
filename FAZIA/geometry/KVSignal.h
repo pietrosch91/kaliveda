@@ -37,6 +37,7 @@ protected:
    Double_t fTrapRiseTime;          // rise time of the trapezoidal shaper
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
    Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
+   Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
 
 public:
    KVSignal();
@@ -51,7 +52,7 @@ public:
    void SetData(Int_t nn, Double_t* xx, Double_t* yy);
    void Init();
 
-   virtual KVPSAResult* TreateSignal(Bool_t with_pole_zero_correction=kTRUE);
+   virtual KVPSAResult* TreateSignal();
    virtual void ComputeGlobals(void);
    virtual void SetDefaultValues(){}
 
@@ -75,6 +76,7 @@ public:
    void SetTauRC(Int_t taurc)                                 {fTauRC=taurc;}
    void SetTrapShaperParameters(Double_t rise, Double_t flat) {fTrapRiseTime=rise; fTrapFlatTop=flat;}
    void SetSemiGaussParameter(Double_t sig)                   {fGaussSigma=sig;}
+   void SetPoleZeroCorrection(Bool_t with=kTRUE)              {fWithPoleZeroCorrection=with;}
 
    TArrayF* GetArray()       {return &fAdc;}
    Double_t GetChannelWidth(){return fChannelWidth;}

@@ -355,6 +355,7 @@ void KVDigitalFilter::Azzera()
 }
 //=============================================
 KVDigitalFilter::KVDigitalFilter(const KVDigitalFilter& orig)
+         : KVBase()
 {
 
   Ncoeff=0;
@@ -963,11 +964,11 @@ int KVDigitalFilter::ReadMatlabFIR(char *filecoeff)
   FILE *fin = fopen(filecoeff,"r");
   int i=0;
   int n;
-  fscanf(fin, "%d",&n);
+  if(fscanf(fin, "%d",&n)){;}
   Alloc(n);
   //  while(fscanf(fin, "%lg",&b[i])!=EOF){
   for(i=0; i<n;i++){
-     fscanf(fin, "%lg",&a[i]);
+     if(fscanf(fin, "%lg",&a[i])){;}
      b[i] = 0.0;
      printf("%s: i=%d  a[%d]=%20.20e\n",__PRETTY_FUNCTION__,i,i,a[i]);
      //i++;
@@ -986,7 +987,6 @@ int KVDigitalFilter::WriteMatlabFIR(char *filecoeff)
 
   FILE *fout = fopen(filecoeff,"w");
   int i=0;
-  int n;
   fprintf(fout, "%d\n",Ncoeff);
   for(i=0; i<Ncoeff;i++){
      fprintf(fout, "%20.20e\n",a[i]);

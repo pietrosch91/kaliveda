@@ -76,7 +76,7 @@ void	KVFAZIADetector::Clear(Option_t*)
 void KVFAZIADetector::SetName(const char* name)
 {
 	TNamed::SetName(name);
-	/*Bool_t results =*/ SetProperties();
+	SetProperties();
 }
 
 //________________________________________________________________
