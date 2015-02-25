@@ -6,14 +6,30 @@ KaliVeda is an object-oriented toolkit based on ROOT for the analysis of heavy-i
 
 See INSTALL file for details. CMake (v2.8 or greater) is required.
 
+## Ubuntu packages
+
+Available from [Launchpad package repository](https://code.launchpad.net/~kaliveda-dev/+archive/ppa-kaliveda). To use:
+
+    $ sudo apt-add-repository ppa:kaliveda-dev/ppa-kaliveda
+    $ sudo apt-get update
+
 ## Use in ROOT interactive session
 
-Make sure path to installed libraries is in LD_LIBRARY_PATH, then all classes will be loaded as & when needed by the ROOT interpreter (either Cint or Cling). For example:
+The 'kaliveda' command launches a ROOT session with dynamic shared library paths set up so that all classes will be loaded as & when needed by the ROOT interpreter (either Cint or Cling). Example of use:
 
-    root[0] KVBase::InitEnvironment()
+    $ kaliveda
+    ------------------------------------------------------------------------
+    | Welcome to ROOT 6.02/05                            http://root.cern.ch |
+    |                                           (c) 1995-2014, The ROOT Team |
+    | Built for linuxx8664gcc                                                |
+    | From heads/v6-02-00-patches@v6-02-05-9-gb9b9ba2, Feb 16 2015, 17:35:00 |
+    | Try '.help', '.demo', '.license', '.credits', '.quit'/'.q'             |
+    ------------------------------------------------------------------------
+    
     Info in <KVBase::InitEnvironment>: Initialising KaliVeda environment...
-    Info in <KVBase::InitEnvironment>: Using KaliVeda version 1.10.00 built on 2015-02-10
-    Info in <KVBase::InitEnvironment>: (git : heads/1.10@079a949)
+    Info in <KVBase::InitEnvironment>: Using KaliVeda version 1.10/00 built on 2015-02-24
+    Info in <KVBase::InitEnvironment>: (git : bzr/1.10/heads/master@feba2a0)
+    root [0] 
 
 ## Compiling & linking with KaliVeda & ROOT libraries
 

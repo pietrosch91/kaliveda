@@ -222,10 +222,12 @@ void KVBase::InitEnvironment()
       ::Info("KVBase::InitEnvironment", "(git : %s@%s)",gitBranch(),gitCommit());
 #endif
       // Add path to kaliveda libraries to dynamic loader path
-      // This is needed to find plugins (even those in libkaliveda.so)
+      // This is needed to find plugins
       // and also to be able to compile with kaliveda in the interpreter
       TString libdir = GetLIBDIRFilePath();
       gSystem->AddDynamicPath(libdir);
+      // force re-reading of rootmap files in new dynamic path
+      gInterpreter->LoadLibraryMap();
       // Add path to kaliveda header files
       // This is needed to be able to compile with kaliveda in the interpreter
       TString incdir = GetINCDIRFilePath();
