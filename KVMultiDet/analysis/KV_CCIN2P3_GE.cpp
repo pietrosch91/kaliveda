@@ -272,8 +272,7 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
    	oldoptions += " -l sps=1";
 		SetDefaultJobOptions( oldoptions.Data() );
 		Warning("ChangeDefJobOpt",
-					"Your job is using sps ressource.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.",
-				wrkdir.Data());
+					"Your job is using sps ressource.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.");
 	}	
 }
 

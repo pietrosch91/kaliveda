@@ -136,7 +136,7 @@ KVPSAResult* KVChargeSignal::TreateSignal()
    	times+=1;
    }
    if (nres1!=0){
-    Error("TreateSignal","%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
+    Error("TreateSignal","%s:%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
    	return 0;
    }
 	for (Int_t nn=0;nn<fFunc1->GetNpar();nn+=1)
@@ -145,7 +145,7 @@ KVPSAResult* KVChargeSignal::TreateSignal()
    
    Int_t nres2 = Int_t(Fit(fFunc2,"0WRQ"));
    if (nres2!=0){
-    Warning("TreateSignal","%s : Fit #2 of the signal failed",fDetName.Data(),fType.Data());
+    Warning("TreateSignal","%s:%s : Fit #2 of the signal failed",fDetName.Data(),fType.Data());
    	psa->SetValue("BaseLine.Fit",fFunc1->GetParameter(0));
    	psa->SetValue("Amplitude.Fit",fFunc1->GetParameter(1));
    	psa->SetValue("Front0.Fit",fFunc1->GetParameter(2));
@@ -246,7 +246,7 @@ KVPSAResult* KVChargeSignal::TreateSignal(TF1* filter)
       //printf("on recommence Fit #1 %d/10\n",times);
    }
    if (nres!=0){
-    Error("TreateSignal","%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
+    Error("TreateSignal","%s:%s : Fit #1 of the signal failed",fDetName.Data(),fType.Data());
    	return 0;
    }
 	
