@@ -23,6 +23,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TClass.h"
 #include "KVString.h"
 #include "TSystem.h"
+#include "TInterpreter.h"
 #include "TEnv.h"
 #include "TPluginManager.h"
 #include "KVNameValueList.h"
