@@ -10,12 +10,45 @@ $Date: 2009/01/21 08:04:20 $
 #include "Riostream.h"
 #include "TDatime.h"
 #include "TClass.h"
-#include "TNamed.h"
 #include "KVString.h"
 #include "KVNameValueList.h"
 #include "KVList.h"
+#include "KVBase.h"
 
-class KVClassMethod : public TNamed {
+class KVClassMember : public KVBase {
+
+   protected:
+   KVString fComment;//informative comment for member variable, like this one :)
+
+   public:
+   KVClassMember(){};
+   KVClassMember(const Char_t*,const Char_t*,const Char_t*,const Char_t* = "protected");
+   KVClassMember(const KVClassMember&);
+   virtual ~KVClassMember(){};
+   void Copy(TObject & obj) const;
+
+   void Print(Option_t* = "") const;
+
+   virtual void WriteDeclaration(KVString&);
+
+   // set access type : public, protected or private
+   void SetAccess(const Char_t* acc = "public"){ SetLabel(acc); }
+
+   // get access type : public, protected or private
+   const Char_t* GetAccess() const { return GetLabel(); }
+
+   // set comment for variable
+   void SetComment(const Char_t* c){ fComment=c; }
+
+   // get access type : public, protected or private
+   const Char_t* GetComment() const { return fComment; }
+
+   ClassDef(KVClassMember,1)//KVClassFactory helper class - description of class member variable
+};
+
+//_____________________________________________________________________________
+
+class KVClassMethod : public KVClassMember {
 
    KVNameValueList fFields;//fields of method declaration
    Bool_t fVirtual;//kTRUE if method is 'virtual'
@@ -35,11 +68,7 @@ class KVClassMethod : public TNamed {
    };
    KVClassMethod(const KVClassMethod&);
    virtual ~KVClassMethod(){};
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    void Copy(TObject & obj) const;
-#else
-   void Copy(TObject & obj);
-#endif
    
    void SetReturnType(const Char_t* type) {
       KVString s(type);
@@ -66,7 +95,7 @@ class KVClassMethod : public TNamed {
       }
    };
    
-   void SetMethodBody(KVString& body)
+   void SetMethodBody(const KVString& body)
    {
       fFields.SetValue("Body", body);
    };
@@ -112,13 +141,7 @@ class KVClassMethod : public TNamed {
    
    void WriteDeclaration(KVString&);
    void WriteImplementation(KVString&decl);
-   
-   // set access type : public, protected or private
-   void SetAccess(const Char_t* acc = "public"){ SetTitle(acc); };
       
-   // get access type : public, protected or private
-   const Char_t* GetAccess() const { return GetTitle(); };
-   
    ClassDef(KVClassMethod,2)//KVClassFactory helper class - description of class method
 };
 
@@ -141,6 +164,7 @@ class KVClassFactory : public TObject {
    KVString fTemplateClassName;   //name of template dummy class
    KVString fTemplateH;   //full path to template .h
    KVString fTemplateCPP; //full path to template .cpp
+   KVList fMembers;//list of member variables for class
    KVList fMethods;//list of methods added to class
    KVList fHeadInc;//list of 'includes' to be added to header file
    KVList fImpInc;//list of 'includes' to be added to implementation file
@@ -187,6 +211,7 @@ class KVClassFactory : public TObject {
                          kFALSE, const Char_t * templateFile = "");
    void GenerateCode();
    
+   KVClassMember* AddMember(const Char_t* name, const Char_t* type, const Char_t* comment, const Char_t* access="protected");
    KVClassMethod* AddMethod(const Char_t* name, const Char_t* return_type, const Char_t* access = "public",
          Bool_t isVirtual = kFALSE, Bool_t isConst = kFALSE);
    KVClassMethod* AddConstructor(const Char_t* argument_type,
@@ -224,6 +249,8 @@ class KVClassFactory : public TObject {
    const Char_t* GetTemplateBase() const { return fTemplateBase; };
    
    void Print(Option_t* opt = "") const;
+
+   void AddGetSetMethods(const KVNameValueList&);
 
     ClassDef(KVClassFactory, 4) //Factory for generating KaliVeda skeleton classes
 };

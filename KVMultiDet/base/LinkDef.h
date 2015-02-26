@@ -22,6 +22,7 @@
 #pragma link C++ class KVColouredBase+;
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
+#pragma link C++ class KVClassMember+;
 #pragma link C++ class KVClassMonitor+;
 #pragma link C++ class KVSeqCollection-;
 #pragma link C++ class KVDataBranchHandler+;

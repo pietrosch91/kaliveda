@@ -1,6 +1,7 @@
 //Created by KVClassFactory on Tue Jun 29 14:44:22 2010
 //Author: bonnet
 
+#include "KVClassFactory.h"
 #include "KVNameValueList.h"
 #include "Riostream.h"
 #include <KVEnv.h>
@@ -640,6 +641,16 @@ KVNameValueList KVNameValueList::operator += (KVNameValueList & nvl)
         else if(par->IsString()) SetValue(par->GetName(),par->GetString());
     }
     return *this;
+}
+
+void KVNameValueList::WriteClass(const Char_t* classname, const Char_t* classdesc, const Char_t* base_class)
+{
+   // Generate a class with member variables and Get/Set methods corresponding
+   // to the names and types of the parameters in the list
+
+   KVClassFactory cf(classname, classdesc, base_class);
+   cf.AddGetSetMethods(*this);
+   cf.GenerateCode();
 }
 
 

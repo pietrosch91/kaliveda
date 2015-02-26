@@ -88,6 +88,8 @@ class KVNameValueList : public TNamed
 
     KVNameValueList operator += (KVNameValueList & nvl);
 
+    void WriteClass(const Char_t * classname,const Char_t * classdesc,const Char_t * base_class = "");
+
    
     ClassDef(KVNameValueList,3)//A general-purpose list of parameters
 };
