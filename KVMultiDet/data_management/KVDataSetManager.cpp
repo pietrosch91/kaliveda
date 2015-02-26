@@ -234,7 +234,7 @@ void KVDataSetManager::CheckAvailability()
    //
    //then instead of directly checking the existence of the directories for each dataset,
    //we use the cached information written in the file
-   //$KVROOT/KVFiles/[repository name].available.datasets
+   //KVBase::WorkingRepository()/[repository name].available.datasets
    //unless (1) it doesn't exist, or (2) the file is older than the maximum
    //cache time (in seconds) defined by
    //
@@ -288,7 +288,7 @@ void KVDataSetManager::CheckAvailability()
       //overwriting any previous version. if no datasets were found, we try the cache
       //file (if it exists)
       if(fNavailable && fRepository){//if no repository is associated, no need to keep file
-         TString runlist=KVBase::GetDATADIRFilePath(fCacheFileName.Data());
+         TString runlist=KVBase::GetWORKDIRFilePath(fCacheFileName.Data());
          gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
          //set access permissions to 664
          gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
@@ -395,13 +395,13 @@ void KVDataSetManager::Update()
 
 Bool_t KVDataSetManager::OpenAvailableDatasetsFile()
 {
-   //Opens file $KVROOT/KVFiles/[repository name].available.datasets
+   //Opens file KVBase::WorkingDirectory()/[repository name].available.datasets
    //containing cached info on available datasets and
    //associated subdirectories in data repository.
    //Opens file for reading, & if all goes well returns kTRUE.
    //Returns kFALSE in case of problems.   
 
-   return KVBase::SearchAndOpenKVFile( fCacheFileName.Data(), fDatasets);
+   return KVBase::SearchAndOpenKVFile( KVBase::GetWORKDIRFilePath(fCacheFileName), fDatasets);
 }
 
 Bool_t KVDataSetManager::ReadAvailableDatasetsFile()
@@ -483,7 +483,7 @@ Bool_t KVDataSetManager::CheckCacheStatus()
    
    TString fullpath;
    Info("KVDataSetManager::CheckCacheStatus", "Checking for available datasets cache file...");
-   if( KVBase::SearchKVFile( fCacheFileName.Data(), fullpath ) ){
+   if( KVBase::SearchKVFile( KVBase::GetWORKDIRFilePath(fCacheFileName), fullpath ) ){
       
       // file exists - how old is it ?
       FileStat_t file_info;

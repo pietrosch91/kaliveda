@@ -174,6 +174,11 @@ const Char_t* KVBase::GetBINDIRFilePath(const Char_t* namefile)
    if(strcmp(namefile,"")) return Form("%s/%s", xstr(BINDIR), namefile);
    return Form("%s", xstr(BINDIR));
 }
+const Char_t* KVBase::GetWORKDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", fWorkingDirectory.Data(), namefile);
+   return fWorkingDirectory;
+}
 
 //_______________
 void KVBase::init()
