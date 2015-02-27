@@ -109,7 +109,9 @@ set gccver=`gcc -v |& awk '/(gcc version)/ {print $3}'`
 #
 #                   get root version
 #
-set rootver=`root-config --version | sed '/\//s//./g'`
+set rootmaj=`root-config --version | sed 's/[\/\.]/ /g' | awk '{print $1}'`
+set rootmin=`root-config --version | sed 's/[\/\.]/ /g' | awk '{print $2}'`
+set rootver="$rootmaj.$rootmin"
 #
 #                   create installation directories if necessary
 #
