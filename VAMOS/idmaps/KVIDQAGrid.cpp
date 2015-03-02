@@ -476,7 +476,7 @@ void KVIDQAGrid::Initialize(){
 	yvar.ToUpper();
 	if( yvar.Contains("Q") ) yvar = "Q";
 	else yvar = "A";
-
+	SetVarY( yvar.Data() );
 	KVIDQALine *line = NULL;
 	TIter next( fIdentifiers );
 	while( (line = (KVIDQALine *)next()) ){

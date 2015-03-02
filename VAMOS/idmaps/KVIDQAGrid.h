@@ -115,6 +115,10 @@ class KVIDQAGrid : public KVIDGrid
 
 	void QAConvertYaxis();//*MENU*
 
+		Bool_t IsAvsAoQ() const{ return (GetVarY()[0]=='A'); }
+		Bool_t IsQvsAoQ() const{ return (GetVarY()[0]=='Q'); }
+	
+
    	ClassDef(KVIDQAGrid,1)//Base class for 2D Q & A identification grids
 };
 

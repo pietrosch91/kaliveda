@@ -286,7 +286,7 @@ INDRA_e503.KVVAMOSCodes.FocalPlanReconDetList: DC1 DC2
 
 # List of Acquisition parameters to be used for calculating the Time of Flight of nuclei reconstructed in VAMOS.
 # Set the parameters form the more appropriate to the less appropriate
-KVVAMOSCodes.ACQParamListForToF: TSED2_HF TSED1_HF TSI_HF TSI_SED1 TSED1_SED2
+KVVAMOSCodes.ACQParamListForToF: TSED2_HF TSED1_HF TSI_HF
 INDRA_e503.KVVAMOSCodes.ACQParamListForToF: TSI_HF
 
 # File with list of files containing the coefficients of the functions used for the trajectory reconstruction in VAMOS

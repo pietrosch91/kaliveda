@@ -19,8 +19,12 @@ class KVIDQA : public KVVAMOSIDTelescope
    virtual ~KVIDQA();
 
    virtual const Char_t *GetArrayName();
-   virtual Bool_t Identify(KVIdentificationResult *, Double_t x=-1., Double_t y=-1.);
-   virtual Bool_t Identify(KVVAMOSReconNuc *, Double_t x=-1., Double_t y=-1.);
+
+   virtual Double_t GetIDMapX( Option_t *opt=""){ return 0.; }
+   virtual Double_t GetIDMapY( Option_t *opt=""){ return 0.; }
+
+   virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
+   virtual Bool_t Identify(KVIdentificationResult *IDR, const Char_t *tof_name, Double_t realAoQ, Double_t realA);
    virtual void Initialize();
 
 

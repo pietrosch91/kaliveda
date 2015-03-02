@@ -3,7 +3,7 @@
 
 #include "KVIDQA.h"
 #include "KVIDQAGrid.h"
-
+#include "KVVAMOSCodes.h"
 ClassImp(KVIDQA)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,18 +47,39 @@ const Char_t *KVIDQA::GetArrayName(){
 //________________________________________________________________
    
 Bool_t KVIDQA::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
-	// Obsolete method for this class.
+	//Q and A identification and code setting using identification grid, 
+	//a KVIDQAGrid object loaded in fQAGrid
 
-	Error("Identify(KVIdentificationResult *, Double_t , Double_t )","Obsolete method. Please use Identify(KVVAMOSReconNuc *, Double_t , Double_t )");
-    return kFALSE;
+	IDR->SetIDType( GetType() );
+	IDR->IDattempted = kTRUE;
+    //identification
+    y = (y<0. ? GetIDMapY() : y);
+    x = (x<0. ? GetIDMapX() : x);
+
+    if (fQAGrid->IsIdentifiable(x,y)){
+        fQAGrid->Identify( x,y,IDR);
+    	IDR->IDcode = KVVAMOSCodes::GetTCode(fQAGrid->GetToF());
+	}
+    return kTRUE;
 }
 //________________________________________________________________
-   
-Bool_t KVIDQA::Identify(KVVAMOSReconNuc *nuc, Double_t x, Double_t y){
- 	//Particle identification and code setting using identification grid KVIDQAGrid
 
-	Warning("Identify(KVVAMOSReconNuc *, Double_t , Double_t )","TO BE IMPLEMENTED");
-    return kFALSE;
+Bool_t KVIDQA::Identify(KVIdentificationResult *IDR, const Char_t *tof_name, Double_t realAoQ, Double_t realA){
+	//Q and A identification and code setting using identification grid, 
+	// corresponding to Q and A/Q quantities calculated from the given
+	// time of flight (tof_name). First this grid is loaded in fQAGrid 
+	// before identification.
+	
+	if( IDR && (realAoQ>0.) && (realA>0.) ){
+		//look for a grid for the given ToF
+		fQAGrid = (KVIDQAGrid *)GetListOfIDGrids()->FindObjectWithMethod(tof_name,"GetToF");
+		if( fQAGrid ){
+			Double_t Y = ( fQAGrid->IsAvsAoQ() ? realA : realA/realAoQ );
+			return Identify( IDR, realAoQ, Y );
+		}
+		else Error("Identify","no grid available for Q-A identification with %s time of flight",tof_name);
+	}
+	return kFALSE;
 }
 //________________________________________________________________
 
@@ -68,12 +89,15 @@ void KVIDQA::Initialize(){
     // Initialisation of grid is performed here.
     // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
 
-	fGrid  = (KVIDZAGrid *)GetIDGrid(1);
-    if ( fGrid && fGrid->InheritsFrom(KVIDQAGrid::Class()) ){
-		fQAGrid = (KVIDQAGrid *)fGrid;
-        fGrid->Initialize();
-        SetBit(kReadyForID);
-    }
-    else
-        ResetBit(kReadyForID);
+    ResetBit(kReadyForID);
+	TIter next( fIDGrids );
+	TObject *obj = NULL;
+	while( (obj = next()) ){
+    	if ( !obj->InheritsFrom(KVIDQAGrid::Class()) ) fIDGrids->Remove( obj );
+		else{
+			fQAGrid = (KVIDQAGrid *)obj;
+        	fQAGrid->Initialize();
+        	SetBit(kReadyForID);
+		}
+	}
 }

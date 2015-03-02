@@ -76,6 +76,18 @@ void KVVAMOSReconNuc::Copy (TObject& obj) const
    KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
    CastedObj.fCodes = fCodes;
    CastedObj.fRT    = fRT;
+
+   SafeDelete( CastedObj.fDetE );
+   if( fDetE ){
+	   Int_t N = GetDetectorList()->GetEntries();
+	   CastedObj.fDetE = new Float_t[ N ];
+	   for(Int_t i=0; i<N; i++ ) CastedObj.fDetE[i] = fDetE[i];
+   }
+
+   CastedObj.fRealQ     = fRealQ;
+   CastedObj.fRealAoQ   = fRealAoQ;
+   CastedObj.fQ         = fQ;
+   CastedObj.fQMeasured = fQMeasured;
 }
 //________________________________________________________________
 
@@ -87,6 +99,9 @@ void KVVAMOSReconNuc::init()
 
 	fStripFoilEloss = 0;
 	fDetE = NULL;
+	fRealQ = fRealAoQ = 0.;
+	fQ = 0;
+	fQMeasured = kFALSE;
 }
 //________________________________________________________________
 
@@ -313,7 +328,7 @@ void KVVAMOSReconNuc::GetAnglesFromStoppingDetector(Option_t *){
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetRealA( const Char_t *tof_name ) const{
+Float_t KVVAMOSReconNuc::GetRealA( const Char_t *tof_name ) const{
 	// Returns the real value of the mass number calculated for the 
 	// measured energy and the measured time of flight.
 	// Begin_Latex 
@@ -331,7 +346,7 @@ Double_t KVVAMOSReconNuc::GetRealA( const Char_t *tof_name ) const{
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetRealAoverQ( const Char_t *tof_name ) const{
+Float_t KVVAMOSReconNuc::GetRealAoverQ( const Char_t *tof_name ) const{
 	// returns the ratio between the mass number A and the charge state Q
 	// calculated from the measurment of the Time of Flight of the nucleus.
 	// The returned value is real. Returns zero if the time of flight is
@@ -350,7 +365,7 @@ Double_t KVVAMOSReconNuc::GetRealAoverQ( const Char_t *tof_name ) const{
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetRealQ( const Char_t *tof_name ) const{
+Float_t KVVAMOSReconNuc::GetRealQ( const Char_t *tof_name ) const{
 	// Returns the real value of the charge state calculated for the 
 	// measured energy and the measured time of flight (tof_name).
 
@@ -445,7 +460,13 @@ void KVVAMOSReconNuc::IdentifyZ()
 void KVVAMOSReconNuc::IdentifyQandA()
 {
    	// VAMOS-specific Q and A identification.
-   	Warning("IdentifyQandA()","TO BE IMPLEMENTED");
+   	// First we loop over each Q-A ID telescope placed at the front
+   	// of the stopping detector. For each ID telescope we loop
+   	// over each time of flight listed in the environment variable
+   	// KVVAMOSCodes.ACQParamListForToF to look for the corresponding
+   	// ID grid before to perform identification. This process is stopped
+   	// once an identification is OK. Then the corresponding TCode and
+   	// the identification result are set to this nucleus
 
 	Bool_t ok = kFALSE;
  	KVSeqCollection *idt_list = GetIDTelescopes();
@@ -453,8 +474,10 @@ void KVVAMOSReconNuc::IdentifyQandA()
 
         KVIDTelescope *idt;
         TIter next(idt_list);
-        Int_t idnumber = 1;
         while ((idt = (KVIDTelescope *) next())) {
+
+			// is telescope able to identify for this run ?
+    		if(!idt->IsReadyForID() ) continue;
 
 			// if it is not a ID-telescope for Q and A identification
 			// then go to the next one
@@ -462,41 +485,33 @@ void KVVAMOSReconNuc::IdentifyQandA()
 
 			KVIDQA *qa_idt = (KVIDQA *)idt;
 
-			/*
-            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+			static KVIdentificationResult IDR;
 
-            if ( IDR ){
-                if(qa_idt->IsReadyForID() ) { // is telescope able to identify for this run ?
-                    IDR->IDattempted = kTRUE;
-                    qa_idt->Identify( IDR );
-   					// for all nuclei we take the first identification which gives IDOK==kTRUE
-					if( !ok && IDR->IDOK ){
-						ok = kTRUE;
-						SetIsQandAidentified();
-       					KVIDTelescope* idt = (KVIDTelescope*)idt_list->FindObjectByType( IDR->GetType() );
-        				if( !idt ){
-        					Warning("IdentifyQandA", "cannot find ID telescope with type %s", IDR->GetType());
-        					idt_list->ls();
-        					IDR->Print();
-        				}
-        				SetIdentifyingTelescope(  idt );
-        				SetIdentification( IDR );
-					}
-                }
-                else
-                    IDR->IDattempted = kFALSE;
+			// loop over the time acquisition parameters
+			const Char_t *tof_name = NULL;
+			for( Short_t i=0; !ok && (tof_name = GetCodes().GetToFName(i)); i++ ){
+				IDR.Reset();
+                IDR.IDattempted = kTRUE;
+
+				Double_t beta    = GetBeta(tof_name);
+				Double_t realA   = CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), beta );
+				Double_t realAoQ = CalculateMassOverQ( GetBrho(), beta )/u();
+
+				qa_idt->Identify( &IDR, tof_name, realAoQ, realA);
+   				// for all nuclei we take the first identification which gives IDOK==kTRUE
+				if( IDR.IDOK ){
+					SetIsQandAidentified();
+        			SetQandAidentification( &IDR );
+					return;
+				}
 			}
-			*/
 		}
 	}
 
-   	if(!ok){
-      	/******* UNIDENTIFIED PARTICLES *******/
+    /******* UNIDENTIFIED PARTICLES *******/
 
-      	/*** general ID code for non-identified particles ***/
-      	SetTCode( kTCode0 );
-   	}
-
+    /*** general ID code for non-identified particles ***/
+    SetTCode( kTCode0 );
 }
 //________________________________________________________________
 
@@ -792,6 +807,20 @@ void KVVAMOSReconNuc::Propagate(ECalib cal){
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::SetQandAidentification(KVIdentificationResult *idr){
+	// Set Q and A identification of nucleus from informations in identification result object
+	// The mass (A) information in KVIdentificationResult is only used if the mass
+	// was measured as part of the identification. Otherwise the nucleus' mass formula
+	// will be used to calculate A from the measured Z.
+	SetTCode( idr->IDcode );
+    SetQMeasured( idr->Zident );
+    if( !IsAMeasured() ) SetAMeasured( idr->Aident );
+    SetQ( idr->Z );
+    if(idr->Aident) {SetA( idr->A );SetRealA( idr->PID );}
+    else SetRealQ( idr->PID );
+}
+//________________________________________________________________
+
 Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	// Verifies the coherence between the tracking result and the list of
 	// fired detectors.
@@ -865,7 +894,7 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t t
 	//  - the distance between the two detectors.
 
 
-	dist = tof = -1.;
+	dist = tof = 0.;
 
 	KVACQParam *par = gVamos->GetVACQParam( tof_name );
 	if( !par ) return kFALSE;
@@ -903,6 +932,7 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t t
 	if( !ok ) return kFALSE;
 	
 	dist = GetPath( det, stop );
+	if( dist <= 0. ) return kFALSE;
  	tof  = ( isT_HF ? GetCorrectedT_HF( calibT, dist ) : calibT );
 
 	return kTRUE;
