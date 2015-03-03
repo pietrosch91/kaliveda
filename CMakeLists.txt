@@ -8,12 +8,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 #--look for ROOT & all essential libraries
 find_package(ROOT
 	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
-	RIO Tree MathCore Matrix Gpad Gui Net)
+	RIO Tree MathCore Matrix Gpad Gui Net
+   OPTIONAL_COMPONENTS RGL RooStats RooFit RooFitCore)
 
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
-   find_library(ROOT_OPENGL_LIBRARY RGL HINTS ${ROOT_LIBRARY_DIR})
 	message(STATUS "ROOT with OpenGL support library")
 else()
 	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
@@ -126,6 +126,17 @@ if(USE_FITLTG)
 	set(FITLTG_LIB fitltg)
 endif()
 
+#--- BackTrack package for model parameter optimisation
+option(USE_BACKTRACK "Build BackTrack package" OFF)
+if(USE_BACKTRACK)
+	#---check if roofit is available
+	if(NOT ROOT_roofit_FOUND)
+      message(STATUS "You need to enable the RooFit package in ROOT to use BackTrack")
+      set(USE_BACKTRACK OFF CACHE BOOL "" FORCE)
+   endif()
+endif()
+add_feature_info(backtrack USE_BACKTRACK "Build BackTrack package")
+
 #--- Libraries for INDRA data
 option(USE_INDRA "Build libraries for analysis of INDRA data" OFF)
 
@@ -185,6 +196,9 @@ create_config_header()
 add_subdirectory(KVMultiDet)
 get_property(KVMultiDet_MOD_LIST GLOBAL PROPERTY KVMultiDet_MOD_LIST)
 get_property(KVMultiDet_LIB_LIST GLOBAL PROPERTY KVMultiDet_LIB_LIST)
+if(USE_BACKTRACK)
+	add_subdirectory(BackTrack)
+endif()
 if(USE_INDRA)
 	add_subdirectory(KVIndra)
 	get_property(KVIndra_MOD_LIST GLOBAL PROPERTY KVIndra_MOD_LIST)
