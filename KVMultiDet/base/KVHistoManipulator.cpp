@@ -1082,7 +1082,7 @@ void KVHistoManipulator::DefineTitle(TF1* ob,TString xtit,TString ytit){
 }
 //###############################################################################################################"
 //-------------------------------------------------
-Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax)
+Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t xmin, Double_t xmax, Double_t eps, Int_t nmax)
 {
 	// Return value of abscissa X for which the interpolated value
 	// of the histogram contents is equal to the given value, val.
@@ -1090,11 +1090,21 @@ Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nma
 	// eps is required precision, i.e. convergence condition is that no further change
 	// in result greater than eps is found.
 	// nmax = maximum number of iterations
-	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo.
+	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo
+   // unless arguments (xmin,xmax) are given to bracket the search
 	
 	TSpline5* spline = new TSpline5(ob);
-	Double_t Xmax = ob->GetXaxis()->GetXmax();
-	Double_t Xmin = ob->GetXaxis()->GetXmin();
+	Double_t Xmax;
+	Double_t Xmin;
+   if(xmin==xmax){
+	   Xmax = ob->GetXaxis()->GetXmax();
+	   Xmin = ob->GetXaxis()->GetXmin();
+   }
+   else
+   {
+	   Xmax = xmax;
+	   Xmin = xmin;
+   }
 
 	 Int_t n,side=0;
     Double_t r=0,fr,fs,s,ft,t;
