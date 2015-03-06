@@ -51,8 +51,10 @@ namespace BackTrack {
       virtual ~GenericModel();
 
       void AddParameter(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins);
+      void AddParameter(const RooRealVar&, Int_t nbins);
       Int_t GetNumberOfParameters() const { return fParameters.getSize(); }
       void AddObservable(const char* name, const char* title, Double_t min, Double_t max);
+      void AddObservable(const RooRealVar&);
       Int_t GetNumberOfObservables() const { return fParameters.getSize(); }
       const RooArgList& GetObservables() const { return fObservables; }
       const RooArgList& GetParameters() const { return fParameters; }

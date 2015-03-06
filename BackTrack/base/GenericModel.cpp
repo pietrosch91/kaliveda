@@ -54,11 +54,25 @@ void GenericModel::AddParameter(const char* name, const char* title, Double_t mi
     fParameters.addClone(p);
 }
 
+void GenericModel::AddParameter(const RooRealVar& var, Int_t nbins)
+{
+   // Define a named parameter for the model, with its associated range
+   // of values and the number of 'bins' to be used to scan these values
+   fParameters.addClone(var);
+   GetParameter(var.GetName()).setBins(nbins);
+}
+
 void GenericModel::AddObservable(const char* name, const char* title, Double_t min, Double_t max)
 {
    // Define a named observable for the model, with its associated range of values
     RooRealVar p(name,title,min,max);
     fObservables.addClone(p);
+}
+
+void GenericModel::AddObservable(const RooRealVar& var)
+{
+   // Define a named observable for the model, with its associated range of values
+    fObservables.addClone(var);
 }
 
 void GenericModel::AddModelData(RooArgList& params, RooDataSet* data)
