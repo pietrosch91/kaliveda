@@ -20,6 +20,7 @@
 #include "RooProdPdf.h"
 #include "RooPlot.h"
 #include "RooAddPdf.h"
+#include "RooFitResult.h"
 using namespace RooFit ;
 
 namespace BackTrack {
@@ -28,13 +29,18 @@ namespace BackTrack {
 
       ClassDef(GenericModel,1)//Generic model for backtracing studies
 
-      RooArgList fParameters;  // the parameters of the model
-      RooArgList fObservables; // the observables of the data
-      Int_t      fNDataSets;   //! internal counter of model datasets
-      TObjArray  fDataSetParams;//list model parameters for each dataset
-      TObjArray  fDataSets;     //list of model datasets
-      TObjArray  fNDKeys;       //pseudo-pdfs for each dataset
-      RooAddPdf* fModelPseudoPDF; //pseudo-pdf for model to fit data
+      protected:
+      RooArgList fParameters;    // the parameters of the model
+      RooArgList fObservables;   // the observables of the data
+      Int_t      fNDataSets;     //! internal counter of model datasets
+      TObjArray  fDataSetParams; //list model parameters for each dataset
+      TObjArray  fDataSets;      //list of model datasets
+      TObjArray  fNDKeys;        //pseudo-pdfs for each dataset
+      RooArgList fWeights;       //fitted weight of each pseudo-pdf in result
+      RooAddPdf* fModelPseudoPDF;//pseudo-pdf for model to fit data
+      RooArgList fFractions;     //weights of each kernel in pseudo pdf
+      Double_t      fSmoothing;  //kernel smoothing factor
+      RooFitResult* fLastFit;    //result of last fit
 
       public:
       GenericModel();
@@ -45,15 +51,46 @@ namespace BackTrack {
       void AddObservable(const char* name, const char* title, Double_t min, Double_t max);
       Int_t GetNumberOfObservables() const { return fParameters.getSize(); }
       const RooArgList& GetObservables() const { return fObservables; }
+      const RooArgList& GetParameters() const { return fParameters; }
+      RooRealVar& GetParameter(const char* name) { return *((RooRealVar*)GetParameters().find(name)); }
+      RooRealVar& GetObservable(const char* name) { return *((RooRealVar*)GetObservables().find(name)); }
 
       void AddModelData(RooArgList& params, RooDataSet* data);
-      RooDataSet* GetModelDataSet(RooArgList& par);
+      virtual RooDataSet* GetModelDataSet(RooArgList& par);
 
       void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0);
       Int_t GetNumberOfDataSets() const { return fNDataSets; }
       const TObjArray* GetDataSetParametersList() const { return &fDataSetParams; }
+      const RooArgList* GetParametersForDataset(Int_t i) const
+      {
+         // Return the list of parameters associated to the i-th imported dataset
+         return (const RooArgList*)fDataSetParams[i];
+      }
+      const RooDataSet* GetDataSet(Int_t i) const
+      {
+         // Return the i-th imported dataset
+         return (const RooDataSet*)fDataSets[i];
+      }
+      const RooNDKeysPdf* GetKernel(Int_t i) const
+      {
+         // Return the kernel estimation PDF for the i-th imported dataset
+         return (const RooNDKeysPdf*)fNDKeys[i];
+      }
+      void SetKernelSmoothing(Double_t rho)
+      {
+         // Corresponds to argument 'rho' of RooNDKeysPdf constructor
+         // Default: rho = 1.0. Increasing bandwidth scale factor
+         // promotes smoothness over detail preservation.
+         fSmoothing=rho;
+      }
 
-      void ConstructPseudoPDF();
+
+      virtual void ConstructPseudoPDF(Bool_t debug = kFALSE);
+      const RooAbsPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
+
+      RooFitResult* fitTo(RooDataSet*);
+      RooFitResult* GetLastFit() const { return fLastFit; }
+      void plotOn(RooPlot*);
    };
 
 } /* namespace BackTrack */
