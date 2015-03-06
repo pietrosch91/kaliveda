@@ -56,4 +56,7 @@ void simple1Dmodel_ex1()
    data->plotOn(fr);
    model->plotOn(fr);
    fr->Draw();
+
+   new TCanvas;
+   model->CompareParameterWeights(PARdist);
 }

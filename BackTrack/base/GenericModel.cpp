@@ -8,6 +8,7 @@
 #include "GenericModel.h"
 
 #include <RooAbsBinning.h>
+#include <RooUniform.h>
 
 ClassImp(BackTrack::GenericModel)
 
@@ -19,14 +20,21 @@ GenericModel::GenericModel()
    fSmoothing=1;
    fModelPseudoPDF=0;
    fLastFit=0;
+   fParameterPDF=0;
 }
 
 GenericModel::~GenericModel()
 {
+   if(fParameterPDF){
+      delete fParameterPDF;
+      fParameterPDF=0;
+      fUniParPDFs.Delete();
+   }
    if(fModelPseudoPDF){
       delete fModelPseudoPDF;
       fModelPseudoPDF=0;
       fNDKeys.Delete();
+      fUniParPDFs.Delete();
       fFractions.removeAll();
    }
    if(fNDataSets){
@@ -171,7 +179,9 @@ RooFitResult* GenericModel::fitTo(RooDataSet* data)
       }
       fWeights.addClone(w);
    }
-   fWeights.Print("v");
+
+   buildParameterPdf();
+
    return fLastFit;
 }
 
@@ -189,5 +199,26 @@ void GenericModel::plotOn(RooPlot* frame)
    for(int i=0; i<GetNumberOfDataSets(); i++){
       fModelPseudoPDF->plotOn(frame,Components(*GetKernel(i)),LineStyle(kDashed),LineColor(kBlue+4*i));
    }
+}
+
+void GenericModel::buildParameterPdf()
+{
+   // Use the fitted weights of the pseudo-pdf for the observables to build
+   // a PDF for the parameters with the same weights
+
+   if(fParameterPDF){
+      delete fParameterPDF;
+      fParameterPDF=0;
+      fUniParPDFs.Delete();
+   }
+   RooArgList unidist;
+   for(int i=0;i<GetNumberOfDataSets();i++)
+   {
+      RooUniform* uni = new RooUniform(Form("P%d",i),Form("Uniform parameter distribution for dataset#%d",i),
+                                       (*(RooArgSet*)fDataSetParams[i]));
+      unidist.add(*uni);
+      fUniParPDFs.Add(uni);
+   }
+   fParameterPDF = new RooAddPdf("Parameters", "PDF for parameters after backtracking", unidist, fFractions, kTRUE);
 }
 } /* namespace BackTrack */

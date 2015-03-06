@@ -23,6 +23,7 @@ namespace BackTrack {
 
       virtual void ConstructPseudoPDF(Bool_t debug = kFALSE);
 
+      void CompareParameterWeights(RooAbsPdf& pdist);
    };
 
 }
