@@ -6,5 +6,4 @@ BUILD_KALIVEDA_MODULE(identification
 	PARENT ${KVSUBPROJECT}
 	KVMOD_DEPENDS calibration geometry
 	LIB_EXCLUDE ${do_not_compile}
-	EXTRA_LIBS ${KVMultiDet_LIB_LIST}
 )

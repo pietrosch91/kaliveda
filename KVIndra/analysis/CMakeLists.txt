@@ -7,5 +7,5 @@ BUILD_KALIVEDA_MODULE(analysis
 	PARENT ${KVSUBPROJECT}
 	KVMOD_DEPENDS exp_events daq_cec geometry identification calibration db
 	LIB_EXCLUDE ${excluded_classes}
-	EXTRA_LIBS ${KVMultiDet_LIB_LIST}
+	EXTRA_LIBS KVMultiDetgui
 )

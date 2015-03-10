@@ -1,4 +1,4 @@
 BUILD_KALIVEDA_MODULE(db
 	PARENT ${KVSUBPROJECT}
-	EXTRA_LIBS ${KVMultiDet_LIB_LIST}
+	EXTRA_LIBS KVMultiDetdb KVMultiDetdata_management
 )
