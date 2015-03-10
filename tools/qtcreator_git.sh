@@ -4,7 +4,7 @@
 # fill kaliveda.includes with output of root-config --incdir and all
 #   directories under git control
 
-git ls-files --exclude-standard | \egrep '\.h$|\.cpp$|\.c$|\.cxx$|\.C$|CMakeLists.txt' > kaliveda.files
+git ls-files --exclude-standard | \egrep '\.h$|\.rootrc$|\.cpp$|\.c$|\.cxx$|\.C$|CMakeLists.txt' > kaliveda.files
 
 echo '.' > kaliveda.includes
 dirname `find . -name '*.h'` | sort -u > kaliveda.includes
