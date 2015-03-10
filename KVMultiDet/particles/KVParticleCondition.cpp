@@ -14,6 +14,7 @@ $Date: 2007/03/26 10:14:56 $
 #include "TSystem.h"
 #include "KVClassFactory.h"
 #include "TPluginManager.h"
+#include "TUUID.h"
 
 using namespace std;
 
@@ -255,8 +256,10 @@ void KVParticleCondition::CreateClassFactory()
    
    if(cf) return;
    
-   //unique name for new class
-   KVString new_class = gSystem->BaseName(tmpnam(NULL));
+   // unique name for new class
+   TUUID unique;
+   KVString new_class = unique.AsString();
+   new_class.ReplaceAll("-","_");
    
    //create new class
    cf = new KVClassFactory(new_class.Data(), "Particle condition to test", "KVParticleCondition");
