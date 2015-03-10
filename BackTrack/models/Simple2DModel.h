@@ -4,25 +4,27 @@
 #ifndef __SIMPLE2DMODEL_H
 #define __SIMPLE2DMODEL_H
 
-#include "GenericPDFModel.h"
-#include "RooPolyVar.h"
+#include "GenericModel.h"
+#include "TH1.h"
 
 namespace BackTrack {
 
-   class Simple2DModel : public GenericPDFModel
+   class Simple2DModel : public GenericModel
    {
 
       ClassDef(Simple2DModel,1)//Simple model to test backtrack procedures
 
-      RooRealVar fPar1,fObs1,fPar2,fObs2,a10,a11,a00,a01;
-      RooPolyVar MEAN1,MEAN2;
-      RooGaussian *gauss1,*gauss2;
-
+      Int_t fNGen;        //number of events to generate for each dataset
       public:
       Simple2DModel();
       virtual ~Simple2DModel();
 
-      //void CompareParameterWeights(RooAbsPdf& pdist);
+      void generateEvent(const RooArgList& parameters, RooDataSet& data);
+      RooDataSet* GetModelDataSet(RooArgList &par);
+      void SetNumGen(Int_t n) { fNGen=n; }
+      Int_t GetNumGen() const { return fNGen; }
+
+      TH1* GetParameterDistributions();
    };
 
 }

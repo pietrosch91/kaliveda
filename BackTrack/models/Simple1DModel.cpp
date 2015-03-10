@@ -61,19 +61,10 @@ namespace BackTrack {
       // After fit, draw weights for each parameter range superposed on the
       // original distribution
 
-      TGraphErrors* graph = new TGraphErrors(GetNumberOfDataSets());
-      for(int i=0; i<GetNumberOfDataSets(); i++)
-      {
-         RooRealVar* w = (RooRealVar*)GetWeights().at(i);
-         RooRealVar* p = (RooRealVar*)((RooArgList*)GetDataSetParametersList()->At(i))->find("PAR");
-         graph->SetPoint(i, p->getVal(), w->getVal());
-         graph->SetPointError(i, 0.5*(p->getMax()-p->getMin()), w->getError());
-      }
-      graph->SetMarkerStyle(20);
       RooPlot* pl = GetParameter("PAR").frame();
       pdist.plotOn(pl);
+      GetParamDataHist()->plotOn(pl);
       pl->Draw();
-      graph->Draw("p");
    }
 
 }

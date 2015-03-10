@@ -17,31 +17,61 @@ ClassImp(BackTrack::Simple2DModel)
 namespace BackTrack {
 
    Simple2DModel::Simple2DModel()
-      : fPar1("PAR1","Model parameter",0.,50.),
-        fObs1("OBS1","Model observable",-20,70.),
-        fPar2("PAR2","Model parameter",0.,50.),
-        fObs2("OBS2","Model observable",-20,70.),
-        a10("a10","a10",0,0,50),a11("a11","a11",1,-1,1),
-        a00("a00","a00",50,0,50),a01("a01","a01",-1,-1,1),
-        MEAN1("MEAN1","MEAN1",fPar1,RooArgSet(a00,a01)),
-      MEAN2("MEAN2","MEAN2",fPar2,RooArgSet(a10,a11))
    {
-      // Default constructor
-      AddParameter(fPar1,5);
-      AddParameter(fPar2,5);
-      AddObservable(fObs1);
-      AddObservable(fObs2);
-
-      // conditional distribution of observables
-      gauss1 = new RooGaussian("g1","observable distribution for fixed parameter",fObs1,MEAN1,RooConst(5)) ;
-      gauss2 = new RooGaussian("g2","observable distribution for fixed parameter",fObs2,MEAN2,RooConst(5)) ;
-
-      theModel = new RooProdPdf("Simple2DModel", "gaussian product", RooArgSet(*gauss1,*gauss2));
+      // <obs1> = par1+par2
+      // <obs2> = |par1-par2|**2
+      AddParameter("par1","parameter #1",0,10,4);
+      AddParameter("par2","parameter #2",-20,20,5);
+      AddObservable("obs1","observable #1",-20,30);
+      AddObservable("obs2","observable #2",-30,30);
    }
 
    Simple2DModel::~Simple2DModel()
    {
       // Destructor
+   }
+
+   void Simple2DModel::generateEvent(const RooArgList& parameters, RooDataSet& data)
+   {
+      // generate an event (i.e. a pair of observables) given the parameter values
+      // and add it to the dataset
+
+      Double_t par1 = ((RooRealVar*)parameters.at(0))->getVal();
+      Double_t par2 = ((RooRealVar*)parameters.at(1))->getVal();
+      Double_t obs1 = gRandom->Gaus(par1+par2, abs(par1+par2)/5.);
+      Double_t diff = (par1-par2);
+      Double_t obs2 = gRandom->Gaus(diff,abs(diff)/10.);
+      GetObservable("obs1").setVal(obs1);
+      GetObservable("obs2").setVal(obs2);
+      data.add(GetObservables());
+   }
+
+   RooDataSet*Simple2DModel::GetModelDataSet(RooArgList& par)
+   {
+      // create and fill data set using uniform distributions of parameters in
+      // currently defined ranges
+
+      static int dsnum=1;
+      RooDataSet* data = new RooDataSet(Form("DATA#%d",dsnum++),"dataset",GetObservables());
+      for(int i=0;i<GetNumGen();i++){
+         RooRealVar* par1 = (RooRealVar*)par.at(0);
+         RooRealVar* par2 = (RooRealVar*)par.at(1);
+         Double_t P1 = gRandom->Uniform(par1->getMin(),par1->getMax());
+         Double_t P2 = gRandom->Uniform(par2->getMin(),par2->getMax());
+         par1->setVal(P1);
+         par2->setVal(P2);
+         generateEvent(par,*data);
+      }
+      return data;
+   }
+
+   TH1*Simple2DModel::GetParameterDistributions()
+   {
+      // Return 2D histo of fitted parameter distributions
+
+      TH1* h = GetParamDataHist()->createHistogram("par1,par2",GetParameter("par1").getBins(),GetParameter("par2").getBins());
+      h->SetName("fittedParameters");
+      return h;
    }
 
 }

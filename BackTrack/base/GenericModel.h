@@ -12,6 +12,7 @@
 #include "RooArgList.h"
 #include "RooRealVar.h"
 #include "RooDataSet.h"
+#include "RooDataHist.h"
 #include "RooGaussian.h"
 #include "RooConstVar.h"
 #include "RooPolynomial.h"
@@ -21,6 +22,8 @@
 #include "RooPlot.h"
 #include "RooAddPdf.h"
 #include "RooFitResult.h"
+#include "RooHistPdf.h"
+
 using namespace RooFit ;
 
 namespace BackTrack {
@@ -41,10 +44,8 @@ namespace BackTrack {
       RooArgList fFractions;     //weights of each kernel in pseudo pdf
       Double_t      fSmoothing;  //kernel smoothing factor
       RooFitResult* fLastFit;    //result of last fit
-      RooAddPdf* fParameterPDF;  //pdf for parameters after fit to data
-      TObjArray  fUniParPDFs;    //uniform parameter distributions
-
-      void buildParameterPdf();
+      RooHistPdf* fParameterPDF;  //pdf for parameters after fit to data
+      RooDataHist* fParamDataHist;//binned parameter dataset used to construct fParameterPDF
 
       public:
       GenericModel();
@@ -94,7 +95,8 @@ namespace BackTrack {
       virtual void ConstructPseudoPDF(Bool_t debug = kFALSE);
       const RooAddPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
       const RooArgList& GetPseudoPDFFractions() const { return fFractions; }
-      const RooAddPdf* GetParameterPDF() const { return fParameterPDF; }
+      const RooHistPdf* GetParameterPDF() const { return fParameterPDF; }
+      const RooDataHist* GetParamDataHist() const { return fParamDataHist; }
       const RooArgList& GetWeights() const { return fWeights; }
 
       RooFitResult* fitTo(RooDataSet*);

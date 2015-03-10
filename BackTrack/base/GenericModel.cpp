@@ -21,20 +21,18 @@ GenericModel::GenericModel()
    fModelPseudoPDF=0;
    fLastFit=0;
    fParameterPDF=0;
+   fParamDataHist=0;
 }
 
 GenericModel::~GenericModel()
 {
-   if(fParameterPDF){
-      delete fParameterPDF;
-      fParameterPDF=0;
-      fUniParPDFs.Delete();
-   }
+   SafeDelete(fParameterPDF);
+   SafeDelete(fParamDataHist);
+
    if(fModelPseudoPDF){
       delete fModelPseudoPDF;
       fModelPseudoPDF=0;
       fNDKeys.Delete();
-      fUniParPDFs.Delete();
       fFractions.removeAll();
    }
    if(fNDataSets){
@@ -178,6 +176,9 @@ RooFitResult* GenericModel::fitTo(RooDataSet* data)
    fLastFit = fModelPseudoPDF->fitTo(*data,Save());
 #endif
 
+   SafeDelete(fParamDataHist);
+   fParamDataHist = new RooDataHist("params","params",GetParameters());
+
    // store weights of component pdfs => distribution of parameters
    fWeights.removeAll();
    const RooArgList& coefs = fModelPseudoPDF->coefList();
@@ -192,9 +193,11 @@ RooFitResult* GenericModel::fitTo(RooDataSet* data)
          w.setError(coef->getPropagatedError(*fLastFit));
       }
       fWeights.addClone(w);
+      fParamDataHist->set(*GetParametersForDataset(i),w.getVal(),w.getError());
    }
 
-   buildParameterPdf();
+   SafeDelete(fParameterPDF);
+   fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist);
 
    return fLastFit;
 }
@@ -215,24 +218,4 @@ void GenericModel::plotOn(RooPlot* frame)
    }
 }
 
-void GenericModel::buildParameterPdf()
-{
-   // Use the fitted weights of the pseudo-pdf for the observables to build
-   // a PDF for the parameters with the same weights
-
-   if(fParameterPDF){
-      delete fParameterPDF;
-      fParameterPDF=0;
-      fUniParPDFs.Delete();
-   }
-   RooArgList unidist;
-   for(int i=0;i<GetNumberOfDataSets();i++)
-   {
-      RooUniform* uni = new RooUniform(Form("P%d",i),Form("Uniform parameter distribution for dataset#%d",i),
-                                       (*(RooArgSet*)fDataSetParams[i]));
-      unidist.add(*uni);
-      fUniParPDFs.Add(uni);
-   }
-   fParameterPDF = new RooAddPdf("Parameters", "PDF for parameters after backtracking", unidist, fFractions, kTRUE);
-}
 } /* namespace BackTrack */
