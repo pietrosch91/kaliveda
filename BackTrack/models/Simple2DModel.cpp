@@ -19,7 +19,7 @@ namespace BackTrack {
    Simple2DModel::Simple2DModel()
    {
       // <obs1> = par1+par2
-      // <obs2> = |par1-par2|**2
+      // <obs2> = par1-par2
       AddParameter("par1","parameter #1",0,10,4);
       AddParameter("par2","parameter #2",-20,20,5);
       AddObservable("obs1","observable #1",-20,30);
