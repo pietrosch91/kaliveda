@@ -44,7 +44,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void Copy (TObject&) const;
 		void init();
 
-				Bool_t   GetCorrFlightDistanceAndTime( Double_t &dist, Double_t tof, const Char_t *tof_name ) const;
+				Bool_t   GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &tof, const Char_t *tof_name ) const;
 		virtual Float_t  GetCorrectedT_HF( Float_t tof, Float_t dist)   const;
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();

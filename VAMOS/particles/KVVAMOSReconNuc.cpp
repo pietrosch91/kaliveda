@@ -882,7 +882,7 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 */
 //________________________________________________________________
 
-Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t tof, const Char_t *tof_name ) const{
+Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &tof, const Char_t *tof_name ) const{
 	// Returns true if the corrected fligh distance (dist) and the corrected time of flight (tof)
 	// is correctly calculated. 
 	// The first calibrated and fired acq. parameter belonging both to
@@ -983,8 +983,11 @@ Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) 
 	// at the start detector if this detector is localised behinds the FP (or
 	// forwards the FP).
 	//
-	// Returns zero if DeltaPath is not found for the detectors or if the reconstructed path is negative.
+	// Returns zero if the focal plan trajectory is not well reconstructed (i.e. kFPCode0 ),
+	// if DeltaPath is not found for the detectors or if the reconstructed path is negative.
 	
+	if( const_cast<KVVAMOSReconNuc*>(this)->GetCodes().TestFPCode( kFPCode0 ) ) return 0.;
+
 	Float_t dp_start = GetDeltaPath( start );
 	if( dp_start ){
 		// case where stop signal is given by HF i.e. 'stop' is null
