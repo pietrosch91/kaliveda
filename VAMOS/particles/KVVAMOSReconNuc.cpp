@@ -372,7 +372,7 @@ Float_t KVVAMOSReconNuc::GetRealQ( const Char_t *tof_name ) const{
 	Double_t beta = GetBeta(tof_name);
 	Double_t A = CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), beta );
 	Double_t AoQ = CalculateMassOverQ( GetBrho(), beta )/u();
-	return A/AoQ;
+	return ( AoQ > 0. ? A/AoQ : 0. );
 }
 
 //________________________________________________________________
@@ -897,7 +897,10 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &
 	dist = tof = 0.;
 
 	KVACQParam *par = gVamos->GetVACQParam( tof_name );
-	if( !par ) return kFALSE;
+	if( !par ){
+		Error("GetCorrFlightDistanceAndTime","No time %s is measured in VAMOS",tof_name);
+ 	   	return kFALSE;
+	}
 
 	const Char_t *t_type = tof_name+1;
 	Bool_t isT_HF        = !strcmp("HF",par->GetLabel());
@@ -906,32 +909,42 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &
 
 	TIter next_det( GetDetectorList() );
 	KVVAMOSDetector *det   = NULL;
+	KVVAMOSDetector *start = NULL;
 	KVVAMOSDetector *stop  = NULL;
 	// look for start and stop detectors
 	while( (det = (KVVAMOSDetector *)next_det()) ){
 
 		// for HF time we only need the start detector
 		if( isT_HF ){
-			if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
-				ok = kTRUE;
-				break;
+			if( det->IsStartForT( t_type ) ){
+				if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
+					start = det;
+					ok = kTRUE;
+					break;
+				}
  			}
 		}
 		// otherwise we need start and stop detectors
 		else{
- 			if( !stop && det->IsStopForT( t_type ) ){
-				stop = det;
-			}
-			else if( stop && det->IsStartForT( t_type )  && (calibT = det->GetCalibT( t_type ))>0 ){
+			if( !start && det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type )) ) start = det;
+			else if( !stop && det->IsStopForT( t_type ) ) stop = det;
+			if( start && stop ){
 				ok = kTRUE;
 				break;
 			}
 		}
 	}
 
-	if( !ok ) return kFALSE;
-	
-	dist = GetPath( det, stop );
+	if( !ok ){
+		/*
+		Error("GetCorrFlightDistanceAndTime","detectors used to measure %s are not found in the detector list (fDetlist)\n isT_HF %d, t_type %s, calibT %f",tof_name,isT_HF, t_type, calibT);
+		GetDetectorList()->ls(); 
+		cout<<endl;
+		*/
+ 	   	return kFALSE;
+	}
+
+	dist = GetPath( start, stop );
 	if( dist <= 0. ) return kFALSE;
  	tof  = ( isT_HF ? GetCorrectedT_HF( calibT, dist ) : calibT );
 
