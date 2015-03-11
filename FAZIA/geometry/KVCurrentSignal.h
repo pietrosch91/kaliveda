@@ -10,7 +10,10 @@
 class KVCurrentSignal : public KVSignal
 {
 
-   public:
+   protected:
+	void init();
+	
+	public:
    KVCurrentSignal();
    KVCurrentSignal(const char* name);
    

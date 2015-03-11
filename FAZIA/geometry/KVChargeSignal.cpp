@@ -16,12 +16,19 @@ ClassImp(KVChargeSignal)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+void KVChargeSignal::init()
+{
+
+	fFunc1=fFunc2=0;
+   bidim=0;
+	SetDefaultValues();
+
+}
 
 KVChargeSignal::KVChargeSignal()
 {
    // Default constructor
-   fFunc1=fFunc2=0;
-   bidim=0;
+   init();
 }
 
 //________________________________________________________________
@@ -29,17 +36,23 @@ KVChargeSignal::KVChargeSignal()
 KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
 {
    // Write your code here
-    fFunc1=fFunc2=0;
-    bidim=0;
+    SetType(name);
+	 init();
 }
 
 void KVChargeSignal::SetDefaultValues()
 {
-    if(fType.Contains("QL")) SetChannelWidth(4.);
-    else                     SetChannelWidth(10.);
-    SetBaseLineLength(100);
-    if(fType.Contains("QL")) SetTauRC(250.);
-    else                     SetTauRC(40.);
+   
+	 if(fType.Contains("QL")) {
+		SetChannelWidth(4.);
+		SetTauRC(250.);
+	}
+	else                    {
+		SetChannelWidth(10.);
+		SetTauRC(40.);
+	}
+	SetBaseLineLength(100);
+    
     SetTrapShaperParameters(2.,1.);
     SetPoleZeroCorrection();
 }
@@ -93,14 +106,16 @@ KVPSAResult* KVChargeSignal::TreateSignal()
    psa->SetValue(Form("%s.%s.RiseTime",fDetName.Data(),fType.Data()),fRiseTime);
 
    // storing parameters
-   psa->SetValue(Form("%s.%s.ShaperType",fDetName.Data(),fType.Data()),"trapezoidal");
+   /*
+	psa->SetValue(Form("%s.%s.ShaperType",fDetName.Data(),fType.Data()),"trapezoidal");
    psa->SetValue(Form("%s.%s.ShaperRiseTime",fDetName.Data(),fType.Data()),fTrapRiseTime);
    psa->SetValue(Form("%s.%s.ShaperFlatTop",fDetName.Data(),fType.Data()),fTrapFlatTop);
    psa->SetValue(Form("%s.%s.WithPoleZeroCorrection",fDetName.Data(),fType.Data()),fWithPoleZeroCorrection);
    psa->SetValue(Form("%s.%s.TauRC",fDetName.Data(),fType.Data()),fTauRC);
    psa->SetValue(Form("%s.%s.BaseLineLength",fDetName.Data(),fType.Data()),fLastBL-fFirstBL);
    psa->SetValue(Form("%s.%s.ChannelWidth",fDetName.Data(),fType.Data()),fChannelWidth);
-
+	*/
+	
    return psa;
 
 

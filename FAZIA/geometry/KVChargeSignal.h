@@ -16,7 +16,9 @@ class KVChargeSignal : public KVSignal
    TF1* fFunc1;
    TF1* fFunc2;
    TGraph* bidim;
-   
+   void init();
+	
+	
    public:
    TF1* GetFitFunction() {return fFunc1; }
    KVChargeSignal();

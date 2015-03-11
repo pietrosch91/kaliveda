@@ -102,16 +102,16 @@ Bool_t KVFAZIADetector::SetProperties()
    	delete fSignals;
    fSignals = new KVList(kTRUE);
    if (fFAZIAType=="SI1"){
-   	fSignals->Add(new KVChargeSignal("QH1"));
-   	fSignals->Add(new KVCurrentSignal("I1"));
-   	fSignals->Add(new KVChargeSignal("QL1"));
+   	fSignals->Add(new KVChargeSignal("QH1")); ((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
+   	fSignals->Add(new KVCurrentSignal("I1"));((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
+   	fSignals->Add(new KVChargeSignal("QL1"));((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
    }
    else if (fFAZIAType=="SI2"){
-   	fSignals->Add(new KVChargeSignal("Q2"));
-   	fSignals->Add(new KVCurrentSignal("I2"));
+   	fSignals->Add(new KVChargeSignal("Q2"));((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
+   	fSignals->Add(new KVCurrentSignal("I2"));((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
    }
 	else if (fFAZIAType=="CSI"){
-   	fSignals->Add(new KVChargeSignal("Q3"));
+   	fSignals->Add(new KVChargeSignal("Q3"));((KVSignal* )fSignals->Last())->SetDetectorName(GetName());
    }
    else{
    	Warning("SetProperties","Unknown FAZIA type \"%s\" for this detector : %s\n",fFAZIAType.Data(),GetName());
@@ -139,13 +139,10 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	while ( (sig = (KVSignal* )next()) )
     	{
     		if (sig->GetN()>0){
-      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetAmplitude()>20){
+      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetRawAmplitude()>20){
          		return kTRUE;
          	}
          	else{
-      			//printf("\t\t hitted :-) %lf\n",sig->GetAmplitude());
-         	   //Info("Fired","YES %s %d",GetName(),GetGroupNumber());
-         	   return kFALSE;
       		}
       	}
          else{
@@ -157,8 +154,6 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	Warning("Fired","%s : No signal attached to this detector ...",GetName());
       return kFALSE;
     }
-    //Info("Fired","Sort - %s",GetName());
-    //Info("Fired","NO %s %d",GetName(),GetGroupNumber());
     return kFALSE;
 }
 

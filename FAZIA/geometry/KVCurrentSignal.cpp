@@ -14,17 +14,22 @@ ClassImp(KVCurrentSignal)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+void KVCurrentSignal::init()
+{
+   SetDefaultValues();
+}
 
 KVCurrentSignal::KVCurrentSignal()
 {
-   // Default constructor
+   init();
 }
 
 //________________________________________________________________
 
 KVCurrentSignal::KVCurrentSignal(const char* name) : KVSignal(name, "Current")
 {
-   // Write your code here
+   SetType(name);
+	 init();
 }
 
 //________________________________________________________________

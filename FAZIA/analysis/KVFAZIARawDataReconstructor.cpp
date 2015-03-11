@@ -137,7 +137,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
               sig->Init();
               KVNameValueList* psa = sig->TreateSignal();
               if(psa) *(recnuc->GetParameters()) += *psa;
-            //recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetAmplitude());
+					recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetRawAmplitude());
       	}
       }   
    }
