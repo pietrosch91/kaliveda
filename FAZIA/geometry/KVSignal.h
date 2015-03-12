@@ -51,13 +51,15 @@ public:
    void SetType(const Char_t* type) {fType=type;}
    void Print(Option_t* chopt = "") const;
    void SetData(Int_t nn, Double_t* xx, Double_t* yy);
-   void Init();
-
+   virtual void Set(Int_t n);
+	
+	void SetADCData();
    virtual KVPSAResult* TreateSignal();
    virtual void ComputeGlobals(void);
 	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
-   virtual void SetDefaultValues(){  }
-
+   virtual void LoadPSAParameters(const Char_t* dettype){  }
+ virtual void SetDefaultValues(){}
+	
    Double_t ComputeBaseLine();
    Double_t ComputeAmplitude();
    Double_t ComputeRiseTime();

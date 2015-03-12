@@ -25,7 +25,7 @@ class KVChargeSignal : public KVSignal
    KVChargeSignal(const char* name);
 
    virtual void SetDefaultValues();
-
+	virtual void LoadPSAParameters(const Char_t* dettype);
    
    virtual ~KVChargeSignal();
    void Copy(TObject& obj) const;

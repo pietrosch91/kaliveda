@@ -88,36 +88,35 @@ void KVSignal::Copy(TObject&) const
     //KVSignal& CastedObj = (KVSignal&)obj;
 }
 
-void KVSignal::Init()
+void KVSignal::Set(Int_t n)
 {
-    if(!GetN())
-    {
-        Error("Init","Please fill me (%s) before initialisation ...",GetName());
-        return;
-    }
-    /*
-	 if(fType.Contains("I")||fType.Contains("QL1")) fChannelWidth = 4.;
-    else                                           fChannelWidth = 10.;
-    */
-	 fAdc.Set(GetN());
-    for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
-}
 
+	TGraph::Set(n);
+	fAdc.Set(GetN());
+
+}
 //________________________________________________________________
 
 void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 {
     Set(nn);
-    if (nn==0) return;
-    fAdc.Set(GetN());
+	 if (nn==0) return;
+    
 	 Int_t np=0;
     fYmin=fYmax=yy[np];
+	 SetPoint(np,xx[np],yy[np]);
     for (np=1;np<nn;np+=1){
         SetPoint(np,xx[np],yy[np]);
-        fAdc.AddAt(yy[np],np);
         if (yy[np]<fYmin) fYmin = yy[np];
         if (yy[np]>fYmax) fYmax = yy[np];
     }
+	 SetADCData();
+}
+
+void KVSignal::SetADCData()
+{
+	fAdc.Set(GetN());
+	for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
 }
 
 //________________________________________________________________

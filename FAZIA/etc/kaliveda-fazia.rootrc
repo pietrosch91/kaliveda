@@ -64,6 +64,51 @@ LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEven
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIAanalysis "KVFAZIAReconDataAnalyser()"
 +Plugin.KVEventSelector:  FAZIASelector    KVFAZIASelector      FAZIAanalysis    "KVFAZIASelector()"
 
+#
+# parameters for the filter for signal processing
+# if you want to change these parameters for an other dataset
+# please use the following notation
+# for example
+# [name_of_the_dataset].SI1.QL1.BaseLineLength: 90
+#
+SI1.QL1.BaseLineLength: 100
+SI1.QL1.TauRC: 250
+SI1.QL1.ChannelWidth: 4
+SI1.QL1.Shaper: trapezoidal
+SI1.QL1.ShaperRiseTime: 2
+SI1.QL1.ShaperFlatTop: 1
+SI1.QL1.PZCorrection: 1 
+
+SI1.QH1.BaseLineLength: 100
+SI1.QH1.TauRC: 40
+SI1.QH1.ChannelWidth: 10
+SI1.QH1.Shaper: trapezoidal
+SI1.QH1.ShaperRiseTime: 2
+SI1.QH1.ShaperFlatTop: 1
+SI1.QH1.PZCorrection: 1 
+
+SI1.I1.BaseLineLength: 30
+SI1.I1.ChannelWidth: 4
+#
+SI2.Q2.BaseLineLength: 100
+SI2.Q2.TauRC: 40
+SI2.Q2.ChannelWidth: 10
+SI2.Q2.Shaper: trapezoidal
+SI2.Q2.ShaperRiseTime: 2
+SI2.Q2.ShaperFlatTop: 1
+SI2.Q2.PZCorrection: 1 
+
+SI2.I2.BaseLineLength: 30
+SI2.I2.ChannelWidth: 4
+#
+CSI.Q3.BaseLineLength: 100
+CSI.Q3.TauRC: 40
+CSI.Q3.ChannelWidth: 10
+CSI.Q3.Shaper: trapezoidal
+CSI.Q3.ShaperRiseTime: 2
+CSI.Q3.ShaperFlatTop: 1
+CSI.Q3.PZCorrection: 1
+
 ###
 #	Old dataset of FAZIA
 ###

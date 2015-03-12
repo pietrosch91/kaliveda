@@ -3,6 +3,8 @@
 
 #include "KVCurrentSignal.h"
 #include "TMath.h"
+#include "TEnv.h"
+#include "KVDataSet.h"
 
 ClassImp(KVCurrentSignal)
 
@@ -60,14 +62,34 @@ void KVCurrentSignal::SetDefaultValues()
     SetBaseLineLength(30);
 }
 
+void KVCurrentSignal::LoadPSAParameters(const Char_t* dettype)
+{
+	
+	TString spar; 
+	Double_t lval;
+	//BaseLineLength
+	spar.Form("%s.%s.BaseLineLength",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	SetBaseLineLength(lval);
+	//ChannelWidth
+	spar.Form("%s.%s.ChannelWidth",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	SetChannelWidth(lval);
+}
+
 KVPSAResult *KVCurrentSignal::TreateSignal()
 {
-    //to be implemented in child class
+    if (GetN()==0) {
+		Info("TreateSignal","Empty signal %s",GetName());
+		return 0;
+	}	
    KVPSAResult* psa = new KVPSAResult(GetName());
-
-   Init();
-
-   fBaseLine  = FindMedia(fFirstBL, fLastBL);
+	psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
+	if (fAdc.fN==0) SetADCData();
+	
+	fBaseLine  = FindMedia(fFirstBL, fLastBL);
    fSigmaBase = FindSigma2(fFirstBL, fLastBL);
 
    Add(-1.*fBaseLine);

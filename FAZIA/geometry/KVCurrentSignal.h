@@ -21,8 +21,9 @@ class KVCurrentSignal : public KVSignal
    void Copy(TObject& obj) const;
 
    virtual void SetDefaultValues();
-
-   virtual KVPSAResult* TreateSignal();
+	virtual void LoadPSAParameters(const Char_t* dettype); 
+   
+	virtual KVPSAResult* TreateSignal();
 
    ClassDef(KVCurrentSignal,1)//digitized intensity signal
 };
