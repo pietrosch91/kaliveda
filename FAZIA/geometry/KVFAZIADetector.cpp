@@ -96,27 +96,41 @@ Bool_t KVFAZIADetector::SetProperties()
 	tmp = sname.Next(); tmp.ReplaceAll("T",""); fTelescope = tmp.Atoi();
 	tmp = sname.Next(); tmp.ReplaceAll("Q",""); fQuartet = tmp.Atoi();
 	tmp = sname.Next(); tmp.ReplaceAll("B",""); fBlock = tmp.Atoi();
-	
+	KVSignal* sig=0;
    //"QH1", "I1", "QL1", "Q2", "I2", "Q3
 	if (fSignals)
    	delete fSignals;
    fSignals = new KVList(kTRUE);
-   if (fFAZIAType=="SI1"){
-   	fSignals->Add(new KVChargeSignal("QH1"));
-   	fSignals->Add(new KVCurrentSignal("I1"));
-   	fSignals->Add(new KVChargeSignal("QL1"));
-   }
-   else if (fFAZIAType=="SI2"){
-   	fSignals->Add(new KVChargeSignal("Q2"));
-   	fSignals->Add(new KVCurrentSignal("I2"));
-   }
-	else if (fFAZIAType=="CSI"){
-   	fSignals->Add(new KVChargeSignal("Q3"));
-   }
+	KVString lsignals="";
+   if (fFAZIAType=="SI1"){	lsignals="QH1,I1,QL1";	}
+   else if (fFAZIAType=="SI2"){	lsignals="Q2,I2";	}
+	else if (fFAZIAType=="CSI"){	lsignals="Q3";	}
    else{
    	Warning("SetProperties","Unknown FAZIA type \"%s\" for this detector : %s\n",fFAZIAType.Data(),GetName());
-   }
-   return kTRUE;
+		lsignals="";
+	}
+   
+	lsignals.Begin(",");
+	while ( !lsignals.End() )
+	{
+		KVString ssig = lsignals.Next();
+		if (ssig.BeginsWith("Q")){
+			sig = new KVChargeSignal(ssig.Data());
+		}
+		else if (ssig.BeginsWith("I")){
+			sig = new KVCurrentSignal(ssig.Data());
+		}
+		else{
+			Warning("unknown format signal detectortype=%s, signal=%s\n",fFAZIAType.Data(),ssig.Data());
+			sig = new KVSignal(ssig.Data(),"unknown");
+		}
+		
+		sig->LoadPSAParameters(fFAZIAType.Data());
+		sig->SetDetectorName(GetName());
+		fSignals->Add(sig);
+	}
+	
+	return kTRUE;
 }
 //________________________________________________________________
 Bool_t KVFAZIADetector::Fired(Option_t *)
@@ -139,13 +153,10 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	while ( (sig = (KVSignal* )next()) )
     	{
     		if (sig->GetN()>0){
-      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetAmplitude()>20){
+      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetRawAmplitude()>20){
          		return kTRUE;
          	}
          	else{
-      			//printf("\t\t hitted :-) %lf\n",sig->GetAmplitude());
-         	   //Info("Fired","YES %s %d",GetName(),GetGroupNumber());
-         	   return kFALSE;
       		}
       	}
          else{
@@ -157,8 +168,6 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	Warning("Fired","%s : No signal attached to this detector ...",GetName());
       return kFALSE;
     }
-    //Info("Fired","Sort - %s",GetName());
-    //Info("Fired","NO %s %d",GetName(),GetGroupNumber());
     return kFALSE;
 }
 

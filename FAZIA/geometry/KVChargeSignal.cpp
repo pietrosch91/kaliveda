@@ -5,6 +5,8 @@
 #include "KVPSAResult.h"
 #include "TMath.h"
 #include "TH1F.h"
+#include "TEnv.h"
+#include "KVDataSet.h"
 
 ClassImp(KVChargeSignal)
 
@@ -16,12 +18,19 @@ ClassImp(KVChargeSignal)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+void KVChargeSignal::init()
+{
+
+	fFunc1=fFunc2=0;
+   bidim=0;
+	SetDefaultValues();
+
+}
 
 KVChargeSignal::KVChargeSignal()
 {
    // Default constructor
-   fFunc1=fFunc2=0;
-   bidim=0;
+   init();
 }
 
 //________________________________________________________________
@@ -29,21 +38,68 @@ KVChargeSignal::KVChargeSignal()
 KVChargeSignal::KVChargeSignal(const char* name) : KVSignal(name, "Charge")
 {
    // Write your code here
-    fFunc1=fFunc2=0;
-    bidim=0;
+    SetType(name);
+	 init();
 }
 
 void KVChargeSignal::SetDefaultValues()
 {
-    if(fType.Contains("QL")) SetChannelWidth(4.);
-    else                     SetChannelWidth(10.);
-    SetBaseLineLength(100);
-    if(fType.Contains("QL")) SetTauRC(250.);
-    else                     SetTauRC(40.);
+   
+	 if(fType.Contains("QL")) {
+		SetChannelWidth(4.);
+		SetTauRC(250.);
+	}
+	else                    {
+		SetChannelWidth(10.);
+		SetTauRC(40.);
+	}
+	SetBaseLineLength(100);
+    
     SetTrapShaperParameters(2.,1.);
     SetPoleZeroCorrection();
 }
 
+void KVChargeSignal::LoadPSAParameters(const Char_t* dettype)
+{
+	
+	TString spar; 
+	Double_t lval;
+	//--- BaseLineLength
+	spar.Form("%s.%s.BaseLineLength",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	SetBaseLineLength(lval);
+	//--- ChannelWidth
+	spar.Form("%s.%s.ChannelWidth",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	SetChannelWidth(lval);
+	//--- TauRC
+	spar.Form("%s.%s.TauRC",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	SetTauRC(lval);
+	
+	//--- ShaperRiseTime for trapezoidal filter
+	spar.Form("%s.%s.ShaperRiseTime",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	Double_t risetime = lval;
+	//--- ShaperFlatTop for trapezoidal filter
+	spar.Form("%s.%s.ShaperFlatTop",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	Double_t flattop = lval;
+	SetTrapShaperParameters(risetime,flattop);
+	//--- Pole-Zero Correction
+	spar.Form("%s.%s.PZCorrection",dettype,GetName());
+	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+	if (lval==1) SetPoleZeroCorrection(kTRUE);
+	else 				SetPoleZeroCorrection(kFALSE);
+	
+	
+}
 //________________________________________________________________
 
 KVChargeSignal::~KVChargeSignal()
@@ -70,10 +126,14 @@ void KVChargeSignal::Copy(TObject& obj) const
 KVPSAResult* KVChargeSignal::TreateSignal()
 {
 	//to be implemented in child class
+   if (GetN()==0) {
+		Info("TreateSignal","Empty signal %s",GetName());
+		return 0;
+	}	
    KVPSAResult* psa = new KVPSAResult(GetName());
-
-   Init();
-
+	psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
+	if (fAdc.fN==0) SetADCData();
+	
    ComputeBaseLine();
    Add(-1.*fBaseLine);
    ApplyModifications();
@@ -82,26 +142,19 @@ KVPSAResult* KVChargeSignal::TreateSignal()
    FIR_ApplyTrapezoidal(fTrapRiseTime,fTrapFlatTop);
 
    ComputeAmplitude();
-
-   Init();
+	
+   //Init(); remplacer par SetADCData()
+	//
+	SetADCData(); 
    ComputeRiseTime();
 
-   // storing result
+	// storing result
    psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
    psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),fSigmaBase);
    psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
    psa->SetValue(Form("%s.%s.RiseTime",fDetName.Data(),fType.Data()),fRiseTime);
-
-   // storing parameters
-   psa->SetValue(Form("%s.%s.ShaperType",fDetName.Data(),fType.Data()),"trapezoidal");
-   psa->SetValue(Form("%s.%s.ShaperRiseTime",fDetName.Data(),fType.Data()),fTrapRiseTime);
-   psa->SetValue(Form("%s.%s.ShaperFlatTop",fDetName.Data(),fType.Data()),fTrapFlatTop);
-   psa->SetValue(Form("%s.%s.WithPoleZeroCorrection",fDetName.Data(),fType.Data()),fWithPoleZeroCorrection);
-   psa->SetValue(Form("%s.%s.TauRC",fDetName.Data(),fType.Data()),fTauRC);
-   psa->SetValue(Form("%s.%s.BaseLineLength",fDetName.Data(),fType.Data()),fLastBL-fFirstBL);
-   psa->SetValue(Form("%s.%s.ChannelWidth",fDetName.Data(),fType.Data()),fChannelWidth);
-
-   return psa;
+	
+	return psa;
 
 
 	/*

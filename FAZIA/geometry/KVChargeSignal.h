@@ -16,14 +16,16 @@ class KVChargeSignal : public KVSignal
    TF1* fFunc1;
    TF1* fFunc2;
    TGraph* bidim;
-   
+   void init();
+	
+	
    public:
    TF1* GetFitFunction() {return fFunc1; }
    KVChargeSignal();
    KVChargeSignal(const char* name);
 
    virtual void SetDefaultValues();
-
+	virtual void LoadPSAParameters(const Char_t* dettype);
    
    virtual ~KVChargeSignal();
    void Copy(TObject& obj) const;

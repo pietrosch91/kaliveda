@@ -38,24 +38,28 @@ protected:
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
    Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
    Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
-
+ void init();
+ 
 public:
    KVSignal();
    KVSignal(const char* name, const char* title);
    KVSignal(const TString& name, const TString& title);
    virtual ~KVSignal();  
    void Copy(TObject& obj) const;
-	
+	void SetDetectorName(const Char_t* detname);
    void DeduceFromName();
    void SetType(const Char_t* type) {fType=type;}
    void Print(Option_t* chopt = "") const;
    void SetData(Int_t nn, Double_t* xx, Double_t* yy);
-   void Init();
-
+   virtual void Set(Int_t n);
+	
+	void SetADCData();
    virtual KVPSAResult* TreateSignal();
    virtual void ComputeGlobals(void);
-   virtual void SetDefaultValues(){}
-
+	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
+   virtual void LoadPSAParameters(const Char_t* dettype){  }
+ virtual void SetDefaultValues(){}
+	
    Double_t ComputeBaseLine();
    Double_t ComputeAmplitude();
    Double_t ComputeRiseTime();
