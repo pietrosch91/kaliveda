@@ -204,11 +204,6 @@ KVNDTManager.ElementDensityTable:      KVElementDensityTable
 +Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDetparticles   "KVElementDensityTable()"
 ElementDensity.DataFile:	element_densities.data
 
-#ROOT environment variables
-Root.Html.Author:      //Author:
-Root.Html.Header:      header.html
-Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
-
 # Classes for fitting identification grids
 # To change the default fitter class, change the value of the following variable:
 KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter
