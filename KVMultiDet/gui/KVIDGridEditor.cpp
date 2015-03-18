@@ -945,6 +945,7 @@ void KVIDGridEditor::SetGrid(TString GridName)
 //________________________________________________________________
 void KVIDGridEditor::SetPivot(Double_t xx0, Double_t yy0)
 {
+
     if(!fPivot)
     {
         fPivot = new TGraph;
