@@ -150,8 +150,8 @@ friend class KVIDGridEditorCanvas;
    void SetLogx     ();						//echelle log sur Ox
    void Undo        ();						//annule toute les operation sur la grille courante (I)
    
-   void SetPivot    (Double_t xx0, Double_t yy0);
-   void SetPiedestal(Double_t ppdx, Double_t ppdy);
+   void SetPivot    (Double_t xx0, Double_t yy0);   // set pivot position (double click on the histo)
+   void SetPiedestal(Double_t ppdx, Double_t ppdy); // set piedestal position (shift click on the histo)
    
    void SetEditable(TPaveLabel* label);
 //   void SelectLines(TPaveLabel* label);
