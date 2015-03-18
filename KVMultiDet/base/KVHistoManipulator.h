@@ -95,7 +95,12 @@ class KVHistoManipulator
 	void DefineTitle(TGraph* ob,TString xtit,TString ytit);
 	void DefineTitle(TF1* ob,TString xtit,TString ytit);
 	
-	Double_t GetX(TH1* ob, Double_t val, Double_t xmin = -1.0, Double_t xmax = -1.0, Double_t eps=1.e-07, Int_t nmax=50);
+	Double_t GetX(TH1* ob, Double_t val, Double_t eps=1.e-07, Int_t nmax=50, Double_t xmin = -1.0, Double_t xmax = -1.0);
+	Double_t GetXWithLimits(TH1* ob, Double_t val, Double_t xmin = -1.0, Double_t xmax = -1.0, Double_t eps=1.e-07, Int_t nmax=50)
+   {
+      // See method GetX(): the only difference is the order of the arguments
+      return GetX(ob,val,eps,nmax,xmin,xmax);
+   }
 	TF1* RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
 			Int_t npoints=-1, const Char_t* direction="C",
 			Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,

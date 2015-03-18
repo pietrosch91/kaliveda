@@ -1082,7 +1082,7 @@ void KVHistoManipulator::DefineTitle(TF1* ob,TString xtit,TString ytit){
 }
 //###############################################################################################################"
 //-------------------------------------------------
-Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t xmin, Double_t xmax, Double_t eps, Int_t nmax)
+Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax, Double_t xmin, Double_t xmax)
 {
 	// Return value of abscissa X for which the interpolated value
 	// of the histogram contents is equal to the given value, val.
