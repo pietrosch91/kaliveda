@@ -4,7 +4,7 @@
 # fill kaliveda.includes with output of root-config --incdir and all
 #   directories under bzr control
 
-bzr ls -R -V -k file | \egrep '\.h$|\.rootrc$|\.cpp$|\.c$|\.cxx$|\.C$|CMakeLists.txt' > kaliveda.files
+bzr ls -R -V -k file | \egrep '\.h$|\.rootrc$|\.cpp$|\.c$|\.cxx$|\.C$|\.sh$|\.csh$|\.m4$|\.cmake$|\.in$|CMakeLists.txt' > kaliveda.files
 
 echo '.' > kaliveda.includes
 

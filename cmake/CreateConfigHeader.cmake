@@ -95,6 +95,13 @@ macro( create_config_header )
 		set(__WITH_KVSTRING_ITOA yes)
 	endif(ROOT_VERSION VERSION_LESS 5.33.02)
 
+	#--- get infos on number of processors on machine
+	include(ProcessorCount)
+	ProcessorCount(N)
+	if(NOT N EQUAL 0)
+	    set(WITH_MULTICORE_CPU ${N})
+	endif()
+
 	configure_file(
 		${CMAKE_SOURCE_DIR}/KVConfig.h.in
 		${CMAKE_BINARY_DIR}/KVConfig.h
