@@ -134,7 +134,6 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    		TIter next_s(det->GetListOfSignals());
          while ( (sig = (KVSignal* )next_s()) )
    		{
-              sig->Init();
               KVNameValueList* psa = sig->TreateSignal();
               if(psa) *(recnuc->GetParameters()) += *psa;
 			}
