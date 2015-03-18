@@ -115,6 +115,7 @@ void KVIDTelescope::init()
     fGroup = 0;
     fIDGrids = new KVList(kFALSE);
     fIDGrids->SetCleanup(kTRUE);
+	 fVarX=fVarY="";
 }
 
 KVIDTelescope::~KVIDTelescope()

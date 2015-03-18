@@ -5,7 +5,7 @@ $Date: 2007/11/15 14:59:45 $
 */
 
 //Created by KVClassFactory on Wed Apr  5 23:50:04 2006
-//Author: John Frankland
+//Author: Eric Bonnet
 
 #include "KVBase.h"
 #include "KVFAZIAReconDataAnalyser.h"
@@ -17,6 +17,7 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "KVAvailableRunsFile.h"
 #include "KVFAZIA.h"
+#include "KVEventSelector.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ KVFAZIAReconDataAnalyser::KVFAZIAReconDataAnalyser()
    ParVal=0;
    ParNum=0;
 	fSelector=0;
+	fLinkRawData=kFALSE;
 }
 
 void KVFAZIAReconDataAnalyser::Reset()
@@ -48,6 +50,7 @@ void KVFAZIAReconDataAnalyser::Reset()
    ParNum=0;
 	fSelector=0;
    TotalEntriesToRead=0;
+	fLinkRawData=kFALSE;
 }
 
 KVFAZIAReconDataAnalyser::~KVFAZIAReconDataAnalyser()
@@ -67,7 +70,7 @@ Bool_t KVFAZIAReconDataAnalyser::CheckTaskVariables()
    if(!KVDataAnalyser::CheckTaskVariables()) return kFALSE;
    
    if (fDataSelector == "none") {
-      ChooseKVDataSelector();
+      //ChooseKVDataSelector();
    }
 
    cout << "============> Analysis summary <=============" << endl;
@@ -90,17 +93,29 @@ void KVFAZIAReconDataAnalyser::SubmitTask()
 {
    //Run the interactive analysis
    
-   //make the chosen dataset the active dataset ( = gDataSet; note this also opens database
+	KVEventSelector tmp;
+	tmp.SetOption(fUserClassOptions.Data());
+	tmp.ParseOptions();
+	fLinkRawData = tmp.IsOptGiven("ReadRawData");
+   
+	//make the chosen dataset the active dataset ( = gDataSet; note this also opens database
    //and positions gDataBase & gIndraDB).
    fDataSet->cd();
    fSelector = 0;
    
+	//if (theChain) delete theChain;
    theChain = new TChain("ReconstructedEvents");
    theChain->SetDirectory(0); // we handle delete
    
-   theFriendChain = new TChain("FAZIA");
-   theFriendChain->SetDirectory(0); // we handle delete
-   
+	//if (theFriendChain) delete theFriendChain;
+   if (fLinkRawData){
+		theFriendChain = new TChain("FAZIA");
+   	theFriendChain->SetDirectory(0); // we handle delete
+	}
+	else{
+		theFriendChain = 0;
+	}
+		
    fRunList.Begin(); Int_t run;
 	
 	// open and add to TChain all required files
@@ -138,16 +153,18 @@ void KVFAZIAReconDataAnalyser::SubmitTask()
       }
       
        //Add run file
-      fullPathToRunfile = gDataSet->GetFullPathToRunfile("raw",run);
-      cout << "Opening file " << fullPathToRunfile <<endl;
-      f = (TFile*)gDataSet->OpenRunfile("raw",run);
-      cout << "Adding file " << fullPathToRunfile;
-      cout << " to the friend TChain." << endl;
-      theFriendChain->Add( fullPathToRunfile );
-      
+      if (theFriendChain)
+		{
+			fullPathToRunfile = gDataSet->GetFullPathToRunfile("raw",run);
+      	cout << "Opening file " << fullPathToRunfile <<endl;
+      	f = (TFile*)gDataSet->OpenRunfile("raw",run);
+      	cout << "Adding file " << fullPathToRunfile;
+      	cout << " to the friend TChain." << endl;
+      	theFriendChain->Add( fullPathToRunfile );
+			}
    }
    
-   theChain->AddFriend("FAZIA");
+   if (theFriendChain) theChain->AddFriend("FAZIA");
    
    TotalEntriesToRead = theChain->GetEntries();
    TString option("");
@@ -179,8 +196,13 @@ void KVFAZIAReconDataAnalyser::SubmitTask()
          theChain->Process(GetUserClass(), option.Data());
       }
     }
-   delete theChain;
-   fSelector=0;//deleted by TChain/TTreePlayer
+   
+	if (theFriendChain) {
+		theChain->RemoveFriend(theFriendChain);
+		delete theFriendChain; theFriendChain=0;
+	}
+	delete theChain; theChain=0;
+	fSelector=0;//deleted by TChain/TTreePlayer
 }
 
 //_________________________________________________________________
@@ -325,56 +347,36 @@ KVNumberList KVFAZIAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
 
 void KVFAZIAReconDataAnalyser::preInitAnalysis()
 {
-	// Called by currently-processed KVSelector before user's InitAnalysis() method.
+	// Called by currently-processed KVFAZIASelector before user's InitAnalysis() method.
 	// We build the multidetector for the current dataset in case informations on
 	// detector are needed e.g. to define histograms in InitAnalysis().
 	// Note that at this stage we are not analysing a given run, so the parameters
 	// of the array are not set (they will be set in preInitRun()).
 		
+	//Info("preInitAnalysis","Appel");
 	if( !gFazia ) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
 }
 
 
 void KVFAZIAReconDataAnalyser::preInitRun()
 {
-	// Called by currently-processed KVSelector when a new file in the TChain is opened.
-	// We call gIndra->SetParameters for the current run.
-    // We connect the acquisition parameter objects to the branches of the raw data tree.
-    // Infos on currently read file/tree are printed.
-    // Any required data patches ("rustines") are initialized.
-	
+	// Called by currently-processed KVFAZIASelector when a new file in the TChain is opened.
+	// We call gFazia->SetParameters for the current run.
+    
+	// Infos on currently read file/tree are printed.
+   
 	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
 	gFazia->SetParameters(run);
-	//ConnectRawDataTree();
+	
 	PrintTreeInfos();
-   /*
-    fRustines.InitializePatchList(GetDataSet()->GetName(),GetDataType(),run,GetDataSeries(),
-                                  GetDataReleaseNumber(),theChain->GetCurrentFile()->GetStreamerInfoCache());
-    fRustines.Print();
-	*/
+   
 }
 
 void KVFAZIAReconDataAnalyser::preAnalysis()
 {
 	// Read and set raw data for the current reconstructed event
-    // Any required data patches ("rustines") are applied.
-
-	/*
-   if(!theRawData) return;
-	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
-	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
-
-	gIndra->GetACQParams()->R__FOR_EACH(KVACQParam,Clear)();
-
-	theRawData->GetEntry(rawEntry);
-	for(int i=0; i<NbParFired; i++){
-		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
-		if(par) {par->SetData(ParVal[i]);}
-	}
-	*/
-    // as rustines often depend on a knowledge of the original raw data,
-    // we apply them after it has been read in
-    //if(fRustines.HasActivePatches()) fRustines.Apply(fSelector->GetEvent());
+	// Any required data patches ("rustines") are applied.
+	// Do nothing
 }
 
 void KVFAZIAReconDataAnalyser::ConnectRawDataTree()
@@ -416,7 +418,7 @@ void KVFAZIAReconDataAnalyser::PrintTreeInfos()
 {
 	// Print informations on currently analysed TTree
 	TEnv* treeInfos = GetReconDataTreeInfos();
-	if(!treeInfos) return;
+	if(!treeInfos) { Warning("PrintTreeInfos", "pas de tree info"); return; }
 	cout << endl << "----------------------------------------------------------------------------------------------------" << endl;
 	        cout << "INFORMATIONS ON VERSION OF KALIVEDA USED TO GENERATE FILE:" << endl << endl;
            fDataVersion = treeInfos->GetValue("KVBase::GetKVVersion()","(unknown)");

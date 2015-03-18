@@ -8,8 +8,6 @@ INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 +Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
 +Plugin.KVUpDater: INDRAFAZIA KVINDRAUpDater KVIndradb "KVINDRAUpDater()"
 
-+Plugin.KVIDTelescope:    ^Si1$     KVFAZIAIDSi1PSA    FAZIAidentification    "KVFAZIAIDSi1PSA()"
-
 # FAZIA Geometry used by KVINDRAFAZIA
 INDRAFAZIA.GeoType:  		 compact
 INDRAFAZIA.DistanceFAZIA:   80.0
@@ -45,9 +43,8 @@ FAZIASYM.ThetaMinCompactGeo: 2.0
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 
 #gerer automaticement par KVMultiDetArray::GetIDTelescopes
-#+Plugin.KVIDTelescope:    ^Si-CsI$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
-#+Plugin.KVIDTelescope:    ^Si-Si$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
-+Plugin.KVIDTelescope:    ^Si$                 KVFAZIAIDSi1PSA            FAZIAidentification           "KVFAZIAIDSi1PSA()"
++Plugin.KVIDTelescope:    ^Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
++Plugin.KVIDTelescope:    ^Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^CsI$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
 
 LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
@@ -64,6 +61,8 @@ LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEven
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIAanalysis "KVFAZIAReconDataAnalyser()"
 +Plugin.KVEventSelector:  FAZIASelector    KVFAZIASelector      FAZIAanalysis    "KVFAZIASelector()"
 
+LNS_2014.IdentificationParameterFile.Si-Si:       SiSiGrids.dat
+LNS_2014.ActiveIdentifications:        Si-Si
 #
 # parameters for the filter for signal processing
 # if you want to change these parameters for an other dataset

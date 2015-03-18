@@ -45,7 +45,10 @@ class KVIDTelescope:public KVBase {
    Int_t fCalibStatus;//!temporary variable holding status code for last call to Calibrate(KVReconstructedNucleus*)
 
    void SetLabelFromURI(const Char_t* uri);
-
+	
+	KVString fVarX;
+	KVString fVarY;
+	
  public:
 
        // status of particle calibration after Calibrate(KVReconstructedNucleus*) is called
@@ -84,7 +87,11 @@ class KVIDTelescope:public KVBase {
    KVGroup *GetGroup() const;
    void SetGroup(KVGroup * kvg);
    UInt_t GetGroupNumber();
-
+	
+	const Char_t* GetVarX() const { return fVarX.Data(); }
+	const Char_t* GetVarY() const { return fVarY.Data(); }
+   
+	
    virtual TGraph *MakeIDLine(KVNucleus * nuc, Double_t Emin, Double_t Emax,
                               Double_t Estep = 0.0);
 

@@ -39,7 +39,7 @@ KVFAZIA::KVFAZIA()
 	fStartingBlockNumber=0;
    gFazia = this;
    IncludeTargetInGeometry();
-   fDetectorTypes="SI1,SI2,CSI";
+   fDetectorLabels="";
    fSignalTypes="QL1,I1,QH1,Q2,I2,Q3";
 }
 
@@ -48,9 +48,15 @@ KVFAZIA::~KVFAZIA()
    // Destructor
 }
 
+void KVFAZIA::AddDetectorLabel(const Char_t* label)
+{
+	if (fDetectorLabels=="") fDetectorLabels+=label;
+	else if (!fDetectorLabels.Contains(label)) fDetectorLabels+=Form(",%s",label); 
+}
+
 void KVFAZIA::GenerateCorrespondanceFile()
 {
-	
+fDetectorLabels="SI1,SI2,CSI";	
 #ifdef WITH_GNU_INSTALL   
    fCorrespondanceFile.Form("%s/%s-%s.names",KVBase::WorkingDirectory(),gSystem->Getenv("USER"),ClassName());
 #else
@@ -63,10 +69,10 @@ void KVFAZIA::GenerateCorrespondanceFile()
    	for (Int_t qq=1;qq<=4;qq+=1){
       	for (Int_t tt=1;tt<=4;tt+=1)
          {
-         	fDetectorTypes.Begin(",");
-            while ( !fDetectorTypes.End() )
+         	fDetectorLabels.Begin(",");
+            while ( !fDetectorLabels.End() )
             {
-            	KVString sdet = fDetectorTypes.Next();
+            	KVString sdet = fDetectorLabels.Next();
                env.SetValue(
             		Form("BLOCK_%d_QUARTET_%d_%s-T%d",bb,qq,sdet.Data(),tt),
                	Form("%s-T%d-Q%d-B%03d",sdet.Data(),tt,qq,bb)
@@ -78,7 +84,7 @@ void KVFAZIA::GenerateCorrespondanceFile()
    env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile",ClassName()));
    env.AddCommentLine("Make link between geometric ROOT objects and detector names");
    env.WriteFile(fCorrespondanceFile.Data());
-
+	fDetectorLabels="";
 }
 
 void KVFAZIA::GetGeometryParameters()
@@ -152,6 +158,9 @@ void KVFAZIA::Build(Int_t)
    	printf("%s %s %d %d %d\n",det->GetName(),det->GetFAZIAType(),det->GetBlockNumber(),det->GetQuartetNumber(),det->GetTelescopeNumber());	
    }
    */
+	SetIdentifications();
+	SetDetectorThicknesses();
+	SetBit(kIsBuilt);
 }
 
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)

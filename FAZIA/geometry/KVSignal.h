@@ -57,7 +57,7 @@ public:
    virtual KVPSAResult* TreateSignal();
    virtual void ComputeGlobals(void);
 	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
-   virtual void LoadPSAParameters(const Char_t* dettype){  }
+   virtual void LoadPSAParameters(const Char_t* ){  }
  virtual void SetDefaultValues(){}
 	
    Double_t ComputeBaseLine();

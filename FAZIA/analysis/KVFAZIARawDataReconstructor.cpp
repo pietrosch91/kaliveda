@@ -63,8 +63,7 @@ void KVFAZIARawDataReconstructor::InitRun()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
  
-    Info("InitRun", "called...");
-   if(!recev) recev = new KVReconstructedEvent;
+   if(!recev) recev = new KVReconstructedEvent(50,"KVFAZIAReconNuc");
    //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
   
    // get dataset to which we must associate new run
@@ -146,7 +145,6 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 void KVFAZIARawDataReconstructor::EndRun()
 {
-   Info("EndRun", "called");
    SafeDelete(recev);
    
 	std::cout << std::endl << " *** Number of reconstructed FAZIA events : "

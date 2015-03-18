@@ -45,20 +45,14 @@ void KVFAZIASelector::SlaveBegin(TTree *tree)
 	// The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
+   
+	SetReadingOfRawData(kFALSE);
+	gDataAnalyser->preInitAnalysis();
+   
    //
 	// ParseOptions : Manage options passed as arguments
-	//
-	// Called user method InitAnalysis where users can create trees or histos
-	// using the appropiate methods :
-	// CreateTrees and CreateMethods
-	// 
-	// Test the presence or not of such histo or tree
-	// to manage it properly
-	
-   SetReadingOfRawData(kFALSE);
-   if (!gFazia) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
-	
-   KVEventSelector::SlaveBegin(tree);
+	// done in KVEventSelector::SlaveBegin
+	KVEventSelector::SlaveBegin(tree);
 
 }
 
@@ -73,6 +67,7 @@ void KVFAZIASelector::Init(TTree *tree)
    // (once per file to be processed).
 	
 	// Set object pointer
+	
    Event = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -95,7 +90,7 @@ void KVFAZIASelector::Init(TTree *tree)
 
 Bool_t KVFAZIASelector::Notify()
 {
-   // The Notify() function is called when a new file is opened. This
+  // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
    // is started when using PROOF. It is normally not necessary to make changes
    // to the generated code, but the routine can be extended by the
@@ -105,10 +100,8 @@ Bool_t KVFAZIASelector::Notify()
    fNotifyCalled = kTRUE;
 
    Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
-
-   fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
-   gFazia->SetParameters(fCurrentRun);
-   
+	gDataAnalyser->preInitRun();
+	
    InitRun();	//user initialisations for run
 
    return kTRUE;

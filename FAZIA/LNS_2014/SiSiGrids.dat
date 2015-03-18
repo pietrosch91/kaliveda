@@ -3,8 +3,8 @@
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T1-Q1-B000_SI2-T1-Q1-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -5626,8 +5626,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T2-Q1-B000_SI2-T2-Q1-B000
 <PARAMETER> Runlist=7334-8280 8299-9738
 +KVIDZALine
@@ -11249,8 +11249,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T3-Q1-B000_SI2-T3-Q1-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -16872,8 +16872,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T4-Q1-B000_SI2-T4-Q1-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -22495,8 +22495,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T3-Q2-B000_SI2-T3-Q2-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -28118,8 +28118,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T4-Q2-B000_SI2-T4-Q2-B000
 <PARAMETER> Runlist=7107-8280 8299-9187
 +KVIDZALine
@@ -33741,8 +33741,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T2-Q3-B000_SI2-T2-Q3-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -39364,8 +39364,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T3-Q3-B000_SI2-T3-Q3-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -44987,8 +44987,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T4-Q3-B000_SI2-T4-Q3-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine
@@ -50610,8 +50610,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T1-Q4-B000_SI2-T1-Q4-B000
 <PARAMETER> Runlist=7334-8280 8299-9738
 +KVIDZALine
@@ -56233,8 +56233,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T2-Q4-B000_SI2-T2-Q4-B000
 <PARAMETER> Runlist=7107-8280 8299-9266
 +KVIDZALine
@@ -61856,8 +61856,8 @@ right
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> QH1
-<VARY> Q2
+<VARX> Q2.Amplitude
+<VARY> QH1.Amplitude
 <PARAMETER> IDTelescopes=ID_SI1-T3-Q4-B000_SI2-T3-Q4-B000
 <PARAMETER> Runlist=7107-8280 8299-9738
 +KVIDZALine

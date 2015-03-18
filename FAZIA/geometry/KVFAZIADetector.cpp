@@ -2,6 +2,7 @@
 //Author: ,,,
 
 #include "KVFAZIADetector.h"
+#include "KVFAZIA.h"
 #include "KVSignal.h"
 #include "KVChargeSignal.h"
 #include "KVCurrentSignal.h"
@@ -91,8 +92,9 @@ Bool_t KVFAZIADetector::SetProperties()
    KVString tmp;
    KVString sname(GetName());
    sname.Begin("-");
+   SetLabel(sname.Next());
+	gFazia->AddDetectorLabel(GetLabel());
    
-   fFAZIAType = sname.Next();
 	tmp = sname.Next(); tmp.ReplaceAll("T",""); fTelescope = tmp.Atoi();
 	tmp = sname.Next(); tmp.ReplaceAll("Q",""); fQuartet = tmp.Atoi();
 	tmp = sname.Next(); tmp.ReplaceAll("B",""); fBlock = tmp.Atoi();
@@ -102,11 +104,11 @@ Bool_t KVFAZIADetector::SetProperties()
    	delete fSignals;
    fSignals = new KVList(kTRUE);
 	KVString lsignals="";
-   if (fFAZIAType=="SI1"){	lsignals="QH1,I1,QL1";	}
-   else if (fFAZIAType=="SI2"){	lsignals="Q2,I2";	}
-	else if (fFAZIAType=="CSI"){	lsignals="Q3";	}
+   if ( !strcmp(GetLabel(),"SI1") ) {	lsignals="QH1,I1,QL1";	}
+   else if ( !strcmp(GetLabel(),"SI2" ) ) {	lsignals="Q2,I2";	}
+	else if ( !strcmp(GetLabel(),"CSI" ) ) {	lsignals="Q3";	}
    else{
-   	Warning("SetProperties","Unknown FAZIA type \"%s\" for this detector : %s\n",fFAZIAType.Data(),GetName());
+   	Warning("SetProperties","Unknown label \"%s\" for this detector : %s\n",GetLabel(),GetName());
 		lsignals="";
 	}
    
@@ -121,11 +123,11 @@ Bool_t KVFAZIADetector::SetProperties()
 			sig = new KVCurrentSignal(ssig.Data());
 		}
 		else{
-			Warning("unknown format signal detectortype=%s, signal=%s\n",fFAZIAType.Data(),ssig.Data());
+			Warning("unknown format signal detectorlabel=%s, signal=%s\n",GetLabel(),ssig.Data());
 			sig = new KVSignal(ssig.Data(),"unknown");
 		}
 		
-		sig->LoadPSAParameters(fFAZIAType.Data());
+		sig->LoadPSAParameters(GetLabel());
 		sig->SetDetectorName(GetName());
 		fSignals->Add(sig);
 	}

@@ -18,7 +18,7 @@ class KVFAZIA : public KVMultiDetArray
    Int_t fStartingBlockNumber;	//starting number of block incrementation
    Bool_t fBuildTarget;	//kTRUE to include target frame in the geometry
    TString fCorrespondanceFile; //name of the file where are listed links between geometry and detector names
-   KVString fDetectorTypes;
+   KVString fDetectorLabels;
    KVString fSignalTypes;
    
    //methods to be implemented in child classes
@@ -28,18 +28,20 @@ class KVFAZIA : public KVMultiDetArray
    
    virtual void BuildTarget();
    virtual void GenerateCorrespondanceFile();
+  
+	public:
    
-   public:
-   KVFAZIA();
+	KVFAZIA();
    virtual ~KVFAZIA();
-   
+ 	void AddDetectorLabel(const Char_t* label);
+  
    virtual void Build(Int_t run=-1);
 	void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params);
    void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 	Int_t GetNumberOfBlocks() const { return fNblocks; }
    void IncludeTargetInGeometry(Bool_t include=kTRUE) { fBuildTarget=include; }
    
-   const Char_t* GetDetectorTypes() const { return fDetectorTypes.Data(); }
+   KVString GetDetectorLabels() const { return fDetectorLabels; }
    const Char_t* GetSignalTypes() const { return fSignalTypes.Data(); }
    
    ClassDef(KVFAZIA,1)//Base class for description of the FAZIA set up

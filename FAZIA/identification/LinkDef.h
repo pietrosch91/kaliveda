@@ -3,5 +3,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ class KVFAZIAIDTelescope+;
-#pragma link C++ class KVFAZIAIDSi1PSA+;
+#pragma link C++ class KVFAZIAIDSiPSA+;
+#pragma link C++ class KVFAZIAIDSiSi+;
 #endif

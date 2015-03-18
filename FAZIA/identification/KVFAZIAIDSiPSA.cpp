@@ -1,20 +1,20 @@
 //Created by KVClassFactory on Mon Feb 17 13:52:51 2014
 //Author: John Frankland,,,
 
-#include "KVFAZIAIDSi1PSA.h"
+#include "KVFAZIAIDSiPSA.h"
 
-ClassImp(KVFAZIAIDSi1PSA)
+ClassImp(KVFAZIAIDSiPSA)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVFAZIAIDSi1PSA</h2>
+<h2>KVFAZIAIDSiPSA</h2>
 <h4>PSA identification in first silicon of FAZIA telescopes</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVFAZIAIDSi1PSA::KVFAZIAIDSi1PSA()
+KVFAZIAIDSiPSA::KVFAZIAIDSiPSA()
 {
    // Default constructor
    fRearThreshold = new TGraph(8);
@@ -26,15 +26,16 @@ KVFAZIAIDSi1PSA::KVFAZIAIDSi1PSA()
    fRearThreshold->SetPoint(5,20.0148548,7.840838);
    fRearThreshold->SetPoint(6,25.10830794,9.858440361);
    fRearThreshold->SetPoint(7,30.0846702,14.21646146);
+	SetType("SiPSA");
 }
 
-KVFAZIAIDSi1PSA::~KVFAZIAIDSi1PSA()
+KVFAZIAIDSiPSA::~KVFAZIAIDSiPSA()
 {
    // Destructor
 	delete fRearThreshold;
 }
 
-Bool_t KVFAZIAIDSi1PSA::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t)
+Bool_t KVFAZIAIDSiPSA::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t)
 {
     // Return kTRUE if energy of ION is > minimum incident energy required for identification
     // in charge (Z) given by figure 9 of "Comparison of charged particle identification

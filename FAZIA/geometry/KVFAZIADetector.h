@@ -13,8 +13,7 @@ class KVFAZIADetector : public KVDetector
 	protected:
    KVList *fSignals;         //list of electronics signal (current, charge, etc... )
    
-   TString fFAZIAType;
-	Int_t fBlock;
+   Int_t fBlock;
 	Int_t fQuartet;
 	Int_t fTelescope;
    
@@ -41,7 +40,6 @@ class KVFAZIADetector : public KVDetector
    Int_t GetBlockNumber() const {return fBlock;}
    Int_t GetQuartetNumber() const {return fQuartet;}
    Int_t GetTelescopeNumber() const {return fTelescope;}
-   const Char_t* GetFAZIAType() const {return fFAZIAType.Data(); }
    
    ClassDef(KVFAZIADetector,1)//Base class for FAZIA detector
 };

@@ -40,7 +40,7 @@ class KVFAZIAReconDataAnalyser:public KVDataAnalyser {
    Int_t fDataReleaseNum;//KV release number used to write analysed data
 
    KVDataPatchList fRustines;//patches to be applied to correct data before analysis
-	
+	Bool_t fLinkRawData;
  public:
 
    Long64_t GetTotalEntriesToRead() const { return TotalEntriesToRead; }
@@ -65,7 +65,7 @@ class KVFAZIAReconDataAnalyser:public KVDataAnalyser {
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
    
    void preInitAnalysis();
-   void preAnalysis();
+   void preAnalysis();	// Do nothing
    void preInitRun();
    virtual void RegisterUserClass(TObject*obj) {fSelector=(TSelector*)obj;};
    void PrintTreeInfos();

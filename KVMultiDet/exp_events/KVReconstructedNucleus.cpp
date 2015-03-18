@@ -317,7 +317,8 @@ void KVReconstructedNucleus::Identify()
     // This continues until a successful identification is achieved or there are no more ID telescopes to try.
     // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-    KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+    
+	 KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
     if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
@@ -361,6 +362,7 @@ void KVReconstructedNucleus::Identify()
         }
 
     }
+
 }
 
 //______________________________________________________________________________________________//
@@ -596,7 +598,7 @@ void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
 	// The mass (A) information in KVIdentificationResult is only used if the mass
 	// was measured as part of the identification. Otherwise the nucleus' mass formula
 	// will be used to calculate A from the measured Z.
-	
+							
                	  SetIDCode( idr->IDcode );
                	  SetZMeasured( idr->Zident );
                	  SetAMeasured( idr->Aident );

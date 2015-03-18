@@ -67,7 +67,6 @@ protected :
    void FillTProfile2D(TProfile2D* h2, Double_t one, Double_t two, Double_t three, Double_t four);
    void FillTH3(TH3* h3, Double_t one, Double_t two, Double_t three, Double_t four);
    
-   virtual void ParseOptions();
 
 public:
 	TFile* writeFile;//!
@@ -75,6 +74,7 @@ public:
    TString tree_file_name;
    Bool_t CreateTreeFile(const Char_t* filename = "");
 	
+   virtual void ParseOptions();
 	
     KVEventSelector(TTree * /*tree*/ = 0) : fChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
       fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE) {
@@ -98,7 +98,7 @@ public:
    };
    void SetEventsReadInterval(Long64_t N) { fEventsReadInterval = N; };
    virtual Int_t   Version() const {
-      return 2;
+      return 3;
    }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
