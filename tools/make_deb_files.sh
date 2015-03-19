@@ -1,6 +1,22 @@
 #!/bin/bash
-# $1 = root source directory
-# $2 = build directory
+#--- make_deb_files [source dir] [build dir]
+#
+# This script is used to update the debian/ubuntu packaging information in case
+# e.g. new classes are added to the libraries.
+#
+# Call this script with two arguments: full paths to source & build directories
+# Make sure the ROOT version used is compatible with current Ubuntu package!
+# This will configure & build all libraries (option USE_ALL=yes), then perform
+# a DESTDIR installation in [build dir]. This will be used to update the debian
+# package information in the [source dir]/debian directory, such as:
+#
+#  kaliveda.dirs
+#  kaliveda.install
+#  libkaliveda-dev.dirs
+#  libkaliveda-dev.install
+# 
+# etc. etc. You should then commit the new files to the version control system
+# for the next build to take them into account.
 
 makeDebFiles()
 {
@@ -155,8 +171,8 @@ if [ $# -lt 2 ]; then
 fi
 
 cd $2
-#cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
-#make -j4 install DESTDIR=$2/tmp
+cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
+make -j4 install DESTDIR=$2/tmp
 makeDebFiles $1 $2 KVMultiDet kaliveda
 makeDebFiles $1 $2 KVIndra kaliveda-indra
 makeDebFiles $1 $2 VAMOS kaliveda-indravamos
