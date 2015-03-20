@@ -135,6 +135,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    		{
               KVNameValueList* psa = sig->TreateSignal();
               if(psa) *(recnuc->GetParameters()) += *psa;
+				  delete psa;
 			}
       }   
    }
