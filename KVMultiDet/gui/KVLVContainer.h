@@ -19,6 +19,7 @@ $Date: 2009/04/28 09:11:29 $
 #include "KVDatime.h"
 #include "TContextMenu.h"
 #include "KVList.h"
+#include "KVNumberList.h"
 
 class KVLVColumnData
 {
@@ -156,6 +157,7 @@ virtual void   ActivateItemFromSelectAll(TGFrameElement *el);
 				void  	ActivateItemWithColumnData(const Char_t* colname, const Char_t* data, Bool_t activate=kTRUE);
 				void  	ActivateItemWithColumnData(const Char_t* colname, Long_t data, Bool_t activate=kTRUE);
 				void  	ActivateItemWithColumnData(const Char_t* colname, Double_t data, Bool_t activate=kTRUE);
+				void  	ActivateItemsWithColumnData(const Char_t* colname, KVNumberList data, Bool_t activate=kTRUE);
 
 				void		OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t);
 				void		DoDoubleClick(TGFrame*,Int_t,Int_t,Int_t);

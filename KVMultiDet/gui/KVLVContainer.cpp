@@ -530,10 +530,40 @@ void KVLVContainer::ActivateItemWithColumnData(const Char_t* colname, Long_t dat
         f = (TGLVEntry *) el->fFrame;
         CD->GetData( (TObject*)f->GetUserData(), val );
         if(val==data) {
+            printf("%ld\n",data);
             if (activ) ActivateItemFromSelectAll(el);
 				else DeActivateItem(el);
             break;
         }
+    }
+    //fClient->NeedRedraw(this);
+}
+//______________________________________________________________________________
+
+void KVLVContainer::ActivateItemsWithColumnData(const Char_t* colname, KVNumberList data, Bool_t activ)
+{
+    KVLVColumnData* CD = fColData[((KVListView*)GetListView())->GetColumnNumber(colname)];
+    TGFrameElement *el;
+    TIter next(fList);
+    TGLVEntry *f=0;
+    Long_t val;
+    data.Begin();
+    while ( !data.End() )
+    {
+    	Int_t nd = data.Next();
+    	//printf("nd=%d\n",nd);
+    	next.Reset();
+      Bool_t find = kFALSE;
+      while ( (el = (TGFrameElement *) next()) && !find)
+      {
+			f = (TGLVEntry *) el->fFrame;
+			CD->GetData( (TObject*)f->GetUserData(), val );
+      	if(val==nd) {
+         	find=kTRUE;
+            if (activ) ActivateItemFromSelectAll(el);
+            else DeActivateItem(el);
+         }
+      }
     }
     fClient->NeedRedraw(this);
 }
@@ -807,8 +837,7 @@ void KVLVContainer::SelectAll()
 void KVLVContainer::ActivateItemFromSelectAll(TGFrameElement *el)
 {
    // Activate item.
-
-   TGFrame *fr = el->fFrame;
+	TGFrame *fr = el->fFrame;
    fr->Activate(kTRUE);
 
    if (fLastActiveEl != el) {
@@ -819,9 +848,6 @@ void KVLVContainer::ActivateItemFromSelectAll(TGFrameElement *el)
    }
 
    if (!fSelected) fSelected = 1;
-
-   //SendMessage(fMsgWindow, MK_MSG(kC_CONTAINER, kCT_SELCHANGED), fTotal, fSelected);
-
-   TGPosition pos = GetPagePosition();
+	TGPosition pos = GetPagePosition();
    DrawRegion(fr->GetX() - pos.fX, fr->GetY() - pos.fY, fr->GetWidth(), fr->GetHeight());
 }

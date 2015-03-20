@@ -1522,7 +1522,6 @@ void KVDataAnalysisLauncher::SystemSelectionChanged()
 //__________________________________________
 void KVDataAnalysisLauncher::SetRuns(const Char_t *r)
 {
-    //Info("SetRuns", "Called with runs = %s", r);
     if(!strcmp(r,""))
     {
         ClearListOfSelectedRuns();
@@ -1532,28 +1531,13 @@ void KVDataAnalysisLauncher::SetRuns(const Char_t *r)
     else
     {
         listOfRuns.SetList(r);
-        Int_t nbr=0;
-        Int_t *lor=listOfRuns.GetArray(nbr);
-        //Info("SetRuns", "1. listOfRuns=%s", listOfRuns.AsString());
-        ClearListOfSelectedRuns();
-        for(Int_t i=0;i<nbr;i++)
-        {
-            if( listOfSystemRuns.Contains( lor[i] ) )
-            {
-                Int_t index=0;
-                while( lor[i] != listOfSystemRuns[index] ) index++;
-
-                lvRuns->ActivateItemWithColumnData("Run", (Long_t)lor[i]);
-                //    SetListOfRuns(index);
-            }
-        }
-        //Info("SetRuns", "2. listOfRuns=%s", listOfRuns.AsString());
+        listOfRuns.Inter(listOfSystemRuns);
+        
         if(listOfRuns.GetNValues())
         {
-            //Info("SetRuns", "set RunsList = %s", listOfRuns.AsString());
-            SetResource("RunsList",listOfRuns.AsString());
+        		lvRuns->ActivateItemsWithColumnData("Run", listOfRuns);
+        		SetResource("RunsList",listOfRuns.AsString());
         }
-        delete [] lor;
     }
 }
 
