@@ -530,8 +530,8 @@ void KVLVContainer::ActivateItemWithColumnData(const Char_t* colname, Long_t dat
         f = (TGLVEntry *) el->fFrame;
         CD->GetData( (TObject*)f->GetUserData(), val );
         if(val==data) {
-            if(activ) ActivateItem(el);
-            else DeActivateItem(el);
+            if (activ) ActivateItemFromSelectAll(el);
+				else DeActivateItem(el);
             break;
         }
     }
