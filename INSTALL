@@ -59,3 +59,10 @@ To build the KaliVeda interface classes to 'Range', add the following option to 
 If the library is not found, you can give the the path to the installation (should contain both lib/ and include/ directories):
 
     -DUSE_RANGE=yes -DRANGE_DIR=[path to range lib & headers]
+    
+## 2. Setting paths etc.
+
+To set the paths for executables, shared libraries, man pages, etc., execute on of the following scripts:
+
+    $ source ${prefix}/bin/thiskaliveda.csh   [(t)csh shell]
+    $ . ${prefix}/bin/thiskaliveda.sh         [(ba)sh shell]
