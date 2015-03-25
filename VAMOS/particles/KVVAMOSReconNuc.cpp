@@ -490,18 +490,23 @@ void KVVAMOSReconNuc::IdentifyQandA()
 			// loop over the time acquisition parameters
 			const Char_t *tof_name = NULL;
 			for( Short_t i=0; !ok && (tof_name = GetCodes().GetToFName(i)); i++ ){
+
+
 				IDR.Reset();
                 IDR.IDattempted = kTRUE;
 
 				Double_t beta    = GetBeta(tof_name);
 				Double_t realA   = CalculateRealA( GetZ(), GetEnergyBeforeVAMOS(), beta );
 				Double_t realAoQ = CalculateMassOverQ( GetBrho(), beta )/u();
+				
 
 				qa_idt->Identify( &IDR, tof_name, realAoQ, realA);
    				// for all nuclei we take the first identification which gives IDOK==kTRUE
 				if( IDR.IDOK ){
 					SetIsQandAidentified();
         			SetQandAidentification( &IDR );
+					SetRealAoverQ( realAoQ );
+					SetRealQ( qa_idt->GetRealQ() );
 					return;
 				}
 			}
@@ -816,7 +821,15 @@ void KVVAMOSReconNuc::SetQandAidentification(KVIdentificationResult *idr){
     SetQMeasured( idr->Zident );
     if( !IsAMeasured() ) SetAMeasured( idr->Aident );
     SetQ( idr->Z );
-    if(idr->Aident) {SetA( idr->A );SetRealA( idr->PID );}
+    if(idr->Aident) {
+		// since changing mass is done by leaving momentum unchanged, the kinetic
+		// energy is changed too.
+		// Keep its value and set it again at the end.
+		Double_t E = GetEnergy();
+		SetA( idr->A );
+		SetRealA( idr->PID );
+		SetEnergy( E );
+	}
     else SetRealQ( idr->PID );
 }
 //________________________________________________________________

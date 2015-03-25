@@ -118,6 +118,7 @@ class KVIDQAGrid : public KVIDGrid
 		Bool_t IsAvsAoQ() const{ return (GetVarY()[0]=='A'); }
 		Bool_t IsQvsAoQ() const{ return (GetVarY()[0]=='Q'); }
 	
+		Double_t GetRealQ() const{ return fRealQ; }
 
    	ClassDef(KVIDQAGrid,1)//Base class for 2D Q & A identification grids
 };

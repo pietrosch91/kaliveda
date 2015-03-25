@@ -5,8 +5,8 @@
 #define __KVIDQA_H
 
 #include "KVVAMOSIDTelescope.h"
+#include "KVIDQAGrid.h"
 
-class KVIDQAGrid;
 class KVVAMOSReconNuc;
 
 class KVIDQA : public KVVAMOSIDTelescope
@@ -26,6 +26,8 @@ class KVIDQA : public KVVAMOSIDTelescope
    virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
    virtual Bool_t Identify(KVIdentificationResult *IDR, const Char_t *tof_name, Double_t realAoQ, Double_t realA);
    virtual void Initialize();
+
+   Double_t GetRealQ() const{ return ( fQAGrid ? fQAGrid->GetRealQ() : 0. ); }
 
 
    ClassDef(KVIDQA,1)//ID telescope used to identify Q and A with VAMOS

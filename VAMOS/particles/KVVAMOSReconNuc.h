@@ -60,6 +60,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 Float_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
                 Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
 
+				using KVReconstructedNucleus::GetRealA;
 				Float_t GetRealA( const Char_t *tof_name )          const;
 		        Float_t GetRealAoverQ( const Char_t *tof_name )     const;
 		        Float_t GetRealQ( const Char_t *tof_name )          const;
@@ -114,6 +115,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
  		virtual void             SetIDCode(UShort_t code_mask);
 		        void             SetQ( Int_t q );
 		virtual void             SetQMeasured( Bool_t yes=kTRUE );
+		        void             SetRealAoverQ( Float_t AoQ );
 		        void             SetRealQ( Float_t Q );
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
    		virtual void             SetTCode(UShort_t code_mask);
@@ -333,7 +335,7 @@ inline Int_t KVVAMOSReconNuc::GetQ() const{
 
 inline Float_t KVVAMOSReconNuc::GetRealAoverQ() const{
 	// returns the real value of A/Q deduced from identification
-	return (fRealAoQ>0 ? fRealAoQ : ((Float_t)GetA())/GetQ() );
+	return (fRealAoQ>0 ? fRealAoQ : (GetQ()>0 ? ((Float_t)GetA())/GetQ() : 0.));
 }
 //____________________________________________________________________________________________//
 
@@ -418,6 +420,11 @@ inline void KVVAMOSReconNuc::SetQMeasured( Bool_t yes ){
 	// Call with yes=kTRUE for reconstructed nuclei whose
     // charge state, Q, was measured, not calculated
     fQMeasured = yes;
+}
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetRealAoverQ( Float_t AoQ ){
+	fRealAoQ = AoQ;
 }
 //____________________________________________________________________________________________//
 

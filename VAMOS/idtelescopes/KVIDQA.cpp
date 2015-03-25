@@ -2,7 +2,6 @@
 //Author: ademard
 
 #include "KVIDQA.h"
-#include "KVIDQAGrid.h"
 #include "KVVAMOSCodes.h"
 ClassImp(KVIDQA)
 
@@ -77,7 +76,7 @@ Bool_t KVIDQA::Identify(KVIdentificationResult *IDR, const Char_t *tof_name, Dou
 			Double_t Y = ( fQAGrid->IsAvsAoQ() ? realA : realA/realAoQ );
 			return Identify( IDR, realAoQ, Y );
 		}
-		else Error("Identify","no grid available for Q-A identification with %s time of flight",tof_name);
+		//else Error("Identify","no grid available for Q-A identification with %s time of flight",tof_name);
 	}
 	return kFALSE;
 }
