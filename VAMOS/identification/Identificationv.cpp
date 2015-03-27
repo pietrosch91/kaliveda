@@ -8,7 +8,6 @@
 
 #include "KVIDZAGrid.h"
 #include "KVIDGridManager.h" 
-#include "KVINDRADB_e503.h"
 #include "KVINDRAe503.h"
 #include "KVUnits.h"
 

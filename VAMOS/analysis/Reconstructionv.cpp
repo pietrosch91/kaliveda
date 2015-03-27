@@ -2,7 +2,6 @@
 #include "TVector3.h"
 #include "KVDataSet.h"
 
-#include "KVINDRADB_e503.h"
 #include "KVINDRAe503.h"
 
 #include <cmath>
