@@ -29,6 +29,21 @@ function(CHANGE_LIST_TO_STRING mystring)
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
+#---EXTRACT_EXAMPLE_DESCRIPTION(description SOURCE sourcefile)
+# Look for first line starting with "//# " in sourcefile
+# Put string found after "//# " into description
+#---------------------------------------------------------------------------------------------------
+function(EXTRACT_EXAMPLE_DESCRIPTION description)
+
+	CMAKE_PARSE_ARGUMENTS(ARG "" "SOURCE" "" ${ARGN})
+    
+	file(STRINGS ${ARG_SOURCE} desc REGEX "^//# ")
+   string(SUBSTRING ${desc} 4 -1 descrip)
+	set(${description} "${descrip}" PARENT_SCOPE)
+
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
 #---KALIVEDA_SET_MODULE_DEPS(<variable> library MODULES mod1 mod2 ...)
 #---------------------------------------------------------------------------------------------------
 function(KALIVEDA_SET_MODULE_DEPS variable)
@@ -215,6 +230,14 @@ function(ADD_KALIVEDA_EXAMPLE_FUNCTION source)
 
     #--get filename without extension or path
     get_filename_component(sourcename ${source} NAME_WE)
+    get_filename_component(sourcefile ${source} NAME)
+    
+    #--get description for example
+    EXTRACT_EXAMPLE_DESCRIPTION(desc SOURCE ${source})
+    message(STATUS "         ${sourcefile} - ${desc}")
+    set_property(GLOBAL APPEND PROPERTY ${KVSUBPROJECT}_EXFUNCS ${sourcename})
+    set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_FILE ${sourcefile})
+    set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_DESC ${desc})
 
     add_library(${KVSUBPROJECT}${sourcename} SHARED ${source})
     target_link_libraries(${KVSUBPROJECT}${sourcename} ${KALIVEDA_LIB_LIST})
