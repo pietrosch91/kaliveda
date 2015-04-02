@@ -12,13 +12,20 @@ get_lib_list()
 {
    # $1 = KVMultiDet etc.
    # $2 = /usr/lib etc.
-   
+   tmp3=""
    unset lib_list
    tmp=`find $2 -name 'lib'$1'*.so'`
-   if [ ! -z "$tmp" ]; then
-      tmp2=`basename -a -s .so $tmp`
-      lib_list=`echo $tmp2 | sed 's/lib'$1'/-l'$1'/g'`
-   fi
+   #echo $tmp
+   for file in $tmp
+   do
+   	#echo $file
+      if [ ! -z "$file" ]; then
+   	   tmp2=`basename $file .so`
+         #echo $tmp2
+   	   tmp3="$tmp2 $tmp3"
+   	fi
+   done   
+	lib_list=`echo $tmp3 | sed 's/lib'$1'/-l'$1'/g'`
 }
 
 readlink=readlink
