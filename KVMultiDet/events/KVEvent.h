@@ -101,6 +101,8 @@ class KVEvent:public KVBase {
 	virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi); 
 
 	virtual void FillIntegerList(KVIntegerList*,Option_t* opt);
+
+   virtual void GetMasses(Double_t*);
 	
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };

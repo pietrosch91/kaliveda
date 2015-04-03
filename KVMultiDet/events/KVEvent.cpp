@@ -724,5 +724,14 @@ void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
 	while ( (nuc = (KVNucleus* )GetNextParticle(opt)) ) 
 		IL->Add(nuc->GetZ());
 	IL->SetPopulation(1);
-	IL->CheckForUpdate();	
+        IL->CheckForUpdate();
+}
+
+void KVEvent::GetMasses(Double_t* mass)
+{
+   // Fill array with mass of each nucleus of event (in MeV).
+   // [note: this is the mass including any excitation energy, not ground state]
+   // Make sure array is dimensioned to size GetMult()!
+   KVNucleus* nuc=0; int i=0;
+   while ( (nuc = (KVNucleus* )GetNextParticle()) ) mass[i++] = nuc->GetMass();
 }

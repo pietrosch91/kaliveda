@@ -125,7 +125,7 @@ void KVParticle::init()
 {
    //default initialisation
    fE0 = 0;
-	SetFrameName("");
+   SetFrameName("");
    fGroups.SetOwner(kTRUE);
 }
 
@@ -185,7 +185,7 @@ void KVParticle::SetRandomMomentum(Double_t T, Double_t thmin,
    //If opt = "" or "isotropic" (default) : direction is isotropically distributed over the solid angle
    //If opt = "random"                    : direction is randomly distributed over solid angle
    //
-   //Based on KVPosition::GetRandomDirection(). 
+   //Based on KVPosition::GetRandomDirection().
 
    Double_t p = (T + M()) * (T + M()) - M2();
    if (p > 0.)
@@ -220,18 +220,18 @@ void KVParticle::SetMomentum(Double_t T, TVector3 dir)
 //________________________________________________________________________________________
 void KVParticle::Print(Option_t*) const
 {
-// print out characteristics of particle
+   // print out characteristics of particle
 
    cout << "KVParticle mass=" << M() <<
-       " Theta=" << GetTheta() << " Phi=" << GetPhi()
-       << " KE=" << GetKE() << endl;
+           " Theta=" << GetTheta() << " Phi=" << GetPhi()
+        << " KE=" << GetKE() << endl;
    if(fBoosted.GetEntries()){
       TIter next(&fBoosted);
       KVParticle* part;
       while( (part=(KVParticle*)next()) ){
          cout << "\t "<<part->GetFrameName()<<": "<<
-       " Theta=" << part->GetTheta() << " Phi=" <<part-> GetPhi()
-       << " KE=" << part->GetKE() << endl;
+                 " Theta=" << part->GetTheta() << " Phi=" <<part-> GetPhi()
+              << " KE=" << part->GetKE() << endl;
       }
    }
    GetParameters()->Print();
@@ -272,17 +272,17 @@ void KVParticle::Copy(TObject & obj)
 #endif
 {
    //Copy this to obj
-	//l'operateur d assignation est celui du TLorentzVector
-	//avec un rajout pour le champs fE0
-	//La KVList des KVParticle deduite de la methode SetFrame
-	//n est pas copiee
-	//Info("Copy","je rentre");
+   //l'operateur d assignation est celui du TLorentzVector
+   //avec un rajout pour le champs fE0
+   //La KVList des KVParticle deduite de la methode SetFrame
+   //n est pas copiee
+   //Info("Copy","je rentre");
    ((KVParticle &) obj) = *this;
-	((KVParticle &) obj).SetGroups(this->GetGroups());
-	((KVParticle &) obj).SetName(this->GetName());
+   ((KVParticle &) obj).SetGroups(this->GetGroups());
+   ((KVParticle &) obj).SetName(this->GetName());
    fParameters.Copy( ((KVParticle &) obj).fParameters );
-	//((KVParticle &) obj).SetFrameName(GetFrameName());
-	//Info("Copy","je sort");
+   //((KVParticle &) obj).SetFrameName(GetFrameName());
+   //Info("Copy","je sort");
 }
 
 
@@ -298,9 +298,9 @@ void KVParticle::Clear(Option_t*)
    }
    ResetIsOK();                 //in case IsOK() status was set "by hand" in previous event
    ResetBit(kIsDetected);
-	fParameters.Clear();
-	fGroups.Clear();	
-	fBoosted.Delete();
+   fParameters.Clear();
+   fGroups.Clear();
+   fBoosted.Delete();
 }
 
 //_________________________________________________________________________________________________________
@@ -360,60 +360,60 @@ void KVParticle::ResetEnergy()
 void KVParticle::SetName(const Char_t * nom)
 {
    //Set Name of the particle
-	fName.Form("%s",nom);
-	
+   fName.Form("%s",nom);
+
 }
 
 //___________________________________________________________________________//
 const Char_t *KVParticle::GetName() const
 {
    // return the field fName
-	return fName.Data();
+   return fName.Data();
 }
 
 //___________________________________________________________________________//
 void KVParticle::AddGroup_Withcondition(const Char_t*, KVParticleCondition*)
 {
-	// Dummy implementation of AddGroup(const Char_t* groupname, KVParticleCondition*)
-	// Does nothing. Real implementation is in KVNucleus::AddGroup_Withcondition.
-	Warning("AddGroup_Withcondition","DUUUUUUUUUUUUUMYYYYYYY do nothing");
+   // Dummy implementation of AddGroup(const Char_t* groupname, KVParticleCondition*)
+   // Does nothing. Real implementation is in KVNucleus::AddGroup_Withcondition.
+   Warning("AddGroup_Withcondition","DUUUUUUUUUUUUUMYYYYYYY do nothing");
 };
-	
+
 //___________________________________________________________________________//
 void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* from)
 {
    // Implementation of AddGroup_Sansconditioncon(st Char_t*, const Char_t*)
-	// Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
-	// which cannot]
-	// if this method is overridde in child class
-	// the line 
-	//         if (!fGroups) CreateGroups();
-	// has to be included
-	
-	TString sfrom(from);
-	sfrom.ToUpper();
-	TString sgroupname(groupname);
-	sgroupname.ToUpper();
-	
-	if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
-		fGroups.Add(new TObjString(sgroupname.Data()));
-		if (fBoosted.GetEntries()){
-			TString inst; inst.Form("\"%s\"",sgroupname.Data());
-			fBoosted.Execute("AddGroup",inst.Data());
-		}
-	}
+   // Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
+   // which cannot]
+   // if this method is overridde in child class
+   // the line
+   //         if (!fGroups) CreateGroups();
+   // has to be included
+
+   TString sfrom(from);
+   sfrom.ToUpper();
+   TString sgroupname(groupname);
+   sgroupname.ToUpper();
+
+   if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
+      fGroups.Add(new TObjString(sgroupname.Data()));
+      if (fBoosted.GetEntries()){
+         TString inst; inst.Form("\"%s\"",sgroupname.Data());
+         fBoosted.Execute("AddGroup",inst.Data());
+      }
+   }
 }
-	
+
 //___________________________________________________________________________//
 void KVParticle::AddGroup(const Char_t* groupname,const Char_t* from)
 {
-   // Associate this particle with the given named group. 
-	// Optional argument "from" allows to put a condition on the already stored
-	// group list, is set to "" by default
-	// 
-	// Apply the method to all particles stored in fBoosted
-	//Info("AddGroup","%s",groupname);
-	AddGroup_Sanscondition(groupname,from);
+   // Associate this particle with the given named group.
+   // Optional argument "from" allows to put a condition on the already stored
+   // group list, is set to "" by default
+   //
+   // Apply the method to all particles stored in fBoosted
+   //Info("AddGroup","%s",groupname);
+   AddGroup_Sanscondition(groupname,from);
 }
 
 
@@ -422,91 +422,91 @@ void KVParticle::AddGroup(const Char_t* groupname,const Char_t* from)
 void KVParticle::AddGroup(const Char_t* groupname, KVParticleCondition* cond)
 {
    //define and store a group name from a condition on the particle
-	// 
-	// Apply the method to all particles stored in fBoosted
-	// SetParticleClassName has to be set before using this method if you use 
-	// in the KVParticleCondistion a specific method of a derived KVNucleus class 
-	
-	AddGroup_Withcondition(groupname,cond);
+   //
+   // Apply the method to all particles stored in fBoosted
+   // SetParticleClassName has to be set before using this method if you use
+   // in the KVParticleCondistion a specific method of a derived KVNucleus class
+
+   AddGroup_Withcondition(groupname,cond);
 }
 
 //___________________________________________________________________________//
 void KVParticle::SetGroups(KVUniqueNameList* un)
 { 
-	//Define for the particle a new list of groups
-	//if there is an existing list, it's deleted	
-	fGroups.Clear();
-	AddGroups(un);
+   //Define for the particle a new list of groups
+   //if there is an existing list, it's deleted
+   fGroups.Clear();
+   AddGroups(un);
 }
-	
+
 //___________________________________________________________________________//
 void KVParticle::AddGroups(KVUniqueNameList* un)
 {
-	//list of groups added to the current one
-	TObjString* os = 0;
-	TIter no(un);
-	while ( (os = (TObjString* )no.Next()) ) {
-		AddGroup(os->GetName());
-	}
+   //list of groups added to the current one
+   TObjString* os = 0;
+   TIter no(un);
+   while ( (os = (TObjString* )no.Next()) ) {
+      AddGroup(os->GetName());
+   }
 
 }
 //___________________________________________________________________________//
 Int_t KVParticle::GetNumberOfDefinedGroups(void)
 {  
-	//return the number of defined groups for the particle
-	return fGroups.GetEntries();
+   //return the number of defined groups for the particle
+   return fGroups.GetEntries();
 }
-	
+
 //___________________________________________________________________________//
 KVUniqueNameList* KVParticle::GetGroups() const
 {
-	//return the KVUniqueNameList pointeur where list of groups are stored
-	return (KVUniqueNameList*)&fGroups;
+   //return the KVUniqueNameList pointeur where list of groups are stored
+   return (KVUniqueNameList*)&fGroups;
 }
 
 //___________________________________________________________________________//
 Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
 {
    //Check if particle belong to a given group
-	//return kTRUE if groupname="".
-	//return kFALSE if no group has be defined
-	
-	TString sgroupname(groupname);
-	sgroupname.ToUpper();	
-	//Important for KVEvent::GetNextParticle()
-	if (sgroupname.IsNull()) return kTRUE;
-	//retourne kFALSE si aucun groupe n'est defini
-	if (!fGroups.GetEntries()) return kFALSE;
-	if ( fGroups.FindObject(sgroupname.Data()) ) return kTRUE;
-	return kFALSE;
+   //return kTRUE if groupname="".
+   //return kFALSE if no group has be defined
+
+   TString sgroupname(groupname);
+   sgroupname.ToUpper();
+   //Important for KVEvent::GetNextParticle()
+   if (sgroupname.IsNull()) return kTRUE;
+   //retourne kFALSE si aucun groupe n'est defini
+   if (!fGroups.GetEntries()) return kFALSE;
+   if ( fGroups.FindObject(sgroupname.Data()) ) return kTRUE;
+   return kFALSE;
 }
 
 //___________________________________________________________________________//
 void KVParticle::RemoveGroup(const Char_t* groupname)
 {
    // Remove group from list of groups
-	// Apply the method to all particles stored in fBoosted
-	if (!fGroups.GetEntries()) return;
-	TString sgroupname(groupname);
-	sgroupname.ToUpper();
-	
-	TObjString* os = 0;
-	if ( (os = (TObjString* )fGroups.FindObject(sgroupname.Data())) ){
-		delete fGroups.Remove(os);	
-		if (fBoosted.GetEntries()){
-			TString inst; inst.Form("\"%s\"",sgroupname.Data());
-			fBoosted.Execute("RemoveGroup",inst.Data());
-		}
-	}	
+   // Apply the method to all particles stored in fBoosted
+   if (!fGroups.GetEntries()) return;
+   TString sgroupname(groupname);
+   sgroupname.ToUpper();
+
+   TObjString* os = 0;
+   if ( (os = (TObjString* )fGroups.FindObject(sgroupname.Data())) ){
+      delete fGroups.Remove(os);
+      if (fBoosted.GetEntries()){
+         TString inst; inst.Form("\"%s\"",sgroupname.Data());
+         fBoosted.Execute("RemoveGroup",inst.Data());
+      }
+   }
 }
 
 //___________________________________________________________________________//
 void KVParticle::RemoveAllGroups()
 {
    //Remove all groups
-	// Apply the method to all particles stored in fBoosted
-	fGroups.Clear();
-	if (fBoosted.GetEntries()) fBoosted.Execute("RemoveAllGroups","");
+   // Apply the method to all particles stored in fBoosted
+   fGroups.Clear();
+   if (fBoosted.GetEntries()) fBoosted.Execute("RemoveAllGroups","");
 }
 
 //___________________________________________________________________________//
@@ -514,18 +514,18 @@ void KVParticle::RemoveAllGroups()
 void KVParticle::ListGroups(void) const
 {
    //List all stored groups
-	if (!fGroups.GetEntries()) {
-		cout << "Cette particle n appartient a aucun groupe" << endl;
-		return;
-	}
-	else {
-		cout << "--------------------------------------------------" << endl;
-		cout << "Liste des groupes auxquels la particule appartient" << endl;
-	}
-	TObjString* os = 0;
-	TIter no(GetGroups());
-	while ( (os = (TObjString* )no.Next()) ) cout << os->GetName() << endl;
-	cout << "--------------------------------------------------" << endl;
+   if (!fGroups.GetEntries()) {
+      cout << "Cette particle n appartient a aucun groupe" << endl;
+      return;
+   }
+   else {
+      cout << "--------------------------------------------------" << endl;
+      cout << "Liste des groupes auxquels la particule appartient" << endl;
+   }
+   TObjString* os = 0;
+   TIter no(GetGroups());
+   while ( (os = (TObjString* )no.Next()) ) cout << os->GetName() << endl;
+   cout << "--------------------------------------------------" << endl;
 }
 
 //___________________________________________________________________________//
@@ -548,16 +548,16 @@ KVParticle *KVParticle::GetFrame(const Char_t * frame)
    //'laboratory' or 'detector' frame.
 
    if ( !fBoosted.GetEntries() || !strcmp(frame,"") )
-		return this;
+      return this;
    
    KVParticle* f = (KVParticle *) fBoosted.FindObjectWithMethod(frame,"GetFrameName");
    if (!f){
-		//Warning("GetFrame","Frame %s does not defined for this particle",frame); 
-		return this;
-	}
-	else{
-		return f;
-	}
+      //Warning("GetFrame","Frame %s does not defined for this particle",frame);
+      return this;
+   }
+   else{
+      return f;
+   }
 }
 
 //___________________________________________________________________________//
@@ -569,8 +569,8 @@ Bool_t KVParticle::HasFrame(const Char_t * frame)
       return kFALSE;
    }
    KVParticle* f = (KVParticle *) fBoosted.FindObjectWithMethod(frame,"GetFrameName");
-		
-	return (f ? kTRUE : kFALSE);
+
+   return (f ? kTRUE : kFALSE);
 }
 
 //___________________________________________________________________________//
@@ -627,19 +627,19 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
    //where v = particle's original momentum 4-vector and rot = TLorentzRotation
 
    if ( !strcmp(frame,"") ) return;
-	
-	KVParticle *tmp = 0;
-	if ( HasFrame(frame) ){
-		tmp = GetFrame(frame);
-	}
-	else {
-		//if this frame has not already been defined, create a new particle
-		tmp = (KVParticle* )this->IsA()->New();
-		tmp->SetFrameName(frame);
-		fBoosted.Add(tmp);
-	}
-	
-	//copy all information on particle
+
+   KVParticle *tmp = 0;
+   if ( HasFrame(frame) ){
+      tmp = GetFrame(frame);
+   }
+   else {
+      //if this frame has not already been defined, create a new particle
+      tmp = (KVParticle* )this->IsA()->New();
+      tmp->SetFrameName(frame);
+      fBoosted.Add(tmp);
+   }
+
+   //copy all information on particle
    this->Copy(*tmp);
    //transform to boosted frame
    (*tmp) *= rot.Inverse();
@@ -737,69 +737,69 @@ void KVParticle::SetFrame(const Char_t * frame, const TVector3 & boost,
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       const TVector3 & boost, Bool_t beta)
+                          const TVector3 & boost, Bool_t beta)
 {
    GetFrame(oldframe)->SetFrame(newframe, boost, beta);
-	//Duplicate the transformed particle to access by the method GetFrame("newframe")
-	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-	//Specially usefull if the new frame is used in KVVarGlob derived classes
-	KVParticle *tmp = (KVParticle* )this->IsA()->New();
-	tmp->SetBit(kCanDelete);
-	tmp->SetFrameName(newframe);
-	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-	GetListOfFrames()->Add(tmp);
+   //Duplicate the transformed particle to access by the method GetFrame("newframe")
+   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
+   //Specially usefull if the new frame is used in KVVarGlob derived classes
+   KVParticle *tmp = (KVParticle* )this->IsA()->New();
+   tmp->SetBit(kCanDelete);
+   tmp->SetFrameName(newframe);
+   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
+   GetListOfFrames()->Add(tmp);
 
 }
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TLorentzRotation & rot)
+                          TLorentzRotation & rot)
 {
    GetFrame(oldframe)->SetFrame(newframe,rot);
-	//Duplicate the transformed particle to access by the method GetFrame("newframe")
-	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-	//Specially usefull if the new frame is used in KVVarGlob derived classes
-	KVParticle *tmp = (KVParticle* )this->IsA()->New();
-	tmp->SetBit(kCanDelete);
-	tmp->SetFrameName(newframe);
-	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-	GetListOfFrames()->Add(tmp);
+   //Duplicate the transformed particle to access by the method GetFrame("newframe")
+   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
+   //Specially usefull if the new frame is used in KVVarGlob derived classes
+   KVParticle *tmp = (KVParticle* )this->IsA()->New();
+   tmp->SetBit(kCanDelete);
+   tmp->SetFrameName(newframe);
+   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
+   GetListOfFrames()->Add(tmp);
 
 }
 
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TRotation & rot)
+                          TRotation & rot)
 {
    
-	GetFrame(oldframe)->SetFrame(newframe,rot);
-	//Duplicate the transformed particle to access by the method GetFrame("newframe")
-	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-	//Specially usefull if the new frame is used in KVVarGlob derived classes
-	KVParticle *tmp = (KVParticle* )this->IsA()->New();
-	tmp->SetBit(kCanDelete);
-	tmp->SetFrameName(newframe);
-	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-	GetListOfFrames()->Add(tmp);
+   GetFrame(oldframe)->SetFrame(newframe,rot);
+   //Duplicate the transformed particle to access by the method GetFrame("newframe")
+   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
+   //Specially usefull if the new frame is used in KVVarGlob derived classes
+   KVParticle *tmp = (KVParticle* )this->IsA()->New();
+   tmp->SetBit(kCanDelete);
+   tmp->SetFrameName(newframe);
+   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
+   GetListOfFrames()->Add(tmp);
 
 }
 
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       const TVector3 & boost, TRotation & rot, Bool_t beta)
+                          const TVector3 & boost, TRotation & rot, Bool_t beta)
 {
    
-	GetFrame(oldframe)->SetFrame(newframe,boost,rot,beta);
-	//Duplicate the transformed particle to access by the method GetFrame("newframe")
-	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-	//Specially usefull if the new frame is used in KVVarGlob derived classes
-	KVParticle *tmp = (KVParticle* )this->IsA()->New();
-	tmp->SetBit(kCanDelete);
-	tmp->SetFrameName(newframe);
-	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-	GetListOfFrames()->Add(tmp);
+   GetFrame(oldframe)->SetFrame(newframe,boost,rot,beta);
+   //Duplicate the transformed particle to access by the method GetFrame("newframe")
+   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
+   //Specially usefull if the new frame is used in KVVarGlob derived classes
+   KVParticle *tmp = (KVParticle* )this->IsA()->New();
+   tmp->SetBit(kCanDelete);
+   tmp->SetFrameName(newframe);
+   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
+   GetListOfFrames()->Add(tmp);
 
 }
 
@@ -831,10 +831,10 @@ Double_t KVParticle::GetVperp() const
 void KVParticle::SetMomentum(Double_t px, Double_t py, Double_t pz,
                              Option_t * opt)
 {
-// Set Momentum components (in MeV/c)
-// if option is "cart" or "cartesian" we give cartesian components (x,y,z)
-// if option is "spher" or "spherical" we give components (rho,theta,phi) in spherical system
-//   with theta, phi in DEGREES
+   // Set Momentum components (in MeV/c)
+   // if option is "cart" or "cartesian" we give cartesian components (x,y,z)
+   // if option is "spher" or "spherical" we give components (rho,theta,phi) in spherical system
+   //   with theta, phi in DEGREES
    if (!strcmp("spher", opt) || !strcmp("spherical", opt)) {
       TVector3 pvec(0., 0., 1.);
       pvec.SetMag(px);
