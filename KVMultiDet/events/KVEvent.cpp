@@ -688,7 +688,7 @@ void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_
 		vz[i] = nuc->GetVelocity().Z();
 		i++;
 	}
-} 
+}
 	
 void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi)
 {
