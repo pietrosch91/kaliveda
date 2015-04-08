@@ -251,7 +251,6 @@ void KVNucleus::init()
    // The mass formula is kBetaMass, i.e. the formula for the valley of beta-stability.
   
    fZ = fA = 0;
-   fExx = 0;
    if (!fNb_nuc){
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
    }
