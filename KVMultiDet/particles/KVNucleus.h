@@ -139,11 +139,11 @@ class KVNucleus:public KVParticle {
    Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
    
-   KVNumberList GetKnownARange(Int_t z=-1, Double_t tmin=0) const;
-   Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
-
-   static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
-
+	KVNumberList GetKnownARange(Int_t z=-1, Double_t tmin=0) const;
+	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
+	
+	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
+		
    Bool_t IsKnown(int z = -1, int a = -1) const;
    Bool_t IsStable(Double_t min_lifetime=1.0e+15/*seconds*/) const;
    Bool_t IsResonance() const;
@@ -166,8 +166,9 @@ class KVNucleus:public KVParticle {
    KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1) const;
 
    Double_t GetAbundance(Int_t z = -1, Int_t a = -1) const;
-   KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;
-
+	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;
+	Int_t GetMostAbundantA(Int_t z = -1) const;
+	
    Double_t GetChargeRadius(Int_t z = -1, Int_t a = -1) const;
    KVChargeRadius* GetChargeRadiusPtr(Int_t z = -1, Int_t a = -1) const;
    Double_t GetExtraChargeRadius(Int_t z = -1, Int_t a = -1,Int_t rct=2) const;

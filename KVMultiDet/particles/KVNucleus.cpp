@@ -828,15 +828,37 @@ KVChargeRadius* KVNucleus::GetChargeRadiusPtr(Int_t z, Int_t a) const
 
 Double_t KVNucleus::GetAbundance(Int_t z, Int_t a) const
 {
-   //Returns life time value (see KVLifeTime class for unit details).
-   //If optional arguments (z,a) are given we return the value for the
-   //required nucleus.
-
-   CheckZAndA(z,a);
-   return gNDTManager->GetValue(z,a,"Abundance");
-   
+	//Returns relative abundance value (see KVAbundance class for unit details).
+	//If optional arguments (z,a) are given we return the value for the
+	//required nucleus.
+	
+	CheckZAndA(z,a);
+	return TMath::Max(0.0,gNDTManager->GetValue(z,a,"Abundance"));   
 }
 
+//________________________________________________________________________________________
+
+Int_t KVNucleus::GetMostAbundantA(Int_t z) const
+{
+	//Returns for a the Z of the current nucleus (z=-1) or the given z
+	// most abundant A.
+	//return -1 if no isotope of the given z have an abundance
+	Int_t amost=-1;
+	if (z==-1) z = GetZ();
+	KVNumberList ll = GetKnownARange(z);
+	ll.Begin();
+	Double_t abmax=0;
+	while (!ll.End()){
+		Int_t a = ll.Next();
+		Double_t abund = GetAbundance(z,a);
+		if (abund>abmax)
+		{
+			abmax = abund;
+			amost = a;
+		}
+	}
+   return amost;
+}
 
 //________________________________________________________________________________________
 
