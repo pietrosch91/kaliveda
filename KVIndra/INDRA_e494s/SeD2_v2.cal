@@ -49,10 +49,12 @@ SED2: 403.3
 
 # 36Ar+58Ni, calculated by GA 30/01/15 by adjusting A/Q=3 line
 # target 0.3 mg/cm2, theta_vamos= 0 deg
-RUNS: 337-391
-SED2: 403.
+RUNS: 337-382
+SED2: 403.5
+RUNS: 383-391
+SED2: 404
 RUNS: 392-411
-SED2: 400.
+SED2: 401
 # target 2.5 mg/cm2, theta_vamos= 0 deg
 RUNS: 436-442
 SED2: 394.7
@@ -60,15 +62,21 @@ SED2: 394.7
 RUNS: 479-481
 SED2: 403.
 RUNS: 482-485
-SED2: 402.
+SED2: 402
 RUNS: 486-490
-SED2: 403.
+SED2: 402.6
 # target 0.3 mg/cm2, theta_vamos= 8 deg
-RUNS: 491-496
-SED2: 398.5
+RUNS: 491-492
+SED2: 399
+RUNS: 493-494
+SED2: 400.5
+RUNS: 495
+SED2: 400.3
+RUNS: 496
+SED2: 399
 # target 0.3 mg/cm2, theta_vamos= 4 deg
 RUNS: 516-518
-SED2: 399.
+SED2: 399.5
 # target 0.3 mg/cm2, theta_vamos= 0 deg
 RUNS: 527-532
 SED2: 398.5

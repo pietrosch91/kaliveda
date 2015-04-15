@@ -59,9 +59,9 @@ RUNS: 436-442
 SED1: 411.25
 # target 0.3 mg/cm2, theta_vamos= 4 deg
 RUNS: 479-481
-SED1: 411.25
+SED1: 412.90
 RUNS: 482-485
-SED1: 413.30
+SED1: 413.65
 RUNS: 486-490
 SED1: 413.93
 # target 0.3 mg/cm2, theta_vamos= 8 deg
