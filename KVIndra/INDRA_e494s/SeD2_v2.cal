@@ -83,18 +83,31 @@ SED2: 398.5
 
 # 36Ar+60Ni, calculated by GA 05/06/14
 # target 0.33 mg/cm2, theta_vamos= 0 deg
-RUNS: 412-468
-SED2: 396.321
+RUNS: 412-435
+SED2: 400.32
+RUNS: 443-450
+SED2: 398.32
+RUNS: 451-468
+SED2: 403.32
 # target 0.33 mg/cm2, theta_vamos= 4 deg
-RUNS: 469-478
-SED2: 396.7
+RUNS: 469-471
+SED2: 403.70
+RUNS: 472-474
+SED2: 403.10
+RUNS: 475-478
+SED2: 403.60
 # target 0.33 mg/cm2, theta_vamos= 8 deg
-RUNS: 497-505
-SED2: 394.572
+RUNS: 497
+SED2: 400.77
+RUNS: 498-499
+SED2: 400.37
+RUNS: 500-501
+SED2: 400.57
+RUNS: 503-505
+SED2: 397.57
 # target 0.33 mg/cm2, theta_vamos= 4 deg
 RUNS: 506-509
-SED2: 392.645
-
+SED2: 397.64
 
 # Xf-correction of T0 (in ns) for TSED2_HF
 TYPE: Xf-correction of T0

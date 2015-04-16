@@ -48,7 +48,7 @@ SED1: 578.99
 RUNS: 282-334
 SED1: 417.3
 
-# 36Ar+58Ni, calculated by GA 30/01/15 by adjusting A/Q=3 line
+# 36Ar+58Ni, calculated by GA 15/04/15 by adjusting A/Q=3 line
 # target 0.3 mg/cm2, theta_vamos= 0 deg
 RUNS: 337-391
 SED1: 415.15
@@ -74,27 +74,33 @@ SED1: 411.00
 RUNS: 527-532
 SED1: 410.40
 
-# 36Ar+60Ni, calculated by GA 05/06/14
+# 36Ar+60Ni, calculated by GA 16/04/15 by adjusting A/Q=3 line
 # target 0.33 mg/cm2, theta_vamos= 0 deg
 RUNS: 412-435
-SED1: 410.355
+SED1: 411.36
 RUNS: 443-450
-SED1: 409.035
+SED1: 409.83
 RUNS: 451-468
-SED1: 410.009
+SED1: 414.81
 # target 0.33 mg/cm2, theta_vamos= 4 deg
 RUNS: 469-471
-SED1: 409.837
+SED1: 414.64
 RUNS: 472-474
-SED1: 408.613
+SED1: 414.41
 RUNS: 475-478
-SED1: 410.375
+SED1: 415.17
 # target 0.33 mg/cm2, theta_vamos= 8 deg
-RUNS: 497-505
-SED1: 408.22
+RUNS: 497
+SED1: 410.82
+RUNS: 498-499
+SED1: 410.42
+RUNS: 500-501
+SED1: 413.42
+RUNS: 503-505
+SED1: 409.62
 # target 0.33 mg/cm2, theta_vamos= 4 deg
 RUNS: 506-509
-SED1: 406.236
+SED1: 409.64
 
 # Xf-correction of T0 (in ns) for TSED1_HF
 TYPE: Xf-correction of T0
