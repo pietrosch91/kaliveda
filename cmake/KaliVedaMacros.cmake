@@ -38,7 +38,9 @@ function(EXTRACT_EXAMPLE_DESCRIPTION description)
 	CMAKE_PARSE_ARGUMENTS(ARG "" "SOURCE" "" ${ARGN})
     
 	file(STRINGS ${ARG_SOURCE} desc REGEX "^//# ")
-   string(SUBSTRING ${desc} 4 -1 descrip)
+   if(desc)
+      string(SUBSTRING ${desc} 4 -1 descrip)
+   endif()
 	set(${description} "${descrip}" PARENT_SCOPE)
 
 endfunction()
@@ -175,6 +177,7 @@ function(ADD_KALIVEDA_EXAMPLE_CLASS classname)
 
     CMAKE_PARSE_ARGUMENTS(ARG "" "SRC_FILE;HDR_FILE" "" ${ARGN})
 
+    message(STATUS "         ${classname} - (example class)")
     #---write LinkDef.h file
     set(linkdef ${CMAKE_CURRENT_BINARY_DIR}/examples/LinkDef.h)
     file(WRITE ${linkdef} "#ifdef __CINT__\n")
@@ -245,6 +248,26 @@ function(ADD_KALIVEDA_EXAMPLE_FUNCTION source)
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
+#---WRITE_EXAMPLES_INDEX(subproject)
+#
+# Write a HTML file in current binary dir with list of examples for subproject
+#
+function(WRITE_EXAMPLES_INDEX subproject)
+
+    get_property(EXFUNCS GLOBAL PROPERTY ${subproject}_EXFUNCS)
+    set(html_filename ${CMAKE_CURRENT_BINARY_DIR}/index.html)
+    file(WRITE ${html_filename} "<h2>Examples of use of ${subproject} classes</h2>\n")
+    file(APPEND ${html_filename} "<ol>\n")
+    foreach(example ${EXFUNCS})
+      get_property(ex_file GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_FILE)
+      get_property(ex_desc GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_DESC)
+      file(APPEND ${html_filename} "<li>${ex_file} - ${ex_desc}</li>\n")
+    endforeach(example)
+    file(APPEND ${html_filename} "</ol>\n")
+
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 #---BUILD_KALIVEDA_MODULE(kvmod PARENT kvtopdir [KVMOD_DEPENDS kvmod1 kvmod2...] [EXTRA_LIBS lib1 lib2...] 
 #             [DICT_EXCLUDE toto.h titi.h ...] [LIB_EXCLUDE Class1 Class2...])
@@ -310,7 +333,7 @@ function(BUILD_KALIVEDA_SUBPROJECT)
 	file(GLOB module_list RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 	
 	#---remove dataset dirs, etc.
-	set(to_be_removed CMakeLists.txt etc data factory examples)
+	set(to_be_removed CMakeLists.txt etc data factory examples doc)
 	list(REMOVE_ITEM module_list ${to_be_removed} ${ARG_DATASETS} ${ARG_IGNORE_DIRS})
 	
 	#---configure modules
@@ -334,6 +357,7 @@ function(BUILD_KALIVEDA_SUBPROJECT)
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 		install(DIRECTORY examples/ DESTINATION ${CMAKE_INSTALL_TUTDIR}/${KVSUBPROJECT})
 		BUILD_KALIVEDA_EXAMPLES_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/examples)
+      WRITE_EXAMPLES_INDEX(${KVSUBPROJECT})
 	endif()
 
 	#---everything in factory/ is installed in ${CMAKE_INSTALL_TMPLDIR}

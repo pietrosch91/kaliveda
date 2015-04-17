@@ -106,6 +106,7 @@ class KVBase:public TNamed {
    static const Char_t *GetKVBuildType();
    static const Char_t *GetKVBuildUser();
    static const Char_t *GetKVSourceDir();
+   static const Char_t *GetKVBuildDir();
 
 #ifdef WITH_BZR_INFOS
    static const Char_t *bzrRevisionId();

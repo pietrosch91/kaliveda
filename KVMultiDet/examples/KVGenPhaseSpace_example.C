@@ -1,3 +1,23 @@
+//# Calculate 12C*->3-alpha decay & fill TTree with generated events
+//
+// Example of use of KVGenPhaseSpace class, which uses TGenPhaseSpace
+// to generate events according to microcanonical statistics.
+// By default, 10**5 events are generated for the 3-alpha decay of
+// a Carbon-12 nucleus with E*=50 MeV.
+//
+// To execute this function, either do
+//
+// $ kaliveda
+// root[0] .L KVGenPhaseSpace_example.C+
+// root[1] example()
+//
+// or
+//
+// $ root
+// root[0] KVBase::InitEnvironment()
+// root[0] .L KVGenPhaseSpace_example.C+
+// root[1] example()
+
 #include "KVNucleus.h"
 #include "KVEvent.h"
 #include "KVGenPhaseSpace.h"

@@ -715,6 +715,15 @@ const Char_t *KVBase::GetKVSourceDir()
 }
 
 //__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::GetKVBuildDir()
+{
+   //Returns top-level directory used for build
+   static TString tmp(KV_BUILD_DIR);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
 #ifdef WITH_GIT_INFOS
 const Char_t *KVBase::gitBranch()
 {
