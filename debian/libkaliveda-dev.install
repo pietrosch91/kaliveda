@@ -31,6 +31,7 @@
 /usr/include/kaliveda/KVEvent.h
 /usr/include/kaliveda/KVSimEvent.h
 /usr/include/kaliveda/KVWilckeReactionParameters.h
+/usr/include/kaliveda/KVGenPhaseSpace.h
 /usr/include/kaliveda/KVEventViewer.h
 /usr/include/kaliveda/KVTestEvent.h
 /usr/include/kaliveda/KVBreakUp.h
