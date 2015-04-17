@@ -16,4 +16,5 @@
 #pragma link C++ class KV2Body+;
 #pragma link C++ class KVBreakUp;
 #pragma link C++ class KVWilckeReactionParameters+;
+#pragma link C++ class KVGenPhaseSpace+;
 #endif
