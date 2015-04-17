@@ -253,7 +253,7 @@ Int_t KVEvent::GetMult(Option_t * opt)
 
 Double_t KVEvent::GetSum(const Char_t* KVNucleus_method,Option_t * opt)
 {
-   //Returns sum other particles of the observable given by the indicated KVNucleus_method
+   //Returns sum over particles of the observable given by the indicated KVNucleus_method
    //for example
    //if  the method is called this way GetSum("GetZ"), it returns the sum of the charge
    //of particles in the current event
@@ -734,4 +734,64 @@ void KVEvent::GetMasses(Double_t* mass)
    // Make sure array is dimensioned to size GetMult()!
    KVNucleus* nuc=0; int i=0;
    while ( (nuc = (KVNucleus* )GetNextParticle()) ) mass[i++] = nuc->GetMass();
+}
+
+void KVEvent::GetGSMasses(Double_t* mass)
+{
+   // Fill array with ground state mass of each nucleus of event (in MeV).
+   // Make sure array is dimensioned to size GetMult()!
+   KVNucleus* nuc=0; int i=0;
+   while ( (nuc = (KVNucleus* )GetNextParticle()) ) mass[i++] = nuc->GetMassGS();
+}
+
+Double_t KVEvent::GetChannelQValue() const
+{
+   // Calculate the Q-value [MeV] for this event as if all nuclei were produced by
+   // the decay of an initial compound nucleus containing the sum of all nuclei
+   // in the event, i.e.
+   //    A -> a1 + a2 + a3 + ...
+   // We take into account any excitation energy of the nuclei of the event
+   // (see GetGSChannelQValue() for an alternative), i.e. we calculate
+   //    Q = M(A) - ( m(a1) + m(a2) + m(a3) + ... )
+   // where
+   //   M(X) = ground state mass of X
+   //   m(X) = M(X) + E*(X)
+   // If Q<0, the excitation energy of the initial compound nucleus, A,
+   // would have to be at least equal to (-Q) in order for the decay to occur.
+   // i.e. decay is possible if
+   //   E*(A) > -Q
+
+   Double_t sumM = 0;
+   KVNucleus CN;
+   Int_t M = const_cast<KVEvent*>(this)->GetMult();
+   for(int i=1;i<=M;i++){
+      sumM += GetParticle(i)->GetMass();
+      CN += *(GetParticle(i));
+   }
+   return CN.GetMassGS() - sumM;
+}
+
+Double_t KVEvent::GetGSChannelQValue() const
+{
+   // Calculate the Q-value [MeV] for this event as if all nuclei were produced by
+   // the decay of an initial compound nucleus containing the sum of all nuclei
+   // in the event, i.e.
+   //    A -> a1 + a2 + a3 + ...
+   // i.e. we calculate
+   //    Q = M(A) - ( M(a1) + M(a2) + M(a3) + ... )
+   // where
+   //   M(X) = ground state mass of X
+   // If Q<0, the excitation energy of the initial compound nucleus, A,
+   // would have to be at least equal to (-Q) in order for the decay to occur.
+   // i.e. decay is possible if
+   //   E*(A) > -Q
+
+   Double_t sumM = 0;
+   KVNucleus CN;
+   Int_t M = const_cast<KVEvent*>(this)->GetMult();
+   for(int i=1;i<=M;i++){
+      sumM += GetParticle(i)->GetMassGS();
+      CN += *(GetParticle(i));
+   }
+   return CN.GetMassGS() - sumM;
 }
