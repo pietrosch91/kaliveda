@@ -10,6 +10,10 @@
 
 get_lib_list()
 {
+   # fill $lib_list with all installed libraries
+   # we look for 'lib*.so' symbolic links
+   # we check that it points to an existing file
+   #
    # $1 = KVMultiDet etc.
    # $2 = /usr/lib etc.
    tmp3=""
@@ -19,7 +23,7 @@ get_lib_list()
    for file in $tmp
    do
    	#echo $file
-      if [ ! -z "$file" ]; then
+      if [ -e "$file" ]; then
    	   tmp2=`basename $file .so`
          #echo $tmp2
    	   tmp3="$tmp2 $tmp3"
