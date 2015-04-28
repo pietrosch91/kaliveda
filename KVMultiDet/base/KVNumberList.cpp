@@ -105,8 +105,7 @@ KVNumberList::KVNumberList(Int_t deb,Int_t fin,Int_t pas):fString()
    //Any number will only appear once.
    init_numberlist();
    ParseList();
-   for (Int_t ii=deb;ii<=fin;ii+=pas)
-   	Add(ii);
+   SetMinMax(deb,fin,pas);
 }
 
 //____________________________________________________________________________________________//
@@ -451,11 +450,11 @@ void KVNumberList::Remove(Int_t n, Int_t * arr)
 
 //____________________________________________________________________________________________//
 
-void KVNumberList::SetMinMax(Int_t min, Int_t max)
+void KVNumberList::SetMinMax(Int_t min, Int_t max,Int_t pas)
 {
    //Set list with all values from 'min' to 'max'
    TString tmp;
-   for (register int i = min; i <= max; i++) {
+   for (register int i = min; i <= max; i+=pas) {
       tmp += i;
       tmp += " ";
    }
@@ -712,14 +711,28 @@ const Char_t *KVNumberList::AsString(Int_t maxlen)
 
 //____________________________________________________________________________________________//
 
-Bool_t KVNumberList::IsFull()
+Bool_t KVNumberList::IsFull(Int_t vinf,Int_t vsup)
 {
 	//Return kTRUE if the list is in fact a continuous list of number
 	// ie "123-126" or "1,2,3,4" etc ...
-	
-	Int_t total = Last()-First()+1;
-	return (total == GetNValues());	
-}
+	//Use vinf et vsup if you want to test only a sub part
+   //of the list by default vinf=vsup=-1 and the whole list is considered
+   //in the test
+   // ie :
+   //	for "123-127 129" it will be returned kFALSE
+   //	for "123-127 129",-1,-1 it will be returned kFALSE
+   //	for "123-127 129",123,127 it will be returned kTRUE
+   //	for "123-127 129",-1,127 it will be returned kTRUE
+   //	for "123-127 129",127,-1 it will be returned kFALSE
+   
+   if ( (vinf == -1) && (vsup == -1) ) {
+		Int_t total = Last()-First()+1;
+		return (total == GetNValues());	
+	}
+   else{
+   	return GetSubList(vinf,vsup).IsFull();
+   }
+}	
 	
 //____________________________________________________________________________________________//
 
@@ -732,6 +745,31 @@ KVNumberList KVNumberList::GetComplementaryList()
 	if (IsFull()) return nl;
 	nl.SetMinMax(this->First(),this->Last());
 	nl.Remove(*this);
+	return nl;
+
+}
+//____________________________________________________________________________________________//
+
+KVNumberList KVNumberList::GetSubList(Int_t vinf,Int_t vsup)
+{
+	//Return the sublist of numbers between vinf and vsup
+   // i.e. put in the sublist val if vinf <= val <= vsup
+   // if vinf=-1, put no lower limit
+   // if vsup=-1, put no upper limit
+   // if vinf = vsup = -1, just clone the list
+   // i.e. "123-135 145-456",130,400 it will be returned "130-135 145-400"
+   
+	KVNumberList nl("");
+   if (vinf>vsup) return nl;
+   if (vinf==-1) vinf = this->First();
+	if (vsup==-1) vsup = this->Last();
+   this->Begin();
+   while ( !this->End() )
+   {
+   	Int_t val = this->Next();
+      if (val>=vinf && val<=vsup) nl.Add(val);
+      else if (val>vsup) return nl;
+   }
 	return nl;
 
 }
