@@ -80,6 +80,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		//-------------- inline methods -----------------//
 		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Float_t Brho );
 		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Double_t beta );
+		static  Double_t         CalculateEnergy( Int_t Q, Float_t Brho, Double_t beta );
 		static  Double_t         CalculateMassOverQ( Float_t Brho, Double_t beta );
 		static  Double_t         CalculateRealA( Int_t Z,Double_t E, Double_t beta );
 		        Double_t         GetAoverQ()                         const;
@@ -187,6 +188,22 @@ return (gamma-1)*M ;
 }
 //____________________________________________________________________________________________//
 
+inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Q, Float_t Brho, Double_t beta ){
+	// Calculates kinetic energy in MeV from Q, Brho and beta.
+	// First the M/Q is calculated from Brho and beta. 
+	// Then the energy is given by
+	// Begin_Latex 
+	// E = (#gamma-1)*(M/Q)*Q
+	// End_Latex
+	// where 
+	//   gamma : Lorentz factor calculated from beta (velocity/c)
+
+	Double_t M = CalculateMassOverQ(Brho, beta)*Q;
+	if( M<=0 ) return 0.;
+	Double_t gamma = 1.0/TMath::Sqrt( 1 - beta*beta );
+return (gamma-1)*M ;
+}
+//____________________________________________________________________________________________//
 inline Double_t KVVAMOSReconNuc::CalculateRealA( Int_t Z, Double_t E, Double_t beta ){
 	// Calculates the real value of the mass number deduced from the 
 	// energy E and and beta (i.e. velocity/c).
