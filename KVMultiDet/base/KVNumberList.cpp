@@ -99,6 +99,17 @@ KVNumberList::KVNumberList(const Char_t * list):fString(list)
 }
 
 //____________________________________________________________________________________________//
+KVNumberList::KVNumberList(Int_t deb,Int_t fin,Int_t pas):fString()
+{
+   //Initialise number list using string and parse it to fill limits arrays
+   //Any number will only appear once.
+   init_numberlist();
+   ParseList();
+   for (Int_t ii=deb;ii<=fin;ii+=pas)
+   	Add(ii);
+}
+
+//____________________________________________________________________________________________//
 
 KVNumberList::~KVNumberList()
 {
