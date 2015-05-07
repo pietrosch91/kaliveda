@@ -176,6 +176,10 @@ if(USE_BACKTRACK)
 endif()
 add_feature_info(backtrack USE_BACKTRACK "Build BackTrack package")
 
+#--- MicroStat package for calculating event statistical weights
+option(USE_MICROSTAT "Build MicroStat package" OFF)
+add_feature_info(microstat USE_MICROSTAT "Build MicroStat package")
+
 #--- Libraries for INDRA data
 option(USE_INDRA "Build libraries for analysis of INDRA data" OFF)
 
@@ -237,6 +241,9 @@ get_property(KVMultiDet_MOD_LIST GLOBAL PROPERTY KVMultiDet_MOD_LIST)
 get_property(KVMultiDet_LIB_LIST GLOBAL PROPERTY KVMultiDet_LIB_LIST)
 if(USE_BACKTRACK)
 	add_subdirectory(BackTrack)
+endif()
+if(USE_MICROSTAT)
+	add_subdirectory(MicroStat)
 endif()
 if(USE_INDRA)
 	add_subdirectory(KVIndra)
