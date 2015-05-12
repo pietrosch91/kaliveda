@@ -172,7 +172,7 @@ fi
 
 cd $2
 cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
-make -j4 install DESTDIR=$2/tmp
+make -j3 install DESTDIR=$2/tmp
 makeDebFiles $1 $2 KVMultiDet kaliveda
 makeDebFiles $1 $2 KVIndra kaliveda-indra
 makeDebFiles $1 $2 VAMOS kaliveda-indravamos
