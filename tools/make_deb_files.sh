@@ -129,7 +129,7 @@ for lib in $libs; do
    echo "/$lib" >> $install_file
 done
 if [ "x$3" = "xKVMultiDet" ]; then
-  extras="/usr/share/kaliveda/etc/config.files /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
+  extras="/usr/share/kaliveda/etc/config.files /usr/share/kaliveda/etc/KaliVeda.par /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
   tools="/usr/bin/kaliveda /usr/bin/kaliveda-sim /usr/bin/update_runlist /usr/bin/kvtreeanalyzer /usr/bin/kvdatanalyser /usr/bin/KaliVedaAnalysis"
   dev_extras="/usr/share/kaliveda/etc/kaliveda.m4 /usr/share/kaliveda/etc/nedit.cf /usr/bin/kaliveda-config"
   for e in $extras; do
