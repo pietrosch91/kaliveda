@@ -259,6 +259,19 @@ void KVParticleCondition::CreateClassFactory()
    // unique name for new class
    TUUID unique;
    KVString new_class = unique.AsString();
+   // make sure name begins with a letter - must be a valid class name
+   if(new_class[0]<'A'){
+      if(new_class[0]>='0' && new_class[0]<='9'){
+         // try to keep it unique
+         char rep = (new_class[0]-'0')-1+'a';
+         new_class[0] = rep;
+      }
+      else
+      {
+         // first character is weird..
+         new_class[0]='T';
+      }
+   }
    new_class.ReplaceAll("-","_");
    
    //create new class
