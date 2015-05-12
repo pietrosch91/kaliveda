@@ -212,6 +212,7 @@ if(USE_FAZIA)
 endif()
 
 add_subdirectory(execs)
+add_subdirectory(etc/proof)
 
 #---set up list of '.rootrc' config files to be read by KVBase::InitEnvironment
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
