@@ -940,10 +940,13 @@ Double_t KVNucleus::GetAMeV()
 
 KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
 {
-
+	//returns range of a known mass for a given element
+   //according to the lifetime in seconds
+   //tmin=0 (default) include all nuclei with known lifetime
+   //tmin=-1 include also nuclei for which lifetime is unknown
    if (zz==-1) zz=GetZ();
    KVNumberList nla;
-   nla.SetMinMax(TMath::Max(zz,1),4*TMath::Max(zz,1));
+   nla.SetMinMax(TMath::Max(zz,1),6*TMath::Max(zz,1));
    KVNumberList nlb;
    nla.Begin();
    while (!nla.End()){
@@ -951,6 +954,31 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
       if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
    }
    return nlb;
+}
+
+const Char_t* KVNucleus::GetIsotopesList(Int_t zmin, Int_t zmax, Double_t tmin) const
+{
+	//returns list of isotopes separated by commas
+   //for exemple 1H,2H,3H
+   //according to the charge range and the lifetime in seconds
+   //
+   static KVString list;
+   KVNucleus nn;
+   KVNumberList nla;
+   list="";
+   for (Int_t zz=zmin; zz<=zmax; zz+=1)
+   {
+   	nla = GetKnownARange(zz,tmin);
+      nla.Begin();
+      while ( !nla.End() )
+      {
+   		Int_t aa = nla.Next();
+      	nn.SetZandA(zz,aa);
+         list += nn.GetSymbol();
+         list += ",";   
+      }
+   }
+   return list.Data();
 }
 
 //________________________________________________________________________________________
