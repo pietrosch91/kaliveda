@@ -106,7 +106,8 @@ class KVEvent:public KVBase {
    virtual void GetGSMasses(Double_t*);
    Double_t GetChannelQValue() const;
    Double_t GetGSChannelQValue() const;
-
+	const Char_t* GetPartitionName();
+	
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };
 

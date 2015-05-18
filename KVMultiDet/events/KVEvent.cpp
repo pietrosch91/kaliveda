@@ -795,3 +795,36 @@ Double_t KVEvent::GetGSChannelQValue() const
    }
    return CN.GetMassGS() - sumM;
 }
+
+const Char_t* KVEvent::GetPartitionName()
+{
+	//
+	//return list of isotopes of the event with the format : 
+	// symbol1(population1) symbol2(population2) ....
+	// if population==1, it is not indicated : 
+	// Example : 
+	//	15C 12C(2) 4He 3He 1H(4) 1n(3)
+	//
+	fParticles->Sort();
+	static KVString partition;
+	
+	KVNameValueList nvl;
+	partition="";
+	ResetGetNextParticle();
+	KVNucleus* nuc=0;
+	while ( (nuc = GetNextParticle()) )
+	{
+		TString st = nuc->GetSymbol();
+		Int_t pop = TMath::Max(nvl.GetIntValue(st.Data()),0);
+		pop+=1;
+		nvl.SetValue(st.Data(),pop);
+	}
+	for (Int_t ii=0;ii<nvl.GetEntries();ii+=1)
+	{
+		Int_t pop = nvl.GetIntValue(ii);
+		if (pop==1) partition+=nvl.GetNameAt(ii);
+		else 			partition+=Form("%s(%d)",nvl.GetNameAt(ii),pop);
+		if (ii<nvl.GetEntries()-1) partition+=" ";
+	}
+	return partition.Data();	
+}

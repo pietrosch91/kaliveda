@@ -1140,12 +1140,13 @@ Int_t KVNucleus::Compare(const TObject * obj) const
    //For sorting lists of nuclei according to their Z
    //Largest Z appears first in list
 
-   if (GetZ() > ((KVNucleus *) obj)->GetZ())
-      return -1;
-   else if (GetZ() < ((KVNucleus *) obj)->GetZ())
-      return 1;
-   else
-      return 0;
+   if (GetZ() > ((KVNucleus *) obj)->GetZ()){ return -1; }
+   else if (GetZ() < ((KVNucleus *) obj)->GetZ()){ return 1; }
+   else {
+		if (GetA()==((KVNucleus *) obj)->GetA()) return 0;
+		else if (GetA() > ((KVNucleus *) obj)->GetA()) return -1;
+		else if (GetA() < ((KVNucleus *) obj)->GetA()) return 1;
+	}
 }
 //_______________________________________________________________________________________
 
