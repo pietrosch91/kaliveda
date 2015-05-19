@@ -84,7 +84,7 @@ class KVNameValueList : public TNamed
    virtual KVEnv* ProduceEnvFile();
    virtual void WriteEnvFile(const Char_t* filename);
 
-    void Sort() { fList.Sort(); }
+    void Sort(Bool_t order = kSortAscending) { fList.Sort(order); }
 
     KVNameValueList operator += (KVNameValueList & nvl);
 
