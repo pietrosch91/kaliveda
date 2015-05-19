@@ -1145,7 +1145,7 @@ Int_t KVNucleus::Compare(const TObject * obj) const
    else {
 		if (GetA()==((KVNucleus *) obj)->GetA()) return 0;
 		else if (GetA() > ((KVNucleus *) obj)->GetA()) return -1;
-		else if (GetA() < ((KVNucleus *) obj)->GetA()) return 1;
+		else 	return 1;
 	}
 }
 //_______________________________________________________________________________________
