@@ -53,6 +53,8 @@ class KVVAMOS : public KVMultiDetArray
 		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
 		TGeoVolume  *fVAMOSvol;    //!TGeoVolume of VAMOS 
 		KVList      *fVCalibrators;//->References to calibrator belonging to VAMOS
+		Double_t     fECalibPar[4];//! nucleus energy calibration parameters 
+		Bool_t       fECalibStatus;//! energy calibration status
 
 
    		virtual void   BuildFocalPlaneGeometry( TEnv *infos );
@@ -78,6 +80,7 @@ class KVVAMOS : public KVMultiDetArray
    		        void     AddACQParam  ( KVACQParam* par, Bool_t owner );
    		        Bool_t   AddCalibrator( KVCalibrator *cal, Bool_t owner = kFALSE );
    		virtual void     Build(Int_t run=-1);
+		virtual Bool_t   Calibrate( KVReconstructedNucleus *nuc );
    		virtual void     Clear( Option_t *opt = "" );
    		        void     Copy ( TObject & ) const;
    		        void     FocalToTarget( const Double_t *focal, Double_t *target );
@@ -90,6 +93,7 @@ class KVVAMOS : public KVMultiDetArray
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
 		virtual void     ResetParameters();
+		        void     SetECalibParameters(Double_t c_0, Double_t c_chi, Double_t c_si, Double_t c_csi=0);
 		virtual void     SetPedestal(const Char_t *name, Float_t ped);
 		        void     SetStripFoil( KVMaterial *foil, Double_t pos=0 );
 		        void     SetStripFoil( const Char_t *material, const Float_t area_density, Double_t pos  );
@@ -106,6 +110,7 @@ class KVVAMOS : public KVMultiDetArray
 		Double_t      GetBeamPeriod()                       const;
 		Double_t      GetBrhoRef()                          const;
 		KVCalibrator *GetCalibrator( const Char_t * type )  const;
+		Bool_t        GetECalibStatus()                     const;
 		Double_t      GetFocalPlanePosition()               const;
 		TGeoVolume   *GetFocalPlaneVolume()                 const;
    		TGeoHMatrix   GetFocalToTargetMatrix();
@@ -123,6 +128,7 @@ class KVVAMOS : public KVMultiDetArray
 		void          SetBeamHF( Double_t hf );
 		void          SetBrhoRef( Double_t Brho );
 		void          SetCurrentRunNumber( UInt_t run );
+		void          SetECalibStatus( Bool_t status );
 		void          SetFocalPlanePosition( Double_t pos);
 
 		//----- static methods
@@ -136,6 +142,12 @@ class KVVAMOS : public KVMultiDetArray
 		static KVString &GetPositionTypes(){ return fPositionTypes;	}
 		static Bool_t    IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det = NULL );
 
+		void ShowECalibPar(){
+			cout<<"par0= "<<fECalibPar[0]<<endl;
+			cout<<"par1= "<<fECalibPar[1]<<endl;
+			cout<<"par2= "<<fECalibPar[2]<<endl;
+			cout<<"par3= "<<fECalibPar[3]<<endl;
+		}
    		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };
 
@@ -156,6 +168,7 @@ inline Double_t KVVAMOS::GetBeamPeriod() const {
 
 inline Double_t KVVAMOS::GetBrhoRef() const { return fBrhoRef; }
 
+inline Bool_t KVVAMOS::GetECalibStatus() const { return fECalibStatus; }
 
 inline KVCalibrator *KVVAMOS::GetCalibrator( const Char_t * type ) const {
    	if ( fCalibrators )
@@ -219,6 +232,7 @@ inline void KVVAMOS::SetAngle ( Double_t angle ){
 inline void KVVAMOS::SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;   }
 inline void KVVAMOS::SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho; }
 inline void KVVAMOS::SetCurrentRunNumber( UInt_t run ){ fCurrentRun = run; }
+inline void KVVAMOS::SetECalibStatus( Bool_t status ){ fECalibStatus = status; }
 inline void KVVAMOS::SetFocalPlanePosition( Double_t pos){ fFocalPos = pos; }
 
 

@@ -204,6 +204,7 @@ inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Q, Float_t Brho, Double_
 return (gamma-1)*M ;
 }
 //____________________________________________________________________________________________//
+
 inline Double_t KVVAMOSReconNuc::CalculateRealA( Int_t Z, Double_t E, Double_t beta ){
 	// Calculates the real value of the mass number deduced from the 
 	// energy E and and beta (i.e. velocity/c).
@@ -289,7 +290,7 @@ inline Float_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
 
 inline Double_t KVVAMOSReconNuc::GetEnergyBeforeVAMOS() const{
 	// Kinetic energy of the nucleus prior to entering VAMOS
-	return KVReconstructedNucleus::GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
+	return GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
 }
 //____________________________________________________________________________________________//
 

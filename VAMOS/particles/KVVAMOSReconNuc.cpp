@@ -120,7 +120,16 @@ void KVVAMOSReconNuc::Calibrate(){
     //   gVamos->GetStripFoilEnergyLossCorrection();
     //   gMultiDetArray->GetTargetEnergyLossCorrection().
 
-	CalibrateFromDetList();
+	if( gVamos->Calibrate( this ) ){
+		// if the nucleus is calibrated by this way then the energy losses
+		// in each detector are not calculated then they are set to -1
+		if( !fDetE ){
+ 		   	fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
+			Int_t N = GetDetectorList()->GetEntries();
+			for(Int_t i=0; i<N; i++) fDetE[i] = -1;
+		}
+	}
+ 	else CalibrateFromDetList();
 
     if ( IsCalibrated() && GetEnergy()>0 ){
 

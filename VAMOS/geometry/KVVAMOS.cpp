@@ -5,6 +5,7 @@
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
+#include "KVVAMOSCodes.h"
 
 #include "KVGroup.h"
 #include "KVDataSetManager.h"
@@ -106,7 +107,8 @@ void KVVAMOS::init()
 	fBrhoRef       = -1;
 	fBeamHF        = -1;
 	fStripFoilPos  = 0;
-
+	fECalibPar[0]  = fECalibPar[1] = fECalibPar[2]  = fECalibPar[3] = 0.;
+	fECalibStatus  = kFALSE;
 	//initalise ID grid manager
     if (!gIDGridManager)
         new KVIDGridManager;
@@ -724,6 +726,44 @@ void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
 }
 //________________________________________________________________
 
+Bool_t KVVAMOS::Calibrate( KVReconstructedNucleus *nuc ){
+	// Calculate and set the energy of a reconstructed nucleus from
+	// the energy measured in the detectors listed in the detector
+	// list of this nucleus. A calibration function is used:
+	// Ecal = C_0 + C_1*E_CHI + C_2*E_SI + C_3*E_CSI;
+	// where C_i are calibration parameters and E_i calibrated 
+	// energy of the detector i (KVVAMOSDetector::GetEnergy()).
+	// To set these parameters use SetECalibParameters(...) method.
+   	//status code
+
+	nuc->SetECode( kECode0 );
+	if( !GetECalibStatus() ) return kFALSE;
+
+	TIter next( nuc->GetDetectorList() );
+	KVVAMOSDetector *det = NULL;
+	KVVAMOSDetector *csi, *si, *chi;
+	csi = si = chi = NULL;
+	while( (det = (KVVAMOSDetector *)next()) ){
+		if( det->IsType("CSI") ) csi = det;
+		else if ( det->IsType("SI") ) si = det;
+		else if ( det->IsType("CHI") ) chi = det;
+	}
+
+	Double_t E =  fECalibPar[0] 
+		+ ( chi ? fECalibPar[1]*chi->GetEnergy() : 0. )
+		+ ( si  ? fECalibPar[2]* si->GetEnergy() : 0. )
+		+ ( csi ? fECalibPar[3]*csi->GetEnergy() : 0. );
+
+	if( E<=0 ) return kFALSE;
+
+	nuc->SetEnergy( E );
+	nuc->SetECode( kECode1 );
+	nuc->SetIsCalibrated();
+
+	return kTRUE;
+}
+//________________________________________________________________
+
 KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 	//Fills 'list' with the fired detectors. The option 'opt' is 
 	//set to the method KVSpectroDetector::Fired( opt ) used to know
@@ -953,8 +993,24 @@ void KVVAMOS::ResetParameters(){
 	SetBrhoRef( -1 );
 	SetBeamHF( -1);
 	SetStripFoil( 0 );
+	fECalibPar[0]  = fECalibPar[1] = fECalibPar[2]  = fECalibPar[3] = 0.;
+	SetECalibStatus( kFALSE );
 }
 //________________________________________________________________
+
+void  KVVAMOS::SetECalibParameters(Double_t c_0, Double_t c_chi, Double_t c_si, Double_t c_csi){
+	//Set the fECalibPar parameters for the energy calibration of a reconstructed
+	//nucleus (see method Calibrate(...)).
+   	//Once the parameters have been set with this method, the status of the
+   	//for the calibration becomes 'OK' or 'Ready'
+	fECalibPar[0] = c_0;
+	fECalibPar[1] = c_chi;
+	fECalibPar[2] = c_si;
+	fECalibPar[3] = c_csi;
+   	SetECalibStatus(kTRUE);
+}
+//________________________________________________________________
+
 void KVVAMOS::SetPedestal(const Char_t *name, Float_t ped){
 	// Set value of pedestal associated to parameter with given name.
 
