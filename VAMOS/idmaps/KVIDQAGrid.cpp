@@ -883,6 +883,7 @@ void KVIDQAGrid::QAConvertYaxis(){
 	Bool_t isAvsAoQ = (GetVarY()[0]=='A');
 	if( isAvsAoQ ) SetVarY("Q");
 	else SetVarY("A");
+	// change Y coordinates of ID lines
 	TIter next( fIdentifiers );
 	KVIDQALine *line = NULL;
 	while( (line = (KVIDQALine *)next()) ){
@@ -897,5 +898,20 @@ void KVIDQAGrid::QAConvertYaxis(){
 				line->GetMarkers()->R__FOR_EACH(KVIDQAMarker,UpdateXandY)();
 		}
 	}
+
+	// change Y coordinates of cuts
+	TIter nextc( fCuts );
+	KVIDentifier *cut = NULL;
+	while( (cut = (KVIDentifier *)nextc()) ){
+		Int_t N = cut->GetN();
+		for(Int_t i=0; i<N; i++ ){
+			Double_t x = cut->GetX()[i];
+			Double_t y = cut->GetY()[i];
+			if( isAvsAoQ ) y /= x;
+			else y *= x;
+			cut->SetPoint(i,x,y);
+		}
+	}
+
 	Modified();
 }
