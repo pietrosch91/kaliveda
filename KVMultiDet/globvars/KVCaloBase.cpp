@@ -404,6 +404,20 @@ void KVCaloBase::ComputeExcitationEnergy()
 }
 
 //________________________________________________________________
+void KVCaloBase::AddNeutrons(Int_t mult, Double_t mke)
+{
+	//Add extra neutrons 
+	// multiplicity (number) and mean kinetic energy
+	
+	kIsModified=kTRUE;
+	//AddIngValue("Zsum",n->GetZ());
+	AddIngValue("Asum",mult);
+	AddIngValue("Eksum",mult*mke);
+	AddIngValue("Qsum",nn.GetMassExcess(0,1));
+	AddIngValue("Msum",mult);
+
+}
+//________________________________________________________________
 Bool_t 	KVCaloBase::Calculate(void)
 {
 	//Réalisation de la calorimétrie

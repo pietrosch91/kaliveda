@@ -65,6 +65,7 @@ class KVCaloBase:public KVVarGlob
 	Double_t* GetValuePtr(void);
 	
 	virtual void 	Fill(KVNucleus*);
+	void AddNeutrons(Int_t mult, Double_t mke);
    virtual Bool_t Calculate();
 	
 	ClassDef(KVCaloBase,1)//compute CaloBase
