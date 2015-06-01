@@ -441,6 +441,7 @@ void KVGANILDataReader::FillFiredParameterList()
 }
 
  //____________________________________________________________________________
+ 
    Bool_t KVGANILDataReader::HasScalerBuffer() const { return fGanilData->IsScalerBuffer(); }
 
 Int_t KVGANILDataReader::GetNumberOfScalers() const
@@ -448,9 +449,25 @@ Int_t KVGANILDataReader::GetNumberOfScalers() const
 	return fGanilData->GetScalers()->GetNbChannel();
 }
 
+ //____________________________________________________________________________
+ 
 UInt_t KVGANILDataReader::GetScalerCount(Int_t index) const
 {
 	return fGanilData->GetScalers()->GetScalerPtr(index)->GetCount();
+}
+
+ //____________________________________________________________________________
+
+Int_t KVGANILDataReader::GetScalerStatus(Int_t index) const
+{
+	return fGanilData->GetScalers()->GetScalerPtr(index)->GetStatus();
+}
+
+ //____________________________________________________________________________
+ 
+Int_t KVGANILDataReader::GetEventCount() const
+{
+	return fGanilData->GetEventCount();
 }
 
 

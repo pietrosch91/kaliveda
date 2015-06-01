@@ -62,6 +62,8 @@ class KVGANILDataReader : public KVRawDataReader
    Bool_t HasScalerBuffer() const;
    Int_t GetNumberOfScalers() const;
    UInt_t GetScalerCount(Int_t index) const;
+   Int_t GetScalerStatus(Int_t index) const;
+   Int_t GetEventCount() const;
 
    ClassDef(KVGANILDataReader,0)//Reads GANIL acquisition files
 };
