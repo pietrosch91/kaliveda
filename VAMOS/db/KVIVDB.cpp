@@ -3,6 +3,8 @@
 
 #include "KVIVDB.h"
 #include "KVDBParameterSet.h"
+#include "KVGANILDataReader.h"
+#include "KVDataRepository.h"
 
 ClassImp(KVIVDB)
 
@@ -14,6 +16,15 @@ ClassImp(KVIVDB)
 	   <!-- */
 	// --> END_HTML
 	////////////////////////////////////////////////////////////////////////////////
+
+
+const Char_t KVIVDB::fVAMOSscalerNames[40][8]= {
+	"SI01" , "SI02" , "SI03" , "SI04" , "SI05", "SI06"   , "SI07", "SI08", "SI09" , "SI10"   ,
+   	"SI11" , "SI12" , "SI13" , "SI14" ,	"SI15",	"SI16"   , "SI17", "SI18", "SIE05", "SIE06"  ,
+   	"SIE08", "U2M22", "U2M23", "U2M24", "SED1", "SED2"   , "SED3", "FTA" , "INDRA", "CLOCKDT",
+    "CLOCK", "U2M32", "FIL1" , "FIL2" , "CSI" , "CURRENT", "MCP" , "ORSI", "U2M39", "U2M40"
+};
+
 
 KVIVDB::KVIVDB()
 {
@@ -427,4 +438,136 @@ void KVIVDB::ReadVamosCalibrations(){
 		inf2.close();
 	}
 	inf.close();
+}//________________________________________________________________
+
+void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *opt ){
+	// This method read the VAMOS scaler buffers in the raw data files for the given
+	// runlist. The true value of each scaler is calculated. This calculation is
+	// based on program "scaler.cpp" developped  by Abdou Chbihi (GANIL). 
+	// Then the new value of scalers are stored in this database.
+	//
+	// If the option "save" is set, then the new database is saved in the file Runlist.csv
+	// (see method WriteRunListFile ).
+	//
+	// HOW USE THIS METHODE?
+	//
+	//	gDataRepositoryManager->GetRepository("ccali")->cd();
+	//	KVDataSet *ds = gDataRepository->GetDataSetManager()->GetDataSet("INDRA_e494s");
+	//	ds->cd();
+	//	gIndraDB->ReadAndSaveCorrectedVamosScalers("527-532","save");
+	//
+
+	KVDataSet *ds = gDataSet;
+
+	gDataSet = NULL; // faster computing if gDataSet is null (no KVMultiDetArray built and loaded)
+
+	// By default, scaler buffers are ignored during reading of raw data file.
+	// Change the apropriate environment variable to be able to read the scaler buffers.
+	TString sbm = gEnv->GetValue("KVGANILDataReader.ScalerBuffersManagement","kReportScaler");
+	gEnv->SetValue("KVGANILDataReader.ScalerBuffersManagement","kReportScaler");
+
+	// list of runs to be processed
+	KVNumberList rl( runlist );
+	rl.Begin();
+	Int_t r_counter = 0; // counter of runs
+	while( !rl.End() ){ // loop over the runs
+
+		Int_t run = rl.Next();
+		r_counter ++;
+
+		// Open raw data file for current run
+		TString fname = ds->GetFullPathToRunfile("raw", run);
+		if( fname.IsNull() ){ 
+			Error("ReadAndSaveCorrectedVamosScalers","Error in <ReadScalersWithKaliVeda>: no raw data file found for run %d (dataset: %s, repository: %s)", run, gDataSet->GetLabel(), gDataSet->GetRepository()->GetName() );
+			continue;
+		}
+		KVGANILDataReader runfile( fname.Data() );
+
+
+		UInt_t n_event  = 0;    // number of entries in the current data file
+		Int_t n_buffers = 0;    // number of scaler buffer in the current data file
+		Int_t n_buffers_ok = 0; // number of scaler buffer in the current data file with status == 1 (ok)
+
+		UInt_t first_scaler_count[40];// first buffer of scalers
+		UInt_t scaler_count[40];      // last buffer of scalers
+		Int_t first_event_count;
+		Int_t event_count;
+
+ 		while( runfile.GetNextEvent() ){  // loop over the events
+			n_event++;
+	 		if(runfile.HasScalerBuffer()){
+				n_buffers++;
+				Int_t n_scalers = runfile.GetNumberOfScalers();
+				if( n_scalers != 40 ){
+					// VAMOS has 40 scalers
+ 				   	Error("ReadAndSaveCorrectedVamosScalers","number of scalers != 40 for run %d at event %d", run, n_event );
+					continue;
+				}
+
+				Int_t  status = runfile.GetScalerStatus(0);
+
+				if( status == 1 ){ // acquisition on
+					n_buffers_ok++;
+					for( Int_t i=0; i<n_scalers; i++ ){ // loop over VAMOS scalers
+						if( n_buffers_ok == 1 ){
+							// store scalers of the first buffer
+							first_scaler_count[i] = runfile.GetScalerCount(i);
+							first_event_count     = runfile.GetEventCount();
+						}
+						else{
+							// store scalers of the last buffer
+							scaler_count[i]  = runfile.GetScalerCount(i);
+							event_count      = runfile.GetEventCount();
+						}
+					} // loop over VAMOS scalers
+				} // acquistion on
+			} // has scaler buffer
+	 	} // loop over the events
+
+		UInt_t total_event_count = runfile.GetEventCount();
+		
+		//--------------------------------------------------
+		// Correction of scalers: last_buffer - first_buffer
+		// and load scalers in the database
+		//--------------------------------------------------
+		
+		KVINDRADBRun *db_run = GetRun( run );
+
+		for( Int_t i=0; i<40; i++ ){
+			if( n_buffers_ok == 0 ) break;
+
+			if( n_buffers_ok >1 ){
+				// the new scaler is the difference between the last and the first buffer
+				// having status equal 1.
+				scaler_count[i] -= first_scaler_count[i];
+				event_count     -= first_event_count;
+			}
+			if( (n_buffers_ok == 1) || (scaler_count[27]==0 /*FTA==0*/) ){
+				// if there is only 1 buffer then we assume that once it will be 
+				// normalized to the total_event_count then the new value will be
+				// a good approximation
+				scaler_count[i] = first_scaler_count[i];
+				event_count     = first_event_count;
+			}
+
+			// correction factor to normalize the scalers to the total_event_count
+			Double_t corrFactor = (1.*total_event_count)/scaler_count[27]; // total_event/FTA
+			scaler_count[i] *= corrFactor;
+			event_count     *= corrFactor;
+
+			// set the scaler in the database
+			db_run->SetScaler( GetVamosScalerName(i), scaler_count[i]);
+		}
+
+		db_run->Print();
+ 	}
+
+	// go back the the initial configuration
+	ds->cd();
+	gEnv->SetValue("KVGANILDataReader.ScalerBuffersManagement", sbm.Data() );
+
+	// write the run list file if the option is set
+	TString option = opt;
+	option.ToLower();
+	if( option == "save" ) WriteRunListFile();
 }

@@ -9,6 +9,9 @@ using namespace std;
 
 class KVIVDB : public KVINDRADB
 {
+	private:
+		static const Char_t fVAMOSscalerNames[40][8];
+
    	protected:
 	   	KVDBTable *fDeltaPed;   //-> table of INDRA detector pedestal corrections
 	   	KVDBTable *fVAMOSCalConf; //-> table of VAMOS detector calibration and configuration parameters
@@ -18,7 +21,7 @@ class KVIVDB : public KVINDRADB
    		virtual void   ReadPedestalList () ;
    		virtual Bool_t ReadVamosCalibFile(ifstream &ifile);
    		virtual void   ReadVamosCalibrations();
-
+		virtual void   ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *opt="" );
 
    		void init();
    	public:
@@ -27,6 +30,8 @@ class KVIVDB : public KVINDRADB
    		virtual ~KVIVDB();
 
    		void Build () ;
+		const Char_t *GetVamosScalerName( UInt_t idx ){
+			return ( idx<40 ? fVAMOSscalerNames[idx] : "" ); }
 
    		ClassDef(KVIVDB,1)//Database for e494s experiment coupling INDRA with VAMOS
 };
