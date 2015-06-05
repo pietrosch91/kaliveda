@@ -440,11 +440,13 @@ void KVIVDB::ReadVamosCalibrations(){
 	inf.close();
 }//________________________________________________________________
 
-void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *opt ){
+void KVIVDB::ReadAndCorrectVamosScalers( const Char_t *runlist, Option_t *opt ){
 	// This method read the VAMOS scaler buffers in the raw data files for the given
 	// runlist. The true value of each scaler is calculated. This calculation is
 	// based on program "scaler.cpp" developped  by Abdou Chbihi (GANIL). 
 	// Then the new value of scalers are stored in this database.
+	// Moreover the Vamos Dead-Time (DT in percent) is calculated:
+	//  DT = 1 - FTA/ORSI
 	//
 	// If the option "save" is set, then the new database is saved in the file Runlist.csv
 	// (see method WriteRunListFile ).
@@ -454,15 +456,14 @@ void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *
 	//	gDataRepositoryManager->GetRepository("ccali")->cd();
 	//	KVDataSet *ds = gDataRepository->GetDataSetManager()->GetDataSet("INDRA_e494s");
 	//	ds->cd();
-	//	gIndraDB->ReadAndSaveCorrectedVamosScalers("527-532","save");
-	//
+	//	((KVIVDB *)gIndraDB)->ReadAndCorrectVamosScalers("527-532","save");
 
 	KVDataSet *ds = gDataSet;
 
 	gDataSet = NULL; // faster computing if gDataSet is null (no KVMultiDetArray built and loaded)
 
 	// By default, scaler buffers are ignored during reading of raw data file.
-	// Change the apropriate environment variable to be able to read the scaler buffers.
+	// Change the appropriate environment variable to be able to read the scaler buffers.
 	TString sbm = gEnv->GetValue("KVGANILDataReader.ScalerBuffersManagement","kReportScaler");
 	gEnv->SetValue("KVGANILDataReader.ScalerBuffersManagement","kReportScaler");
 
@@ -478,7 +479,7 @@ void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *
 		// Open raw data file for current run
 		TString fname = ds->GetFullPathToRunfile("raw", run);
 		if( fname.IsNull() ){ 
-			Error("ReadAndSaveCorrectedVamosScalers","Error in <ReadScalersWithKaliVeda>: no raw data file found for run %d (dataset: %s, repository: %s)", run, gDataSet->GetLabel(), gDataSet->GetRepository()->GetName() );
+			Error("ReadAndCorrectVamosScalers","Error in <ReadScalersWithKaliVeda>: no raw data file found for run %d (dataset: %s, repository: %s)", run, ds->GetLabel(), ds->GetRepository()->GetName() );
 			continue;
 		}
 		KVGANILDataReader runfile( fname.Data() );
@@ -490,17 +491,16 @@ void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *
 
 		UInt_t first_scaler_count[40];// first buffer of scalers
 		UInt_t scaler_count[40];      // last buffer of scalers
-		Int_t first_event_count;
-		Int_t event_count;
+		Int_t first_event_count = 0;
+		Int_t event_count = 0;
 
  		while( runfile.GetNextEvent() ){  // loop over the events
-			n_event++;
 	 		if(runfile.HasScalerBuffer()){
 				n_buffers++;
 				Int_t n_scalers = runfile.GetNumberOfScalers();
 				if( n_scalers != 40 ){
 					// VAMOS has 40 scalers
- 				   	Error("ReadAndSaveCorrectedVamosScalers","number of scalers != 40 for run %d at event %d", run, n_event );
+ 				   	Error("ReadAndCorrectVamosScalers","number of scalers != 40 for run %d at event %d", run, n_event );
 					continue;
 				}
 
@@ -509,22 +509,24 @@ void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *
 				if( status == 1 ){ // acquisition on
 					n_buffers_ok++;
 					for( Int_t i=0; i<n_scalers; i++ ){ // loop over VAMOS scalers
-						if( n_buffers_ok == 1 ){
-							// store scalers of the first buffer
-							first_scaler_count[i] = runfile.GetScalerCount(i);
-							first_event_count     = runfile.GetEventCount();
-						}
-						else{
-							// store scalers of the last buffer
-							scaler_count[i]  = runfile.GetScalerCount(i);
-							event_count      = runfile.GetEventCount();
-						}
+						// store scalers of the first buffer
+						if( n_buffers_ok == 1 ) first_scaler_count[i] = runfile.GetScalerCount(i);
+						// store scalers of the last buffer
+						else scaler_count[i]  = runfile.GetScalerCount(i);
 					} // loop over VAMOS scalers
+
+					// store number of event of the first buffer
+					if( n_buffers_ok == 1 ) first_event_count = n_event;
+					// store number of event of the last buffer
+					else event_count = n_event;
+
 				} // acquistion on
 			} // has scaler buffer
+			else n_event++;
 	 	} // loop over the events
 
-		UInt_t total_event_count = runfile.GetEventCount();
+		UInt_t total_event_count = n_event;
+		//UInt_t total_event_count = runfile.GetEventCount();
 		
 		//--------------------------------------------------
 		// Correction of scalers: last_buffer - first_buffer
@@ -533,33 +535,46 @@ void KVIVDB::ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *
 		
 		KVINDRADBRun *db_run = GetRun( run );
 
-		for( Int_t i=0; i<40; i++ ){
-			if( n_buffers_ok == 0 ) break;
+		if( n_buffers_ok > 0 ){
 
 			if( n_buffers_ok >1 ){
 				// the new scaler is the difference between the last and the first buffer
 				// having status equal 1.
-				scaler_count[i] -= first_scaler_count[i];
-				event_count     -= first_event_count;
+				for( Int_t i=0; i<40; i++ )	scaler_count[i] -= first_scaler_count[i];
+				event_count -= first_event_count;
 			}
-			if( (n_buffers_ok == 1) || (scaler_count[27]==0 /*FTA==0*/) ){
+			if( (n_buffers_ok == 1) || (scaler_count[27]<=0 /*FTA==0*/) ){
 				// if there is only 1 buffer then we assume that once it will be 
 				// normalized to the total_event_count then the new value will be
 				// a good approximation
-				scaler_count[i] = first_scaler_count[i];
-				event_count     = first_event_count;
+				for( Int_t i=0; i<40; i++ )	scaler_count[i] = first_scaler_count[i];
+				event_count = scaler_count[27];
 			}
 
 			// correction factor to normalize the scalers to the total_event_count
-			Double_t corrFactor = (1.*total_event_count)/scaler_count[27]; // total_event/FTA
-			scaler_count[i] *= corrFactor;
-			event_count     *= corrFactor;
+			Double_t corrFactor = (event_count ? (1.*total_event_count)/event_count : 1. );
+			//Double_t corrFactor = (scaler_count[27] ? (1.*total_event_count)/scaler_count[27] : 1. ); // total_event/FTA
 
-			// set the scaler in the database
-			db_run->SetScaler( GetVamosScalerName(i), scaler_count[i]);
+			for( Int_t i=0; i<40; i++ ){
+				scaler_count[i] *= corrFactor;
+				// set the scaler in the database
+				db_run->SetScaler( GetVamosScalerName(i), scaler_count[i]);
+			}
+
+			// set VAMOS dead time in the database DT = 1-FTA/ORSI
+			Double_t DT = 100.*(1.-(1.*scaler_count[27])/scaler_count[37]);
+			db_run->Set("DT",DT);
+
+//			db_run->SetScaler("totalEvent",total_event_count);
+//			db_run->SetScaler("EventCount",event_count);
+//			db_run->SetScaler("NbuffersOK",n_buffers_ok);
 		}
 
 		db_run->Print();
+
+		cout<<endl;
+		Info("ReadAndCorrectVamosScalers","processing ------> %.0f %s  \n",(100.*r_counter)/rl.GetNValues(),"%");
+
  	}
 
 	// go back the the initial configuration

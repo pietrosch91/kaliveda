@@ -21,7 +21,6 @@ class KVIVDB : public KVINDRADB
    		virtual void   ReadPedestalList () ;
    		virtual Bool_t ReadVamosCalibFile(ifstream &ifile);
    		virtual void   ReadVamosCalibrations();
-		virtual void   ReadAndSaveCorrectedVamosScalers( const Char_t *runlist, Option_t *opt="" );
 
    		void init();
    	public:
@@ -30,8 +29,8 @@ class KVIVDB : public KVINDRADB
    		virtual ~KVIVDB();
 
    		void Build () ;
-		const Char_t *GetVamosScalerName( UInt_t idx ){
-			return ( idx<40 ? fVAMOSscalerNames[idx] : "" ); }
+		const Char_t *GetVamosScalerName( UInt_t idx ){	return ( idx<40 ? fVAMOSscalerNames[idx] : "" ); }
+		virtual void   ReadAndCorrectVamosScalers( const Char_t *runlist, Option_t *opt="" );
 
    		ClassDef(KVIVDB,1)//Database for e494s experiment coupling INDRA with VAMOS
 };

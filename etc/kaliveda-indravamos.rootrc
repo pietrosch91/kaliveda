@@ -99,7 +99,7 @@ Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogF
 # Plugins for KVGANILDataReader/GTGanilData class
 # The actual object used to open and read the data files can change depending on dataset
 Plugin.GTGanilData:    INDRA_e503      GTGanilDataVAMOS      VAMOS     "GTGanilDataVAMOS()"
-+Plugin.GTGanilData:   INDRA_e494s     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
+#+Plugin.GTGanilData:   INDRA_e494s     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 +Plugin.GTGanilData:   VAMOS_e503     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 
 # Dataset-specific parameter files
