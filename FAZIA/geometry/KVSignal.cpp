@@ -621,6 +621,49 @@ Double_t KVSignal::CubicInterpolation(float *data, int x2, double fmax, int Nrec
 }
 
 
+double KVSignal::GetDataInter(double t)
+{
+  if(fAdc.GetSize()<=0) return 1E10;
+
+  int n=(int)(floor(t/fChannelWidth));
+  if(n<=0) return fAdc.At(0);
+  if(n>fAdc.GetSize()-2) return fAdc.At(fAdc.GetSize()-1);
+  if(n*fChannelWidth == t) return fAdc.At(n);
+  double y1=fAdc.At(n  );
+  double y2=fAdc.At(n+1); //quello prima e quello dopo.
+  double x1=fChannelWidth*n;
+
+  return (t-x1)/fChannelWidth*(y2-y1)+y1;
+}
+
+double KVSignal::GetDataInterCubic(double t)
+{
+  int x2=(int)(t/fChannelWidth);
+  if(x2<1 || x2>fAdc.GetSize()-2) return GetDataInter(t);
+  float *data=fAdc.GetArray();
+  /***** CUT & PASTE DA CubicInterpolation *****/
+
+  double a3=0.5*data[x2]-(1./6.)*data[x2-1]+(1./6.)*data[x2+2]-0.5*data[x2+1];
+  double a2=(-data[x2] + 0.5*data[x2+1] + 0.5*data[x2-1]);
+  double a1=(- 0.5* data[x2] - 1./6. *data[x2+2]+ data[x2+1] - 1./3.* data[x2-1]);
+  double a0=data[x2];
+  double xi=(t/fChannelWidth-x2);
+  return a3*xi*xi*xi+a2*xi*xi+a1*xi+a0;
+}
+
+/***********************************************/
+const KVSignal *KVSignal::BuildCubicSignal(double taufinal)
+{
+  const int Nsa=fAdc.GetSize();
+  const double tau=fChannelWidth;
+  KVSignal* interpolato = new KVSignal("interpolate","interpolate");
+  interpolato->SetChannelWidth(taufinal);
+  interpolato->SetNSamples((int)(Nsa*tau/taufinal));
+  for(int i=0;i<interpolato->GetNSamples();i++)
+    interpolato->SetPoint(i,i, GetDataInterCubic(i*taufinal));
+  return interpolato;
+
+}
 double KVSignal::FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr)
 {
     // recurr=1 means: linear + 1 approx

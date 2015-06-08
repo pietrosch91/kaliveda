@@ -37,6 +37,8 @@ By default, only the base classes of the toolkit are built. For experiment-speci
 
 * FAZIA: to build the libraries needed for analysis of FAZIA data, do
 
+
+
     $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_FAZIA=yes
 
 Note that the last two options automatically enable building of the INDRA libraries which are needed by them. To enable building of all optional libraries, you can do:

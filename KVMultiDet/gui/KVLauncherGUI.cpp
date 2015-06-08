@@ -54,7 +54,7 @@ void KVLauncherGUI::MapAll()
 void KVLauncherGUI::AddButtons()
 {
     AddButton("Close","Close");
-    
+
 }
 
 //________________________________________________________________
