@@ -38,6 +38,7 @@ protected:
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
    Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
    Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
+
  void init();
  
 public:
@@ -113,6 +114,9 @@ public:
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
    Double_t CubicInterpolation(float *data, int x2, double fmax, int Nrecurr);
+   virtual const KVSignal* BuildCubicSignal(double taufinal=1); //Interpolazione mediante cubic
+   virtual double GetDataInter(double t);
+   virtual double GetDataInterCubic(double t);
 
    // different shapers (modify only fAdc)
    void FIR_ApplyTrapezoidal(double trise, double tflat); // trise=sqrt(12)*tausha di CR-RC^4 se tflat=trise/2
