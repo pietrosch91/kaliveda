@@ -28,11 +28,20 @@ FAZIASYM.DataSet.RunFileName.raw:    run%06d.root
 FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIASYM.DataSet.RunFileClass.raw:    TFile
 
++DataSet:   ISOFAZIA
+ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
+ISOFAZIA.DataSet.RepositoryDir:   isofazia
+ISOFAZIA.DataSet.RunFileName.raw:    run%06d.root
+ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
+ISOFAZIA.DataSet.RunFileClass.raw:    TFile
+
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVDataBase:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 
 +Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIAgeometry    "KVFAZIA_2B()"
 +Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIAgeometry    "KVFAZIASYM()"
++Plugin.KVMultiDetArray:    ISOFAZIA    KVISOFAZIA    FAZIAgeometry    "KVISOFAZIA()"
 
 # FAZIA Geometries
 FAZIASYM.GeoType:        compact
@@ -41,6 +50,7 @@ FAZIASYM.ThetaMinCompactGeo: 2.0
 
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 
 #gerer automaticement par KVMultiDetArray::GetIDTelescopes
 +Plugin.KVIDTelescope:    ^Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
