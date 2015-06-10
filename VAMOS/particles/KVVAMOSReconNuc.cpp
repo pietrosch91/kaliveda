@@ -512,7 +512,6 @@ void KVVAMOSReconNuc::IdentifyQandA()
 				qa_idt->Identify( &IDR, tof_name, realAoQ, realA);
    				// for all nuclei we take the first identification which gives IDOK==kTRUE
 				if( IDR.IDOK ){
-					SetIsQandAidentified();
         			SetQandAidentification( &IDR );
 					SetRealAoverQ( realAoQ );
 					SetRealQ( qa_idt->GetRealQ() );
@@ -831,6 +830,7 @@ void KVVAMOSReconNuc::SetQandAidentification(KVIdentificationResult *idr){
     if( !IsAMeasured() ) SetAMeasured( idr->Aident );
     SetQ( idr->Z );
     if(idr->Aident) {
+		if( idr->Zident ) SetIsQandAidentified();
 		// since changing mass is done by leaving momentum unchanged, the kinetic
 		// energy is changed too.
 		// Keep its value and set it again at the end.
