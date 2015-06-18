@@ -331,15 +331,18 @@ void KVINDRAPulserDataTree::ReadData()
 	TIter Nxt_r( fRunlist );
 	KVINDRADBRun* run = 0;
 	KVNumberList missing1, missing2;
+	Int_t c_runs = 0;
 	while( (run = (KVINDRADBRun*)Nxt_r()) ){
 		Int_t run_num = run->GetNumber();
 		//reset all array members to -1
 		for(register int i=0;i<fTab_siz;i++) fVal[i]=-1.0;
-        Info("ReadData", "Reading data for run %d", run_num);
+		cout<<"\rInfo in <KVINDRAPulserDataTree::ReadData>: Reading data for run "
+			<<run_num<<" ----> "<<setw(3)<<Int_t((++c_runs)*100./fRunlist->GetEntries())<<"%"<<flush;
         UChar_t msg = ReadData(run_num);
 		if( msg & 1 ) missing1.Add( run_num );
 		if( msg & 2 ) missing2.Add( run_num );
 	}
+	cout<<endl;
 	if( missing1.GetEntries() )
 		Warning("ReadData","Missing file 'run[run_num].gene' for runs: %s", missing1.GetList() );
 	if( missing2.GetEntries() )

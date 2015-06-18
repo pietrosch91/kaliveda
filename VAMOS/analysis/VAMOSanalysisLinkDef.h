@@ -22,4 +22,5 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class ReconstructionSeDv+;
 #pragma link C++ class KVVAMOSReconTrajectory+;
 #pragma link C++ class KVVAMOSTransferMatrix-; //customized streamer
+#pragma link C++ class KVVAMOSExperimentalFilter+;
 #endif
