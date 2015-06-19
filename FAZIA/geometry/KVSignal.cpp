@@ -166,7 +166,7 @@ void KVSignal::Print(Option_t*) const
 KVPSAResult* KVSignal::TreateSignal()
 {
     //to be implemented in child class
-    Info("TreateSignal","To be implemented in child classes");
+    Info("TreateSignal","To be implemented in child classes...");
     return 0;
 }
 
