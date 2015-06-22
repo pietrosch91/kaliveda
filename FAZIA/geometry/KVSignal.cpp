@@ -32,6 +32,7 @@ void KVSignal::init()
     fSigmaBase=0;
 
     fChannelWidth=-1;
+    fChannelWidthInt=-1;
     fFirstBL=-1;
     fLastBL=-1;
     fTauRC=-1;
@@ -115,6 +116,7 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 
 void KVSignal::SetADCData()
 {
+    fChannelWidthInt = fChannelWidth;
 	fAdc.Set(GetN());
 	for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
 }
@@ -294,6 +296,8 @@ void KVSignal::FIR_ApplyTrapezoidal(double trise, double tflat) // trise=sqrt(12
     if(tflat<0) tflat=trise/2.;
     int irise=(int)(1e3*trise/fChannelWidth);
     int iflat=(int)(1e3*tflat/fChannelWidth);
+
+//    Info("FIR_ApplyTrapezoidal","irise %d iflat %d chw %lf",irise,iflat, fChannelWidth);
 
     TArrayF sorig(fAdc);
     float *data  = fAdc.GetArray();
@@ -652,16 +656,20 @@ double KVSignal::GetDataInterCubic(double t)
 }
 
 /***********************************************/
-const KVSignal *KVSignal::BuildCubicSignal(double taufinal)
+void KVSignal::BuildCubicSignal(double taufinal)
 {
   const int Nsa=fAdc.GetSize();
   const double tau=fChannelWidth;
-  KVSignal* interpolato = new KVSignal("interpolate","interpolate");
-  interpolato->SetChannelWidth(taufinal);
-  interpolato->SetNSamples((int)(Nsa*tau/taufinal));
-  for(int i=0;i<interpolato->GetNSamples();i++)
-    interpolato->SetPoint(i,i, GetDataInterCubic(i*taufinal));
-  return interpolato;
+
+  fChannelWidthInt = taufinal;
+  TArrayF interpo;
+  interpo.Set((int)(Nsa*tau/taufinal));
+
+  Info("BuildCubicSignal","ni=%d, nf=%d, ti=%lf, tf=%lf",Nsa,interpo.GetSize(),tau, taufinal);
+
+  for(int i=0;i<interpo.GetSize();i++) interpo.AddAt(GetDataInterCubic(i*taufinal),i);
+  fAdc.Set(0); fAdc.Set(interpo.GetSize());
+  for(int i=0;i<interpo.GetSize();i++) fAdc.AddAt(interpo.At(i),i);
 
 }
 double KVSignal::FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr)
@@ -795,10 +803,16 @@ void KVSignal::PoleZeroSuppression(Double_t tauRC)
 
 void KVSignal::ApplyModifications(TGraph *newSignal, Int_t nsa)
 {
+//    Info("ApplyModifications","called with %d",((newSignal==0)?0:1));
     if(!newSignal) newSignal = this;
-    Int_t nn = GetN();
+
+    Int_t nn = fAdc.GetSize();
     if(nsa>0&&nsa<nn) nn = nsa;
-    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,fX[ii],fAdc.At(ii));
+
+    Double_t tau = fChannelWidthInt;
+
+    if(newSignal->InheritsFrom("KVSignal")) ((KVSignal*)newSignal)->SetChannelWidth(tau);
+    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,ii*tau,fAdc.At(ii));
 }
 
 

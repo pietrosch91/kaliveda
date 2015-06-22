@@ -32,6 +32,7 @@ protected:
    Double_t fSigmaBase;             // base line rms
 
    Double_t fChannelWidth;          // channel width in ns
+   Double_t fChannelWidthInt;       // channel width of interpolated signal in ns
    Int_t fFirstBL, fLastBL;         // first and last channel number to compute the base line
    Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
    Double_t fTrapRiseTime;          // rise time of the trapezoidal shaper
@@ -74,7 +75,7 @@ public:
    const Char_t* GetType()          const { return fType.Data(); }
    const Char_t* GetDetector()      const { return fDet.Data(); }
 
-   void SetChannelWidth(double tau)                           {fChannelWidth=tau;}
+   void SetChannelWidth(double tau)                           {fChannelWidth=tau; fChannelWidthInt=tau;}
    void SetMaxT(double t)                                     {fAdc.Set((int)(t/fChannelWidth));}
    void SetNSamples(int nn)                                   {fAdc.Set(nn);}
    void SetBaseLineLength(Int_t length, Int_t first=0)        {fFirstBL=first; fLastBL=length-first;}
@@ -114,7 +115,7 @@ public:
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
    Double_t CubicInterpolation(float *data, int x2, double fmax, int Nrecurr);
-   virtual const KVSignal* BuildCubicSignal(double taufinal=1); //Interpolazione mediante cubic
+   virtual void BuildCubicSignal(double taufinal=1); //Interpolazione mediante cubic
    virtual double GetDataInter(double t);
    virtual double GetDataInterCubic(double t);
 
