@@ -21,9 +21,13 @@ class KVINDRA_VAMOS : public KVMultiDetArray
    virtual void Build(Int_t run=-1);
    virtual void Clear(Option_t *opt = "" );
    virtual KVNameValueList* DetectParticle(KVNucleus * part);
+   virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame="");
    using KVMultiDetArray::GetDetectorEvent;
    virtual void	GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
+
+   virtual void SetFilterType(Int_t t);
    virtual void	SetParameters(UShort_t n);
+    virtual void SetROOTGeometry(Bool_t on=kTRUE);
 
   inline KVVAMOS* GetVAMOS(){ return (KVVAMOS *)GetStructure("VAMOS"); } 
   inline KVINDRA* GetINDRA(){ return (KVINDRA *)GetStructure("INDRA"); } 

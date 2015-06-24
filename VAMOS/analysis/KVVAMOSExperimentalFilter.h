@@ -5,6 +5,7 @@
 #define __KVVAMOSEXPERIMENTALFILTER_H
 
 #include "TProfile2D.h"
+#include "KVNumberList.h"
 
 class KVVAMOSExperimentalFilter : public TProfile2D
 {
@@ -12,6 +13,8 @@ class KVVAMOSExperimentalFilter : public TProfile2D
 	Int_t fCurBin;
 	Int_t fCurBinDelta;
 	Int_t fCurBinThetaV;
+
+	KVNumberList fRunList;
 
    public:
 
@@ -33,6 +36,9 @@ class KVVAMOSExperimentalFilter : public TProfile2D
    Double_t DThetaV() const { return GetYaxis()->GetBinWidth ( fCurBinThetaV ); }
    Double_t PhiV()    const { return GetBinContent( fCurBin ); }
    Double_t DPhiV()   const { return 2*GetBinError( fCurBin ); }
+
+   void SetRunList( KVNumberList & runlist ){ fRunList = runlist; }
+   const Char_t *GetRunList(){ return fRunList.GetList(); }
 
 
    ClassDef(KVVAMOSExperimentalFilter,1)//VAMOS filter created from experimental data

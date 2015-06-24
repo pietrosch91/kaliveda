@@ -8,4 +8,5 @@ $Id: VAMOSLinkDef.h,v 1.1 2012/07/19 20:30:49 Guilain Exp $
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ class KVVAMOSReconNuc-;
+#pragma link C++ class KVChargeStateDistrib+;
 #endif

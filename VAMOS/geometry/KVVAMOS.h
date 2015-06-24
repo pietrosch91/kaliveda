@@ -21,6 +21,7 @@ class KVDetector;
 class KVVAMOSTransferMatrix;
 class KVVAMOSReconGeoNavigator;
 class KVReconstructedNucleus;
+class KVBasicVAMOSFilter;
 
 class KVVAMOS : public KVMultiDetArray
 {
@@ -56,6 +57,7 @@ class KVVAMOS : public KVMultiDetArray
 		Double_t     fECalibPar[4];//! nucleus energy calibration parameters 
 		Bool_t       fECalibStatus;//! energy calibration status
 
+		KVBasicVAMOSFilter *fFilter; //! geometric basic VAMOS filter
 
    		virtual void   BuildFocalPlaneGeometry( TEnv *infos );
    		virtual Bool_t BuildGeoVolume( TEnv *infos );
@@ -83,6 +85,7 @@ class KVVAMOS : public KVMultiDetArray
 		virtual Bool_t   Calibrate( KVReconstructedNucleus *nuc );
    		virtual void     Clear( Option_t *opt = "" );
    		        void     Copy ( TObject & ) const;
+    	KVNameValueList* DetectParticle(KVNucleus * part);
    		        void     FocalToTarget( const Double_t *focal, Double_t *target );
    		        void     FocalToTargetVect( const Double_t *focal, Double_t *target );
    		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );

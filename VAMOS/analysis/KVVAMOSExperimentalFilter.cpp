@@ -48,7 +48,11 @@ void KVVAMOSExperimentalFilter::Copy(TObject& obj) const
    //    CastedObj.SetToto( GetToto() );
 
    TProfile2D::Copy(obj);
-   //KVVAMOSExperimentalFilter& CastedObj = (KVVAMOSExperimentalFilter&)obj;
+   KVVAMOSExperimentalFilter& CastedObj = (KVVAMOSExperimentalFilter&)obj;
+   CastedObj.fCurBin       = fCurBin;
+   CastedObj.fCurBinDelta  = fCurBinDelta;
+   CastedObj.fCurBinThetaV = fCurBinThetaV;
+   CastedObj.fRunList      = fRunList;
 }
 //________________________________________________________________
 

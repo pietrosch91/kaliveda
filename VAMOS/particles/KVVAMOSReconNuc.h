@@ -111,6 +111,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 	            Float_t          GetYf()                             const;
 				using KVReconstructedNucleus::GetVelocity;
 				Double_t         GetVelocity(const Char_t *tof_name) const;
+
+				void             SetBrho( Float_t brho );
    		virtual	void             SetECode(UChar_t code_mask);
    		virtual void             SetFPCode(UInt_t code_mask);
  		virtual void             SetIDCode(UShort_t code_mask);
@@ -121,6 +123,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
    		virtual void             SetTCode(UShort_t code_mask);
    		virtual void             SetTCode(const Char_t *parname);
+
+                void             SetThetaVandPhiV( Double_t th_v, Double_t ph_v);
 		        void             SetXYf(Float_t x, Float_t y);
 
 				Bool_t IsZidentified()                              const;
@@ -407,6 +411,9 @@ inline Double_t KVVAMOSReconNuc::GetVelocity(const Char_t *tof_name) const{
 }
 //____________________________________________________________________________________________//
 
+inline void KVVAMOSReconNuc::SetBrho( Float_t brho ){ fRT.Brho = brho; }
+//____________________________________________________________________________________________//
+
 inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
 {
    	//Sets code for energy calibration
@@ -468,6 +475,20 @@ inline void KVVAMOSReconNuc::SetTCode(const Char_t *parname){
    	//Sets code for energy calibration from the name of the acquisition 
 	//parameter used for the time of flight of the nucleus
    	GetCodes().SetTCode(parname);
+}
+//____________________________________________________________________________________________//
+                
+inline void KVVAMOSReconNuc::SetThetaVandPhiV( Double_t th_v, Double_t ph_v){
+	// Set ThetaV and PhiV in Degree
+	
+	th_v *= TMath::DegToRad();   // conversion in rad
+	ph_v *= TMath::DegToRad();   // conversion in rad
+
+	Double_t X     = TMath::Sin( th_v ) * TMath::Cos( ph_v );
+	Double_t Y     = TMath::Sin( ph_v );
+	Double_t Z     = TMath::Cos( th_v ) * TMath::Cos( ph_v );
+
+	fRT.dirLab.SetXYZ( X, Y, Z );
 }
 //____________________________________________________________________________________________//
 

@@ -6,6 +6,8 @@
 #include "KVVAMOS.h"
 #include "TPluginManager.h"
 #include "KVSpectroDetector.h"
+#include "KVIVReconEvent.h"
+#include "KVVAMOSReconNuc.h"
 
 ClassImp(KVINDRA_VAMOS)
 
@@ -145,6 +147,111 @@ KVNameValueList* KVINDRA_VAMOS::DetectParticle(KVNucleus * part){
 };
 //________________________________________________________________
 
+void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame){
+
+	// the ROOT geometry can not be use for filtering
+	SetROOTGeometry( kFALSE );
+
+	// first detect event in INDRA
+	GetINDRA()->DetectEvent( event, rec_event, detection_frame );
+
+   	// iterate through list of particles
+  	// and detect in VAMOS only particles UNDETECTED in INDRA
+    KVNucleus *part,*_part;
+    KVNameValueList* nvl = NULL;
+
+
+    while ((part = event->GetNextParticle("DEAD ZONE"))) {  // loop over particles
+
+
+#ifdef KV_DEBUG
+        cout << "DetectEvent(): looking at particle in VAMOS---->" << endl;
+        part->Print();
+#endif
+        _part=(KVNucleus*)part->GetFrame(detection_frame);
+
+
+		if( _part->GetTheta() > 14 ) continue;
+
+        _part->SetE0();
+
+        if (fTarget && (fFilterType != kFilterType_Geo)){
+            fTarget->SetOutgoing(kTRUE);
+            //simulate passage through target material
+            Double_t ebef = _part->GetKE();
+            fTarget->DetectParticle(_part);
+            Double_t eLostInTarget = ebef-_part->GetKE();
+            if (_part->GetKE()<1.e-3) {
+                part->GetParameters()->SetValue("UNDETECTED","STOPPED IN TARGET");
+
+                part->AddGroup("UNDETECTED");
+                part->AddGroup("STOPPED IN TARGET");
+            }
+            fTarget->SetOutgoing(kFALSE);
+
+            part->GetParameters()->SetValue("TARGET Out",eLostInTarget);
+        }
+
+
+        if ( (_part->GetKE()>1.e-3) && (nvl = GetVAMOS()->DetectParticle(_part)) &&  (nvl->GetNpar()>0) ) {
+
+			part->RemoveGroup("UNDETECTED");
+            part->RemoveGroup("DEAD ZONE");
+            part->GetParameters()->RemoveParameter("UNDETECTED");
+
+
+            part->AddGroup("DETECTED");
+            part->AddGroup("VAMOS");
+            part->GetParameters()->SetValue("DETECTED","VAMOS");
+		}
+
+
+        SafeDelete( nvl );
+        _part->SetMomentum(*_part->GetPInitial());
+	}  	//fin de loop over particles
+
+
+ 	// EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER IN VAMOS
+	//  We keep all particles belonging to groups DETECTED and VAMOS
+
+	KVVAMOSReconEvent *rec_vamos_event = ((KVIVReconEvent *)rec_event)->GetVAMOSEvent();
+ 	while ((part = event->GetNextParticle())) {
+        if(	part->BelongsToGroup("DETECTED") &&
+        		part->BelongsToGroup("VAMOS") ){
+
+        	_part=(KVNucleus*)part->GetFrame(detection_frame);
+
+
+            KVVAMOSReconNuc *recon_nuc = (KVVAMOSReconNuc *)rec_vamos_event->AddParticle();
+
+            // copy parameter list
+            part->GetParameters()->Copy( *(recon_nuc->GetParameters()) );
+
+
+            recon_nuc->SetZandA(part->GetZ(),part->GetA());
+
+            recon_nuc->SetMomentum(_part->GetMomentum());
+			recon_nuc->SetQ( _part->GetParameters()->GetIntValue("Q") );
+			recon_nuc->SetBrho(_part->GetParameters()->GetDoubleValue("Brho") );
+			recon_nuc->GetParameters()->SetValue("Delta", _part->GetParameters()->GetDoubleValue("Delta") );
+			recon_nuc->SetThetaVandPhiV(_part->GetParameters()->GetDoubleValue("ThetaV"),
+					_part->GetParameters()->GetDoubleValue("PhiV") );
+
+			
+  			recon_nuc->SetIsIdentified();
+            recon_nuc->SetIsCalibrated();
+            recon_nuc->SetIsOK();
+            recon_nuc->SetZMeasured();
+            recon_nuc->SetQMeasured();
+            recon_nuc->SetAMeasured();
+            recon_nuc->SetIsQandAidentified();
+
+//			Info("DetectParticle","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", gVamos->GetBrhoRef(), gVamos->GetAngle(),recon_nuc->GetZ(),recon_nuc->GetA(),recon_nuc->GetQ(),recon_nuc->GetEnergy(), recon_nuc->GetBrho(), recon_nuc->GetParameters()->GetDoubleValue("Delta"), recon_nuc->GetThetaV(), recon_nuc->GetPhiV(), recon_nuc->GetTheta(), recon_nuc->GetPhi());
+		}
+ 	}
+}
+//________________________________________________________________
+
 void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params){
 
 	// This method is obsolete. To have access to the detector events of INDRA
@@ -153,6 +260,15 @@ void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fi
 	//   gVamos->GetDetectorEvent( detev, fired_params )
 	// separately.
 }
+//________________________________________________________________
+
+void KVINDRA_VAMOS::SetFilterType(Int_t t){
+	// Set Filter type to both INDRA and VAMOS
+	KVMultiDetArray::SetFilterType( t );
+	GetINDRA()->SetFilterType( t );
+	GetVAMOS()->SetFilterType( t );
+}
+
 //________________________________________________________________
 
 void KVINDRA_VAMOS::SetParameters(UShort_t n){
@@ -164,3 +280,19 @@ void KVINDRA_VAMOS::SetParameters(UShort_t n){
 	GetVAMOS()->SetCurrentRunNumber( n );
 	fCurrentRun = n;
 }
+//________________________________________________________________
+
+
+void KVINDRA_VAMOS::SetROOTGeometry(Bool_t on)
+{
+    // Call with on=kTRUE if array uses ROOT geometry for tracking
+    // Call SetGeometry(TGeoManager*) first with a valid geometry.
+
+	if( on ) Error("SetROOTGeometry","Impossible for the moment to use ROOT geometry for INDRA-VAMOS");
+
+	KVMultiDetArray::SetROOTGeometry( kFALSE );
+	GetVAMOS()->SetROOTGeometry( kFALSE );
+	GetINDRA()->SetROOTGeometry( kFALSE );
+}
+
+

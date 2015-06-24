@@ -6,6 +6,8 @@
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
 #include "KVVAMOSCodes.h"
+#include "KVBasicVAMOSFilter.h"
+#include "KVChargeStateDistrib.h"
 
 #include "KVGroup.h"
 #include "KVDataSetManager.h"
@@ -113,6 +115,7 @@ void KVVAMOS::init()
     if (!gIDGridManager)
         new KVIDGridManager;
 
+	fFilter = NULL;
 
 	Info("init","To be implemented");
 }
@@ -134,6 +137,7 @@ KVVAMOS::~KVVAMOS(){
 	SafeDelete( fStripFoil      );
 	SafeDelete( fTransMatrix    );
 	SafeDelete( fReconNavigator );
+	SafeDelete( fFilter         );
 
 	if(gVamos == this) gVamos = NULL;
 }
@@ -714,6 +718,66 @@ void KVVAMOS::Copy (TObject& obj) const
 }
 //________________________________________________________________
 
+KVNameValueList* KVVAMOS::DetectParticle(KVNucleus * part){
+
+ 	if (!fFilter ){
+		//Build Filter
+		TString fullpath;
+		SearchKVFile("KVBasicVAMOSFilter.root",fullpath,gDataSet->GetName());
+		TFile file( fullpath.Data() );
+		if( file.IsZombie() ){
+ 		   	Error("DetectParticle","Impossible to open file %s with VAMOS filter",fullpath.Data());
+			return NULL;
+		}
+		else{ 
+			fFilter = (KVBasicVAMOSFilter *)file.Get("BasicVAMOSfilter");
+			Info("DetectParticle","VAMOS filter is Loaded from file %s",fullpath.Data());
+			fFilter->Print();
+		}
+	}
+
+	static KVChargeStateDistrib csd;
+
+	Int_t Q = part->GetParameters()->GetIntValue("Q");
+	Q = ( Q>0 ? Q : Int_t( csd.GetRandomQ( part ) ) );
+	if( Q<=0 ) return NULL;
+
+	Double_t  Brho = part->GetMomentum().Mag()/(KVNucleus::C()*10.*Q);
+	Double_t  delta= Brho/GetBrhoRef();
+
+	// spherical angles in VAMOS reference frame
+	Double_t  th_l = part->Theta();               //rad
+	Double_t  ph_l = part->Phi()+TMath::Pi()/2;   //rad
+
+	// normalized cartesian coordinates in VAMOS reference frame
+	Double_t  x    = TMath::Sin( th_l )*TMath::Cos( ph_l );
+	Double_t  y    = TMath::Sin( th_l )*TMath::Sin( ph_l );
+	Double_t  z    = TMath::Cos( th_l );
+
+	// optical angles in VAMOS reference frame
+	Double_t  th_v = TMath::RadToDeg()*TMath::ATan(x/z);  //degree
+	Double_t  ph_v = TMath::RadToDeg()*TMath::ASin(y);    //degree
+
+//	Info("DetectParticle","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", GetBrhoRef(), GetAngle(),part->GetZ(),part->GetA(),Q,part->GetEnergy(), Brho, delta, th_v, ph_v, part->GetTheta(), part->GetPhi());
+
+    KVNameValueList* NVL = 0;
+	if( fFilter->IsTrajectoryAccepted(GetAngle(), delta, th_v, ph_v) ){
+
+    	if(!NVL) NVL = new KVNameValueList;
+		Double_t de = 0.;
+    	NVL->SetValue("VAMOS",de);
+		part->GetParameters()->SetValue("Q",Q);
+		part->GetParameters()->SetValue("Brho",Brho);
+		part->GetParameters()->SetValue("Delta",delta);
+		part->GetParameters()->SetValue("ThetaV",th_v);
+		part->GetParameters()->SetValue("PhiV",ph_v);
+	}
+
+
+	return NVL;
+}
+//________________________________________________________________
+
 void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
 	// Convert the point coordinates from focal plane reference to target reference system.
 	GetFocalToTargetMatrix().LocalToMaster( focal, target );
@@ -783,7 +847,7 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 }
 //________________________________________________________________
 void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
-                                      TCollection * idtels){
+        TCollection * idtels){
 	//Overwrite the same method of KVMultiDetArray in order to use another
 	//format for the URI of the plugins associated to VAMOS.
     //Create a KVIDTelescope from the two detectors and add it to the list.
@@ -807,7 +871,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     if ( !(de->IsOK() && e->IsOK()) ) return;
 
 	if( (de->GetSegment()<1) &&  (e->GetSegment()<1) ) return;
-    
+
 	KVIDTelescope *idt = NULL;
 
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
@@ -852,7 +916,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 
     //look for ID telescopes with the two detectors
 	if(de == e) return;
- 
+
 	Int_t de_thick = TMath::Nint(de->GetThickness());
     Int_t e_thick  = TMath::Nint(e->GetThickness() );
 
@@ -885,7 +949,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 			break;
         }
 	}
-    
+
 	if( !idt ){
     	// Make a generic de-e identification telescope
         uri.Form("%s%s-%s", prefixes[1].Data(), de->GetType(), e->GetType());
@@ -917,7 +981,7 @@ Double_t KVVAMOS::GetStripFoilEnergyLossCorrection(KVReconstructedNucleus* nuc){
 KVVAMOSReconGeoNavigator *KVVAMOS::GetReconNavigator(){
 	//Returns the geometry navigator used to progate nuclei for their
 	//reconstruction in VAMOS. Method used by KVVAMOSReconNuc;
-	
+
 	if( !fReconNavigator ) fReconNavigator = new KVVAMOSReconGeoNavigator( GetGeometry(), KVMaterial::GetRangeTable() );
 	return fReconNavigator;
 }
@@ -930,7 +994,7 @@ KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
 	//exists then a new matrix is built from coefficient files found
 	//in the directory of the current dataset ( see the method
 	//KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
-	
+
 	if( fTransMatrix ) return fTransMatrix;
 	return (fTransMatrix = new KVVAMOSTransferMatrix( kTRUE ));
 }
@@ -1117,7 +1181,7 @@ Bool_t KVVAMOS::IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det){
 	// 'type' can be: E, T, T_HF, Q, X, Y, ...
 	// The quantities measured by VAMOS/detector are given by
 	// GetACQParamTypes or GetPositionTypes
-	
+
 	KVString *types = det ? &det->GetACQParamTypes() : &GetACQParamTypes();
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	if( i >= 0 ) return kTRUE;
