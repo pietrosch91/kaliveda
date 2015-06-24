@@ -484,11 +484,11 @@ inline void KVVAMOSReconNuc::SetThetaVandPhiV( Double_t th_v, Double_t ph_v){
 	th_v *= TMath::DegToRad();   // conversion in rad
 	ph_v *= TMath::DegToRad();   // conversion in rad
 
-	Double_t X     = TMath::Sin( th_v ) * TMath::Cos( ph_v );
-	Double_t Y     = TMath::Sin( ph_v );
-	Double_t Z     = TMath::Cos( th_v ) * TMath::Cos( ph_v );
+	Double_t x     = TMath::Sin( th_v ) * TMath::Cos( ph_v );
+	Double_t y     = TMath::Sin( ph_v );
+	Double_t z     = TMath::Cos( th_v ) * TMath::Cos( ph_v );
 
-	fRT.dirLab.SetXYZ( X, Y, Z );
+	fRT.dirLab.SetXYZ( x, y, z );
 }
 //____________________________________________________________________________________________//
 
