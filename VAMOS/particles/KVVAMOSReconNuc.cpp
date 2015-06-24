@@ -84,6 +84,7 @@ void KVVAMOSReconNuc::Copy (TObject& obj) const
 	   for(Int_t i=0; i<N; i++ ) CastedObj.fDetE[i] = fDetE[i];
    }
 
+   CastedObj.fStripFoilEloss  = fStripFoilEloss;
    CastedObj.fRealQ     = fRealQ;
    CastedObj.fRealAoQ   = fRealAoQ;
    CastedObj.fQ         = fQ;
@@ -817,6 +818,13 @@ void KVVAMOSReconNuc::Propagate(ECalib cal){
 //		GetParameters()->Print();
 //		cout<<endl;
 //	}
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::Print(Option_t* option ) const{
+	KVReconstructedNucleus::Print();
+	cout<<" =======> ";
+	cout<<" Q= "<<GetQ()<<", Brho= "<<GetBrho()<<" T.m, ThetaV= "<<GetThetaV()<<" deg, PhiV= "<<GetPhiV()<<" deg"<<endl;
 }
 //________________________________________________________________
 

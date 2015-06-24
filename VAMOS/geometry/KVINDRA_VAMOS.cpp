@@ -157,6 +157,8 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
     KVNucleus *part,*_part;
     KVNameValueList* nvl = NULL;
 	Bool_t isVAMOSevent = kFALSE;
+	static KVVAMOSReconEvent tmp_rec_vamos_event;
+	tmp_rec_vamos_event.Clear();
 
     while ((part = event->GetNextParticle())) {  // loop over particles
 
@@ -171,13 +173,14 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 		if( _part->GetTheta() > 14 ) continue;
 
         _part->SetE0();
+		Double_t eLostInTarget = 0;
 
         if (fTarget && (fFilterType != kFilterType_Geo)){
             fTarget->SetOutgoing(kTRUE);
             //simulate passage through target material
             Double_t ebef = _part->GetKE();
             fTarget->DetectParticle(_part);
-            Double_t eLostInTarget = ebef-_part->GetKE();
+            eLostInTarget = ebef-_part->GetKE();
             if (_part->GetKE()<1.e-3) {
                 part->GetParameters()->SetValue("UNDETECTED","STOPPED IN TARGET");
 
@@ -186,7 +189,6 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
             }
             fTarget->SetOutgoing(kFALSE);
 
-            part->GetParameters()->SetValue("TARGET Out",eLostInTarget);
         }
 
 
@@ -195,9 +197,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
         	_part->SetMomentum(*_part->GetPInitial());
 
 			isVAMOSevent = kTRUE;
-			// this nucleus in detected in VAMOS then reconstruct the VAMOS event
-			KVVAMOSReconEvent *rec_vamos_event = ((KVIVReconEvent *)rec_event)->GetVAMOSEvent();
-			KVVAMOSReconNuc *recon_nuc = (KVVAMOSReconNuc *)rec_vamos_event->AddParticle();
+			KVVAMOSReconNuc *recon_nuc = (KVVAMOSReconNuc *)tmp_rec_vamos_event.AddParticle();
 
             // copy parameter list
             part->GetParameters()->Copy( *(recon_nuc->GetParameters()) );
@@ -212,7 +212,8 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 			recon_nuc->SetThetaVandPhiV(_part->GetParameters()->GetDoubleValue("ThetaV"),
 					_part->GetParameters()->GetDoubleValue("PhiV") );
 
-
+            recon_nuc->GetParameters()->SetValue("DETECTED","OK");
+			recon_nuc->SetTargetEnergyLoss( eLostInTarget );
   			recon_nuc->SetIsIdentified();
             recon_nuc->SetIsCalibrated();
             recon_nuc->SetIsOK();
@@ -220,8 +221,6 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
             recon_nuc->SetQMeasured();
             recon_nuc->SetAMeasured();
             recon_nuc->SetIsQandAidentified();
-
-//			Info("DetectEvent","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", gVamos->GetBrhoRef(), gVamos->GetAngle(),recon_nuc->GetZ(),recon_nuc->GetA(),recon_nuc->GetQ(),recon_nuc->GetEnergy(), recon_nuc->GetBrho(), recon_nuc->GetParameters()->GetDoubleValue("Delta"), recon_nuc->GetThetaV(), recon_nuc->GetPhiV(), recon_nuc->GetTheta(), recon_nuc->GetPhi());
 
 			// Clear this nucleus detected in VAMOS in order to inhibit the
 			// its detection in INDRA
@@ -235,10 +234,15 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 
 	// if a nucleus is detected in VAMOS then continue filtering the event in INDRA
 	if( isVAMOSevent ){
-// 		Info("DetectEvent","event %d is a VAMOS event",event->GetNumber());
+		// 		Info("DetectEvent","event %d is a VAMOS event",event->GetNumber());
 		GetINDRA()->DetectEvent( event, rec_event, detection_frame );
+
+		// Set the reconstructed nucleus detected in VAMOS in the VAMOS event
+		KVVAMOSReconEvent *rec_vamos_event = ((KVIVReconEvent *)rec_event)->GetVAMOSEvent();
+		tmp_rec_vamos_event.Copy( *rec_vamos_event );
+
+		//		rec_event->Print();
  	}
-//	else Info("DetectEvent","event %d is NOT a VAMOS event",event->GetNumber());
 }
 //________________________________________________________________
 

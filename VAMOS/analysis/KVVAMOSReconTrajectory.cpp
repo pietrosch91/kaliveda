@@ -157,11 +157,10 @@ void KVVAMOSReconTrajectory::Copy (TObject& obj) const{
    	// This method copies the current state of 'this' object into 'obj'
    	KVBase::Copy(obj);
    	KVVAMOSReconTrajectory& CastedObj = (KVVAMOSReconTrajectory&)obj;
-   	for(Int_t i=0; i<3; i++){
-   	  	if( i<2 ) CastedObj.pointFP[i] = pointFP[i];
-	  	CastedObj.dirFP  = dirFP;
-	  	CastedObj.dirLab = dirLab;
-   	}
+   	CastedObj.pointFP[0] = pointFP[0];
+   	CastedObj.pointFP[1] = pointFP[1];
+	CastedObj.dirFP  = dirFP;
+	CastedObj.dirLab = dirLab;
 	CastedObj.Brho = Brho;
 	CastedObj.path = path;
 }

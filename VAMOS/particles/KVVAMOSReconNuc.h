@@ -73,7 +73,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual Bool_t   ReconstructLabTraj();
 
 		virtual void     Propagate(ECalib cal = kNoCalib);
-
+		virtual void     Print(Option_t* option = "") const;
 		virtual void     SetQandAidentification(KVIdentificationResult *idr);
 
 

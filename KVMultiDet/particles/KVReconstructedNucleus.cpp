@@ -230,6 +230,7 @@ void KVReconstructedNucleus::Copy(TObject & obj)
 	 ((KVReconstructedNucleus &) obj).fDetNames = fDetNames;
     ((KVReconstructedNucleus &) obj).SetRealZ(GetRealZ());
     ((KVReconstructedNucleus &) obj).SetRealA(GetRealA());
+    ((KVReconstructedNucleus &) obj).SetTargetEnergyLoss(GetTargetEnergyLoss());
 }
 
 
