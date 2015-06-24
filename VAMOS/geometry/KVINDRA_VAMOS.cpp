@@ -152,16 +152,13 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 	// the ROOT geometry can not be use for filtering
 	SetROOTGeometry( kFALSE );
 
-	// first detect event in INDRA
-	GetINDRA()->DetectEvent( event, rec_event, detection_frame );
-
    	// iterate through list of particles
-  	// and detect in VAMOS only particles UNDETECTED in INDRA
+  	// and detect in VAMOS
     KVNucleus *part,*_part;
     KVNameValueList* nvl = NULL;
+	Bool_t isVAMOSevent = kFALSE;
 
-
-    while ((part = event->GetNextParticle("DEAD ZONE"))) {  // loop over particles
+    while ((part = event->GetNextParticle())) {  // loop over particles
 
 
 #ifdef KV_DEBUG
@@ -195,34 +192,12 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 
         if ( (_part->GetKE()>1.e-3) && (nvl = GetVAMOS()->DetectParticle(_part)) &&  (nvl->GetNpar()>0) ) {
 
-			part->RemoveGroup("UNDETECTED");
-            part->RemoveGroup("DEAD ZONE");
-            part->GetParameters()->RemoveParameter("UNDETECTED");
+        	_part->SetMomentum(*_part->GetPInitial());
 
-
-            part->AddGroup("DETECTED");
-            part->AddGroup("VAMOS");
-            part->GetParameters()->SetValue("DETECTED","VAMOS");
-		}
-
-
-        SafeDelete( nvl );
-        _part->SetMomentum(*_part->GetPInitial());
-	}  	//fin de loop over particles
-
-
- 	// EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER IN VAMOS
-	//  We keep all particles belonging to groups DETECTED and VAMOS
-
-	KVVAMOSReconEvent *rec_vamos_event = ((KVIVReconEvent *)rec_event)->GetVAMOSEvent();
- 	while ((part = event->GetNextParticle())) {
-        if(	part->BelongsToGroup("DETECTED") &&
-        		part->BelongsToGroup("VAMOS") ){
-
-        	_part=(KVNucleus*)part->GetFrame(detection_frame);
-
-
-            KVVAMOSReconNuc *recon_nuc = (KVVAMOSReconNuc *)rec_vamos_event->AddParticle();
+			isVAMOSevent = kTRUE;
+			// this nucleus in detected in VAMOS then reconstruct the VAMOS event
+			KVVAMOSReconEvent *rec_vamos_event = ((KVIVReconEvent *)rec_event)->GetVAMOSEvent();
+			KVVAMOSReconNuc *recon_nuc = (KVVAMOSReconNuc *)rec_vamos_event->AddParticle();
 
             // copy parameter list
             part->GetParameters()->Copy( *(recon_nuc->GetParameters()) );
@@ -237,7 +212,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 			recon_nuc->SetThetaVandPhiV(_part->GetParameters()->GetDoubleValue("ThetaV"),
 					_part->GetParameters()->GetDoubleValue("PhiV") );
 
-			
+
   			recon_nuc->SetIsIdentified();
             recon_nuc->SetIsCalibrated();
             recon_nuc->SetIsOK();
@@ -246,9 +221,24 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
             recon_nuc->SetAMeasured();
             recon_nuc->SetIsQandAidentified();
 
-//			Info("DetectParticle","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", gVamos->GetBrhoRef(), gVamos->GetAngle(),recon_nuc->GetZ(),recon_nuc->GetA(),recon_nuc->GetQ(),recon_nuc->GetEnergy(), recon_nuc->GetBrho(), recon_nuc->GetParameters()->GetDoubleValue("Delta"), recon_nuc->GetThetaV(), recon_nuc->GetPhiV(), recon_nuc->GetTheta(), recon_nuc->GetPhi());
+//			Info("DetectEvent","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", gVamos->GetBrhoRef(), gVamos->GetAngle(),recon_nuc->GetZ(),recon_nuc->GetA(),recon_nuc->GetQ(),recon_nuc->GetEnergy(), recon_nuc->GetBrho(), recon_nuc->GetParameters()->GetDoubleValue("Delta"), recon_nuc->GetThetaV(), recon_nuc->GetPhiV(), recon_nuc->GetTheta(), recon_nuc->GetPhi());
+
+			// Clear this nucleus detected in VAMOS in order to inhibit the
+			// its detection in INDRA
+			part->Clear();
+
 		}
+		else _part->SetMomentum(*_part->GetPInitial());
+
+        SafeDelete( nvl );
+	}  	//fin de loop over particles
+
+	// if a nucleus is detected in VAMOS then continue filtering the event in INDRA
+	if( isVAMOSevent ){
+// 		Info("DetectEvent","event %d is a VAMOS event",event->GetNumber());
+		GetINDRA()->DetectEvent( event, rec_event, detection_frame );
  	}
+//	else Info("DetectEvent","event %d is NOT a VAMOS event",event->GetNumber());
 }
 //________________________________________________________________
 

@@ -758,8 +758,6 @@ KVNameValueList* KVVAMOS::DetectParticle(KVNucleus * part){
 	Double_t  th_v = TMath::RadToDeg()*TMath::ATan(x/z);  //degree
 	Double_t  ph_v = TMath::RadToDeg()*TMath::ASin(y);    //degree
 
-//	Info("DetectParticle","Detection  in VAMOS with Brho0= %.3f theta= %.1f deg: Z= %d, A= %d, Q= %d, E= %0.1f, Brho= %.3f, delta= %.4f, ThetaV= %0.1f deg, PhiV= %.1f deg, Theta= %0.1f deg, Phi= %.1f deg", GetBrhoRef(), GetAngle(),part->GetZ(),part->GetA(),Q,part->GetEnergy(), Brho, delta, th_v, ph_v, part->GetTheta(), part->GetPhi());
-
     KVNameValueList* NVL = 0;
 	if( fFilter->IsTrajectoryAccepted(GetAngle(), delta, th_v, ph_v) ){
 
