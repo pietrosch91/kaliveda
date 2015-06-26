@@ -83,6 +83,10 @@ public:
         if (i>=GetDetectorList()->GetEntries()) return 0;
         return (KVDetector *) GetDetectorList()->At(i);
     };
+    
+    const Char_t* GetDetectorNames() const {return fDetNames.Data(); }
+    const Char_t* GetIDtelNames() const {return fIDTelName.Data(); }
+    
     //void SetDetector(int i, KVDetector *);
     KVDetector *GetStoppingDetector() const
     {

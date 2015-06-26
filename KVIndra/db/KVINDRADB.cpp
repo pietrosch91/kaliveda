@@ -922,15 +922,20 @@ void KVINDRADB::WriteRunListFile() const
          << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
    cout << GetDBEnv("Runlist") << " file written by "
          << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
-   TIter next_run(GetRuns());
-   //write header in file
-   ((KVDBRun *) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
-   KVDBRun *run;
-   while ((run = (KVDBRun *) next_run())) {
+   if (GetRuns() && GetRuns()->GetEntries()>0){
+   	TIter next_run(GetRuns());
+   	//write header in file
+   	((KVDBRun *) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
+   	KVDBRun *run;
+   	while ((run = (KVDBRun *) next_run())) {
 
-      run->WriteRunListLine(rlistf, GetDBEnv("Runlist.Separator")[0]);
+   	   run->WriteRunListLine(rlistf, GetDBEnv("Runlist.Separator")[0]);
 
+   	}
    }
+   else{
+   	Warning("WriteRunListFile()","run list is empty !!!");
+   }   
    rlistf.close();
 }
 

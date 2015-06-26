@@ -136,7 +136,7 @@ class KVINDRA:public KVASMultiDetArray {
    virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
    void SetArrayACQParams();
-   virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
+   virtual void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params = 0);
    
    KVINDRATriggerInfo* GetTriggerInfo() { return fSelecteur; };
 	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500, Bool_t /*closegeo*/ = kTRUE);

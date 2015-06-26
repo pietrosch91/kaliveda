@@ -26,13 +26,15 @@
 #include "KVFAZIAReader.h"
 #include "KVDataAnalyser.h"
 
+#include "KVFAZIA.h"
+
 
 void KVFAZIAReader::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
    // When running with PROOF Begin() is only called on the client.
    // The tree argument is deprecated (on PROOF 0 is passed).
-
+	Info("Begin","");
    TString option = GetOption();
 
 }
@@ -43,6 +45,7 @@ void KVFAZIAReader::SlaveBegin(TTree * /*tree*/)
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
+	Info("SlaveBegin","");
    TString option = GetOption();
 
 }
@@ -74,12 +77,15 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    //
    // The return value is currently not used.
 	fReadEntries+=1;
+   
    GetEntry(entry);
    fEventNumber = entry;
-	/*
-   if (fReadEntries%10000)
-   	Info("Process","%d read entries (total=%d)",fReadEntries,nbEventToRead);
-   */
+   
+   gFazia->GetDetectorEvent(GetDetectorEvent(),cl);
+   
+	if (fReadEntries%10000==0)
+   	Info("Process","%d read entries",fReadEntries);
+   
    return Analysis();
 }
 
@@ -88,6 +94,7 @@ void KVFAZIAReader::SlaveTerminate()
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
+	Info("SlaveTerminate","");
 
 }
 
@@ -96,7 +103,9 @@ void KVFAZIAReader::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
-
+	Info("Terminate","%d events read",GetNumberOfReadEntries());
+	EndRun();
+   EndAnalysis();
 }
 
 void KVFAZIAReader::Init(TTree *tree)
@@ -111,10 +120,11 @@ void KVFAZIAReader::Init(TTree *tree)
 
    // Set branch addresses and branch pointers
    
-   if (!tree) return;
-   fChain = tree;
-   fChain->SetMakeClass(1);
-   
+	Info("Init","");
+	if (!tree) return;
+	fChain = tree;
+	fChain->SetMakeClass(1);
+   InitAnalysis();
 
 }
 
@@ -125,8 +135,13 @@ Bool_t KVFAZIAReader::Notify()
    // is started when using PROOF. It is normally not necessary to make changes
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
-	fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
+	if (fCurrentRun!=-1)
+   	EndRun();
+   
+   fReadEntries = 0;
+   fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
    Info("Notify","Traitement du run %d",fCurrentRun);
+   fChain->SetBranchAddress("signals",&cl);
    InitRun();
    return kTRUE;
 }

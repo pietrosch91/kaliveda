@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ global gHistoManipulator;
+#pragma link C++ global gNDTManager;
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ nestedclass;
@@ -46,7 +47,6 @@
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
 #pragma link C++ class KVUniqueNameList+;
-#pragma link C++ class KVPartitionList+;
 #pragma link C++ class KVList-;
 #pragma link C++ class KVLockfile+;
 #pragma link C++ class KVNamedParameter+;
@@ -63,11 +63,15 @@
 #pragma link C++ class KVTarArchive+;
 #pragma link C++ class KVHistoManipulator;
 #pragma link C++ class KVEventListMaker;
-#pragma link C++ class KVIntegerList-;
 #pragma link C++ class KVUpdateChecker;
 #pragma link C++ class KVCVSUpdateChecker;
 #pragma link C++ class KVSystemFile+;
 #pragma link C++ class KVSystemDirectory+;
 #pragma link C++ class KVEnv+;
 #pragma link C++ class KVHistogram+;
+#pragma link C++ class KVNuclData+;
+#pragma link C++ class NDT::value+;
+#pragma link C++ class NDT::key+;
+#pragma link C++ class KVNuclDataTable+;
+#pragma link C++ class KVNDTManager+;
 #endif

@@ -4,7 +4,7 @@
 #include "KVNameValueList.h"
 #include "KVNamedParameter.h"
 #include "Riostream.h"
-#include <TEnv.h>
+#include <KVEnv.h>
 #include <TROOT.h>
 
 using namespace std;
@@ -515,7 +515,7 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
    //   KVNumberList (easily confused with floating point numbers)
    
    Clear();
-   TEnv env_file;
+   KVEnv env_file;
    Int_t status = env_file.ReadFile(filename,kEnvAll);
    if(status==-1){
       Error("ReadEnvFile", "The file %s does not exist", filename);
@@ -539,18 +539,54 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
    }
 }
 
+KVEnv* KVNameValueList::ProduceEnvFile()
+{
+   // Put all name-value pairs in this list as a TEnv format.
+   // delete after use
+   KVEnv* envfile = new KVEnv();
+   envfile->SetValue("KVNameValueList.Name",GetName());
+   envfile->SetValue("KVNameValueList.Title",GetTitle());
+	for (Int_t ii=0;ii<GetNpar();ii+=1){
+      KVNamedParameter* par = GetParameter(ii);
+      if(par->IsString()) envfile->SetValue(par->GetName(),par->GetString());
+      else if(par->IsInt()) envfile->SetValue(par->GetName(),par->GetInt());
+      else if(par->IsDouble()) envfile->SetValue(par->GetName(),par->GetDouble());
+   }
+   return envfile;
+}
+
 void KVNameValueList::WriteEnvFile(const Char_t* filename)
 {
    // Write all name-value pairs in this list as a TEnv format file.
-   
-   TEnv envile(filename);
-   envile.SetValue("KVNameValueList.Name",GetName());
-   envile.SetValue("KVNameValueList.Title",GetTitle());
-	for (Int_t ii=0;ii<GetNpar();ii+=1){
-      KVNamedParameter* par = GetParameter(ii);
-      if(par->IsString()) envile.SetValue(par->GetName(),par->GetString());
-      else if(par->IsInt()) envile.SetValue(par->GetName(),par->GetInt());
-      else if(par->IsDouble()) envile.SetValue(par->GetName(),par->GetDouble());
-   }
-   envile.Save();
+   KVEnv* envfile = ProduceEnvFile();
+   envfile->SetRcName(filename);
+   envfile->Save();
+	delete envfile;
 }
+
+
+KVNameValueList KVNameValueList::operator += (KVNameValueList & nvl)
+{
+    TIter it(nvl.GetList());
+    KVNamedParameter* par = 0;
+    while((par=(KVNamedParameter*)it()))
+    {
+
+        if(par->IsInt())         SetValue(par->GetName(),par->GetInt());
+        else if(par->IsDouble()) SetValue(par->GetName(),par->GetDouble());
+        else if(par->IsString()) SetValue(par->GetName(),par->GetString());
+    }
+    return *this;
+}
+
+
+
+
+
+
+
+
+
+
+
+

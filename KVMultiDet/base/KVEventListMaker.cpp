@@ -110,7 +110,7 @@ if ( (tt = (TTree *)file->Get(GetTreeName().Data())) ){
 }
 else printf("%s n existe pas\n",GetTreeName().Data());
 
-delete variable;
+delete [] variable;
 //close the file
 file->Close();
 

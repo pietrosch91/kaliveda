@@ -251,13 +251,11 @@ void KVNucleus::init()
    // The mass formula is kBetaMass, i.e. the formula for the valley of beta-stability.
   
    fZ = fA = 0;
-   fExx = 0;
    if (!fNb_nuc){
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
    }
    fMassFormula = kBetaMass;
    fNb_nuc++;
-   fExx = 0.;
 }
 
 KVNucleus::KVNucleus()
@@ -287,7 +285,6 @@ void KVNucleus::Clear(Option_t * opt)
    KVParticle::Clear(opt);
    ResetBit(kIsHeavy);
    fZ = fA = 0;
-   fExx = 0.;
 }
 
 //___________________________________________________________________________________________
@@ -351,7 +348,6 @@ KVNucleus::~KVNucleus()
 {
    fNb_nuc--;
    fZ = fA = 0;
-   fExx = 0.;
 }
 
 //___________________________________________________________________________________________
@@ -519,7 +515,7 @@ void KVNucleus::SetA(Int_t a)
       fA = (UChar_t) a;
       ResetBit(kIsHeavy);
    }
-   SetMass(kAMU * a + GetMassExcess());
+   SetMass(GetMassGS());
 }
 //___________________________________________________________________________________________
 void KVNucleus::SetN(Int_t n)
@@ -637,17 +633,10 @@ void  KVNucleus::CheckZAndA(Int_t &z, Int_t&a) const
 //________________________________________________________________________________________
 void KVNucleus::SetExcitEnergy(Double_t ex)
 {
-	//The excitation energy is added to the mass (M=M+e) and total energy (E=E+e)
-	//No modification of the kinetic energy (Ek=E-M)
-	//linear momentum p is modified
-	
-	Double_t etot = E()-fExx;
-	
-	Double_t newp = TMath::Sqrt(GetKE()*(etot+GetMassGS()+2.*ex));
-	TVector3 unit = GetMomentum().Unit();
-	unit *= newp;
-	SetXYZM(unit.X(), unit.Y(), unit.Z(), GetMassGS()+ex);
-	fExx = ex;
+   // Define excitation energy of nucleus in MeV.
+   // The rest mass of the nucleus is changed: m0 -> m0 + E*
+
+   SetMass(GetMassGS()+ex);
 }
 
 //________________________________________________________________________________________
@@ -723,7 +712,7 @@ Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
       if(GetAbundance(z,a)>0) return 1.e+100;
       return -1.0;
    }
-   if(lf && !lf->IsAResonnance()) {
+   if(!lf->IsAResonnance()) {
       Double_t life = lf->GetValue();
       return (life<0. ? 1.e+100 : life);
    }
@@ -990,38 +979,21 @@ KVNucleus & KVNucleus::operator=(const KVNucleus & rhs)
 
 KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 {
-   //KVNucleus addition operator.
-   //Add two nuclei together to form a compound nucleus whose momentum and
-   //excitation energy are calculated from energy and momentum conservation.
-	//
-	//the excitation energy of the resulting nucleus can be negative, 
-	//if the energy balance is negative
-	//
+   // KVNucleus addition operator.
+   // Add two nuclei together to form a compound nucleus whose Z, A, momentum
+   // and excitation energy are calculated from energy and momentum conservation.
+   
    KVNucleus & lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
    KVNucleus CN(ztot,atot);
-	
-	Double_t etot = lhs.E() + rhs.E();
+
+   Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-    //Calcul de la masse du noyau compose
-    //celle ci inclut une eventuelle energie d'excitation
-	
-	Double_t Mcn = TMath::Sqrt(etot*etot-ptot.Mag()*ptot.Mag());
-	Double_t Excn = Mcn - CN.M();
-	
-	if (Excn<0){
-		if (Excn>-1e-8)
-			Excn=0;
-		//else 	
-		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
- 	}
-	
-	//CN.SetVect(ptot);
-	CN.SetMomentum(ptot);
-	CN.SetExcitEnergy(Excn);
-	
-	return CN;
+   CN.SetVect(ptot);
+   CN.SetT(etot);
+
+   return CN;
 
 }
 
@@ -1029,46 +1001,31 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 
 KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
 {
-   //KVNucleus subtraction operator.
-   //If the LHS is a compound nucleus and the RHS an emitted nucleus
-   //(which may or may not be excited) then the result of the subtraction
-   //is the residual nucleus, with recoil and residual excitation calculated
-   //by conservation laws.
+   // KVNucleus subtraction operator.
+   // If the LHS is a compound nucleus and the RHS an emitted nucleus
+   // (which may or may not be excited) then the result of the subtraction
+   // is the residual nucleus, with recoil and residual excitation calculated
+   // by conservation laws.
 
    KVNucleus & lhs = *this;
    Int_t zres = lhs.GetZ() - rhs.GetZ();
    Int_t ares = lhs.GetA() - ((KVNucleus &) rhs).GetA();
    Double_t eres = lhs.E() - rhs.E();
-	TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
+   TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
-	//Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
-  
    if (zres < 0 || ares < 0 || eres < 0) {
       Warning("operator-(const KVNucleus &rhs)",
               "Cannot subtract nuclei, resulting Z=%d A=%d E=%lf", zres, ares, eres);
-		KVNucleus RES;
+      KVNucleus RES;
       RES.Clear();
       return RES;
    }
-	else {
+   else {
       KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
-		
-		Double_t Mres = TMath::Sqrt(eres*eres-pres.Mag()*pres.Mag());
-		Double_t Exres = Mres - RES.M();
- 		
-		if (Exres<0){
-			if (Exres>-1e-8)
-				Exres=0;
-			//else 	
-			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
- 		}
-		
-		//RES.SetVect(pres);
-		RES.SetMomentum(pres);
-		RES.SetExcitEnergy(Exres);
-	
-		return RES;
-	}
+      RES.SetVect(pres);
+      RES.SetT(eres);
+      return RES;
+   }
 }
 
 //________________________________________________________________________________________
@@ -1124,15 +1081,6 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
    return (939.55 * XNEU + 938.77 * Z - TOTA);
 }
 
-//________________________________________________________________________________________
-/*
-void KVNucleus::SetExcitEnergy(Double_t e)
-{
-   //Set excitation energy. 
-
-   fExx = e;
-}
-*/
 //_______________________________________________________________________________________
 
 Int_t KVNucleus::Compare(const TObject * obj) const

@@ -19,11 +19,12 @@ class KVGeoImport : public KVGeoNavigator
     Int_t fGroupNumber;
     KVDetector* fLastDetector;
     Bool_t fCreateArray;
-
+	TString fDetectorPlugin;
+   
     KVDetector *GetCurrentDetector();
     KVDetector* BuildDetector(TString det_name, TGeoVolume *det_vol);
     void AddLayer(KVDetector*, TGeoVolume*);
-
+	
    public:
    KVGeoImport(TGeoManager*, KVIonRangeTable*, KVMultiDetArray*, Bool_t create=kTRUE);
    virtual ~KVGeoImport();
@@ -35,7 +36,9 @@ class KVGeoImport : public KVGeoNavigator
                        Double_t ThetaMax=180.0/*degrees*/, Double_t PhiMax=360.0/*degrees*/);
 
    void SetLastDetector(KVDetector*);
-
+	
+   void SetDetectorPlugin(const TString &name) { fDetectorPlugin = name;  }
+   
    ClassDef(KVGeoImport,0)//Import a ROOT geometry into a KVMultiDetArray object
 };
 

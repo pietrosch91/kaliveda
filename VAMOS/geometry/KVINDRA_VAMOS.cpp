@@ -246,7 +246,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,
 }
 //________________________________________________________________
 
-void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params){
+void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params){
 
 	// This method is obsolete. To have access to the detector events of INDRA
 	// and VAMOS prefer using:

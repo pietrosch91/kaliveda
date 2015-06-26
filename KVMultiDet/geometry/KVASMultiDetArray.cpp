@@ -30,7 +30,6 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVRing.h"
 #include "KVTelescope.h"
 #include "KVMaterial.h"
-#include "KVMultiDetBrowser.h"
 #include "KVTarget.h"
 #include "KVIDTelescope.h"
 #include "KV2Body.h"

@@ -3,7 +3,6 @@
 #include "TROOT.h"
 #include "TRandom3.h"
 #include "TBuffer.h"
-#include "KVDetectorBrowser.h"
 #include "KVModule.h"
 #include "KVUnits.h"
 #include "KVTelescope.h"

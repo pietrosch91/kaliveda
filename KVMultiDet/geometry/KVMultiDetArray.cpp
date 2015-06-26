@@ -18,7 +18,6 @@
 #include "KVRing.h"
 #include "KVTelescope.h"
 #include "KVMaterial.h"
-#include "KVMultiDetBrowser.h"
 #include "KVTarget.h"
 #include "KVIDTelescope.h"
 #include "KV2Body.h"
@@ -188,7 +187,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
 	// else if only e-detector  is not OK then set up single stage telscope with de-detector
 	else if ( !e->IsOK() ) e = de;
 	// else both detectors are OK then explore all the possiblilities!
-    
+
 	KVIDTelescope *idt = 0;
 
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
@@ -199,6 +198,11 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //these are ID telescopes formed from two distinct detectors
     TString uri;
     //look for ID telescopes with only one of the two detectors
+    uri.Form("%s", e->GetType());
+    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        set_up_single_stage_telescope(e,idtels,idt,uri);
+    }
+    
     uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
              de_thick);
     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
@@ -359,12 +363,14 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollectio
 //______________________________________________________________________________________
 void KVMultiDetArray::CreateIDTelescopesInGroups()
 {
+    //GetStructures()->Print();
     fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
     KVGroup *grp;
     KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+ 
     TIter ngrp(fGroups);
     while ((grp = (KVGroup *) ngrp())) {
-        grp->GetIDTelescopes(fIDTelescopes);
+        		grp->GetIDTelescopes(fIDTelescopes);
     }
     delete fGroups;
 }
@@ -1320,7 +1326,7 @@ void KVMultiDetArray::UpdateCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params)
+void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params)
 {
     // First step in event reconstruction based on current status of detectors in array.
     // Fills the given KVDetectorEvent with the list of all groups which have fired.
@@ -1358,7 +1364,7 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
     else
     {
         //loop over groups
-        KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+        TSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
 
           TIter next_grp(fGroups);
         KVGroup *grp;
@@ -1845,7 +1851,7 @@ KVSeqCollection* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
     // list is not defined or empty)
     //
     // Delete the KVList after use (it does not own the KVIDTelescopes).
-
+	
     if ( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return NULL;
     return fIDTelescopes->GetSubListWithLabel( type );
 }

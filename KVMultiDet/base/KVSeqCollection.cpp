@@ -9,6 +9,8 @@
 #include "Riostream.h"
 #include "TKey.h"
 
+#include <THashList.h>
+
 using namespace std;
 
 ClassImp(KVSeqCollection)
@@ -96,15 +98,22 @@ if(tlist) tlist->Sort();
 ////////////////////////////////////////////////////////////////////////////////
 
 Long64_t KVSeqCollection::fSCCounter = 0;
+Int_t KVSeqCollection::fgCounter = 0;
+TSeqCollection* KVSeqCollection::fgCleanups = NULL;
 
 void KVSeqCollection::init()
 {
     // Default initialisation called by ctors
     // Make sure all lists have individual names to ensure rapid look-up
-    // in gROOT->GetListOfCleanups() which is a THashList
+    // in fgCleanups which is a THashList
 
     SetName(Form("KVSeqCollection_%lld",fSCCounter));
-    fSCCounter++;
+    fSCCounter++;//always increases, so names are different
+    ++fgCounter;//decreased by dtor, counts instances
+    if(!fgCleanups){
+       fgCleanups = new THashList; fgCleanups->SetName("KVSeqCollection_Cleanups");
+       gROOT->GetListOfCleanups()->Add(fgCleanups);
+    }
 }
 
 KVSeqCollection::KVSeqCollection()
@@ -173,10 +182,19 @@ KVSeqCollection::~KVSeqCollection()
     // the list of cleanups
 
     if (IsCleanup()){
-    	while (gROOT->GetListOfCleanups()->Remove(this))
+        while (fgCleanups->Remove(this))
     		;
     }
     SafeDelete(fCollection);
+    --fgCounter;//decrease instance count
+    if(fgCounter==0 && fgCleanups){
+       // delete cleanups list if this is the last KVSeqCollection
+       while(gROOT->GetListOfCleanups()->Remove(fgCleanups))
+          ;
+       fgCleanups->Clear();
+       delete fgCleanups;
+       fgCleanups=NULL;
+    }
 }
 
 void KVSeqCollection::Copy(TObject & obj) const
@@ -845,12 +863,12 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
 	SetBit(kCleanup,enable);
     if (enable)
     {
-        gROOT->GetListOfCleanups()->Add(this);
+        fgCleanups->Add(this);
         fCollection->R__FOR_EACH(TObject,SetBit)(kMustCleanup);
     }
     else
     {
-        gROOT->GetListOfCleanups()->Remove(this);
+        fgCleanups->Remove(this);
     }
 }
 //______________________________________________________________________________

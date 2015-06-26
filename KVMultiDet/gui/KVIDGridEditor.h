@@ -152,8 +152,8 @@ friend class KVIDGridEditorCanvas;
    void SetLogx     ();						//echelle log sur Ox
    void Undo        ();						//annule toute les operation sur la grille courante (I)
    
-   void SetPivot    (Double_t xx0, Double_t yy0);
-   void SetPiedestal(Double_t ppdx, Double_t ppdy);
+   void SetPivot    (Double_t xx0, Double_t yy0);   // set pivot position (double click on the histo)
+   void SetPiedestal(Double_t ppdx, Double_t ppdy); // set piedestal position (shift click on the histo)
    
    void SetEditable(TPaveLabel* label);
 //   void SelectLines(TPaveLabel* label);
@@ -182,7 +182,7 @@ friend class KVIDGridEditorCanvas;
    
    TString ListOfHistogramInMemory();				//revoie la liste des histo dans gFile
    TString PreselectHistogram(TString ListOfName, Int_t ipert=0);//revoie le nom de l' histo qui as le mm nom que la grille (si existe)
-   
+   TH2* FindInCanvases(const Char_t* name);
    
    public:
    

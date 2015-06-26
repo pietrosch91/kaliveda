@@ -249,6 +249,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
     {
         projey = fLinearHisto->ProjectionY("ProjectionAfterLin",startBin-width*3,startBin+width*3);
         int nfound = fSpectrum.Search(projey,0.05,"goff",0.0001);
+        Info("FindALine","%d peack found...",nfound);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
         Double_t* xpeaks = fSpectrum.GetPositionX();
         Double_t* ypeaks = fSpectrum.GetPositionY();
@@ -260,12 +261,13 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
         {
             if(p>8) break;
             if(ypeaks[p]<10) continue;
-            Double_t xline = fLinearHisto->GetBinCenter(startBin);
+            Double_t xline = fLinearHisto->GetXaxis()->GetBinCenter(startBin);
             Double_t yline = xpeaks[p];
             KVSpiderLine* tmp = 0;
             TIter next(&Lines);
             while((tmp=(KVSpiderLine*)next()))
             {
+                Info("FindALine","line found but I don't know why...");
                 if(TMath::Abs(tmp->GetY()-yline)<0.05) continue;
             }
             tmp = new KVSpiderLine(zz,-1);
@@ -276,6 +278,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
         }
         if(projey) delete projey;
     }
+    else Error("FindALine","not starting bin indicated...");
     SortLines(&Lines);
 
     Int_t nLines = Lines.GetSize();
@@ -295,7 +298,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
         {
             if(p>=nLines+1) continue;
             if(ypeaks[p]<5) continue;
-            Double_t xline = fLinearHisto->GetBinCenter(xx);
+            Double_t xline = fLinearHisto->GetXaxis()->GetBinCenter(xx);
             Double_t yline = xpeaks[p];
             KVSpiderLine* tmp = 0;
             TIter next(&Lines);
@@ -330,7 +333,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
         {
             if(p>=nLines+1) continue;
             if(ypeaks[p]<5) continue;
-            Double_t xline = fLinearHisto->GetBinCenter(xx);
+            Double_t xline = fLinearHisto->GetXaxis()->GetBinCenter(xx);
             Double_t yline = xpeaks[p];
             KVSpiderLine* tmp = 0;
             TIter next(&Lines);

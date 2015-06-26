@@ -31,6 +31,7 @@ $Date: 2009/04/07 14:54:15 $
 #include "TSpline.h"
 #include "TStyle.h"
 #include "TCanvas.h"
+#include "TMultiGraph.h"
 
 
 using namespace std;
@@ -205,11 +206,11 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 		}
 	}	
 
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TH1 *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	if (hh->InheritsFrom("TH2")) 	gg->SetBins(nx,xmin,xmax,ny,ymin,ymax);
 	else 									gg->SetBins(nx,xmin,xmax);
@@ -290,11 +291,11 @@ TGraph* KVHistoManipulator::ScaleGraph(TGraph *hh,TF1*fx,TF1*fy){
 	// Si la fonction est un pointeur NULL, aucune transformation n est appliquee et l axe reste tel quel.
 	
 	TGraph* gg = NULL;
-	TClass *clas = gROOT->GetClass(hh->ClassName());
+	TClass *clas = TClass::GetClass(hh->ClassName());
 	gg = (TGraph *) clas->New();
+	if (!gg) return NULL;
 	TString hname; hname.Form("%s_scaled",hh->GetName());
 	gg->SetNameTitle(hname.Data(),hh->GetTitle());
-	if (!gg) return NULL;
 
 	Int_t np = hh->GetN();
 	for (Int_t nn=0;nn<np;nn+=1){
@@ -616,8 +617,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) Mauvaise syntaxe pour TString axis (X ou Y) " << endl;
 		return NULL;
 	}
-	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momentx.Data()),"int");
-	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
+	TMethodCall *cmx = new TMethodCall();  cmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momentx.Data()),"int");
+	TMethodCall *Ecmx = new TMethodCall(); Ecmx->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momentx.Data()),"int");
 	if (!cmx->IsValid()) { 
 		cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momentx n'est pas une methode valide " << momentx.Data() << endl;
 		delete cmx; cmx=0; return NULL; 
@@ -626,8 +627,8 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2 *hh,TString momentx,TS
 	
 	TMethodCall *cmy = NULL,*Ecmy = NULL;
 	if (momenty!="") 	{ 
-		cmy = new TMethodCall(); 	cmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
-		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(gROOT->GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
+		cmy = new TMethodCall(); 	cmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%s",momenty.Data()),"int"); 
+		Ecmy = new TMethodCall(); 	Ecmy->InitWithPrototype(TClass::GetClass("TH1D"),Form("%sError",momenty.Data()),"int"); 
 		if (!cmy->IsValid()) { 
 			cout << "GetMomentEvolution(TH2*,TString ,TString ,TString) TString momenty n'est pas une methode valide " << momenty.Data() << endl;
 			delete cmy; return NULL; 
@@ -1081,7 +1082,7 @@ void KVHistoManipulator::DefineTitle(TF1* ob,TString xtit,TString ytit){
 }
 //###############################################################################################################"
 //-------------------------------------------------
-Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax)
+Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax, Double_t xmin, Double_t xmax)
 {
 	// Return value of abscissa X for which the interpolated value
 	// of the histogram contents is equal to the given value, val.
@@ -1089,11 +1090,21 @@ Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nma
 	// eps is required precision, i.e. convergence condition is that no further change
 	// in result greater than eps is found.
 	// nmax = maximum number of iterations
-	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo.
+	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo
+   // unless arguments (xmin,xmax) are given to bracket the search
 	
 	TSpline5* spline = new TSpline5(ob);
-	Double_t Xmax = ob->GetXaxis()->GetXmax();
-	Double_t Xmin = ob->GetXaxis()->GetXmin();
+	Double_t Xmax;
+	Double_t Xmin;
+   if(xmin==xmax){
+	   Xmax = ob->GetXaxis()->GetXmax();
+	   Xmin = ob->GetXaxis()->GetXmin();
+   }
+   else
+   {
+	   Xmax = xmax;
+	   Xmin = xmin;
+   }
 
 	 Int_t n,side=0;
     Double_t r=0,fr,fs,s,ft,t;
@@ -1542,7 +1553,6 @@ Double_t KVHistoManipulator::GetLikelihood(TH1* h1, TF1* f1,Bool_t norm,Double_t
 }
 
 //______________________________________________________________________________________________
-
 TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
 {
 	// Create and fill a TGraph containing, for each point in G1 and G2,
@@ -1570,3 +1580,226 @@ TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
 	return Gdiv;
 }
 
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TGraph* G1)
+{
+	/*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits = new Double_t[4];
+   Double_t xx,yy;
+   for (Int_t ii=0;ii<G1->GetN(); ii+=1)
+	{
+   	G1->GetPoint(ii,xx,yy);
+      if (ii==0){
+      	limits[0] = limits[2] = xx;
+       	limits[1] = limits[3] = yy;
+     	}
+      else{
+      	if (xx<limits[0]) limits[0]=xx;
+      	if (yy<limits[1]) limits[1]=yy;
+       	if (xx>limits[2]) limits[2]=xx;
+      	if (yy>limits[3]) limits[3]=yy;
+     }
+   }
+
+	return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TMultiGraph* mgr)
+{
+	
+   /*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits=0;
+   Double_t* temp=0;
+   
+   TList* lg = mgr->GetListOfGraphs();
+   TGraph* gr = 0;
+   for (Int_t ii=0;ii<lg->GetEntries(); ii+=1)
+	{
+   	gr = (TGraph* )lg->At(ii);
+      if (ii==0) {
+      	limits = GetLimits(gr);
+      } 
+      else{
+      	temp = GetLimits(gr);
+			if (temp[0]<limits[0]) limits[0]=temp[0];
+      	if (temp[1]<limits[1]) limits[1]=temp[1];
+       	if (temp[2]>limits[2]) limits[2]=temp[2];
+      	if (temp[3]>limits[3]) limits[3]=temp[3];
+	 	}
+	}
+   
+   return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TProfile* G1)
+{
+	/*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits = new Double_t[4];
+   Double_t xx,yy;
+   Bool_t first=kTRUE;
+   for (Int_t ii=1;ii<=G1->GetNbinsX(); ii+=1)
+	{
+   	Double_t stat = G1->GetBinEntries(ii);
+      if (stat>0){
+      	xx = G1->GetBinCenter(ii);
+         yy = G1->GetBinContent(ii); 
+      	if (first){
+      		first=kFALSE;
+            limits[0] = limits[2] = xx;
+      	 	limits[1] = limits[3] = yy;
+     		}
+      	else{
+      		if (xx<limits[0]) limits[0]=xx;
+      		if (yy<limits[1]) limits[1]=yy;
+      	 	if (xx>limits[2]) limits[2]=xx;
+      		if (yy>limits[3]) limits[3]=yy;
+     		}	
+   	}
+   }
+
+	return limits;
+
+}
+
+//______________________________________________________________________________________________
+Double_t * KVHistoManipulator::GetLimits(TSeqCollection* mgr)
+{
+	
+   /*
+   xmin -> limits[0];
+   ymin -> limits[1];
+   xmax -> limits[2];
+   ymax -> limits[3];
+   */
+   Double_t* limits=0;
+   Double_t* temp=0;
+   
+   TProfile* gr = 0;
+   for (Int_t ii=0;ii<mgr->GetEntries(); ii+=1)
+	{
+   	gr = (TProfile* )mgr->At(ii);
+      if (ii==0) {
+      	limits = GetLimits(gr);
+      } 
+      else{
+      	temp = GetLimits(gr);
+			if (temp[0]<limits[0]) limits[0]=temp[0];
+      	if (temp[1]<limits[1]) limits[1]=temp[1];
+       	if (temp[2]>limits[2]) limits[2]=temp[2];
+      	if (temp[3]>limits[3]) limits[3]=temp[3];
+	 	}
+	}
+   
+   return limits;
+
+}
+
+//______________________________________________________________________________________________
+void KVHistoManipulator::ApplyCurrentLimitsToAllCanvas(Bool_t AlsoLog)
+{
+
+	//Getthe limits of the histogram in the current pad
+   //and apply them to the others histogram drawn on the others pads
+
+	if (!gPad) return;
+   TObject* obj = 0;
+   TVirtualPad* tmp = gPad;
+   TIter nextp(gPad->GetListOfPrimitives());
+   TH1* h1 = 0;
+   while ( (obj = nextp()) )
+	{
+   	if (obj->InheritsFrom("TH1")){
+      	h1 = (TH1F* )obj;
+      }
+   }
+	if (h1){
+   	Double_t x1=h1->GetXaxis()->GetFirst();
+   	Double_t x2=h1->GetXaxis()->GetLast();
+   	Double_t y1,y2;
+   	Double_t z1,z2;
+      
+      if (h1->GetDimension()==1){	//TH1 ou TProfile
+      	y1=h1->GetMinimum();
+      	y2=h1->GetMaximum();
+      }
+      else{
+      	y1=h1->GetYaxis()->GetFirst();
+         y2=h1->GetYaxis()->GetLast();
+      }
+      
+      if (h1->GetDimension()==2){	//TH2 ou TProfile2D
+      	z1=h1->GetMinimum();
+      	z2=h1->GetMaximum();
+      }
+      else{
+         z1=h1->GetZaxis()->GetFirst();
+         z2=h1->GetZaxis()->GetLast();
+      }
+      
+      printf("%lf %lf - %lf %lf - %lf %lf\n",x1,x2,y1,y2,z1,z2);
+   	
+      Int_t nc=1;
+		TCanvas* cc = gPad->GetCanvas();
+   	TVirtualPad* pad = 0;
+   	while ( (pad = cc->GetPad(nc)) )
+   	{
+   		if (tmp!=pad){
+         	pad->cd();
+         	if (AlsoLog)
+         	{
+         		gPad->SetLogx(tmp->GetLogx());
+         		gPad->SetLogy(tmp->GetLogy());
+         		gPad->SetLogz(tmp->GetLogz());
+         	}
+         	TIter nextq(gPad->GetListOfPrimitives());
+   			TH1* h1 = 0;
+   			while ( (obj = nextq()) )
+				{
+   				if (obj->InheritsFrom("TH1")){
+						h1 = (TH1F* )obj;
+						
+         	      h1->GetXaxis()->SetRange(x1,x2);
+						if (h1->GetDimension() == 1){
+         	      	h1->SetMinimum(y1); 
+         	         h1->SetMaximum(y2);
+         	      }
+         	      else{
+         	      	h1->GetYaxis()->SetRange(y1,y2);
+						}
+         	      if (h1->GetDimension() == 2){
+         	      	h1->SetMinimum(z1); 
+         	         h1->SetMaximum(z2);
+         	      }
+         	      else{
+         	      	h1->GetZaxis()->SetRange(y1,y2);
+						}
+         	   }
+				}
+				gPad->Update();
+         }
+         nc+=1;
+   	}
+      cc->Paint();
+      cc->Update();
+	}
+	gPad = tmp;
+}
