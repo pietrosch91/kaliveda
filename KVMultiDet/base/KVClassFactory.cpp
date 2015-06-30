@@ -105,13 +105,13 @@ KVClassFactory::KVClassFactory(const Char_t * classname,
    //as follows:
    //
    //      if templateFile="" (default), we expect base_class!="", and template files with names base_classTemplate.h and base_classTemplate.cpp
-   //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      must be present in either $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by 'classname'
    //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
    //
-   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
 
     fBaseClass = NULL;
@@ -132,17 +132,18 @@ void KVClassFactory::SetTemplate(Bool_t temp, const Char_t* templateFile)
    //
    //      if templateFile="" (default), we expect a base class to have been given,
    //      and template files with names base_classTemplate.h and base_classTemplate.cpp
-   //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      must be present in either $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by 'classname'
    //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
    //
-   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
 
    fWithTemplate = temp;
    fTemplateBase = templateFile;
+   cout << "templateFile=" << templateFile << endl;
    if(temp){
       //if we want to use template files for the new class,
       //we have to make sure they exist;
@@ -186,17 +187,6 @@ KVClassFactory::KVClassFactory(const KVClassFactory& obj) : TObject()
 #else
    ((KVClassFactory&)obj).Copy(*this);
 #endif
-}
-
-//___________________________________________________
-
-void KVClassFactory::WriteCVSTags(ofstream & file)
-{
-   //Write standard CVS tags in comment block in file
-
-   file <<
-       "/*\n$Id: KVClassFactory.cpp,v 1.19 2009/01/21 08:04:20 franklan Exp $\n$Revision: 1.19 $\n$Date: 2009/01/21 08:04:20 $\n*/\n"
-       << endl;
 }
 
 //___________________________________________________
@@ -659,8 +649,11 @@ void KVClassFactory::WriteClassWithTemplateHeader()
    Ssiz_t class_ind;
    if ((class_ind = headFile.Index("ClassDef")) > -1) {
 
+      // find end of line just before ClassDef
+      Ssiz_t end_of_line=class_ind;
+      while( headFile(--end_of_line)!='\n' ) ;
       //cut file into two parts: before ClassDef line, after ClassDef line
-      TString part1 = headFile(0, class_ind - 1);
+      TString part1 = headFile(0, end_of_line+1);
       //keep part of file from "ClassDef" onwards.
       TString subs = headFile(class_ind, headFile.Length() - 1);
       //find next newline character i.e. the end of ClassDef line
@@ -680,7 +673,6 @@ void KVClassFactory::WriteClassWithTemplateHeader()
       TIter next( &fMethods ); KVClassMethod* meth;
       while( (meth = (KVClassMethod*)next()) ){
          meth->WriteDeclaration(line);
-         part_add += "   ";
          part_add += line;
          part_add += "\n";
       }
@@ -771,19 +763,19 @@ Bool_t KVClassFactory::CheckTemplateFiles(const Char_t * base_class,
    //Check that we have the necessary template files to generate the new class.
    //
    //      if templateFile="" (default), we expect base_class!="", and template files with names base_classTemplate.h and base_classTemplate.cpp
-   //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      must be present in either $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by the new class name
    //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by the new class name
    //
-   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $KVROOT/KVFiles, $HOME or $PWD directories.
+   //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $TEMPLATEDIR, $HOME or $PWD directories.
    //      the dummy classname "classTemplate" will be replaced everywhere by the new class name
    //
    //if all goes well, this method returns kTRUE and fTemplateClassName contains the dummy class name
    //which should be replaced in the template files with the name of the new class, while fTemplateH and fTemplateCPP
    //contain the full paths to the template files.
-
+cout << "base=" << base_class << " templ=" << templateFile << endl;
    if (strcmp(base_class, "")) {
       //we have a base class name.
       //the dummy class name is base_classTemplate and we look for base_classTemplate.h and base_classTemplate.cpp
@@ -793,16 +785,19 @@ Bool_t KVClassFactory::CheckTemplateFiles(const Char_t * base_class,
       //no base class. we look for templateFile.h and templateFile.cpp
       fTemplateClassName = gSystem->BaseName(templateFile);
    }
+   cout << "fTemplateClassName =" << fTemplateClassName << endl;
    TString filename = fTemplateClassName + ".h";
-   //we look for the template .h file in $KVROOT/KVFiles, in $HOME and in $PWD
+   //we look for the template .h file in $TEMPLATEDIR, in $HOME and in $PWD
    //if found, fTemplateH contains the full path to the file.
    //if not found, we return kFALSE as we cannot proceed with the class generation.
-   if (!KVBase::SearchKVFile(filename.Data(), fTemplateH))
-      return kFALSE;
+   if (!KVBase::SearchKVFile(KVBase::GetTEMPLATEDIRFilePath(filename), fTemplateH)){
+      if(!KVBase::SearchKVFile(filename, fTemplateH)) return kFALSE;
+   }
    filename = fTemplateClassName + ".cpp";
    //same treatment for '.cpp' file
-   if (!KVBase::SearchKVFile(filename.Data(), fTemplateCPP))
-      return kFALSE;
+   if (!KVBase::SearchKVFile(KVBase::GetTEMPLATEDIRFilePath(filename), fTemplateCPP)){
+      if (!KVBase::SearchKVFile(filename.Data(), fTemplateCPP)) return kFALSE;
+   }
    return kTRUE;
 }
 
@@ -1071,8 +1066,9 @@ void KVClassMethod::WriteDeclaration(KVString&decl)
 {
    //Write declaration in the KVString object
 
-   if(fVirtual) decl = "virtual ";
-   else decl = "";
+   decl = GetAccess();
+   decl += ":\n   ";
+   if(fVirtual) decl += "virtual ";
         if(!IsConstructor()){
         decl += GetReturnType();
         decl += " ";

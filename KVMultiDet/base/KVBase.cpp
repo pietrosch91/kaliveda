@@ -155,6 +155,11 @@ const Char_t* KVBase::GetDATADIRFilePath(const Char_t* namefile)
    if(strcmp(namefile,"")) return Form("%s/%s", xstr(DATADIR), namefile);
    return Form("%s", xstr(DATADIR));
 }
+const Char_t* KVBase::GetTEMPLATEDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(TEMPLATEDIR), namefile);
+   return Form("%s", xstr(TEMPLATEDIR));
+}
 const Char_t* KVBase::GetDATABASEFilePath()
 {
    return Form("%s/db", fWorkingDirectory.Data());

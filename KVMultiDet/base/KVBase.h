@@ -126,6 +126,7 @@ class KVBase:public TNamed {
    static const Char_t* GetINCDIRFilePath(const Char_t* namefile="");
    static const Char_t* GetBINDIRFilePath(const Char_t* namefile="");
    static const Char_t* GetWORKDIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetTEMPLATEDIRFilePath(const Char_t* namefile="");
 
    static Bool_t FindExecutable(TString & exec, const Char_t * path =
                                 "$(PATH)");
