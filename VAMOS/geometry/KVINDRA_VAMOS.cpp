@@ -256,6 +256,13 @@ void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fir
 }
 //________________________________________________________________
 
+KVGroup *KVINDRA_VAMOS::GetGroupWithAngles(Float_t theta, Float_t phi) { 
+	// this method calls the same method only for INDRA.
+
+	return GetINDRA()->GetGroupWithAngles( theta, phi ); 
+}
+//________________________________________________________________
+
 void KVINDRA_VAMOS::SetFilterType(Int_t t){
 	// Set Filter type to both INDRA and VAMOS
 	KVMultiDetArray::SetFilterType( t );

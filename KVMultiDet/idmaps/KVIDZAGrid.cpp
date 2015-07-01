@@ -1496,7 +1496,7 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Int_t npoints, Double_
     //    gamma = 1 : equidistant steps in Einc
     //    gamma > 1 : steps at low Einc are more closely spaced, more & more for gamma >> 1
 
-    KVIDTelescope* tel = ((KVIDTelescope*)fTelescopes.At(0));
+    KVIDTelescope* tel = ((KVIDTelescope*)fTelescopes->At(0));
     if (!tel)
     {
         Error("MakeEDeltaEZGrid",
@@ -1609,7 +1609,7 @@ KVIDGraph* KVIDZAGrid::MakeSubsetGraph(TList* lines, TClass* graph_class)
         return 0;
     }
     KVIDGraph* new_graph = (KVIDGraph*)graph_class->New();
-    new_graph->AddIDTelescopes(&fTelescopes);
+    new_graph->AddIDTelescopes((TList *)&fTelescopes);
     new_graph->SetOnlyZId( OnlyZId() );
     new_graph->SetRuns( GetRuns() );
     new_graph->SetVarX( GetVarX() );

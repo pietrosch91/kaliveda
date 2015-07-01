@@ -41,7 +41,7 @@ class KVIDGraph : public TCutG
    Double_t 		fLastScaleY;		//last applied scaling factor on Y
 	TVirtualPad 	*fPad; 				//!pad in which graph is drawn 
 	KVNumberList	fRunList;			//runs for which grid is valid
-	TList 			fTelescopes;		//ID telescopes for which grid is valid
+	KVList 		   *fTelescopes;		//!ID telescopes for which grid is valid
 	TString			fDyName; 			//!dynamically generated name
    TString  		fPattern;			//pattern of filenames used to write or read grid
 	Int_t          fMassFormula;     // *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
@@ -167,7 +167,7 @@ class KVIDGraph : public TCutG
    void SetPattern(TString pattern) { pattern.ReplaceAll(".","_"); fPattern = pattern;}	
    TString GetPattern(void) {return fPattern;}
 	
-        const TList* GetIDTelescopes() const { return &fTelescopes; };
+        const TList* GetIDTelescopes() const { return (TList *)fTelescopes; };
    void Increment(Float_t x)  // *SIGNAL*
 	{
    	// Used by TestIdentification and KVTestIDGridDialog to send
@@ -285,27 +285,27 @@ class KVIDGraph : public TCutG
 		// telescope to the list of telescopes which can use this
 		// graph for identification purposes.
 	
-		fTelescopes.Add(t);Modified();
+		fTelescopes->Add(t);Modified();
 	};
 	void RemoveIDTelescope(KVIDTelescope*t)
 	{
 		// Remove telescope from the list of telescopes
 		// which can use this graph for identification purposes.
 	
-		fTelescopes.Remove(t);Modified();
+		fTelescopes->Remove(t);Modified();
 	};
 	Bool_t HandlesIDTelescope(KVIDTelescope*t) const
 	{
 		// Returns kTRUE if telescope can use this graph for identification purposes.
 	
-		return fTelescopes.Contains(t);
+		return fTelescopes->Contains(t);
 	};
 	const Char_t* GetIDTelescopeLabel() const
 	{
 		// Returns type of ID telescope to which this grid is associated
 		// (actually returns value of KVIDTelescope::GetLabel())
 		
-		KVIDTelescope* id = (KVIDTelescope*)fTelescopes.First();
+		KVIDTelescope* id = (KVIDTelescope*)fTelescopes->First();
 		return (id ? id->GetLabel() : "");
 	};
 	Int_t GetMassFormula() const

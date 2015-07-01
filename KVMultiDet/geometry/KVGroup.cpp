@@ -333,53 +333,19 @@ void KVGroup::ClearHitDetectors()
 
 void KVGroup::PrepareModif(KVDetector* dd)
 {
-	//Casse tous les liens entre les detecteurs d un meme groupe
-	//Retire de la liste gMultiDetArray->GetListOfIDTelescopes() les
-	//telescopes associes et les efface apres les avoir
-	//retires des grilles auxquelles ils etaient associees
-	//pour preparer l ajout ou le retrait d un detecteur
-	//voir KVDetector::SetPresent()
-	//
-	//
-	KVNameValueList nv;
+	//Breaks all links between detectors and groups.
+	//Deletes the IDTelescopes associated to the given detector,
+	//then these IDTelescopes are automatically removed from lists (KVSeqCollection with IsCleanup()=true)
+	//of the multidetector, of the associated detectors and ID grids.
+	//This method prepares addition or removal of a detector see KVDetector::SetPresent()
 	
 	KVDetector* det = 0;
-	KVIDTelescope* id = 0;
-			
-    const KVSeqCollection* lgrdet = GetDetectors();
-	TIter nextdet(lgrdet);
+	TIter nextdet( GetDetectors() );
 	while ( (det = (KVDetector* )nextdet()) ){
-		//Info("PrepareModif","On retire les detecteurs alignes pour %s",det->GetName());
 		det->ResetAlignedDetectors(KVGroup::kForwards);
 		det->ResetAlignedDetectors(KVGroup::kBackwards);
-		Int_t ntel = det->GetIDTelescopes()->GetEntries();
-		for (Int_t ii=0;ii<ntel;ii+=1){
-			id = (KVIDTelescope* )det->GetIDTelescopes()->At(0);
-			if (id->GetDetectors()->FindObject(dd)){
-				nv.SetValue(id->GetName(),"");
-				det->GetIDTelescopes()->RemoveAt(0);
-			}
-		}	
+		det->GetIDTelescopes()->R__FOR_EACH(TObject,Delete)();
 	}
-	
-	KVHashList* lidtel = (KVHashList* )gMultiDetArray->GetListOfIDTelescopes();		
-	for (Int_t ii=0;ii<nv.GetEntries();ii+=1){
-		id = (KVIDTelescope* )lidtel->FindObject(nv.GetNameAt(ii));
-		//Info("PrepareModif","On retire et on detruit l'ID tel %s",id->GetName());
-		
-		if (id->GetListOfIDGrids()){
-			KVIDGraph* idg = 0;
-			for (Int_t kk=0;kk<id->GetListOfIDGrids()->GetEntries();kk+=1){
-				idg = (KVIDGraph* )id->GetListOfIDGrids()->At(kk);
-				idg->RemoveIDTelescope(id);
-			}
-		}
-		
-		//Info("PrepareModif","Je retire et j efface le idtel %s %s",id->GetName(),id->ClassName());
-		delete lidtel->Remove(id);
-	}
-	nv.Clear();
-
 }
 
 void KVGroup::AnalyseAndReconstruct(KVReconstructedEvent *event)
