@@ -608,17 +608,17 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
    }
 }
 
-void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame)
+void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame, const TString& selection)
 {
    // "Translate" this event into a simple array form
    // mult will be set to number of nuclei in event
    // (px,py,pz) momentum components in MeV/c
    // frame = optional name of reference frame (see SetFrame methods)
+   // selection = selection i.e. "OK"
 
-   mult = GetMult();
    KVNucleus* nuc;
    Int_t i=0;
-   while( (nuc = GetNextParticle()) ){
+   while( (nuc = GetNextParticle(selection)) ){
       nuc = (KVNucleus*)nuc->GetFrame(frame);
            Z[i] = nuc->GetZ();
            A[i] = nuc->GetA();
@@ -627,6 +627,7 @@ void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_
            pz[i] = nuc->Pz();
            i++;
    }
+   mult = i;
 }
 
 //______________________________________________________________________________
@@ -693,17 +694,17 @@ TObject *KVEvent::ConstructedAt(Int_t idx, Option_t *clear_options)
 }
 #endif
 	
-void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame)
+void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// (vx,vy,vz) velocity components in cm/ns
    // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-        while( (nuc = GetNextParticle()) ){
+        while( (nuc = GetNextParticle(selection)) ){
            nuc = (KVNucleus*)nuc->GetFrame(frame);
                 Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
@@ -712,20 +713,21 @@ void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_
 		vz[i] = nuc->GetVelocity().Z();
 		i++;
 	}
+        mult =i;
 } 
 	
-void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame)
+void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// E = kinetic energy in MeV
 	// Theta,Phi in degrees
    // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-        while( (nuc = GetNextParticle()) ){
+        while( (nuc = GetNextParticle(selection)) ){
            nuc = (KVNucleus*)nuc->GetFrame(frame);
                 Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
@@ -734,6 +736,7 @@ void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, 
 		Phi[i] = nuc->GetPhi();
 		i++;
 	}
+        mult = i;
 } 
 
 void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)

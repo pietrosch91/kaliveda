@@ -97,9 +97,9 @@ class KVEvent:public KVBase {
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
                  const TVector3 & boost, TRotation & rot, Bool_t beta = kFALSE);
 	
-   virtual void FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame ="");
-   virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame ="");
-        virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame ="");
+   virtual void FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame ="", const TString& selection="");
+   virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame ="", const TString& selection="");
+        virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame ="", const TString& selection="");
 
 	virtual void FillIntegerList(KVIntegerList*,Option_t* opt);
 
