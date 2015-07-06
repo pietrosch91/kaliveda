@@ -452,7 +452,7 @@ void KVEvent::SetFrame(const Char_t * frame, const TVector3 & boost, Bool_t beta
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -472,7 +472,7 @@ void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TRotation& rot)
 {
    //Define a rotated coordinate frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -538,7 +538,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TLorentzRotation & rot)
+                       const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
@@ -563,7 +563,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TRotation & rot)
+                       const TRotation& rot)
 {
    //Define a rotated coordinate frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
