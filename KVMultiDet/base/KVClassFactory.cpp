@@ -143,7 +143,7 @@ void KVClassFactory::SetTemplate(Bool_t temp, const Char_t* templateFile)
 
    fWithTemplate = temp;
    fTemplateBase = templateFile;
-   cout << "templateFile=" << templateFile << endl;
+
    if(temp){
       //if we want to use template files for the new class,
       //we have to make sure they exist;
@@ -775,7 +775,7 @@ Bool_t KVClassFactory::CheckTemplateFiles(const Char_t * base_class,
    //if all goes well, this method returns kTRUE and fTemplateClassName contains the dummy class name
    //which should be replaced in the template files with the name of the new class, while fTemplateH and fTemplateCPP
    //contain the full paths to the template files.
-cout << "base=" << base_class << " templ=" << templateFile << endl;
+
    if (strcmp(base_class, "")) {
       //we have a base class name.
       //the dummy class name is base_classTemplate and we look for base_classTemplate.h and base_classTemplate.cpp
@@ -785,7 +785,7 @@ cout << "base=" << base_class << " templ=" << templateFile << endl;
       //no base class. we look for templateFile.h and templateFile.cpp
       fTemplateClassName = gSystem->BaseName(templateFile);
    }
-   cout << "fTemplateClassName =" << fTemplateClassName << endl;
+
    TString filename = fTemplateClassName + ".h";
    //we look for the template .h file in $TEMPLATEDIR, in $HOME and in $PWD
    //if found, fTemplateH contains the full path to the file.
