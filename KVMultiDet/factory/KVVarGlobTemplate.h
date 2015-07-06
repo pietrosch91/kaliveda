@@ -19,6 +19,6 @@ public:
    virtual void Reset(void);
 
    virtual Double_t *GetValuePtr(void);
-   virtual TObject *GetObject(void);
+   virtual TObject *GetObject(void) const;
    ClassDef(KVVarGlobTemplate, 1)
 };
