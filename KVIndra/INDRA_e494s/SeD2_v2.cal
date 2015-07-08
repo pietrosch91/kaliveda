@@ -130,7 +130,7 @@ TSED2_HF: 5.04151e+00 -1.00429e-01  2.77220e-04 \
 
 
 #Time Pedestals (in canal) 31/01/14
-RUNS: 2-615
+RUNS: 2-632
 TYPE: Pedestal
 FUNCTION:
 
