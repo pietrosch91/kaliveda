@@ -380,7 +380,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (!pad) return;
 
       gPad = pad;
-      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
+//      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
 
       RunAutoExec();
       
