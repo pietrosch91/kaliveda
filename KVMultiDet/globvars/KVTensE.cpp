@@ -42,7 +42,7 @@ void KVTensE::Fill(KVNucleus * c)
    //To calculate in another frame, use KVVarGlob::SetFrame() before
    //calculation begins
 
-   Bool_t ok = ((fLabel != "") ? c->BelongsToGroup(fLabel) : kTRUE);
+   Bool_t ok = (HasLabel() ? c->BelongsToGroup(GetPartGroup()) : kTRUE);
 
    //check Z of particle
    if ((c->GetZ() >= GetZmin()) && ok) {

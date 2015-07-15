@@ -80,7 +80,6 @@ void KVTensP::init_KVTensP(void)
 
    tenseurP = new KVTenseur3();
    SetZmin(3);
-   fLabel = "";
    SetNameIndex("ThetaFlot", 0);
    SetNameIndex("Sphericite", 1);
    SetNameIndex("Coplanarite", 2);
@@ -239,7 +238,7 @@ void KVTensP::Fill(KVNucleus * c)
    //To calculate in another frame, use KVVarGlob::SetFrame() before
    //calculation begins
 
-   Bool_t ok = ((fLabel != "") ? (c->BelongsToGroup(fLabel.Data())) : kTRUE);
+   Bool_t ok = (HasLabel() ? (c->BelongsToGroup(GetPartGroup())) : kTRUE);
 
    //check Z of particle
    if ((c->GetZ() >= GetZmin()) && ok) {
