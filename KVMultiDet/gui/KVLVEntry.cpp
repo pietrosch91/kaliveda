@@ -69,28 +69,28 @@ Pixel_t KVLVEntry::fgGreyPixel = 0;
 Pixel_t KVLVEntry::fgBGColor = 0;
 
 KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
-			UInt_t ncols, KVLVColumnData **coldata)
-			: TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
-			TString(obj->ClassName()), 0, kVerticalFrame, GetWhitePixel())
+                     UInt_t ncols, KVLVColumnData **coldata)
+   : TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
+     TString(obj->ClassName()), 0, kVerticalFrame, GetWhitePixel()), fDisconnectRefresh(kFALSE)
 {
    // Default constructor
-    fEditMode=kFALSE;
-	if( !fgGreyPixel ){
-		if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
-		fgBGColor = fgWhitePixel;
-	}
-	fBGColor = -1;
-	
-	fUserData = obj;
-	fSubnames = new TGString* [ncols];
-	fBoolean = new Bool_t [ncols];
-	for(int i=0; i<(int)ncols-1; i++){
-		fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
-		fBoolean[i] = coldata[i+1]->IsBoolean();
-	}
-	fSubnames[ncols-1] = 0;
-	fBoolean[ncols-1] = kFALSE;
-	int j;
+   fEditMode=kFALSE;
+   if( !fgGreyPixel ){
+      if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
+      fgBGColor = fgWhitePixel;
+   }
+   fBGColor = -1;
+
+   fUserData = obj;
+   fSubnames = new TGString* [ncols];
+   fBoolean = new Bool_t [ncols];
+   for(int i=0; i<(int)ncols-1; i++){
+      fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
+      fBoolean[i] = coldata[i+1]->IsBoolean();
+   }
+   fSubnames[ncols-1] = 0;
+   fBoolean[ncols-1] = kFALSE;
+   int j;
    for (j = 0; fSubnames[j] != 0; ++j)
       ;
    fCtw = new int[j+1];
@@ -99,104 +99,118 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
       fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
                                      fSubnames[i]->GetLength());
    SetWindowName();
-	
-	// to update display of object characteristics when object is changed,
-	// the object must have a "Connect" method (for signals-slots) and a "Modified"
-	// method which emits the "Modified" signal when object is changed.
-	// N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
-	// the "Modified" signal is connected to the KVLVEntry::Refresh method
-	if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
-		gInterpreter->Execute(obj, obj->IsA(), "Connect",
-				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
-    }
-    
-    fColoured=kFALSE;
-    // objects of classes with a method "const Char_t* GetLVEntryColour()" will be displayed with
-    // the background colour returned by this method (either in hexadecimal format, i.e. "#f0f0f0"
-    // or by name, i.e. "pink")
-    if( obj->IsA()->GetMethodAllAny("GetLVEntryColour") ){
-       
-            TMethodCall mt;
-            mt.InitWithPrototype(obj->IsA(), "GetLVEntryColour","");
-            if (mt.IsValid())
+
+   // to update display of object characteristics when object is changed,
+   // the object must have a "Connect" method (for signals-slots) and a "Modified"
+   // method which emits the "Modified" signal when object is changed.
+   // N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
+   // the "Modified" signal is connected to the KVLVEntry::Refresh method
+   if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
+      gInterpreter->Execute(obj, obj->IsA(), "Connect",
+                            Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+      fDisconnectRefresh=kTRUE;
+   }
+
+   fColoured=kFALSE;
+   // objects of classes with a method "const Char_t* GetLVEntryColour()" will be displayed with
+   // the background colour returned by this method (either in hexadecimal format, i.e. "#f0f0f0"
+   // or by name, i.e. "pink")
+   if( obj->IsA()->GetMethodAllAny("GetLVEntryColour") ){
+
+      TMethodCall mt;
+      mt.InitWithPrototype(obj->IsA(), "GetLVEntryColour","");
+      if (mt.IsValid())
+      {
+         if (mt.ReturnType()==TMethodCall::kString)
+         {
+            Char_t *ret;
+            mt.Execute(obj,"",&ret);
+            if( fClient->GetColorByName(ret, fBGColor) ){
+               fColoured=kTRUE;
+            }
+            else
             {
-                if (mt.ReturnType()==TMethodCall::kString)
-                {
-                    Char_t *ret;
-                    mt.Execute(obj,"",&ret);
-		               if( fClient->GetColorByName(ret, fBGColor) ){
-                        fColoured=kTRUE;
-                     }
-                     else
-                     {
-                        Warning("KVLVEntry", "Unknown color %s requested for entry", ret);
-                     }
-                 }
-                 else
-                 {
-                    Warning("KVLVEntry", "Object of class %s has GetLVEntryColour() method with wrong return type",
-                          obj->ClassName());
-                 }
-             }
-             else
-             {
-                Warning("KVLVEntry", "GetLVEntryColour() method not valid for class %s", obj->ClassName());
-             }
-    }
+               Warning("KVLVEntry", "Unknown color %s requested for entry", ret);
+            }
+         }
+         else
+         {
+            Warning("KVLVEntry", "Object of class %s has GetLVEntryColour() method with wrong return type",
+                    obj->ClassName());
+         }
+      }
+      else
+      {
+         Warning("KVLVEntry", "GetLVEntryColour() method not valid for class %s", obj->ClassName());
+      }
+   }
 }
 
 KVLVEntry::KVLVEntry(TObject *obj, const Char_t *objclass, const KVLVContainer *cnt, UInt_t ncols, KVLVColumnData **coldata)
-    : TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
-    TString(objclass), 0, kVerticalFrame, GetWhitePixel())
+   : TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
+     TString(objclass), 0, kVerticalFrame, GetWhitePixel()), fDisconnectRefresh(kFALSE)
 {
-    // Exactly same as default constructor, but class of object used by TGLVEntry is given separately,
-    // not neccessarily the same as obj->ClassName()
+   // Exactly same as default constructor, but class of object used by TGLVEntry is given separately,
+   // not neccessarily the same as obj->ClassName()
 
-     fEditMode=kFALSE;
-     if( !fgGreyPixel ){
-         if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
-         fgBGColor = fgWhitePixel;
-     }
-     fBGColor = -1;
+   fEditMode=kFALSE;
+   if( !fgGreyPixel ){
+      if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
+      fgBGColor = fgWhitePixel;
+   }
+   fBGColor = -1;
 
-     fUserData = obj;
-     fSubnames = new TGString* [ncols];
-     fBoolean = new Bool_t [ncols];
-     for(int i=0; i<(int)ncols-1; i++){
-         fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
-         fBoolean[i] = coldata[i+1]->IsBoolean();
-     }
-     fSubnames[ncols-1] = 0;
-     fBoolean[ncols-1] = kFALSE;
-     int j;
-    for (j = 0; fSubnames[j] != 0; ++j)
-       ;
-    fCtw = new int[j+1];
-    fCtw[j] = 0;
-    for (int i = 0; fSubnames[i] != 0; ++i)
-       fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
-                                      fSubnames[i]->GetLength());
-    SetWindowName();
+   fUserData = obj;
+   fSubnames = new TGString* [ncols];
+   fBoolean = new Bool_t [ncols];
+   for(int i=0; i<(int)ncols-1; i++){
+      fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
+      fBoolean[i] = coldata[i+1]->IsBoolean();
+   }
+   fSubnames[ncols-1] = 0;
+   fBoolean[ncols-1] = kFALSE;
+   int j;
+   for (j = 0; fSubnames[j] != 0; ++j)
+      ;
+   fCtw = new int[j+1];
+   fCtw[j] = 0;
+   for (int i = 0; fSubnames[i] != 0; ++i)
+      fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
+                                     fSubnames[i]->GetLength());
+   SetWindowName();
 
-     // to update display of object characteristics when object is changed,
-     // the object must have a "Connect" method (for signals-slots) and a "Modified"
-     // method which emits the "Modified" signal when object is changed.
-     // N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
-     // the "Modified" signal is connected to the KVLVEntry::Refresh method
-     if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
-         gInterpreter->Execute(obj, obj->IsA(), "Connect",
-                 Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
-     }
+   // to update display of object characteristics when object is changed,
+   // the object must have a "Connect" method (for signals-slots) and a "Modified"
+   // method which emits the "Modified" signal when object is changed.
+   // N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
+   // the "Modified" signal is connected to the KVLVEntry::Refresh method
+   if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
+      gInterpreter->Execute(obj, obj->IsA(), "Connect",
+                            Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+      fDisconnectRefresh=kTRUE;
+   }
+}
+
+KVLVEntry::~KVLVEntry()
+{
+   // Dtor
+   // disconnect fUserData object's Modified signal from our Refresh method if connected
+   delete [] fBoolean;
+   if(fDisconnectRefresh && fUserData){
+      TObject* obj = (TObject*)fUserData;
+      gInterpreter->Execute(obj, obj->IsA(), "Disconnect",
+                            Form("\"Modified()\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+   }
 }
 
 void KVLVEntry::Refresh()
 {
-	// Update the object characteristics and ask for redraw
-	
-	KVLVContainer *cnt = (KVLVContainer*)GetParent();
-	TObject*obj=(TObject*)fUserData;
-	SetItemName( cnt->fColData[0]->GetDataString(obj) );
-	for(int i=0; fSubnames[i]!=0; i++) fSubnames[i]->SetString( cnt->fColData[i+1]->GetDataString(obj) );
+   // Update the object characteristics and ask for redraw
+
+   KVLVContainer *cnt = (KVLVContainer*)GetParent();
+   TObject*obj=(TObject*)fUserData;
+   SetItemName( cnt->fColData[0]->GetDataString(obj) );
+   for(int i=0; fSubnames[i]!=0; i++) fSubnames[i]->SetString( cnt->fColData[i+1]->GetDataString(obj) );
    for (int i = 0; fSubnames[i] != 0; ++i)
       fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
                                      fSubnames[i]->GetLength());
@@ -212,24 +226,24 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
    // Draw list view item in other window.
    // List view item is placed and layout in the container frame,
    // but is drawn in viewport.
-	//
-	// This is a line for line copy of TGLVEntry::DrawCopy from ROOT v5.22/00,
-	// but we alternate the background colour between white and light grey, in
-	// order to make the list easier to read.
-	// 
+   //
+   // This is a line for line copy of TGLVEntry::DrawCopy from ROOT v5.22/00,
+   // but we alternate the background colour between white and light grey, in
+   // order to make the list easier to read.
+   //
    // If fColoured=kTRUE (i.e. if entry has a valid GetLVEntryColor method
    // which returns a recognised color), the requested background color is used
 
-    KVLVContainer *cnt = (KVLVContainer*)GetParent();
-    if(!fColoured){
+   KVLVContainer *cnt = (KVLVContainer*)GetParent();
+   if(!fColoured){
       if((int)fBGColor == -1 || cnt->IsBeingSorted()){
-		   fBGColor = fgBGColor;
-		   if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
-		   else
-			   fgBGColor = fgWhitePixel;
-	   }
+         fBGColor = fgBGColor;
+         if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
+         else
+            fgBGColor = fgWhitePixel;
+      }
    }
-	
+
    Int_t ix, iy, lx, ly;
    Int_t max_ascent, max_descent;
 
@@ -249,20 +263,20 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
       ly = (fHeight - (fTHeight + 1)) >> 1;
    }
 
-//    if ((fChecked) && (fCheckMark)) {
-//       if (fViewMode == kLVLargeIcons) {
-//          fCheckMark->Draw(id, fNormGC, x + ix + 8, y + iy + 8);
-//          gVirtualX->SetForeground(fNormGC, fgWhitePixel);
-//          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
-//          gVirtualX->SetForeground(fNormGC, fgBlackPixel);
-//       }
-//       else {
-//          fCheckMark->Draw(id, fNormGC, x + ix, y + iy);
-//          gVirtualX->SetForeground(fNormGC, fgWhitePixel);
-//          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
-//          gVirtualX->SetForeground(fNormGC, fgBlackPixel);
-//       }
-//    }
+   //    if ((fChecked) && (fCheckMark)) {
+   //       if (fViewMode == kLVLargeIcons) {
+   //          fCheckMark->Draw(id, fNormGC, x + ix + 8, y + iy + 8);
+   //          gVirtualX->SetForeground(fNormGC, fgWhitePixel);
+   //          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
+   //          gVirtualX->SetForeground(fNormGC, fgBlackPixel);
+   //       }
+   //       else {
+   //          fCheckMark->Draw(id, fNormGC, x + ix, y + iy);
+   //          gVirtualX->SetForeground(fNormGC, fgWhitePixel);
+   //          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
+   //          gVirtualX->SetForeground(fNormGC, fgBlackPixel);
+   //       }
+   //    }
    // This if tries to print the elements with ... appened at the end if
    // the widht of the string is longer than that of the column
    if (fViewMode == kLVDetails && fSubnames && fCpos && fJmode && fCtw) {
@@ -285,7 +299,7 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fCpos[0] - lx, fTHeight + 1);
          gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
       } else {
-			// inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
+         // inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
          fCurrent->Draw(id, fNormGC, x + ix, y + iy);
          //gVirtualX->SetForeground(fNormGC, fgWhitePixel);
          gVirtualX->SetForeground(fNormGC, fBGColor);// use current background colour
@@ -340,32 +354,32 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
                lx = fCpos[i] + 2;
 
             //if (x + lx < 0) continue; // out of left boundary or mess in name
-      		if (fActive) {
-         		//if (fSelPic) fSelPic->Draw(id, fNormGC, x + ix, y + iy);
-         		gVirtualX->SetForeground(fNormGC, fgDefaultSelectedBackground);
-         		gVirtualX->FillRectangle(id, fNormGC, x+ fCpos[i] , y + ly, fCpos[i+1]-fCpos[i], fTHeight + 1);
-         		gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
-      		} else {
-					// inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
-         		//fCurrent->Draw(id, fNormGC, x + ix, y + iy);
-         		//gVirtualX->SetForeground(fNormGC, fgWhitePixel);
-         		gVirtualX->SetForeground(fNormGC, fBGColor);// use current background colour
-         		gVirtualX->FillRectangle(id, fNormGC, x + fCpos[i], y + ly, fCpos[i+1]-fCpos[i], fTHeight + 1);
-         		gVirtualX->SetForeground(fNormGC, fgBlackPixel);
-      		}
-				if(fBoolean[i]){
-					if(tmpString=="1" && fCheckMark){
-						// boolean column data drawn with a tick mark
-         			fCheckMark->Draw(id, fNormGC, x + lx, y + ly);
-					}
-				}	
-				else
-				{
-            	TGString tmpTGString(tmpString);
-            	tmpTGString.Draw(id, fNormGC, x + lx, y + ly + max_ascent);
-				}
+            if (fActive) {
+               //if (fSelPic) fSelPic->Draw(id, fNormGC, x + ix, y + iy);
+               gVirtualX->SetForeground(fNormGC, fgDefaultSelectedBackground);
+               gVirtualX->FillRectangle(id, fNormGC, x+ fCpos[i] , y + ly, fCpos[i+1]-fCpos[i], fTHeight + 1);
+               gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
+            } else {
+               // inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
+               //fCurrent->Draw(id, fNormGC, x + ix, y + iy);
+               //gVirtualX->SetForeground(fNormGC, fgWhitePixel);
+               gVirtualX->SetForeground(fNormGC, fBGColor);// use current background colour
+               gVirtualX->FillRectangle(id, fNormGC, x + fCpos[i], y + ly, fCpos[i+1]-fCpos[i], fTHeight + 1);
+               gVirtualX->SetForeground(fNormGC, fgBlackPixel);
+            }
+            if(fBoolean[i]){
+               if(tmpString=="1" && fCheckMark){
+                  // boolean column data drawn with a tick mark
+                  fCheckMark->Draw(id, fNormGC, x + lx, y + ly);
+               }
+            }
+            else
+            {
+               TGString tmpTGString(tmpString);
+               tmpTGString.Draw(id, fNormGC, x + lx, y + ly + max_ascent);
+            }
          }
       }
    }
-	
+
 }
