@@ -23,6 +23,15 @@ KVFAZIARawEvent::KVFAZIARawEvent(Int_t ntot)
 	fNumber=-1;
 }
 
+KVFAZIARawEvent::KVFAZIARawEvent()
+{
+   // Default constructor
+	fSignals = new TClonesArray("KVSignal",10);
+	fValues = new KVNameValueList();
+	
+	fNumber=-1;
+}
+
 KVFAZIARawEvent::~KVFAZIARawEvent()
 {
    // Destructor

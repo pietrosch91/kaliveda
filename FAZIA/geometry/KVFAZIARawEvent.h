@@ -20,6 +20,7 @@ class KVFAZIARawEvent : public TObject
 	
    public:
    KVFAZIARawEvent(Int_t ntot);
+   KVFAZIARawEvent();
    virtual ~KVFAZIARawEvent();
    public:
    void Copy(TObject& obj) const;
@@ -27,6 +28,7 @@ class KVFAZIARawEvent : public TObject
 	KVSignal* AddNewSignal(KVString name,KVString title);
 	TClonesArray* GetSignals() const { return fSignals; }
 	void SetNumber(Int_t num) {fNumber=num; }
+	Int_t GetNumber() const { return fNumber; }
 	KVNameValueList* GetValues() const { return fValues; }
 	
    ClassDef(KVFAZIARawEvent,1)//Handle list of signals and additional information coming from acquisition file
