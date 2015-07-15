@@ -120,7 +120,7 @@
 #include "TEntryList.h"
 #include "KVUniqueNameList.h"
 #include "TBrowser.h"
-// #include "KVImpactParameter.h"
+#include "KVImpactParameter.h"
 // #include "KVGumbelDistribution.h"
 // #include "KVGausGumDistribution.h"
 
@@ -216,7 +216,7 @@ class KVTreeAnalyzer : public TNamed
    TGTextButton* G_fitGG2;//!
    TGTextButton* G_fitGG3;//!
    TGTextEntry* G_make_ip_selection;//!
-   //KVImpactParameter* ipscale;//!
+   KVImpactParameter* ipscale;//!
    TGLabel* G_ip_histo;//!
 //    KVGumbelDistribution *GDfirst;//!
 //    KVGumbelDistribution *GDsecond;//!
@@ -384,6 +384,8 @@ class KVTreeAnalyzer : public TNamed
    static KVTreeAnalyzer* GetAnalyzer(const Char_t* title) { return (KVTreeAnalyzer*)fgAnalyzerList->FindObjectByTitle(title); }
 
    ClassDef(KVTreeAnalyzer,4)//KVTreeAnalyzer
+   void MakeAbsoluteIPScale(const char* name, Double_t sigmaTot);
+   void GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin);
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;
