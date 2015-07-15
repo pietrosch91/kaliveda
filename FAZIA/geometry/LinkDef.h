@@ -15,4 +15,5 @@
 #pragma link C++ class KVCurrentSignal+;
 #pragma link C++ class KVPSAResult+;
 #pragma link C++ class KVDigitalFilter+;
+#pragma link C++ class KVFAZIARawEvent+;
 #endif
