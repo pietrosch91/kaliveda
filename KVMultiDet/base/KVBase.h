@@ -24,19 +24,22 @@ class KVString;
 class TPluginHandler;
 
 class KVBase:public TNamed {
- private:
+
+   private:
    static UInt_t fNbObj;        //! Total number of KaliVeda objects (actually counts number of calls to default ctor)
    UInt_t fNumber;              // for numbering objects
-   TString fSLabel;             //label for the object
+   protected:
+   TString fLabel;             //label for the object
 
+   private:
    static Bool_t fEnvIsInit;//! set when environment is initialised
    static TString fWorkingDirectory;//! user working directory for e.g. database files
 
    void init();
-	static void ReadGUIMimeTypes();
+   static void ReadGUIMimeTypes();
    static void ReadConfigFiles();
 
- public:
+   public:
 
     enum EKaliVedaBits {
        kIsKaliVedaObject = BIT(23)   //all KVBase-derived objects have this bit set in TObject::fBits
@@ -65,8 +68,9 @@ class KVBase:public TNamed {
        // Returns true if object has given name (test value returned by GetName())
        return !strcmp(GetName(),name);
    }
-   void SetLabel(const Char_t * lab);
-   const Char_t *GetLabel() const;
+   void SetLabel(const Char_t * lab) { fLabel = lab; }
+   const Char_t *GetLabel() const { return fLabel; }
+   Bool_t HasLabel() const { return fLabel.Length(); }
    virtual void Print(Option_t * option = "") const;
    virtual void List() {
    };
@@ -146,7 +150,7 @@ class KVBase:public TNamed {
 
    virtual TObject* GetObject() const;
 
-   ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
+   ClassDef(KVBase, 4)          //Base class for all KaliVeda objects
 };
 
 //this function is implemented in TSystem.cxx
