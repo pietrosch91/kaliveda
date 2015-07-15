@@ -846,6 +846,37 @@ KVString KVString::BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_o
 #endif
 }
 
+void KVString::RemoveAllExtraWhiteSpace()
+{
+   // Remove any superfluous whitespace (or tabs or newlines) from this string (modifies string)
+   // i.e. transform "   Mary               Had\tA   Little \n          Laaaaaaaaaaaaaaaaaamb"
+   // into "Mary Had A Little Lamb"
+
+   Begin(" \n\t");
+   KVString tmp;
+   while( !End() ){
+      if(tmp.Length()) tmp+=" ";
+      tmp += Next();
+   }
+   *this = tmp;
+}
+
+KVString KVString::StripAllExtraWhiteSpace() const
+{
+   // Remove any superfluous whitespace (or tabs or newlines) from string (does not modify string)
+   // i.e. transform "   Mary               Had\tA   Little \n          Laaaaaaaaaaaaaaaaaamb"
+   // into "Mary Had A Little Lamb"
+
+   KVString tmp = *this;
+   KVString tmp2;
+   tmp.Begin(" \n\t");
+   while( !tmp.End() ){
+      if(tmp2.Length()) tmp2+=" ";
+      tmp2 += tmp.Next();
+   }
+   return tmp2;
+}
+
 
 KVString::KVString(Double_t value, Double_t error):TString("")
 {
