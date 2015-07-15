@@ -737,7 +737,31 @@ void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, 
 		i++;
 	}
         mult = i;
-} 
+}
+
+void KVEvent::FillArraysPtRapPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* Pt, Double_t* Rap, Double_t* Phi, const TString& frame, const TString& selection)
+{
+   // "Translate" this event into a simple array form
+   // mult will be set to number of nuclei in event
+   // Pt = transverse momentum (perpendicular to z-axis)
+   // Rap = rapidity along z-axis
+   // phi = azimuthal angle around z-axis (x-axis=0 deg.)
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
+
+   KVNucleus* nuc;
+   Int_t i=0;
+   while( (nuc = GetNextParticle(selection)) ){
+      nuc = (KVNucleus*)nuc->GetFrame(frame);
+           Z[i] = nuc->GetZ();
+           A[i] = nuc->GetA();
+           Pt[i] = nuc->Pt();
+           Rap[i] = nuc->Rapidity();
+           Phi[i] = nuc->GetPhi();
+           i++;
+   }
+   mult = i;
+}
 
 void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
 {
