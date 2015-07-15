@@ -30,6 +30,7 @@ class KVFlowTensor: public KVVarGlob {
       kSqueezeRatio
    };
    TRotation fAziReacPlane;//!azimuthal rotation around beam axis to reaction plane
+   TRotation fFlowReacPlane;//!rotate XZ to reaction plane, then align Z with flow axis
    Double_t fSqueezeAngle;//!Gutbrod squeeze angle
    Double_t fSqOutRatio;//!Gutbrod squeeze-out ratio
 
@@ -59,6 +60,7 @@ private:
 public:
    void Fill(KVNucleus* n);
    const TRotation& GetAziReacPlaneRotation();
+   const TRotation& GetFlowReacPlaneRotation();
 
    ClassDef(KVFlowTensor,1)//Kinetic energy flow tensor of Gyulassy et al
 };

@@ -183,11 +183,11 @@ Double_t KVFlowTensor::getvalue_int(Int_t index)
          break;
 
       case kKinFlowRatio13:
-         return f(1)/f(3);
+         return pow(f(1)/f(3),0.5);
          break;
 
       case kKinFlowRatio23:
-         return f(2)/f(3);
+         return pow(f(2)/f(3),0.5);
          break;
 
       case kPhiReacPlane:
@@ -241,6 +241,10 @@ void KVFlowTensor::Calculate()
    fAziReacPlane.SetToIdentity();
    fAziReacPlane.RotateZ(e(1).Phi());
 
+   fFlowReacPlane.SetToIdentity();
+   fFlowReacPlane.RotateY(e(1).Theta());
+   fFlowReacPlane.RotateZ(e(1).Phi());
+
    // calculate Gutbrod squeeze angle (PRC42(1990)640
    // defined as the angle by which the middle eigenvector e2
    // needs to be rotated around the e1 flow axis
@@ -252,8 +256,8 @@ void KVFlowTensor::Calculate()
    fSqueezeAngle = (angle<90 ? 90-angle : angle-90);
 
    // now calculate the in-plane and out-of-plane flow according to Fig. 5 of Gutbrod et al
-   Double_t a = f(2);//pow(f(2),0.5);//semi-axes of ellipsoid given by square roots of eigenvalues
-   Double_t b = f(3);//pow(f(3),0.5);
+   Double_t a = pow(f(2),0.5);//semi-axes of ellipsoid given by square roots of eigenvalues
+   Double_t b = pow(f(3),0.5);
    Double_t tan_t = -a/b*TMath::Tan(fSqueezeAngle*TMath::DegToRad());
    Double_t t0 = TMath::ATan(tan_t);
    Double_t inPlane = a*cos(t0)*cos(fSqueezeAngle*TMath::DegToRad())-b*sin(t0)*sin(fSqueezeAngle*TMath::DegToRad());
@@ -336,4 +340,16 @@ const TRotation& KVFlowTensor::GetAziReacPlaneRotation()
 
    if(!fCalculated) Calculate();
    return fAziReacPlane;
+}
+
+const TRotation& KVFlowTensor::GetFlowReacPlaneRotation()
+{
+   // Returns composition of two rotations:
+   //   - around Z-axis to put X-axis in reaction plane (see GetAziReacPlaneRotation)
+   //   - around Y-axis to align Z-axis with flow (major) axis
+   // In this rotated frame, theta is polar angle with respect to flow axis
+   // and phi is azimuthal angle around flow axis (phi=0,180 => in-plane)
+
+   if(!fCalculated) Calculate();
+   return fFlowReacPlane;
 }
