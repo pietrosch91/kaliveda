@@ -30,7 +30,7 @@ FAZIASYM.DataSet.RunFileClass.raw:    TFile
 
 +DataSet:   ISOFAZIA
 ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
-ISOFAZIA.DataSet.RepositoryDir:   isofazia
+ISOFAZIA.DataSet.RepositoryDir:   ISOFAZIA
 ISOFAZIA.DataSet.RunFileName.raw:    run%06d.root
 ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 ISOFAZIA.DataSet.RunFileClass.raw:    TFile
