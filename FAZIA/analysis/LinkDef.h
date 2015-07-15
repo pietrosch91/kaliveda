@@ -9,7 +9,6 @@ $Id: FAZIALinkDef.h,v 1.4 2013/11/28 15:59:49 bonnet Exp $
 #pragma link off all functions;
 #ifdef ROOTGANILTAPE
 #endif
-#pragma link C++ class KVFAZIARawDataReader_LNS_2011+;
 #pragma link C++ class KVFAZIARawDataReader+;
 #pragma link C++ class KVFAZIAReader+;
 #pragma link C++ class KVFAZIARawDataAnalyser+;

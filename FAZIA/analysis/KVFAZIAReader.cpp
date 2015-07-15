@@ -79,9 +79,9 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
 	fReadEntries+=1;
    
    GetEntry(entry);
-   fEventNumber = entry;
+   fEventNumber = RawEvent->GetNumber();
    
-   gFazia->GetDetectorEvent(GetDetectorEvent(),cl);
+   gFazia->GetDetectorEvent(GetDetectorEvent(),RawEvent->GetSignals());
    
 	if (fReadEntries%10000==0)
    	Info("Process","%d read entries",fReadEntries);
@@ -141,7 +141,7 @@ Bool_t KVFAZIAReader::Notify()
    fReadEntries = 0;
    fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
    Info("Notify","Traitement du run %d",fCurrentRun);
-   fChain->SetBranchAddress("signals",&cl);
+   fChain->SetBranchAddress("rawevent",&RawEvent);
    InitRun();
    return kTRUE;
 }

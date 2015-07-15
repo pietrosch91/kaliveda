@@ -149,7 +149,7 @@ void KVFAZIA::Build(Int_t)
    // the following parameters are optimized for a 12-block compact
 	// geometry placed at 80cm with rings 1-5 of INDRA removed.
 	// make sure that the expected number of detectors get imported!
-   imp.ImportGeometry(0.25, 1, 2., 0, 14);
+   imp.ImportGeometry(0.25, 1, 2., 0, 20);
    
    /*
    KVFAZIADetector* det=0;

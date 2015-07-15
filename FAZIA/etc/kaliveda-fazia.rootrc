@@ -57,10 +57,12 @@ FAZIASYM.ThetaMinCompactGeo: 2.0
 +Plugin.KVIDTelescope:    ^Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^CsI$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
 ############
-#LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
-#LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
-#+Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
-#+Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIAanalysis    "KVFAZIARawDataReader_LNS_2011()"
+LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
+ISOFAZIA.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+ISOFAZIA.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
++Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
++Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader      FAZIAanalysis    "KVFAZIARawDataReader()"
 ############
 LNS_2014.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector

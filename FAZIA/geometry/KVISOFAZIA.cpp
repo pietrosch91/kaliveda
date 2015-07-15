@@ -12,7 +12,7 @@ ClassImp(KVISOFAZIA)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVISOFAZIA</h2>
-<h4>FAZIA set-up with two blocks used in LNS 2014 commissioning</h4>
+<h4>FAZIA set-up for ISOFAZIA experiment June 2015 - 4 blocks</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ KVISOFAZIA::KVISOFAZIA()
 void KVISOFAZIA::GetGeometryParameters()
 {
 	
-   fNblocks = 5;
+   fNblocks = 4;
 	fFGeoType = "";
    fFThetaMin = 2.3;
    fFDist = 80.0;
@@ -86,8 +86,11 @@ void KVISOFAZIA::BuildFAZIA()
    	phi = centre.Phi() * TMath::RadToDeg();
    	*/
       //theta=theta_min+arc;
+      /*
       if (bb==4) { phi=90;  theta = 21.4+arc; }
-      else if (bb==3) { phi=90;theta = 11.8+arc; }
+      else 
+      */
+      if (bb==3) { phi=90;theta = 11.8+arc; }
       else if (bb==2) { phi=90;theta = 2.3+arc; }
       else if (bb==1) { phi=360-90;theta = 2.3+arc; }
       else if (bb==0) { phi=360-90;theta = 11.8+arc; }
