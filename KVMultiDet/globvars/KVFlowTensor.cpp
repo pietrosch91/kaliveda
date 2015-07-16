@@ -106,6 +106,7 @@ void KVFlowTensor::Reset(void)
    // Reset internal variables, called before treatment of each event
    fTensor.Zero();
    fCalculated=kFALSE;
+   fNParts=0;
 }
 
 //_________________________________________________________________
@@ -183,11 +184,19 @@ Double_t KVFlowTensor::getvalue_int(Int_t index)
          break;
 
       case kKinFlowRatio13:
-         return pow(f(1)/f(3),0.5);
+      {
+         if(f(3)<=0.) return -1.;
+         if(f(1)<=0.) return -1.;
+         return TMath::Min(1e+03, pow(f(1)/f(3),0.5));
+      }
          break;
 
       case kKinFlowRatio23:
-         return pow(f(2)/f(3),0.5);
+      {
+         if(f(3)<=0.) return -1.;
+         if(f(2)<=0.) return -1.;
+         return TMath::Min(1e+03, pow(f(2)/f(3),0.5));
+      }
          break;
 
       case kPhiReacPlane:
@@ -203,6 +212,10 @@ Double_t KVFlowTensor::getvalue_int(Int_t index)
 
       case kSqueezeRatio:
          return fSqOutRatio;
+         break;
+
+      case kNumberParts:
+         return fNParts;
          break;
 
       default:
@@ -264,7 +277,8 @@ void KVFlowTensor::Calculate()
    tan_t = a/(b*tan(fSqueezeAngle*TMath::DegToRad()));
    t0 = atan(tan_t);
    Double_t outOfPlane = a*cos(t0)*sin(fSqueezeAngle*TMath::DegToRad())+b*sin(t0)*cos(fSqueezeAngle*TMath::DegToRad());
-   fSqOutRatio = outOfPlane/inPlane;
+   if(inPlane<=0.) fSqOutRatio=-1.;
+   else fSqOutRatio = TMath::Min(1.e+03,outOfPlane/inPlane);
 
    fCalculated=kTRUE;
 }
@@ -299,6 +313,7 @@ void KVFlowTensor::init_KVFlowTensor()
    SetNameIndex("PhiReacPlane", kPhiReacPlane);
    SetNameIndex("SqueezeAngle", kSqueezeAngle);
    SetNameIndex("SqueezeRatio", kSqueezeRatio);
+   SetNameIndex("NumberParts", kNumberParts);
 }
 
 //________________________________________________________________
@@ -306,6 +321,8 @@ void KVFlowTensor::Fill(KVNucleus* n)
 {
    // Fill tensor components with nucleus' momentum components in required
    // frame, using the required weight
+   // If option "DOUBLE" is set, the chosen weight will be doubled
+   // (this is for the case where e.g. only forward hemisphere particles are included)
 
    Double_t W;
    KVParticle* frame = n->GetFrame(GetFrame());
@@ -321,6 +338,7 @@ void KVFlowTensor::Fill(KVNucleus* n)
          W=1./(2.*n->GetMass());
          break;
    }
+   if(IsOptionGiven("DOUBLE")) W*=2.;
    for(int i=0;i<3;i++){
       for(int j=i;j<3;j++){
          Double_t xx = W*frame->GetMomentum()[i]*frame->GetMomentum()[j];
@@ -328,6 +346,7 @@ void KVFlowTensor::Fill(KVNucleus* n)
          if(i!=j) fTensor(j,i)+=xx;
       }
    }
+   ++fNParts;
 }
 
 const TRotation& KVFlowTensor::GetAziReacPlaneRotation()

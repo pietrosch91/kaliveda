@@ -27,12 +27,14 @@ class KVFlowTensor: public KVVarGlob {
       kKinFlowRatio23,
       kPhiReacPlane,
       kSqueezeAngle,
-      kSqueezeRatio
+      kSqueezeRatio,
+      kNumberParts
    };
    TRotation fAziReacPlane;//!azimuthal rotation around beam axis to reaction plane
    TRotation fFlowReacPlane;//!rotate XZ to reaction plane, then align Z with flow axis
    Double_t fSqueezeAngle;//!Gutbrod squeeze angle
    Double_t fSqOutRatio;//!Gutbrod squeeze-out ratio
+   Int_t fNParts;//! number of particles included in tensor
 
 protected:
    Double_t getvalue_void() const;
