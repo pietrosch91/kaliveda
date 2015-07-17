@@ -610,7 +610,7 @@ void KVParticle::SetFrame(const Char_t * frame, const TVector3 & boost,
 
 //___________________________________________________________________________//
 
-void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
+void KVParticle::SetFrame(const Char_t * frame, const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame in which to calculate the particle's momentum.
    //
@@ -647,7 +647,7 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 
 //___________________________________________________________________________//
 
-void KVParticle::SetFrame(const Char_t * frame, TRotation & rot)
+void KVParticle::SetFrame(const Char_t * frame, const TRotation& rot)
 {
    //Define a rotated frame in which to calculate the particle's momentum and energy.
    //
@@ -753,7 +753,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                          TLorentzRotation & rot)
+                          const TLorentzRotation& rot)
 {
    GetFrame(oldframe)->SetFrame(newframe,rot);
    //Duplicate the transformed particle to access by the method GetFrame("newframe")
@@ -770,7 +770,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                          TRotation & rot)
+                          const TRotation& rot)
 {
    
    GetFrame(oldframe)->SetFrame(newframe,rot);

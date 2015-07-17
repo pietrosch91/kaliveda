@@ -1,5 +1,5 @@
 #---list of datasets
-set(datasets LNS_2014 INDRAFAZIA)
+set(datasets LNS_2014 INDRAFAZIA ISOFAZIA)
 set(ignored FAZIASYM GANIL_2010 LNL_2007 LNS_2009 LNS_2011 LNS_2012)
 
 #---set paths to find all KVMultiDet headers

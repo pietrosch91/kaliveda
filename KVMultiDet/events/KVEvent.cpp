@@ -452,7 +452,7 @@ void KVEvent::SetFrame(const Char_t * frame, const TVector3 & boost, Bool_t beta
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -472,7 +472,7 @@ void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TRotation& rot)
 {
    //Define a rotated coordinate frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -538,7 +538,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TLorentzRotation & rot)
+                       const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
@@ -563,7 +563,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TRotation & rot)
+                       const TRotation& rot)
 {
    //Define a rotated coordinate frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
@@ -605,7 +605,29 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
 		nuc->SetFrame(newframe, oldframe, boost, rot, beta);
-	}
+   }
+}
+
+void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame, const TString& selection)
+{
+   // "Translate" this event into a simple array form
+   // mult will be set to number of nuclei in event
+   // (px,py,pz) momentum components in MeV/c
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = selection i.e. "OK"
+
+   KVNucleus* nuc;
+   Int_t i=0;
+   while( (nuc = GetNextParticle(selection)) ){
+      nuc = (KVNucleus*)nuc->GetFrame(frame);
+           Z[i] = nuc->GetZ();
+           A[i] = nuc->GetA();
+           px[i] = nuc->Px();
+           py[i] = nuc->Py();
+           pz[i] = nuc->Pz();
+           i++;
+   }
+   mult = i;
 }
 
 //______________________________________________________________________________
@@ -672,44 +694,74 @@ TObject *KVEvent::ConstructedAt(Int_t idx, Option_t *clear_options)
 }
 #endif
 	
-void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz)
+void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// (vx,vy,vz) velocity components in cm/ns
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-	while( (nuc = GetNextParticle()) ){
-		Z[i] = nuc->GetZ();
+        while( (nuc = GetNextParticle(selection)) ){
+           nuc = (KVNucleus*)nuc->GetFrame(frame);
+                Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
 		vx[i] = nuc->GetVelocity().X();
 		vy[i] = nuc->GetVelocity().Y();
 		vz[i] = nuc->GetVelocity().Z();
 		i++;
 	}
+        mult =i;
 } 
 	
-void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi)
+void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// E = kinetic energy in MeV
 	// Theta,Phi in degrees
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-	while( (nuc = GetNextParticle()) ){
-		Z[i] = nuc->GetZ();
+        while( (nuc = GetNextParticle(selection)) ){
+           nuc = (KVNucleus*)nuc->GetFrame(frame);
+                Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
 		E[i] = nuc->GetEnergy();
 		Theta[i] = nuc->GetTheta();
 		Phi[i] = nuc->GetPhi();
 		i++;
 	}
-} 
+        mult = i;
+}
+
+void KVEvent::FillArraysPtRapPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* Pt, Double_t* Rap, Double_t* Phi, const TString& frame, const TString& selection)
+{
+   // "Translate" this event into a simple array form
+   // mult will be set to number of nuclei in event
+   // Pt = transverse momentum (perpendicular to z-axis)
+   // Rap = rapidity along z-axis
+   // phi = azimuthal angle around z-axis (x-axis=0 deg.)
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
+
+   KVNucleus* nuc;
+   Int_t i=0;
+   while( (nuc = GetNextParticle(selection)) ){
+      nuc = (KVNucleus*)nuc->GetFrame(frame);
+           Z[i] = nuc->GetZ();
+           A[i] = nuc->GetA();
+           Pt[i] = nuc->Pt();
+           Rap[i] = nuc->Rapidity();
+           Phi[i] = nuc->GetPhi();
+           i++;
+   }
+   mult = i;
+}
 
 void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
 {
@@ -794,4 +846,37 @@ Double_t KVEvent::GetGSChannelQValue() const
       CN += *(GetParticle(i));
    }
    return CN.GetMassGS() - sumM;
+}
+
+const Char_t* KVEvent::GetPartitionName()
+{
+	//
+	//return list of isotopes of the event with the format : 
+	// symbol1(population1) symbol2(population2) ....
+	// if population==1, it is not indicated : 
+	// Example : 
+	//	15C 12C(2) 4He 3He 1H(4) 1n(3)
+	//
+	fParticles->Sort();
+	static KVString partition;
+	
+	KVNameValueList nvl;
+	partition="";
+	ResetGetNextParticle();
+	KVNucleus* nuc=0;
+	while ( (nuc = GetNextParticle()) )
+	{
+		TString st = nuc->GetSymbol();
+		Int_t pop = TMath::Max(nvl.GetIntValue(st.Data()),0);
+		pop+=1;
+		nvl.SetValue(st.Data(),pop);
+	}
+	for (Int_t ii=0;ii<nvl.GetEntries();ii+=1)
+	{
+		Int_t pop = nvl.GetIntValue(ii);
+		if (pop==1) partition+=nvl.GetNameAt(ii);
+		else 			partition+=Form("%s(%d)",nvl.GetNameAt(ii),pop);
+		if (ii<nvl.GetEntries()-1) partition+=" ";
+	}
+	return partition.Data();	
 }

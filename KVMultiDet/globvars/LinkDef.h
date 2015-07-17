@@ -39,4 +39,5 @@
 #pragma link C++ class KVRisoAv;
 #pragma link C++ class KVRelativeVelocity;
 #pragma link C++ class KVQuadMoment;
+#pragma link C++ class KVFlowTensor;
 #endif

@@ -8,12 +8,14 @@
 /usr/lib/libFAZIAidentification.rootmap
 /usr/lib/libFAZIAgeometry.rootmap
 /usr/lib/libFAZIAanalysis.rootmap
+/usr/include/kaliveda/KVISOFAZIA.h
 /usr/include/kaliveda/KVSignal.h
 /usr/include/kaliveda/KVFAZIABlock.h
 /usr/include/kaliveda/KVPSAResult.h
 /usr/include/kaliveda/KVCurrentSignal.h
 /usr/include/kaliveda/KVDigitalFilter.h
 /usr/include/kaliveda/KVChargeSignal.h
+/usr/include/kaliveda/KVFAZIARawEvent.h
 /usr/include/kaliveda/KVINDRAFAZIA.h
 /usr/include/kaliveda/KVFAZIADetector.h
 /usr/include/kaliveda/KVFAZIA.h
@@ -22,7 +24,6 @@
 /usr/include/kaliveda/KVFAZIAReconNuc.h
 /usr/include/kaliveda/KVFAZIAReconDataAnalyser.h
 /usr/include/kaliveda/KVFAZIARawDataReader.h
-/usr/include/kaliveda/KVFAZIARawDataReader_LNS_2011.h
 /usr/include/kaliveda/KVFAZIARawDataReconstructor.h
 /usr/include/kaliveda/KVFAZIARawDataAnalyser.h
 /usr/include/kaliveda/KVFAZIASelector.h

@@ -259,8 +259,10 @@ void KVParticleCondition::CreateClassFactory()
    // unique name for new class
    TUUID unique;
    KVString new_class = unique.AsString();
-   new_class.ReplaceAll("-","_");
-   
+   // only first 8 characters are unique
+   new_class.Remove(8);
+   new_class.Prepend("KVParticleCondition_");
+
    //create new class
    cf = new KVClassFactory(new_class.Data(), "Particle condition to test", "KVParticleCondition");
    

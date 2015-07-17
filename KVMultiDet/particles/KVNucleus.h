@@ -140,6 +140,7 @@ class KVNucleus:public KVParticle {
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
    
 	KVNumberList GetKnownARange(Int_t z=-1, Double_t tmin=0) const;
+   const Char_t* GetIsotopesList(Int_t zmin, Int_t zmax, Double_t tmin=0) const;
 	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
 	
 	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);

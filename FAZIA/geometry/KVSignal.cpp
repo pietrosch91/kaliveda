@@ -32,6 +32,7 @@ void KVSignal::init()
     fSigmaBase=0;
 
     fChannelWidth=-1;
+    fChannelWidthInt=-1;
     fFirstBL=-1;
     fLastBL=-1;
     fTauRC=-1;
@@ -115,6 +116,7 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 
 void KVSignal::SetADCData()
 {
+    fChannelWidthInt = fChannelWidth;
 	fAdc.Set(GetN());
 	for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
 }
@@ -166,7 +168,7 @@ void KVSignal::Print(Option_t*) const
 KVPSAResult* KVSignal::TreateSignal()
 {
     //to be implemented in child class
-    Info("TreateSignal","To be implemented in child classes");
+    Info("TreateSignal","To be implemented in child classes...");
     return 0;
 }
 
@@ -294,6 +296,8 @@ void KVSignal::FIR_ApplyTrapezoidal(double trise, double tflat) // trise=sqrt(12
     if(tflat<0) tflat=trise/2.;
     int irise=(int)(1e3*trise/fChannelWidth);
     int iflat=(int)(1e3*tflat/fChannelWidth);
+
+//    Info("FIR_ApplyTrapezoidal","irise %d iflat %d chw %lf",irise,iflat, fChannelWidth);
 
     TArrayF sorig(fAdc);
     float *data  = fAdc.GetArray();
@@ -621,6 +625,53 @@ Double_t KVSignal::CubicInterpolation(float *data, int x2, double fmax, int Nrec
 }
 
 
+double KVSignal::GetDataInter(double t)
+{
+  if(fAdc.GetSize()<=0) return 1E10;
+
+  int n=(int)(floor(t/fChannelWidth));
+  if(n<=0) return fAdc.At(0);
+  if(n>fAdc.GetSize()-2) return fAdc.At(fAdc.GetSize()-1);
+  if(n*fChannelWidth == t) return fAdc.At(n);
+  double y1=fAdc.At(n  );
+  double y2=fAdc.At(n+1); //quello prima e quello dopo.
+  double x1=fChannelWidth*n;
+
+  return (t-x1)/fChannelWidth*(y2-y1)+y1;
+}
+
+double KVSignal::GetDataInterCubic(double t)
+{
+  int x2=(int)(t/fChannelWidth);
+  if(x2<1 || x2>fAdc.GetSize()-2) return GetDataInter(t);
+  float *data=fAdc.GetArray();
+  /***** CUT & PASTE DA CubicInterpolation *****/
+
+  double a3=0.5*data[x2]-(1./6.)*data[x2-1]+(1./6.)*data[x2+2]-0.5*data[x2+1];
+  double a2=(-data[x2] + 0.5*data[x2+1] + 0.5*data[x2-1]);
+  double a1=(- 0.5* data[x2] - 1./6. *data[x2+2]+ data[x2+1] - 1./3.* data[x2-1]);
+  double a0=data[x2];
+  double xi=(t/fChannelWidth-x2);
+  return a3*xi*xi*xi+a2*xi*xi+a1*xi+a0;
+}
+
+/***********************************************/
+void KVSignal::BuildCubicSignal(double taufinal)
+{
+  const int Nsa=fAdc.GetSize();
+  const double tau=fChannelWidth;
+
+  fChannelWidthInt = taufinal;
+  TArrayF interpo;
+  interpo.Set((int)(Nsa*tau/taufinal));
+
+  Info("BuildCubicSignal","ni=%d, nf=%d, ti=%lf, tf=%lf",Nsa,interpo.GetSize(),tau, taufinal);
+
+  for(int i=0;i<interpo.GetSize();i++) interpo.AddAt(GetDataInterCubic(i*taufinal),i);
+  fAdc.Set(0); fAdc.Set(interpo.GetSize());
+  for(int i=0;i<interpo.GetSize();i++) fAdc.AddAt(interpo.At(i),i);
+
+}
 double KVSignal::FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr)
 {
     // recurr=1 means: linear + 1 approx
@@ -752,10 +803,16 @@ void KVSignal::PoleZeroSuppression(Double_t tauRC)
 
 void KVSignal::ApplyModifications(TGraph *newSignal, Int_t nsa)
 {
+//    Info("ApplyModifications","called with %d",((newSignal==0)?0:1));
     if(!newSignal) newSignal = this;
-    Int_t nn = GetN();
+
+    Int_t nn = fAdc.GetSize();
     if(nsa>0&&nsa<nn) nn = nsa;
-    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,fX[ii],fAdc.At(ii));
+
+    Double_t tau = fChannelWidthInt;
+
+    if(newSignal->InheritsFrom("KVSignal")) ((KVSignal*)newSignal)->SetChannelWidth(tau);
+    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,ii*tau,fAdc.At(ii));
 }
 
 

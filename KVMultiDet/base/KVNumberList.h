@@ -39,6 +39,7 @@ class KVNumberList : public TObject {
 	KVNumberList();
 	KVNumberList(const KVNumberList &);
 	KVNumberList(const Char_t *);
+	KVNumberList(Int_t deb,Int_t fin, Int_t pas);
 	virtual ~ KVNumberList();
 	
 	virtual void     SetName(const char *name);
@@ -61,7 +62,7 @@ class KVNumberList : public TObject {
 	void Add(Int_t, Int_t *);
 	void Remove(Int_t n, Int_t * arr);
    
-	void SetMinMax(Int_t min, Int_t max);
+	void SetMinMax(Int_t min, Int_t max, Int_t pas=1);
 	
 	void Inter(const KVNumberList& list);
 
@@ -92,8 +93,9 @@ class KVNumberList : public TObject {
    };
 
    void PrintLimits();
-   Bool_t IsFull();
+   Bool_t IsFull(Int_t vinf=-1,Int_t vsup=-1);
 	KVNumberList GetComplementaryList();
+   KVNumberList GetSubList(Int_t vinf,Int_t vsup);
    
 	KVNumberList & operator=(const KVNumberList &);
 	KVNumberList operator-(const KVNumberList &);

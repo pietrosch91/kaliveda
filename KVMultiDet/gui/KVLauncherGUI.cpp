@@ -54,7 +54,7 @@ void KVLauncherGUI::MapAll()
 void KVLauncherGUI::AddButtons()
 {
     AddButton("Close","Close");
-    
+
 }
 
 //________________________________________________________________
@@ -66,11 +66,18 @@ KVLauncherGUI::~KVLauncherGUI()
 //________________________________________________________________
 TGTextButton* KVLauncherGUI::AddButton(const char* name, const char* method, TObject* obj)
 {
+   // Add a button to the launcher with given "name".
+   // When clicked, this button will call "method" of whatever object obj is pointing to.
+   //    - "method" is the name of an argument-less method, without parentheses:
+   //       i.e. to call method DummyMethod() when button is clicked, give method="DummyMethod"
+   // If obj=0 (default), 'this' will be used.
+   // If "method" is not a public interface method of the class of 'obj' an error
+   // will be printed and no button added.
+
     if(!obj) obj = this;
-    const char* classname = ClassName();
-    if(obj->Class()->GetListOfAllPublicMethods()->FindObject(method))
+    if(!obj->IsA()->GetListOfAllPublicMethods()->FindObject(method))
     {
-        Error("AddAction","%s is not a public method of %s",method,classname);
+        Error("AddButton","%s is not a public method of %s",method,obj->ClassName());
         return NULL;
     }
 
@@ -78,7 +85,7 @@ TGTextButton* KVLauncherGUI::AddButton(const char* name, const char* method, TOb
     gClient->GetColorByName("#66ccff",ucolor);
 
     TGTextButton* fButton = new TGTextButton(this, name);
-    fButton->Connect("Clicked()", classname, obj, Form("%s()",method));
+    fButton->Connect("Clicked()", obj->ClassName(), obj, Form("%s()",method));
     fButton->SetName(name);
     fButton->SetMargins(5,5,5,5);
     fButton->ChangeBackground(ucolor);

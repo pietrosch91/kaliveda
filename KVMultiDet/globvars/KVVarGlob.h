@@ -183,7 +183,7 @@ class KVVarGlob:public KVBase {
    virtual void SetFrame(const Char_t*);
    
    //Name of reference frame used for kinematics
-   virtual const Char_t* GetFrame(const Char_t*){
+   virtual const Char_t* GetFrame(){
       return fFrame.Data();
    };
    

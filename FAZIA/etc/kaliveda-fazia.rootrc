@@ -15,7 +15,7 @@ INDRAFAZIA.ThetaMinCompactGeo: 2.0
 
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
-LNS_2014.DataSet.RepositoryDir:   lns_2014
+LNS_2014.DataSet.RepositoryDir:   LNS_2014
 LNS_2014.DataSet.RunFileName.raw:    run%06d.root
 LNS_2014.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2014.DataSet.RunFileClass.raw:    TFile
@@ -28,36 +28,52 @@ FAZIASYM.DataSet.RunFileName.raw:    run%06d.root
 FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIASYM.DataSet.RunFileClass.raw:    TFile
 
++DataSet:   ISOFAZIA
+ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
+ISOFAZIA.DataSet.RepositoryDir:   ISOFAZIA
+ISOFAZIA.DataSet.RunFileName.raw:    run%06d.root
+ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
+ISOFAZIA.DataSet.RunFileClass.raw:    TFile
+ISOFAZIA.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
+#DataBase
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-
++Plugin.KVDataBase:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
+#Array
 +Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIAgeometry    "KVFAZIA_2B()"
 +Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIAgeometry    "KVFAZIASYM()"
-
-# FAZIA Geometries
++Plugin.KVMultiDetArray:    ISOFAZIA    KVISOFAZIA    FAZIAgeometry    "KVISOFAZIA()"
+# Geometries
 FAZIASYM.GeoType:        compact
 FAZIASYM.DistanceFAZIA:   100.0
 FAZIASYM.ThetaMinCompactGeo: 2.0
 
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 
 #gerer automaticement par KVMultiDetArray::GetIDTelescopes
 +Plugin.KVIDTelescope:    ^Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^CsI$                 KVIDTelescope            KVMultiDetexp_events           "KVIDTelescope()"
-
+############
 LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
+ISOFAZIA.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+ISOFAZIA.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
 +Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
-+Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIAanalysis    "KVFAZIARawDataReader_LNS_2011()"
-
++Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader      FAZIAanalysis    "KVFAZIARawDataReader()"
+############
 LNS_2014.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
+ISOFAZIA.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+ISOFAZIA.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 +Plugin.TSelector:   FAZIARawDataRecon      KVFAZIARawDataReconstructor  FAZIAanalysis "KVFAZIARawDataReconstructor()"
-
+############
 LNS_2014.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 LNS_2014.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
+ISOFAZIA.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
+ISOFAZIA.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIAanalysis "KVFAZIAReconDataAnalyser()"
 +Plugin.KVEventSelector:  FAZIASelector    KVFAZIASelector      FAZIAanalysis    "KVFAZIASelector()"
 

@@ -10,7 +10,7 @@
 
 #include <TChain.h>
 #include <TSelector.h>
-#include <TClonesArray.h>
+#include <KVFAZIARawEvent.h>
 #include <KVDetectorEvent.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -23,10 +23,10 @@ public :
 	Int_t fEventNumber;
    Int_t fCurrentRun;
    Int_t fReadEntries;
-   TClonesArray* cl;
+   KVFAZIARawEvent* RawEvent;
    KVDetectorEvent* fDetEv;
    
-   KVFAZIAReader() : fChain(0) { fCurrentRun = -1; cl=0; fDetEv = new KVDetectorEvent(); }
+   KVFAZIAReader() : fChain(0) { fCurrentRun = -1; RawEvent=0; fDetEv = new KVDetectorEvent(); }
    virtual ~KVFAZIAReader() { SafeDelete(fDetEv); }
    virtual Int_t   Version() const { return 2; }
    

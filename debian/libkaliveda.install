@@ -46,5 +46,6 @@
 /usr/lib/libKVMultiDetdata_management.so.1.10.01
 /usr/lib/libKVMultiDetidentification.so.1.10.01
 /usr/share/kaliveda/etc/config.files
+/usr/share/kaliveda/etc/KaliVeda.par
 /usr/lib/libfitltg.so
 /usr/lib/libgan_tape.so

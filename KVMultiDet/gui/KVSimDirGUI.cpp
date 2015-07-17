@@ -488,8 +488,7 @@ void KVSimDirGUI::RunAnalysis()
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package
-           TString fullpath;
-           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
            p->UploadPackage(fullpath);
            p->EnablePackage("KaliVeda");
        }
@@ -701,8 +700,7 @@ void KVSimDirGUI::RunFilter()
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package
-           TString fullpath;
-           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
            p->UploadPackage(fullpath);
            p->EnablePackage("KaliVeda");
        }

@@ -36,6 +36,7 @@ KVZtotAv::KVZtotAv(char *nom):KVZtot(nom)
 //
 // Constructeur avec un nom
 //
+   SetFrame("CM");
 }
 
 //_________________________________________________________________

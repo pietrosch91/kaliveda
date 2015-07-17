@@ -111,8 +111,8 @@ Bool_t KVFAZIASelector::Notify()
 void KVFAZIASelector::LinkRawData()
 {
 	Info("LinkRawData","Enable reading of raw data : %s\n",rawdatabranchname.Data());
-   cl=0;
-   fChain->SetBranchAddress(rawdatabranchname.Data(),&cl);
+   RawEvent=0;
+   fChain->SetBranchAddress(rawdatabranchname.Data(),&RawEvent);
 }
 
 //_____________________________________
@@ -121,7 +121,7 @@ void KVFAZIASelector::ConnectSignalsToDetectors()
 	KVFAZIADetector* det=0;
    KVSignal* sig=0;
    
-   TIter next_s(cl);
+   TIter next_s(RawEvent->GetSignals());
 	while ( (sig = (KVSignal* )next_s()) )
    {
    	sig->DeduceFromName();

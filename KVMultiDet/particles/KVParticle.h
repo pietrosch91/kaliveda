@@ -207,17 +207,17 @@ class KVParticle:public TLorentzVector {
 
    void SetFrame(const Char_t * frame, const TVector3 & boost, Bool_t beta =
          kFALSE);
-   void SetFrame(const Char_t * frame, TLorentzRotation & rot);
-   void SetFrame(const Char_t * frame, TRotation & rot);
+   void SetFrame(const Char_t * frame, const TLorentzRotation & rot);
+   void SetFrame(const Char_t * frame, const TRotation & rot);
    void SetFrame(const Char_t * frame, const TVector3 & boost, TRotation & rot,
                  Bool_t beta = kFALSE);
 
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
                  const TVector3 & boost, Bool_t beta = kFALSE);
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 TLorentzRotation & rot);
+                 const TLorentzRotation & rot);
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 TRotation & rot);
+                 const TRotation & rot);
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
                  const TVector3 & boost, TRotation & rot, Bool_t beta = kFALSE);
 

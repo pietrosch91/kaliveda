@@ -5,6 +5,7 @@
 #define __KVFAZIASelector_H
 
 #include "KVEventSelector.h"
+#include "KVFAZIARawEvent.h"
 
 class KVFAZIASelector : public KVEventSelector {
 
@@ -13,12 +14,12 @@ class KVFAZIASelector : public KVEventSelector {
    Int_t fCurrentRun;
    
    Bool_t fRawData;
-   TClonesArray* cl;
+   KVFAZIARawEvent* RawEvent;
    TString rawdatabranchname;
    
    public:
    KVFAZIASelector() { 
-   	rawdatabranchname="signals";
+   	rawdatabranchname="rawevent";
       SetBranchName("FAZIAReconEvent");
    };
    
