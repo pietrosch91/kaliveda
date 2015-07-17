@@ -300,5 +300,5 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
 #---add a 'html' target to generate ROOT class reference
 file(WRITE ${CMAKE_BINARY_DIR}/makedoc.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc
-      COMMAND ${ROOT_EXECUTABLE} -q -l WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/html)
+      COMMAND ${ROOT_EXECUTABLE} -q -l ${CMAKE_BINARY_DIR}/makedoc.C WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/html)
 add_custom_target(html DEPENDS ${CMAKE_BINARY_DIR}/htmldoc)
