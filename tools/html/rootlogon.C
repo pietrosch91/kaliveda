@@ -1,6 +1,7 @@
 {
    gROOT->ProcessLine("TGeoHMatrix p;");//kludge to get round autoload problem
                                         //with libGeom.so
+   gROOT->ProcessLine("#include \"RVersion.h\"");
    KVString libs = gSystem->GetFromPipe("kaliveda-config --libs");
    libs.Begin(" ");
    while( ! libs.End() ){
@@ -17,5 +18,4 @@
    gROOT->ProcessLine(".L KVPathDef.cpp+");
    gROOT->ProcessLine(".L KVFileDef.cpp+");
    gROOT->ProcessLine(".L makedoc.C+");
-   makedoc();
 }

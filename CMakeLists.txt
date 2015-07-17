@@ -296,7 +296,8 @@ endif()
 #---install man pages for KaliVeda
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
 
-#---add a 'htmldoc' target to generate ROOT class reference
+#---add a 'html' target to generate ROOT class reference
+file(WRITE ${CMAKE_BINARY_DIR}/makedoc.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc
       COMMAND ${ROOT_EXECUTABLE} -q -l WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/html)
-add_custom_target(htmldoc DEPENDS ${CMAKE_BINARY_DIR}/htmldoc)
+add_custom_target(html DEPENDS ${CMAKE_BINARY_DIR}/htmldoc)

@@ -5,7 +5,7 @@
 #include "KVPathDef.h"
 #include "KVFileDef.h"
 
-void makedoc(const TString& output_dir = "/home/john/software/build/kaliveda-build/1.10_R6/htmldoc")
+void makedoc(const TString& output_dir = "htmldoc")
 {
    // load all libraries and generate class reference
    THtml h;
@@ -16,7 +16,6 @@ void makedoc(const TString& output_dir = "/home/john/software/build/kaliveda-bui
    TString maj_vers = version;
    maj_vers.Remove(maj_vers.Index("/"));
    version.ReplaceAll("/",".");
-   //h.SetOutputDir(Form("/home/john/software/sources/kaliveda.gh-pages/htmldoc_v%s",maj_vers.Data()));
    h.SetOutputDir(output_dir);
    h.SetViewCVS(Form("https://github.com/kaliveda-dev/kaliveda/blob/%s/",maj_vers.Data()));
    h.SetPathDefinition(KVPathDef());
