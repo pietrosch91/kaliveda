@@ -112,9 +112,10 @@
 #include "TGHtmlBrowser.h"
 #endif
 
+#include "TEnv.h"
 #include "Riostream.h"
 #include "KVListView.h"
-#include "TTree.h"
+#include "TChain.h"
 #include "TCutG.h"
 #include "TH1.h"
 #include "TEntryList.h"
@@ -132,7 +133,8 @@ class KVTreeAnalyzer : public TNamed {
    void init();
    Bool_t fDeletedByGUIClose;//!
 
-   TTree* fTree;//! the analyzed TTree or TChain
+   TTree* fTree;//! for backwards compatibility
+   TChain* fChain;// the analyzed TTree or TChain
    KVUniqueNameList fSelections;// list of TEntryList user selections
 
    TString fSaveAnalysisFileName;//!
@@ -141,6 +143,7 @@ class KVTreeAnalyzer : public TNamed {
    /* leaves */
    TGGroupFrame* fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
+   KVList fLeafList;//! clones of leaves in TChain
    TGLabel* G_leaf_expr;//!
    TGPictureButton* G_leaf_draw;//!
    TString fLeafExpr;//!
@@ -170,13 +173,16 @@ class KVTreeAnalyzer : public TNamed {
    TGPopupMenu* fMenuFile;//!
    TGPopupMenu* fMenuSelections;//!
    TGPopupMenu* fSelCombMenu;//!
+   TGPopupMenu* fOptionMenu;//!
    enum {
       MH_OPEN_FILE,
+      MH_OPEN_CHAIN,
       MH_ADD_FRIEND,
       MH_SAVE_FILE,
       MH_SAVE,
       MH_CLOSE,
       MH_QUIT,
+      OPT_PROOF,
       MH_APPLY_ANALYSIS,
       SEL_COMB_AND,
       SEL_COMB_OR,
@@ -184,6 +190,7 @@ class KVTreeAnalyzer : public TNamed {
       SEL_DELETE
    };
    void HistoFileMenu_Open();
+   void OpenChain();
    void HistoFileMenu_Save();
    TGLayoutHints* fMenuBarItemLayout;//!
    TGMenuBar* fMenuBar;//!
@@ -256,6 +263,8 @@ class KVTreeAnalyzer : public TNamed {
    }
 
    TString fAnalysisSaveDir;//!
+
+   Bool_t fPROOFEnabled;//!
 
    void ResetMethodCalled()
    {
@@ -345,10 +354,25 @@ public:
    void SetSelection(const Char_t*);
    TEntryList* GetSelection(const Char_t*);
 
+   void EnablePROOF(Bool_t yes = kTRUE);
+   Bool_t IsPROOFEnabled() const
+   {
+      return fPROOFEnabled;
+   }
+   Bool_t IsPROOFEnabledForSelections() const
+   {
+      // Generation of TEntryList with PROOF only works from 20/11/2015 onwards
+      // Variable in .kvrootrc file
+      //   KVTreeAnalyzer.PROOFSelections:  on
+      // controls whether to use it or not (default: no/off/false)
+      return (gEnv->GetValue("KVTreeAnalyzer.PROOFSelections", 0) && fPROOFEnabled);
+   }
+
    static KVTreeAnalyzer* OpenFile(const Char_t* filename, Bool_t nogui = kFALSE);
    void ReadFromFile(const Char_t* filename);
    void ReadFromFile(TFile* f);
    void OpenAnyFile(const Char_t* filepath);
+   void OpenChain(const TString& treename, const TString& treetitle, const TSeqCollection* files);
 
    void DrawHisto(TObject* o, Bool_t gen = kTRUE);
    void DrawCut(TCutG*);
@@ -409,6 +433,7 @@ public:
    void LeafChanged();
    void HistoSelectionChanged();
    void Save();
+   void SaveAs(const char* filename = "", Option_t* option = "") const;
 //    void FitGum1();
 //    void FitGum2();
 //    void FitGum3();
@@ -500,12 +525,14 @@ public:
       return (KVTreeAnalyzer*)fgAnalyzerList->FindObjectByTitle(title);
    }
 
-   ClassDef(KVTreeAnalyzer, 4) //KVTreeAnalyzer
    void MakeAbsoluteIPScale(const char* name, Double_t sigmaTot);
    void GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin);
+
+   void HandleOptionsMenu(Int_t opt);
    void OpenAnyFriendFile(const Char_t* filepath);
    void HistoFileMenu_OpenFriend();
    Long64_t GetEntriesInCurrentSelection() const;
+   ClassDef(KVTreeAnalyzer, 5) //KVTreeAnalyzer
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer* gTreeAnalyzer;

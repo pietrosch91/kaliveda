@@ -6,6 +6,8 @@
 #include "TString.h"
 #include "KVConfig.h"
 #include "RVersion.h"
+
+#include <TCollection.h>
 class TObjArray;
 
 /*
@@ -98,6 +100,9 @@ class KVString:public TString
 
    void RemoveAllExtraWhiteSpace();
    KVString StripAllExtraWhiteSpace() const;
+
+   KVString& FindCommonCharacters(const TCollection*,const char bug='*');
+   KVString& FindCommonTitleCharacters(const TCollection*, const char bug='*');
 
    ClassDef(KVString, 1)        //TString wrapper compatible with ROOT versions 3.10/02 onwards
 };

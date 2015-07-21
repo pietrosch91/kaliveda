@@ -15,6 +15,7 @@
 #include "Bytes.h"
 #include "TClass.h"
 #include "TMath.h"
+#include <TObject.h>
 #include <list>
 
 #ifdef R__GLOBALSTL
@@ -875,6 +876,111 @@ KVString KVString::StripAllExtraWhiteSpace() const
       tmp2 += tmp.Next();
    }
    return tmp2;
+}
+
+KVString&KVString::FindCommonCharacters(const TCollection*list, const char bug)
+{
+   // list is a collection of objects with names
+   // this method generates a string containing all characters which appear
+   // in every name in the list, the others are replaced by the 'bug' character.
+   //
+   // example:
+   //   list contains a set of TNamed with names:
+   //        run_0001.root
+   //        run_0002.root
+   //             ...
+   //        run_0099.root
+   //
+   // then toto.FindCommonCharacters(list) will produce toto="run_00*.root"
+
+   KVString tmp;
+   TIter next(list);
+   TObject* o;
+   // find differences
+   while( (o = next()) ){
+      if( tmp == "" ) {
+         tmp = o->GetName();
+         continue;
+      }
+      int tmplen = tmp.Length();
+      KVString tmp2 = o->GetName();
+      int tmp2len = tmp2.Length();
+      int len = TMath::Min(tmplen,tmp2len);
+      for(int i=0; i<len; i++){
+         if(tmp[i]!=tmp2[i]) tmp[i]=bug;
+      }
+      if(tmp2len>tmplen){
+         tmp.Append(bug, tmp2len-tmplen);
+      }
+   }
+   // replace multiple occurences of bug
+   int tmplen = tmp.Length();
+   *this = "";
+   bool do_bug=false;
+   for(int i=0;i<tmplen;i++){
+      if(do_bug){
+         if(tmp[i]==bug) continue;
+         else do_bug=false;
+      } else if(tmp[i]==bug){
+         do_bug=true;
+      }
+      Append(tmp[i]);
+   }
+
+   return *this;
+}
+
+
+KVString&KVString::FindCommonTitleCharacters(const TCollection*list, const char bug)
+{
+   // list is a collection of objects with titles
+   // this method generates a string containing all characters which appear
+   // in every title in the list, the others are replaced by the 'bug' character.
+   //
+   // example:
+   //   list contains a set of TNamed with titles:
+   //        run_0001.root
+   //        run_0002.root
+   //             ...
+   //        run_0099.root
+   //
+   // then toto.FindCommonCharacters(list) will produce toto="run_00*.root"
+
+   KVString tmp;
+   TIter next(list);
+   TObject* o;
+   // find differences
+   while( (o = next()) ){
+      if( tmp == "" ) {
+         tmp = o->GetTitle();
+         continue;
+      }
+      int tmplen = tmp.Length();
+      KVString tmp2 = o->GetTitle();
+      int tmp2len = tmp2.Length();
+      int len = TMath::Min(tmplen,tmp2len);
+      for(int i=0; i<len; i++){
+         if(tmp[i]!=tmp2[i]) tmp[i]=bug;
+      }
+      if(tmp2len>tmplen){
+         tmp.Append(bug, tmp2len-tmplen);
+      }
+   }
+   // replace multiple occurences of bug
+   int tmplen = tmp.Length();
+   *this = "";
+   bool do_bug=false;
+   for(int i=0;i<tmplen;i++){
+      if(do_bug){
+         if(tmp[i]==bug) continue;
+         else do_bug=false;
+      } else if(tmp[i]==bug){
+         do_bug=true;
+      }
+      Append(tmp[i]);
+   }
+
+   return *this;
 }
 
 
