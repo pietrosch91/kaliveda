@@ -102,6 +102,29 @@ namespace BackTrack {
     //AddObservable("M_p",          "Protons multiplicity",   0, 20);
     //AddObservable("M_a",          "Alphas  multiplicity",   0, 20);
   }
+  
+  
+  void Binned_GeminiModel_2::InitParObs(TH2D* histo)
+  {
+    //Guess for input model parameters
+    Int_t nxbins = histo->GetNbinsX();
+    Int_t nybins = histo->GetNbinsY();
+    Double_t xwidth = histo->GetXaxis()->GetBinWidth(1);
+    Double_t ywidth = histo->GetYaxis()->GetBinWidth(1);
+    
+    Double_t xmin = histo->GetXaxis()->GetBinCenter(1)+xwidth/2.;
+    Double_t xmax = histo->GetXaxis()->GetBinCenter(nxbins)+xwidth/2.;
+    Double_t ymin = histo->GetYaxis()->GetBinCenter(1)+ywidth/2.;
+    Double_t ymax = histo->GetYaxis()->GetBinCenter(nybins)+ywidth/2.;
+    
+    //Add Parameters and Observables
+    AddParameter("APrimary",  "Apr source GEMINI",     xmin,  xmax, nxbins);
+    AddParameter("EStarPrimary",  "E*/Apr source GEMINI", ymin, ymax, nybins);
+    
+    AddObservable("APrimaryWoN", "Apr without neutrons",  20, 35, 15);
+    AddObservable("EStarPrimaryWoN_MeV", "E* without neutrons", 0,140,70);
+    
+  }
     
    
   RooDataHist*Binned_GeminiModel_2::GetModelDataHist(RooArgList& param_list)
