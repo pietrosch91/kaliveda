@@ -665,8 +665,6 @@ void KVSignal::BuildCubicSignal(double taufinal)
   TArrayF interpo;
   interpo.Set((int)(Nsa*tau/taufinal));
 
-  Info("BuildCubicSignal","ni=%d, nf=%d, ti=%lf, tf=%lf",Nsa,interpo.GetSize(),tau, taufinal);
-
   for(int i=0;i<interpo.GetSize();i++) interpo.AddAt(GetDataInterCubic(i*taufinal),i);
   fAdc.Set(0); fAdc.Set(interpo.GetSize());
   for(int i=0;i<interpo.GetSize();i++) fAdc.AddAt(interpo.At(i),i);
