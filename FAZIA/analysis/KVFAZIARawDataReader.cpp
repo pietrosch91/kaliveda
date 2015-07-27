@@ -25,6 +25,7 @@
 
 #include "KVFAZIARawDataReader.h"
 
+ClassImp(KVFAZIARawDataReader)
 
 void KVFAZIARawDataReader::Begin(TTree * /*tree*/)
 {

@@ -28,6 +28,7 @@
 
 #include "KVFAZIA.h"
 
+ClassImp(KVFAZIAReader)
 
 void KVFAZIAReader::Begin(TTree * /*tree*/)
 {
