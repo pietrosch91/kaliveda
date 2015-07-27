@@ -66,16 +66,8 @@ void KVFAZIAReaderTemplate::InitRun(void)
 Bool_t KVFAZIAReaderTemplate::Analysis(void)
 {
    // Analysis method.
-   // The event pointer can be retrieved by a call to GetEvent().
-   // See KVReconstructedEvent documentation for the available methods.
-   //
-   // In order to loop over all correctly identified particles in the event
-   // (assuming the corresponding code masks were set in InitRun):
-   //		KVReconstructedNucleus* particle;
-   //		while ( (particle = (KVReconstructedNucleus* )GetEvent()->GetNextParticle("ok")) ){
-   //            int z = particle->GetZ();
-   //            ...etc. etc.
-   //     }
+   // The event pointer can be retrieved by a call to RawEvent().
+   // See KVFAZIARawEvent documentation for the available methods.
 
    //
    // Enter your code here
