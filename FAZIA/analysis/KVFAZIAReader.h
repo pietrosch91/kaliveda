@@ -60,6 +60,8 @@ public :
    
    KVDetectorEvent* GetDetectorEvent() const { return fDetEv; }
    
+   static void Make(const Char_t * kvsname = "MyOwnKVFAZIAReader");
+
    ClassDef(KVFAZIAReader,0);
 };
 

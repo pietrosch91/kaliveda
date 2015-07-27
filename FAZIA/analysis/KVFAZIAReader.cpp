@@ -28,6 +28,8 @@
 
 #include "KVFAZIA.h"
 
+#include <KVClassFactory.h>
+
 ClassImp(KVFAZIAReader)
 
 void KVFAZIAReader::Begin(TTree * /*tree*/)
@@ -145,4 +147,15 @@ Bool_t KVFAZIAReader::Notify()
    fChain->SetBranchAddress("rawevent",&RawEvent);
    InitRun();
    return kTRUE;
+}
+
+void KVFAZIAReader::Make(const Char_t * kvsname)
+{
+   // Automatic generation of KVFAZIAReader-derived class for KaliVeda analysis
+
+   KVClassFactory cf(kvsname,"User analysis class","KVFAZIAReader",kTRUE);
+   cf.AddImplIncludeFile("KVReconstructedNucleus.h");
+   cf.AddImplIncludeFile("KVBatchSystem.h");
+   cf.AddImplIncludeFile("KVFAZIA.h");
+   cf.GenerateCode();
 }
