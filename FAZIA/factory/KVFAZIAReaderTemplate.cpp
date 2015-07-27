@@ -58,7 +58,7 @@ void KVFAZIAReaderTemplate::InitRun(void)
    //     GetEvent()->UseMeanAngles();
    //
    //The run number of the currently analysed run is given by
-   //   gFazia->GetCurrentRunNumber();
+   //   GetCurrentRunNumber();
 
 }
 
@@ -66,7 +66,7 @@ void KVFAZIAReaderTemplate::InitRun(void)
 Bool_t KVFAZIAReaderTemplate::Analysis(void)
 {
    // Analysis method.
-   // The event pointer can be retrieved by a call to RawEvent().
+   // The event pointer can be retrieved by a call to GetEvent().
    // See KVFAZIARawEvent documentation for the available methods.
 
    //
