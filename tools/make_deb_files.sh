@@ -170,6 +170,12 @@ if [ $# -lt 2 ]; then
    exit 0
 fi
 
+read -p "Delete build directory $2 ? (y/[n]): " reply
+reply=${reply:-n}
+if [ "x$reply" = "xy" ]; then
+   rm -rf $2
+   mkdir -p $2
+fi
 cd $2
 cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
 make -j3 install DESTDIR=$2/tmp
