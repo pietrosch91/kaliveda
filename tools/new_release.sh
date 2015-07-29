@@ -64,6 +64,7 @@ git tag -a release-${maj_vers}.${min_vers}.${tag_twk_vers} -m "Release v$1"
 read -p "Push to github ? ([y]/n): " reply
 reply=${reply:-y}
 if [ "x$reply" = "xy" ]; then
+   git push
    git push --tags
 fi
 
