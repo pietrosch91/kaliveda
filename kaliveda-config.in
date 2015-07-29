@@ -68,6 +68,8 @@ if [ "$?" -ne "0" ]; then
 fi
 
 VERSION="@KV_VERSION_STRING@"
+srcdir=@CMAKE_SOURCE_DIR@
+buildir=@CMAKE_BINARY_DIR@
 libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
@@ -85,7 +87,7 @@ fazialibs=$lib_list
 libs="$fazialibs $vamoslibs $indralibs $backtracklibs $multidetlibs"
 
 usage="\
-Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir] [--help]"
+Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir] [--buildir] [--srcdir] [--help]"
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -123,6 +125,14 @@ while test $# -gt 0; do
       ### output the executable directory
       out="$out $bindir"
       ;;
+    --buildir)
+      ### output the build directory
+      out="$out $buildir"
+      ;;
+    --srcdir)
+      ### output the source directory
+      out="$out $srcdir"
+      ;;
     --libdir)
       ### output the library directory
       out="$out $libdir"
@@ -144,6 +154,8 @@ while test $# -gt 0; do
       echo "  --libdir              Print the library directory"
       echo "  --incdir              Print the header directory"
       echo "  --libs                Print linker directives for all libraries"
+      echo "  --builddir            Print the CMake build directory"
+      echo "  --srcdir              Print the source directory"
       echo "  --help                Print this message"
       exit 0
       ;;
