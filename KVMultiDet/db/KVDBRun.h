@@ -123,8 +123,6 @@ protected:
    virtual void SetSystem(KVDBSystem * system);
    virtual void UnsetSystem();
 
-   virtual void SetNumber(Int_t n);
-
    virtual void Print(Option_t * option = "") const;
 
    virtual void WriteRunListLine(std::ostream &, Char_t delim = '|') const;

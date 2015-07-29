@@ -17,6 +17,8 @@ $Date: 2009/03/27 16:42:58 $
 #include "KVString.h"
 #include "KVTarArchive.h"
 
+#include <KVSeqCollection.h>
+
 class TFile;
 
 class KVINDRAPulserDataTree : public KVBase
@@ -29,7 +31,7 @@ class KVINDRAPulserDataTree : public KVBase
 	Float_t* fVal;//!array of floats used to fill tree
 	Int_t fTab_siz;//!size of array
 	THashTable *fIndex;//!associate name of branch to index in fVal
-	TList* fRunlist;//!list of runs given by database
+        KVSeqCollection* fRunlist;//!list of runs given by database
 
 	TString GetDirectoryName(const Char_t*);
 	void CreateTree();
@@ -57,7 +59,7 @@ class KVINDRAPulserDataTree : public KVBase
 		}
 		return -1;
 	};
-	void SetRunList(TList*runs) { fRunlist = runs; };
+        void SetRunList(KVSeqCollection*runs) { fRunlist = runs; };
 	
 	Float_t GetMean(const Char_t*, Int_t);
 

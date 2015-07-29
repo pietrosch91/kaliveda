@@ -20,6 +20,8 @@ $Id: KVDBTable.h,v 1.18 2007/05/31 09:59:22 franklan Exp $
 
 #include "TFolder.h"
 
+#include <KVSeqCollection.h>
+
 class KVDBRecord;
 
 class KVDBTable:public TFolder {
@@ -28,6 +30,7 @@ class KVDBTable:public TFolder {
 
    Bool_t fIsUnique;            // Must each record name be unique ?
    TString fFullPath;  //full path to table in folder structure
+   TString fDefFormatNumRec; // default formatting for names of numbered records
 
  public:
 
@@ -38,19 +41,18 @@ class KVDBTable:public TFolder {
 
    inline virtual KVDBRecord *GetRecord(const Char_t * rec_name) const;
    virtual KVDBRecord *GetRecord(Int_t n) const;
-   inline virtual TList *GetRecords() const;
+   inline virtual KVSeqCollection* GetRecords() const;
    virtual Bool_t AddRecord(KVDBRecord * add);
    virtual void RemoveRecord(KVDBRecord * add);
    virtual void ls(Option_t * option = "*") const;
-   virtual TObject *FindObject(const Char_t * name) const;
-   virtual TObject *FindObject(const TObject * obj) const {
-      return TFolder::FindObject(obj);
-   };
 
    virtual void SetFullPath(const Char_t* path) { fFullPath = path; };
    virtual const Char_t* GetFullPath() const { return fFullPath.Data(); };
    
-    ClassDef(KVDBTable, 2)      //Table object for database
+   void SetDefaultFormat(const TString&);
+   Bool_t HasDefaultFormat() const { return fDefFormatNumRec!=""; }
+
+    ClassDef(KVDBTable, 3)      //Table object for database
 };
 
 KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
@@ -58,9 +60,9 @@ KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
    return (KVDBRecord *) FindObject(rec);
 }
 
-TList *KVDBTable::GetRecords() const
+KVSeqCollection* KVDBTable::GetRecords() const
 {
-   return (TList *) GetListOfFolders();
+   return (KVSeqCollection*)GetListOfFolders();
 }
 
 

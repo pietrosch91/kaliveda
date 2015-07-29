@@ -63,6 +63,8 @@ void KVINDRADB::init()
    kLastRun = 0;
 
    fRuns = AddTable("Runs", "List of available runs");
+   fRuns->SetDefaultFormat("Run %d");// default formatting for run names
+
    fSystems = AddTable("Systems", "List of available systems");
    fChIoPressures = AddTable("ChIo Pressures", "Pressures of ChIo");
    fTapes = AddTable("Tapes", "List of data storage tapes");

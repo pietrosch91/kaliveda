@@ -49,16 +49,6 @@ KVDBRun::KVDBRun(Int_t number, const Char_t * title):fDatime()
 
 //____________________________________________________________________________
 
-void KVDBRun::SetNumber(Int_t number)
-{
-   //Set run number. Also changes name of object to "Run xxx".
-   KVDBRecord::SetNumber(number);
-   SetName(Form("Run %d", number));
-   Modified();
-}
-
-//____________________________________________________________________________
-
 KVDBRun::~KVDBRun()
 {
    //dtor

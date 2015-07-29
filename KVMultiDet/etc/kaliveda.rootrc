@@ -254,7 +254,7 @@ KaliVeda.GUI.MimeTypes.TEntryList.Icon:   rootdb_t.xpm
 # Trying to display more than this number will cause a dialog box to open
 # asking whether to display all or only this number of entries.
 # Displaying very long lists can be slow.
-KVListView.MaxListLength: 1000
+KVListView.MaxListLength: 20000
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    yes

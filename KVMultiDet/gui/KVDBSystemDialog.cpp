@@ -316,7 +316,7 @@ void KVDBSystemDialog::FillSystemList()
    fComboBox1476->Select(-1);
    
    Int_t index_selected=0;
-   TList* syslist = gDataBase->GetTable("Systems")->GetRecords();
+   KVSeqCollection* syslist = gDataBase->GetTable("Systems")->GetRecords();
    syslist->ls();
    TIter itsys(syslist); TObject* o; Int_t index=0;
    while( (o = itsys()) ){

@@ -122,14 +122,14 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    virtual void Save(const Char_t*);
 
    KVINDRADBRun *GetRun(Int_t run) const;
-   KVINDRADBRun *GetRun(const Char_t * run) const;
+//   KVINDRADBRun *GetRun(const Char_t * run) const;
 
-   virtual TList *GetRuns() const;
+   virtual KVSeqCollection *GetRuns() const;
    virtual KVDBSystem *GetSystem(const Char_t * system) const;
-   virtual TList *GetSystems() const;
+   virtual KVSeqCollection *GetSystems() const;
 
    virtual KVDBTape *GetTape(Int_t tape) const;
-   virtual TList *GetTapes() const;
+   virtual KVSeqCollection *GetTapes() const;
 
    KVList *GetCalibrationPeaks(Int_t run, KVDetector * detector = 0,
                                Int_t peak_type = -1, Int_t signal_type = 0,
@@ -190,7 +190,7 @@ inline void KVINDRADB::cd()
    gIndraDB = this;
 }
 
-inline TList *KVINDRADB::GetRuns() const
+inline KVSeqCollection *KVINDRADB::GetRuns() const
 {
    return fRuns->GetRecords();
 }
@@ -200,7 +200,7 @@ inline KVDBSystem *KVINDRADB::GetSystem(const Char_t * system) const
    return (KVDBSystem *) fSystems->GetRecord(system);
 }
 
-inline TList *KVINDRADB::GetSystems() const
+inline KVSeqCollection *KVINDRADB::GetSystems() const
 {
    return fSystems->GetRecords();
 }
@@ -210,7 +210,7 @@ inline KVDBTape *KVINDRADB::GetTape(Int_t tape) const
    return (KVDBTape *) fTapes->GetRecord(tape);
 }
 
-inline TList *KVINDRADB::GetTapes() const
+inline KVSeqCollection *KVINDRADB::GetTapes() const
 {
    return fTapes->GetRecords();
 }
@@ -222,10 +222,10 @@ inline KVINDRADBRun *KVINDRADB::GetRun(Int_t run) const
    return (KVINDRADBRun *) fRuns->GetRecord(run);
 }
 
-inline KVINDRADBRun *KVINDRADB::GetRun(const Char_t * run) const
-{
-   //Returns KVINDRADBRun describing run with name "run"
-   return (KVINDRADBRun *) GetRuns()->FindObject(run);
-}
+//inline KVINDRADBRun *KVINDRADB::GetRun(const Char_t * run) const
+//{
+//   //Returns KVINDRADBRun describing run with name "run"
+//   return (KVINDRADBRun *) GetRuns()->FindObject(run);
+//}
 
 #endif

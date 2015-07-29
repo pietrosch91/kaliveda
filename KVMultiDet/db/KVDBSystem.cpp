@@ -435,7 +435,8 @@ KVDBTable* KVDBSystem::GetRunsTable()
    //The runs are stored in a table called "Runs"
    //Therefore if we take the full path to the Systems table and replace Systems with Runs,
    //we can then use gROOT->FindObject to get the pointer to the Runs table.
-   TString path = GetTable()->GetFullPath();
+
+   TString path = fFullPathTable.Data();
    path.ReplaceAll("Systems", "Runs");
    return (KVDBTable*)gROOT->FindObject(path.Data());
 }

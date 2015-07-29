@@ -589,7 +589,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    //
    //If available runs file does not exist, Update() is called to create it.
 
-    ReadFile(); // this will sanitize the file if necessary (remove duplicates)
+   ReadFile(); // this will sanitize the file if necessary (remove duplicates)
 
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
@@ -608,87 +608,72 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    TString kvversion, username;
    KVDBTable *runs_table = 0;
    if (!fDataSet->GetDataBase()){
-   	runs_table = new KVDBTable("Runs");
+      runs_table = new KVDBTable("Runs");
    }
    else{
-   	runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+      runs_table = fDataSet->GetDataBase()->GetTable("Runs");
    }
+
    while (fRunlist.good()) {
 
-     TObjArray *toks = fLine.Tokenize('|');    // split into fields
-     if(toks->GetSize()){
+      TObjArray *toks = fLine.Tokenize('|');    // split into fields
+      if(toks->GetSize()){
 
-      KVString kvs(((TObjString *) toks->At(0))->GetString());
+         KVString kvs(((TObjString *) toks->At(0))->GetString());
 
-   if(kvs.IsDigit()){
+         if(kvs.IsDigit()){
 
-      good_lines++;
+            good_lines++;
 
-      fRunNumber = kvs.Atoi();
-      kvversion= username="";
-         TString tmp = ((TObjString *) toks->At(1))->GetString();
-         fDatime = TDatime(tmp.Data());
-      if(toks->GetEntries()>3){
-         kvversion = ((TObjString *) toks->At(3))->GetString();
-         username = ((TObjString *) toks->At(4))->GetString();
-      }
-   
-      KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
+            fRunNumber = kvs.Atoi();
+            kvversion= username="";
+            TString tmp = ((TObjString *) toks->At(1))->GetString();
+            fDatime = TDatime(tmp.Data());
+            if(toks->GetEntries()>3){
+               kvversion = ((TObjString *) toks->At(3))->GetString();
+               username = ((TObjString *) toks->At(4))->GetString();
+            }
 
-      KVDBSystem *sys = 0;
-      if (a_run){
-         sys = a_run->GetSystem();
-      }
-      if (!systol) {
-         //making a systems list
-         if (!sys_list)
-            sys_list = new TList;
-         if (sys) {
+            KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
+            KVDBSystem *sys = 0;
+            if (a_run){
+               sys = a_run->GetSystem();
+            }
+            if (!systol) {
+               //making a systems list
+               if (!sys_list)
+                  sys_list = new TList;
+               if (sys) {
 
-				/* Block Modified() signal being emitted by KVDBRun object
-				   when we set its 'datime'. This is to avoid seg fault with
-					KVDataAnalysisGUI, when we are changing system/display,
-					and the KVLVEntry to which this signal was previously connected
-					no longer exists */
-            a_run->BlockSignals(kTRUE);
-				a_run->SetDatime(fDatime);
-            a_run->SetKVVersion(kvversion);
-            a_run->SetUserName(username);
-				a_run->BlockSignals(kFALSE);
+                  a_run->SetDatime(fDatime);
+                  a_run->SetKVVersion(kvversion);
+                  a_run->SetUserName(username);
 
-            if (!sys_list->Contains(sys)) {
-               //new system
-               sys_list->Add(sys);
-               sys->SetNumberRuns(1);   //set run count to 1
+                  if (!sys_list->Contains(sys)) {
+                     //new system
+                     sys_list->Add(sys);
+                     sys->SetNumberRuns(1);   //set run count to 1
+                  } else {
+                     //another run for this system
+                     sys->SetNumberRuns(sys->GetNumberRuns() + 1);
+                  }
+               }
             } else {
-               //another run for this system
-               sys->SetNumberRuns(sys->GetNumberRuns() + 1);
+               //making a runlist
+               if (systol == sys) {   //run belongs to same system
+                  if (!sys_list)
+                     sys_list = new TList;
+                  a_run->SetDatime(fDatime);
+                  a_run->SetKVVersion(kvversion);
+                  a_run->SetUserName(username);
+
+                  sys_list->Add(a_run);
+               }
             }
          }
-      } else {
-         //making a runlist
-         if (systol == sys) {   //run belongs to same system
-            if (!sys_list)
-               sys_list = new TList;
-            //if(noSystems && a_run){
-					/* Block Modified() signal being emitted by KVDBRun object
-				   when we set its 'datime'. This is to avoid seg fault with
-					KVDataAnalysisGUI, when we are changing system/display,
-					and the KVLVEntry to which this signal was previously connected
-					no longer exists */
-            	a_run->BlockSignals(kTRUE);
-					a_run->SetDatime(fDatime);
-               a_run->SetKVVersion(kvversion);
-               a_run->SetUserName(username);
-					a_run->BlockSignals(kFALSE);
-				//}
-            sys_list->Add(a_run);
-         }
       }
-     }
-     }
-     delete toks;
+      delete toks;
       fLine.ReadLine(fRunlist);
    }
 
