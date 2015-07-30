@@ -10,15 +10,10 @@
 /usr/lib/libFAZIAdb.so.1
 /usr/lib/libFAZIAparticles.so.1
 /usr/lib/libFAZIAparticles.so.1.10.03
-/usr/lib/libFAZIAidentification.so.1.10.02
 /usr/lib/libFAZIAgeometry.so.1.10.03
-/usr/lib/libFAZIAdb.so.1.10.02
 /usr/lib/libFAZIAanalysis.so.1.10.03
-/usr/lib/libFAZIAanalysis.so.1.10.02
 /usr/lib/libFAZIAdb.so.1.10.03
 /usr/lib/libFAZIAanalysis.so.1
-/usr/lib/libFAZIAgeometry.so.1.10.02
-/usr/lib/libFAZIAparticles.so.1.10.02
 /usr/lib/libFAZIAgeometry.so.1
 /usr/share/kaliveda/LNS_2014/SI1_QH1toVolt.dat
 /usr/share/kaliveda/LNS_2014/Runlist.csv
