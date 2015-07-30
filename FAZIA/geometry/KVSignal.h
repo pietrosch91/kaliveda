@@ -12,11 +12,26 @@ class KVPSAResult;
 
 class KVSignal : public TGraph
 {
+public:
+    enum SignalType
+      {
+          kQH1,
+          kI1,
+          kQL1,
+          kQ2,
+          kI2,
+          kQ3,
+          kADC,
+          kUNKDT
+      };
+
+
 protected:
    Int_t fBlock;
    Int_t fQuartet;
    TString fQuartetName;
    Int_t fTelescope;
+   Int_t fChannel;                 //! signal type (see KVSignal::SignalType enum)
    TString fTelName;
    TString fDetName;
    TString fType;

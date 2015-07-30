@@ -141,11 +141,21 @@ void KVSignal::DeduceFromName()
         part = tmp.Next(); part.ReplaceAll("Q",""); fQuartet = part.Atoi();
         part = tmp.Next(); part.ReplaceAll("T",""); fTelescope = part.Atoi();
         fType = tmp.Next();
-        fDet = GetTitle(); fDet.ToUpper();
+        fDet = GetTitle();
+        fDet.ToUpper();
 
         fDetName.Form("%s-T%d-Q%d-B%03d",fDet.Data(),fTelescope,fQuartet,fBlock);
         fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
         fQuartetName.Form("B%03d-Q%d",fBlock,fQuartet);
+
+        if(fType.Contains("QH1"))      fChannel = kQH1;
+        else if(fType.Contains("I1"))  fChannel = kI1;
+        else if(fType.Contains("QL1")) fChannel = kQL1;
+        else if(fType.Contains("Q2"))  fChannel = kQ2;
+        else if(fType.Contains("I2"))  fChannel = kI2;
+        else if(fType.Contains("Q3"))  fChannel = kQ3;
+        else if(fType.Contains("ADC")) fChannel = kADC;
+        else                           fChannel = kUNKDT;
     }
 
 }
