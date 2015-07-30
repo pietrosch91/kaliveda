@@ -35,6 +35,7 @@ ISOFAZIA.DataSet.RunFileName.raw:    run%06d.root
 ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 ISOFAZIA.DataSet.RunFileClass.raw:    TFile
 ISOFAZIA.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
+
 #DataBase
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
@@ -123,6 +124,57 @@ CSI.Q3.Shaper: trapezoidal
 CSI.Q3.ShaperRiseTime: 2
 CSI.Q3.ShaperFlatTop: 1
 CSI.Q3.PZCorrection: 1
+
+###
+#	ISOFAZIA
+###
+
+# standard values
+ISOFAZIA.SI1.QL1.BaseLineLength: 		500
+ISOFAZIA.SI1.QL1.TauRC: 			250
+ISOFAZIA.SI1.QL1.ChannelWidth: 			4
+ISOFAZIA.SI1.QL1.Shaper: 			trapezoidal
+ISOFAZIA.SI1.QL1.ShaperRiseTime: 		2
+ISOFAZIA.SI1.QL1.ShaperFlatTop: 		2
+ISOFAZIA.SI1.QL1.PZCorrection: 			0 
+
+ISOFAZIA.SI1.QH1.BaseLineLength: 		500
+ISOFAZIA.SI1.QH1.TauRC: 			40
+ISOFAZIA.SI1.QH1.ChannelWidth: 			10
+ISOFAZIA.SI1.QH1.Shaper: 			trapezoidal
+ISOFAZIA.SI1.QH1.ShaperRiseTime: 		2
+ISOFAZIA.SI1.QH1.ShaperFlatTop: 		2
+ISOFAZIA.SI1.QH1.PZCorrection: 			0 
+
+ISOFAZIA.SI1.I1.BaseLineLength: 		30
+ISOFAZIA.SI1.I1.ChannelWidth: 			4
+ISOFAZIA.SI1.I1.Interpolation: 			1
+#
+ISOFAZIA.SI2.Q2.BaseLineLength: 		500
+ISOFAZIA.SI2.Q2.TauRC: 				40
+ISOFAZIA.SI2.Q2.ChannelWidth: 			10
+ISOFAZIA.SI2.Q2.Shaper: 			trapezoidal
+ISOFAZIA.SI2.Q2.ShaperRiseTime: 		2
+ISOFAZIA.SI2.Q2.ShaperFlatTop: 			2
+ISOFAZIA.SI2.Q2.PZCorrection: 			0 
+
+ISOFAZIA.SI2.I2.BaseLineLength: 		30
+ISOFAZIA.SI2.I2.ChannelWidth: 			4
+ISOFAZIA.SI2.I2.Interpolation: 			1
+#
+ISOFAZIA.CSI.Q3.BaseLineLength: 		250
+ISOFAZIA.CSI.Q3.TauRC: 				40
+ISOFAZIA.CSI.Q3.ChannelWidth: 			10
+ISOFAZIA.CSI.Q3.Fast.Shaper: 			semigaussian
+ISOFAZIA.CSI.Q3.Fast.ShaperRiseTime: 		0.7
+ISOFAZIA.CSI.Q3.Fast.ShaperFlatTop: 		0.5
+ISOFAZIA.CSI.Q3.Total.Shaper: 			semigaussian
+ISOFAZIA.CSI.Q3.Total.ShaperRiseTime: 		0.7
+ISOFAZIA.CSI.Q3.Total.ShaperFlatTop: 		10
+ISOFAZIA.CSI.Q3.PZCorrection: 			0
+
+ISOFAZIA.ExceptionFile:				ISOFAZIA-PSA-Params.dat
+
 
 ###
 #	Old dataset of FAZIA
