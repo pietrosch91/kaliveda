@@ -54,20 +54,20 @@ class KVFAZIADB : public KVDataBase
    	//Returns KVFAZIADBRun describing run number 'run'
    	return (KVFAZIADBRun *) fRuns->GetRecord(run);
    }
-   KVFAZIADBRun *GetRun(const Char_t * run) const
-	{
-   	//Returns KVFAZIADBRun describing run with name "run"
-   	return (KVFAZIADBRun *) GetRuns()->FindObject(run);
-	}
+//   KVFAZIADBRun *GetRun(const Char_t * run) const
+//	{
+//   	//Returns KVFAZIADBRun describing run with name "run"
+//   	return (KVFAZIADBRun *) GetRuns()->FindObject(run);
+//	}
 
-   virtual TList *GetRuns() const { return fRuns->GetRecords(); }
+   virtual KVSeqCollection *GetRuns() const { return fRuns->GetRecords(); }
 	
    virtual KVDBSystem *GetSystem(const Char_t * system) const
    {
    return (KVDBSystem *) fSystems->GetRecord(system);
 	}
 	
-   virtual TList *GetSystems() const
+   virtual KVSeqCollection *GetSystems() const
 	{
 	   return fSystems->GetRecords();
 	}

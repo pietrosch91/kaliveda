@@ -16,6 +16,8 @@
 // through the global pointer gIndra, you must AT LEAST add the line
 //   #include "KVFAZIA.h"
 
+ClassImp(KVFAZIASelectorTemplate)
+
 void KVFAZIASelectorTemplate::InitAnalysis(void)
  {
  // 

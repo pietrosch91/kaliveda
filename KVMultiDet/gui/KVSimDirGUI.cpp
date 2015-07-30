@@ -558,7 +558,7 @@ void KVSimDirGUI::SelectDataSet(const char* name)
       fSystem="";
       fRun="";
       ds->cd();
-      TList* systems = 0;
+      KVSeqCollection* systems = 0;
       if(gDataBase) systems = gDataBase->GetTable("Systems")->GetRecords();
       fCBsystem->RemoveAll();
       fCBsystem->AddEntry("Choose system...", 0);

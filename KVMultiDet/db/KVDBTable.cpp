@@ -20,6 +20,8 @@ $Id: KVDBTable.cpp,v 1.18 2007/04/27 14:46:29 franklan Exp $
 #include "Riostream.h"
 #include "TROOT.h"
 
+#include <KVUniqueNameList.h>
+
 
 using namespace std;
 
@@ -31,35 +33,42 @@ ClassImp(KVDBTable)
 //
 //
 //__________________________________________________________________
-    KVDBTable::KVDBTable()
+KVDBTable::KVDBTable()
 {
    fIsUnique = kFALSE;
-   SetOwner(kTRUE);
 }
 
 //__________________________________________________________________
 
 KVDBTable::KVDBTable(const Char_t * name, const Char_t * type,
                      Bool_t unique)
-:TFolder(name, type)
+:TFolder() // do not call TFolder(name,type) ctor as it creates a default TList for fFolders
 {
+   SetName(name);
+   SetTitle(type);
    fIsUnique = unique;
-   SetOwner(kTRUE);
+   if(unique) fFolders = new KVUniqueNameList;
+   else fFolders = new KVHashList;
+   SetOwner();
 }
 
 //__________________________________________________________________
 
 KVDBTable::~KVDBTable()
 {
-	gROOT->GetListOfCleanups()->Remove(this);
+   gROOT->GetListOfCleanups()->Remove(this);
 }
 
 //___________________________________________________________________
 
 Bool_t KVDBTable::AddRecord(KVDBRecord * rec)
 {
-   //Add a KVDBRecord to the list of available records and return kTRUE
+   // Add a KVDBRecord to the list of available records and return kTRUE
+   // If a default formatting string for names of numbered records has been
+   // set (see SetDefaultFormat(const TString&)) the name of the record
+   // will be automatically set here according to the format and its number.
 
+   if(HasDefaultFormat()) rec->SetName(Form(fDefFormatNumRec.Data(),rec->GetNumber()));
    Add(rec);
    rec->SetTable(this);
    return kTRUE;
@@ -80,26 +89,46 @@ void KVDBTable::RemoveRecord(KVDBRecord * rec)
 void KVDBTable::ls(Option_t*) const
 {
    cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() <<
-       endl;
+           endl;
+}
+
+void KVDBTable::SetDefaultFormat(const TString& fmt)
+{
+   // Set a default formatting string for names of numbered records.
+   // e.g. if fmt="Rec#%d", each record which is added to the table will have
+   // its name automatically set to "Rec#1", "Rec#2", etc., according to the
+   // record number.
+   // This allows to replace a slow sequential scan for a record based on number
+   // (GetRecord(Int_t)) with a fast hash-based look-up
+
+   fDefFormatNumRec = fmt.Data();
 }
 
 //___________________________________________________________________________________//
 
-TObject *KVDBTable::FindObject(const Char_t * name) const
-{
-   //Redefinition of TFolder::FindObject, which doesn't seem to work correctly with names that
-   //have spaces in them (???)
-   //call FindObject method for each record in table
+//TObject *KVDBTable::FindObject(const Char_t * name) const
+//{
+//   //Redefinition of TFolder::FindObject, which doesn't seem to work correctly with names that
+//   //have spaces in them (???)
+//   //call FindObject method for each record in table
 
-   return GetListOfFolders()->FindObject(name);
-}
+//   return GetListOfFolders()->FindObject(name);
+//}
 
 //___________________________________________________________________________________//
 
 KVDBRecord *KVDBTable::GetRecord(Int_t num) const
 {
-   //Search for record using its number.
-   //To keep things simple, we only search in the top level of the folder structure.
+   // Sequential search for record using its number.
+   // To keep things simple, we only search in the top level of the folder structure.
+   //
+   // NOTE: if there are many records, this sequential search can be long.
+   // If a default format for the record name using its number has been defined
+   // (see SetDefaultFormat(const TString&)) the search will be performed using
+   // the resulting formatted object name, which is fast (hash list).
+
+   if(HasDefaultFormat()) return (KVDBRecord*)FindObject(Form(fDefFormatNumRec.Data(),num));
+
    TIter next(GetListOfFolders());
    KVDBRecord *obj = 0;
    while ((obj = (KVDBRecord *) next()) && (obj->GetNumber() != num));

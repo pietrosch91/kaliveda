@@ -18,7 +18,7 @@
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class KVFAZIAReader : public TSelector {
-public :
+
    TTree	*fChain;   //!pointer to the analyzed TTree or TChain
 	Int_t fEventNumber;
    Int_t fCurrentRun;
@@ -26,6 +26,7 @@ public :
    KVFAZIARawEvent* RawEvent;
    KVDetectorEvent* fDetEv;
    
+   public :
    KVFAZIAReader() : fChain(0) { fCurrentRun = -1; RawEvent=0; fDetEv = new KVDetectorEvent(); }
    virtual ~KVFAZIAReader() { SafeDelete(fDetEv); }
    virtual Int_t   Version() const { return 2; }
@@ -54,12 +55,15 @@ public :
    virtual void EndAnalysis(){}					//Called by Terminate()
 	//
    
-   virtual Int_t GetEventNumber(){return fEventNumber;} 
-   virtual Int_t GetCurrentRunNumber() {return fCurrentRun;} 
-   virtual Int_t GetNumberOfReadEntries() {return fReadEntries;} 
+   Int_t GetEventNumber(){return fEventNumber;}
+   Int_t GetCurrentRunNumber() {return fCurrentRun;}
+   Int_t GetNumberOfReadEntries() {return fReadEntries;}
    
+   KVFAZIARawEvent* GetEvent() const { return RawEvent; }
    KVDetectorEvent* GetDetectorEvent() const { return fDetEv; }
    
+   static void Make(const Char_t * kvsname = "MyOwnKVFAZIAReader");
+
    ClassDef(KVFAZIAReader,0);
 };
 

@@ -68,7 +68,7 @@ class KVFAZIARawDataAnalyser:public KVDataAnalyser {
    Int_t GetDataReleaseNumber() const { return fDataReleaseNum; }
    
    
-   ClassDef(KVFAZIARawDataAnalyser, 0) //For analysing reconstructed INDRA data
+   ClassDef(KVFAZIARawDataAnalyser, 0) //For analysing raw FAZIA data
 };
 
 #endif

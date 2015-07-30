@@ -73,14 +73,14 @@ void KVFAZIARawDataReconstructor::InitRun()
             gDataRepository->GetName()),
          gDataSet->GetName() );
       
-		file = OutputDataset->NewRunfile(datatype.Data(), fCurrentRun);
+                file = OutputDataset->NewRunfile(datatype.Data(), GetCurrentRunNumber());
       
 		std::cout << "Writing \"" << datatype.Data() << "\" events in ROOT file " << file->GetName() << std::endl;
 
       //tree for reconstructed events
 		tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
-			 	gFaziaDB->GetRun(fCurrentRun)->GetName(),
-            gFaziaDB->GetRun(fCurrentRun)->GetTitle(),
+                                gFaziaDB->GetRun(GetCurrentRunNumber())->GetName(),
+            gFaziaDB->GetRun(GetCurrentRunNumber())->GetTitle(),
             datatype.Data())
             );
 
@@ -161,6 +161,6 @@ void KVFAZIARawDataReconstructor::EndRun()
 			gDataRepository->GetName()),
 			gDataSet->GetName() );
 	//add new file to repository
-	OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
+        OutputDataset->CommitRunfile(datatype.Data(), GetCurrentRunNumber(), file);
 
 }

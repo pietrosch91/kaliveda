@@ -26,6 +26,7 @@ void KVFAZIADB::init()
    kLastRun = 0;
 
    fRuns = AddTable("Runs", "List of available runs");
+   fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
 }
 

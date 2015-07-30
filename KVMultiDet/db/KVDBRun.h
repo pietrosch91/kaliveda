@@ -76,6 +76,8 @@ protected:
     KVDBRun(Int_t number, const Char_t * title);
     virtual ~ KVDBRun();
 
+    void SetNumber(Int_t n) { KVDBRecord::SetNumber(n); Modified(); }
+
     TDatime & GetDatime() {
       return fDatime;
    };
@@ -122,8 +124,6 @@ protected:
 
    virtual void SetSystem(KVDBSystem * system);
    virtual void UnsetSystem();
-
-   virtual void SetNumber(Int_t n);
 
    virtual void Print(Option_t * option = "") const;
 
