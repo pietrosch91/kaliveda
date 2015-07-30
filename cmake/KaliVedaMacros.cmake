@@ -1,5 +1,7 @@
 include(CMakeParseArguments)
 
+set(KV_HTML_CONVERTER html_convert)
+
 #---------------------------------------------------------------------------------------------------
 #---KALIVEDA_SET_INCLUDE_DIRS(library MODULES mod1 mod2 ...)
 #---------------------------------------------------------------------------------------------------
@@ -238,8 +240,10 @@ function(ADD_KALIVEDA_EXAMPLE_FUNCTION source)
     #--get description for example
     EXTRACT_EXAMPLE_DESCRIPTION(desc SOURCE ${source})
     message(STATUS "         ${sourcefile} - ${desc}")
+    set_property(GLOBAL APPEND PROPERTY KALIVEDA_EXFUNCS ${sourcename})
     set_property(GLOBAL APPEND PROPERTY ${KVSUBPROJECT}_EXFUNCS ${sourcename})
     set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_FILE ${sourcefile})
+    set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_SRC ${source})
     set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_DESC ${desc})
 
     add_library(${KVSUBPROJECT}${sourcename} SHARED ${source})
@@ -261,13 +265,42 @@ function(WRITE_EXAMPLES_INDEX subproject)
     foreach(example ${EXFUNCS})
       get_property(ex_file GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_FILE)
       get_property(ex_desc GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_DESC)
-      file(APPEND ${html_filename} "<li>${ex_file} - ${ex_desc}</li>\n")
+      file(APPEND ${html_filename} "<li><a href=\"examples/${ex_file}.html\">${ex_file}</a> - ${ex_desc}</li>\n")
     endforeach(example)
     file(APPEND ${html_filename} "</ol>\n")
 
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
+#---CONVERT_ALL_EXAMPLE_FUNCTIONS()
+#
+# Make HTML versions of all examples
+#
+function(CONVERT_ALL_EXAMPLE_FUNCTIONS)
+
+    get_property(KALIVEDA_SUBPROJ_LIST GLOBAL PROPERTY KALIVEDA_SUBPROJ_LIST)
+    foreach(subproject ${KALIVEDA_SUBPROJ_LIST})
+      get_property(EXFUNCS GLOBAL PROPERTY ${subproject}_EXFUNCS)
+      foreach(example ${EXFUNCS})
+         get_property(ex_file GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_FILE)
+         get_property(ex_desc GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_DESC)
+         get_property(ex_src GLOBAL PROPERTY ${subproject}_EXFUNC_${example}_SRC)
+         
+         add_custom_command(
+            OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/examples/${ex_file}.html
+            COMMAND ${KV_HTML_CONVERTER} -o ${CMAKE_BINARY_DIR}/htmldoc -t "${ex_desc}" ${ex_src}
+            VERBATIM
+         )
+         add_custom_target(
+            ${example} DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/examples/${ex_file}.html
+         )
+         message(STATUS "${KV_HTML_CONVERTER} -o ${CMAKE_BINARY_DIR}/htmldoc -t \"${ex_desc}\" ${ex_src}")
+         
+      endforeach(example)
+    endforeach(subproject)
+
+endfunction()
+
 #---------------------------------------------------------------------------------------------------
 #---BUILD_KALIVEDA_MODULE(kvmod PARENT kvtopdir [KVMOD_DEPENDS kvmod1 kvmod2...] [EXTRA_LIBS lib1 lib2...] 
 #             [DICT_EXCLUDE toto.h titi.h ...] [LIB_EXCLUDE Class1 Class2...])
