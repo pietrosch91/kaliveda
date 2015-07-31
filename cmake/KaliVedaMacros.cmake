@@ -294,7 +294,6 @@ function(CONVERT_ALL_EXAMPLE_FUNCTIONS)
          add_custom_target(
             ${example} DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/examples/${ex_file}.html
          )
-         message(STATUS "${KV_HTML_CONVERTER} -o ${CMAKE_BINARY_DIR}/htmldoc -t \"${ex_desc}\" ${ex_src}")
          
       endforeach(example)
     endforeach(subproject)
