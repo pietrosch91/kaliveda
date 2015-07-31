@@ -1,0 +1,47 @@
+//Created by KVClassFactory on Wed Mar  4 16:50:19 2015
+//Author: John Frankland,,,
+
+#ifndef SIMPLE2DMODEL_BINNED_H
+#define SIMPLE2DMODEL_BINNED_H
+
+#include "./GenericModel_Binned.h"
+#include "TH1.h"
+#include "TH2.h"
+#include <vector>
+
+namespace BackTrack {
+
+   class Simple2DModel_Binned : public GenericModel_Binned
+   {
+    /* Simple model to generate 2 correlated observables [obs1, obs2]    
+    *  according to 2 input model parameters [par1,par2] 
+    *  We generate obs1 and obs2 according to gaussian distributions of means: mean1=par1+par2  and sigma1=abs(mean1)/5
+                                                                               mean2=par1-par2  and sigma2=abs(mean2)/10								      
+    */
+
+      ClassDef(Simple2DModel_Binned,1)   //Simple model to test backtrack procedures
+      
+      protected:
+
+      Int_t fNGen;                      //Number of events to generate for each dataset
+      vector<Double_t> *ffweight;       //Guess on the parameters for the fit   
+      
+      
+      
+      public:
+      
+      Simple2DModel_Binned();
+      virtual ~Simple2DModel_Binned();
+      
+      void InitParObs(RooWorkspace *ww=0);                                             //To set parameters and observables values/limits     
+      vector<Double_t>* CreateInitWeights(TH2F* hh_weights=0, Double_t expentries=1.); //To initialize the parameters guess for the fit if we want 
+      vector<Double_t>* GetInitWeights() { return ffweight; }                           //To get the initial weights
+      RooDataHist* GetModelDataHist(RooArgList &par);                                  //Definition f the virtual method for GenericModel_Binned class  
+      void generateEvent(const RooArgList& parameters, RooDataSet& data);              //Generate one event for the model
+      void SetNumGen(Int_t n) { fNGen=n; }                                             //Number of events to generate
+      Int_t GetNumGen() const { return fNGen; }      
+      TH1* GetParameterDistributions();                                                //For drawings after the fit
+   };
+
+}
+#endif
