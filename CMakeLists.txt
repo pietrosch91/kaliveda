@@ -8,9 +8,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 #--look for ROOT & all essential libraries
 find_package(ROOT
 	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
-	RIO Tree MathCore Matrix Gpad Gui Net Html
-   OPTIONAL_COMPONENTS RGL RooFit RooFitCore)
-
+	RIO Tree MathCore Matrix Gpad Gui Net
+   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html)
+	
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
@@ -297,21 +297,22 @@ endif()
 #---install man pages for KaliVeda
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
 
-
 #------------------------HTML CLASS REFERENCE & EXAMPLES GENERATION
-KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES base)
-add_executable(${KV_HTML_CONVERTER} EXCLUDE_FROM_ALL tools/html/html_convert.cxx)
-target_link_libraries(${KV_HTML_CONVERTER} KVMultiDetbase)
-target_link_libraries(${KV_HTML_CONVERTER} ${ROOT_html_LIB})
+if(ROOT_Html_LIBRARY)
+   KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES base)
+   add_executable(${KV_HTML_CONVERTER} EXCLUDE_FROM_ALL tools/html/html_convert.cxx)
+   target_link_libraries(${KV_HTML_CONVERTER} KVMultiDetbase)
+   target_link_libraries(${KV_HTML_CONVERTER} ${ROOT_LIBRARIES})
 
-CONVERT_ALL_EXAMPLE_FUNCTIONS()
-get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
-#---add a 'html' target to generate ROOT class reference
-file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
-add_custom_target(classref
+   CONVERT_ALL_EXAMPLE_FUNCTIONS()
+   get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
+   #---add a 'html' target to generate ROOT class reference
+   file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
+   add_custom_target(classref
       cmake -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
       COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C
       )
-add_custom_target(html 
+   add_custom_target(html 
       DEPENDS ${KALIVEDA_EXFUNCS} classref 
       )
+endif(ROOT_Html_LIBRARY)

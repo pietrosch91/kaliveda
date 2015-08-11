@@ -4,6 +4,8 @@
 #include <iostream>
 
 #include "THtml.h"
+#include "TSystem.h"
+#include "TROOT.h"
 #include "KVBase.h"
 using namespace std;
 
@@ -42,6 +44,8 @@ int main(int argc, char *argv[])
     }
 
     input = argv[optind];
+    
+    KVBase::InitEnvironment();
         
     THtml html;
     html.LoadAllLibs();
@@ -50,9 +54,13 @@ int main(int argc, char *argv[])
     html.SetInputDir(source_root);
     if(output!="") html.SetOutputDir(output.c_str());
     
+    gSystem->SetBuildDir(KVBase::GetKVBuildDir(),kTRUE);
+    
     if(is_class){
     }
     else{
+       string aclic = input + "+";
+       gROOT->LoadMacro(aclic.c_str());
        html.Convert(input.c_str(),title.c_str());
     }
     
