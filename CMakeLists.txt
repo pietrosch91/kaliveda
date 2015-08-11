@@ -238,14 +238,6 @@ configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---configure and install kaliveda-config script
-get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
-list(REVERSE KALIVEDA_LIB_LIST)
-set(kaliveda_libraries)
-set(space)
-foreach(l ${KALIVEDA_LIB_LIST})
-	set(kaliveda_libraries "${kaliveda_libraries}${space}-l${l}")
-	set(space " ")
-endforeach()
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -308,9 +300,11 @@ if(ROOT_Html_LIBRARY)
    get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
    #---add a 'html' target to generate ROOT class reference
    file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
+   get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
    add_custom_target(classref
       cmake -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
       COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C
+      DEPENDS ${KALIVEDA_LIB_LIST}
       )
    add_custom_target(html 
       DEPENDS ${KALIVEDA_EXFUNCS} classref 

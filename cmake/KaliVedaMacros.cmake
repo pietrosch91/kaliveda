@@ -290,6 +290,7 @@ function(CONVERT_ALL_EXAMPLE_FUNCTIONS)
             OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/examples/${ex_file}.html
             COMMAND ${KV_HTML_CONVERTER} -o ${CMAKE_BINARY_DIR}/htmldoc -t "${ex_desc}" ${ex_src}
             VERBATIM
+            DEPENDS ${KV_HTML_CONVERTER} ${ex_src}
          )
          add_custom_target(
             ${example} DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/examples/${ex_file}.html
