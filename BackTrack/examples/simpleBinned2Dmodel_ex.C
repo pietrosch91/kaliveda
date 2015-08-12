@@ -26,7 +26,7 @@
 #include "TH2.h"
 
 #include "Simple2DModel_Binned.h"
-#include "MyGlobalFunc.h"  // To add new RooCmd
+#include "NewRooGlobalFunc.h"     // To add new RooCmd
 
 using namespace RooFit;
 using namespace MyGlobalFunc;
@@ -40,7 +40,6 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
 
    //If RooWorkspace already generated
    TFile *file = new TFile("./workspace_PARA_par1[0.0,10.0,10]_par2[-20.0,20.0,20]_OBS_obs1[-45.0,45.0,45]_obs2[-30.0,30.0,60].root");
-   //TFile *file = new TFile("./dummy.root");
    RooWorkspace *ww = (RooWorkspace *) file->Get("init_workspace");
    
    

@@ -8,4 +8,5 @@
 #pragma link C++ namespace BackTrack;
 #pragma link C++ class BackTrack::GenericModel+;
 #pragma link C++ class BackTrack::GenericPDFModel+;
+#pragma link C++ class BackTrack::GenericModel_Binned+;
 #endif

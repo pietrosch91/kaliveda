@@ -1,10 +1,10 @@
 //Created by KVClassFactory on Wed Mar  4 16:50:19 2015
 //Author: John Frankland,,,
 
-#ifndef SIMPLE2DMODEL_BINNED_H
-#define SIMPLE2DMODEL_BINNED_H
+#ifndef __SIMPLE2DMODEL_BINNED_H
+#define __SIMPLE2DMODEL_BINNED_H
 
-#include "../GenericModel_Binned.h"
+#include "GenericModel_Binned.h"
 #include "TH1.h"
 #include "TH2.h"
 #include <vector>

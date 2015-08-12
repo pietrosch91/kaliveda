@@ -5,8 +5,8 @@
  *      Author: john, quentin
  */
 
-#ifndef GENERICMODEL_BINNED_H_
-#define GENERICMODEL_BINNED_H_
+#ifndef __GENERICMODEL_BINNED_H_
+#define __GENERICMODEL_BINNED_H_
 
 #include "KVBase.h"
 #include "RooAbsReal.h"
@@ -31,6 +31,7 @@
 #include "RooWorkspace.h"
 #include "KVNumberList.h"
 #include "TH2.h"
+#include "NewRooGlobalFunc.h"
 
 using namespace RooFit ;
 
