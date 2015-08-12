@@ -7,6 +7,7 @@
 
 #include "GenericModel_Binned.h"
 
+#include "RooFit.h"
 #include "RooCmdConfig.h"
 #include "Riostream.h"
 #include "TMath.h"
@@ -527,8 +528,7 @@ namespace BackTrack {
     
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   RooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
-					   const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8, const RooCmdArg& arg9,
-					   const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
+					                      const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8)
   {
     //Print informations
     Info("fiTo...","performing fit with %d parameters and %d observables", GetNumberOfParameters(), GetNumberOfObservables());
@@ -547,418 +547,10 @@ namespace BackTrack {
         Info("fiTo...","observable%d: name=%s, min=%e, max=%e, nbin=%d",ii, p->GetName(),p->getMin(),p->getMax(),N); 
       }  
     
-    //RooLinkedList creation
-    RooLinkedList l ;
-    l.Add((TObject*)&arg1) ;  l.Add((TObject*)&arg2) ;  
-    l.Add((TObject*)&arg3) ;  l.Add((TObject*)&arg4) ;
-    l.Add((TObject*)&arg5) ;  l.Add((TObject*)&arg6) ;  
-    l.Add((TObject*)&arg7) ;  l.Add((TObject*)&arg8) ;
-    l.Add((TObject*)&arg9) ;  l.Add((TObject*)&arg10) ; 
-    l.Add((TObject*)&arg11) ;  l.Add((TObject*)&arg12) ;        
-    
-    return fitTo(data, l); 
-  }
-  
-  
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  RooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooLinkedList& cmdList)   
-  {
-    // Perform fit of the pseudo-PDF to the data
-    // On multi-core machines, this automatically uses all available processor cores
-    // Some options were added compared to the RooAbsPdf::fitTo() method: number of calls, iteration and the tolerance factor epsilon can be changed
-    
-    //=================================
-    //==      Add some fit options   ==
-    //=================================
-    
-    RooCmdConfig pc(Form("GenericModel_Binned::fitTo(%s)",GetName()));
-
-    //Global list of RooCmdArg for the fit
-    RooLinkedList fitCmdList(cmdList);
-    //Filter some RooCmdArg to be nll RooCmdArg list
-    RooLinkedList nllCmdList =  pc.filterCmdList(fitCmdList,"ProjectedObservables,Extended,Range,RangeWithName,SumCoefRange,NumCPU,SplitRange,Constrained,Constrain,ExternalConstraints,CloneData,GlobalObservables,GlobalObservablesTag,OffsetLikelihood");	
-    
-      
-    pc.defineString("fitOpt","FitOptions",0,"") ;
-    pc.defineInt("optConst","Optimize",0,2) ;
-    pc.defineInt("verbose","Verbose",0,0) ;
-    pc.defineInt("doSave","Save",0,0) ;
-    pc.defineInt("doTimer","Timer",0,0) ;
-    pc.defineInt("plevel","PrintLevel",0,1) ;
-    pc.defineInt("strat","Strategy",0,1) ;
-    pc.defineInt("initHesse","InitialHesse",0,0) ;
-    pc.defineInt("hesse","Hesse",0,1) ;
-    pc.defineInt("minos","Minos",0,0) ;
-    pc.defineInt("ext","Extended",0,2) ;
-    pc.defineInt("numcpu","NumCPU",0,1) ;
-    pc.defineInt("numee","PrintEvalErrors",0,10) ;
-    pc.defineInt("doEEWall","EvalErrorWall",0,1) ;
-    pc.defineInt("doWarn","Warnings",0,1) ;
-    pc.defineInt("doSumW2","SumW2Error",0,-1) ;
-    pc.defineInt("doOffset","OffsetLikelihood",0,0) ;
-    pc.defineString("mintype","Minimizer",0,"OldMinuit") ;
-    pc.defineString("minalg","Minimizer",1,"minuit") ;
-    pc.defineObject("minosSet","Minos",0,0) ;
-    pc.defineSet("cPars","Constrain",0,0) ;
-    pc.defineSet("extCons","ExternalConstraints",0,0) ;
-    pc.defineMutex("FitOptions","Verbose") ;
-    pc.defineMutex("FitOptions","Save") ;
-    pc.defineMutex("FitOptions","Timer") ;
-    pc.defineMutex("FitOptions","Strategy") ;
-    pc.defineMutex("FitOptions","InitialHesse") ;
-    pc.defineMutex("FitOptions","Hesse") ;
-    pc.defineMutex("FitOptions","Minos") ;
-    pc.defineMutex("Range","RangeWithName") ;
-    pc.defineMutex("InitialHesse","Minimizer") ;
-  
-    //Added RooCmdArg
-    //Modify number of max iteration and max calls (by default maxiter = maxcalls = 500*nparameters (see RooMinimizer class))
-    pc.defineInt("numiter", "SetMaxIter", 0, 0);
-    pc.defineInt("numcalls","SetMaxCalls", 0, 0);
-    //Modify tolerance value of the fit (convergence)
-    pc.defineDouble("eps", "SetEpsilon", 0, 1.0);
-
-  
-    //Process and check varargs 
-    pc.process(fitCmdList) ;
-    if (!pc.ok(kTRUE)) {
-      return 0 ;
-    }
-
-    //Decode command line arguments
-    const char* fitOpt = pc.getString("fitOpt",0,kTRUE) ;
-    Int_t optConst = pc.getInt("optConst") ;
-    Int_t verbose  = pc.getInt("verbose") ;
-    Int_t doSave   = pc.getInt("doSave") ;
-    Int_t doTimer  = pc.getInt("doTimer") ;
-    Int_t plevel   = pc.getInt("plevel") ;
-    Int_t strat    = pc.getInt("strat") ;
-    Int_t initHesse= pc.getInt("initHesse") ;
-    Int_t hesse    = pc.getInt("hesse") ;
-    Int_t minos    = pc.getInt("minos") ;
-    Int_t numee    = pc.getInt("numee") ;
-    Int_t doEEWall = pc.getInt("doEEWall") ;
-    Int_t doWarn   = pc.getInt("doWarn") ;
-    Int_t doSumW2  = pc.getInt("doSumW2") ;
-    Int_t numiter  = pc.getInt("numiter") ;
-    Int_t numcalls = pc.getInt("numcalls") ;
-    Double_t eps   = pc.getDouble("eps");
-    const RooArgSet* minosSet = static_cast<RooArgSet*>(pc.getObject("minosSet")) ;
-#ifdef __ROOFIT_NOROOMINIMIZER
-    const char* minType =0 ;
-#else
-    const char* minType = pc.getString("mintype","OldMinuit") ;
-    const char* minAlg  = pc.getString("minalg","minuit") ;
-#endif
-
-    // Determine if the dataset has weights  
-    Bool_t weightedData = data.isNonPoissonWeighted() ;
-
-    // Warn user that a SumW2Error() argument should be provided if weighted data is offered
-    if (weightedData && doSumW2==-1) {
-      coutW(InputArguments) << "RooAbsPdf::fitTo(" << GetName() << ") WARNING: a likelihood fit is request of what appears to be weighted data. " << endl
-			    << "       While the estimated values of the parameters will always be calculated taking the weights into account, " << endl 
-			    << "       there are multiple ways to estimate the errors on these parameter values. You are advised to make an " << endl 
-			    << "       explicit choice on the error calculation: " << endl
-			    << "           - Either provide SumW2Error(kTRUE), to calculate a sum-of-weights corrected HESSE error matrix " << endl
-			    << "             (error will be proportional to the number of events)" << endl 
-			    << "           - Or provide SumW2Error(kFALSE), to return errors from original HESSE error matrix" << endl 
-			    << "             (which will be proportional to the sum of the weights)" << endl 
-			    << "       If you want the errors to reflect the information contained in the provided dataset, choose kTRUE. " << endl
-			    << "       If you want the errors to reflect the precision you would be able to obtain with an unweighted dataset " << endl 
-			    << "       with 'sum-of-weights' events, choose kFALSE." << endl ;
-    }
-
-
-    // Warn user that sum-of-weights correction does not apply to MINOS errrors
-    if (doSumW2==1 && minos) {
-      coutW(InputArguments) << "RooAbsPdf::fitTo(" << GetName() << ") WARNING: sum-of-weights correction does not apply to MINOS errors" << endl ;
-    }
-   
-    RooAbsReal* nll = fModelPseudoPDF->createNLL(data,nllCmdList);        
-
-    //=============================
-    //==   Instantiate MINUIT    ==
-    //=============================
-
-    if (string(minType)!="OldMinuit") {
-    
-#ifndef __ROOFIT_NOROOMINIMIZER
-
-      RooMinimizer m(*nll) ;
-      m.setMinimizerType(minType) ;    
-      m.setEvalErrorWall(doEEWall) ;
-    
-      if(numiter>0) m.setMaxIterations(numiter);
-      if(numcalls>0) m.setMaxFunctionCalls(numcalls);   
-    
-      m.setEps(eps);
-        
-      if (doWarn==0) 
-	{
-	  // m.setNoWarn() ; WVE FIX THIS
-	}
-    
-      m.setPrintEvalErrors(numee) ;
-      if (plevel!=1) {
-	m.setPrintLevel(plevel) ;
-      }
-    
-      if (optConst) {
-	// Activate constant term optimization
-	m.optimizeConst(optConst) ;
-      }
-    
-      if (fitOpt)
-	{
-      
-	  // Play fit options as historically defined
-	  fLastFit = m.fit(fitOpt) ;
-      
-	} 
-    
-      else {
-      
-	if (verbose) {
-	  // Activate verbose options
-	  m.setVerbose(1) ;
-	}
-	if (doTimer) {
-	  // Activate timer options
-	  m.setProfile(1) ;
-	}
-      
-	if (strat!=1) {
-	  // Modify fit strategy
-	  m.setStrategy(strat) ;
-	}
-      
-	if (initHesse) {
-	  // Initialize errors with hesse
-	  m.hesse() ;
-	}
-      
-	// Minimize using chosen algorithm
-	m.minimize(minType,minAlg) ;
-      
-	if (hesse) {
-	  // Evaluate errors with Hesse
-	  m.hesse() ;
-	}
-      
-	if (doSumW2==1 && m.getNPar()>0) {
-	  // Make list of RooNLLVar components of FCN
-	  RooArgSet* comps = nll->getComponents();
-	  vector<RooNLLVar*> nllComponents;
-	  nllComponents.reserve(comps->getSize());
-	  TIterator* citer = comps->createIterator();
-	  RooAbsArg* arg;
-	  while ((arg=(RooAbsArg*)citer->Next())) {
-	    RooNLLVar* nllComp = dynamic_cast<RooNLLVar*>(arg);
-	    if (!nllComp) continue;
-	    nllComponents.push_back(nllComp);
-	  }
-	  delete citer;
-	  delete comps; 
-	
-	  // Calculated corrected errors for weighted likelihood fits
-	  RooFitResult* rw = m.save();
-	  for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
-	    (*it)->applyWeightSquared(kTRUE);
-	  }
-	  coutI(Fitting) << "RooAbsPdf::fitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
-	  m.hesse();
-	  RooFitResult* rw2 = m.save();
-	  for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
-	    (*it)->applyWeightSquared(kFALSE);
-	  }
-	
-	  // Apply correction matrix
-	  const TMatrixDSym& matV = rw->covarianceMatrix();
-	  TMatrixDSym matC = rw2->covarianceMatrix();
-	  using ROOT::Math::CholeskyDecompGenDim;
-	  CholeskyDecompGenDim<Double_t> decomp(matC.GetNrows(), matC);
-	  if (!decomp) {
-	    coutE(Fitting) << "RooAbsPdf::fitTo(" << GetName() 
-			   << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" <<endl ;
-	  } else {
-	    // replace C by its inverse
-	    decomp.Invert(matC); 
-	    // the class lies about the matrix being symmetric, so fill in the
-	    // part above the diagonal
-	    for (int i = 0; i < matC.GetNrows(); ++i)
-	      for (int j = 0; j < i; ++j) matC(j, i) = matC(i, j);
-	    matC.Similarity(matV);
-	    // C now contiains V C^-1 V
-	    // Propagate corrected errors to parameters objects
-	    m.applyCovarianceMatrix(matC);
-	  }
-	
-	  delete rw;
-	  delete rw2;
-	}
-      
-	if (minos) {
-	  // Evaluate errs with Minos
-	  if (minosSet) {
-	    m.minos(*minosSet) ;
-	  } else {
-	    m.minos() ;
-	  }
-	}
-      
-	// Optionally return fit result
-	if (doSave) {
-	  string name = Form("fitresult_%s_%s",GetName(),data.GetName()) ;
-	  string title = Form("Result of fit of p.d.f. %s to dataset %s",GetName(),data.GetName()) ;
-	  fLastFit = m.save(name.c_str(),title.c_str()) ;
-	} 
-      
-      }
-      if (optConst) {
-	m.optimizeConst(0) ;
-      }
-
-#endif
-
-    }
-    
-    else {
-
-      RooMinuit m(*nll) ;
-   
-      m.setEps(eps);
-        
-      m.setEvalErrorWall(doEEWall) ;
-      if (doWarn==0) {
-	m.setNoWarn() ;
-      }
-    
-      m.setPrintEvalErrors(numee) ;
-      if (plevel!=1) {
-	m.setPrintLevel(plevel) ;
-      }
-    
-      if (optConst) {
-	// Activate constant term optimization
-	m.optimizeConst(optConst) ;
-      }
-    
-      if (fitOpt) {
-      
-	// Play fit options as historically defined
-	fLastFit = m.fit(fitOpt) ;
-      
-      } else {
-      
-	if (verbose) {
-	  // Activate verbose options
-	  m.setVerbose(1) ;
-	}
-	if (doTimer) {
-	  // Activate timer options
-	  m.setProfile(1) ;
-	}
-      
-	if (strat!=1) {
-	  // Modify fit strategy
-	  m.setStrategy(strat) ;
-	}
-      
-	if (initHesse) {
-	  // Initialize errors with hesse
-	  m.hesse() ;
-	}
-      
-	// Minimize using migrad
-	m.migrad() ;
-      
-	if (hesse) {
-	  // Evaluate errors with Hesse
-	  m.hesse() ;
-	}
-      
-	if (doSumW2==1 && m.getNPar()>0) {
-	
-	  // Make list of RooNLLVar components of FCN
-	  list<RooNLLVar*> nllComponents ;
-	  RooArgSet* comps = nll->getComponents() ;
-	  RooAbsArg* arg ;
-	  TIterator* citer = comps->createIterator() ;
-	  while((arg=(RooAbsArg*)citer->Next())) {
-	    RooNLLVar* nllComp = dynamic_cast<RooNLLVar*>(arg) ;
-	    if (nllComp) {
-	      nllComponents.push_back(nllComp) ;
-	    }
-	  }
-	  delete citer ;
-	  delete comps ;  
-	
-	  // Calculated corrected errors for weighted likelihood fits
-	  RooFitResult* rw = m.save() ;
-	  for (list<RooNLLVar*>::iterator iter1=nllComponents.begin() ; iter1!=nllComponents.end() ; iter1++) {
-	    (*iter1)->applyWeightSquared(kTRUE) ;
-	  }
-	  coutI(Fitting) << "RooAbsPdf::fitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
-	  m.hesse() ;
-	  RooFitResult* rw2 = m.save() ;
-	  for (list<RooNLLVar*>::iterator iter2=nllComponents.begin() ; iter2!=nllComponents.end() ; iter2++) {
-	    (*iter2)->applyWeightSquared(kFALSE) ;
-	  }
-	
-	  // Apply correction matrix
-	  const TMatrixDSym& matV = rw->covarianceMatrix();
-	  TMatrixDSym matC = rw2->covarianceMatrix();
-	  using ROOT::Math::CholeskyDecompGenDim;
-	  CholeskyDecompGenDim<Double_t> decomp(matC.GetNrows(), matC);
-	  if (!decomp) {
-	    coutE(Fitting) << "RooAbsPdf::fitTo(" << GetName() 
-			   << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" <<endl ;
-	  } else {
-	    // replace C by its inverse
-	    decomp.Invert(matC); 
-	    // the class lies about the matrix being symmetric, so fill in the
-	    // part above the diagonal
-	    for (int i = 0; i < matC.GetNrows(); ++i)
-	      for (int j = 0; j < i; ++j) matC(j, i) = matC(i, j);
-	    matC.Similarity(matV);
-	    // C now contiains V C^-1 V
-	    // Propagate corrected errors to parameters objects
-	    m.applyCovarianceMatrix(matC);
-	  }
-
-	  delete rw ;
-	  delete rw2 ;
-	}
-      
-	if (minos) {
-	  // Evaluate errs with Minos
-	  if (minosSet) {
-	    m.minos(*minosSet) ;
-	  } else {
-	    m.minos() ;
-	  }
-	}
-      
-	// Optionally return fit result
-	if (doSave) {
-	  string name = Form("fitresult_%s_%s",GetName(),data.GetName()) ;
-	  string title = Form("Result of fit of p.d.f. %s to dataset %s",GetName(),data.GetName()) ;
-	  fLastFit = m.save(name.c_str(),title.c_str()) ;
-	} 
-      
-      }
-
-      if (optConst) {
-	m.optimizeConst(0) ;
-      }
-    
-    }
-  
-  
-    //====================================
-    //==            Save Coef           ==
-    //====================================  
+    //Fit
+    fLastFit = fModelPseudoPDF->fitTo(data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+     
+    //Save Coefs
     SafeDelete(fParamDataHist);
     fParamDataHist = new RooDataHist("params","params",GetParameters());
    
@@ -984,87 +576,13 @@ namespace BackTrack {
       }
      
     SafeDelete(fParameterPDF);
-    fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist);
-  
-    //Cleanup
-    delete nll ;
-    return fLastFit ;
-  }
-  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  RooFitResult* GenericModel_Binned::chi2FitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
-					       const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8, const RooCmdArg& arg9, const RooCmdArg& arg10)
-  {
-    //Print informations
-    Info("fiTo...","performing chi2fit with %d parameters and %d observables", GetNumberOfParameters(), GetNumberOfObservables());
-    for(Int_t ii=0; ii<GetNumberOfParameters(); ii++)
-      {
-        RooRealVar *p = dynamic_cast<RooRealVar*>(GetParameters().at(ii));
-	RooAbsBinning& bins = p->getBinning();
-        Int_t N = bins.numBins();
-        Info("fiTo...","parameter%d: name=%s, min=%e, max=%e, nbin=%d",ii, p->GetName(),p->getMin(),p->getMax(),N); 
-      }
-    for(Int_t ii=0; ii<GetNumberOfObservables(); ii++)
-      {
-        RooRealVar *p = dynamic_cast<RooRealVar*>(GetObservables().at(ii));
-	RooAbsBinning& bins = p->getBinning();
-        Int_t N = bins.numBins();
-        Info("fiTo...","observable%d: name=%s, min=%e, max=%e, nbin=%d",ii, p->GetName(),p->getMin(),p->getMax(),N); 
-      }  
-    
-    //RooLinkedList creation
-    RooLinkedList l ;
-    l.Add((TObject*)&arg1) ;  l.Add((TObject*)&arg2) ;  
-    l.Add((TObject*)&arg3) ;  l.Add((TObject*)&arg4) ;
-    l.Add((TObject*)&arg5) ;  l.Add((TObject*)&arg6) ;  
-    l.Add((TObject*)&arg7) ;  l.Add((TObject*)&arg8) ;
-    l.Add((TObject*)&arg9) ;  l.Add((TObject*)&arg10) ;    
-    
-    return chi2FitTo(data, l); 
-  }
-  
-  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  RooFitResult* GenericModel_Binned::chi2FitTo(RooDataHist& data, const RooLinkedList& cmdList) 
-  {
-    fLastFit = fModelPseudoPDF->chi2FitTo(data, cmdList);
-  
-    //====================================
-    //==            Save Coef           ==
-    //====================================
-  
-    SafeDelete(fParamDataHist);
-    fParamDataHist = new RooDataHist("params","params",GetParameters());
-   
-    fWeights.removeAll();
-    const RooArgList& coefs = fModelPseudoPDF->coefList();
-    for(int i=0;i<fNDataSets;i++)
-      { 
-	RooAbsReal* coef = (RooAbsReal*)coefs.at(i);
-	RooRealVar w(Form("w%d",i),Form("Fitted weight of kernel#%d",i),coef->getVal());
-	printf("coef%d=%e\n",i, coef->getVal());
-	
-	if(coef->InheritsFrom(RooRealVar::Class()))
-	  {
-	    w.setError(((RooRealVar*)coef)->getError());
-	  }
-	else
-	  {
-	    w.setError(coef->getPropagatedError(*fLastFit));
-	  }
-      
-	fWeights.addClone(w);
-	fParamDataHist->set(*GetParametersForDataset(i),w.getVal(),w.getError());	
-      }
+    fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist); 
      
-    SafeDelete(fParameterPDF);
-    fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist);
-
-    return fLastFit ;
+    return fLastFit;
   }
+    
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////S
-
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
   void GenericModel_Binned::plotOn(RooPlot* frame)
   {
     //     // Add the pseudo-PDF to the RooPlot
@@ -1105,12 +623,18 @@ namespace BackTrack {
   void GenericModel_Binned::SetWorkspace(RooWorkspace* workspace)
   {  
     fBool_prov_workspace = kTRUE;
-  
+     
+    RooArgList* par    = NULL;
+    RooArgList* obs    = NULL;
+    RooArgList* parobs = NULL;
+    TObjArray*  dat    = NULL;
+    TObjArray*  datpar = NULL;
+      
     if(workspace!=0)
       { 
         //------Parameters------       
-	RooArgList par  = *((RooArgList*) workspace->obj("_parameters"));
-	if(&par!=0) Info("SetWorkspace ...", "_parameters found...");
+	par  = (RooArgList*) workspace->obj("_parameters");
+	if(par!=0) Info("SetWorkspace ...", "_parameters found...");
 	   
 	else
 	  {
@@ -1120,8 +644,8 @@ namespace BackTrack {
 	  }	 
    
         //------Observables-----
-	RooArgList obs = *((RooArgList*) workspace->obj("_observables"));
-	if(&obs!=0) Info("SetWorkspace ...", "_observables found...");
+	obs = (RooArgList*) workspace->obj("_observables");
+	if(obs!=0) Info("SetWorkspace ...", "_observables found...");
 	   
 	else
 	  {
@@ -1131,8 +655,8 @@ namespace BackTrack {
 	  }
        	 
 	//----------ParObs-------  
-	RooArgList parobs  = *((RooArgList*) workspace->obj("_parobs"));
-	if(&parobs!=0) Info("SetWorkspace ...", "_parobs found...");
+	parobs  = (RooArgList*) workspace->obj("_parobs");
+	if(parobs!=0) Info("SetWorkspace ...", "_parobs found...");
 
 	   
 	else 
@@ -1143,8 +667,8 @@ namespace BackTrack {
 	  }	
    
         //-------DataSets------
-	TObjArray dat = *((TObjArray*)  workspace->obj("_datahistset"));
-	if(&dat!=0) Info("SetWorkspace ...", "_datahistset found...");
+	dat = (TObjArray*)  workspace->obj("_datahistset");
+	if(dat!=0) Info("SetWorkspace ...", "_datahistset found...");
  
 	   
 	else
@@ -1155,8 +679,8 @@ namespace BackTrack {
 	  }
 	 
 	//-------DataSets Parameters-------
-	TObjArray datpar = *((TObjArray*)  workspace->obj("_datasetparams"));
-	if(&datpar!=0) Info("SetWorkspace ...", "_datasetparams found...");
+	datpar = (TObjArray*)  workspace->obj("_datasetparams");
+	if(datpar!=0) Info("SetWorkspace ...", "_datasetparams found...");
 
 	   
 	else
@@ -1169,14 +693,19 @@ namespace BackTrack {
 	 
 	//Workspace creation  
 	fWorkspace = new RooWorkspace(Form("_workspace"),"RooWorkspace for the fit");
-        fWorkspace->import(par, "_parameters");
-        fWorkspace->import(obs, "_observables");
-        fWorkspace->import(parobs,"_parobs");
-        fWorkspace->import(dat,"_datahistset");
-        fWorkspace->import(datpar,"_datasetparams");
+        fWorkspace->import(*par, "_parameters");
+        fWorkspace->import(*obs, "_observables");
+        fWorkspace->import(*parobs,"_parobs");
+        fWorkspace->import(*dat,"_datahistset");
+        fWorkspace->import(*datpar,"_datasetparams");
         fWorkspace->import(fHistPdfs,"_histpdfset");  
 	 	  
-        fBool_good_workspace = kTRUE; 
+        fBool_good_workspace = kTRUE;
+	par    = NULL;
+        obs    = NULL;
+        parobs = NULL;
+        dat    = NULL;
+        datpar = NULL; 
       }
    
     else
