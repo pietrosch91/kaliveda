@@ -67,17 +67,18 @@ namespace BackTrack {
       RooHistPdf*   fParameterPDF;      // pdf for parameters after fit to data
       RooDataHist*  fParamDataHist;     // binned parameter dataset used to construct fParameterPDF
       
-      const char* fwk_name;             // name of the initial saved workspace 
-      
-      
+      char* fwk_name;                   // name of the initial saved workspace 
+            
       Bool_t IsExtended() { return fBool_extended; }
       Bool_t IsWorkspaceInitialized() { return fBool_good_workspace; }
       Bool_t IsWorkspaceProvided() { return fBool_prov_workspace; }
-      Bool_t IsWorkspaceSaved() { return fBool_saved_workspace; }                  
-      void SaveWorkspace(const char* file); 
-      
-      
+      Bool_t IsWorkspaceSaved() { return fBool_saved_workspace; } 
+                       
+      void SaveInitWorkspace(char* file);
+      void SavePseudoPDF(char* file);      
+      void ConstructPseudoPDF(vector<Double_t> *weights, Int_t exp_integral, Bool_t numint, Bool_t save, Bool_t debug); 
             
+	                
       public:
       
       GenericModel_Binned();
@@ -86,8 +87,8 @@ namespace BackTrack {
       void SetExtended(Bool_t extended=kFALSE);
       void InitWorkspace();  
       void SetWorkspace(RooWorkspace* w);
-      void SetSavedWorkspaceName(const char *file);  
-      const char* GetSavedWorkspaceName() { return fwk_name; }    
+      void SetWorkspaceFileName(char *file);  
+      char* GetWorkspaceFileName() { return fwk_name; }    
       
       void AddParameter(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins);
       void AddParameter(const RooRealVar&, Int_t nbins);
@@ -98,8 +99,7 @@ namespace BackTrack {
       RooRealVar* GetParameter(const char* name) { return dynamic_cast<RooRealVar*> (GetParameters().find(name)); }
       RooRealVar* GetParameter(int num) { return dynamic_cast<RooRealVar*> (GetParameters().at(num)); }	   
       RooRealVar* GetObservable(const char* name) { return  dynamic_cast<RooRealVar*> (GetObservables().find(name)); }
-      RooRealVar* GetObservable(int num) { return dynamic_cast<RooRealVar*> (GetObservables().at(num)); }
-      
+      RooRealVar* GetObservable(int num) { return dynamic_cast<RooRealVar*> (GetObservables().at(num)); }      
       RooArgList& GetParameters();
       RooArgList& GetObservables();
       RooArgList& GetParObs();
@@ -107,7 +107,7 @@ namespace BackTrack {
       void AddModelData(RooArgList& params, RooDataHist* data);
       virtual RooDataHist* GetModelDataHist(RooArgList& par);
 
-      void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0, Bool_t save=kFALSE);
+      void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0);
       void ImportModelData(Bool_t save);
       
       Int_t GetNumberOfDataSets();
@@ -122,15 +122,18 @@ namespace BackTrack {
 
       void SetInitWeights(vector<Double_t>* vec);
       void SetUniformInitWeights(Double_t exp_integral);
-      virtual void ConstructPseudoPDF(vector<Double_t> *weights=0, Int_t exp_integral=1., Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);
-          
+      
+      void  ConstructPseudoPDF(vector<Double_t> *weights, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
+      void  ConstructPseudoPDF(Int_t exp_integral, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
       const RooAddPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
       const RooArgList& GetPseudoPDFFractions() const { return fFractions; }
       const RooHistPdf* GetParameterPDF() const { return fParameterPDF; }
       const RooDataHist* GetParamDataHist() const { return fParamDataHist; }
       const RooArgList& GetWeights() const { return fWeights; }
       
-      RooFitResult* fitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(), const RooCmdArg& arg5 = RooCmdArg::none(), const RooCmdArg& arg6 = RooCmdArg::none(), const RooCmdArg& arg7 = RooCmdArg::none(), const RooCmdArg& arg8 = RooCmdArg::none(), const RooCmdArg& arg9 = RooCmdArg::none(), const RooCmdArg& arg10 = RooCmdArg::none());      
+      RooFitResult* fitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(), const
+      RooCmdArg& arg5 = RooCmdArg::none(), const RooCmdArg& arg6 = RooCmdArg::none(), const RooCmdArg& arg7 = RooCmdArg::none(), const RooCmdArg& arg8 = RooCmdArg::none(), const RooCmdArg& arg9 = RooCmdArg::none(), const RooCmdArg&
+      arg10 = RooCmdArg::none(), const RooCmdArg& arg11 = RooCmdArg::none(), const RooCmdArg& arg12 = RooCmdArg::none());      
       RooFitResult* fitTo(RooDataHist& data, const RooLinkedList& cmdList);
       RooFitResult* chi2FitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(), const RooCmdArg& arg5 = RooCmdArg::none(), const RooCmdArg& arg6 = RooCmdArg::none(), const RooCmdArg& arg7 = RooCmdArg::none(), const RooCmdArg& arg8 = RooCmdArg::none(), const RooCmdArg& arg9 = RooCmdArg::none(), const RooCmdArg& arg10 = RooCmdArg::none()); 
       RooFitResult* chi2FitTo(RooDataHist& data, const RooLinkedList& cmdList);						 

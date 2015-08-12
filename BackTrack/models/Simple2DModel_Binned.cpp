@@ -42,7 +42,7 @@ namespace BackTrack {
 	 InitWorkspace();
 	
      	 AddParameter("par1","parameter #1",0,10,10);
-     	 AddParameter("par2","parameter #2",-20,20,40);
+     	 AddParameter("par2","parameter #2",-20,20,20);
      	 AddObservable("obs1","observable #1",-45,45,45);
      	 AddObservable("obs2","observable #2",-30,30,60); 
      	}
@@ -50,7 +50,9 @@ namespace BackTrack {
      //if workspace given
      else SetWorkspace(ww);
      
-     fWorkspace->Print();  	 
+     fWorkspace->Print();
+     RooArgList *par = (RooArgList *) fWorkspace->obj("_parameters");
+     par->Print(); 	 
    }
     
 
@@ -188,7 +190,8 @@ namespace BackTrack {
 	 
 	RooDataHist *datahistinit = new RooDataHist("init","init", GetObservables(), hh);  
 	 
-	datahist->add(*datahistinit);       
+	datahist->add(*datahistinit);
+	delete hh;       
       }	 
   	                                                                   
     return datahist;

@@ -4,7 +4,7 @@
 #ifndef SIMPLE2DMODEL_BINNED_H
 #define SIMPLE2DMODEL_BINNED_H
 
-#include "./GenericModel_Binned.h"
+#include "../GenericModel_Binned.h"
 #include "TH1.h"
 #include "TH2.h"
 #include <vector>
