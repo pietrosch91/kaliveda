@@ -19,6 +19,12 @@ else()
 	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
 endif()
 
+#--check if HTML class reference can be made
+if(ROOT_Html_LIBRARY)
+   set(CAN_DO_HTMLDOC true)
+endif(ROOT_Html_LIBRARY)
+
+
 include(${ROOT_USE_FILE})
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -290,23 +296,35 @@ endif()
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
 
 #------------------------HTML CLASS REFERENCE & EXAMPLES GENERATION
-if(ROOT_Html_LIBRARY)
-   KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES base)
-   add_executable(${KV_HTML_CONVERTER} EXCLUDE_FROM_ALL tools/html/html_convert.cxx)
-   target_link_libraries(${KV_HTML_CONVERTER} KVMultiDetbase)
-   target_link_libraries(${KV_HTML_CONVERTER} ${ROOT_LIBRARIES})
+if(CAN_DO_HTMLDOC)
 
    CONVERT_ALL_EXAMPLE_FUNCTIONS()
+   
    get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
+   get_property(KALIVEDA_EXCLASS GLOBAL PROPERTY KALIVEDA_EXCLASS)
+   
    #---add a 'html' target to generate ROOT class reference
    file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
    get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
-   add_custom_target(classref
-      cmake -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/index.html
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
       COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C
       DEPENDS ${KALIVEDA_LIB_LIST}
       )
-   add_custom_target(html 
-      DEPENDS ${KALIVEDA_EXFUNCS} classref 
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/examples
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/htmldoc/examples
       )
-endif(ROOT_Html_LIBRARY)
+   get_property(EXAMPLE_INDEX_TARGETS GLOBAL PROPERTY EXAMPLE_INDEX_TARGETS)
+   get_property(EXAMPLE_SUBPROJ_TARGETS GLOBAL PROPERTY EXAMPLE_SUBPROJ_TARGETS)
+   add_custom_target(classref DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/index.html)
+   add_custom_target(exampledir DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/examples)
+   foreach(Exa ${KALIVEDA_EXFUNCS} ${KALIVEDA_EXCLASS})
+      add_dependencies(${Exa} ${EXAMPLE_INDEX_TARGETS} exampledir)
+   endforeach()
+   add_custom_target(examples)
+   add_dependencies(examples ${EXAMPLE_SUBPROJ_TARGETS})
+   add_custom_target(html)      
+   add_dependencies(classref examples)
+   add_dependencies(html classref examples)
+   
+endif(CAN_DO_HTMLDOC)
