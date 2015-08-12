@@ -337,7 +337,11 @@ function(CONVERT_ALL_EXAMPLE_FUNCTIONS)
       add_custom_command(TARGET ${subproject}Examples POST_BUILD
          COMMAND ${CMAKE_COMMAND} -Dsubproject=${subproject} -P ${CMAKE_SOURCE_DIR}/cmake/EndExamplesIndex.cmake
       )
+      add_custom_target(${subproject}CleanExampleIndex
+         COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/${subproject}/index.html
+      )
       set_property(GLOBAL APPEND PROPERTY EXAMPLE_SUBPROJ_TARGETS ${subproject}Examples)
+      set_property(GLOBAL APPEND PROPERTY CLEAN_EXAMPLE_SUBPROJ_TARGETS ${subproject}CleanExampleIndex)
      endif(EXISTS ${CMAKE_SOURCE_DIR}/${subproject}/examples)
     endforeach(subproject)
 
