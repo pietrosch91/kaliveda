@@ -8,6 +8,7 @@
 #cmakedefine WITH_GNU_INSTALL
 #cmakedefine WITH_RANGE_YANEZ
 #cmakedefine WITH_MODIFIED_RANGE_YANEZ
+#cmakedefine WITH_GEMINI
 #cmakedefine WITH_OPENGL
 #cmakedefine WITH_GRULIB
 #cmakedefine WITH_FITLTG

@@ -17,4 +17,7 @@
 #pragma link C++ class KVBreakUp;
 #pragma link C++ class KVWilckeReactionParameters+;
 #pragma link C++ class KVGenPhaseSpace+;
+#ifdef WITH_GEMINI
+#pragma link C++ class KVGemini+;
+#endif
 #endif

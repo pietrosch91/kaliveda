@@ -6,6 +6,13 @@ else()
 	set(exclude_class KVEventViewer)
 endif()
 
+#---Gemini++ interface
+if(WITH_GEMINI)
+	set(extra_lib ${extra_lib} ${GEMINI_LIB})
+else()
+	set(exclude_class ${exclude_class} KVGemini)
+endif()
+
 BUILD_KALIVEDA_MODULE(events
 	PARENT ${KVSUBPROJECT}
 	KVMOD_DEPENDS base particles

@@ -119,6 +119,20 @@ if(USE_MODIFIED_RANGE)
 	set(WITH_MODIFIED_RANGE_YANEZ yes)
 endif()
 
+#---Gemini++ interface
+option(USE_GEMINI "Build interface to Gemini++ statistical decay code" ON)
+if(USE_GEMINI)
+	find_package(Gemini)
+	if(GEMINI_FOUND)
+		set(WITH_GEMINI yes)
+		include_directories(${GEMINI_INC_DIR})
+		link_directories(${GEMINI_LIB_DIR})
+	else()
+		set(USE_GEMINI OFF CACHE BOOL "" FORCE)
+	endif()
+endif(USE_GEMINI)
+add_feature_info(gemini USE_GEMINI "Build interface to Gemini++ statistical decay code")
+
 #--- ID Grid fitting routines provided by Laurent Tassan-Got
 option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" ON)
 if(USE_FITLTG)
