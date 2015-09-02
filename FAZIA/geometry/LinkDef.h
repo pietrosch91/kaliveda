@@ -16,4 +16,5 @@
 #pragma link C++ class KVPSAResult+;
 #pragma link C++ class KVDigitalFilter+;
 #pragma link C++ class KVFAZIARawEvent+;
+#pragma link C++ class KVFAZIAReconNuc+;
 #endif

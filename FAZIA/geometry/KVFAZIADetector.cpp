@@ -155,15 +155,16 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	while ( (sig = (KVSignal* )next()) )
     	{
     		if (sig->GetN()>0){
-      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetRawAmplitude()>20){
+//      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetRawAmplitude()>20){
          		return kTRUE;
-         	}
-         	else{
-      		}
+//         	}
+//         	else{
+      		
+//				}
       	}
          else{
-         	Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
-         }
+//         	Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
+			}
       }
     }
     else{
@@ -221,3 +222,4 @@ KVList* KVFAZIADetector::GetListOfSignals() const
 {	
 	return fSignals;
 }
+//_________________________________________________________________________________

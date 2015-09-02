@@ -127,7 +127,7 @@ KVPSAResult* KVChargeSignal::TreateSignal()
 {
 	//to be implemented in child class
    if (GetN()==0) {
-		Info("TreateSignal","Empty signal %s",GetName());
+		//Info("TreateSignal","Empty signal %s",GetName());
 		return 0;
 	}	
    KVPSAResult* psa = new KVPSAResult(GetName());
