@@ -94,7 +94,7 @@ const Char_t *KVFAZIADB::GetDBEnv(const Char_t * type) const
    KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
       return "";
-   return ds->GetDataSetEnv(Form("INDRADB.%s", type));
+   return ds->GetDataSetEnv(Form("FAZIADB.%s", type));
 }
 
 //_____________________________________________________________________
@@ -249,7 +249,7 @@ void KVFAZIADB::ReadSystemList()
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-       next_char = fin.peek();
+			next_char = fin.peek();
       }
       fin.close();
    }
@@ -400,27 +400,44 @@ void KVFAZIADB::ReadNewRunList()
    
    while( fin.good() && !fin.eof() ){
       line.ReadLine( fin );
-		
-      if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
+		if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
          run = new KVFAZIADBRun;
          //run->ReadRunListLine( line );
-         toks = line.Tokenize(" | ");
+         toks = line.Tokenize("|");
          for (Int_t ii=0;ii<toks->GetEntries();ii+=1){
          	KVString couple = ((TObjString* )toks->At(ii))->GetString();
             couple.Begin("=");
             KVString name = couple.Next();
+				name = name.Strip(TString::kBoth);
             KVString value="";
-            if (!couple.End())
+            if (!couple.End()){
             	value = couple.Next();
-            if (name=="Run"){
+					value = value.Strip(TString::kBoth);
+            }
+				if (name=="run"){
             	run->SetNumber(value.Atoi());	
             }
-            if (name=="Events"){
+            else if (name=="read events"){
             	run->SetEvents(value.Atoi());	
             }
-            if (name=="Trigger"){
-            	run->SetTrigger(value.Atoi());	
+            else if (name=="good events"){
+            	run->SetGoodEvents(value.Atoi());	
             }
+            else if (name=="starting date"){
+            	run->SetStartDate(value);	
+            }
+				else if (name=="aqcuisition status"){
+            	run->SetACQStatus(value);	
+            }
+				else if (name=="wrong number of blocks"){	//events rejected due to the wrong number of blocks
+            	run->SetError_WrongNumberOfBlocks( value.Atoi() );
+				}	
+				else if (name=="block errors"){	//events rejected due to internal error in one block
+            	run->SetError_InternalBlockError(value.Atoi());
+				}
+				else{
+				
+				}	
          }
          delete toks;
          if( run->GetNumber()<1 ){

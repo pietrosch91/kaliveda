@@ -31,3 +31,60 @@ KVFAZIADBRun::~KVFAZIADBRun()
    // Destructor
 }
 
+void KVFAZIADBRun::SetTrigger(Int_t mt)
+{
+	SetScaler("Trigger multiplicity",mt);
+}
+
+Int_t KVFAZIADBRun::GetTrigger() const
+{
+	return GetScaler("Trigger multiplicity");
+}
+
+const Char_t* KVFAZIADBRun::GetTriggerString() const
+{
+	if(GetTrigger()>0)	
+		return Form("M>=%d",GetTrigger());
+	else
+		return Form("xxx");
+}
+
+void KVFAZIADBRun::SetACQStatus( const KVString& status)
+{
+	Set("ACQ Status",status);
+}
+
+const Char_t* KVFAZIADBRun::GetACQStatus() const 
+{
+	return GetString("ACQ Status");
+}
+
+void KVFAZIADBRun::SetGoodEvents(Int_t evt_number)
+{
+	SetScaler("Good Events", evt_number);
+}
+
+Int_t KVFAZIADBRun::GetGoodEvents() const
+{
+	return GetScaler("Good Events");
+}
+
+void KVFAZIADBRun::SetError_WrongNumberOfBlocks(Int_t evt_number)
+{
+	SetScaler("Bad Events with wrong number of blocks", evt_number);
+}
+
+Int_t KVFAZIADBRun::GetError_WrongNumberOfBlocks() const
+{
+	return GetScaler("Bad Events with wrong number of blocks");
+}
+
+void KVFAZIADBRun::SetError_InternalBlockError(Int_t evt_number)
+{
+	SetScaler("Bad Events internal error in one block", evt_number);
+}
+
+Int_t KVFAZIADBRun::GetError_InternalBlockError() const
+{
+	return GetScaler("Bad Events internal error in one block");
+}
