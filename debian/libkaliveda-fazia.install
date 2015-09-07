@@ -4,12 +4,11 @@
 /usr/share/kaliveda/templates/KVFAZIAReaderTemplate.h
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.cpp
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.h
+/usr/share/kaliveda/etc/ISOFAZIA-PSA-Params.dat
 /usr/share/kaliveda/etc/kaliveda-fazia.rootrc
 /usr/lib/libFAZIAidentification.so.1.10.03
 /usr/lib/libFAZIAidentification.so.1
 /usr/lib/libFAZIAdb.so.1
-/usr/lib/libFAZIAparticles.so.1
-/usr/lib/libFAZIAparticles.so.1.10.03
 /usr/lib/libFAZIAgeometry.so.1.10.03
 /usr/lib/libFAZIAanalysis.so.1.10.03
 /usr/lib/libFAZIAdb.so.1.10.03
@@ -34,3 +33,4 @@
 /usr/share/kaliveda/ISOFAZIA/Runlist.csv
 /usr/share/kaliveda/ISOFAZIA/Systems.dat
 /usr/share/kaliveda/ISOFAZIA/Makefile
+/usr/share/kaliveda/ISOFAZIA/Comments.txt
