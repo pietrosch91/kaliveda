@@ -177,7 +177,7 @@ if [ "x$reply" = "xy" ]; then
    mkdir -p $2
 fi
 cd $2
-cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
+cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes -DUSE_GEMINI=no
 make -j3 install DESTDIR=$2/tmp
 makeDebFiles $1 $2 KVMultiDet kaliveda
 makeDebFiles $1 $2 KVIndra kaliveda-indra

@@ -28,7 +28,6 @@
 /usr/lib/libKVMultiDetparticles.rootmap
 /usr/lib/libKVMultiDetexp_events.rootmap
 /usr/lib/libKVMultiDetidentification.rootmap
-/usr/include/kaliveda/KVGemini.h
 /usr/include/kaliveda/KVEvent.h
 /usr/include/kaliveda/KVSimEvent.h
 /usr/include/kaliveda/KVWilckeReactionParameters.h
