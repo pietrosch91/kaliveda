@@ -1,16 +1,15 @@
 /usr/lib/libFAZIAanalysis.so
 /usr/lib/libFAZIAgeometry.so
-/usr/lib/libFAZIAparticles.so
 /usr/lib/libFAZIAdb.so
 /usr/lib/libFAZIAidentification.so
 /usr/lib/libFAZIAdb.rootmap
-/usr/lib/libFAZIAparticles.rootmap
 /usr/lib/libFAZIAidentification.rootmap
 /usr/lib/libFAZIAgeometry.rootmap
 /usr/lib/libFAZIAanalysis.rootmap
 /usr/include/kaliveda/KVISOFAZIA.h
 /usr/include/kaliveda/KVSignal.h
 /usr/include/kaliveda/KVFAZIABlock.h
+/usr/include/kaliveda/KVFAZIAReconNuc.h
 /usr/include/kaliveda/KVPSAResult.h
 /usr/include/kaliveda/KVCurrentSignal.h
 /usr/include/kaliveda/KVDigitalFilter.h
@@ -21,7 +20,6 @@
 /usr/include/kaliveda/KVFAZIA.h
 /usr/include/kaliveda/KVFAZIA_2B.h
 /usr/include/kaliveda/KVFAZIASYM.h
-/usr/include/kaliveda/KVFAZIAReconNuc.h
 /usr/include/kaliveda/KVFAZIAReconDataAnalyser.h
 /usr/include/kaliveda/KVFAZIARawDataReader.h
 /usr/include/kaliveda/KVFAZIARawDataReconstructor.h
