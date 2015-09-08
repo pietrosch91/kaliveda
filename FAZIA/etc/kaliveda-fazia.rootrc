@@ -1,9 +1,11 @@
 # fichier d initialisation pour la lecture des dataset FAZIA
 #
 +DataSet:	  INDRAFAZIA
-INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2016)
+INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2017-)
 INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
+INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon
+INDRAFAZIA.KVDataSet.DataType.Subdir.root:  root
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    FAZIAgeometry    "KVINDRAFAZIA()"
 +Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
 +Plugin.KVUpDater: INDRAFAZIA KVINDRAUpDater KVIndradb "KVINDRAUpDater()"
@@ -12,6 +14,10 @@ INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.GeoType:  		 compact
 INDRAFAZIA.DistanceFAZIA:   80.0
 INDRAFAZIA.ThetaMinCompactGeo: 2.0
+# Geometries
+FAZIASYM.GeoType:        compact
+FAZIASYM.DistanceFAZIA:   100.0
+FAZIASYM.ThetaMinCompactGeo: 2.0
 
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
@@ -20,6 +26,8 @@ LNS_2014.DataSet.RunFileName.raw:    run%06d.root
 LNS_2014.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2014.DataSet.RunFileClass.raw:    TFile
 LNS_2014.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
+LNS_2014.KVDataSet.DataType.Subdir.recon:  recon
+LNS_2014.KVDataSet.DataType.Subdir.root:  root
 
 +DataSet:   FAZIASYM
 FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
@@ -27,6 +35,8 @@ FAZIASYM.DataSet.RepositoryDir:   faziasym
 FAZIASYM.DataSet.RunFileName.raw:    run%06d.root
 FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIASYM.DataSet.RunFileClass.raw:    TFile
+FAZIASYM.KVDataSet.DataType.Subdir.recon:  recon
+FAZIASYM.KVDataSet.DataType.Subdir.root:  root
 
 +DataSet:   ISOFAZIA
 ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
@@ -35,6 +45,8 @@ ISOFAZIA.DataSet.RunFileName.raw:    run%06d.root
 ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 ISOFAZIA.DataSet.RunFileClass.raw:    TFile
 ISOFAZIA.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
+ISOFAZIA.KVDataSet.DataType.Subdir.recon:  recon
+ISOFAZIA.KVDataSet.DataType.Subdir.root:  root
 
 #DataBase
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
@@ -48,11 +60,8 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIAgeometry    "KVFAZIA_2B()"
 +Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIAgeometry    "KVFAZIASYM()"
 +Plugin.KVMultiDetArray:    ISOFAZIA    KVISOFAZIA    FAZIAgeometry    "KVISOFAZIA()"
-# Geometries
-FAZIASYM.GeoType:        compact
-FAZIASYM.DistanceFAZIA:   100.0
-FAZIASYM.ThetaMinCompactGeo: 2.0
 
+############
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
