@@ -49,12 +49,18 @@ protected:
    Double_t fChannelWidth;          // channel width in ns
    Double_t fChannelWidthInt;       // channel width of interpolated signal in ns
    Int_t fFirstBL, fLastBL;         // first and last channel number to compute the base line
-   Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
+   
+	Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
    Double_t fTrapRiseTime;          // rise time of the trapezoidal shaper
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
-   Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
+   
+	Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
    Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
-
+	Bool_t 	fWithInterpolation; 		// use of interpolation or not
+	Bool_t	fPSAIsDone;					// indicate if PSA has been done
+	
+	Double_t fMinimumValueForAmplitude;	//Minimum value to say if detector has been hitted
+		
  void init();
  
 public:
@@ -64,18 +70,23 @@ public:
    virtual ~KVSignal();  
    void Copy(TObject& obj) const;
 	void SetDetectorName(const Char_t* detname);
-   void DeduceFromName();
+	void SetDetector(const Char_t* det);
+	Double_t GetPSAParameter(const Char_t* parname);
+	void DeduceFromName();
    void SetType(const Char_t* type) {fType=type;}
    void Print(Option_t* chopt = "") const;
    void SetData(Int_t nn, Double_t* xx, Double_t* yy);
    virtual void Set(Int_t n);
 	
 	void SetADCData();
-   virtual KVPSAResult* TreateSignal();
-   virtual void ComputeGlobals(void);
+   
+	virtual void TreateSignal();
+   virtual KVPSAResult* GetPSAResult() const;
+	
+	virtual void ComputeGlobals(void);
 	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
-   virtual void LoadPSAParameters(const Char_t* ){  }
- virtual void SetDefaultValues(){}
+   virtual void LoadPSAParameters(){  }
+	virtual void SetDefaultValues(){}
 	
    Double_t ComputeBaseLine();
    Double_t ComputeAmplitude();
@@ -90,7 +101,8 @@ public:
    const Char_t* GetType()          const { return fType.Data(); }
    const Char_t* GetDetector()      const { return fDet.Data(); }
 
-   void SetChannelWidth(double tau)                           {fChannelWidth=tau; fChannelWidthInt=tau;}
+   void SetChannelWidth(double width)                           {fChannelWidth=width;}
+   void SetChannelWidthInt(double width)                           {fChannelWidthInt=width;}
    void SetMaxT(double t)                                     {fAdc.Set((int)(t/fChannelWidth));}
    void SetNSamples(int nn)                                   {fAdc.Set(nn);}
    void SetBaseLineLength(Int_t length, Int_t first=0)        {fFirstBL=first; fLastBL=length-first;}
@@ -98,8 +110,15 @@ public:
    void SetTrapShaperParameters(Double_t rise, Double_t flat) {fTrapRiseTime=rise; fTrapFlatTop=flat;}
    void SetSemiGaussParameter(Double_t sig)                   {fGaussSigma=sig;}
    void SetPoleZeroCorrection(Bool_t with=kTRUE)              {fWithPoleZeroCorrection=with;}
-
-   TArrayF* GetArray()       {return &fAdc;}
+   void SetWidthInterpolation(Bool_t with=kTRUE)              {fWithInterpolation=with;}
+	
+	Bool_t PSAHasBeenComputed() const { return fPSAIsDone; }
+	virtual Bool_t IsCharge() const { return kFALSE; }
+	virtual Bool_t IsCurrent() const { return kFALSE; }
+	Double_t GetAmplitudeTriggerValue() const { return fMinimumValueForAmplitude; }
+   void SetAmplitudeTriggerValue(Double_t val) {fMinimumValueForAmplitude=val; }
+   
+	TArrayF* GetArray()       {return &fAdc;}
    Double_t GetChannelWidth(){return fChannelWidth;}
    Int_t    GetNSamples()    {return fAdc.GetSize();}
    Double_t GetTauRC()       {return fTauRC;}
@@ -151,7 +170,7 @@ public:
    // apply modifications of fAdc to the original signal
    void ApplyModifications(TGraph* newSignal=0, Int_t nsa=-1);
 
-   ClassDef(KVSignal,2)//simple class to store TArray in a list
+   ClassDef(KVSignal,3)//simple class to store TArray in a list
 };
 
 #endif

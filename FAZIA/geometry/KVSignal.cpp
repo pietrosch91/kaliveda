@@ -5,6 +5,8 @@
 #include "KVString.h"
 #include "TMath.h"
 #include "KVDigitalFilter.h"
+#include "KVDataSet.h"
+#include "KVEnv.h"
 
 #define LOG2 (double)6.93147180559945286e-01
 # define M_PI		3.14159265358979323846	/* pi */
@@ -22,27 +24,30 @@ ClassImp(KVSignal)
 
 void KVSignal::init()
 {
-
+	fPSAIsDone=kFALSE;
+	fChannel = kUNKDT;
 	fYmin = fYmax = 0;
-    fAmplitude=0;
-    fRiseTime=0;
-    fIMax=0;
-    fTMax=0;
-    fBaseLine=0;
-    fSigmaBase=0;
+	fAmplitude=0;
+	fRiseTime=0;
+	fIMax=0;
+	fTMax=0;
+	fBaseLine=0;
+	fSigmaBase=0;
 
-    fChannelWidth=-1;
-    fChannelWidthInt=-1;
-    fFirstBL=-1;
-    fLastBL=-1;
-    fTauRC=-1;
-    fTrapRiseTime=-1;
-    fTrapFlatTop=-1;
-    fGaussSigma=-1;
-    fWithPoleZeroCorrection=kFALSE;
-
+	fChannelWidth=-1;
+	fChannelWidthInt=-1;
+	fFirstBL=-1;
+	fLastBL=-1;
+	fTauRC=-1;
+	fTrapRiseTime=-1;
+	fTrapFlatTop=-1;
+	fGaussSigma=-1;
+	fWithPoleZeroCorrection=kFALSE;
+	fWithInterpolation=kFALSE;
+	fMinimumValueForAmplitude=0;
+	
 	DeduceFromName();
-    SetDefaultValues();
+	SetDefaultValues();
 }
 
 KVSignal::KVSignal()
@@ -91,7 +96,7 @@ void KVSignal::Copy(TObject&) const
 
 void KVSignal::Set(Int_t n)
 {
-
+	fPSAIsDone=kFALSE;
 	TGraph::Set(n);
 	fAdc.Set(GetN());
 
@@ -116,9 +121,11 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 
 void KVSignal::SetADCData()
 {
-    fChannelWidthInt = fChannelWidth;
+	
+	//fChannelWidthInt = fChannelWidth;
 	fAdc.Set(GetN());
 	for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
+
 }
 
 //________________________________________________________________
@@ -148,21 +155,36 @@ void KVSignal::DeduceFromName()
         fTelName.Form("B%03d-Q%d-T%d",fBlock,fQuartet,fTelescope);
         fQuartetName.Form("B%03d-Q%d",fBlock,fQuartet);
 
-        if(fType.Contains("QH1"))      fChannel = kQH1;
-        else if(fType.Contains("I1"))  fChannel = kI1;
-        else if(fType.Contains("QL1")) fChannel = kQL1;
-        else if(fType.Contains("Q2"))  fChannel = kQ2;
-        else if(fType.Contains("I2"))  fChannel = kI2;
-        else if(fType.Contains("Q3"))  fChannel = kQ3;
-        else if(fType.Contains("ADC")) fChannel = kADC;
-        else                           fChannel = kUNKDT;
     }
 
 }
 
+//________________________________________________________________
+Double_t KVSignal::GetPSAParameter(const Char_t* parname)
+{
+
+	//DeduceFromName has to be called before
+	
+	Double_t lval=-1;
+	KVString spar;
+	spar.Form("%s.%s.%s",fDet.Data(),GetType(),parname);
+	if (gDataSet)	lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+	else				lval = gEnv->GetValue(spar.Data(),0.0);
+	return lval;
+
+}	
+
+//________________________________________________________________
 void KVSignal::SetDetectorName(const Char_t* detname)
 {
 		fDetName = detname;
+}
+
+//________________________________________________________________
+void KVSignal::SetDetector(const Char_t* det)
+{
+		fDet = det;
+		fDet.ToUpper();
 }
 //________________________________________________________________
 void KVSignal::Print(Option_t*) const
@@ -173,13 +195,19 @@ void KVSignal::Print(Option_t*) const
         printf("\tType: %s - Detecteur: %s\n",fType.Data(),fDet.Data());
     }
 }
-//________________________________________________________________
 
-KVPSAResult* KVSignal::TreateSignal()
+//________________________________________________________________
+void KVSignal::TreateSignal()
 {
-    //to be implemented in child class
-    Info("TreateSignal","To be implemented in child classes...");
-    return 0;
+	Info("TreateSignal","To be defined in child class");
+
+}
+
+//________________________________________________________________
+KVPSAResult* KVSignal::GetPSAResult() const
+{
+	Info("GetPSAResult","To be defined in child class");
+	return 0;
 }
 
 //________________________________________________________________

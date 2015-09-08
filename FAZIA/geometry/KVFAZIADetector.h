@@ -49,6 +49,7 @@ class KVFAZIADetector : public KVDetector
 	//values defined for CSI detectors
 	Double_t fAmplitudeQ3;
 	Double_t fRawAmplitudeQ3;
+	Double_t fFastAmplitudeQ3;
 	Double_t fBaseLineQ3;
 	Double_t fSigmaBaseLineQ3;
 	Double_t fRiseTimeQ3;
@@ -70,6 +71,7 @@ class KVFAZIADetector : public KVDetector
 	void SetSignal(KVSignal* signal, const Char_t* type);
 	Bool_t HasSignal() const;
 	KVSignal* GetSignal(const Char_t* name) const;
+	KVSignal* GetSignalByType(const Char_t* type) const;
 	KVSignal* GetSignal(Int_t idx) const;
 	Int_t GetNumberOfSignals() const;
 	KVList* GetListOfSignals() const;
@@ -133,6 +135,8 @@ class KVFAZIADetector : public KVDetector
 	Double_t GetQ3Amplitude() const { return fAmplitudeQ3; }
 	void SetQ3RawAmplitude(Double_t value) {fRawAmplitudeQ3 = value;}
 	Double_t GetQ3RawAmplitude() const { return fRawAmplitudeQ3; }
+	void SetQ3FastAmplitude(Double_t value) {fFastAmplitudeQ3 = value;}
+	Double_t GetQ3FastAmplitude() const { return fFastAmplitudeQ3; }
 	void SetQ3BaseLine(Double_t value) {fBaseLineQ3 = value;}
 	Double_t GetQ3BaseLine() const { return fBaseLineQ3; }
 	void SetQ3SigmaBaseLine(Double_t value) {fSigmaBaseLineQ3 = value;}

@@ -4,8 +4,8 @@
 #include "KVFAZIADetector.h"
 #include "KVFAZIA.h"
 #include "KVSignal.h"
-#include "KVChargeSignal.h"
-#include "KVCurrentSignal.h"
+#include "KVPSAResult.h"
+#include "TClass.h"
 
 ClassImp(KVFAZIADetector)
 
@@ -111,25 +111,22 @@ Bool_t KVFAZIADetector::SetProperties()
    	Warning("SetProperties","Unknown label \"%s\" for this detector : %s\n",GetLabel(),GetName());
 		lsignals="";
 	}
-   
+   TClass* cl = 0;
 	lsignals.Begin(",");
 	while ( !lsignals.End() )
 	{
-		KVString ssig = lsignals.Next();
-		if (ssig.BeginsWith("Q")){
-			sig = new KVChargeSignal(ssig.Data());
-		}
-		else if (ssig.BeginsWith("I")){
-			sig = new KVCurrentSignal(ssig.Data());
-		}
-		else{
-			Warning("unknown format signal detectorlabel=%s, signal=%s\n",GetLabel(),ssig.Data());
-			sig = new KVSignal(ssig.Data(),"unknown");
-		}
 		
-		sig->LoadPSAParameters(GetLabel());
+		KVString ssig = lsignals.Next();
+		cl = new TClass(Form("KV%s",ssig.Data()));
+		sig = (KVSignal* )cl->New();
+		sig->SetName(ssig.Data());
+		sig->SetType(ssig.Data());
+		sig->SetDetector(GetLabel());
+		sig->LoadPSAParameters();
 		sig->SetDetectorName(GetName());
+		
 		fSignals->Add(sig);
+		delete cl;
 	}
 	
 	return kTRUE;
@@ -147,7 +144,8 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     // In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
     //
  	 //Info("Fired","Appel - %s",GetName());	
-    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+    Int_t nempty=0;
+	 if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
     if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
 	 KVSignal* sig;	
 	 if (fSignals){
@@ -155,21 +153,26 @@ Bool_t KVFAZIADetector::Fired(Option_t *)
     	while ( (sig = (KVSignal* )next()) )
     	{
     		if (sig->GetN()>0){
-//      		if (!strcmp(sig->GetTitle(),"Charge") && sig->GetRawAmplitude()>20){
-         		return kTRUE;
-//         	}
-//         	else{
-      		
-//				}
-      	}
-         else{
+				if (sig->IsCharge())
+				{
+					if (!sig->PSAHasBeenComputed()){
+						sig->TreateSignal();
+					}
+					if (sig->GetAmplitude() >= sig->GetAmplitudeTriggerValue())
+					{
+						return kTRUE;
+					}
+				}	
+			}
+			else{
 //         	Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
+				nempty += 1;
 			}
       }
     }
     else{
     	Warning("Fired","%s : No signal attached to this detector ...",GetName());
-      return kFALSE;
+      //return kFALSE;
     }
     return kFALSE;
 }
@@ -198,6 +201,14 @@ KVSignal* KVFAZIADetector::GetSignal(const Char_t* name) const
 {	
 	if (fSignals)	
    	return (KVSignal* )fSignals->FindObject(name);
+	return 0;
+}
+
+//_________________________________________________________________________________
+KVSignal* KVFAZIADetector::GetSignalByType(const Char_t* type) const
+{	
+	if (fSignals)	
+   	return (KVSignal* )fSignals->FindObjectWithMethod(type,"GetType");
 	return 0;
 }
 

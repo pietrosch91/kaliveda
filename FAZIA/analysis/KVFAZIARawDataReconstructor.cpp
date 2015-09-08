@@ -120,7 +120,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 //______________________________________________________________________________________//
 
- void KVFAZIARawDataReconstructor::ExtraProcessing()
+void KVFAZIARawDataReconstructor::ExtraProcessing()
 {
 	KVFAZIADetector* det = 0;
 	KVSignal* sig = 0;
@@ -128,18 +128,20 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    while ( (recnuc = recev->GetNextParticle()) )
    {
    	TIter next_d(recnuc->GetDetectorList());
-      while ( (det = (KVFAZIADetector* )next_d()) )
+		while ( (det = (KVFAZIADetector* )next_d()) )
    	{
    		TIter next_s(det->GetListOfSignals());
          while ( (sig = (KVSignal* )next_s()) )
    		{
-              KVNameValueList* psa = sig->TreateSignal();
-              if(psa) *(recnuc->GetParameters()) += *psa;
-				  delete psa;
+				if (!sig->PSAHasBeenComputed()){
+					sig->TreateSignal();
+				}
+				KVNameValueList* psa = sig->GetPSAResult();
+     			if(psa) *(recnuc->GetParameters()) += *psa;
+				delete psa;
 			}
       }   
    }
-   
 }
 
 //______________________________________________________________________________________//

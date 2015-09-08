@@ -25,13 +25,14 @@ class KVChargeSignal : public KVSignal
    KVChargeSignal(const char* name);
 
    virtual void SetDefaultValues();
-	virtual void LoadPSAParameters(const Char_t* dettype);
+	virtual void LoadPSAParameters();
    
    virtual ~KVChargeSignal();
    void Copy(TObject& obj) const;
-    virtual KVPSAResult* TreateSignal();
+   /*
+	virtual KVPSAResult* TreateSignal();
    virtual KVPSAResult* TreateSignal(TF1* filter);
-   
+   */
    Double_t GetMaxFluctuationsWindow(Double_t* window,Int_t width=10);
    TGraph* GetCorre()const {return bidim; }
    

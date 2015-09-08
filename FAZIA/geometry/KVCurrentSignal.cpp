@@ -62,23 +62,24 @@ void KVCurrentSignal::SetDefaultValues()
     SetBaseLineLength(30);
 }
 
-void KVCurrentSignal::LoadPSAParameters(const Char_t* dettype)
+void KVCurrentSignal::LoadPSAParameters()
 {
 	
-	TString spar; 
-	Double_t lval;
-	//BaseLineLength
-	spar.Form("%s.%s.BaseLineLength",dettype,GetName());
-	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
-	else 					lval = gEnv->GetValue(spar.Data(),0.0);
-	SetBaseLineLength(lval);
-	//ChannelWidth
-	spar.Form("%s.%s.ChannelWidth",dettype,GetName());
-	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
-	else 					lval = gEnv->GetValue(spar.Data(),0.0);
-	SetChannelWidth(lval);
+// 	TString spar; 
+// 	Double_t lval;
+// 	//BaseLineLength
+// 	spar.Form("%s.%s.BaseLineLength",dettype,GetName());
+// 	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+// 	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+// 	SetBaseLineLength(lval);
+// 	//ChannelWidth
+// 	spar.Form("%s.%s.ChannelWidth",dettype,GetName());
+// 	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+// 	else 					lval = gEnv->GetValue(spar.Data(),0.0);
+// 	SetChannelWidth(lval);
 }
 
+/*
 KVPSAResult *KVCurrentSignal::TreateSignal()
 {
     if (GetN()==0) {
@@ -103,3 +104,4 @@ KVPSAResult *KVCurrentSignal::TreateSignal()
    return psa;
 
 }
+*/

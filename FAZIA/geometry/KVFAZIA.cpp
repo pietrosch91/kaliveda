@@ -184,7 +184,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
         		par->DeduceFromName();
             if ( (det = GetDetector( par->GetDetectorName() )) )
             {
-            	((KVFAZIADetector* )det)->SetSignal(par,par->GetType());
+					((KVFAZIADetector* )det)->SetSignal(par,par->GetType());
                if ( (grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp) ) {
                	detev->AddGroup(grp);
                }

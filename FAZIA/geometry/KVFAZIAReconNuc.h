@@ -142,7 +142,7 @@ class KVFAZIAReconNuc:public KVReconstructedNucleus {
    Bool_t StoppedInSI2() const;
    Bool_t StoppedInCSI() const;
 
-   ClassDef(KVFAZIAReconNuc, 1) //Nucleus identified by FAZIA array
+   ClassDef(KVFAZIAReconNuc, 2) //Nucleus identified by FAZIA array
 };
 
 #endif

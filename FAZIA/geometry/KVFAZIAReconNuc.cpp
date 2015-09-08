@@ -950,6 +950,7 @@ void KVFAZIAReconNuc::Calibrate()
 					{
 						val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude",det->GetName()));  	det->SetQ3Amplitude(val);
 						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude",det->GetName()));  det->SetQ3RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude",det->GetName()));  det->SetQ3FastAmplitude(val);
 						val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine",det->GetName()));   	det->SetQ3BaseLine(val);
 						val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine",det->GetName())); det->SetQ3SigmaBaseLine(val);
 						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime",det->GetName()));   	det->SetQ3RiseTime(val);

@@ -402,7 +402,8 @@ void KVFAZIADB::ReadNewRunList()
       line.ReadLine( fin );
 		if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
          run = new KVFAZIADBRun;
-         //run->ReadRunListLine( line );
+         run->SetTrigger(1);
+			//run->ReadRunListLine( line );
          toks = line.Tokenize("|");
          for (Int_t ii=0;ii<toks->GetEntries();ii+=1){
          	KVString couple = ((TObjString* )toks->At(ii))->GetString();
