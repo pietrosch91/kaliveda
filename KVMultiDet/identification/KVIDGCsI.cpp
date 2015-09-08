@@ -1,7 +1,6 @@
 #include "KVIDGCsI.h"
 #include "KVIDCutLine.h"
 #include "KVIDCsIRLLine.h"
-#include "KVIDTelescope.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDGCsI)
@@ -644,28 +643,15 @@ void KVIDGCsI::BackwardsCompatibilityFix()
     //<PARAMETER> Ring max=...
     //<PARAMETER> Mod min=...
     //<PARAMETER> Mod max=...
+    //
+    // This will fail. The fix is no longer supported. Such files should
+	 // no longer exist.
 
     KVIDZAGrid::BackwardsCompatibilityFix();
     if ( fPar->HasParameter("IDTelescopes") ) return;
 
-    Warning("BackwardsCompatibilityFix",
-            "This fix no longer works correctly. Dummy ID telescopes will be associated with this grid. There will be problems.");
-    if ( fPar->HasParameter("Ring min") )//&& gIndra ) <== SHOULD NOT DEPEND ON KVINDRA!!!
-    {
-        for (int r=fPar->GetIntValue("Ring min"); r<=fPar->GetIntValue("Ring max"); r++)
-        {
-            for (int m=fPar->GetIntValue("Mod min"); m<=fPar->GetIntValue("Mod max"); m++)
-            {
-                KVIDTelescope* id = new KVIDTelescope(); id->SetName(Form("CSI_R_L_%02d%02d", r,m)); // gIndra->GetIDTelescope( Form("CSI_R_L_%02d%02d", r, m) ); <== SHOULD NOT DEPEND ON KVINDRA!!!
-                if (id) AddIDTelescope(id);
-            }
-        }
-        WriteParameterListOfIDTelescopes();
-        fPar->RemoveParameter("Ring min");
-        fPar->RemoveParameter("Ring max");
-        fPar->RemoveParameter("Mod min");
-        fPar->RemoveParameter("Mod max");
-    }
+    Fatal("BackwardsCompatibilityFix",
+            "This fix no longer works. There will be problems.");
     GammaLine = (KVIDLine*)GetCut("gamma_line");
     IMFLine = (KVIDLine*)GetCut("IMF_line");
     if (GammaLine) ((KVIDCutLine*)GammaLine)->SetAcceptedDirection("above");

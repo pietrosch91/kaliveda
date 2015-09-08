@@ -26,6 +26,7 @@
 #pragma link C++ class KVSpiderLine+;
 #pragma link C++ class KVSpiderPSALine+;
 #pragma link C++ class KVDP2toIDGridConvertor+;
+#pragma link C++ class KVDP2toCsIGridConvertor+;
 #pragma link C++ class KVIDentifier+;
 #pragma link C++ class KVIDGraph-;
 #pragma link C++ class KVIDLine-;
@@ -40,4 +41,6 @@
 #pragma link C++ class KVIDGridManager;
 #pragma link C++ class KVIDZAGrid-;
 #pragma link C++ class KVIDZGrid-;
+#pragma link C++ class KVIDCsIRLLine+;
+#pragma link C++ class KVIDGCsI+;
 #endif

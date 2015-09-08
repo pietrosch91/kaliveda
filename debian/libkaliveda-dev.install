@@ -284,13 +284,16 @@
 /usr/include/kaliveda/KVIDCutContour.h
 /usr/include/kaliveda/KVIDGrid.h
 /usr/include/kaliveda/KVTGIDManager.h
+/usr/include/kaliveda/KVIDCsIRLLine.h
 /usr/include/kaliveda/KVIDZAGrid.h
 /usr/include/kaliveda/KVIDentifier.h
 /usr/include/kaliveda/KVTGIDZ.h
 /usr/include/kaliveda/KVVirtualIDFitter.h
+/usr/include/kaliveda/KVDP2toCsIGridConvertor.h
 /usr/include/kaliveda/KVIDZALine.h
 /usr/include/kaliveda/KVDroite.h
 /usr/include/kaliveda/KVDP2toIDGridConvertor.h
+/usr/include/kaliveda/KVIDGCsI.h
 /usr/include/kaliveda/KVIDZAContour.h
 /usr/include/kaliveda/KVIDMap.h
 /usr/include/kaliveda/KVTGID.h
