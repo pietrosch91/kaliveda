@@ -232,6 +232,7 @@ void KVFAZIAReconNuc::Identify()
 {
 		KVIdentificationResult partID;
 		KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+		//idt_list->ls();
 		if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
@@ -241,12 +242,12 @@ void KVFAZIAReconNuc::Identify()
         Bool_t goout = kFALSE;
 		  while ( (idt = (KVIDTelescope *) next()) && !goout ) {
             KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
-
+				//printf("idt getname : %s %d\n",idt->GetName(),idnumber);
             if ( IDR ){
                 if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
                     IDR->IDattempted = kTRUE;
-                    idt->Identify( IDR , GetParameters()->GetDoubleValue(idt->GetVarX()), GetParameters()->GetDoubleValue(idt->GetVarY()));
+                    idt->Identify( IDR );
 
                     if(IDR->IDOK) { 
 						  		partID = *IDR; 
@@ -254,6 +255,7 @@ void KVFAZIAReconNuc::Identify()
 						  }
                 }
 					else{
+						//printf("not ready\n");
 						IDR->IDattempted = kFALSE;
 					}
                 /*

@@ -250,7 +250,8 @@ void KVFAZIADB::ReadSystemList()
          AddSystem(sys);
          sys->Load(fin);
 			next_char = fin.peek();
-      }
+			fSystems->Rehash();
+		}
       fin.close();
    }
    else {
@@ -267,10 +268,13 @@ void KVFAZIADB::ReadSystemList()
          if(!sys) {
             sys = new KVDBSystem("[unknown]");
             AddSystem(sys);
+				fSystems->Rehash();
          }
          sys->AddRun(run);
       }
    }
+	
+	//fSystems->Rehash();
 }
 
 void KVFAZIADB::WriteSystemsFile() const

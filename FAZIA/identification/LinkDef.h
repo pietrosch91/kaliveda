@@ -5,4 +5,6 @@
 #pragma link C++ class KVFAZIAIDTelescope+;
 #pragma link C++ class KVFAZIAIDSiPSA+;
 #pragma link C++ class KVFAZIAIDSiSi+;
+#pragma link C++ class KVFAZIAIDCsI+;
+#pragma link C++ class KVFAZIAIDSiCsI+;
 #endif

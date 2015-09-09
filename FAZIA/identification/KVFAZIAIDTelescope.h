@@ -12,8 +12,7 @@ class KVFAZIAIDTelescope : public KVIDTelescope
    public:
    KVFAZIAIDTelescope();
    virtual ~KVFAZIAIDTelescope();
-   void Copy(TObject& obj) const;
-
+   
    ClassDef(KVFAZIAIDTelescope,1)//Identification for FAZIA array
 };
 
