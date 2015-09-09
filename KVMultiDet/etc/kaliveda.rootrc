@@ -215,6 +215,7 @@ Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDetidentification "KV
 #
 # KVIDTelescope.DefaultGrid is used for all telescopes which do not define an alternative
 KVIDTelescope.DefaultGrid:              KVIDZAGrid
+KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
 
 # Default identification/cut classes for different ID graphs
 # Used by KVIDGridManagerGUI when creating new grids
@@ -227,6 +228,10 @@ KVTGIDGrid.CutClass:  KVIDCutLine
 +KVTGIDGrid.CutClass:  KVIDCutContour
 KVTGIDGrid.DefaultCutClass:  KVIDCutLine
 KVTGIDGrid.IDClass:  KVIDZALine
+KVIDGCsI.CutClass:  KVIDCutLine
++KVIDGCsI.CutClass:  KVIDCutContour
+KVIDGCsI.DefaultCutClass:  KVIDCutLine
+KVIDGCsI.IDClass:  KVIDCsIRLLine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
@@ -234,6 +239,7 @@ KVTGIDGrid.IDClass:  KVIDZALine
 # Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDetidentification   "KVIDZAGrid()"
 #+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDetidentification   "KVIDZAMap()"
++Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVMultiDetidentification      "KVIDGCsI()"
 
 # Mime-types for GUI
 # These define the icons associated with different objects displayed in KVListView widgets.
@@ -243,6 +249,8 @@ KaliVeda.GUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
 KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVTGIDGrid
 KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGCsI
+KaliVeda.GUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVDBRun
 KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
 +KaliVeda.GUI.MimeTypes:   TCutG

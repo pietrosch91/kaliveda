@@ -95,13 +95,10 @@
 /usr/include/kaliveda/KVINDRAIDTelescope.h
 /usr/include/kaliveda/KVIDChIoSi.h
 /usr/include/kaliveda/KVIDSiCsI_e613.h
-/usr/include/kaliveda/KVIDCsIRLLine.h
 /usr/include/kaliveda/KVIDSiCsI5.h
 /usr/include/kaliveda/KVIDSi75SiLi_camp5.h
 /usr/include/kaliveda/KVIDSiCsI.h
-/usr/include/kaliveda/KVDP2toCsIGridConvertor.h
 /usr/include/kaliveda/KVIDChIoCorrCsI.h
-/usr/include/kaliveda/KVIDGCsI.h
 /usr/include/kaliveda/KVIDCsI_e475s.h
 /usr/include/kaliveda/KVIDGChIoSi.h
 /usr/include/kaliveda/KVIDChIoSi75_e494s.h
