@@ -39,31 +39,23 @@ class KVDBTable:public TFolder {
              "", Bool_t unique = kFALSE);
     virtual ~ KVDBTable();
 
-   inline virtual KVDBRecord *GetRecord(const Char_t * rec_name) const;
+   virtual KVDBRecord *GetRecord(const Char_t * rec_name) const{return (KVDBRecord *) FindObject(rec_name);}
    virtual KVDBRecord *GetRecord(Int_t n) const;
-   inline virtual KVSeqCollection* GetRecords() const;
+	virtual KVSeqCollection* GetRecords() const {return (KVSeqCollection*)GetListOfFolders();}
    virtual Bool_t AddRecord(KVDBRecord * add);
    virtual void RemoveRecord(KVDBRecord * add);
    virtual void ls(Option_t * option = "*") const;
+	TObject *FindObject(const Char_t * name) const;
+	TObject *FindObject(const TObject* obj) const;
 
    virtual void SetFullPath(const Char_t* path) { fFullPath = path; };
    virtual const Char_t* GetFullPath() const { return fFullPath.Data(); };
    
    void SetDefaultFormat(const TString&);
    Bool_t HasDefaultFormat() const { return fDefFormatNumRec!=""; }
+	void Rehash(void);
 
-    ClassDef(KVDBTable, 3)      //Table object for database
+	ClassDef(KVDBTable, 3)      //Table object for database
 };
-
-KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
-{
-   return (KVDBRecord *) FindObject(rec);
-}
-
-KVSeqCollection* KVDBTable::GetRecords() const
-{
-   return (KVSeqCollection*)GetListOfFolders();
-}
-
 
 #endif

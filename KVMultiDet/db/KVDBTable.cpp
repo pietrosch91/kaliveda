@@ -106,14 +106,25 @@ void KVDBTable::SetDefaultFormat(const TString& fmt)
 
 //___________________________________________________________________________________//
 
-//TObject *KVDBTable::FindObject(const Char_t * name) const
-//{
-//   //Redefinition of TFolder::FindObject, which doesn't seem to work correctly with names that
-//   //have spaces in them (???)
-//   //call FindObject method for each record in table
+TObject *KVDBTable::FindObject(const Char_t * name) const
+{
+	//Redefinition of TFolder::FindObject, which doesn't work at all with names that
+	//have "/" in them
+	//call FindObject method for each record in table
 
-//   return GetListOfFolders()->FindObject(name);
-//}
+	return GetListOfFolders()->FindObject(name);
+}
+
+//___________________________________________________________________________________//
+
+TObject *KVDBTable::FindObject(const TObject* obj) const
+{
+	//Redefinition of TFolder::FindObject, which doesn't work at all with names that
+	//have "/" in them
+	//call FindObject method for each record in table
+
+	return TFolder::FindObject(name);
+}
 
 //___________________________________________________________________________________//
 
@@ -133,4 +144,13 @@ KVDBRecord *KVDBTable::GetRecord(Int_t num) const
    KVDBRecord *obj = 0;
    while ((obj = (KVDBRecord *) next()) && (obj->GetNumber() != num));
    return (obj ? (obj->GetNumber() == num ? obj : 0) : 0);
+}
+
+//___________________________________________________________________________________//
+
+void KVDBTable::Rehash(void)
+{
+
+((KVHashList* )fFolders)->Rehash();
+
 }
