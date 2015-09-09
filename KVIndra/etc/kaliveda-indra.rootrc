@@ -599,7 +599,6 @@ INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
 # Used by KVIDGridManagerGUI when creating new grids
 #
 # The following are specific grids for specific telescopes
-KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
 KVIDTelescope.DefaultGrid.CI-SI:        KVIDGChIoSi
 KVIDTelescope.DefaultGrid.CI-SI75:      KVIDGChIoSi
 KVIDTelescope.DefaultGrid.BIC-SIB:      KVIDGChIoSi
@@ -607,10 +606,6 @@ KVIDTelescope.DefaultGrid.BIC-SIB:      KVIDGChIoSi
 # Default identification/cut classes for different ID graphs
 # Used by KVIDGridManagerGUI when creating new grids
 #
-KVIDGCsI.CutClass:  KVIDCutLine
-+KVIDGCsI.CutClass:  KVIDCutContour
-KVIDGCsI.DefaultCutClass:  KVIDCutLine
-KVIDGCsI.IDClass:  KVIDCsIRLLine
 KVIDGChIoSi.CutClass:  KVIDCutLine
 +KVIDGChIoSi.CutClass:  KVIDCutContour
 KVIDGChIoSi.DefaultCutClass:  KVIDCutLine
@@ -618,13 +613,10 @@ KVIDGChIoSi.IDClass:  KVIDZALine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
-+Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVIndraidentification      "KVIDGCsI()"
 +Plugin.KVIDGraph:   KVIDGChIoSi   KVIDGChIoSi   KVIndraidentification      "KVIDGChIoSi()"
 
 # Mime-types for GUI
 # These define the icons associated with different objects displayed in KVListView widgets.
-+KaliVeda.GUI.MimeTypes:   KVIDGCsI
-KaliVeda.GUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVIDGChIoSi
 KaliVeda.GUI.MimeTypes.KVIDGChIoSi.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVINDRADBRun
