@@ -449,7 +449,7 @@ Bool_t KVINDRAReconNuc::CoherencyChIoSiCsI(KVIdentificationResult theID)
    		}
 
    		KVIdentificationResult *IDchiosi = GetIdentificationResult(3);
-   		if(!IDchiosi){
+                if(!IDchiosi->IDattempted){
    		    // no ChIo-Si identification ? assume coherency ?
    		    return kTRUE;
    		}
@@ -901,7 +901,7 @@ void KVINDRAReconNuc::Identify()
 			// particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
    		Int_t id_no = 1;
    		KVIdentificationResult *pid = GetIdentificationResult(id_no);
-   		while( pid && pid->IDattempted ){
+                while( pid->IDattempted ){
    			if( pid->IDOK ){
    				ok = kTRUE;
    				partID = *pid;
@@ -933,7 +933,7 @@ void KVINDRAReconNuc::Identify()
            // particle stopped in ChIo (=> Zmin)
            Int_t id_no = 1;
            KVIdentificationResult *pid = GetIdentificationResult(id_no);
-           while( pid && pid->IDattempted ){
+           while( pid->IDattempted ){
                if( pid->IDOK ){
                    ok = kTRUE;
                    partID = *pid;

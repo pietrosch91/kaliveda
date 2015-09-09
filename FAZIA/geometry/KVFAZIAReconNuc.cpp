@@ -243,7 +243,7 @@ void KVFAZIAReconNuc::Identify()
 		  while ( (idt = (KVIDTelescope *) next()) && !goout ) {
             KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
 				//printf("idt getname : %s %d\n",idt->GetName(),idnumber);
-            if ( IDR ){
+
                 if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
                     IDR->IDattempted = kTRUE;
@@ -278,7 +278,7 @@ void KVFAZIAReconNuc::Identify()
                     }
                 }
 					 */
-            }
+
 
         }
 			

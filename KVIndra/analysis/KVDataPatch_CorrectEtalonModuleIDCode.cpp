@@ -60,7 +60,7 @@ void KVDataPatch_CorrectEtalonModuleIDCode::ApplyToParticle(KVNucleus *n)
             && N->GetCodes().TestIDCode(kIDCode5))
     {
         KVIdentificationResult* idr = N->GetIdentificationResult(1);
-        if(idr && idr->IsType("CSI_R_L") && idr->IDOK){
+        if(idr->IDattempted && idr->IsType("CSI_R_L") && idr->IDOK){
             if(idr->IDcode == kIDCode0){
                 // gamma
                 // just set general IDcode gamma and set energy = 0
