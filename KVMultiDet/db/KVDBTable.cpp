@@ -88,8 +88,8 @@ void KVDBTable::RemoveRecord(KVDBRecord * rec)
 
 void KVDBTable::ls(Option_t*) const
 {
-   cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() <<
-           endl;
+   cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() << " ["
+           << GetRecords()->GetSize() << " records]" << endl;
 }
 
 void KVDBTable::SetDefaultFormat(const TString& fmt)
@@ -106,28 +106,6 @@ void KVDBTable::SetDefaultFormat(const TString& fmt)
 
 //___________________________________________________________________________________//
 
-TObject *KVDBTable::FindObject(const Char_t * name) const
-{
-	//Redefinition of TFolder::FindObject, which doesn't work at all with names that
-	//have "/" in them
-	//call FindObject method for each record in table
-
-	return GetListOfFolders()->FindObject(name);
-}
-
-//___________________________________________________________________________________//
-
-TObject *KVDBTable::FindObject(const TObject* obj) const
-{
-	//Redefinition of TFolder::FindObject, which doesn't work at all with names that
-	//have "/" in them
-	//call FindObject method for each record in table
-
-        return TFolder::FindObject(obj);
-}
-
-//___________________________________________________________________________________//
-
 KVDBRecord *KVDBTable::GetRecord(Int_t num) const
 {
    // Sequential search for record using its number.
@@ -138,7 +116,7 @@ KVDBRecord *KVDBTable::GetRecord(Int_t num) const
    // (see SetDefaultFormat(const TString&)) the search will be performed using
    // the resulting formatted object name, which is fast (hash list).
 
-   if(HasDefaultFormat()) return (KVDBRecord*)FindObject(Form(fDefFormatNumRec.Data(),num));
+   if(HasDefaultFormat()) return GetRecord(Form(fDefFormatNumRec.Data(),num));
 
    TIter next(GetListOfFolders());
    KVDBRecord *obj = 0;
@@ -150,7 +128,9 @@ KVDBRecord *KVDBTable::GetRecord(Int_t num) const
 
 void KVDBTable::Rehash(void)
 {
+   // The list of records is a KVHashList or KVUniqueNameList
+   // Call this method if the names of the records change after having been
+   // added to the table, otherwise GetRecord(const char*) will not work.
 
-((KVHashList* )fFolders)->Rehash();
-
+   ((KVHashList* )fFolders)->Rehash();
 }

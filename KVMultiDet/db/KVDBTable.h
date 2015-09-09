@@ -26,36 +26,37 @@ class KVDBRecord;
 
 class KVDBTable:public TFolder {
 
- protected:
+   private:
+   TObject *FindObject(const Char_t *) const { return nullptr; } // do not use
+   TObject *FindObject(const TObject*) const { return nullptr; } // do not use
+
+   protected:
 
    Bool_t fIsUnique;            // Must each record name be unique ?
-   TString fFullPath;  //full path to table in folder structure
-   TString fDefFormatNumRec; // default formatting for names of numbered records
+   TString fFullPath;           //full path to table in folder structure
+   TString fDefFormatNumRec;    // default formatting for names of numbered records
 
- public:
+   public:
 
    KVDBTable();
-   KVDBTable(const Char_t * name, const Char_t * title =
-             "", Bool_t unique = kFALSE);
-    virtual ~ KVDBTable();
+   KVDBTable(const Char_t * name, const Char_t * title = "", Bool_t unique = kFALSE);
+   virtual ~ KVDBTable();
 
-   virtual KVDBRecord *GetRecord(const Char_t * rec_name) const{return (KVDBRecord *) FindObject(rec_name);}
+   virtual KVDBRecord *GetRecord(const Char_t * rec_name) const{return (KVDBRecord *) GetRecords()->FindObject(rec_name);}
    virtual KVDBRecord *GetRecord(Int_t n) const;
-	virtual KVSeqCollection* GetRecords() const {return (KVSeqCollection*)GetListOfFolders();}
+   virtual KVSeqCollection* GetRecords() const {return (KVSeqCollection*)GetListOfFolders();}
    virtual Bool_t AddRecord(KVDBRecord * add);
    virtual void RemoveRecord(KVDBRecord * add);
    virtual void ls(Option_t * option = "*") const;
-	TObject *FindObject(const Char_t * name) const;
-	TObject *FindObject(const TObject* obj) const;
 
    virtual void SetFullPath(const Char_t* path) { fFullPath = path; };
    virtual const Char_t* GetFullPath() const { return fFullPath.Data(); };
    
    void SetDefaultFormat(const TString&);
    Bool_t HasDefaultFormat() const { return fDefFormatNumRec!=""; }
-	void Rehash(void);
+   void Rehash(void);
 
-	ClassDef(KVDBTable, 3)      //Table object for database
+   ClassDef(KVDBTable, 3)      //Table object for database
 };
 
 #endif

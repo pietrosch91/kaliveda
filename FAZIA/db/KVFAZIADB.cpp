@@ -249,9 +249,8 @@ void KVFAZIADB::ReadSystemList()
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-			next_char = fin.peek();
-			fSystems->Rehash();
-		}
+         next_char = fin.peek();
+      }
       fin.close();
    }
    else {
@@ -268,13 +267,13 @@ void KVFAZIADB::ReadSystemList()
          if(!sys) {
             sys = new KVDBSystem("[unknown]");
             AddSystem(sys);
-				fSystems->Rehash();
          }
          sys->AddRun(run);
       }
    }
-	
-	//fSystems->Rehash();
+
+   // rehash the record table now that all names are set
+   fSystems->Rehash();
 }
 
 void KVFAZIADB::WriteSystemsFile() const

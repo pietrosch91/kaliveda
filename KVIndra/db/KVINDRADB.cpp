@@ -267,7 +267,7 @@ void KVINDRADB::ReadSystemList()
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-       next_char = fin.peek();
+         next_char = fin.peek();
       }
       fin.close();
    }
@@ -289,6 +289,9 @@ void KVINDRADB::ReadSystemList()
          sys->AddRun(run);
       }
    }
+
+   // rehash the record table now that all names are set
+   fSystems->Rehash();
 }
 
 //____________________________________________________________________________
