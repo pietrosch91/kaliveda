@@ -123,7 +123,7 @@ TObject *KVDBTable::FindObject(const TObject* obj) const
 	//have "/" in them
 	//call FindObject method for each record in table
 
-	return TFolder::FindObject(name);
+        return TFolder::FindObject(obj);
 }
 
 //___________________________________________________________________________________//
