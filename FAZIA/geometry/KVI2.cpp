@@ -70,7 +70,7 @@ void KVI2::LoadPSAParameters()
 	val = GetPSAParameter("ChannelWidth");
 	SetChannelWidth(val);
 
-	val = GetPSAParameter("ChannelWidthInt");
+	val = GetPSAParameter("InterpolatedChannelWidth");
 	SetInterpolatedChannelWidth(val);
 
 	val = GetPSAParameter("Interpolation");
@@ -82,7 +82,9 @@ void KVI2::LoadPSAParameters()
 void KVI2::TreateSignal()
 {
 	if (GetN()==0) return;
-	
+	if (!TestWidth())
+		ChangeChannelWidth(GetChannelWidth());
+		
 	ComputeBaseLine();
    fBaseLine  = GetBaseLine();
    fSigmaBase = GetSigmaBaseLine();

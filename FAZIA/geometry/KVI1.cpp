@@ -83,6 +83,8 @@ void KVI1::LoadPSAParameters()
 void KVI1::TreateSignal()
 {
 	if (GetN()==0) return;
+	if (!TestWidth())
+		ChangeChannelWidth(GetChannelWidth());
 	
 	ComputeBaseLine();
    fBaseLine  = GetBaseLine();

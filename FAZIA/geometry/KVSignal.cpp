@@ -167,7 +167,7 @@ Double_t KVSignal::GetPSAParameter(const Char_t* parname)
 	
 	Double_t lval=-1;
 	KVString spar;
-	spar.Form("%s.%s.%s",fDet.Data(),GetType(),parname);
+	spar.Form("%s.%s",GetType(),parname);
 	if (gDataSet)	lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
 	else				lval = gEnv->GetValue(spar.Data(),0.0);
 	return lval;
@@ -211,6 +211,33 @@ void KVSignal::ComputeGlobals(void)
         if (yy>fYmax) fYmax = yy;
     }
 }
+//________________________________________________________________
+
+Bool_t KVSignal::TestWidth()
+{
+	Double_t x0,x1,y0,y1;
+	
+	GetPoint(0,x0,y0);
+	GetPoint(1,x1,y1);
+
+	Double_t actual_width = x1-x0;
+	return ( (actual_width==GetChannelWidth()) );
+}
+
+//________________________________________________________________
+
+void KVSignal::ChangeChannelWidth(Double_t newwidth)
+{
+	Double_t xx,yy;
+	for (Int_t ii=0;ii<GetN();ii+=1)
+	{
+		GetPoint(ii,xx,yy);
+		SetPoint(ii,ii*newwidth,yy);
+	}
+}
+
+//________________________________________________________________
+
 
 Double_t KVSignal::ComputeBaseLine()
 {

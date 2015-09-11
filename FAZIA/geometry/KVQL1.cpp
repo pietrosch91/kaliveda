@@ -88,7 +88,9 @@ void KVQL1::LoadPSAParameters()
 void KVQL1::TreateSignal()
 {
 	if (GetN()==0) return;
-
+	if (!TestWidth())
+		ChangeChannelWidth(GetChannelWidth());
+	
 	ComputeBaseLine();
 	fBaseLine  = GetBaseLine();
 	fSigmaBase = GetSigmaBaseLine();

@@ -96,7 +96,7 @@ public:
 	}
 	virtual void SetDefaultValues()
 	{
-		Info("SetDefaultValues","To be defined in child class");
+		
 	}
 	virtual KVPSAResult* GetPSAResult() const
 	{
@@ -164,6 +164,8 @@ public:
    // multiply the signal  (modify only fAdc)
    void Multiply(Double_t fact);
    void Add(Double_t fact);
+	Bool_t TestWidth();
+	void ChangeChannelWidth(Double_t newwidth);
 
    // Interpolations
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);

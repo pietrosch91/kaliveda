@@ -96,6 +96,8 @@ void KVQ3::LoadPSAParameters()
 void KVQ3::TreateSignal()
 {
 	if (GetN()==0) return;
+	if (!TestWidth())
+		ChangeChannelWidth(GetChannelWidth());
 	
 	ComputeBaseLine();
 	fBaseLine  = GetBaseLine();
