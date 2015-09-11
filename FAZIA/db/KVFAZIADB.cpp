@@ -5,6 +5,8 @@
 #include "KVNumberList.h"
 #include "KVDataSetManager.h"
 #include "KVRunListLine.h"
+#include "KVFileReader.h"
+#include "KVDBParameterList.h"
 
 KVFAZIADB *gFaziaDB;
 
@@ -28,6 +30,7 @@ void KVFAZIADB::init()
    fRuns = AddTable("Runs", "List of available runs");
    fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
+	fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t * name):KVDataBase(name,
@@ -379,7 +382,7 @@ void KVFAZIADB::Build()
 	*/
    ReadNewRunList();
    ReadSystemList();
-   
+   ReadExceptions();
 }
 
 
@@ -457,6 +460,77 @@ void KVFAZIADB::ReadNewRunList()
    fin.close();
 }
 
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadExceptions()
+{
+	KVString fname=GetCalibFileName("Exceptions");
+	TString fp;
+	gDataSet->SearchKVFile(GetCalibFileName("Exceptions"),fp,gDataSet->GetName());
+   
+	if (fname=="") {
+		Error("ReadExceptions()", "No file foud for Exceptions");
+      return;
+   }
+
+	KVFileReader fr;
+	if (!fr.OpenFileToRead(fp.Data())){
+		Error("ReadExceptions()", "Error in opening file %s\n",fp.Data());
+		return;
+	}
+	
+   Info("ReadExceptions()", "Reading exceptions ...");
+	TList* ll = new TList();
+	KVNumberList lruns;
+	KVDBParameterList* dbp=0;
+	
+	ll->SetOwner(kFALSE);
+	while (fr.IsOK())
+	{
+		fr.ReadLine(":");
+		if (fr.GetNparRead()==2)
+		{
+			if (fr.GetReadPar(0)=="RunRange")
+			{
+				if (ll->GetEntries()>0)
+				{
+					printf("\t linkage avec les runs\n");
+					LinkListToRunRange(ll,lruns);
+					ll->Clear();
+				}
+				lruns.SetList(fr.GetReadPar(1));
+				printf("nouvelle plage : %s\n",lruns.AsString());
+			}
+			else{
+				KVString name(fr.GetReadPar(0));
+				name.Begin(".");
+				KVString tel = name.Next();
+				KVString sig = name.Next();
+				KVString par = name.Next();
+				if ( !(dbp = (KVDBParameterList* )ll->FindObject(Form("%s.%s",tel.Data(),sig.Data()))) )
+				{
+					dbp = new KVDBParameterList(Form("%s.%s",tel.Data(),sig.Data()),tel.Data());
+					dbp->AddKey("Runs", "List of Runs");
+					fExceptions->AddRecord(dbp);
+					ll->Add(dbp);
+					dbp->GetParameters()->SetValue("RunRange",lruns.AsString());
+				}
+				dbp->GetParameters()->SetValue(par.Data(),fr.GetDoubleReadPar(1));
+				
+				printf("\t%s %s %s %lf\n",tel.Data(),sig.Data(),par.Data(),fr.GetDoubleReadPar(1));
+			}
+		}
+	}
+	
+	if (ll->GetEntries()>0)
+	{
+		printf("\t linkage avec les runs\n");
+		LinkListToRunRange(ll,lruns);
+		ll->Clear();
+	}
+	
+	delete ll;
+	
+}
 //__________________________________________________________________________________________________________________
 
 void KVFAZIADB::PrintRuns(KVNumberList& nl) const

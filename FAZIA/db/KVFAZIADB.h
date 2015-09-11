@@ -20,6 +20,7 @@ class KVFAZIADB : public KVDataBase
    Int_t kLastRun;
 	KVDBTable *fRuns;            //-> table of runs
    KVDBTable *fSystems;         //-> table of systems
+   KVDBTable *fExceptions;       //-> table of exceptions
    
    virtual void ReadSystemList();
    virtual void LinkListToRunRanges(TList * list, UInt_t rr_number,
@@ -75,13 +76,14 @@ class KVFAZIADB : public KVDataBase
    void WriteRunListFile() const;
    void ReadNewRunList();
    void WriteSystemsFile() const;
+	void ReadExceptions();
 
    virtual void PrintRuns(KVNumberList&) const;
 	virtual void cd();
     const Char_t *GetCalibFileName(const Char_t * type) const {
       return GetDBEnv(type);
    };
-   ClassDef(KVFAZIADB,1)//database for FAZIA detector
+   ClassDef(KVFAZIADB,2)//database for FAZIA detector
 };
 //........ global variable
 R__EXTERN KVFAZIADB *gFaziaDB;

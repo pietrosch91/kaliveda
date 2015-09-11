@@ -14,4 +14,5 @@
 #pragma link C++ class KVDBTable;
 #pragma link C++ class KVDBParameterSet-;//customized streamer
 #pragma link C++ class KVRunListLine;
+#pragma link C++ class KVDBParameterList;
 #endif
