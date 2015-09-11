@@ -122,7 +122,7 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 void KVSignal::SetADCData()
 {
 	
-	//fChannelWidthInt = fChannelWidth;
+	fChannelWidthInt = fChannelWidth;
 	fAdc.Set(GetN());
 	for(int ii=0; ii<GetN(); ii++) fAdc.AddAt(fY[ii],ii);
 
@@ -194,20 +194,6 @@ void KVSignal::Print(Option_t*) const
         printf("\tBlock# %d - Quartet# %d - Telescope# %d\n",fBlock,fQuartet,fTelescope);
         printf("\tType: %s - Detecteur: %s\n",fType.Data(),fDet.Data());
     }
-}
-
-//________________________________________________________________
-void KVSignal::TreateSignal()
-{
-	Info("TreateSignal","To be defined in child class");
-
-}
-
-//________________________________________________________________
-KVPSAResult* KVSignal::GetPSAResult() const
-{
-	Info("GetPSAResult","To be defined in child class");
-	return 0;
 }
 
 //________________________________________________________________
@@ -708,6 +694,12 @@ void KVSignal::BuildCubicSignal(double taufinal)
   for(int i=0;i<interpo.GetSize();i++) fAdc.AddAt(interpo.At(i),i);
 
 }
+/***********************************************/
+void KVSignal::BuildCubicSignal()
+{
+  BuildCubicSignal(GetInterpolatedChannelWidth());
+}
+
 double KVSignal::FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr)
 {
     // recurr=1 means: linear + 1 approx
@@ -844,11 +836,8 @@ void KVSignal::ApplyModifications(TGraph *newSignal, Int_t nsa)
 
     Int_t nn = fAdc.GetSize();
     if(nsa>0&&nsa<nn) nn = nsa;
-
-    Double_t tau = fChannelWidthInt;
-
-    if(newSignal->InheritsFrom("KVSignal")) ((KVSignal*)newSignal)->SetChannelWidth(tau);
-    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,ii*tau,fAdc.At(ii));
+	 if(newSignal->InheritsFrom("KVSignal")) ((KVSignal*)newSignal)->SetChannelWidth(fChannelWidthInt);
+    for(int ii=0; ii<nn; ii++) newSignal->SetPoint(ii,ii*fChannelWidthInt,fAdc.At(ii));
 }
 
 

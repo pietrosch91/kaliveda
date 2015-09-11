@@ -38,7 +38,8 @@ protected:
    TString fDet;
 
    TArrayF fAdc;                    //! needed to use the psa methods copied from FClasses of Firenze
-   Double_t fAmplitude;             // amplitude of the signal
+   //results of signal treatement
+	Double_t fAmplitude;             // amplitude of the signal
    Double_t fRiseTime;              // rise time of the signal
    Double_t fIMax;                  // position of the maximum in channel
    Double_t fTMax;                  // position of the maximum in ns
@@ -46,22 +47,27 @@ protected:
    Double_t fBaseLine;              // base line mean value
    Double_t fSigmaBase;             // base line rms
 
+	//parameters for signal treatment
+	//which can be changed in the LoadPSAParameters() method
+	//if they are defined in the .kvrootrc file
    Double_t fChannelWidth;          // channel width in ns
-   Double_t fChannelWidthInt;       // channel width of interpolated signal in ns
+   Double_t fInterpolatedChannelWidth;	// channel width used to produced the interpolated signal
    Int_t fFirstBL, fLastBL;         // first and last channel number to compute the base line
-   
-	Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
+   Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
    Double_t fTrapRiseTime;          // rise time of the trapezoidal shaper
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
-   
 	Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
    Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
 	Bool_t 	fWithInterpolation; 		// use of interpolation or not
-	Bool_t	fPSAIsDone;					// indicate if PSA has been done
-	
 	Double_t fMinimumValueForAmplitude;	//Minimum value to say if detector has been hitted
-		
- void init();
+	
+	//internal parameters
+	//
+	Bool_t	fPSAIsDone;					// indicate if PSA has been done
+	Double_t fChannelWidthInt;       // internal parameter channel width of interpolated signal in ns
+	
+	virtual void BuildCubicSignal(); //Interpolazione mediante cubic
+  	void init();
  
 public:
    KVSignal();
@@ -77,18 +83,29 @@ public:
    void Print(Option_t* chopt = "") const;
    void SetData(Int_t nn, Double_t* xx, Double_t* yy);
    virtual void Set(Int_t n);
-	
 	void SetADCData();
    
-	virtual void TreateSignal();
-   virtual KVPSAResult* GetPSAResult() const;
+	//----------------------
+	virtual void TreateSignal()
+	{
+		Info("TreateSignal","To be defined in child class");
+	}
+   virtual void LoadPSAParameters()
+	{
+		Info("LoadPSAParameters","To be defined in child class");
+	}
+	virtual void SetDefaultValues()
+	{
+		Info("SetDefaultValues","To be defined in child class");
+	}
+	virtual KVPSAResult* GetPSAResult() const
+	{
+		Info("GetPSAResult","To be defined in child class");
+		return 0;
+	}
 	
 	virtual void ComputeGlobals(void);
-	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
-   virtual void LoadPSAParameters(){  }
-	virtual void SetDefaultValues(){}
-	
-   Double_t ComputeBaseLine();
+	Double_t ComputeBaseLine();
    Double_t ComputeAmplitude();
    Double_t ComputeRiseTime();
 
@@ -101,9 +118,11 @@ public:
    const Char_t* GetType()          const { return fType.Data(); }
    const Char_t* GetDetector()      const { return fDet.Data(); }
 
-   void SetChannelWidth(double width)                           {fChannelWidth=width;}
-   void SetChannelWidthInt(double width)                           {fChannelWidthInt=width;}
-   void SetMaxT(double t)                                     {fAdc.Set((int)(t/fChannelWidth));}
+   void SetChannelWidth(double width)						{fChannelWidth=width; fChannelWidthInt=width;}
+   void SetInterpolatedChannelWidth(double width)		{ fInterpolatedChannelWidth=width; }
+   Double_t GetInterpolatedChannelWidth() const				{ return fInterpolatedChannelWidth; }
+	
+	void SetMaxT(double t)                                     {fAdc.Set((int)(t/fChannelWidth));}
    void SetNSamples(int nn)                                   {fAdc.Set(nn);}
    void SetBaseLineLength(Int_t length, Int_t first=0)        {fFirstBL=first; fLastBL=length-first;}
    void SetTauRC(Int_t taurc)                                 {fTauRC=taurc;}
@@ -134,7 +153,8 @@ public:
    Double_t GetRiseTime()     {return fRiseTime;}
    Double_t GetBaseLine()     {return fBaseLine;}
    Double_t GetSigmaBaseLine(){return fSigmaBase;}
-
+	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
+	
    // compute mean value and rms of a subset of samples
    double FindMedia(double tsta, double tsto);
    double FindMedia(int tsta, int tsto);
@@ -149,7 +169,7 @@ public:
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
    Double_t CubicInterpolation(float *data, int x2, double fmax, int Nrecurr);
-   virtual void BuildCubicSignal(double taufinal=1); //Interpolazione mediante cubic
+   virtual void BuildCubicSignal(double taufinal); //Interpolazione mediante cubic
    virtual double GetDataInter(double t);
    virtual double GetDataInterCubic(double t);
 

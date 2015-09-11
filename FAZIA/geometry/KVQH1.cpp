@@ -69,8 +69,7 @@ void KVQH1::LoadPSAParameters()
 	
 	val = GetPSAParameter("ChannelWidth");
 	SetChannelWidth(val);
-	SetChannelWidthInt(val);
-
+	
 	val = GetPSAParameter("TauRC");
 	SetTauRC(val);
 	

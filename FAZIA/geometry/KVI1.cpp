@@ -71,9 +71,9 @@ void KVI1::LoadPSAParameters()
 	val = GetPSAParameter("ChannelWidth");
 	SetChannelWidth(val);
 
-	val = GetPSAParameter("ChannelWidthInt");
-	SetChannelWidthInt(val);
-
+	val = GetPSAParameter("InterpolatedChannelWidth");
+	SetInterpolatedChannelWidth(val);
+	
 	val = GetPSAParameter("Interpolation");
 	SetWidthInterpolation( (val==1) );
 
@@ -89,7 +89,7 @@ void KVI1::TreateSignal()
    fSigmaBase = GetSigmaBaseLine();
    Add(-1.*fBaseLine);
    if(fWithInterpolation)
-		BuildCubicSignal(fChannelWidthInt);
+		BuildCubicSignal();
    ComputeAmplitude();
    fAmplitude = GetAmplitude();
 	
