@@ -7,6 +7,7 @@
 #include "KVDigitalFilter.h"
 #include "KVDataSet.h"
 #include "KVEnv.h"
+#include "KVDBParameterList.h"
 
 #define LOG2 (double)6.93147180559945286e-01
 # define M_PI		3.14159265358979323846	/* pi */
@@ -41,7 +42,7 @@ void KVSignal::init()
 	fTauRC=-1;
 	fTrapRiseTime=-1;
 	fTrapFlatTop=-1;
-	fGaussSigma=-1;
+	fSemiGaussSigma=-1;
 	fWithPoleZeroCorrection=kFALSE;
 	fWithInterpolation=kFALSE;
 	fMinimumValueForAmplitude=0;
@@ -175,6 +176,58 @@ Double_t KVSignal::GetPSAParameter(const Char_t* parname)
 }	
 
 //________________________________________________________________
+void KVSignal::UpdatePSAParameter(KVDBParameterList *par)
+{
+	for (Int_t ii=0;ii<par->GetParameters()->GetNpar();ii+=1)
+	{
+		TString nameat(par->GetParameters()->GetNameAt(ii));
+		if (nameat=="BaseLineLength") SetBaseLineLength(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="ChannelWidth") 	SetChannelWidth(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="ShaperRiseTime") SetShaperRiseTime(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="ShaperFlatTop") 	SetShaperFlatTop(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="TauRC") 			SetTauRC(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="MinimumAmplitude") 	SetAmplitudeTriggerValue(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="InterpolatedChannelWidth") 	SetInterpolatedChannelWidth(par->GetParameters()->GetDoubleValue(ii));
+		else if (nameat=="Interpolation") 	SetInterpolation( (par->GetParameters()->GetDoubleValue(ii)==1) );
+		else if (nameat=="PZCorrection") 	SetPoleZeroCorrection( (par->GetParameters()->GetDoubleValue(ii)==1) );
+		else {
+			if (nameat=="Detector" || nameat=="Signal" || nameat=="RunRange")
+			{
+			
+			}
+			else {
+				Warning("UpdatePSAParameter","Not supported PSA parameter : %d %s\n",ii,nameat.Data());
+			}
+		}
+	}
+}
+
+//________________________________________________________________
+void KVSignal::LoadPSAParameters()
+{
+	Info("LoadPSAParameters","To be defined in child class");
+}
+
+//________________________________________________________________
+void KVSignal::SetDefaultValues()
+{
+	//To be defined in child class
+}
+
+//________________________________________________________________
+void KVSignal::TreateSignal()
+{
+	Info("TreateSignal","To be defined in child class");
+}
+
+//________________________________________________________________
+KVPSAResult* KVSignal::GetPSAResult() const
+{
+	Info("GetPSAResult","To be defined in child class");
+	return 0;
+}
+
+//________________________________________________________________
 void KVSignal::SetDetectorName(const Char_t* detname)
 {
 		fDetName = detname;
@@ -198,7 +251,7 @@ void KVSignal::Print(Option_t*) const
 
 //________________________________________________________________
 
-void KVSignal::ComputeGlobals(void)
+void KVSignal::ComputeRawAmplitude(void)
 {
     Double_t xx,yy;
     Int_t np=0;
@@ -213,7 +266,7 @@ void KVSignal::ComputeGlobals(void)
 }
 //________________________________________________________________
 
-Bool_t KVSignal::TestWidth()
+Bool_t KVSignal::TestWidth() const
 {
 	Double_t x0,x1,y0,y1;
 	

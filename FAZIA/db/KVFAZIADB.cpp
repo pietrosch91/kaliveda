@@ -504,15 +504,28 @@ void KVFAZIADB::ReadExceptions()
 				KVString name(fr.GetReadPar(0));
 				name.Begin(".");
 				KVString tel = name.Next();
+				tel.Begin("-");
+				KVString sdet = tel.Next(); sdet.Prepend("-");
+				sdet.Prepend(tel.Next()); sdet.Prepend("-");
+				sdet.Prepend(tel.Next()); sdet.Prepend("-");
+				
 				KVString sig = name.Next();
+				if ( sig=="QH1"||sig=="QL1"||sig=="I1" ) 	sdet.Prepend("SI1");
+				else if ( sig=="Q2"||sig=="I2" ) 			sdet.Prepend("SI2");
+				else if ( sig=="Q3" )							sdet.Prepend("CSI");
+				
+				printf("tel=%s -> sdet=%s\n",tel.Data(),sdet.Data());
+				
 				KVString par = name.Next();
 				if ( !(dbp = (KVDBParameterList* )ll->FindObject(Form("%s.%s",tel.Data(),sig.Data()))) )
 				{
-					dbp = new KVDBParameterList(Form("%s.%s",tel.Data(),sig.Data()),tel.Data());
+					dbp = new KVDBParameterList(Form("%s.%s",sdet.Data(),sig.Data()),sdet.Data());
 					dbp->AddKey("Runs", "List of Runs");
 					fExceptions->AddRecord(dbp);
 					ll->Add(dbp);
 					dbp->GetParameters()->SetValue("RunRange",lruns.AsString());
+					dbp->GetParameters()->SetValue("Detector",sdet.Data());
+					dbp->GetParameters()->SetValue("Signal",sig.Data());
 				}
 				dbp->GetParameters()->SetValue(par.Data(),fr.GetDoubleReadPar(1));
 				

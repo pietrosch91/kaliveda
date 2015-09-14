@@ -74,7 +74,7 @@ void KVI2::LoadPSAParameters()
 	SetInterpolatedChannelWidth(val);
 
 	val = GetPSAParameter("Interpolation");
-	SetWidthInterpolation( (val==1) );
+	SetInterpolation( (val==1) );
 
 }
 

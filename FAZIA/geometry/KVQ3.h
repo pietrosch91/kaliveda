@@ -6,6 +6,8 @@
 
 #include "KVSignal.h"
 
+class KVDBParameterList;
+
 class KVQ3 : public KVSignal
 {
 
@@ -25,11 +27,19 @@ class KVQ3 : public KVSignal
 	virtual void SetDefaultValues();
 	virtual void LoadPSAParameters();
 	virtual Bool_t IsCharge() const { return kTRUE; }
-
-	void SetFastTrapShaperParameters(Double_t rise, Double_t flat) {fFastTrapRiseTime=rise; fFastTrapFlatTop=flat;}
 	
+	//definition of a second filter
+	//to perform in the same time filtering of the total and fast
+	//componments for the CSI 
+	void SetFastTrapShaperParameters(Double_t rise, Double_t flat) {fFastTrapRiseTime=rise; fFastTrapFlatTop=flat;}
+   void SetFastShaperRiseTime(Double_t rise) 							{fFastTrapRiseTime=rise;}
+	void SetFastShaperFlatTop(Double_t flat)							{ fFastTrapFlatTop=flat;}
+   Double_t GetFastShaperRiseTime()const {return fFastTrapRiseTime;}
+   Double_t GetFastShaperFlatTop() const {return fFastTrapFlatTop;}
+  
 	virtual void TreateSignal();
    virtual KVPSAResult* GetPSAResult() const;
+	virtual void UpdatePSAParameter(KVDBParameterList *par);
 	
 	ClassDef(KVQ3,1)//Q3 channel of CSI
 };

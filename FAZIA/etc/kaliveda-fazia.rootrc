@@ -49,17 +49,30 @@ ISOFAZIA.KVDataSet.DataType.Subdir.recon:  recon
 ISOFAZIA.KVDataSet.DataType.Subdir.root:  root
 
 #DataBase
+
 +Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
+
 # Default name for file containing runlist for each dataset.
 FAZIADB.Runlist:     Runlist.csv
 # Default name for file containing system list for each dataset.
 FAZIADB.Systems:     Systems.dat
+
 #Array
+
 +Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIAgeometry    "KVFAZIA_2B()"
 +Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIAgeometry    "KVFAZIASYM()"
 +Plugin.KVMultiDetArray:    ISOFAZIA    KVISOFAZIA    FAZIAgeometry    "KVISOFAZIA()"
+
+#================================ Plugins for different datasets
+# Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
+# If there is no entry here for a dataset, an object of the default KVUpDater class will be used.
+# Syntax:
+# Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
++Plugin.KVUpDater:    ISOFAZIA    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
++Plugin.KVUpDater:    FAZIASYM    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
++Plugin.KVUpDater:    LNS_2014    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 
 ############
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"

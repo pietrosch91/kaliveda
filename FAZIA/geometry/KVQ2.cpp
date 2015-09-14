@@ -86,6 +86,7 @@ void KVQ2::LoadPSAParameters()
 }
 
 
+//________________________________________________________________
 void KVQ2::TreateSignal()
 {
 	if (GetN()==0) return;

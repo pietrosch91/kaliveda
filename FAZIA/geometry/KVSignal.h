@@ -9,6 +9,7 @@
 #include "TH1F.h"
 
 class KVPSAResult;
+class KVDBParameterList;
 
 class KVSignal : public TGraph
 {
@@ -56,7 +57,7 @@ protected:
    Double_t fTauRC;                 // tau_rc of the electronics. Used for pole zero cancellation.
    Double_t fTrapRiseTime;          // rise time of the trapezoidal shaper
    Double_t fTrapFlatTop;           // flat top of the trapezoidal shaper
-	Double_t fGaussSigma;            // sigma of the semi-gaussian shaper
+	Double_t fSemiGaussSigma;            // sigma of the semi-gaussian shaper
    Bool_t   fWithPoleZeroCorrection;// use or nor pole zero correction
 	Bool_t 	fWithInterpolation; 		// use of interpolation or not
 	Double_t fMinimumValueForAmplitude;	//Minimum value to say if detector has been hitted
@@ -75,87 +76,126 @@ public:
    KVSignal(const TString& name, const TString& title);
    virtual ~KVSignal();  
    void Copy(TObject& obj) const;
-	void SetDetectorName(const Char_t* detname);
-	void SetDetector(const Char_t* det);
-	Double_t GetPSAParameter(const Char_t* parname);
-	void DeduceFromName();
-   void SetType(const Char_t* type) {fType=type;}
-   void Print(Option_t* chopt = "") const;
-   void SetData(Int_t nn, Double_t* xx, Double_t* yy);
-   virtual void Set(Int_t n);
-	void SetADCData();
-   
-	//----------------------
-	virtual void TreateSignal()
-	{
-		Info("TreateSignal","To be defined in child class");
-	}
-   virtual void LoadPSAParameters()
-	{
-		Info("LoadPSAParameters","To be defined in child class");
-	}
-	virtual void SetDefaultValues()
-	{
-		
-	}
-	virtual KVPSAResult* GetPSAResult() const
-	{
-		Info("GetPSAResult","To be defined in child class");
-		return 0;
-	}
 	
-	virtual void ComputeGlobals(void);
-	Double_t ComputeBaseLine();
-   Double_t ComputeAmplitude();
-   Double_t ComputeRiseTime();
-
+	//
+	//routines to link signal to its detector in kaliveda framework
+	//
+	void SetDetectorName(const Char_t* detname);
+	const Char_t* GetDetectorName()  const { return fDetName.Data(); }
+   void SetDetector(const Char_t* det);
+	const Char_t* GetDetector()      const { return fDet.Data(); }
+	void SetType(const Char_t* type) {fType=type;}
+   const Char_t* GetType()          const { return fType.Data(); }
+   //
+	void DeduceFromName();
    Int_t GetBlockNumber()           const { return fBlock; }
    Int_t GetQuartetNumber()         const { return fQuartet; }
    const Char_t* GetQuartetName()   const { return fQuartetName.Data(); }
    Int_t GetTelescopeNumber()       const { return fTelescope; }
    const Char_t* GetTelescopeName() const { return fTelName.Data(); }
-   const Char_t* GetDetectorName()  const { return fDetName.Data(); }
-   const Char_t* GetType()          const { return fType.Data(); }
-   const Char_t* GetDetector()      const { return fDet.Data(); }
-
-   void SetChannelWidth(double width)						{fChannelWidth=width; fChannelWidthInt=width;}
-   void SetInterpolatedChannelWidth(double width)		{ fInterpolatedChannelWidth=width; }
+   virtual Bool_t IsCharge() const { return kFALSE; }
+	virtual Bool_t IsCurrent() const { return kFALSE; }
+	
+	void Print(Option_t* chopt = "") const;
+   
+	//operation on data arrays
+	void SetData(Int_t nn, Double_t* xx, Double_t* yy);
+   virtual void Set(Int_t n);
+	void SetADCData();
+   TArrayF* GetArray()  {return &fAdc;}
+   
+	//
+	//routines to read/change PSA parameters from configuration file or database
+	//
+	Double_t GetPSAParameter(const Char_t* parname);
+	virtual void LoadPSAParameters();
+	virtual void SetDefaultValues();
+	virtual void UpdatePSAParameter(KVDBParameterList *par);
+	
+	//
+	//routines to launch and control PSA
+	//
+	virtual void TreateSignal();
+	virtual KVPSAResult* GetPSAResult() const;
+	Bool_t PSAHasBeenComputed() const { return fPSAIsDone; }
+	
+	//
+	//Indicate the value in (ns or µs) of TGraph X axis width
+	//
+	void SetChannelWidth(double width)	{fChannelWidth=width; fChannelWidthInt=width;}
+   Double_t GetChannelWidth() const{return fChannelWidth;}
+   Bool_t TestWidth() const;
+	void ChangeChannelWidth(Double_t newwidth);
+	//
+	void SetMaxT(double t)					{fAdc.Set((int)(t/fChannelWidth));}
+   //
+	void SetNSamples(int nn)				{fAdc.Set(nn);}
+   Int_t GetNSamples() const   		{return fAdc.GetSize();}
+   
+	//
+	//routines dedicated to calculate the baseline
+	//
+	void SetBaseLineLength(Int_t length, Int_t first=0)        {fFirstBL=first; fLastBL=length-first;}
+   Double_t GetBLFirst() const    {return fFirstBL;}
+   Double_t GetBLLength() const   {return fLastBL-fFirstBL;}
+   Double_t ComputeBaseLine();
+   Double_t GetBaseLine() const     {return fBaseLine;}
+   Double_t GetSigmaBaseLine()const {return fSigmaBase;}
+	
+	//
+	//routines dedicated to calculate the rise time (use of filter)
+	//
+	Double_t ComputeRiseTime();
+	Double_t GetRiseTime() const     {return fRiseTime;}
+	
+	//
+	//routines dedicated to calculate the amplitude (use of filter)
+	//
+	Double_t ComputeAmplitude();
+   Double_t GetAmplitude() const     {return fAmplitude;}
+	
+	//
+	//parameters for trapezoidal filter
+	//
+	void SetTrapShaperParameters(Double_t rise, Double_t flat) {fTrapRiseTime=rise; fTrapFlatTop=flat;}
+   void SetShaperRiseTime(Double_t rise) 							{fTrapRiseTime=rise;}
+	void SetShaperFlatTop(Double_t flat)							{ fTrapFlatTop=flat;}
+   Double_t GetShaperRiseTime()const {return fTrapRiseTime;}
+   Double_t GetShaperFlatTop() const {return fTrapFlatTop;}
+   
+	//
+	//parameters for semi gaussian filter
+	//
+	void SetSemiGaussSigma(Double_t sig)		{fSemiGaussSigma=sig;}
+	Double_t GetSemiGaussSigma() const			{return fSemiGaussSigma;}
+	
+	//
+	//parameters for Pole-Zero correction
+	//
+	void SetPoleZeroCorrection(Bool_t with=kTRUE)              {fWithPoleZeroCorrection=with;}
+   void SetTauRC(Int_t taurc)                                 {fTauRC=taurc;}
+   Double_t GetTauRC() const 												{return fTauRC;}
+   
+	//
+	//parameters for interpolation
+	//
+	void SetInterpolation(Bool_t with=kTRUE)              {fWithInterpolation=with;}
+	void SetInterpolatedChannelWidth(double width)		{ fInterpolatedChannelWidth=width; }
    Double_t GetInterpolatedChannelWidth() const				{ return fInterpolatedChannelWidth; }
 	
-	void SetMaxT(double t)                                     {fAdc.Set((int)(t/fChannelWidth));}
-   void SetNSamples(int nn)                                   {fAdc.Set(nn);}
-   void SetBaseLineLength(Int_t length, Int_t first=0)        {fFirstBL=first; fLastBL=length-first;}
-   void SetTauRC(Int_t taurc)                                 {fTauRC=taurc;}
-   void SetTrapShaperParameters(Double_t rise, Double_t flat) {fTrapRiseTime=rise; fTrapFlatTop=flat;}
-   void SetSemiGaussParameter(Double_t sig)                   {fGaussSigma=sig;}
-   void SetPoleZeroCorrection(Bool_t with=kTRUE)              {fWithPoleZeroCorrection=with;}
-   void SetWidthInterpolation(Bool_t with=kTRUE)              {fWithInterpolation=with;}
+	//
+	//routines to calculate the raw amplitude without filter
+	//
+	virtual void ComputeRawAmplitude(void);
+	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
+   Double_t GetYmin() const   {return fYmin;}
+   Double_t GetYmax() const   {return fYmax;}
 	
-	Bool_t PSAHasBeenComputed() const { return fPSAIsDone; }
-	virtual Bool_t IsCharge() const { return kFALSE; }
-	virtual Bool_t IsCurrent() const { return kFALSE; }
+	//routines to manage threshold for minimum charge in the detector
 	Double_t GetAmplitudeTriggerValue() const { return fMinimumValueForAmplitude; }
    void SetAmplitudeTriggerValue(Double_t val) {fMinimumValueForAmplitude=val; }
    
-	TArrayF* GetArray()       {return &fAdc;}
-   Double_t GetChannelWidth(){return fChannelWidth;}
-   Int_t    GetNSamples()    {return fAdc.GetSize();}
-   Double_t GetTauRC()       {return fTauRC;}
-   Double_t GetBLFirst()     {return fFirstBL;}
-   Double_t GetBLLength()    {return fLastBL-fFirstBL;}
-   Double_t GetTrapRiseTime(){return fTrapRiseTime;}
-   Double_t GetTrapFlatTop() {return fTrapFlatTop;}
-   Double_t GetGaussSigma()  {return fGaussSigma;}
-
-   Double_t GetYmin() const   {return fYmin;}
-   Double_t GetYmax() const   {return fYmax;}
-   Double_t GetAmplitude()    {return fAmplitude;}
-   Double_t GetRiseTime()     {return fRiseTime;}
-   Double_t GetBaseLine()     {return fBaseLine;}
-   Double_t GetSigmaBaseLine(){return fSigmaBase;}
-	Double_t GetRawAmplitude() const { return fYmax-fYmin; }
-	
-   // compute mean value and rms of a subset of samples
+	// compute mean value and rms of a subset of samples
    double FindMedia(double tsta, double tsto);
    double FindMedia(int tsta, int tsto);
    double FindSigma2(double tsta, double tsto);
@@ -164,9 +204,7 @@ public:
    // multiply the signal  (modify only fAdc)
    void Multiply(Double_t fact);
    void Add(Double_t fact);
-	Bool_t TestWidth();
-	void ChangeChannelWidth(Double_t newwidth);
-
+	
    // Interpolations
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
