@@ -35,21 +35,21 @@ BackTrack::Simple2DModel_Binned* model=0;
 
 void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
 {   
-   //Suppress messages
+   //------------Suppress RooFit info messages-----------
    RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
    //If RooWorkspace already generated
-   TFile *file = new TFile("./workspace_PARA_par1[0.0,10.0,10]_par2[-20.0,20.0,20]_OBS_obs1[-45.0,45.0,45]_obs2[-30.0,30.0,60].root");
-   RooWorkspace *ww = (RooWorkspace *) file->Get("init_workspace");
+//    TFile *file = new TFile("./workspace_PARA_par1[0.0,10.0,10]_par2[-20.0,20.0,20]_OBS_obs1[-45.0,45.0,45]_obs2[-30.0,30.0,60].root");
+//    RooWorkspace *ww = (RooWorkspace *) file->Get("init_workspace");
    
    
-   //Init weights histogram
+   //----------Init weights histogram--------
    TFile *fileh = new TFile("./histo_par1_par2.root");
-   //TH2F *histo = (TH2F*) fileh->Get("fittedParameters");
-   TH2F *histo = (TH2F*) fileh->Get("dummy");
+   TH2F *histo = (TH2F*) fileh->Get("fittedParameters");
+   //TH2F *histo = (TH2F*) fileh->Get("dummy");
 
    model = new BackTrack::Simple2DModel_Binned();   
-   model->InitParObs(ww);
+   model->InitParObs(histo, 1);
    
    //===========================
    //==     "EXP" DATASET     ==
@@ -81,8 +81,8 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    Double_t ndata_entries= datahist.sumEntries();
    
 //    Modify the ranges for the fit
-   model->GetObservable("obs1")->setRange("RANGE",-10,32);
-   model->GetObservable("obs2")->setRange("RANGE",-20,15);
+//    model->GetObservable("obs1")->setRange("RANGE",-10,32);
+//    model->GetObservable("obs2")->setRange("RANGE",-20,15);
    
    //===========================
    //==    BACKTRACKING       ==
@@ -91,7 +91,7 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    model->SetExtended(kFALSE);
    model->SetNumGen(statmod);
    model->ImportModelData(kTRUE); 
-   model->ConstructPseudoPDF(model->CreateInitWeights(histo,1.), kTRUE, kTRUE, kFALSE);
+   model->ConstructPseudoPDF(model->GetInitWeights(), kTRUE, kTRUE, kFALSE);
    model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(kFALSE), Offset(kTRUE));
    //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(model->IsExtended()), Offset(kTRUE), SetEpsilon(0.1), Range("RANGE"), SetMaxCalls(500000), SetMaxIter(500000));
    //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLMultiMin","conjugatefr"), Extended(kFALSE), Offset(kTRUE));   

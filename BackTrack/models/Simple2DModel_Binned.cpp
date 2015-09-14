@@ -26,100 +26,73 @@ namespace BackTrack {
 
   Simple2DModel_Binned::Simple2DModel_Binned()
   {
-    fNGen    = 0;  
+    fNGen     = 0;  
     ffweight  = new vector<Double_t>();
-    //ffweight  = 0;	 	        
+    ffweight  = NULL;	 	        
   }
       
    
-   void Simple2DModel_Binned::InitParObs(RooWorkspace *ww)
-   {
-     //To create or set the workspace
+  void Simple2DModel_Binned::InitParObs(TH2F *histo_par, Double_t exp_int)
+  {
+    InitWorkspace();    
+    InitPar(histo_par, exp_int);
+    InitObs();
+  }
    
-     //if no workspace given
-     if(ww==0)   
-     	{ 
-	 InitWorkspace();
-	
-     	 AddParameter("par1","parameter #1",0,10,10);
-     	 AddParameter("par2","parameter #2",-20,20,20);
-     	 AddObservable("obs1","observable #1",-45,45,45);
-     	 AddObservable("obs2","observable #2",-30,30,60); 
-     	}
-	
-     //if workspace given
-     else SetWorkspace(ww);
-     
-     fWorkspace->Print();
-     RooArgList *par = (RooArgList *) fWorkspace->obj("_parameters");
-     par->Print(); 	 
-   }
-    
+   
+   
+  void Simple2DModel_Binned::InitObs()
+  {
+    AddObservable("obs1","observable #1",-45,45,45);
+    AddObservable("obs2","observable #2",-30,30,60); 
+  } 
+   
+   
+  void Simple2DModel_Binned::InitPar(TH2F *hh, Double_t exp_int)
+  {
+    //if no workspace given :uniform weights distribution 
+    if(hh==0)	
+       { 
+        Info("InitPar", "...no parameters histogram provided, setting default values...");
+   	AddParameter("par1","parameter #1",0,10,10);
+   	AddParameter("par2","parameter #2",-20,20,20);
+	SetUniformInitWeights(exp_int);
+       }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-  vector<Double_t>* Simple2DModel_Binned::CreateInitWeights(TH2F* hh_weights, Double_t exp_entries)
-  {  
-    //To set the initial guess on parameters for the fit according to an histogram
-    // /!\ histogram must have the same binning than the parameters /!\
-    //If extended fit the user needs to give the number of entries in the experimental RooHistPdf
-          
-     if(hh_weights!=0 && exp_entries>0)
-	{
-        //------Verify histogram-------
-	//histo values
-	Int_t      nbins_par1 = hh_weights->GetNbinsX();
-	Int_t      nbins_par2 = hh_weights->GetNbinsY();
-	Double_t   width_par1 = hh_weights->GetXaxis()->GetBinWidth(1);
-	Double_t   width_par2 = hh_weights->GetYaxis()->GetBinWidth(1);
-	Double_t   par1_min   = hh_weights->GetXaxis()->GetBinCenter(1) - width_par1/2.;   
-	Double_t   par1_max   = hh_weights->GetXaxis()->GetBinCenter(nbins_par1)+ width_par1/2.;
-	Double_t   par2_min   = hh_weights->GetYaxis()->GetBinCenter(1) - width_par2/2.;   
-	Double_t   par2_max   = hh_weights->GetYaxis()->GetBinCenter(nbins_par2)+ width_par2/2.;
-		
-	//Model param values
-	RooRealVar *p1 = dynamic_cast<RooRealVar*>(GetParameters().at(0));
-	RooAbsBinning& bins1 = p1->getBinning();
-        Int_t N1 = bins1.numBins();
-        Double_t minp1 = p1->getMin();
-	Double_t maxp1 = p1->getMax();
+    else
+       {
+         Info("InitPar", "...parameters histogram provided, setting given values...");
+        //Normalization of histo
+        hh->Scale(exp_int/hh->Integral());
+ 
+        Int_t      nbins_par1   = hh->GetNbinsX();
+        Int_t      nbins_par2   = hh->GetNbinsY();
+        Double_t   width_par1   = hh->GetXaxis()->GetBinWidth(1);
+        Double_t   width_par2   = hh->GetYaxis()->GetBinWidth(1);
+        Double_t   par1_min	= hh->GetXaxis()->GetBinCenter(1) - width_par1/2.;   
+        Double_t   par1_max	= hh->GetXaxis()->GetBinCenter(nbins_par1)+ width_par1/2.;
+        Double_t   par2_min	= hh->GetYaxis()->GetBinCenter(1) - width_par2/2.;   
+        Double_t   par2_max	= hh->GetYaxis()->GetBinCenter(nbins_par2)+ width_par2/2.;
+      
+        //Add Parameters
+        AddParameter("par1",  "par1",  par1_min, par1_max, nbins_par1);
+        AddParameter("par2",  "par2",  par2_min, par2_max, nbins_par2); 
 	
-	RooRealVar *p2 = dynamic_cast<RooRealVar*>(GetParameters().at(1));
-	RooAbsBinning& bins2 = p2->getBinning();
-        Int_t N2 = bins2.numBins();
-	Double_t minp2 = p2->getMin();
-	Double_t maxp2 = p2->getMax();	
-	
-	
-	//If all ok
-	if(nbins_par1==N1 && nbins_par2==N2 && par1_min==minp1 && par2_min==minp2 && par1_max==maxp1 && par2_max==maxp2)
-	   {	
-	    //Re-normalize the histogram integral to the number of exp_entries 
-	    hh_weights->Scale(exp_entries/hh_weights->Integral());
-	    		
-            for(Int_t ii=1; ii<=N1 ;ii++)
-	       {
-	        for(Int_t jj=1; jj<=N2 ;jj++)
-	           {
-		     Double_t val = (Double_t) hh_weights->GetBinContent(ii,jj);
-		     //debug
-		     printf("val=%e, (%d,%d)\n", val, ii, jj);
-	             ffweight->push_back(val);
-	           }
-	       }     	    	       	       	       
-	   }
-	   
-	else 
+	//SetInitWeights 		    
+        for(Int_t ii=1; ii<=nbins_par1 ;ii++)
 	   {
-	    Error("CreateInitWeights", "... Error wrong histogram binning or values...");
-            printf("nbins_par1=%d, N1=%d | nbins_par2=%d, N2=%d | par1_min=%e, minp1=%e | par2_min=%e, minp2=%e | par1_max=%e, maxp1=%e | par2_max=%e, maxp2=%e\n",
-	            nbins_par1, N1, nbins_par2, N2, par1_min, minp1, par2_min, minp2, par1_max, maxp1, par2_max, maxp2);  
-	   }    
-      }	
-      
-      return ffweight;                              
-  }
-  
+	    for(Int_t jj=1; jj<=nbins_par2 ;jj++)
+	       {
+	    	 Double_t val = (Double_t) hh->GetBinContent(ii,jj);
+	    	 //debug
+	    	 //printf("-----InitWeights-----   val=%e, (%d,%d)\n", val, ii, jj);
+		 ffweight->push_back(val);
+	       }
+	   }     	    	       	       	       	    
+       }	
+   }
+   
+   
 //////////////////////////////////////////////////////////////////////////////////////////////
   void Simple2DModel_Binned::generateEvent(const RooArgList& parameters, RooDataSet& data)
   {
@@ -168,31 +141,31 @@ namespace BackTrack {
     //For this we create an histogram that we fill with very small bin contents and we add it to the actual dataset
     //We add a condition on the minimum entries of the DataSet to get ride of empty ones
     
-    if(data->numEntries()>10)
-      {		            
-	Double_t min_par1   = GetObservable(0)->getMin();
-	Double_t max_par1   = GetObservable(0)->getMax();
-	Double_t min_par2   = GetObservable(1)->getMin();
-	Double_t max_par2   = GetObservable(1)->getMax();
-             
-	Int_t    nbin_par1  = GetObservable(0)->numBins();
-	Int_t    nbin_par2  = GetObservable(1)->numBins();
-
-	TH2D *hh = new TH2D("init","init", nbin_par1, min_par1, max_par1, nbin_par2, min_par2, max_par2);
-       	    
-	for(Int_t nx=0; nx<=hh->GetNbinsX();nx++)
-          {
-	    for(Int_t ny=0; ny<=hh->GetNbinsY();ny++)
-	      {
-		hh->SetBinContent(nx,ny,1./10000);
-	      }
-	  }
-	 
-	RooDataHist *datahistinit = new RooDataHist("init","init", GetObservables(), hh);  
-	 
-	datahist->add(*datahistinit);
-	delete hh;       
-      }	 
+//     if(data->numEntries()>10)
+//       {		            
+// 	Double_t min_par1   = GetObservable(0)->getMin();
+// 	Double_t max_par1   = GetObservable(0)->getMax();
+// 	Double_t min_par2   = GetObservable(1)->getMin();
+// 	Double_t max_par2   = GetObservable(1)->getMax();
+//              
+// 	Int_t    nbin_par1  = GetObservable(0)->numBins();
+// 	Int_t    nbin_par2  = GetObservable(1)->numBins();
+// 
+// 	TH2D *hh = new TH2D("init","init", nbin_par1, min_par1, max_par1, nbin_par2, min_par2, max_par2);
+//        	    
+// 	for(Int_t nx=0; nx<=hh->GetNbinsX();nx++)
+//           {
+// 	    for(Int_t ny=0; ny<=hh->GetNbinsY();ny++)
+// 	      {
+// 		hh->SetBinContent(nx,ny,1./10000);
+// 	      }
+// 	  }
+// 	 
+// 	RooDataHist *datahistinit = new RooDataHist("init","init", GetObservables(), hh);  
+// 	 
+//	datahist->add(*datahistinit);
+//	delete hh;       
+//      }	 
   	                                                                   
     return datahist;
   }

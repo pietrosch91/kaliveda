@@ -30,7 +30,7 @@
 #include "RooPlot.h"
 #include "RooCurve.h"
 #include "RooNLLVar.h"
-#include "RooMinuit.h"
+#include "NewRooMinuit.h"
 #include "RooCategory.h"
 #include "RooNameReg.h"
 #include "RooCmdConfig.h"
@@ -43,12 +43,13 @@
 #include "RooConstraintSum.h"
 #include "RooParamBinning.h"
 #include "RooNumCdf.h"
+#include "NewRooFitResult.h"
 #include "RooFitResult.h"
 #include "RooNumGenConfig.h"
 #include "RooCachedReal.h"
 #include "RooXYChi2Var.h"
 #include "RooChi2Var.h"
-#include "RooMinimizer.h"
+#include "NewRooMinimizer.h"
 #include "RooRealIntegral.h"
 #include "Math/CholeskyDecomp.h"
 #include <RooAbsBinning.h>
@@ -431,7 +432,6 @@ namespace BackTrack {
     if(weights!=0)  SetInitWeights(weights);        
     else SetUniformInitWeights(exp_integral);
 
-
     if(fModelPseudoPDF)
       {
 	delete fModelPseudoPDF;
@@ -509,14 +509,14 @@ namespace BackTrack {
     //Extended
     if(IsExtended()==kTRUE)
       {
-	fModelPseudoPDF = new RooAddPdf("Model", "Pseudo-PDF constructed from kernels for model datahists", kernels, fFractions, kFALSE);
+	fModelPseudoPDF = new NewRooAddPdf("Model", "Pseudo-PDF constructed from kernels for model datahists", kernels, fFractions, kFALSE);
 	if(numint==kTRUE) fModelPseudoPDF->forceNumInt();	
       }
       
     else
       {
         //fFractions->remove();
-	fModelPseudoPDF = new RooAddPdf("Model", "Pseudo-PDF constructed from kernels for model datahists", kernels, fFractions, kTRUE);
+	fModelPseudoPDF = new NewRooAddPdf("Model", "Pseudo-PDF constructed from kernels for model datahists", kernels, fFractions, kTRUE);
 	if(numint==kTRUE) fModelPseudoPDF->forceNumInt();
       }  
       
@@ -527,7 +527,7 @@ namespace BackTrack {
   }
     
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  RooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
+  NewRooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
 					                      const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8)
   {
     //Print informations

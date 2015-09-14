@@ -21,11 +21,11 @@
 #include "RooNDKeysPdf.h"
 #include "RooProdPdf.h"
 #include "RooPlot.h"
-#include "RooAddPdf.h"
-#include "RooFitResult.h"
+#include "NewRooAddPdf.h"
+#include "NewRooFitResult.h"
 #include "RooHistPdf.h"
 #include "RooChi2Var.h"
-#include "RooMinuit.h"
+#include "NewRooMinuit.h"
 #include "RooExtendPdf.h"
 #include "TFile.h"
 #include "RooWorkspace.h"
@@ -59,11 +59,11 @@ namespace BackTrack {
       TObjArray  fDataSets;             // list of model datasets
       TObjArray  fHistPdfs;             // pseudo-pdfs for each dataset
       RooArgList fWeights;              // fitted weight of each pseudo-pdf in result
-      RooAddPdf* fModelPseudoPDF;       // pseudo-pdf for model to fit data
+      NewRooAddPdf* fModelPseudoPDF;       // pseudo-pdf for model to fit data
       RooArgList fFractions;            // weights of each kernel in pseudo pdf
       vector<Double_t> *fInitWeights;   // initital weights 
       RooWorkspace *fWorkspace;         // workspace for the fit
-      RooFitResult* fLastFit;           // result of last fit
+      NewRooFitResult* fLastFit;           // result of last fit
       RooHistPdf*   fParameterPDF;      // pdf for parameters after fit to data
       RooDataHist*  fParamDataHist;     // binned parameter dataset used to construct fParameterPDF
       
@@ -125,15 +125,15 @@ namespace BackTrack {
       
       void  ConstructPseudoPDF(vector<Double_t> *weights, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
       void  ConstructPseudoPDF(Int_t exp_integral, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
-      const RooAddPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
+      const NewRooAddPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
       const RooArgList& GetPseudoPDFFractions() const { return fFractions; }
       const RooHistPdf* GetParameterPDF() const { return fParameterPDF; }
       const RooDataHist* GetParamDataHist() const { return fParamDataHist; }
       const RooArgList& GetWeights() const { return fWeights; }
       
-      virtual RooFitResult* fitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(), const
+      virtual NewRooFitResult* fitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(), const
       RooCmdArg& arg5 = RooCmdArg::none(), const RooCmdArg& arg6 = RooCmdArg::none(), const RooCmdArg& arg7 = RooCmdArg::none(), const RooCmdArg& arg8 = RooCmdArg::none());      						 
-      RooFitResult* GetLastFit() const { return fLastFit; }
+      NewRooFitResult* GetLastFit() const { return fLastFit; }
       
       void plotOn(RooPlot*);
    };

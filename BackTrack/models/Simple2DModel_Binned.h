@@ -32,15 +32,16 @@ namespace BackTrack {
       
       Simple2DModel_Binned();
       virtual ~Simple2DModel_Binned();
-      
-      void InitParObs(RooWorkspace *ww=0);                                             //To set parameters and observables values/limits     
-      vector<Double_t>* CreateInitWeights(TH2F* hh_weights=0, Double_t expentries=1.); //To initialize the parameters guess for the fit if we want 
+       
+      void InitParObs(TH2F *hh_par, Double_t exp_int);                                     //Initialize parameters and observables
+      void InitObs();                                                                   //Initialize observables
+      void InitPar(TH2F *hh_par, Double_t exp_int);                                        //Initialize parameters according to histo and experimental entries for the fit       
       vector<Double_t>* GetInitWeights() { return ffweight; }                           //To get the initial weights
-      RooDataHist* GetModelDataHist(RooArgList &par);                                  //Definition f the virtual method for GenericModel_Binned class  
-      void generateEvent(const RooArgList& parameters, RooDataSet& data);              //Generate one event for the model
-      void SetNumGen(Int_t n) { fNGen=n; }                                             //Number of events to generate
+      RooDataHist* GetModelDataHist(RooArgList &par);                                   //Definition for the virtual method for GenericModel_Binned class  
+      void generateEvent(const RooArgList& parameters, RooDataSet& data);               //Generate one event for the model
+      void SetNumGen(Int_t n) { fNGen=n; }                                              //Number of events to generate
       Int_t GetNumGen() const { return fNGen; }      
-      TH1* GetParameterDistributions();                                                //For drawings after the fit
+      TH1* GetParameterDistributions();                                                 //For drawings after the fit
    };
 
 }
