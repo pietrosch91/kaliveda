@@ -4,7 +4,6 @@
 /usr/share/kaliveda/templates/KVFAZIAReaderTemplate.h
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.cpp
 /usr/share/kaliveda/templates/KVFAZIASelectorTemplate.h
-/usr/share/kaliveda/etc/ISOFAZIA-PSA-Params.dat
 /usr/share/kaliveda/etc/kaliveda-fazia.rootrc
 /usr/lib/libFAZIAidentification.so.1.10.03
 /usr/lib/libFAZIAidentification.so.1
@@ -30,7 +29,9 @@
 /usr/share/kaliveda/INDRAFAZIA/Systems.dat
 /usr/share/kaliveda/INDRAFAZIA/Makefile
 /usr/share/kaliveda/INDRAFAZIA/ChIoPressures.dat
+/usr/share/kaliveda/ISOFAZIA/ISOFAZIA-PSA-Params.dat
 /usr/share/kaliveda/ISOFAZIA/Runlist.csv
+/usr/share/kaliveda/ISOFAZIA/IDGrid_CSIRL.dat
 /usr/share/kaliveda/ISOFAZIA/Systems.dat
 /usr/share/kaliveda/ISOFAZIA/Makefile
 /usr/share/kaliveda/ISOFAZIA/Comments.txt

@@ -214,6 +214,7 @@
 /usr/include/kaliveda/KVPartitionGenerator.h
 /usr/include/kaliveda/KVDBRun.h
 /usr/include/kaliveda/KVDataBase.h
+/usr/include/kaliveda/KVDBParameterList.h
 /usr/include/kaliveda/KVDBRecord.h
 /usr/include/kaliveda/KVDBSystem.h
 /usr/include/kaliveda/KVDBParameterSet.h
