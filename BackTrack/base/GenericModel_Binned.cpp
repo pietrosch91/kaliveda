@@ -528,7 +528,8 @@ namespace BackTrack {
     
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   NewRooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
-					                      const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8)
+					                         const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8,
+								 const RooCmdArg& arg9, const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
   {
     //Print informations
     Info("fiTo...","performing fit with %d parameters and %d observables", GetNumberOfParameters(), GetNumberOfObservables());
@@ -548,7 +549,7 @@ namespace BackTrack {
       }  
     
     //Fit
-    fLastFit = fModelPseudoPDF->fitTo(data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    fLastFit = fModelPseudoPDF->improvedFitTo(data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
      
     //Save Coefs
     SafeDelete(fParamDataHist);

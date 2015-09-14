@@ -28,6 +28,7 @@
 #include "RooSentinel.h"
 #include "RooMsgService.h"
 #include "RooPlot.h"
+#include "TVirtualFitter.h"
 
 
 
@@ -41,6 +42,7 @@ using namespace std;
 ClassImp(NewRooMinuit)
 
 TVirtualFitter *NewRooMinuit::_theFitter = 0 ;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -134,8 +136,10 @@ NewRooMinuit::NewRooMinuit(RooAbsReal& function)
   // Initialize MINUIT
   Int_t nPar= _floatParamList->getSize() + _constParamList->getSize() ;
   if (_theFitter) delete _theFitter ;
-  _theFitter = new TFitter(nPar*2+1) ; //WVE Kludge, nPar*2 works around TMinuit memory allocation bug
-  _theFitter->SetObjectFit(this) ;
+  _theFitter = TVirtualFitter::Fitter(this, nPar*2+1);
+
+  //_theFitter = new TFitter(nPar*2+1) ; //WVE Kludge, nPar*2 works around TMinuit memory allocation bug
+  //_theFitter->SetObjectFit(this) ;
 
   // Shut up for now
   setPrintLevel(-1) ;

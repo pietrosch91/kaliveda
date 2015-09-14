@@ -52,6 +52,7 @@
 #include "RooArgList.h"
 #include "TNamed.h"
 #include "RooConstVar.h"
+#include "RooAddPdf.h"
 
 using namespace RooFit;
 
@@ -71,20 +72,7 @@ ClassImp(NewRooAddPdf)
 //_____________________________________________________________________________
 NewRooAddPdf::NewRooAddPdf() : RooAddPdf()
 {
-  // Default constructor used for persistence
-    
-  _refCoefNorm = RooSetProxy("!refCoefNorm","Reference coefficient normalization set",this,kFALSE,kFALSE);
-  _refCoefRangeName = 0;
-  _codeReg = 10;
-  _snormList = 0;
-  _recursive = kFALSE;
-
-  _pdfIter   = _pdfList.createIterator() ;
-  _coefIter  = _coefList.createIterator() ;
-
-  _coefCache = new Double_t[100] ;
-  _coefErrCount = _errorCount ;
-  TRACE_CREATE 
+  // Default constructor used for persistence    
 }
 
 
@@ -93,23 +81,6 @@ NewRooAddPdf::NewRooAddPdf() : RooAddPdf()
 NewRooAddPdf::NewRooAddPdf(const char *name, const char *title) : RooAddPdf(name, title)
 {
   // Dummy constructor 
-  
-  _refCoefNorm = RooSetProxy("!refCoefNorm","Reference coefficient normalization set",this,kFALSE,kFALSE);
-  _refCoefRangeName = 0;
-  _projectCoefs= kFALSE;
-  _projCacheMgr = RooObjCacheManager(this,10);
-  _codeReg = 10;
-  _pdfList = RooListProxy("!pdfs","List of PDFs",this),
-  _coefList = RooListProxy("!coefficients","List of coefficients",this);
-  _snormList = 0;
-  _haveLastCoef = kFALSE;
-  _allExtendable = kFALSE;
-  _recursive = kFALSE;
-  _pdfIter   = _pdfList.createIterator() ;
-  _coefIter  = _coefList.createIterator() ;
-  _coefCache = new Double_t[100] ;
-  _coefErrCount = _errorCount ;
-  TRACE_CREATE 
 }
 
 
@@ -117,35 +88,13 @@ NewRooAddPdf::NewRooAddPdf(const char *name, const char *title) : RooAddPdf(name
 //_____________________________________________________________________________
 NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, RooAbsPdf& pdf1, RooAbsPdf& pdf2, RooAbsReal& coef1) : RooAddPdf(name, title, pdf1, pdf2, coef1)
 {
-
   // Constructor with two PDFs and one coefficient
-  
-  _refCoefNorm = RooSetProxy("!refCoefNorm","Reference coefficient normalization set",this,kFALSE,kFALSE);
-  _refCoefRangeName = 0;
-  _projectCoefs = kFALSE;
-  _projCacheMgr = RooObjCacheManager(this,10),
-  _codeReg = 10;
-  _pdfList = RooListProxy("!pdfs","List of PDFs",this),
-  _coefList = RooListProxy("!coefficients","List of coefficients",this),
-  _haveLastCoef = kFALSE;
-  _allExtendable = kFALSE;
-  _recursive = kFALSE;
-  _pdfIter  = _pdfList.createIterator() ;
-  _coefIter = _coefList.createIterator() ;
-
-  _pdfList.add(pdf1) ;  
-  _pdfList.add(pdf2) ;
-  _coefList.add(coef1) ;
-
-  _coefCache = new Double_t[_pdfList.getSize()] ;
-  _coefErrCount = _errorCount ;
-  TRACE_CREATE 
 }
 
 
 
 //_____________________________________________________________________________
-NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, const RooArgList& inPdfList, const RooArgList& inCoefList, Bool_t recursiveFractions) : RooAddPdf(name,title, inPdfList, inCoefList, recursiveFractions)
+NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, const RooArgList& inPdfList, const RooArgList& inCoefList, Bool_t recursiveFractions) : RooAddPdf(name, title, inPdfList, inCoefList, recursiveFractions)
 { 
   // Generic constructor from list of PDFs and list of coefficients.
   // Each pdf list element (i) is paired with coefficient list element (i).
@@ -156,20 +105,18 @@ NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, const RooArgList
   //
   // If the recursiveFraction flag is true, the coefficients are interpreted as recursive
   // coefficients as explained in the class description.
-  
-  _refCoefNorm = RooSetProxy("!refCoefNorm","Reference coefficient normalization set",this,kFALSE,kFALSE);
+    
+  _refCoefNorm      = RooSetProxy("!refCoefNorm","Reference coefficient normalization set",this,kFALSE,kFALSE);
   _refCoefRangeName = 0;
-  _projectCoefs = kFALSE;
-  _projCacheMgr = RooObjCacheManager(this,10);
-  _codeReg = 10;
-  _pdfList = RooListProxy("!pdfs","List of PDFs",this),
-  _coefList = RooListProxy("!coefficients","List of coefficients",this),
-  _haveLastCoef = kFALSE;
-  _allExtendable = kFALSE;
-  _recursive = kFALSE;
-  
-  
-  
+  _projectCoefs     = kFALSE;
+  _projCacheMgr     = RooObjCacheManager(this,10);
+  _codeReg          = 10;
+  _pdfList          = RooListProxy("!pdfs","List of PDFs",this),
+  _coefList         = RooListProxy("!coefficients","List of coefficients",this),
+  _haveLastCoef     = kFALSE;
+  _allExtendable    = kFALSE;
+  _recursive        = kFALSE;
+     
 
   if (inPdfList.getSize()>inCoefList.getSize()+1 || inPdfList.getSize()<inCoefList.getSize()) {
     coutE(InputArguments) << "NewRooAddPdf::NewRooAddPdf(" << GetName() 
@@ -324,31 +271,20 @@ NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, const RooArgList
 //_____________________________________________________________________________
 NewRooAddPdf::NewRooAddPdf(const NewRooAddPdf& other, const char* name) : RooAddPdf(other, name)
 {
+  // Copy constructor     
+}
 
-  // Copy constructor    
-  _refCoefNorm = RooSetProxy("!refCoefNorm",this,other._refCoefNorm);
-  TNamed *tnamed0 = (TNamed*) (other._refCoefRangeName);
-  TNamed *tnamed1 = new TNamed(*tnamed0);
-  _refCoefRangeName = tnamed1;  
-  _projectCoefs = (other._projectCoefs);
-  _projCacheMgr = RooObjCacheManager(other._projCacheMgr,this);  
-  _codeReg = (other._codeReg);    
-  _pdfList = RooListProxy("!pdfs",this,other._pdfList);  
-  _coefList = RooListProxy("!coefficients",this,other._coefList);  
-  _haveLastCoef = (other._haveLastCoef);  
-  _allExtendable = (other._allExtendable);
-  _recursive = (other._recursive);  
-  _pdfIter  = _pdfList.createIterator() ;
-  _coefIter = _coefList.createIterator() ;
-  _coefCache = new Double_t[_pdfList.getSize()] ;
-  _coefErrCount = _errorCount ;
-  TRACE_CREATE     
+
+//_____________________________________________________________________________
+NewRooAddPdf::~NewRooAddPdf() 
+{
+  // Destructor
 }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
+NewRooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
 					             const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8,
 						     const RooCmdArg& arg9, const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
 {
@@ -361,12 +297,12 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooCmdArg& arg1, c
   l.Add((TObject*)&arg9) ;  l.Add((TObject*)&arg10); 
   l.Add((TObject*)&arg11);  l.Add((TObject*)&arg12);	    
   
-  return fitTo(data, l); 
+  return improvedFitTo(data, l); 
 }
   
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmdList)   
+NewRooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList& cmdList)   
 {
   // Fit PDF to given dataset. If dataset is unbinned, an unbinned maximum likelihood is performed. If the dataset
   // is binned, a binned maximum likelihood is performed. By default the fit is executed through the MINUIT
@@ -375,14 +311,14 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
   // Some new commands: SetMaxIter(Int_t), SetMaxCalls(Int_t) and SetEpsilon(Double_t)
   // New commands added in a new "NewRooGlobalFunc" for covenience 
   //
-  // See RooAbsPdf::fitTo(RooAbsData& data, RooCmdArg arg1, RooCmdArg arg2, RooCmdArg arg3, RooCmdArg arg4, 
+  // See RooAbsPdf::improvedFitTo(RooAbsData& data, RooCmdArg arg1, RooCmdArg arg2, RooCmdArg arg3, RooCmdArg arg4, 
   //                                         RooCmdArg arg5, RooCmdArg arg6, RooCmdArg arg7, RooCmdArg arg8) 
   //
   // for documentation of options
 
 
   // Select the pdf-specific commands 
-  RooCmdConfig pc(Form("RooAbsPdf::fitTo(%s)",GetName())) ;
+  RooCmdConfig pc(Form("RooAbsPdf::improvedFitTo(%s)",GetName())) ;
 
   RooLinkedList fitCmdList(cmdList) ;
   //Add options here
@@ -462,7 +398,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 
   // Warn user that a SumW2Error() argument should be provided if weighted data is offered
   if (weightedData && doSumW2==-1) {
-    coutW(InputArguments) << "RooAbsPdf::fitTo(" << GetName() << ") WARNING: a likelihood fit is request of what appears to be weighted data. " << endl
+    coutW(InputArguments) << "RooAbsPdf::improvedFitTo(" << GetName() << ") WARNING: a likelihood fit is request of what appears to be weighted data. " << endl
                           << "       While the estimated values of the parameters will always be calculated taking the weights into account, " << endl 
 			  << "       there are multiple ways to estimate the errors on these parameter values. You are advised to make an " << endl 
 			  << "       explicit choice on the error calculation: " << endl
@@ -478,7 +414,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 
   // Warn user that sum-of-weights correction does not apply to MINOS errrors
   if (doSumW2==1 && minos) {
-    coutW(InputArguments) << "RooAbsPdf::fitTo(" << GetName() << ") WARNING: sum-of-weights correction does not apply to MINOS errors" << endl ;
+    coutW(InputArguments) << "RooAbsPdf::improvedFitTo(" << GetName() << ") WARNING: sum-of-weights correction does not apply to MINOS errors" << endl ;
   }
     
   RooAbsReal* nll = createNLL(data,nllCmdList) ;  
@@ -568,7 +504,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 	for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
 	  (*it)->applyWeightSquared(kTRUE);
 	}
-	coutI(Fitting) << "RooAbsPdf::fitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
+	coutI(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
 	m.hesse();
 	NewRooFitResult* rw2 = m.save();
 	for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
@@ -581,7 +517,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 	using ROOT::Math::CholeskyDecompGenDim;
 	CholeskyDecompGenDim<Double_t> decomp(matC.GetNrows(), matC);
 	if (!decomp) {
-	  coutE(Fitting) << "RooAbsPdf::fitTo(" << GetName() 
+	  coutE(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() 
 			 << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" <<endl ;
 	} else {
 	  // replace C by its inverse
@@ -701,7 +637,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 	for (list<RooNLLVar*>::iterator iter1=nllComponents.begin() ; iter1!=nllComponents.end() ; iter1++) {
 	  (*iter1)->applyWeightSquared(kTRUE) ;
 	}
-	coutI(Fitting) << "RooAbsPdf::fitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
+	coutI(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
 	m.hesse() ;
 	NewRooFitResult* rw2 = m.save() ;
 	for (list<RooNLLVar*>::iterator iter2=nllComponents.begin() ; iter2!=nllComponents.end() ; iter2++) {
@@ -714,7 +650,7 @@ NewRooFitResult* NewRooAddPdf::fitTo(RooDataHist& data, const RooLinkedList& cmd
 	using ROOT::Math::CholeskyDecompGenDim;
 	CholeskyDecompGenDim<Double_t> decomp(matC.GetNrows(), matC);
 	if (!decomp) {
-	  coutE(Fitting) << "RooAbsPdf::fitTo(" << GetName() 
+	  coutE(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() 
 			 << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" <<endl ;
 	} else {
 	  // replace C by its inverse
