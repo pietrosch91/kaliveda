@@ -215,6 +215,8 @@ ISOFAZIA.Q3.PZCorrection:  		  0
 #specific parameters for some signals for some run ranges
 ISOFAZIA.FAZIADB.Exceptions:				ISOFAZIA-PSA-Params.dat
 
+#comments associated with runs
+ISOFAZIA.FAZIADB.Comments:				Comments.txt
 
 ###
 #	Old dataset of FAZIA

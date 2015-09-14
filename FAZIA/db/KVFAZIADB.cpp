@@ -383,6 +383,7 @@ void KVFAZIADB::Build()
    ReadNewRunList();
    ReadSystemList();
    ReadExceptions();
+	ReadComments();
 }
 
 
@@ -463,11 +464,10 @@ void KVFAZIADB::ReadNewRunList()
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadExceptions()
 {
-	KVString fname=GetCalibFileName("Exceptions");
 	TString fp;
 	gDataSet->SearchKVFile(GetCalibFileName("Exceptions"),fp,gDataSet->GetName());
    
-	if (fname=="") {
+	if (fp=="") {
 		Error("ReadExceptions()", "No file foud for Exceptions");
       return;
    }
@@ -542,6 +542,57 @@ void KVFAZIADB::ReadExceptions()
 	}
 	
 	delete ll;
+	
+}
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadComments()
+{
+	
+	TString fp;
+	gDataSet->SearchKVFile(GetCalibFileName("Comments"),fp,gDataSet->GetName());
+   
+	if (fp=="") {
+		Error("ReadRuns()", "No file foud for Comments");
+      return;
+   }
+
+	KVFileReader fr;
+	if (!fr.OpenFileToRead(fp.Data())){
+		Error("ReadComments()", "Error in opening file %s\n",fp.Data());
+		return;
+	}
+	
+   Info("ReadComments()", "Reading comments ...");
+	KVFAZIADBRun* dbrun=0;
+	while (fr.IsOK())
+	{
+		fr.ReadLine("|");
+		if (fr.GetCurrentLine().BeginsWith("#"))
+		{
+		
+		}
+		else if (fr.GetCurrentLine()=="")
+		{
+		
+		}
+		else{
+			if (fr.GetNparRead()==2)
+			{
+				KVString srun(fr.GetReadPar(0));
+				srun.Begin("="); srun.Next();
+				KVNumberList lruns(srun.Next());
+				KVString comments(fr.GetReadPar(1));
+				lruns.Begin();
+				while ( !lruns.End() )
+				{
+					Int_t run = lruns.Next();
+					dbrun = (KVFAZIADBRun* )GetRun(run);
+					if (dbrun)
+						dbrun->SetComments(comments.Data());
+				}
+			}
+		}
+	}
 	
 }
 //__________________________________________________________________________________________________________________

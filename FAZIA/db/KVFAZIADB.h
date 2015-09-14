@@ -77,6 +77,7 @@ class KVFAZIADB : public KVDataBase
    void ReadNewRunList();
    void WriteSystemsFile() const;
 	void ReadExceptions();
+	void ReadComments();
 
    virtual void PrintRuns(KVNumberList&) const;
 	virtual void cd();
