@@ -9,6 +9,7 @@
 #include "KVDBTable.h"
 #include "KVDBRun.h"
 #include "KVUniqueNameList.h"
+#include "TClass.h"
 
 //macro converting octal filemode to decimal value
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
@@ -56,7 +57,7 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    //
    // When no_existing_file=kTRUE we are making an available runs file
    // for the first time. There is no pre-existing file.
-
+	//Info("Update","Update");
    TString runlist = GetFullPathToAvailableRunsFile();
 
    if(!no_existing_file){
@@ -72,14 +73,15 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    KVBase::OpenTempFile(tmp_file_path, tmp_file);
 
    KVDataRepository *repository = GetDataSet()->GetRepository();
-
+	//Info("Update","repository : %s",repository->IsA()->GetName());
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
    KVUniqueNameList *dir_list =
          repository->GetDirectoryListing(GetDataSet(), GetDataType());
-   if (!dir_list)
+   if (!dir_list){
+    	//Info("Update","Sort au milieu");
       return;
-
+	}
    TIter next(dir_list);
    DMSFile_t *objs;
    //progress bar
@@ -87,18 +89,20 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
    KVDBTable *run_table = GetDataSet()->GetDataBase()->GetTable("Runs");
+   KVNumberList lnewruns;	//list containing run with a valid file but not store  in database
    while ((objs = (DMSFile_t *) next())) {     // loop over all entries in directory
 
+      //Info("Update","objs->GetName()=%s",objs->GetName());
       Int_t run_num;
       //is this the correct name of a run in the repository ?
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
+         KVDatime filedate;
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
          if (run) {
             //runfile exists in repository
             //check in case it is possible to extract a date from the name of the file
             //the file may be much older than its DMS modtime (=date of DMS import)
-            KVDatime filedate;
             if(!ExtractDateFromFileName(objs->GetName(), filedate))
                filedate=objs->GetModTime();
 
@@ -126,6 +130,11 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
                tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
             }
          }
+         else{
+         	lnewruns.Add(run_num);
+            filedate=objs->GetModTime();
+            tmp_file << run_num << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
+         }
       }
 
       ndone++;
@@ -134,6 +143,7 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    }
 
    cout << " DONE" << endl;
+   Info("Update","%d runs found those are not in db :\n\tlist:%s",lnewruns.GetNValues(),lnewruns.AsString());
    delete dir_list;
    //close temp file
    tmp_file.close();
