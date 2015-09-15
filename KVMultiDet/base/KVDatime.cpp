@@ -321,3 +321,44 @@ const Char_t *KVDatime::Month(Int_t m)
 {
     return ((TObjString *) fmonths->At(m - 1))->String().Data();
 }
+
+Double_t KVDatime::GetNumberOfSeconds(Int_t ref_year)
+{
+	
+	Double_t total_ins=0;
+	
+	Double_t year_ins=GetYear();
+	year_ins-=ref_year;
+
+	year_ins*=365.25;	//1y=365.25 d
+	year_ins*=24;	//1d=24 h
+	year_ins*=3660;	//1h=60x60=3660 s
+	
+	total_ins += year_ins;
+	
+	//nombre de jours depuis le debut de l annee
+	Double_t month_ins=GetMonth()-1;
+	month_ins *=365.25/12; //1month = 30.437d (365.25/12) approximatif
+	month_ins += GetDay(); //-> nombre de jours
+	month_ins *=24;	//1d=24 h
+	month_ins *=3660;	//1h=60x60=3660 s
+	
+	total_ins += month_ins; //nombre de jours totals en second
+	
+	total_ins += GetHour()*3600;
+	total_ins += GetMinute()*60;
+	total_ins += GetSecond();
+	
+	return total_ins;
+
+
+}
+
+Double_t KVDatime::GetDureeInSeconds(KVDatime from)
+{
+	Int_t year_ref = from.GetYear();
+	if (year_ref>this->GetYear()) year_ref = this->GetYear();
+	
+	Double_t sum = from.GetNumberOfSeconds(year_ref);
+	return this->GetNumberOfSeconds(year_ref)-sum;
+}

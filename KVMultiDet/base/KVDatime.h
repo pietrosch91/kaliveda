@@ -68,7 +68,9 @@ class KVDatime:public TDatime {
 	static Bool_t IsIRODSFormat(const Char_t* date);
 
     static const Char_t* Month(Int_t m);
-
+	Double_t GetNumberOfSeconds(Int_t ref_year=0);
+	Double_t GetDureeInSeconds(KVDatime from);
+	
    ClassDef(KVDatime, 0)       //Extension of TDatime class
 };
 
