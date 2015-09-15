@@ -288,7 +288,7 @@ public:
     };
     KVIdentificationResult* GetIdentificationResult(Int_t i)
     {
-       // Returns the result of the i-th identification attempted for this nucleus.
+       // Returns the result of the i-th (i>0) identification attempted for this nucleus.
        // i=1 : identification telescope in which particle stopped
        // i=2 : identification telescope immediately in front of the first
        // etc. etc.
@@ -299,8 +299,8 @@ public:
        //         if(GetIdentificationResult(i)->IDattempted){...}
        //      rather than
        //         if(GetIdentificationResult(i)){ // always true }
-
-       KVIdentificationResult* id = (KVIdentificationResult*)fIDResults.ConstructedAt(i-1);
+       KVIdentificationResult* id = nullptr;
+       if(i) id = (KVIdentificationResult*)fIDResults.ConstructedAt(i-1);
        id->SetNumber(i);
        return id;
     }
@@ -319,7 +319,8 @@ public:
        // (i.e. the string returned by KVIdentificationTelescope::GetType()).
        // Returns nullptr if no identification of given type found/attempted
 
-       for(int i=0; i<GetNumberOfIdentificationResults(); i++){
+       Int_t n = GetNumberOfIdentificationResults();
+       for(int i=1; i<=n; i++){
           KVIdentificationResult* id = GetIdentificationResult(i);
           if(!strcmp(id->GetIDType(),idtype)){
              return id;
