@@ -14,28 +14,28 @@ $Author: franklan $
 
 class KVNumberList : public TObject {
 
-   TString fString;
+   mutable TString fString;
    TArrayI *fLowerBounds;       //->
    TArrayI *fUpperBounds;       //->
-   Int_t fNLimits;              //number of limits in arrays
-   Int_t fMaxNLimits;           //size of arrays
-   Int_t fFirstValue;           //smallest value included in list
-   Int_t fLastValue;            //largest value included in list
-   Int_t fNValues;              //total number of values included in ranges
+   mutable Int_t fNLimits;              //number of limits in arrays
+   mutable Int_t fMaxNLimits;           //size of arrays
+   mutable Int_t fFirstValue;           //smallest value included in list
+   mutable Int_t fLastValue;            //largest value included in list
+   mutable Int_t fNValues;              //total number of values included in ranges
 
-   Int_t fIterIndex;//! used by Next() to iterate over list
-   Bool_t fEndList;//! used by Next() & End() to iterate over list
-   Int_t* fValues;//! used by Next() to iterate over list
+   mutable Int_t fIterIndex;//! used by Next() to iterate over list
+   mutable Bool_t fEndList;//! used by Next() & End() to iterate over list
+   mutable Int_t* fValues;//! used by Next() to iterate over list
    TString   fName;//name of the list
 
-   Bool_t fIsParsed;//!
+   mutable Bool_t fIsParsed;//!
    
    void init_numberlist();
-   void clear();
-   void ParseList();
-   void AddLimits(Int_t min, Int_t max);
-   void AddLimits(TString & string);
-   void ParseAndFindLimits(TString & string, const Char_t delim);
+   void clear() const;
+   void ParseList() const;
+   void AddLimits(Int_t min, Int_t max) const;
+   void AddLimits(TString & string) const;
+   void ParseAndFindLimits(const TString& string, const Char_t delim) const;
 
    public:
 
@@ -79,46 +79,46 @@ class KVNumberList : public TObject {
 
    /* LIST PROPERTIES */
    Bool_t Contains(Int_t val) const;
-   Int_t First();
-   Int_t Last();
-   Int_t GetNValues();
-   Int_t GetEntries()
+   Int_t First() const;
+   Int_t Last() const;
+   Int_t GetNValues() const;
+   Int_t GetEntries() const
    {
       return GetNValues();
    };
    Bool_t IsEmpty() const {
-      if(!fIsParsed) const_cast<KVNumberList*>(this)->ParseList();
+      if(!fIsParsed) ParseList();
       return (fNValues == 0);
    };
-   Bool_t IsFull(Int_t vinf=-1,Int_t vsup=-1);
+   Bool_t IsFull(Int_t vinf=-1,Int_t vsup=-1) const;
 
    /* LIST MEMBER ACCESS */
-   Int_t At(Int_t index);
-   Int_t operator[](Int_t index);
-   Int_t *GetArray(Int_t & size);
-   const Char_t *GetList();
-   const Char_t *GetExpandedList();
-   const Char_t *AsString(Int_t maxchars=0);
+   Int_t At(Int_t index) const;
+   Int_t operator[](Int_t index) const;
+   Int_t *GetArray(Int_t & size) const;
+   const Char_t *GetList() const;
+   const Char_t *GetExpandedList() const;
+   const Char_t *AsString(Int_t maxchars=0) const;
    
    /* LIST ITERATORS */
-   Int_t Next(void);
-   void Begin(void);
+   Int_t Next(void) const;
+   void Begin(void) const;
    Bool_t End(void) const { return fEndList; };
       
    /* LIST ARITHMETIC OPERATIONS */
    KVNumberList operator+(const KVNumberList &);
    KVNumberList operator-(const KVNumberList &);
-   KVNumberList GetComplementaryList();
-   KVNumberList GetSubList(Int_t vinf,Int_t vsup);
+   KVNumberList GetComplementaryList() const;
+   KVNumberList GetSubList(Int_t vinf,Int_t vsup) const;
 
    /* MISCELLANEOUS */
    /* Generate TTree::Draw selection string */
-   TString GetLogical(const Char_t *observable);
+   TString GetLogical(const Char_t *observable) const;
    /* Convert to c-string */
-   operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }
+   operator const char*() const { return GetList(); }
    /* Print list properties */
    void Print(Option_t* = "") const;
-   void PrintLimits();
+   void PrintLimits() const;
 
    ClassDef(KVNumberList, 3)    //Strings used to represent a set of ranges of values
 };
