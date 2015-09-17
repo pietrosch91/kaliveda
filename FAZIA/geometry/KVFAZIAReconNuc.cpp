@@ -238,7 +238,7 @@ void KVFAZIAReconNuc::Identify()
         KVIDTelescope *idt;
         TIter next(idt_list);
         Int_t idnumber = 1;
-        Int_t n_success_id = 0;//nnumber of successful identifications
+
         Bool_t goout = kFALSE;
 		  while ( (idt = (KVIDTelescope *) next()) && !goout ) {
             KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
