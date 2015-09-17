@@ -2626,9 +2626,9 @@ void KVIDGridEditor::ChangeCharges(const Char_t* Zl, Int_t dZ)
 {
     KVNumberList ZL(Zl);
 
-    Int_t  n;
-    Int_t* ztab = ZL.GetArray(n);
-    if(!ztab||!n) return;
+    IntArray ztab = ZL.GetArray();
+    Int_t  n = ztab.size();
+    if(!n) return;
 
     for(int i=n-1; i>0; i--)
     {
@@ -2646,23 +2646,6 @@ void KVIDGridEditor::ChangeCharges(const Char_t* Zl, Int_t dZ)
         delete ll;
 
     }
-
-    //  ZL.Begin();
-    //  while(!ZL.End())
-    //    {
-    //    Int_t Z = ZL.Next();
-    //    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
-    //    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
-
-    //    KVIDentifier* id = 0;
-    //    TIter next(ll);
-    //    while((id=(KVIDentifier*)next()))
-    //      {
-    //      Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
-    //      id->SetZ(id->GetZ()+dZ);
-    //      }
-    //    delete ll;
-    //    }
 }
 
 void KVIDGridEditor::AddMethod(const char* theMethod)

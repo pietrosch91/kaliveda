@@ -1178,16 +1178,16 @@ void KVDataSet::CheckMultiRunfiles(const Char_t * data_type)
           AsString() << endl << endl;
       //print dates and filenames for each run
 
-      Int_t nRuns;
-      Int_t *run_numbers = doubles.GetArray(nRuns);
+      doubles.Begin();
       KVList filenames, dates;
-      for (Int_t idx = 0; idx < nRuns; idx++) {
+      while ( !doubles.End() ) {
 
-         //get infos for current run = run_numbers[idx]
-         GetAvailableRunsFile(data_type)->GetRunInfos(run_numbers[idx],
-                                                      &dates, &filenames);
+         Int_t rr = doubles.Next();
 
-         cout << "Run " << run_numbers[idx] << " : " << dates.
+         //get infos for current run
+         GetAvailableRunsFile(data_type)->GetRunInfos(rr, &dates, &filenames);
+
+         cout << "Run " << rr << " : " << dates.
              GetEntries() << " files >>>>>>" << endl;
          for (int i = 0; i < dates.GetEntries(); i++) {
 
@@ -1197,7 +1197,6 @@ void KVDataSet::CheckMultiRunfiles(const Char_t * data_type)
 
          }
       }
-      delete[]run_numbers;
    }
 }
 
@@ -1222,17 +1221,18 @@ void KVDataSet::CleanMultiRunfiles(const Char_t * data_type, Bool_t confirm)
           AsString() << endl << endl;
       //print dates and filenames for each run
 
-      Int_t nRuns;
-      Int_t *run_numbers = doubles.GetArray(nRuns);
       KVList filenames, dates;
-      for (Int_t idx = 0; idx < nRuns; idx++) {
+      doubles.Begin();
+      while ( !doubles.End() ) {
 
-         //get infos for current run = run_numbers[idx]
-         ARF->GetRunInfos(run_numbers[idx], &dates, &filenames);
+         Int_t rr = doubles.Next();
+
+         //get infos for current run
+         ARF->GetRunInfos(rr, &dates, &filenames);
 
          TDatime most_recent("1998-12-25 00:00:00");
          Int_t i_most_recent = 0;
-         cout << "Run " << run_numbers[idx] << " : " << dates.
+         cout << "Run " << rr << " : " << dates.
              GetEntries() << " files >>>>>>" << endl;
          for (int i = 0; i < dates.GetEntries(); i++) {
 
@@ -1263,13 +1263,12 @@ void KVDataSet::CleanMultiRunfiles(const Char_t * data_type, Bool_t confirm)
                                        ((TObjString *) filenames.At(i))->
                                        String().Data(), confirm);
                //remove file entry from available runlist
-               ARF->Remove(run_numbers[idx],
+               ARF->Remove(rr,
                            ((TObjString *) filenames.At(i))->String().
                            Data());
             }
          }
       }
-      delete[]run_numbers;
    }
 }
 
@@ -1335,22 +1334,22 @@ void KVDataSet::CheckUpToDate(const Char_t * data_type,
       return;
    }
    KVNumberList runlist = GetAvailableRunsFile(data_type)->GetRunList();
-   Int_t nRuns;
-   Int_t *run_numbers = runlist.GetArray(nRuns);
+   runlist.Begin();
    Int_t need_update = 0;
-   for (Int_t idx = 0; idx < nRuns; idx++) {
+   while ( !runlist.End() ) {
       //check run
-      if (!CheckRunfileUpToDate(data_type, run_numbers[idx], _or)) {
-         cout << " *** run " << run_numbers[idx] << " needs update ***" <<
+      Int_t rr = runlist.Next();
+      if (!CheckRunfileUpToDate(data_type, rr, _or)) {
+         cout << " *** run " << rr << " needs update ***" <<
              endl;
          cout << "\t\tREPOSITORY: " << fRepository->
              GetName() << "\tDATE: " << GetRunfileDate(data_type,
-                                                       run_numbers[idx]).
+                                                       rr).
              AsString() << endl;
          cout << "\t\tREPOSITORY: " << other_repos << "\tDATE: " << _or->
              GetDataSetManager()->GetDataSet(GetName())->
              GetRunfileDate(data_type,
-                            run_numbers[idx]).AsString() << endl;
+                            rr).AsString() << endl;
          need_update++;
       }
    }
@@ -1358,7 +1357,6 @@ void KVDataSet::CheckUpToDate(const Char_t * data_type,
       cout << " *** All runfiles are up to date for data type " <<
           data_type << endl;
    }
-   delete[]run_numbers;
 }
 
 //___________________________________________________________________________
@@ -1378,16 +1376,15 @@ KVNumberList KVDataSet::GetUpdatableRuns(const Char_t * data_type,
       return updates;
    }
    KVNumberList runlist = GetAvailableRunsFile(data_type)->GetRunList();
-   Int_t nRuns;
-   Int_t *run_numbers = runlist.GetArray(nRuns);
-   for (Int_t idx = 0; idx < nRuns; idx++) {
+   runlist.Begin();
+   while( !runlist.End() ) {
       //check run
-      if (!CheckRunfileUpToDate(data_type, run_numbers[idx], _or)) {
+      Int_t rr = runlist.Next();
+      if (!CheckRunfileUpToDate(data_type, rr, _or)) {
          //run is out of date
-         updates.Add(run_numbers[idx]);
+         updates.Add(rr);
       }
    }
-   delete[]run_numbers;
    return updates;
 }
 

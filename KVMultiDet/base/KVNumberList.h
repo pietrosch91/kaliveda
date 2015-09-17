@@ -8,9 +8,14 @@ $Author: franklan $
 #ifndef __KVNUMBERLIST_H
 #define __KVNUMBERLIST_H
 
+#include <vector>
 #include <TString.h>
 #include <TArrayI.h>
 #include <TObject.h>
+
+typedef std::vector<Int_t> IntArray;
+typedef std::vector<Int_t>::iterator IntArrayIter;
+typedef std::vector<Int_t>::const_iterator IntArrayCIter;
 
 class KVNumberList : public TObject {
 
@@ -23,9 +28,9 @@ class KVNumberList : public TObject {
    mutable Int_t fLastValue;            //largest value included in list
    mutable Int_t fNValues;              //total number of values included in ranges
 
-   mutable Int_t fIterIndex;//! used by Next() to iterate over list
-   mutable Bool_t fEndList;//! used by Next() & End() to iterate over list
-   mutable Int_t* fValues;//! used by Next() to iterate over list
+   mutable IntArrayIter fIterIndex;//! used by Next() to iterate over list
+   mutable IntArrayIter fEndList;//! used by Next() & End() to iterate over list
+   mutable IntArray fValues;//! used by Next() to iterate over list
    TString   fName;//name of the list
 
    mutable Bool_t fIsParsed;//!
@@ -64,6 +69,7 @@ class KVNumberList : public TObject {
    void Add(const Char_t*);
    void Add(const KVNumberList&);
    void Add(Int_t, Int_t *);
+   void Add(const IntArray&);
 
    /* Remove numbers/lists from the list */
    void Remove(Int_t);
@@ -95,7 +101,7 @@ class KVNumberList : public TObject {
    /* LIST MEMBER ACCESS */
    Int_t At(Int_t index) const;
    Int_t operator[](Int_t index) const;
-   Int_t *GetArray(Int_t & size) const;
+   IntArray GetArray() const;
    const Char_t *GetList() const;
    const Char_t *GetExpandedList() const;
    const Char_t *AsString(Int_t maxchars=0) const;
@@ -103,7 +109,7 @@ class KVNumberList : public TObject {
    /* LIST ITERATORS */
    Int_t Next(void) const;
    void Begin(void) const;
-   Bool_t End(void) const { return fEndList; };
+   Bool_t End(void) const { return (fIterIndex == fEndList); };
       
    /* LIST ARITHMETIC OPERATIONS */
    KVNumberList operator+(const KVNumberList &);

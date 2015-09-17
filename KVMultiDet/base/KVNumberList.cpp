@@ -6,8 +6,6 @@
 #include "KVError.h"
 #include "TMath.h"
 
-using namespace std;
-
 ClassImp(KVNumberList)
 //////////////////////////////////////////////
 //KVNumberList
@@ -66,7 +64,6 @@ void KVNumberList::init_numberlist()
    fFirstValue = 99999999;
    fLastValue = -99999999;
    fNValues = 0;
-   fValues = 0;
    fName = ClassName();
    fIsParsed = kTRUE;
 }
@@ -114,7 +111,6 @@ KVNumberList::~KVNumberList()
    //delete arrays
    delete fLowerBounds;
    delete fUpperBounds;
-   if(fValues) delete[] fValues;
 }
 
 //____________________________________________________________________________________________//
@@ -307,21 +303,18 @@ Int_t KVNumberList::Last() const
 
 //____________________________________________________________________________________________//
 
-Int_t *KVNumberList::GetArray(Int_t & size) const
+IntArray KVNumberList::GetArray() const
 {
-   //Creates and fills a sorted array with all the unique
-   //values compatible with the ranges defined in the list.
-   //(Sorting is in increasing order).
-   //'size' is the size of the created array.
-   //USER MUST DELETE ARRAY AFTER USE.
-   //Returned pointer is 0 if list is empty.
+   // Creates and fills a sorted array with all the unique
+   // values compatible with the ranges defined in the list.
+   // (Sorting is in increasing order).
 
    if (IsEmpty())
-      return 0;
+      return IntArray();
 
    if(!fIsParsed) ParseList();
 
-   Int_t *temp = new Int_t[fNValues]; size=fNValues;
+   IntArray temp(fNValues);
    Int_t index = 0;
    for (register int i = 0; i < fNLimits; i++) {
       Int_t min = (*fLowerBounds)[i];
@@ -333,35 +326,25 @@ Int_t *KVNumberList::GetArray(Int_t & size) const
    //now check for duplicate entries
    //we sort the array in increasing order
    //any duplicate entries will then be adjacent
-   Int_t *ind = new Int_t[fNValues];
-   TMath::Sort(fNValues, temp, ind, kFALSE);
-   Int_t n_uniq=1; //number of unique values
-   for (register int i = 0; i < fNValues; i++) {
-      if(i && (temp[ind[i]] != temp[ind[i-1]]) ) ++n_uniq;
-   }
+   IntArrayIter beg = temp.begin();
+   std::sort(beg,temp.end());
+   IntArrayIter end = std::unique(beg,temp.end());
+   Int_t n_uniq=std::distance(beg,end); //number of unique values
 
-   Int_t *temp2 = new Int_t[n_uniq];
-   size=n_uniq;
    if(n_uniq<fNValues){
-      n_uniq=1; fString="";
-      temp2[0]=temp[ind[0]];
-      fString+=temp2[0];
-      for (register int i = 0; i < fNValues; i++) {
-         if(i && (temp[ind[i]] != temp[ind[i-1]]) ){
-            temp2[n_uniq++]=temp[ind[i]];
-            fString+=" "; fString+=temp[ind[i]];
-         }
+      // duplicates were removed
+      // reduce the size of the vector
+      temp.resize(n_uniq);
+      // we reconstruct a string containing all unique values & reparse it
+      fString=(*(beg++));
+      while( beg != end ){
+         fString+=" "; fString+=(*(beg++));
       }
-      fNValues=size;
+      fNValues=n_uniq;
       fIsParsed=kFALSE;// force re-parsing
       ParseList();
-   } else {
-      for (register int i = 0; i < fNValues; i++) {
-         temp2[i]=temp[ind[i]];
-      }
    }
-   delete [] temp; delete [] ind;
-   return temp2;
+   return temp;
 }
 
 //____________________________________________________________________________________________//
@@ -440,6 +423,18 @@ void KVNumberList::Add(Int_t n, Int_t * arr)
    SetList(tmp);
 }
 
+void KVNumberList::Add(const IntArray& v)
+{
+   // Add all values in IntArray (=std::vector<int>) to the list
+
+   TString tmp = (fString != "" ? fString + " " : fString);
+   for (IntArrayCIter it = v.begin(); it != v.end(); ++it) {
+      tmp += *it;
+      tmp += " ";
+   }
+   SetList(tmp);
+}
+
 KVNumberList KVNumberList::operator+(const KVNumberList& other)
 {
    // Return sum of this list and the other one
@@ -511,16 +506,16 @@ const Char_t *KVNumberList::GetList() const
       return fString.Data();
    }
    //get array of all values
-   Int_t n;
-   Int_t *arr = GetArray(n);
+   IntArray arr = GetArray();
+   IntArrayIter it = arr.begin();
    Int_t min, max;
-   min = max = arr[0];   //put min & max = smallest (first) value to start with
+   min = max = *it;   //put min & max = smallest (first) value to start with
    fString = "";
-   for (register int i = 1; i < n; i++) {
+   for (++it; it != arr.end(); ++it) {
 
-      Int_t val = arr[i];        // loop over values in increasing order
+      Int_t val = *it;        // loop over values in increasing order
 
-      if (val - arr[i - 1] > 1) {
+      if (val - *(it-1) > 1) {
          //cout << "end of continuous range ?" << endl;
          if (min != max) {
             fString += Form("%d-%d ", min, max);
@@ -539,7 +534,6 @@ const Char_t *KVNumberList::GetList() const
    } else {
       fString += Form("%d", min);
    }
-   delete[]arr;
    return fString.Data();
 }
 
@@ -547,9 +541,9 @@ const Char_t *KVNumberList::GetList() const
 
 const Char_t *KVNumberList::GetExpandedList() const
 {
-   //Get string containing list. Every unique value contained
-   //in the list will be represented.
-   //Returns empty string if list is empty.
+   // Get string containing list. Every unique value contained
+   // in the list will be represented.
+   // Returns empty string if list is empty.
 
    if(!fIsParsed) ParseList();
 
@@ -561,17 +555,16 @@ const Char_t *KVNumberList::GetExpandedList() const
       return fString.Data();
    }
    //get array of all values
-   Int_t n;
-   Int_t *arr = GetArray(n);
+   IntArray arr = GetArray();
    tmp = "";
-   for (register int i = 0; i < n - 1; i++) {
+   IntArrayIter it = arr.begin();
+   for (; it != arr.end()-1; ++it) {
 
-      Int_t val = arr[i];        // loop over values in increasing order
+      Int_t val = *it;        // loop over values in increasing order
       tmp += Form("%d ", val);
    }
-   Int_t val = arr[n - 1];       //last value
+   Int_t val = *it;       //last value
    tmp += Form("%d", val);
-   delete[]arr;
    return tmp.Data();
 }
 
@@ -624,14 +617,12 @@ void KVNumberList::Copy(TObject& o) const
 
 Int_t KVNumberList::GetNValues() const
 {
-   //Returns total number of unique entries in list
-   //Note that this calls GetArray() just in order to remove
-   //any duplicate entries in the list and make sure fNValues
-   //is the number of unique entries.
-   
-   Int_t n;
-   Int_t *j=GetArray(n);//will remove any duplicates and correct fNValues
-   delete [] j;
+   // Returns total number of unique entries in list
+   // Note that this calls GetArray() just in order to remove
+   // any duplicate entries in the list and make sure fNValues
+   // is the number of unique entries.
+
+   GetArray();//will remove any duplicates and correct fNValues
    return fNValues;
 }
 
@@ -650,13 +641,15 @@ Int_t KVNumberList::Next() const
    // }
    //If list is empty, End() always returns kTRUE and Next() returns -1.
    
-   if(!fValues){
+   if(fValues.empty()){
       Warning( KV__ERROR(Next), "List is empty. -1 returned.");
       return -1;
    }
-   Int_t val = fValues[fIterIndex];
-   fEndList=(fIterIndex==fNValues-1);
-   fIterIndex=TMath::Min(fNValues-1,fIterIndex+1);
+   if(fIterIndex >= fEndList){
+      Warning( KV__ERROR(Next), "Attempt to iterate beyond of list. -1 returned.");
+      return -1;
+   }
+   Int_t val = *(fIterIndex++);
    return val;
 }
 
@@ -664,17 +657,12 @@ Int_t KVNumberList::Next() const
 
 void KVNumberList::Begin() const
 {
-   //Call before using Next(). Resets iterator to beginning of list.
-   //If list is empty, End() always returns kTRUE and Next() returns -1.
-   fEndList = kFALSE;
-   fIterIndex = 0;
-   Int_t n;//dummy
-   if(fValues) delete[] fValues;
-   fValues = GetArray(n);
-   if(!n || !fValues){
-      //list is empty
-      fEndList = kTRUE;
-   }
+   // Call before using Next(). Resets iterator to beginning of list.
+   // If list is empty, End() always returns kTRUE and Next() returns -1.
+
+   fValues = GetArray();
+   fIterIndex = fValues.begin();
+   fEndList = fValues.end();
 }
 
 //____________________________________________________________________________________________//
@@ -687,14 +675,15 @@ Int_t KVNumberList::At(Int_t index) const
    // removed), so the index does not necessarily correspond to the order in which numbers
    // are added to the list.
    
-   Int_t n;
-   Int_t *arr = GetArray(n);
-   if( index<0 || index>=n ){
-      Warning( KV__ERROR(At), "Index out of bounds. -1 returned.");
-      return -1;
+   IntArray arr = GetArray();
+   Int_t n = -1;
+   try {
+      n = arr.at(index);
    }
-   n = arr[index];
-   delete [] arr;
+   catch (std::exception& e)
+   {
+      Warning( KV__ERROR(At), "Index out of bounds. -1 returned.");
+   }
    return n;
 }
 
