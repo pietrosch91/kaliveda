@@ -188,7 +188,7 @@ ISOFAZIA.QH1.PZCorrection: 		  0
 
 ISOFAZIA.I1.BaseLineLength:	  30
 ISOFAZIA.I1.ChannelWidth:  		  4
-ISOFAZIA.I1.InterpolatedChannelWidth:  	  0.5 	  
+ISOFAZIA.I1.InterpolatedChannelWidth:  	  0.2 	  
 ISOFAZIA.I1.Interpolation: 		  1
 #
 ISOFAZIA.Q2.BaseLineLength:	  500
@@ -200,7 +200,7 @@ ISOFAZIA.Q2.PZCorrection:  		  0
 
 ISOFAZIA.I2.BaseLineLength:	  30
 ISOFAZIA.I2.ChannelWidth:  		  4
-ISOFAZIA.I2.InterpolatedChannelWidth:  	  0.5 	  
+ISOFAZIA.I2.InterpolatedChannelWidth:  	  0.2 	  
 ISOFAZIA.I2.Interpolation: 		  1
 #
 ISOFAZIA.Q3.BaseLineLength:	  250
