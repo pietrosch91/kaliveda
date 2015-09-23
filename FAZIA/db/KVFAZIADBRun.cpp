@@ -88,3 +88,34 @@ Int_t KVFAZIADBRun::GetError_InternalBlockError() const
 {
 	return GetScaler("Bad Events internal error in one block");
 }
+
+void KVFAZIADBRun::SetNumberOfAcqFiles(Int_t number)
+{
+	SetScaler("Number of ACQ files",number);
+}
+
+Int_t KVFAZIADBRun::GetNumberOfAcqFiles() const
+{
+	return GetScaler("Number of ACQ files");
+}
+
+void KVFAZIADBRun::SetDuration(Double_t duration)
+{
+	Set("Duration (s)",duration);
+}
+
+Double_t KVFAZIADBRun::GetDuration() const 
+{
+	return Get("Duration (s)");
+}
+
+void KVFAZIADBRun::SetFrequency(Double_t frequency)
+{
+	Set("ACQ rate (evts/s)",frequency);
+}
+
+Double_t KVFAZIADBRun::GetFrequency() const 
+{
+	return Get("ACQ rate (evts/s)");
+}
+

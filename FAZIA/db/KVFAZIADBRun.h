@@ -30,6 +30,15 @@ class KVFAZIADBRun : public KVDBRun
 	void SetError_InternalBlockError(Int_t evt_number);
 	Int_t GetError_InternalBlockError() const;
 	
+   void SetNumberOfAcqFiles(Int_t number);
+	Int_t GetNumberOfAcqFiles() const;
+
+	void SetDuration(Double_t duration);
+	Double_t GetDuration() const;
+
+	void SetFrequency(Double_t frequency);
+	Double_t GetFrequency() const;
+	
    ClassDef(KVFAZIADBRun,1)//run description for FAZIA experiment
 };
 

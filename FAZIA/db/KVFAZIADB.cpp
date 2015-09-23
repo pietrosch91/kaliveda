@@ -434,6 +434,9 @@ void KVFAZIADB::ReadNewRunList()
             else if (name=="starting date"){
             	run->SetStartDate(value);	
             }
+            else if (name=="stopping date"){
+            	run->SetEndDate(value);	
+            }
 				else if (name=="aqcuisition status"){
             	run->SetACQStatus(value);	
             }
@@ -442,6 +445,15 @@ void KVFAZIADB::ReadNewRunList()
 				}	
 				else if (name=="block errors"){	//events rejected due to internal error in one block
             	run->SetError_InternalBlockError(value.Atoi());
+				}
+				else if (name=="nfiles"){	//number of acquisition files
+            	run->SetNumberOfAcqFiles(value.Atoi());
+				}
+				else if (name=="duration"){	//duration in seconds of the run
+            	run->SetDuration(value.Atof());
+				}
+				else if (name=="frequency"){	//number of evts per seconds (aquisition rate)
+            	run->SetFrequency(value.Atof());
 				}
 				else{
 				
