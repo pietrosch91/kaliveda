@@ -48,12 +48,21 @@ void KVVAMOSReconNuc::Streamer(TBuffer &R__b)
    	// of each detectors to the nucleus' energy is written/read if the nucleus
    	// is calibrated.
 
+   UInt_t R__s, R__c;
    	if (R__b.IsReading()) {
       	R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(),this);
 	  	if( IsCalibrated() ){
 		  	Int_t N = GetDetectorList()->GetEntries();
-		  	fDetE = new Float_t[ N ];
-		  	R__b.ReadFastArray( fDetE, N);
+		  	fDetE = new Double_t[ N ];
+      		Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+ 	  		if (R__v<3) {
+				// Before Version 3 of KVVAMOSReconNuc, fDetE was Float_t array
+				Float_t tmp[N];
+			 	R__b.ReadFastArray( tmp, N);
+				for( Int_t i=0; i<N; i++ ) fDetE[i] = tmp[i];
+ 	  		}
+			// From version 3, fDet E Float_t is Double_t array
+			else R__b.ReadFastArray( fDetE, N);
 		}
 	}
     else {
@@ -80,7 +89,7 @@ void KVVAMOSReconNuc::Copy (TObject& obj) const
    SafeDelete( CastedObj.fDetE );
    if( fDetE ){
 	   Int_t N = GetDetectorList()->GetEntries();
-	   CastedObj.fDetE = new Float_t[ N ];
+	   CastedObj.fDetE = new Double_t[ N ];
 	   for(Int_t i=0; i<N; i++ ) CastedObj.fDetE[i] = fDetE[i];
    }
 
@@ -125,7 +134,7 @@ void KVVAMOSReconNuc::Calibrate(){
 		// if the nucleus is calibrated by this way then the energy losses
 		// in each detector are not calculated then they are set to -1
 		if( !fDetE ){
- 		   	fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
+ 		   	fDetE = new Double_t[ GetDetectorList()->GetEntries() ];
 			Int_t N = GetDetectorList()->GetEntries();
 			for(Int_t i=0; i<N; i++) fDetE[i] = -1;
 		}
@@ -198,7 +207,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	KVVAMOSDetector *det     = NULL;
 	TIter next_det( GetDetectorList() );
-	if( !fDetE ) fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
+	if( !fDetE ) fDetE = new Double_t[ GetDetectorList()->GetEntries() ];
 	Int_t idx = -1;
 	while( (det = (KVVAMOSDetector *)next_det()) ){
 		fDetE[++idx] = 0.;
@@ -877,40 +886,6 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	return kTRUE;
 }
 //________________________________________________________________
-/*
-void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
-	// Set the best calibrated time of flight (ToF) and correct the path to 
-	// set the distance associated to this ToF. The best ToF is found from
-	// the list of time acquisition parameters set in the environment variable
-	// KVVAMOSCodes.ACQParamListForToF
-	// and from the list (fDetList) of detector punched through by the nucleus.
-	// The first calibrated and fired acq. parameter belonging both to
-	// the start detector and to the stop detector (only to the start detector 
-	// for an HF-time)  of the list fDetList will be chosen, and the total flight distance
-	// will be equal to:
-	//  - the path (from target point to focal plan) corrected on the distance
-	//    covered between the focal plan and the start detector for HF-time. 
-	//  - the distance between the two detectors.
-
-
-	// loop over the time acquisition parameters
-	for( Short_t i=0; !ok && (par_name = GetCodes().GetToFName(i)); i++ ){
-
-		ok = GetCorrFlightDistanceAndTime( fFlightDist, fToF, par_name );
-	}
-
-	if( !ok ){ 
-		SetTCode( kTCode0 );
-		return;
-	}
-	
-	ok &= SetFlightDistance( det, stop );
- 	fToF = ( isT_HF ? GetCorrectedT_HF( calibT, fFlightDist ) : calibT );
-
-	SetTCode(( ok ? par->GetName() : "") );
-}
-*/
-//________________________________________________________________
 
 Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &tof, const Char_t *tof_name ) const{
 	// Returns true if the corrected fligh distance (dist) and the corrected time of flight (tof)
@@ -982,7 +957,7 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist) const {
+Double_t KVVAMOSReconNuc::GetCorrectedT_HF( Double_t tof, Double_t dist) const {
 	// Returns the corrected time of flight obtained from beam pulse HF, by 
 	// removing or adding N times the beam pulse period. N is fitted by 
 	// minimizing the difference between the measured energy (Emeas) and the energy (E) deduced
@@ -1017,7 +992,7 @@ Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist) const {
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) const{
+Double_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) const{
 	// Returns the flight distance travelled by the nucleus from the start detector to the stop detector.
 	// If stop=NULL, returns the distance from the target point to the start detector, 
 	// i.e. distance corresponding to a time of flight  measured from the beam HF then the distance will be
@@ -1031,11 +1006,11 @@ Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) 
 	
 	if( const_cast<KVVAMOSReconNuc*>(this)->GetCodes().TestFPCode( kFPCode0 ) ) return 0.;
 
-	Float_t dp_start = GetDeltaPath( start );
+	Double_t dp_start = GetDeltaPath( start );
 	if( dp_start ){
 		// case where stop signal is given by HF i.e. 'stop' is null
 		if( stop ){
-			Float_t dp_stop = GetDeltaPath( stop );
+			Double_t dp_stop = GetDeltaPath( stop );
 			if( dp_stop ) return TMath::Abs( dp_stop - dp_start );
 			else return 0.;
  		}	
@@ -1046,7 +1021,7 @@ Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) 
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetPath(const Char_t *start_label, const Char_t *stop_label) const{
+Double_t KVVAMOSReconNuc::GetPath(const Char_t *start_label, const Char_t *stop_label) const{
 	// Returns the flight distance travelled by the nucleus from the start detector to the stop detector.
 	// If stop=NULL, returns the distance from the target point to the start detector, 
 	// i.e. distance corresponding to a time of flight  measured from the beam HF then the distance will be
@@ -1067,7 +1042,7 @@ Float_t KVVAMOSReconNuc::GetPath(const Char_t *start_label, const Char_t *stop_l
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
+Double_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	//returns the DeltaPath value associated to the detector 'det' used to correct
 	//the flight distance.
 	//Its value is given by a parameter stored in fParameters with the name
@@ -1102,7 +1077,7 @@ Float_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
+Double_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
 	// Returns the calculated contribution of each detector to the 
 	// nucleus' energy from their label ("CHI","SI","SED1","SED2",...). 
 	// Retruns -1 if no detector is found or if yet no contribution has
@@ -1114,7 +1089,7 @@ Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetEnergyBefore( const Char_t *det_label ) const{
+Double_t KVVAMOSReconNuc::GetEnergyBefore( const Char_t *det_label ) const{
  	// Returns the kinetic energy of the nucleus prior to entering in 
  	// detector with label 'det_label' ("CHI","SI","SED1","SED2",...). 
 	// Retruns -1 if no detector is found or if yet no contribution has
@@ -1123,13 +1098,13 @@ Float_t KVVAMOSReconNuc::GetEnergyBefore( const Char_t *det_label ) const{
 	if( !fDetE ) return -1.;
 	Int_t idx = GetDetectorIndex( det_label );
 	if( idx < 0 ) return -1.;
-	Float_t E = 0.;
+	Double_t E = 0.;
 	while( idx > -1  ) E+= fDetE[idx--];
 	return E;
 }
 //________________________________________________________________
 
-Float_t KVVAMOSReconNuc::GetEnergyAfter( const Char_t *det_label ) const{
+Double_t KVVAMOSReconNuc::GetEnergyAfter( const Char_t *det_label ) const{
  	// Returns the kinetic energy of the nucleus prior to entering in 
  	// detector with label 'det_label' ("CHI","SI","SED1","SED2",...). 
 	// Retruns -1 if no detector is found or if yet no contribution has
@@ -1139,7 +1114,7 @@ Float_t KVVAMOSReconNuc::GetEnergyAfter( const Char_t *det_label ) const{
 	Int_t idx = GetDetectorIndex( det_label );
 	if( idx < 0 ) return -1.;
 	idx--;
-	Float_t E = 0.;
+	Double_t E = 0.;
 	while( idx > -1  ) E+= fDetE[idx--];
 	return E;
 }

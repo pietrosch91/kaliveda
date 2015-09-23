@@ -26,7 +26,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
 		Double_t               fStripFoilEloss; // calculated energy lost in the stripping foil
 
-		Float_t               *fDetE;           //!array with the corrected energy lost in each detector of fDetList
+		Double_t              *fDetE;           //!array with the corrected energy lost in each detector of fDetList
 		Float_t                fRealQ;          //Q returned by identification routine
 		Float_t                fRealAoQ;        //A/Q returned by identification routine
 		UChar_t fQ;                             // charge state
@@ -45,20 +45,20 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		void init();
 
 				Bool_t   GetCorrFlightDistanceAndTime( Double_t &dist, Double_t &tof, const Char_t *tof_name ) const;
-		virtual Float_t  GetCorrectedT_HF( Float_t tof, Float_t dist)   const;
+		virtual Double_t  GetCorrectedT_HF( Double_t tof, Double_t dist)   const;
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
  		virtual void     GetAnglesFromStoppingDetector(Option_t * opt = "random");
-		        Float_t  GetDeltaPath( KVVAMOSDetector *det ) const;
+		        Double_t  GetDeltaPath( KVVAMOSDetector *det ) const;
 				using    KVReconstructedNucleus::GetEnergy;
 				Int_t    GetDetectorIndex( const Char_t *det_label ) const;
-				Float_t  GetEnergy( const Char_t *det_label )        const;
-				Float_t  GetEnergyAfter( const Char_t *det_label )   const;
-				Float_t  GetEnergyBefore( const Char_t *det_label )  const;
+				Double_t  GetEnergy( const Char_t *det_label )        const;
+				Double_t  GetEnergyAfter( const Char_t *det_label )   const;
+				Double_t  GetEnergyBefore( const Char_t *det_label )  const;
 		        Double_t GetMassOverQ( const Char_t *tof_name )      const;
-                Float_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
-                Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
+                Double_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
+                Double_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
 
 				using KVReconstructedNucleus::GetRealA;
 				Float_t GetRealA( const Char_t *tof_name )          const;
@@ -78,10 +78,10 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 
 		//-------------- inline methods -----------------//
-		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Float_t Brho );
+		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Double_t Brho );
 		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Double_t beta );
-		static  Double_t         CalculateEnergy( Int_t Q, Float_t Brho, Double_t beta );
-		static  Double_t         CalculateMassOverQ( Float_t Brho, Double_t beta );
+		static  Double_t         CalculateEnergy( Int_t Q, Double_t Brho, Double_t beta );
+		static  Double_t         CalculateMassOverQ( Double_t Brho, Double_t beta );
 		static  Double_t         CalculateRealA( Int_t Z,Double_t E, Double_t beta );
 		        Double_t         GetAoverQ()                         const;
 		        Double_t         GetBeta( const Char_t *tof_name )   const;
@@ -89,30 +89,30 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 KVVAMOSCodes    &GetCodes();
 				using            KVReconstructedNucleus::GetDetector;
 				KVDetector      *GetDetector( const Char_t *det_label );
-				Float_t          GetEnergy( Int_t idx_det )          const;
+				Double_t          GetEnergy( Int_t idx_det )          const;
 				Double_t         GetEnergyBeforeVAMOS()              const;
    		const   TVector3        &GetFocalPlaneDirection()            const;
 				Double_t         GetGamma( const Char_t *tof_name )  const;
    		const   TVector3        &GetLabDirection()                   const;
                 Float_t          GetPath()                           const;
-                Float_t          GetPhiF()                           const;
-	            Float_t          GetPhiL()                           const;
-                Float_t          GetPhiV()                           const;
-				Int_t            GetQ()                              const;
-		        Float_t          GetRealAoverQ()                     const;
-		        Float_t          GetRealQ()                          const;
+                Double_t          GetPhiF()                           const;
+	            Double_t          GetPhiL()                           const;
+                Double_t          GetPhiV()                           const;
+				Int_t             GetQ()                              const;
+		        Float_t           GetRealAoverQ()                     const;
+		        Float_t           GetRealQ()                          const;
 
 
 		virtual Double_t         GetStripFoilEnergyLoss()            const;
-        	    Float_t          GetThetaF()                         const;
-	            Float_t          GetThetaL()                         const;
-                Float_t          GetThetaV()                         const;
-                Float_t          GetXf()                             const;
-	            Float_t          GetYf()                             const;
+        	    Double_t          GetThetaF()                         const;
+	            Double_t          GetThetaL()                         const;
+                Double_t          GetThetaV()                         const;
+                Float_t           GetXf()                             const;
+	            Float_t           GetYf()                             const;
 				using KVReconstructedNucleus::GetVelocity;
 				Double_t         GetVelocity(const Char_t *tof_name) const;
 
-				void             SetBrho( Float_t brho );
+				void             SetBrho( Double_t brho );
    		virtual	void             SetECode(UChar_t code_mask);
    		virtual void             SetFPCode(UInt_t code_mask);
  		virtual void             SetIDCode(UShort_t code_mask);
@@ -136,12 +136,12 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 				void SetIsQandAidentified();
 				void SetIsQandAunidentified();
 
-   		ClassDef(KVVAMOSReconNuc,2)//Nucleus identified by VAMOS spectrometer
+   		ClassDef(KVVAMOSReconNuc,3)//Nucleus identified by VAMOS spectrometer
 };
 
 //____________________________________________________________________________________________//
 
-inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Float_t Brho ){
+inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Double_t Brho ){
 	// Calculates kinetic energy (E) in MeV.
 	// Begin_Latex 
 	// E = #sqrt{M^{2}+100 c^{2} B#rho^{2} Q^{2}}- M
@@ -192,7 +192,7 @@ return (gamma-1)*M ;
 }
 //____________________________________________________________________________________________//
 
-inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Q, Float_t Brho, Double_t beta ){
+inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Q, Double_t Brho, Double_t beta ){
 	// Calculates kinetic energy in MeV from Q, Brho and beta.
 	// First the M/Q is calculated from Brho and beta. 
 	// Then the energy is given by
@@ -231,7 +231,7 @@ inline Double_t KVVAMOSReconNuc::CalculateRealA( Int_t Z, Double_t E, Double_t b
 }
 //____________________________________________________________________________________________//
 
-inline Double_t KVVAMOSReconNuc::CalculateMassOverQ( Float_t Brho, Double_t beta ){
+inline Double_t KVVAMOSReconNuc::CalculateMassOverQ( Double_t Brho, Double_t beta ){
 	// Calculates the ratio between the mass (MeV/c^2) and the charge state Q
 	// calculated from the magnetic rigitidy Brho and the relativistic beta
 	// (i.e. velocity/c).
@@ -284,7 +284,7 @@ inline KVDetector *KVVAMOSReconNuc::GetDetector( const Char_t *det_label ){
 }
 //____________________________________________________________________________________________//
 
-inline Float_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
+inline Double_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
 	// Returns the calculated contribution of each detector to the 
 	// nucleus' energy from their index in fDetList. GetEnergy(0) returns
 	// the contribution of the stopping detector.
@@ -334,17 +334,17 @@ inline Float_t KVVAMOSReconNuc::GetPath() const{
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetPhiF() const{
+inline Double_t KVVAMOSReconNuc::GetPhiF() const{
 	return fRT.GetPhiF();
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetPhiL() const{
+inline Double_t KVVAMOSReconNuc::GetPhiL() const{
 	return fRT.GetPhiL();
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetPhiV() const{
+inline Double_t KVVAMOSReconNuc::GetPhiV() const{
 	return fRT.GetPhiV();
 }
 //____________________________________________________________________________________________//
@@ -373,17 +373,17 @@ inline Double_t KVVAMOSReconNuc::GetStripFoilEnergyLoss() const{
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetThetaF() const{
+inline Double_t KVVAMOSReconNuc::GetThetaF() const{
 	return fRT.GetThetaF();
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetThetaL() const{
+inline Double_t KVVAMOSReconNuc::GetThetaL() const{
 	return fRT.GetThetaL();
 }
 //____________________________________________________________________________________________//
 
-inline Float_t KVVAMOSReconNuc::GetThetaV() const{
+inline Double_t KVVAMOSReconNuc::GetThetaV() const{
 	return fRT.GetThetaV();
 }
 //____________________________________________________________________________________________//
@@ -411,7 +411,7 @@ inline Double_t KVVAMOSReconNuc::GetVelocity(const Char_t *tof_name) const{
 }
 //____________________________________________________________________________________________//
 
-inline void KVVAMOSReconNuc::SetBrho( Float_t brho ){ fRT.Brho = brho; }
+inline void KVVAMOSReconNuc::SetBrho( Double_t brho ){ fRT.Brho = brho; }
 //____________________________________________________________________________________________//
 
 inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
