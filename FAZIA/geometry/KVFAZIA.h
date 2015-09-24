@@ -6,6 +6,10 @@
 
 #include "KVMultiDetArray.h"
 
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,32,0)
+#include "TGeoMatrix.h"
+#endif
+
 class KVDetectorEvent;
 
 class KVFAZIA : public KVMultiDetArray
