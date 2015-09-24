@@ -465,7 +465,7 @@ void KVIDTelescope::SetLabelFromURI(const Char_t* uri)
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray*)
+Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray* multidet)
 {
     // Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     // kind (label) in the multidetector array. Therefore this method need only be called once, and not
@@ -495,6 +495,10 @@ Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray*)
     //read grids from file
     Info("SetIdentificationParameters", "Using file %s", path.Data());
     gIDGridManager->ReadAsciiFile(path.Data());
+    // reset pointers to idtelescopes in grids
+    TIter next(gIDGridManager->GetGrids());
+    KVIDGraph* gr;
+    while((gr = (KVIDGraph*)next())) multidet->FillListOfIDTelescopes(gr);
     return kTRUE;
 }
 
