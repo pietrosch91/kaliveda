@@ -160,7 +160,6 @@ const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
    // Returns symbol of isotope corresponding to this nucleus,
    // i.e. "238U", "12C", "3He" etc.
    // Neutrons are represented by "n".
-   // Isotopes of hydrogen are represented by "p", "d", "t".
    // In order to have just the symbol of the chemical element
    // (e.g. "Pt", "Zn", "Fe"), call with opt="EL".
 
@@ -175,6 +174,27 @@ const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
    else
       symname="";
    
+   return symname.Data();
+}
+const Char_t *KVNucleus::GetLatexSymbol(Option_t* opt) const
+{
+   // Returns symbol of isotope corresponding to this nucleus,
+	// suitable for latex format in ROOT TLatex type class
+   // i.e. "^{238}U", "^{12}C", "^{3}He" etc.
+   // Neutrons are represented by "^{1}n".
+   // In order to have also the charge printed like this : ^{12}_{6}C
+   // call with opt="ALL".
+
+   Int_t a = GetA();
+   Int_t z = GetZ();
+   TString& symname = (TString&)fSymbolName;
+   if (0<=GetZ() && GetZ() <= MAXZ_ELEMENT_SYMBOL) {
+		if (!strcmp(opt,"ALL"))	symname.Form("{}^{%d}_{%d}%s",a,z,fElements[z]);
+		else							symname.Form("^{%d}%s",a,fElements[z]);
+	}
+	else {
+      symname="";
+   }
    return symname.Data();
 }
 

@@ -100,6 +100,7 @@ class KVNucleus:public KVParticle {
    static Double_t GetRealAFromZ(Double_t, Char_t mt);
    static Double_t GetRealNFromZ(Double_t, Char_t mt);
    const Char_t *GetSymbol(Option_t* opt="") const;
+   const Char_t *GetLatexSymbol(Option_t* opt="") const;
 
    static Int_t GetZFromSymbol(const Char_t *);
    void SetZFromSymbol(const Char_t *);
