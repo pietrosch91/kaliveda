@@ -15,8 +15,6 @@ $Id: KVIDGridManager.h,v 1.11 2009/03/03 14:27:15 franklan Exp $
 #include "KVIDGraph.h"
 #include "RQ_OBJECT.h"
 
-class KVIDGridManagerGUI;
-
 class KVIDGridManager:public KVBase {
 
    RQ_OBJECT("KVIDGridManager")

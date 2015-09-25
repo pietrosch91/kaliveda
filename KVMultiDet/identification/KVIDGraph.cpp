@@ -583,7 +583,6 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
    //set runlist
    if(fPar->HasParameter("Runlist")) SetRuns( fPar->GetStringValue("Runlist") );
    else SetRuns("");
-   //FillListOfIDTelescopes();
    
    // if a back-up copy had previously been created (by starting the editor)
    // we replace it by the version read from file

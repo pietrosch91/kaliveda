@@ -41,6 +41,9 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
 	fMultiDet = MDA;
 	fCancelPress = cancel_pressed;
 	*fCancelPress = kTRUE;
+
+    int dx = 358;
+    int xx = 400;
 	
    // main frame
    fMainFrame1428 = new TGTransientFrame(p,main,w,h);
@@ -52,7 +55,7 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    fMainFrame1428->SetCleanup(kDeepCleanup);
 
    // composite frame
-   TGCompositeFrame *fMainFrame979 = new TGCompositeFrame(fMainFrame1428,234,273,kVerticalFrame);
+   TGCompositeFrame *fMainFrame979 = new TGCompositeFrame(fMainFrame1428,xx,273,kVerticalFrame);
    fMainFrame979->SetLayoutBroken(kTRUE);
 
    // combo box with list of ID telescope types
@@ -66,34 +69,34 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    	fComboBox994->AddEntry(type_string->GetString().Data(), entry_id++);
 	}
 	delete id_types;
-   fComboBox994->Resize(192,22);
+   fComboBox994->Resize(dx,22);
    fComboBox994->Select(-1);
    fMainFrame979->AddFrame(fComboBox994, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fComboBox994->MoveResize(24,40,192,22);
+   fComboBox994->MoveResize(24,40,dx,22);
 	
    TGLabel *fLabel1012 = new TGLabel(fMainFrame979,"Select ID telescope(s):");
    fLabel1012->SetTextJustify(36);
    fLabel1012->SetMargins(0,0,0,0);
    fLabel1012->SetWrapLength(-1);
    fMainFrame979->AddFrame(fLabel1012, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fLabel1012->MoveResize(24,72,192,18);
+   fLabel1012->MoveResize(24,72,dx,18);
 	
    TGLabel *fLabel1013 = new TGLabel(fMainFrame979,"Select ID type:");
    fLabel1013->SetTextJustify(36);
    fLabel1013->SetMargins(0,0,0,0);
    fLabel1013->SetWrapLength(-1);
    fMainFrame979->AddFrame(fLabel1013, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fLabel1013->MoveResize(24,8,192,18);
+   fLabel1013->MoveResize(24,8,dx,18);
 
    // list box
    fListBox980 = new TGListBox(fMainFrame979);
-   fListBox980->Resize(192,132);
+   fListBox980->Resize(dx,132);
 	// fill with dummy entries (for padding)
 	for(int i=0;i<10;i++) fListBox980->AddEntry("    ", i);
    fMainFrame979->AddFrame(fListBox980, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
    fListBox980->MapSubwindows();
 	fListBox980->Layout();
-   fListBox980->MoveResize(24,104,192,132);
+   fListBox980->MoveResize(24,104,dx,132);
 	fListBox980->SetMultipleSelections();
 	
    TGTextButton *fTextButton1052 = new TGTextButton(fMainFrame979,"Cancel");
@@ -102,7 +105,7 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    fTextButton1052->SetWrapLength(-1);
    fTextButton1052->Resize(72,24);
    fMainFrame979->AddFrame(fTextButton1052, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton1052->MoveResize(40,245,72,24);
+   fTextButton1052->MoveResize(140,245,72,24);
 	
    TGTextButton *fTextButton1057 = new TGTextButton(fMainFrame979,"OK");
    fTextButton1057->SetTextJustify(36);
@@ -110,10 +113,10 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    fTextButton1057->SetWrapLength(-1);
    fTextButton1057->Resize(72,24);
    fMainFrame979->AddFrame(fTextButton1057, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-   fTextButton1057->MoveResize(120,245,72,24);
+   fTextButton1057->MoveResize(220,245,72,24);
 
    fMainFrame1428->AddFrame(fMainFrame979, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-   fMainFrame979->MoveResize(0,0,234,273);
+   fMainFrame979->MoveResize(0,0,xx,273);
 
    fMainFrame1428->SetMWMHints(kMWMDecorAll,
                         kMWMFuncAll,
@@ -123,7 +126,7 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    fMainFrame1428->Resize(fMainFrame1428->GetDefaultSize());
    fMainFrame1428->CenterOnParent();
    fMainFrame1428->MapWindow();
-   fMainFrame1428->Resize(234,291);
+   fMainFrame1428->Resize(xx,291);
 	
 	/****             connect signals & slots                   ***/
 	// choice of ID type

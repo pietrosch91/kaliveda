@@ -29,7 +29,7 @@ class KVGemini : public KVBase
 #ifndef __CINT__
 // Exception(s) thrown by KVGemini
 #include <exception>
-class gemini_bad_decay : public exception
+class gemini_bad_decay : public std::exception
 {
   virtual const char* what() const throw()
   {
