@@ -237,25 +237,25 @@ void KVNumberList::PrintLimits() const
    fIsParsed=kFALSE; // force re-parse
    ParseList();
 
-   cout << "KVNumberList::" << GetName() << endl;
-   cout << "There are " << fNLimits << " limits in the string : " <<
-           fString.Data() << endl;
-   cout << "MIN = ";
+   std::cout << "KVNumberList::" << GetName() << std::endl;
+   std::cout << "There are " << fNLimits << " limits in the string : " <<
+           fString.Data() << std::endl;
+   std::cout << "MIN = ";
    for (int i = 0; i < fNLimits; i++) {
-      cout << Form("%5d", (*fLowerBounds)[i]);
+      std::cout << Form("%5d", (*fLowerBounds)[i]);
       if (i < fNLimits - 1)
-         cout << ",";
+         std::cout << ",";
    }
-   cout << endl;
-   cout << "MAX = ";
+   std::cout << std::endl;
+   std::cout << "MAX = ";
    for (int i = 0; i < fNLimits; i++) {
-      cout << Form("%5d", (*fUpperBounds)[i]);
+      std::cout << Form("%5d", (*fUpperBounds)[i]);
       if (i < fNLimits - 1)
-         cout << ",";
+         std::cout << ",";
    }
-   cout << endl;
-   cout << "First value = " << fFirstValue << "  Last value = " <<
-           fLastValue << endl;
+   std::cout << std::endl;
+   std::cout << "First value = " << fFirstValue << "  Last value = " <<
+           fLastValue << std::endl;
 }
 
 //____________________________________________________________________________________________//
