@@ -464,6 +464,13 @@ void KVIDGridManagerGUI::OpenFile()
    if (fi.fFilename) {
       int ngri=gIDGridManager->GetGrids()->GetEntries();
       if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
+         if(gMultiDetArray){
+            // set pointers to id telescopes in grids
+            TIter next ( gIDGridManager->GetGrids() );
+            KVIDGraph* gr = 0;
+            while ( ( gr = ( KVIDGraph* ) next() ) ) gMultiDetArray->FillListOfIDTelescopes(gr);
+            UpdateListOfGrids();
+         }
          //read file ok no problem.
          int ngriread=gIDGridManager->GetGrids()->GetEntries()-ngri;
          SetStatus(Form("Read %d grids from file %s", ngriread, fi.fFilename));
