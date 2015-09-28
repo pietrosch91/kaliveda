@@ -1274,8 +1274,7 @@ TString kvs( GetUserClass() );
           // compilation failed. abort processing.
           delete ia; ia=0;
           checkCompilation=kTRUE;
-          WarningBox("Compilation failed", "Please correct mistakes in user analysis class");
-          EditUserClassFiles();
+          if(WarningBox("Compilation failed", "Please correct mistakes in user analysis class",kTRUE)) EditUserClassFiles();
           return;
       }
    }
