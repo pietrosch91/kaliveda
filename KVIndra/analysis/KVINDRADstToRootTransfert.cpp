@@ -194,7 +194,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 #endif
 #endif
       //leaves for reconstructed events
-		data_tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &evt, 10000000, 0)->SetAutoDelete(kFALSE);
+      KVEvent::MakeEventBranch(data_tree,"INDRAReconEvent","KVINDRAReconEvent",&evt);
 
       //tree for raw data
 		rawtree = new TTree("RawData", Form("%s : %s : raw data",

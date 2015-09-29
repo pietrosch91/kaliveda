@@ -88,8 +88,7 @@ void KVSimReader::DeclareTree(KVString filename,Option_t* option)
 	file = new TFile(root_file_name.Data(),option);
 		
 	tree = new TTree(tree_name.Data(),tree_title.Data());
-	tree->Branch(branch_name.Data(), "KVSimEvent", &evt, 10000000, 0)->SetAutoDelete(kFALSE);
-
+   KVEvent::MakeEventBranch(tree,branch_name,"KVSimEvent",&evt);
 }
 
 //____________________________________________________

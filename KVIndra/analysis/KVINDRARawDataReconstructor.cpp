@@ -125,7 +125,7 @@ void KVINDRARawDataReconstructor::InitRun()
 
       
       //leaves for reconstructed events
-		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
+      KVEvent::MakeEventBranch(tree,"INDRAReconEvent","KVINDRAReconEvent",&recev);
       
       Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
             

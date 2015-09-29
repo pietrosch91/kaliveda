@@ -22,6 +22,7 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 
 #define KVEVENT_PART_INDEX_OOB "Particle index %d out of bounds [1,%d]"
 
+#include "TTree.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
 #include "KVNucleus.h"
@@ -109,6 +110,15 @@ class KVEvent:public KVBase {
    Double_t GetChannelQValue() const;
    Double_t GetGSChannelQValue() const;
 	const Char_t* GetPartitionName();
+   
+   static void MakeEventBranch(TTree* tree, const TString& branchname, const TString& classname, void* event, Int_t bufsize=10000000)
+   {
+      // Use this method when adding a branch to a TTree to store KVEvent-derived objects.
+      // If (*e) points to a valid KVEvent-derived object, we use the name of the class of the object.
+      // Otherwise we use the value of classname (default = "KVEvent")
+   
+      tree->Branch(branchname,classname,event,bufsize,0)->SetAutoDelete(kFALSE);
+   }
 	
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };

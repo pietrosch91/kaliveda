@@ -64,7 +64,7 @@ void KVIVReconIdent::InitRun(void){
 #endif
       //leaves for reconstructed events
       TBranch *recon_br = (TBranch *)fChain->GetListOfBranches()->First();
-	  fIdentTree->Branch(recon_br->GetName(), recon_br->GetClassName(), GetEventReference(), 10000000, 0)->SetAutoDelete(kFALSE);
+      KVEvent::MakeEventBranch(fIdentTree,recon_br->GetName(),recon_br->GetClassName(),GetEventReference());
 
 	 // set flag if this branch contains a KVIVReconEvent object
 	fIsIVevent = TClass::GetClass(recon_br->GetClassName())->InheritsFrom("KVIVReconEvent");

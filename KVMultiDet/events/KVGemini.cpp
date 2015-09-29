@@ -120,7 +120,7 @@ void KVGemini::FillTreeWithEvents(KVSimNucleus& toDecay, Int_t nDecays, TTree* t
 
 	if(branchname=="") branchname="gemini";
 	KVSimEvent *decayProducts = new KVSimEvent;
-	theTree->Branch(branchname, "KVSimEvent", &decayProducts, 10000000, 0)->SetAutoDelete(kFALSE);
+   KVEvent::MakeEventBranch(theTree,branchname,"KVSimEvent",&decayProducts);
 	
 	while( nDecays-- ){
 		decayProducts->Clear();

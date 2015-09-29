@@ -58,7 +58,10 @@ When writing events in a TTree, it is very important to call the TBranch::SetAut
 method of the branch which is used to store the event object.
 If not, when the events are read back, the KVEvent constructor and destructor will be called
 every time an event is read from the TTRee!! Leading to very slow reading times (& probably
-memory leaks)
+memory leaks).
+For this reason we provide the method:
+    void MakeEventBranch(TTree*, const TString&, const TString&, void*)
+which should be used whenever it is required to stock KVEvent-derived objects in a TTree.
 */
 /////////////////////////////////////////////////////////////////////////////://
 
