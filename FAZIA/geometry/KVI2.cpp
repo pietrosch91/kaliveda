@@ -91,6 +91,7 @@ void KVI2::TreateSignal()
    Add(-1.*fBaseLine);
    if(fWithInterpolation)
 		BuildCubicSignal();
+   SetNSamples(GetNSamples()-3); // because we use a 3th order interpolation...
    ComputeAmplitude();
    fAmplitude = GetAmplitude();
 	
