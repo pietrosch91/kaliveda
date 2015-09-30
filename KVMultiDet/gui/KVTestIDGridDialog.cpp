@@ -345,24 +345,27 @@ void KVTestIDGridDialog::TestGrid()
    fProgressBar->Reset();
    
    if(hazreal)
-     {
-     KVCanvas* cc = new KVCanvas;
-     cc->cd();
-     ((TPad*)gPad)->SetLogz();
-     TAxis* ax = 0;
-     ax = hazreal->GetXaxis();
-     ax->SetNdivisions(000);
-     ax->SetLabelOffset(-0.04);
-     ax->SetTickLength(0);
-     
-     ax = hazreal->GetYaxis();
-     ax->SetNdivisions(000);
-     ax->SetLabelOffset(-0.03);
-     ax->SetTickLength(0);
-     hazreal->Draw("col");
-     hazreal->SetMinimum(1);
-     DrawChart(cc, (Int_t)hzrealxmin, (Int_t)hzrealxmax, (Int_t)hnmin, (Int_t)hnmax);
-     }
+   {
+       KVCanvas* cc = new KVCanvas;
+       cc->cd();
+       ((TPad*)gPad)->SetLogz();
+       hazreal->Draw("col");
+
+   	   if(!strcmp(hazreal->GetTitle(),"Z vs. A")){
+     	   TAxis* ax = 0;
+     	   ax = hazreal->GetXaxis();
+     	   ax->SetNdivisions(000);
+     	   ax->SetLabelOffset(-0.04);
+     	   ax->SetTickLength(0);
+
+     	   ax = hazreal->GetYaxis();
+     	   ax->SetNdivisions(000);
+     	   ax->SetLabelOffset(-0.03);
+     	   ax->SetTickLength(0);
+     	   hazreal->SetMinimum(1);
+     	   DrawChart(cc, (Int_t)hzrealxmin, (Int_t)hzrealxmax, (Int_t)hnmin, (Int_t)hnmax);
+   	   }
+   }
 
 
    // show results in canvas

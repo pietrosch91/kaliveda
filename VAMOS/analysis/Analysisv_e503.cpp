@@ -308,12 +308,17 @@ void Analysisv_e503::SetTel3(KVDetector *csi)
 
 void Analysisv_e503::SetFileCut(TList *list)
 {
-	Id->SetFileCut(list);
+//	Id->SetFileCut(list);
 }
 
 void Analysisv_e503::SetFileCutChioSi(TList *list2)
 {
-	Id->SetFileCutChioSi(list2);
+//	Id->SetFileCutChioSi(list2);
+}
+
+void Analysisv_e503::SetFileCutSiTof(TList *list3)
+{
+//	Id->SetFileCutSiTof(list3);
 }
 
 void Analysisv_e503::SetTarget(KVTarget *tgt)
@@ -447,8 +452,7 @@ void Analysisv_e503::CreateHistograms()
 }
 void Analysisv_e503::FillHistograms()
 {
-if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1) 	
-   {
+
 #ifdef DEBUG
   cout << "Analysisv_e503::FillHistograms : " << endl;
 #endif
@@ -489,8 +493,7 @@ if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1
 #ifdef CSI
   CsI->FillHistograms();
 #endif
-
-   }	
+	
 }
 
 void Analysisv_e503::outAttach()

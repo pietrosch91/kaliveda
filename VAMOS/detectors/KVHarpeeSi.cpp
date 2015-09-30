@@ -136,11 +136,11 @@ Double_t KVHarpeeSi::GetCalibT(const Char_t *type){
 	// Returns 0 if calibration not ready or time ACQ parameter not fired.
 	// (we require that the acquisition parameter has a value
    	// greater than the current pedestal value).
-   	// The reference time T0 used for the calibration is the one of the
+   	// The reference time T0 used for the calibration is the one of this
+   	// detector if it is fired otherwise T0 is the one of the
    	// fired silicon detector of Harpee which stopped the time.
 
-
-	KVHarpeeSi *firedSi = GetFiredHarpeeSi();
+	KVHarpeeSi *firedSi = ( Fired("Pany") ? this : GetFiredHarpeeSi() );
 	if( !firedSi ) return 0;
 
 	KVFunctionCal *cal = GetTCalibrator( type );
@@ -374,9 +374,9 @@ void KVHarpeeSi::Streamer(TBuffer &R__b){
 	  TIter next( GetListOfCalibrators() );
 	  TObject *cal = NULL;
 	  while( ( cal = next() ) ){
-		  if( cal->InheritsFrom("KVRecombination") )
+		  if( cal->InheritsFrom(KVRecombination::Class()) )
       		  fPHD  =  (KVRecombination *)cal;
-		  else if( cal->InheritsFrom("KVFunctionCal") )
+		  else if( cal->InheritsFrom(KVFunctionCal::Class()) )
 			  fCanalE = (KVFunctionCal *)cal;
 	  }
    } else {

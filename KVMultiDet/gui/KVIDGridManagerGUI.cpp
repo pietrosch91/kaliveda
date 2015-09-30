@@ -232,16 +232,9 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
 
    // list view for lines in current grid
    fIDLineList = new KVListView(KVIDentifier::Class(), line_frame, 350, 400);
-   fIDLineList->SetDataColumns(5);
-   fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
-   fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
-   fIDLineList->SetDataColumn(2, "A", "", kTextCenterX);
-   fIDLineList->SetDataColumn(3, "OnlyZId", "OnlyZId", kTextCenterX);
-   fIDLineList->SetDataColumn(4, "MassFormula", "", kTextCenterX);
-   fIDLineList->GetDataColumn(3)->SetIsBoolean();
-   fIDLineList->ActivateSortButtons();
+   SetDefaultDataColumnsToIDLineList();
    fIDLineList->AllowBrowse(kFALSE);
-   //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+      //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
    //                    "SelectionChanged()");
    line_frame->AddFrame(fIDLineList, new TGLayoutHints(kLHintsTop | kLHintsExpandY | kLHintsExpandX, 2, 2, 2, 10));
 
@@ -697,19 +690,7 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
       TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
       cf->ChangeOptions(kVerticalFrame);
       fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-      fIDGridList->SetDataColumns(10);
-      fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-      fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-      fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-      fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-      fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-      fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-      fIDGridList->GetDataColumn(5)->SetIsBoolean();
-      fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-      fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-      fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-      fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-      fIDGridList->ActivateSortButtons();
+	  SetDefaultDataColumnsToGridList();
       fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                            "SelectionChanged()");
       cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
@@ -725,20 +706,11 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
       KVString lab = labels.Next();
       TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
       cf->ChangeOptions(kVerticalFrame);
-      fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-      fIDGridList->SetDataColumns(10);
-      fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-      fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-      fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-      fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-      fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-      fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-      fIDGridList->GetDataColumn(5)->SetIsBoolean();
-      fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-      fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-      fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-      fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-      fIDGridList->ActivateSortButtons();
+	  KVString def_cl = gEnv->GetValue(Form("KVIDTelescope.DefaultGrid.%s", lab.Data()),"KVIDGraph");
+	  TClass *cl = TClass::GetClass( def_cl.Data() );
+      fIDGridList = new KVListView(cl, cf, 600, 400);
+	  if( !SetDataColumnsToList( fIDGridList ) )
+	  	  SetDefaultDataColumnsToGridList();
       fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                            "SelectionChanged()");
       cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
@@ -776,19 +748,7 @@ void KVIDGridManagerGUI::UpdateTabs()
       TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
       cf->ChangeOptions(kVerticalFrame);
       fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-      fIDGridList->SetDataColumns(10);
-      fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-      fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-      fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-      fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-      fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-      fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-      fIDGridList->GetDataColumn(5)->SetIsBoolean();
-      fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-      fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-      fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-      fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-      fIDGridList->ActivateSortButtons();
+	  SetDefaultDataColumnsToGridList();
       fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                            "SelectionChanged()");
       cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
@@ -827,20 +787,11 @@ void KVIDGridManagerGUI::UpdateTabs()
 	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : new tab '" << lab.Data() << "'..." << endl;
          TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
          cf->ChangeOptions(kVerticalFrame);
-         fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-         fIDGridList->SetDataColumns(10);
-         fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-         fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-         fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-         fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-         fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-         fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-         fIDGridList->GetDataColumn(5)->SetIsBoolean();
-         fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-         fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-         fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-         fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-         fIDGridList->ActivateSortButtons();
+		 KVString def_cl = gEnv->GetValue(Form("KVIDTelescope.DefaultGrid.%s", lab.Data()),"KVIDGraph");
+	  	 TClass *cl = TClass::GetClass( def_cl.Data() );
+      	 fIDGridList = new KVListView(cl, cf, 600, 400);
+		 if( !SetDataColumnsToList( fIDGridList ) )
+	  	  	 SetDefaultDataColumnsToGridList();
          fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                               "SelectionChanged()");
          cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
@@ -946,6 +897,14 @@ void KVIDGridManagerGUI::ShowListOfLines()
       KVList* ids = fSelectedGrid->GetIdentifiers();
       // sort lines in order of increasing Z
       ids->Sort();
+	  if(!fLastSelectedGrid || (fLastSelectedGrid && fSelectedGrid->IsA() != fLastSelectedGrid->IsA()) ){
+		  if( !fSelectedGrid->InheritsFrom(KVIDGrid::Class()) ) SetDefaultDataColumnsToIDLineList();
+		  else{
+			  TClass *cl = ((KVIDGrid *)fSelectedGrid)->DefaultIDLineClass();
+			  fIDLineList->SetObjClass( cl );
+			  if( !SetDataColumnsToList(fIDLineList) ) SetDefaultDataColumnsToIDLineList();
+		  }
+	  }
       fIDLineList->Display(ids);
       KVSeqCollection* cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutLine");
       fCUTLineList->Display(cutlines);
@@ -1153,4 +1112,79 @@ void KVIDGridManagerGUI::FitGrid()
     TContextMenu * cm = new TContextMenu("FitPanel", "Context menu for KVVirtualIDFitter::FitPanel");
     cm->Action(fitter,m);
     delete cm;
+}
+
+void KVIDGridManagerGUI::SetDefaultDataColumnsToIDLineList()
+{
+	fIDLineList->SetObjClass( KVIDentifier::Class() );
+	fIDLineList->SetDataColumns(5);
+   	fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
+   	fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
+   	fIDLineList->SetDataColumn(2, "A", "", kTextCenterX);
+   	fIDLineList->SetDataColumn(3, "OnlyZId", "OnlyZId", kTextCenterX);
+   	fIDLineList->SetDataColumn(4, "MassFormula", "", kTextCenterX);
+   	fIDLineList->ActivateSortButtons();
+}
+
+Bool_t KVIDGridManagerGUI::SetDataColumnsToList( KVListView *list ){
+  	// Changes the data columns of the list as a function
+	// of the listed object class.
+	// Data column definitions are given by the environment variable
+	// ClassObject.DataColumns in the kvrootrc file e.g.
+	//
+	// KVIDZALine.DataColumns: Name,,4 | Z | OnlyZId,OnlyZId
+	//
+	// where the description of each data column is separated by '|'.
+	// for each data column the arguments are: 
+	//
+	//   name, method, justification mode 
+	//   
+	//   If the justification mode is not given, the text will be centered.
+	//   If the method is not given, "Get<name>" method will be called.
+
+	TClass *cl = list->GetObjClass();
+	if( !cl ) return kFALSE;
+	KVString st;
+	st.Form("%s.DataColumns", cl->GetName());
+   	st = gEnv->GetValue(st.Data(), "");
+	if( st.IsNull() ) return kFALSE;
+
+	TObjArray *tok0 =st.Tokenize("|");
+	Int_t Ncol = tok0->GetEntries();
+	if(Ncol>0){
+ 	   	list->SetDataColumns(Ncol);
+		for( Int_t i=0; i<Ncol; i++ ){
+			st = ((TObjString *)tok0->At(i))->GetString();
+			st.Begin(",");
+			KVString name, meth, mode;
+			name = st.Next(kTRUE);
+			meth = st.Next(kTRUE);
+			mode = st.Next(kTRUE);
+			Int_t imode;
+			if( mode.IsNull() ) imode = ( i==0 ? kTextLeft : kTextCenterX );
+			else imode = mode.Atoi();
+			list->SetDataColumn(i,name.Data(),meth.Data(),imode);
+		}
+	}
+	delete tok0;
+	list->ActivateSortButtons();
+	return kTRUE;
+}
+
+void KVIDGridManagerGUI::SetDefaultDataColumnsToGridList(){
+	fIDGridList->SetObjClass(KVIDGraph::Class());
+	fIDGridList->SetDataColumns(10);
+    fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
+    fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
+    fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
+    fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+    fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+    fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+    fIDGridList->GetDataColumn(5)->SetIsBoolean();
+    fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+    fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+    fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+    fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
+    fIDGridList->ActivateSortButtons();
+
 }

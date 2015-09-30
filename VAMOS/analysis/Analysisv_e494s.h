@@ -60,7 +60,8 @@ class Analysisv_e494s : public Analysisv
   void SetTel3(KVDetector *csi)      { csi   = csi;   };
   void SetFileCut(TList *list)       { list  = list;  };
   void SetFileCutChioSi(TList *list2){ list2 = list2; };
-  
+  void SetFileCutSiTof(TList* list3) { list3 = list3; };     
+
   void SetTarget(KVTarget *tgt)    { tgt     = tgt;     };
   void SetDC1(KVDetector *dcv1)    { dcv1    = dcv1;    };
   void SetSed(KVMaterial *sed)     { sed     = sed;     };
@@ -71,6 +72,10 @@ class Analysisv_e494s : public Analysisv
   void SetGap2(KVMaterial *isogap2){ isogap2 = isogap2; };
   void SetCsI(KVMaterial *ccsi)    { ccsi    = ccsi;    }; 
 
+  void SetAngleVamos(Float_t angle){ angle = angle; };     
+  void SetBrhoRef(Float_t brho)    { brho  = brho;  };     
+     
+  virtual void SetCurrentRun( Int_t run ){ run = run; };
 
   ClassDef(Analysisv_e494s,0)//VAMOS calibration for E494S
 

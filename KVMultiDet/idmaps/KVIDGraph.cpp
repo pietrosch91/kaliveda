@@ -74,6 +74,8 @@ void KVIDGraph::init()
    fCuts = new KVList;
 	fIdentifiers->SetCleanup();
 	fCuts->SetCleanup();
+	fTelescopes = new KVList( kFALSE );
+	fTelescopes->SetCleanup();
    fXmin = fYmin = fXmax = fYmax = 0;
    fPar = new KVGenParList;
    fLastScaleX = 1.0;
@@ -190,7 +192,7 @@ KVIDGraph::KVIDGraph() : fRunList(""), fDyName(""), fPattern("")
 
 //________________________________________________________________________________
 
-KVIDGraph::KVIDGraph(const KVIDGraph & grid) : TCutG(), fRunList(""), fDyName(""), fPattern("")
+KVIDGraph::KVIDGraph(const KVIDGraph & grid) : TCutG(), fRunList(""),  fDyName(""), fPattern("")
 {
    //Copy constructor
    init();
@@ -209,6 +211,8 @@ KVIDGraph::~KVIDGraph()
 	delete fIdentifiers;
 	fCuts->Delete();
 	delete fCuts;
+	fTelescopes->Delete();
+	delete fTelescopes;
 	delete fPar;
 }
 
@@ -338,7 +342,7 @@ void KVIDGraph::WriteParameterListOfIDTelescopes()
 	// if list of telescope pointers is empty, do nothing
 	// this is in case there are telescope names already in the IDTelescopes parameter
 	// but they are not telescopes in the current multi det array
-	if(!fTelescopes.GetEntries()) return;
+	if(!fTelescopes->GetEntries()) return;
 	fPar->SetValue("IDTelescopes", "");
 	KVString tel_list = GetNamesOfIDTelescopes();
 	fPar->SetValue("IDTelescopes",tel_list);
@@ -351,7 +355,7 @@ void KVIDGraph::FillListOfIDTelescopes()
 	// Fill list of ID telescopes with which this grid is associated
 	// from list of names read from ascii file.
 
-	fTelescopes.Clear();
+	fTelescopes->Clear();
 	if( !gMultiDetArray ) return;
 	if( fPar->HasParameter("IDTelescopes") ){
 		KVString tel_list = fPar->GetStringValue("IDTelescopes");
@@ -359,7 +363,7 @@ void KVIDGraph::FillListOfIDTelescopes()
 		while (!tel_list.End() ) {
 			TString tel_name = tel_list.Next();
 			KVIDTelescope* idt = gMultiDetArray->GetIDTelescope( tel_name.Data() ) ;
-			if( idt ) fTelescopes.Add( idt );
+			if( idt ) fTelescopes->Add( idt );
 			else {
 				/*Warning("FillListOfIDTelescopes", "Cannot find ID telescope %s in gMultiDetArray %p",
 					tel_name.Data(), gMultiDetArray);
@@ -1203,7 +1207,7 @@ const Char_t* KVIDGraph::GetName() const
 
 	if(fName!="") return fName;
 	const_cast<KVIDGraph*>(this)->fDyName = "";
-	if(fTelescopes.At(0)) const_cast<KVIDGraph*>(this)->fDyName = fTelescopes.At(0)->GetName();
+	if(fTelescopes->At(0)) const_cast<KVIDGraph*>(this)->fDyName = fTelescopes->At(0)->GetName();
 	else {
 		if( fPar->HasParameter("IDTelescopes") ){
 			KVString tel_list = fPar->GetStringValue("IDTelescopes");
@@ -1348,7 +1352,7 @@ void KVIDGraph::SetIDTelescopes()
 
 	Bool_t cancel;
 	TString old_label = GetIDTelescopeLabel();
-   new KVIDGUITelescopeChooserDialog(gMultiDetArray, &fTelescopes, &cancel,
+   new KVIDGUITelescopeChooserDialog(gMultiDetArray, (TList *)fTelescopes, &cancel,
 			gClient->GetRoot(), gClient->GetRoot());
 	if(!cancel){
 		// if type of associated id telescope has changed, we need to
@@ -1407,7 +1411,7 @@ const Char_t* KVIDGraph::GetNamesOfIDTelescopes()
 	// this grid is valid.
 
 	static TString tel_list;
-	if(!fTelescopes.GetEntries()){
+	if(!fTelescopes->GetEntries()){
 		// case of grid with "unknown" ID telescopes
 		// we return the value of the IDTelescopes parameter (if defined)
 		if(fPar->HasParameter("IDTelescopes")){
@@ -1415,7 +1419,7 @@ const Char_t* KVIDGraph::GetNamesOfIDTelescopes()
 			return tel_list.Data();
 		}
 	}
-	TIter next(&fTelescopes);
+	TIter next(fTelescopes);
 	TObject* id = next();
 	if(id) tel_list = id->GetName();
 	while ( (id = next()) ) tel_list += Form(",%s", id->GetName());

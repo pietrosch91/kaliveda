@@ -20,6 +20,7 @@ ClassImp(KVSeD)
 
 KVString KVSeD::fACQParamTypes("0:Q, 1:T_HF, 2:T, 9:NO_TYPE");
 KVString KVSeD::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 9:NO_TYPE");
+Int_t    KVSeD::fNstripsOK = 3;
 	
 void KVSeD::init(){
 	// Initialise non-persistent pointers
@@ -37,6 +38,8 @@ void KVSeD::init(){
 	fERawPos[0] = fERawPos[1] = -500;
 //	fSpectrum     = NULL;
 	fPosCalib = NULL;
+
+	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVSeD.NumberOfStripsOK", 3.);
 
 	//a KVSeD can not be used in a ID telescope
 	ResetBit( kOKforID );
@@ -119,6 +122,34 @@ const Char_t* KVSeD::GetArrayName(){
 }
 //________________________________________________________________
 
+Double_t KVSeD::GetCalibT(const Char_t *type){
+	// Calculates calibrated time in ns of type 'type' (SED1_HF, SED2_HF,
+	// SED1_SED2, ...) for coder values.
+	// Returns 0 if calibration not ready or time ACQ parameter not fired.
+	// (we require that the acquisition parameter has a value
+   	// greater than the current pedestal value).
+   	//
+   	// The returned value 'T' is:
+   	//   T = Tns + T0 + corrT0
+   	// where 'Tns' is the first-converted time in ns, 'T0' is the zero-time and
+   	// 'corrT0' is a correction of 'T0'. For the moment the correction is
+   	// performed from the raw Xf-position measured in this SeD ( see method
+   	// GetXfCorrectorOfT0(...) ).
+
+	// standard calibrated time: Tns + T0
+	Double_t t = KVVAMOSDetector::GetCalibT( type );
+
+	// correction of T0 as a function of Xf (raw value)
+	KVFunctionCal *xfcorr = GetXfCorrectorOfT0( type );
+	if( xfcorr && xfcorr->GetStatus() ){
+		Double_t xraw = GetRawPosition( 'X' );
+		if( xraw > 0 ) t += xfcorr->Compute( xraw );
+	}
+
+	return t;
+}
+//________________________________________________________________
+
 const Char_t *KVSeD::GetTBaseName() const{
 	// Base name of the time of flight parameters used to be compatible
 	// GANIL acquisition parameters
@@ -129,7 +160,7 @@ const Char_t *KVSeD::GetTBaseName() const{
 }
 //________________________________________________________________
    
-Float_t KVSeD::CalculateQThreshold(const Char_t dir){
+Float_t KVSeD::CalculateQThreshold(Char_t dir){
 	// Calculate the noise in order to remove it on strips for X and 
 	// Y positions.
 
@@ -194,7 +225,7 @@ Float_t KVSeD::CalculateQThreshold(const Char_t dir){
 }
 //________________________________________________________________
 
-TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
+TH1F *KVSeD::GetCleanQHisto(Char_t dir){
 	// Retruns the X or Y position histogram with calibrated charges (Q)
 	// after the substration of noise.
 
@@ -219,8 +250,10 @@ TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
 }
 //________________________________________________________________
    
-TH1F *KVSeD::GetQrawHisto(const Char_t dir){
+TH1F *KVSeD::GetQrawHisto(Char_t dir){
 	// Retruns the X or Y position histogram with raw charges (Q)
+	// If the histogram is empty then no acquisition parameter
+	// was fired.
 	
 	Int_t i = IDX(dir);
 	if( (i<0) || (i>2) ) return NULL; 
@@ -230,24 +263,19 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	fQ[0][i]->Reset();
 	TIter next(GetACQParamList());
 
-	Bool_t ok = kFALSE;
 	KVACQParam *par  = NULL;
 	while((par = (KVACQParam *)next())){
 
  	   	if( (par->GetLabel()[0] != dir) || !par->Fired("P") ) continue;	
 
-		Float_t data;
-		fQ[0][i]->SetBinContent( par->GetNumber(), data = par->GetData() );
-		ok = kTRUE;
+		fQ[0][i]->SetBinContent( par->GetNumber(), (Double_t)par->GetCoderData() );
 	}
-
-	if( !ok ) Warning("GetQrawHisto","No ACQ parameter fired for the %c position",dir);
 
  	return fQ[0][i];
 }
 //________________________________________________________________
    
-TH1F *KVSeD::GetQHisto(const Char_t dir){
+TH1F *KVSeD::GetQHisto(Char_t dir){
 	// Retruns the X or Y position histogram with calibrated charges (Q)
 
 	Int_t i = IDX(dir);
@@ -258,31 +286,37 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	fQ[1][i]->Reset();
 	TIter next(GetListOfCalibrators());
 
-	Bool_t ok = kFALSE;
 	KVCalibrator *cal  = NULL;
 	KVACQParam   *par  = NULL;
 	Int_t num;
 
-	Int_t count_calOK = 0, count_fired = 0;
+	Int_t NcalOK = 0;
 	while((cal = (KVCalibrator *)next())){
 		
 
  	   	if( !cal->GetStatus() || (GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
-		count_calOK++;
+		NcalOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
 		par = calf->GetACQParam();
 		if( !par->Fired("P") ) continue;
-		count_fired++;
 		
 		num =  calf->GetNumber();
-		fQ[1][i]->SetBinContent( num, calf->Compute() );
-		ok = kTRUE;
+		fQ[1][i]->SetBinContent( num, calf->Compute( (Double_t)calf->GetACQParam()->GetCoderData() ) );
 	}
 
- 	if( !ok ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK and %d fired ACQ parameters",dir, GetName(), count_calOK, count_fired);
+ 	if( NcalOK < 4 ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK",dir, GetName(), NcalOK);
 	
  	return fQ[1][i];
+}
+//________________________________________________________________
+
+KVFunctionCal *KVSeD::GetXfCorrectorOfT0( const Char_t *type ){
+// Returns the corrector (KVFunctionCal) used to correct the constant T0 (in ns)
+// for a given time of flight of type 'type' (SED1_H, SED2_HF, SED1_SED2, ...)
+// as a function of the raw Xf-position  mesured by this SeD.
+
+	return (KVFunctionCal *)GetCalibrator( Form("Xf-correction of T0 T%s", type) );
 }
 //________________________________________________________________
 
@@ -365,7 +399,7 @@ void KVSeD::SetACQParams(){
 			// Qraw histogram
 			if(fQ[j][i]) SafeDelete( fQ[j][i] );
 			name.Form("Q%s_%s_%c",extraname[j],GetArrayName(),DIRECTION(i));
-			title.Form("%c position for %s %s; Strip number; Qraw (%s)",DIRECTION(i),extratitle[j],GetArrayName(),units[j]);
+			title.Form("%c position in %s %s; Strip number; Q%s (%s)",DIRECTION(i),GetArrayName(),extratitle[j],extraname[j],units[j]);
 			fQ[j][i] = new TH1F( name.Data(), title.Data(), Nstrips[i], .5, Nstrips[i] +.5);
 			fQ[j][i]->SetDirectory(0);
 			fQ[j][i]->SetLineColor(j+1);
@@ -380,35 +414,79 @@ void KVSeD::SetCalibrators(){
 	// The calibrators are KVFunctionCal (see KVVAMOSDetector::SetCalibrators())
 	// except for the position calibration (position->cm) where a 
 	// KVSeDPositionCal object is used.
+	//
+	// Etra calibrators are set to correct the zero-time T0 of times of flight
+	// mesured with this detector. These corrections depends on the raw X-position
+	// measured by this detector.
 
+	// set standard calibrators and T0 parameters
 	KVVAMOSDetector::SetCalibrators();
+
+	// set calibrator for position calibration
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
 	c->SetUniqueID( CalculateUniqueID( c ) );
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 
+	
+	// loop over Time ACQ-parameters associated to this detector
+	// to build Xf-corrector of T0
+	TIter nextpar( fTlist );
+	KVACQParam *par   = NULL;
+	Double_t    maxch = 130.;       // Xf correction (128 strips) 
+	TString  calibtype("ERROR");
+
+	while((par = (KVACQParam *)nextpar())){
+ 		calibtype = "Xf-correction of T0";
+		calibtype.Append(" ");
+		calibtype.Append(par->GetName());
+
+		TF1 *func        = new TF1(calibtype.Data(),"pol1",0.,maxch);
+		KVFunctionCal *c = new KVFunctionCal(this, func);
+		c->SetType( calibtype.Data() );
+		c->SetLabel( par->GetLabel() );
+		c->SetNumber( par->GetNumber() );
+		c->SetUniqueID( par->GetUniqueID() );
+		c->SetStatus( kFALSE );
+		if(!AddCalibrator(c)) delete c;
+	}
 }
 //________________________________________________________________
 
-void KVSeD::ShowCleanQHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowCleanQHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetCleanQHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
-void KVSeD::ShowQrawHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowQrawHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetQrawHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
-void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowQHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetQHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
+void KVSeD::SetRawPosition(Double_t *XYf){
+	// Set the value of the raw position (strip) measured in SeD.
+	// XYf is an array of two elements: X and Y.
+	// Once you set raw position, the getter method to access to this position
+	// will return these new values i.e. the acquisition parameters will
+	// not be read anymore for calculating the raw  position until the next
+	// call of Initialize().
+	
+	if( XYf ){
+		fRawPos[0] = XYf[0];
+		fRawPos[1] = XYf[1];
+	}
+}
+//________________________________________________________________
+
+Double_t KVSeD::GetRawPosition2(Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. First the method searchs 
 	// peaks. If there is to many peaks (>maxNpeaks) the method returns -1
@@ -480,7 +558,7 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition(const Char_t dir){
+Double_t KVSeD::GetRawPosition(Char_t dir, Int_t /* num */){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. Faster method compare to 
 	// the method GetRawPosition2. The resolution is less good but sufficient. 
@@ -492,24 +570,31 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 	TH1F *hh = GetCleanQHisto( dir );
 	if( !hh ) return fRawPos[ idx ];
 
-	Int_t NStrips = 3;
-	if(hh->GetEntries()< NStrips ) return fRawPos[ idx ];
+	if(!hh->GetEntries()) return fRawPos[ idx ];
 
 	///////////////////////////////////////////////////
 
 	Int_t binMax = hh->GetMaximumBin();
 	Int_t min;
 	for( min = binMax; min>1; min--){
+		if( hh->GetBinContent(min) <= 0. ){
+			min++;
+			break;
+		}
 		Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
 		if(deltaQ < 0 ) break;
 	}
 	Int_t max;
 	for( max = binMax; max<hh->GetNbinsX(); max++){
+		if( hh->GetBinContent(max) <= 0. ){
+			max--;
+			break;
+		}
 		Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
 		if(deltaQ < 0 ) break;
 	}
 
-	if( (max-min) < NStrips) return fRawPos[ idx ];
+	if( (max-min+1) < fNstripsOK) return fRawPos[ idx ];
 
 	hh->GetXaxis()->SetRange(min,max);
 
@@ -520,20 +605,7 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
-UChar_t KVSeD::GetRawPosition(Double_t *XYZf){
-	// Returns in the 'XYZf' array the X and Y coordinates of the position (strip)
-	// deduced from the histogram representing the calibrated charge versus strip 
-	// number. The bit 0 (1) of the UChar_t returned value is set to 1 if
-	// the X (Y) position is correctly deduced. 
-
-	UChar_t rval = 3;
-	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
-	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
-	return rval;
-}
-//________________________________________________________________
-
-Double_t KVSeD::GetRawPositionError(const Char_t dir){
+Double_t KVSeD::GetRawPositionError(Char_t dir, Int_t /* num */){
 	// Returns the error on the position (strip) returned by GetRawPosition( dir ).
 
 	Int_t idx = IDX(dir);
@@ -543,21 +615,8 @@ Double_t KVSeD::GetRawPositionError(const Char_t dir){
 	return fERawPos[ idx ];
 }
 //________________________________________________________________
-		
-UChar_t KVSeD::GetRawPositionError(Double_t *EXYZf){
-	// Returns in the 'EXYZf' array the errors of X and Y coordinates of the position
-	// returned by GetRawPosition(...).
-	// The bit 0 (1) of the UChar_t returned value is set to 1 if
-	// the X (Y) position is correctly deduced. 
 
-	UChar_t rval = 3;
-	if( (EXYZf[0]=GetRawPositionError('X')) < 0 ) rval -= 1;
-	if( (EXYZf[1]=GetRawPositionError('Y')) < 0 ) rval -= 2;
-	return rval;
-}
-//________________________________________________________________
-
-UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
+UChar_t KVSeD::GetPosition(Double_t *XYZf, Char_t /* dir */, Int_t /* idx */){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
@@ -612,7 +671,7 @@ UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 }
 //________________________________________________________________
 
-void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Char_t /* dir */, Int_t /* idx */){
 	// Returns in the DXYZf array the errors of each coordinate of the position returned by
 	// GetPosition(...) in the focal-plane frame of reference.
 

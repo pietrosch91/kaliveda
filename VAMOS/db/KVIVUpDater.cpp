@@ -92,6 +92,11 @@ void KVIVUpDater::SetParameters(UInt_t run){
 	if(!kvrun) return;
    	SetPedestalCorrections(kvrun);
 
+	if( !gVamos ){
+		Error("KVIVUpDater::SetParameters","VAMOS is not found ( gVamos = NULL )");
+		return;
+	}
+
 	gVamos->ResetParameters();
 	SetVamosCalibAndConfParams( kvrun );
 }
@@ -148,11 +153,6 @@ void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 	// - set configuration parameters (Brho, rotation angle, ...) of VAMOS.
 
 	Info("KVIVUpDater::SetVamosCalibAndConfParams","Setting VAMOS calibration parameters");
-
-	if( !gVamos ){
-		Error("KVIVUpDater::SetVamosCalibAndConfParams","VAMOS is not found ( gVamos = NULL )");
-		return;
-	}
 
 	KVRList *list = run->GetLinks("VAMOS calib. & conf.");
 	if(!list) return;

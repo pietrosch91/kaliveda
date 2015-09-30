@@ -279,10 +279,14 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.recon3 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon3
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.ident3 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident3
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon3 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon3
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident3 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident3
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.raw $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2

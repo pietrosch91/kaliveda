@@ -3,7 +3,7 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration idtelescopes
+MODULES = daq_cec analysis base identification detectors geometry db events particles calibration idtelescopes idmaps
 
 EXTRA_HEADERS = analysis/Defines.h
 
@@ -40,4 +40,9 @@ endif
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
+
+#required for use of TSpectrum
+LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
+RLIBMAPDEPS += libSpectrum.so
+
 

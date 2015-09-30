@@ -187,10 +187,6 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
 	// else if only e-detector  is not OK then set up single stage telscope with de-detector
 	else if ( !e->IsOK() ) e = de;
 	// else both detectors are OK then explore all the possiblilities!
-   
-   TString sde="",se="";
-   if (de->IsOK()) sde = de->GetName();
-   if (e->IsOK()) se = e->GetName();
 
 	KVIDTelescope *idt = 0;
 

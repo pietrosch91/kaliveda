@@ -345,12 +345,7 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun * kvrun)
                     kvd->SetPressure(kvps->GetPressure(CHIO_8_12));
                 if (kvd->GetRingNumber() >= 13 && kvd->GetRingNumber() <= 17)
                     kvd->SetPressure(kvps->GetPressure(CHIO_13_17));
-					 if (kvd->GetPressure()==0.0){
-					 	kvd->SetDetecting(kFALSE);
-					 }
-					 else {
-					 	kvd->SetDetecting(kTRUE);
-					 }
+				if (kvd->GetPressure()==0.0) kvd->SetDetecting(kFALSE);
             }
         }
         next_chio.Reset();

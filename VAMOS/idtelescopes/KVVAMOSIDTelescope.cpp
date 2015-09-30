@@ -21,7 +21,9 @@ ClassImp(KVVAMOSIDTelescope)
 //method can be quite different (see KVVAMOSIDCsI for example).
 //
 //KVVAMOSIDTelescope inherits from KVINDRAIDTelescope to keep the same phylosophy of ID codes and subcodes.
-
+//
+// A KVVAMOSIDTelescope has to be exclusively composed of detectors derived from
+// KVVAMOSDetector.
 ////////////////////////////////////////////////////////////////////////////////
 
 KVVAMOSIDTelescope::KVVAMOSIDTelescope() : fDEdet(NULL), fEdet(NULL), fGrid(NULL)
@@ -52,11 +54,11 @@ const Char_t *KVVAMOSIDTelescope::GetArrayName(){
 
 		if( Edet ){
 			SetName( Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()) );
-			SetType( Form("%s_%s"    , DEdet->GetName(), Edet->GetName()) );
+			SetType( Form("%s_%s"    , DEdet->GetType(), Edet->GetType()) );
 		}
 		else{
 			SetName( Form("VID_%s", DEdet->GetName()) );
-			SetType( Form("%s"    , DEdet->GetName()) );
+			SetType( Form("%s"    , DEdet->GetType()) );
 		}
 	}
 	else SetName( "VID_EMPTY" );
@@ -66,45 +68,45 @@ const Char_t *KVVAMOSIDTelescope::GetArrayName(){
 //________________________________________________________________
    
 Bool_t KVVAMOSIDTelescope::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
- //Particle identification and code setting using identification grid KVIDGChIoSi
+ 	//Particle identification and code setting using identification grid KVIDGChIoSi
 
-		IDR->SetIDType( GetType() );
-		IDR->IDattempted = kTRUE;
+	IDR->SetIDType( GetType() );
+	IDR->IDattempted = kTRUE;
     //identification
     Double_t de = (y<0. ? GetIDMapY() : y);
     Double_t e  = (x<0. ? GetIDMapX() : x);
 
-    if (fGrid->IsIdentifiable(e,de))
+    if (fGrid && fGrid->IsIdentifiable(e,de)){
         fGrid->Identify( e,de,IDR);
-    Int_t quality = fGrid->GetQualityCode();
-    IDR->IDquality = quality;
+    	IDR->IDquality = fGrid->GetQualityCode();
+	}
 
     // set general ID code for correct identification
     IDR->IDcode = GetIDCode();
     //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
     //general ID code = kIDCode5 (Zmin)
-    if (quality==KVIDZAGrid::kICODE7)
+    if (IDR->IDquality==KVIDZAGrid::kICODE7)
     {
         IDR->IDcode = GetZminCode();
     }
 
 
-//    //Identified particles with subcode kID_LeftOfBragg are given
-//    //general ID code kIDCode5 (Zmin).
-//    if (quality==KVIDGChIoSi::k_LeftOfBragg)
-//    {
-//        IDR->IDcode = GetZminCode();
-//    }
-//    //unidentifiable particles with subcode kID_BelowSeuilSi are given
-//    //general ID code kIDCode5 (Zmin) and we estimate Zmin from energy
-//    //loss in ChIo
-//    if (quality==KVIDGChIoSi::k_BelowSeuilSi)
-//    {
-//        IDR->IDcode = GetZminCode();
-//        IDR->Z = fDEdet->FindZmin();
-//        IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
-//    }
-//    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
+	//    //Identified particles with subcode kID_LeftOfBragg are given
+	//    //general ID code kIDCode5 (Zmin).
+	//    if (IDR->IDquality==KVIDGChIoSi::k_LeftOfBragg)
+	//    {
+	//        IDR->IDcode = GetZminCode();
+	//    }
+	//    //unidentifiable particles with subcode kID_BelowSeuilSi are given
+	//    //general ID code kIDCode5 (Zmin) and we estimate Zmin from energy
+	//    //loss in ChIo
+	//    if (IDR->IDquality==KVIDGChIoSi::k_BelowSeuilSi)
+	//    {
+	//        IDR->IDcode = GetZminCode();
+	//        IDR->Z = fDEdet->FindZmin();
+	//        IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
+	//    }
+	//    if(IDR->IDquality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
 
     return kTRUE;
 }
@@ -116,9 +118,9 @@ void KVVAMOSIDTelescope::Initialize(){
     // Initialisation of grid is performed here.
     // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
 
-	fDEdet = GetDetector(1);
-	fEdet  = GetDetector(2);
-	fGrid  = (KVIDZAGrid *)GetIDGrid();
+	fDEdet = (KVVAMOSDetector *)GetDetector(1);
+	fEdet  = (KVVAMOSDetector *)GetDetector(2);
+	fGrid  = (KVIDZAGrid *)GetIDGrid(1);
     if ( fDEdet && fEdet && fGrid ){
         fGrid->Initialize();
         SetBit(kReadyForID);

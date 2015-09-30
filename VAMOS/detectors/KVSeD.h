@@ -22,6 +22,7 @@ class KVSeD : public KVVAMOSDetector
 
 		static KVString fACQParamTypes; //!types of available Acquision parameters
 		static KVString fPositionTypes; //!types of available positions
+		static Int_t    fNstripsOK;     //!minimum. numbers of strips for a good position measurement 
 
 
 	protected:
@@ -42,28 +43,31 @@ class KVSeD : public KVVAMOSDetector
    		virtual ~KVSeD();
    		void Copy (TObject&) const;
 
-   		virtual Float_t CalculateQThreshold(const Char_t dir);
+   		virtual Float_t CalculateQThreshold(Char_t dir);
    		virtual void  Clear(Option_t *option = "" );
    		virtual const Char_t* GetArrayName();
+   		virtual Double_t GetCalibT(const Char_t *type);
    		virtual const Char_t *GetTBaseName() const;
-   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
-   		virtual void    GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
-   		virtual UChar_t GetRawPosition(Double_t *XYZf);
-   		virtual Double_t GetRawPosition(const Char_t dir = 'X');
-   		virtual Double_t GetRawPosition2(const Char_t dir = 'X', Double_t min_amp = 100, Double_t min_sigma = 0.5, Double_t max_sigma = 3., Int_t maxNpeaks=10);
-		virtual UChar_t GetRawPositionError(Double_t *EXYZf);
-   		virtual Double_t GetRawPositionError(const Char_t dir = 'X');
-   		virtual TH1F *GetCleanQHisto(const Char_t dir = 'X');
-   		virtual TH1F *GetQrawHisto(const Char_t dir = 'X');
-   		virtual TH1F *GetQHisto(const Char_t dir = 'X');
+   		virtual UChar_t GetPosition(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
+   		virtual void    GetDeltaXYZf(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
+		using KVVAMOSDetector::GetRawPosition;
+   		virtual Double_t GetRawPosition(Char_t dir = 'X', Int_t num = 0);
+   		virtual Double_t GetRawPosition2(Char_t dir = 'X', Double_t min_amp = 100, Double_t min_sigma = 0.5, Double_t max_sigma = 3., Int_t maxNpeaks=10);
+		using KVVAMOSDetector::GetRawPositionError;
+   		virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num = 0);
+   		virtual TH1F *GetCleanQHisto(Char_t dir = 'X');
+   		virtual TH1F *GetQrawHisto(Char_t dir = 'X');
+   		virtual TH1F *GetQHisto(Char_t dir = 'X');
+		virtual KVFunctionCal *GetXfCorrectorOfT0( const Char_t *type );
    		virtual void Initialize();
    		virtual Bool_t PositionIsOK();
    		virtual void ResetCalculatedData();
    		virtual void SetACQParams();
    		virtual void SetCalibrators();
-   		virtual void ShowCleanQHisto(const Char_t dir = 'X', Option_t *opt = "");
-   		virtual void ShowQrawHisto(const Char_t dir = 'X', Option_t *opt = "");
-   		virtual void ShowQHisto(const Char_t dir = 'X', Option_t *opt = "");
+   		virtual void ShowCleanQHisto(Char_t dir = 'X', Option_t *opt = "");
+   		virtual void ShowQrawHisto(Char_t dir = 'X', Option_t *opt = "");
+   		virtual void ShowQHisto(Char_t dir = 'X', Option_t *opt = "");
+   		virtual void SetRawPosition(Double_t *XYf);
 
 
 

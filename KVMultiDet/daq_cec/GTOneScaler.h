@@ -42,6 +42,7 @@ public:
   void Set   (scale_struct *s);
 
   UInt_t GetCount(void) const {return(fCount);}
+  UInt_t GetStatus(void) const {return(fStatus);}
   
   void ls(Option_t* opt="") const;
 

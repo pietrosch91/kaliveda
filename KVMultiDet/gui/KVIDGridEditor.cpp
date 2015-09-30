@@ -99,6 +99,8 @@ KVIDGridEditor::KVIDGridEditor()
     lplabel5 = new KVHashList();
     lplabel5->SetOwner(kTRUE);
 
+	ResetScalingRecap();
+
     return;
 }
 
@@ -906,6 +908,8 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
 
     UpdateViewer();
 
+	ResetScalingRecap();
+
     return;
 }
 
@@ -1179,7 +1183,7 @@ void KVIDGridEditor::MakeTransformation()
 
     if((event==kButton1Up)&&(dlmode)&&(select))
     {
-        if(select->InheritsFrom("KVIDentifier"))
+        if(select->InheritsFrom("KVIDZALine"))
         {
             DeleteLine((KVIDentifier*)select);
         }
@@ -1187,6 +1191,7 @@ void KVIDGridEditor::MakeTransformation()
         {
             DeleteCut((KVIDentifier*)select);
         }
+		else if(select->InheritsFrom("KVIDQAMarker")) select->Delete();
     }
     if((event==kButton1Up)&&(select)&&(!dlmode))
     {
@@ -2190,6 +2195,10 @@ void KVIDGridEditor::MakeScaleX(Double_t scaleFactor)
     ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
 
     UpdateViewer();
+
+	fAx *= scaleFactor;
+	fBx  = fs->Eval(fBx);
+
     return;
 }
 
@@ -2207,6 +2216,10 @@ void KVIDGridEditor::MakeScaleY(Double_t scaleFactor)
     ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (0,fs);
     
     UpdateViewer();
+
+	fAy *= scaleFactor;
+	fBy  = fs->Eval(fBy);
+
     return;
 }
 
@@ -2214,40 +2227,20 @@ void KVIDGridEditor::MakeScaleY(Double_t scaleFactor)
 //________________________________________________________________
 void KVIDGridEditor::ScaleX(Int_t Sign)
 {
-    if(!TheGrid) return;
-    if(!ListOfLines) return;
-    if(ListOfLines->IsEmpty()) return;
-
     Double_t step   = 0.05*(imod/100.);
     Double_t factor = 1.+Sign*step;
-
-    x0 = fPivot->GetX()[0];
-
-    fs->SetParameters(x0,factor);
-    ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
-
-    UpdateViewer();
-    if(fDebug) cout << "INFO: KVIDGridEditor::ScaleX(): scaling on the X axis (*" << factor << ") !" << endl;
+	MakeScaleX( factor );
+    if(fDebug) Info("ScaleX","scaling on the X axis (*%f) !",factor);
     return;
 }
 
 //________________________________________________________________
 void KVIDGridEditor::ScaleY(Int_t Sign)
 {
-    if(!TheGrid) return;
-    if(!ListOfLines) return;
-    if(ListOfLines->IsEmpty()) return;
-
     Double_t step   = 0.05*(imod/100.);
     Double_t factor = 1.+Sign*step;
-
-    y0 = fPivot->GetY()[0];
-
-    fs->SetParameters(y0,factor);
-    ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (0,fs);
-    
-    UpdateViewer();
-    if(fDebug) cout << "INFO: KVIDGridEditor::ScaleY(): scaling on the Y axis (*" << factor << ") !" << endl;
+	MakeScaleY( factor );
+    if(fDebug) Info("ScaleY","scaling on the Y axis (*%f) !",factor);
     return;
 }
 
@@ -2270,7 +2263,13 @@ void KVIDGridEditor::ScaleXY(Int_t Sign)
     ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,fsy);
     
     UpdateViewer();
-    if(fDebug) cout << "INFO: KVIDGridEditor::ScaleXY(): scaling (*" << factor << ") !" << endl;
+
+	fAx *= factor;
+	fBx  = fs->Eval(fBx);
+	fAy *= factor;
+	fBy  = fsy->Eval(fBy);
+
+    if(fDebug) Info("ScaleXY","scaling (*%f) !",factor);
     return;
 }
 
@@ -2673,20 +2672,10 @@ void KVIDGridEditor::AddMethod(const char* theMethod)
     return;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void KVIDGridEditor::PrintScalingRecap(){
+	// Print a summary of X and Y scaling transformations (Sx, Sy, Sxy) 
+	// made since the last call of ResetScalingRecap();
+	Info("PrintScalingRecap",
+			"Scaling recap:\n  X --> %f X + %f\n  Y --> %f Y + %f"
+			, fAx, fBx, fAy, fBy);
+}

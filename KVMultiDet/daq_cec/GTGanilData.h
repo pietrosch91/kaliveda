@@ -95,6 +95,7 @@ public:
 
   GTDataParameters* GetDataParameters() const { return fDataParameters; };
   const TList* GetListOfDataParameters() const { return fDataParameters->GetList(); };
+  Int_t GetEventCount() const { return fEventCount; }
   
   virtual void SetUserTree(TTree*);
   

@@ -353,13 +353,15 @@ Bool_t KVVAMOSTransferMatrix::ReconstructFPtoLab( KVVAMOSReconTrajectory *traj){
 	// the result is store in the 'traj' object and the method returns true
 	// if the attempt is a success.
 
+	Bool_t ok = kFALSE;
+
 	if( !traj->FPparamsAreReady() ){
 		Error("ReconstructFPtoLab","Focal plane position parameters are not ready to reconstruct the trajectory");
-		return kFALSE;
+		return ok;
 	}
 	if( !IsReady() ){
 		Error("ReconstructFPtoLab","Not ready, the coefficients are missing");
-		return kFALSE;
+		return ok;
 	}
 
 	Double_t  XYTPf[4];
@@ -399,23 +401,63 @@ Bool_t KVVAMOSTransferMatrix::ReconstructFPtoLab( KVVAMOSReconTrajectory *traj){
 		}
 	}
 
-					
-	traj->path = res[kPath];                        //in cm
-	traj->Brho = res[kBrho] * gVamos->GetBrhoRef(); //in Tm
+	// the reconstruction is OK if it satisfies the condition:
+	//  Brho > 0.001        T.m 
+	//  -300 < Theta < 300  mrad
+	//  -300 < Phi   < 300  mrad
+	//     0 < path  < 2000 cm
+	if(     res[kBrho]>0.001 
+			&& 
+			-300.<res[kTheta] && res[kTheta]<300.
+ 		   	&&
+ 		   	-300.<res[kPhi] && res[kPhi]<300.
+ 		   	&&
+ 		   	0<res[kPath] && res[kPath]<2000.
+	  ){
+		traj->path = res[kPath];                        //in cm
+		traj->Brho = res[kBrho] * gVamos->GetBrhoRef(); //in Tm
 
-	Double_t theta = - res[kTheta]/1000;  // in rad
-	Double_t phi   = - res[kPhi  ]/1000;  // in rad
+		Double_t theta = - res[kTheta]/1000;  // in rad
+		Double_t phi   = - res[kPhi  ]/1000;  // in rad
 
-	Double_t X     = TMath::Sin( theta ) * TMath::Cos( phi );
-	Double_t Y     = TMath::Sin( phi   );
-	Double_t Z     = TMath::Cos( theta ) * TMath::Cos( phi );
+		Double_t X     = TMath::Sin( theta ) * TMath::Cos( phi );
+		Double_t Y     = TMath::Sin( phi   );
+		Double_t Z     = TMath::Cos( theta ) * TMath::Cos( phi );
 
-	traj->dirLab.SetXYZ( X, Y, Z );
-	traj->dirLab.RotateY( gVamos->GetAngle()*TMath::DegToRad() );
+		traj->dirLab.SetXYZ( X, Y, Z );
+		traj->dirLab.RotateY( gVamos->GetAngle()*TMath::DegToRad() );
+
+		ok = kTRUE;
+	}
 
 	traj->SetFPtoLabAttempted();
 
-	return kTRUE;
+	return ok;
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSTransferMatrix::ReconstructFPtoLab( Double_t x_f, Double_t y_f, Double_t theta_f, Double_t phi_f, Double_t &brho, Double_t &path, Double_t &theta_v, Double_t &phi_v){
+	// x_f and y_f in cm.
+	// phi_f, theta_f, phi_l and theta_l in degree.
+
+ 	static KVVAMOSReconTrajectory traj;
+
+	traj.pointFP[0] = x_f;
+	traj.pointFP[1] = y_f;
+	Double_t x = TMath::Sin( theta_f*TMath::DegToRad() )*TMath::Cos( phi_f*TMath::DegToRad() );
+	Double_t y = TMath::Sin( phi_f*TMath::DegToRad() );
+	Double_t z = TMath::Cos( theta_f*TMath::DegToRad() )*TMath::Cos( phi_f*TMath::DegToRad() );
+	traj.dirFP.SetXYZ( x, y, z );
+	traj.SetFPparamsReady();
+
+	Bool_t status = ReconstructFPtoLab( &traj );
+
+	path    = traj.GetPath();
+	brho    = traj.GetBrho();
+	theta_v = traj.GetThetaV();
+	phi_v   = traj.GetPhiV();
+
+	return status;
 }
 //________________________________________________________________
 

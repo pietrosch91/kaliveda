@@ -50,13 +50,13 @@ class KVIVReconEvent : public KVINDRAReconEvent
  		KVVAMOSReconNuc *GetNextNucleus(Option_t * opt = ""){ return fVAMOSev->GetNextNucleus( opt ); }
 		
      	KVVAMOSReconNuc *GetNucleus(Int_t n_nuc) const{ return fVAMOSev->GetNucleus( n_nuc ); }
+		KVVAMOSReconEvent *GetVAMOSEvent() const{ return fVAMOSev; }
 
 		Int_t GetINDRAMult(Option_t * opt = ""){ return KVINDRAReconEvent::GetMult( opt ); }
 
 		Int_t GetVAMOSMult(Option_t * opt = ""){ return fVAMOSev->GetMult( opt ); }
-		void  IdentifyVAMOSEvent_A(){ fVAMOSev->IdentifyEvent_A(); }
 
-		void  IdentifyVAMOSEvent_Z(){ fVAMOSev->IdentifyEvent_Z(); }
+		void  IdentAndCalibVAMOSEvent(){ fVAMOSev->IdentAndCalibEvent(); }
 
 		void ResetGetNextNucleus(){ fVAMOSev->ResetGetNextNucleus(); }
 

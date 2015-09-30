@@ -424,17 +424,20 @@ void DriftChamberv::InitRaw(void)
 #ifdef DEBUG
   cout << "DriftChamberv::InitRaw" << endl;
 #endif
-  for(Int_t i=0;i<2;i++)
-    E_Raw[i] = T_Raw[i] = 0.0;				// = 0 !!!!
-  for(Int_t i=0;i<64;i++)
+  for(Int_t i=0;i<2;i++){
+    E_Raw[i] = 0;
+    T_Raw[i] = 0;
+    }				// = 0 !!!!
+  for(Int_t i=0;i<64;i++){
     for(Int_t j=0;j<4;j++)
       {
 	Q_Raw[j*64+i] = 0;
 	Q_Raw_Nr[j*64+i] = 0;
       }
-  for(Int_t j=0;j<4;j++)
+     }
+  for(Int_t j=0;j<4;j++){
     Q_RawM[j] = 0;
-
+	}
 }
 
 void DriftChamberv::Init(void)
@@ -497,7 +500,7 @@ void DriftChamberv::Calibrate(void)
   if(T[1] > 0.0) Counter[4]++;
 	//L->Log<<"E[0] : "<<E[0]<<" "<<"E[1] : "<<E[1]<<" "<<"T[0] : "<<T[0]<<" "<<"T[1] : "<<T[1]<<endl;
 	
-  if(E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
+  if(T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
     {
     PresentWires = true;
     Counter[5]++;
@@ -600,6 +603,7 @@ void DriftChamberv::FocalSubseqX(void)
   Int_t FStrip[64];
   Int_t StripsWA;
   bool Neighbours;
+  bool MultiplePeak;
   Float_t v[6];
 
 
@@ -625,7 +629,6 @@ void DriftChamberv::FocalSubseqX(void)
 	}
 
 #ifdef MULTIPLEPEAK 
-  	  bool MultiplePeak;
      MultiplePeak = false;
       for(j=0;j<FStrip[0]-1;j++)
 	if((Q[j][i] > Q[j+1][i]))
@@ -978,7 +981,19 @@ void DriftChamberv::outAttach(TTree *outT)
   cout << "Attaching Drift variables" << endl;
 #endif
 
-  /*outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
+//==============================================
+// Test des charges des DC
+  outT->Branch("STRM1",Q_RawM+0,"Q_RawM+0/I");
+  outT->Branch("STRM2",Q_RawM+1,"Q_RawM+0/I");
+  outT->Branch("STRM3",Q_RawM+2,"Q_RawM+0/I");
+  outT->Branch("STRM4",Q_RawM+3,"Q_RawM+0/I");
+
+  outT->Branch("STR1",Q_Raw+0*64,"Q_Raw+0*64/S");
+  outT->Branch("STR2",Q_Raw+1*64,"Q_Raw+1*64/S");  
+  outT->Branch("STR3",Q_Raw+2*64,"Q_Raw+2*64/S");
+  outT->Branch("STR4",Q_Raw+3*64,"Q_Raw+3*64/S");   
+//==============================================
+  outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
   outT->Branch("DcEWire2",&E[1],"DcEWire2/F");
   outT->Branch("DcTWire1",&T_DCfrag[0],"DcTWire1/F");
   outT->Branch("DcTWire2",&T_DCfrag[1],"DcTWire2/F");  
@@ -986,7 +1001,7 @@ void DriftChamberv::outAttach(TTree *outT)
   outT->Branch("DcX1",&X[0],"DcX1/F");
   outT->Branch("DcX2",&X[1],"DcX2/F");
   outT->Branch("DcX3",&X[2],"DcX3/F");
-  outT->Branch("DcX4",&X[3],"DcX4/F");*/
+  outT->Branch("DcX4",&X[3],"DcX4/F");
 
   //  outT->Branch("DcXS1",&XS[0],"DcXS1/F");
   //  outT->Branch("DcXS2",&XS[1],"DcXS2/F");
@@ -998,13 +1013,13 @@ void DriftChamberv::outAttach(TTree *outT)
   //  outT->Branch("DcXWA3",&XWA[2],"DcXWA3/F");
   //  outT->Branch("DcXWA4",&XWA[3],"DcXWA4/F");
 
-  /*outT->Branch("DcY1",&Y[0],"DcY1/F");
+  outT->Branch("DcY1",&Y[0],"DcY1/F");
   outT->Branch("DcY2",&Y[1],"DcY2/F");
 
   outT->Branch("Xf",&Xf,"Xf/F");
   outT->Branch("Tf",&Tf,"Tf/F");
   outT->Branch("Yf",&Yf,"Yf/F");
-  outT->Branch("Pf",&Pf,"Pf/F");*/
+  outT->Branch("Pf",&Pf,"Pf/F");
 
   //  outT->Branch("Xf1",&Xf1,"Xf1/F");
 

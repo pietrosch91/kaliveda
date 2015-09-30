@@ -89,7 +89,7 @@ public:
     KVMultiDetArray();
     virtual ~KVMultiDetArray();
 
-    void SetFilterType(Int_t t){fFilterType=t;};
+    virtual void SetFilterType(Int_t t){fFilterType=t;};
     void init();
 
     virtual void Build(Int_t run=-1);

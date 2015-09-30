@@ -21,6 +21,8 @@ class KVVAMOSDetector : public KVSpectroDetector
 
 		TList         *fT0list; //! list of T0 saved in a KVNamedParameter
 		TList         *fTlist;  //! list of Time ACQ parameters
+		Int_t         fNmeasX;  // number of measured X positions
+		Int_t         fNmeasY;  // number of measured Y positions
 
 		void init();
    		virtual Bool_t Fired(Option_t *opt, Option_t *optP);
@@ -39,7 +41,11 @@ class KVVAMOSDetector : public KVSpectroDetector
    		virtual void   SetCalibrators();
    		virtual KVFunctionCal *GetECalibrator() const;
    		virtual Bool_t GetPositionInVamos(Double_t &X, Double_t &Y);
-   		virtual UChar_t GetRawPosition(Double_t *XYZf);
+   		virtual UChar_t  GetRawPosition(Double_t *XYZf);
+   		virtual Double_t GetRawPosition(Char_t dir = 'X', Int_t num=0);
+		virtual UChar_t GetRawPositionError(Double_t *EXYZf);
+   		virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num=0);
+
    		KVFunctionCal *GetTCalibrator(const Char_t *type) const;
 
 
@@ -105,6 +111,11 @@ class KVVAMOSDetector : public KVSpectroDetector
 		inline Bool_t IsUsedToMeasure( const Char_t *type ){
 			return KVVAMOS::IsUsedToMeasure( type, this );
 		}
+
+		inline Int_t GetNMeasuredX() const{ return fNmeasX; }
+		inline Int_t GetNMeasuredY() const{ return fNmeasY; }
+
+		inline Float_t  GetRawE(){ return GetACQData( GetEBaseName() ); }
 
    		ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };

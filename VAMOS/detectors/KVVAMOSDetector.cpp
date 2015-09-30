@@ -3,7 +3,6 @@
 
 #include "Riostream.h"
 #include "KVVAMOSDetector.h"
-#include "KVVAMOS.h"
 #include "KVNamedParameter.h"
 using namespace std;
 
@@ -75,6 +74,8 @@ void KVVAMOSDetector::Copy (TObject& obj) const
 void KVVAMOSDetector::init(){
 	fTlist     = NULL;
 	fT0list    = NULL;
+	fNmeasX = fNmeasY = 1; // from its volum a detector can be used
+	                       // to measured at least one position X and Y
 }
 //________________________________________________________________
 
@@ -193,7 +194,7 @@ void KVVAMOSDetector::SetCalibrators(){
 		calibtype.Append(" ");
 		calibtype.Append(par->GetName());
 
-		TF1 *func        = new TF1(par->GetName(),"pol1",0.,maxch);
+		TF1 *func        = new TF1(calibtype.Data(),"pol1",0.,maxch);
 		KVFunctionCal *c = new KVFunctionCal(this, func);
 		c->SetType( calibtype.Data() );
 		c->SetLabel( par->GetLabel() );
@@ -253,10 +254,53 @@ Bool_t KVVAMOSDetector::GetPositionInVamos(Double_t &X, Double_t &Y){
 //________________________________________________________________
 
 UChar_t KVVAMOSDetector::GetRawPosition(Double_t *XYZf){
+	// Returns in the 'XYZf' array the X and Y coordinates of the position (strip)
+	// deduced from the histogram representing the calibrated charge versus strip 
+	// number. The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
+	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSDetector::GetRawPosition(Char_t dir, Int_t num){
 	// Method overwritten and useful in child classes describing detectors
-	// used to measured position for the reconstruction of  nucleus 
+	// used to measured position in the direction 'dir' for the reconstruction of  nucleus 
 	// trajectory. For example, see this same method in the class KVSeD.
-	return 0;
+	// The argument 'num'=[1,2,...] is the number of the measured position if the
+	// detector is able to measured several positions (e.g. KVDriftChamber) 
+	// i.e. GetNMeasuredX() or GetNMeasuredY() is greater than 1. If num=0
+	// the mean value of the measured positions is returned.
+ return -500.;
+}
+//________________________________________________________________
+		
+UChar_t KVVAMOSDetector::GetRawPositionError(Double_t *EXYZf){
+	// Returns in the 'EXYZf' array the errors of X and Y coordinates of the position
+	// returned by GetRawPosition(...).
+	// The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (EXYZf[0]=GetRawPositionError('X')) < 0 ) rval -= 1;
+	if( (EXYZf[1]=GetRawPositionError('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSDetector::GetRawPositionError(Char_t dir, Int_t num ){
+	// Method overwritten and useful in child classes describing detectors
+	// which returns the error of the measured position in the direction 'dir' for the reconstruction of  nucleus 
+	// trajectory. For example, see this same method in the class KVSeD.
+	// The argument 'num'=[1,2,...] is the number of the measured position if the
+	// detector is able to measured several positions (e.g. KVDriftChamber) 
+	// i.e. GetNMeasuredX() or GetNMeasuredY() is greater than 1. If num=0
+	// the mean value of the measured position errors is returned.
+
+	return -500.;
 }
 //________________________________________________________________
 

@@ -44,7 +44,7 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
 	TList   *idtels = (TList *)fTGID->GetIDTelescopes();
 	TObject *idt    = NULL;
     TIter next_idt( idtels );
-	while( (idt = next_idt()) ) fTelescopes.Add( idt );
+	while( (idt = next_idt()) ) fTelescopes->Add( idt );
     delete idtels;
 
 	TString name(fTGID->GetName()); Int_t ver=1;

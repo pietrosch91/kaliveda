@@ -7,6 +7,8 @@
 #include"Random.h"
 #include "TTree.h"
 
+//const int MAXIC=7;
+
 class IonisationChamberv
 {
    Bool_t Ready;
@@ -18,10 +20,11 @@ class IonisationChamberv
   
   LogFile *L;
 
-  bool Present; 
+	Int_t NbChio;
+  //bool Present; 
 
   void Init(void); 
-  void InitRaw(void); 
+  void InitSavedQuantities(void); 
   void Calibrate(void); 
   void Show_Raw(void);
   void Show(void);
@@ -35,31 +38,22 @@ class IonisationChamberv
   Random *Rnd;
 
   //energy Raw
-  UShort_t E_Raw[7];		//UShort_t E_Raw[3*8]
-  UShort_t E_Raw_Nr[7];		//UShort_t E_Raw_Nr[3*8]
+  UShort_t *E_Raw;		
+  UShort_t *E_Raw_Nr;		 
+  Int_t *IcRaw;
   Int_t E_RawM;
-  UShort_t IC_Raw;
+  
+  Int_t *DetChio;
   
   //Calibration coeff
-  Float_t a[7];
-  Float_t b[7];
-  Float_t Vnorm[7];
-  
-  //Float_t ECoef[3][7][3];
+  Float_t *a;
+  Float_t *b;
+  Float_t *Vnorm;
 
   //energy Calibrated
-  Float_t E[7];			//Float_t E[3*8]
-  UShort_t ENr[3*8];		//UShort_t ENr[3*8]
-  Int_t EM;
+  Float_t *E;			
+  Int_t EMIC;
   
-  //Float_t ERef[3][2]; 	//Position & energy
-  //Float_t ES[3]; 		//Energy sum per row
-  
-  Float_t ETotal;	//Multiplicity
-  
-  //Float_t ETresh[3];
-  
-  Int_t Number;	//Multiplicity
   Float_t eloss;
 
   //Counters

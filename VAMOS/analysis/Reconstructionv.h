@@ -33,6 +33,7 @@ class Reconstructionv
   Random *Rnd;
 
   Float_t BrhoRef;
+  Float_t AngleVamos; // in degrees
   Float_t DDC1;   
   Float_t DSED1; 
   Float_t DDC2;
@@ -67,9 +68,17 @@ class Reconstructionv
   Float_t PhiLdeg; 
   Float_t Thetadeg;
   Float_t Phideg;
+  
+  Float_t Brho_always;
+  Float_t Theta_always;  
+  Float_t Phi_always;  
+  Float_t Path_always;
     
   //Counters
   Int_t Counter[6];
+
+  void SetBrhoRef( Float_t brho ){ BrhoRef = brho; }
+  void SetAngleVamos( Float_t theta ){ AngleVamos = theta; }
 
 ClassDef(Reconstructionv,0)
 

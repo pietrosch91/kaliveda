@@ -68,12 +68,20 @@ ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg
 endif
 
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+# before ROOT 5.32 xrootd libraries were in main ROOT installation
+XRDPOSIX = libXrdPosix
+else
+# since 5.32 xrootd is installed separately in $XRDSYS directory
+XRDPOSIX = libXrdPosixPreload
+endif
+
 ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(KVROOT)/lib -lgan_tape
 RLIBMAPDEPS += libgan_tape.so
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KV_INC += -DCCIN2P3_XRD
-RLIBMAPDEPS += libXrdPosix.so
+RLIBMAPDEPS += $(XRDPOSIX)
 endif
 endif
 ifeq ($(WITH_GRU_LIB),yes)
