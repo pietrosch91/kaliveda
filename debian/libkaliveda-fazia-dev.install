@@ -33,6 +33,7 @@
 /usr/include/kaliveda/KVFAZIASelector.h
 /usr/include/kaliveda/KVFAZIAReader.h
 /usr/include/kaliveda/KVFAZIADB.h
+/usr/include/kaliveda/KVFAZIAUpDater.h
 /usr/include/kaliveda/KVFAZIADBRun.h
 /usr/include/kaliveda/KVFAZIAIDSiSi.h
 /usr/include/kaliveda/KVFAZIAIDTelescope.h
