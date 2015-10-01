@@ -720,9 +720,8 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
     // If no default grid is defined for the specific type of this telescope,
     // the default defined by KVIDTelescope.DefaultGrid is used.
 
-    TString general = gEnv->GetValue("KVIDTelescope.DefaultGrid", "KVIDGraph");
     TString specific; specific.Form("KVIDTelescope.DefaultGrid.%s", GetLabel());
-    return gEnv->GetValue(specific.Data(), general.Data());
+    return gEnv->GetValue(specific.Data(), gEnv->GetValue("KVIDTelescope.DefaultGrid", "KVIDGraph"));
 }
 
 //_____________________________________________________________________________________________________//
