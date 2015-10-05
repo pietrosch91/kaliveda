@@ -338,7 +338,7 @@ void KVDBSystem::SetRuns(KVNumberList&rl)
             Info("SetRuns", "Could not add link for run %d", run_number);
          }
       } else {
-         Info("SetRuns", "Run %d not found in database", run_number);
+         //Info("SetRuns", "Run %d not found in database", run_number);
       }
    }
 }
