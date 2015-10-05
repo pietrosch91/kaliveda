@@ -15,7 +15,7 @@ the trajectory in the VAMOS spectrometer. This class is used both for the
 reconstruction from the focal plane to the target point and for the inverse
 reconstruction by the friend classes <a href="./KVVAMOSReconNuc.html">KVVAMOSReconNuc</a> and <a href="./KVVAMOSTransferMatrix.html">KVVAMOSTransferMatrix</a>.
 <figure><a name="FIG1"></a>
-<img src="images/kvvamosrecontrajectory_refframes.png"><br>
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/kvvamosrecontrajectory_refframes.png"><br>
 <figcaption>Fig1. - Representation of the trajectory at 
 the <a href="#FP">focal plane</a> and at the target point (<a href="#LAB">lab frame</a>) 
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

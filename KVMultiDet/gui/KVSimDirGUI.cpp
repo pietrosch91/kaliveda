@@ -28,7 +28,7 @@ ClassImp(KVSimDirGUI)
 /* -->
 <h2>KVSimDirGUI</h2>
 <h4>GUI for simulated data</h4>
-<img alt="KVSimDirGUI" src="images/KVSimDirGUI.png"><br><br>
+<img alt="KVSimDirGUI" src="http://indra.in2p3.fr/KaliVedaDoc/images/KVSimDirGUI.png"><br><br>
 <h3>See documentation <a href="KVSimDirGUIDoc/KVSimDirGUI.html">here</a>.</h3>
 <!-- */
 // --> END_HTML

@@ -24,9 +24,9 @@ ClassImp(KVIDGridEditor)
 /* -->
 <h2>KVIDGridEditor</h2>
 <h4>Editeur de grille d'identification</h4>
-<img alt="KVIDGridEditor" src="images/IDGridEditor.png"><br><br>
-Doc :  <a href="images/DocGridEditor.pdf"> DocGridEditor.pdf </a> (FR)
-Presentation de l'editeur : <a href="images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
+<img alt="KVIDGridEditor" src="http://indra.in2p3.fr/KaliVedaDoc/images/IDGridEditor.png"><br><br>
+Doc :  <a href="http://indra.in2p3.fr/KaliVedaDoc/images/DocGridEditor.pdf"> DocGridEditor.pdf </a> (FR)
+Presentation de l'editeur : <a href="http://indra.in2p3.fr/KaliVedaDoc/images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
 
 <!-- */
 // --> END_HTML

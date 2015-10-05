@@ -24,7 +24,7 @@ ClassImp(KVDetector)
 /*
 Begin_Html
 <h2>Base class for the description of detectors in multidetector arrays</h2>
-<img src="images/kvdetector_structure.gif">
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdetector_structure.gif">
 End_Html
 */
 //A detector is composed of one or more absorber layers (KVMaterial objects) in which the energy loss of charged particles can be calculated. One of these layers

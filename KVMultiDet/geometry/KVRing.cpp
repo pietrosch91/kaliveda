@@ -26,7 +26,7 @@ ClassImp(KVRing)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html
-//<img src="images/kvmultidetarray_diag.gif"><br>
+//<img src="http://indra.in2p3.fr/KaliVedaDoc/images/kvmultidetarray_diag.gif"><br>
 //
 //<h3>KVRing: set of telescopes with same polar angle</h3>
 //End_Html

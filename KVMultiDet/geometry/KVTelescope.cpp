@@ -81,7 +81,7 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
    //Simulates the passage of a charged particle through all detectors of the telescope, in the order in which they
    //were added to it (corresponding to rank given by GetDetectorRank()).
    //Begin_Html
-   //<img src="images/kvtelescope_detectparticle.gif">
+   //<img src="http://indra.in2p3.fr/KaliVedaDoc/images/kvtelescope_detectparticle.gif">
    //End_Html
    //It should be noted that
    // (1) the small variations in effective detector thickness due to the particle's angle of incidence are not, for the moment, taken into account

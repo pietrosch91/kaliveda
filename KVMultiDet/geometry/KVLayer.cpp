@@ -26,7 +26,7 @@ using namespace std;
 ClassImp(KVLayer)
 ////////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html
-//<img src="images/kvmultidetarray_diag.gif"><br>
+//<img src="http://indra.in2p3.fr/KaliVedaDoc/images/kvmultidetarray_diag.gif"><br>
 //
 //<h3>KVLayer: collection of rings in a multidetector array</h3>
 //End_Html

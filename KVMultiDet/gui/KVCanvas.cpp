@@ -28,7 +28,7 @@ TObject *gCopyObject = 0x0;
 <h2>KVCanvas</h2>
 TCanvas with mouse-controlled dynamic zoom and pan & scan.<br>
 
-<img alt="KVCanvas" src="images/KVCanvas.png"><br><br>
+<img alt="KVCanvas" src="http://indra.in2p3.fr/KaliVedaDoc/images/KVCanvas.png"><br><br>
 
 Dynamic zoom: left-click to draw rectangle around region of interest, release mouse button to zoom in<br>
 Zoom in: mouse wheel up<br>

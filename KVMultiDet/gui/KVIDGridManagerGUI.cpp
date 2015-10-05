@@ -36,7 +36,7 @@ ClassImp(KVIDGridManagerGUI)
 
  <h2>KVIDGridManagerGUI</h2>
  <h4><a name="fig1"></a></h4>
- <img alt="" src="images/newIDgridManager.png"
+ <img alt="" src="http://indra.in2p3.fr/KaliVedaDoc/images/newIDgridManager.png"
  style="width: 800px; height: 619px;"><br>
  <h4>Fig 1 : the main window of the ID Grid Manager</h4>
  

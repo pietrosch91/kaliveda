@@ -14,7 +14,7 @@ ClassImp(KVINDRAe503)
 <h2>KVINDRAe503</h2>
 <h4>INDRA multidetector array, configuration for experiments E503 & E494S</h4>
 
-<img src="images/indra_e503.png"><br>
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/indra_e503.png"><br>
 
 <!-- */
 // --> END_HTML
