@@ -476,13 +476,13 @@ void KVFAZIADB::ReadNewRunList()
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadExceptions()
 {
-	TString fp;
-	gDataSet->SearchKVFile(GetCalibFileName("Exceptions"),fp,gDataSet->GetName());
-   
-	if (fp=="") {
-		Error("ReadExceptions()", "No file foud for Exceptions");
+    if (!strcmp(GetCalibFileName("Exceptions"),"")) {
+        Info("ReadExceptions()", "No file found for Exceptions");
       return;
    }
+
+    TString fp;
+    gDataSet->SearchKVFile(GetCalibFileName("Exceptions"),fp,gDataSet->GetName());
 
 	KVFileReader fr;
 	if (!fr.OpenFileToRead(fp.Data())){
@@ -497,7 +497,7 @@ void KVFAZIADB::ReadExceptions()
 	
 	ll->SetOwner(kFALSE);
 	while (fr.IsOK())
-	{
+    {
 		fr.ReadLine(":");
 		if (fr.GetNparRead()==2)
 		{
@@ -560,13 +560,13 @@ void KVFAZIADB::ReadExceptions()
 void KVFAZIADB::ReadComments()
 {
 	
-	TString fp;
-	gDataSet->SearchKVFile(GetCalibFileName("Comments"),fp,gDataSet->GetName());
-   
-	if (fp=="") {
-		Error("ReadRuns()", "No file foud for Comments");
+    if(!strcmp(GetCalibFileName("Comments"),"")) {
+        Info("ReadComments()", "No file foud for Comments");
       return;
    }
+    TString fp;
+	gDataSet->SearchKVFile(GetCalibFileName("Comments"),fp,gDataSet->GetName());
+   
 
 	KVFileReader fr;
 	if (!fr.OpenFileToRead(fp.Data())){
