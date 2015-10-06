@@ -73,16 +73,16 @@ class KVBase:public TNamed {
    Bool_t HasLabel() const { return fLabel.Length(); }
    virtual void Print(Option_t * option = "") const;
    virtual void List() {
-   };
+   }
    virtual void SetNumber(UInt_t num) {
       fNumber = num;
-   };
+   }
    UInt_t GetNumber() const {
       return fNumber;
-   };
+   }
    UInt_t GetNumberOfObjects() const {
       return fNbObj;
-   };
+   }
    virtual void Clear(Option_t * opt = "");
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
@@ -90,7 +90,6 @@ class KVBase:public TNamed {
    virtual void Copy(TObject &);
 #endif
 
-   static Bool_t ArrContainsValue(Int_t n, Int_t * arr, Int_t val);
    static Bool_t SearchKVFile(const Char_t * name, TString & fullpath,
                               const Char_t * kvsubdir = "");
    static Bool_t SearchAndOpenKVFile(const Char_t * name, std::ifstream & file,

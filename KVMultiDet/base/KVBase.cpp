@@ -378,19 +378,6 @@ void KVBase::Print(Option_t * ) const
    cout << endl;
 }
 
-Bool_t KVBase::ArrContainsValue(Int_t n, Int_t * arr, Int_t val)
-{
-   //Utility function which returns kTRUE if value "val" is among the values
-   //contained in the array "arr" of "n" members.
-   //On the contrary to TMath::BinarySearch, it is not necessary to sort the
-   //array beforehand.
-   while (n--) {
-      if (arr[n] == val)
-         return kTRUE;
-   }
-   return kFALSE;
-}
-
 void KVBase::Streamer(TBuffer & R__b)
 {
    //Backwards compatible streamer for KVBase objects
