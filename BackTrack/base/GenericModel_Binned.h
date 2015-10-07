@@ -39,78 +39,94 @@ namespace BackTrack {
    class GenericModel_Binned : public KVBase
     {
       ClassDef(GenericModel_Binned,1)//Generic model for backtracing studies
+      
 
-      protected:
+    protected:
       
-      RooArgList    fParameters;                 // the parameters of the model
-      RooArgList    fObservables;                // the observables of the data
-      RooArgList    fParObs;                     // the parameters and observables, used for construction of the dataset from the model tree
-      
-      Int_t   fNDataSets;		         // internal counter of model datasets  
-      Int_t   fSmoothing;		         // histpdf smoothing factor  	 
-      Bool_t  fBool_extended;		         // to know if fit is extended or not
-      Bool_t  fBool_good_workspace;	         // to know if worksapce was initialized 
-      Bool_t  fBool_prov_workspace;	         // to know if we have an imported workspace (for the SaveWorkspace() call)          
-      Bool_t  fBool_saved_workspace;		 // to know if workspace is indeed saved with the SaveWorkspace() method
-      Bool_t  fBool_init_weights;		 // to know if initial weights are given
-      
-      
-      TObjArray  fDataSetParams;        // list model parameters for each dataset
-      TObjArray  fDataSets;             // list of model datasets
-      TObjArray  fHistPdfs;             // pseudo-pdfs for each dataset
+      RooDataHist&  fDataHist;            // Experimental RooDataHist to fit
+      RooWorkspace *fWorkspace;           // workspace for the fit
+      char* fwk_name;                     // name of the initial saved workspace  
+             
+      Int_t   fNDataSets;	          // internal counter of model datasets  
+      Int_t   fSmoothing;	          // histpdf smoothing factor     
+      Bool_t  fBool_extended;	          // extended/not extended fit
+      Bool_t  fBool_uniform_weights;      // uniform/not uniform guess for parameters 
+      Bool_t  fBool_numint;               // to force integrals to be calculated numerically for the pseudo-PDF
+      Bool_t  fBool_saved_workspace;	  // to know if workspace is indeed saved with the SaveWorkspace() method    
+        
       RooArgList fWeights;              // fitted weight of each pseudo-pdf in result
-      NewRooAddPdf* fModelPseudoPDF;       // pseudo-pdf for model to fit data
+      NewRooAddPdf* fModelPseudoPDF;    // pseudo-pdf for model to fit data
       RooArgList fFractions;            // weights of each kernel in pseudo pdf
       vector<Double_t> *fInitWeights;   // initital weights 
-      RooWorkspace *fWorkspace;         // workspace for the fit
-      NewRooFitResult* fLastFit;           // result of last fit
+      NewRooFitResult* fLastFit;        // result of last fit
       RooHistPdf*   fParameterPDF;      // pdf for parameters after fit to data
-      RooDataHist*  fParamDataHist;     // binned parameter dataset used to construct fParameterPDF
+      RooDataHist*  fParamDataHist;     // binned parameter dataset used to construct fParameterPDF   
       
-      char* fwk_name;                   // name of the initial saved workspace 
-            
-      Bool_t IsExtended() { return fBool_extended; }
-      Bool_t IsWorkspaceInitialized() { return fBool_good_workspace; }
-      Bool_t IsWorkspaceProvided() { return fBool_prov_workspace; }
-      Bool_t IsWorkspaceSaved() { return fBool_saved_workspace; } 
-                       
+          
+      
+//       RooArgList    fParameters;                 // the parameters of the model
+//       RooArgList    fObservables;                // the observables of the data
+//       RooArgList    fParObs;                     // the parameters and observables, used for construction of the dataset from the model tree            
+//       Bool_t  fBool_good_workspace;	         // to know if worksapce was initialized 
+//       Bool_t  fBool_prov_workspace;	         // to know if we have an imported workspace (for the SaveWorkspace() call)                      
+//       TObjArray  fDataSetParams;        // list model parameters for each dataset
+//       TObjArray  fDataSets;             // list of model datasets
+//       TObjArray  fHistPdfs;             // pseudo-pdfs for each dataset
+
+       
+      // Internal checking     
+      const Bool_t IsExtended() const { return fBool_extended; }
+      const Bool_t IsUniformWeights() const { return fBool_uniform_weights; } 
+      const Bool_t IsNumInt() const { return fBool_numint; }
+      const Bool_t VerifyWorkspace(Bool_t debug=kFALSE);                 
+      const Bool_t IsWorkspaceProvided() const { return fBool_prov_workspace; }
+      const Bool_t IsWorkspaceSaved() const { return fBool_saved_workspace; } 
+      
+      // Saving                 
       void SaveInitWorkspace(char* file);
       void SavePseudoPDF(char* file);      
-      void ConstructPseudoPDF(vector<Double_t> *weights, Int_t exp_integral, Bool_t numint, Bool_t save, Bool_t debug); 
             
+	    
 	                
-      public:
+    public:
       
       GenericModel_Binned();
       virtual ~GenericModel_Binned();
       
+      // Fit caracteristics
+      void SetExperimentalDataHist(RooDataHist& data);
       void SetExtended(Bool_t extended=kFALSE);
-      void InitWorkspace();  
+      void SetNumInt(Bool_t numint=kFALSE); 
+      void SetInitWeights(vector<Double_t>* vec);
+      void SetUniformInitWeights(Double_t exp_integral);      
+      void InitWorkspace(); 
       void SetWorkspace(RooWorkspace* w);
       void SetWorkspaceFileName(char *file);  
       char* GetWorkspaceFileName() { return fwk_name; }    
       
+      // Add parameters/Observables
       void AddParameter(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins);
       void AddParameter(const RooRealVar&, Int_t nbins);
-      Int_t GetNumberOfParameters();
       void AddObservable(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins);
       void AddObservable(const RooRealVar&, Int_t nbins);
-      Int_t GetNumberOfObservables();
       RooRealVar* GetParameter(const char* name) { return dynamic_cast<RooRealVar*> (GetParameters().find(name)); }
       RooRealVar* GetParameter(int num) { return dynamic_cast<RooRealVar*> (GetParameters().at(num)); }	   
       RooRealVar* GetObservable(const char* name) { return  dynamic_cast<RooRealVar*> (GetObservables().find(name)); }
-      RooRealVar* GetObservable(int num) { return dynamic_cast<RooRealVar*> (GetObservables().at(num)); }      
-      RooArgList& GetParameters();
-      RooArgList& GetObservables();
-      RooArgList& GetParObs();
-            
+      RooRealVar* GetObservable(int num) { return dynamic_cast<RooRealVar*> (GetObservables().at(num)); } 
+      const Int_t GetNumberOfParameters();
+      const Int_t GetNumberOfObservables();     
+      const RooArgList& GetParameters();
+      const RooArgList& GetObservables();
+      const RooArgList& GetParObs();
+      
+      // Model data      
       void AddModelData(RooArgList& params, RooDataHist* data);
       virtual RooDataHist* GetModelDataHist(RooArgList& par);
-
       void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0);
       void ImportModelData(Bool_t save);
       
-      Int_t GetNumberOfDataSets();
+            
+      const Int_t GetNumberOfDataSets();
       TObjArray* GetDataSetParametersList();
       RooArgList* GetParametersForDataset(Int_t i);
 
@@ -120,11 +136,9 @@ namespace BackTrack {
       //const TObjArray* GetKernelsList();
       //const RooNDKeysPdf* GetKernel(Int_t i);
 
-      void SetInitWeights(vector<Double_t>* vec);
-      void SetUniformInitWeights(Double_t exp_integral);
-      
-      void  ConstructPseudoPDF(vector<Double_t> *weights, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
-      void  ConstructPseudoPDF(Int_t exp_integral, Bool_t numint=kFALSE, Bool_t save=kFALSE, Bool_t debug=kFALSE);  
+
+      // PseudoPDF and Fit
+      void  ConstructPseudoPDF(Bool_t save=kFALSE, Bool_t debug=kFALSE);   
       const NewRooAddPdf* GetPseudoPDF() const { return fModelPseudoPDF; }
       const RooArgList& GetPseudoPDFFractions() const { return fFractions; }
       const RooHistPdf* GetParameterPDF() const { return fParameterPDF; }

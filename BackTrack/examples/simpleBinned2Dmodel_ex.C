@@ -26,7 +26,7 @@
 #include "TH2.h"
 
 #include "Simple2DModel_Binned.h"
-//#include "NewRooGlobalFunc.h"     // To add new RooCmd
+#include "NewRooGlobalFunc.h"     // To add new RooCmd
 
 using namespace RooFit;
 //using namespace MyGlobalFunc;
@@ -93,9 +93,9 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    model->ImportModelData(kTRUE); 
    model->ConstructPseudoPDF(model->GetInitWeights(), kTRUE, kFALSE, kFALSE);
    //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(kFALSE), Offset(kTRUE));
-   //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(model->IsExtended()), Offset(kTRUE), SetEpsilon(0.1), Range("RANGE"), SetMaxCalls(500000), SetMaxIter(500000));
-   //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLMultiMin","conjugatefr"), Extended(kFALSE), Offset(kTRUE));   
-   model->fitTo(datahist, Save(), NumCPU(4), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLSimAn"), Extended(kFALSE), Offset(kTRUE)); //, SetEpsilon(0.01), SetMaxCalls(500000));
+   model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(kFALSE), Offset(kTRUE), SetMaxIter(500000), SetMaxCalls(500000));
+   //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLMultiMin","conjugatefr"), Extended(kFALSE), Offset(kTRUE), SetMaxCalls(500000), SetMaxIter(500000));   
+   //model->fitTo(datahist, Save(), NumCPU(4), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLSimAn"), Extended(kFALSE), Offset(kTRUE)); //, SetEpsilon(0.01), SetMaxCalls(500000));
  
 
    //==================

@@ -62,10 +62,11 @@ namespace BackTrack {
   GenericModel_Binned::GenericModel_Binned()
   {  
     fBool_extended        =kFALSE;    //By default not extended fit
+    fBool_init_weights    =kFALSE;
+        
     fBool_saved_workspace =kFALSE;       	  
     fBool_prov_workspace  =kFALSE;    
     fBool_good_workspace  =kFALSE;
-    fBool_init_weights    =kFALSE;
     
     fInitWeights = new vector<Double_t>();
     
@@ -113,6 +114,13 @@ namespace BackTrack {
   }
   
   
+  void SetNumInt(Bool_t numint);   
+  {
+    //Force the integrals to be calculated numerically for the pseudo-PDF construction and calculations
+    fBool_numint = numint;
+  }  
+  
+    
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void GenericModel_Binned::AddParameter(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins)
   {
@@ -196,12 +204,11 @@ namespace BackTrack {
     return (RooArgList*) GetDataSetParametersList()->At(i); 
   }
   
-    
-    
+        
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const TObjArray* GenericModel_Binned::GetDataHistsList()
   {
-    // Return the kernel estimation PDF for the i-th imported dataset
+    // Return the kernel estimation PDF for the imported dataset
     return (TObjArray*) fWorkspace->obj("_datahistset");
   }
   
@@ -212,7 +219,7 @@ namespace BackTrack {
   } 
     
 
-  Int_t GenericModel_Binned::GetNumberOfDataSets() 
+  const Int_t GenericModel_Binned::GetNumberOfDataSets() 
   {  
     const Int_t size = (int) ((TObjArray*) fWorkspace->obj("_datahistset"))->GetEntriesFast();
     return size; 
@@ -257,67 +264,68 @@ namespace BackTrack {
   }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   void GenericModel_Binned::ImportModelData(Bool_t save)
   {  
-   if(IsWorkspaceProvided()==kTRUE)
+    if(IsWorkspaceProvided()==kTRUE)
       {
         Info("ImportModelData", "RooWorspace for fit already provided, no importation needed !!!");
         return;
       } 
   
-   else
+    else
       { 
-       Int_t parameter_num=0;
-       RooArgList* plist=0;
-       ImportModelData(parameter_num, plist);
-       if(save==kTRUE) SaveInitWorkspace(GetWorkspaceFileName());
+	Int_t parameter_num=0;
+	RooArgList* plist=0;
+	ImportModelData(parameter_num, plist);
+	if(save==kTRUE) SaveInitWorkspace(GetWorkspaceFileName());
        	
-//        //debug
-//        for(Int_t ii=0; ii< GetNumberOfDataSets();ii++)
-//           {
-//            RooArgList* listpar = GetParametersForDataset(ii);
-//            RooRealVar *par1 = (RooRealVar*) listpar->at(0);
-//            RooRealVar *par2 = (RooRealVar*) listpar->at(1);	   
-//            Double_t val1 = par1->getVal();
-//            Double_t val2 = par2->getVal();
-//            Double_t max1 = par1->getMax();
-//            Double_t max2 = par2->getMax(); 
-//            Double_t min1 = par1->getMin();
-//            Double_t min2 = par2->getMin();
-//            
-//            printf("[datasetparam%d] min1=%e , max1=%e, val1=%e, min2=%e, max2=%e, val2=%e\n", ii, min1, max1, val1, min2, max2, val2); 
-//           }        
+	//        //debug
+	//        for(Int_t ii=0; ii< GetNumberOfDataSets();ii++)
+	//           {
+	//            RooArgList* listpar = GetParametersForDataset(ii);
+	//            RooRealVar *par1 = (RooRealVar*) listpar->at(0);
+	//            RooRealVar *par2 = (RooRealVar*) listpar->at(1);	   
+	//            Double_t val1 = par1->getVal();
+	//            Double_t val2 = par2->getVal();
+	//            Double_t max1 = par1->getMax();
+	//            Double_t max2 = par2->getMax(); 
+	//            Double_t min1 = par1->getMin();
+	//            Double_t min2 = par2->getMin();
+	//            
+	//            printf("[datasetparam%d] min1=%e , max1=%e, val1=%e, min2=%e, max2=%e, val2=%e\n", ii, min1, max1, val1, min2, max2, val2); 
+	//           }        
       }
   }
+  
 
-
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   void GenericModel_Binned::ImportModelData(Int_t parameter_num, RooArgList* plist)
   {
     // Import all model datasets corresponding to the defined parameters, ranges & binnings  
-	RooArgList PLIST;
-	if(plist) PLIST.addClone(*plist);
-	RooRealVar* par = GetParameter(parameter_num);
-	RooAbsBinning& bins = par->getBinning();
-	Int_t N = bins.numBins();
-	RooRealVar* par_in_list = (RooRealVar*)PLIST.find(par->GetName());
+    RooArgList PLIST;
+    if(plist) PLIST.addClone(*plist);
+    RooRealVar* par = GetParameter(parameter_num);
+    RooAbsBinning& bins = par->getBinning();
+    Int_t N = bins.numBins();
+    RooRealVar* par_in_list = (RooRealVar*)PLIST.find(par->GetName());
    
-	if(!par_in_list)
-	  {
-	    PLIST.addClone(RooRealVar(par->GetName(),par->GetTitle(),0.));
-	    par_in_list = (RooRealVar*)PLIST.find(par->GetName());
-	  }
+    if(!par_in_list)
+      {
+	PLIST.addClone(RooRealVar(par->GetName(),par->GetTitle(),0.));
+	par_in_list = (RooRealVar*)PLIST.find(par->GetName());
+      }
    
-	for(int i=0; i<N; i++)
-	  {
-	    par_in_list->setMax(bins.binHigh(i));
-	    par_in_list->setMin(bins.binLow(i));
-	    par_in_list->setVal(bins.binCenter(i));
+    for(int i=0; i<N; i++)
+      {
+	par_in_list->setMax(bins.binHigh(i));
+	par_in_list->setMin(bins.binLow(i));
+	par_in_list->setVal(bins.binCenter(i));
 	    	
-	    if((parameter_num+1)<GetNumberOfParameters()) ImportModelData(parameter_num+1,&PLIST);
+	if((parameter_num+1)<GetNumberOfParameters()) ImportModelData(parameter_num+1,&PLIST);
 	    
-	    else AddModelData(PLIST, GetModelDataHist(PLIST));
-	  }	         
+	else AddModelData(PLIST, GetModelDataHist(PLIST));
+      }	         
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
@@ -328,15 +336,16 @@ namespace BackTrack {
      * /!\ For an extended fit, the entries of experimental RooHistPdf must be taken into account by the user when creating the weights vector /!\
      * the vector given must have the same size of the product of parameters bins
      * (defined by the user with the AddParameter() method
-     * the values must be ranked like in the call of GetModelDataSet().
-     */
+     * the values must be ranked like in the call of GetModelDataSet() method.
+    */
 
     Int_t vec_size        = (int) weights->size();
     const Int_t num_data  = GetNumberOfDataSets(); 
      
+    //Verify if same number of weights and DataSets 
     if(vec_size==num_data)
       {       
-        fBool_init_weights=kTRUE;
+        fBool_uniform_weights=kFALSE;
 	fInitWeights = weights;
       }
         
@@ -344,19 +353,6 @@ namespace BackTrack {
     else
       {
         Error("SetInitWeights", "...Wrong vector size (size=%d) compared to number of provided model DataSet (n_datasets=%d)...", vec_size, num_data);
-	
-	//if not-extended fit we can still set uniform parameters
-	if(IsExtended()==kFALSE)
-	  {
-	    Info("SetInitWeights", "...Setting uniform initial values for the not extended fit...");
-	    SetUniformInitWeights(1.); 
-	  }
-	   
-	else 
-	  {
-	   fBool_init_weights=kFALSE;
-	   return;
-	  }   
       }              	
   }
    
@@ -367,7 +363,7 @@ namespace BackTrack {
     //For a not extended no need to provide the experimental integral
     
     Double_t integral  =1.;
-    fBool_init_weights = kFALSE;
+    fBool_uniform_weights = kTRUE;
         
     if(IsExtended()==kTRUE)
       {
@@ -395,21 +391,7 @@ namespace BackTrack {
   } 
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  void GenericModel_Binned::ConstructPseudoPDF(vector<Double_t> *weights, Bool_t numint, Bool_t save, Bool_t debug) 
-  {
-    //For a chosen parameter initial distribution
-    ConstructPseudoPDF(weights, 1., numint, save, debug);
-  }
-  
-  void GenericModel_Binned::ConstructPseudoPDF(Int_t exp_integral, Bool_t numint, Bool_t save, Bool_t debug)
-  {
-   //For uniform parameter initial distribution
-   ConstructPseudoPDF(0, exp_integral, numint, save, debug);
-  } 
-  
-  
-  
-  void GenericModel_Binned::ConstructPseudoPDF(vector<Double_t> *weights, Int_t exp_integral, Bool_t numint, Bool_t save, Bool_t debug)
+  void GenericModel_Binned::ConstructPseudoPDF(Bool_t save, Bool_t debug)
   {
     //Build a parameterised pseudo-PDF from all the imported model datasets.
     //Each dataset will be transformed into a RooHistPdf.  
@@ -429,8 +411,8 @@ namespace BackTrack {
       }    
        
     //-------------For the weights initialization--------------       
-    if(weights!=0)  SetInitWeights(weights);        
-    else SetUniformInitWeights(exp_integral);
+    if(fInitWeights==0)  Error("ConstructPseudoPDF", "Initial guess of parameters not given... use SetInitWeights() or SetUniformWeights() first...");        
+
 
     if(fModelPseudoPDF)
       {
@@ -459,7 +441,7 @@ namespace BackTrack {
 	    last=i;        //For extended fit  
       
 	    RooHistPdf *pdf = new RooHistPdf(Form("HistPdf%d",i), Form("RooHistPdf from datahist#%d",i), GetObservables(), *set, fSmoothing);
-	    if(numint==kTRUE) pdf->forceNumInt(kTRUE); 
+	    pdf->forceNumInt(IsNumInt()); 
 	 		      
 	    ((TObjArray*) fWorkspace->obj("_histpdfset"))->Add(pdf);      
 	    kernels.add(*pdf);
@@ -521,15 +503,15 @@ namespace BackTrack {
       }  
       
     if(save==kTRUE)
-       { 
-         SavePseudoPDF(GetWorkspaceFileName());
-       } 
+      { 
+	SavePseudoPDF(GetWorkspaceFileName());
+      } 
   }
     
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   NewRooFitResult* GenericModel_Binned::fitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
-					                         const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8,
-								 const RooCmdArg& arg9, const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
+					      const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8,
+					      const RooCmdArg& arg9, const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
   {
     //Print informations
     Info("fiTo...","performing fit with %d parameters and %d observables", GetNumberOfParameters(), GetNumberOfObservables());
@@ -548,8 +530,12 @@ namespace BackTrack {
         Info("fiTo...","observable%d: name=%s, min=%e, max=%e, nbin=%d",ii, p->GetName(),p->getMin(),p->getMax(),N); 
       }  
     
+    printf("FIT STARTING !!!!\n");
+    
     //Fit
     fLastFit = fModelPseudoPDF->improvedFitTo(data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
+    
+    printf("SAVING COEFS !!!\n");
      
     //Save Coefs
     SafeDelete(fParamDataHist);
@@ -579,6 +565,8 @@ namespace BackTrack {
     SafeDelete(fParameterPDF);
     fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist); 
      
+    printf("FIT FINISHED !\n");
+     
     return fLastFit;
   }
     
@@ -604,26 +592,33 @@ namespace BackTrack {
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   void GenericModel_Binned::InitWorkspace()
   {   	
-    fBool_prov_workspace = kFALSE;
-    fBool_good_workspace = kTRUE;
+    RooArgList par;
+    RooArgList obs;
+    RooArgList parobs;
+    TObjArray  dataset;     
+    TObjArray  datasetpar;   
+    TObjArray  histpdf;	   
         
     //init new workspace
     Info("initWorkspace ...", "Workspace not given...creating one...");  
     
     fWorkspace = new RooWorkspace("_workspace","RooWorkspace for the fit");
-    fWorkspace->import(fParameters, "_parameters");
-    fWorkspace->import(fObservables, "_observables");
-    fWorkspace->import(fParObs,"_parobs");
-    fWorkspace->import(fDataSets,"_datahistset");
-    fWorkspace->import(fDataSetParams,"_datasetparams");
-    fWorkspace->import(fHistPdfs,"_histpdfset");    
+    fWorkspace->import(par, "_parameters");
+    fWorkspace->import(obs, "_observables");
+    fWorkspace->import(parobs,"_parobs");
+    fWorkspace->import(dataset,"_datahistset");
+    fWorkspace->import(datasetpar,"_datasetparams");
+    fWorkspace->import(histpdf,"_histpdfset");   
+    
+    VerifyWorkspace(); 
   }
   
   
   //////////////////////////////////////////////////////////////////////////////////////////////////////    
-  void GenericModel_Binned::SetWorkspace(RooWorkspace* workspace)
+  void GenericModel_Binned::ImportWorkspace(RooWorkspace* workspace)
   {  
-    fBool_prov_workspace = kTRUE;
+    fWorkspace = workspace;
+    VerifyWorkspace();
      
     RooArgList* par    = NULL;
     RooArgList* obs    = NULL;
@@ -718,30 +713,124 @@ namespace BackTrack {
   }
 
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////  
+  Bool_t GenericModel_Binned::VerifyWorkspace(Bool_t debug)
+  {
+    Bool_t good_workspace = kTRUE;
+  
+    //If empty worksapce...
+    if(fWorkspace==0)
+      {
+        Error("VerifyWorkspace...", "Empty workspace or no workspace provided...");
+	good_workspace=kFALSE;
+      } 
+       
+    else
+      {       
+	RooArgList* par    = NULL;
+	RooArgList* obs    = NULL;
+	RooArgList* parobs = NULL;
+	TObjArray*  dat    = NULL;
+	TObjArray*  datpar = NULL;        
+      
+	//------Parameters------       
+	par  = (RooArgList*) fWorkspace->obj("_parameters");    
+	if(par==0)	   
+	  {
+	    Error("VerifyWorkspace ...", "_parameters NOT found...");
+	    good_workspace=kFALSE;
+	  }
+	  
+	else
+	  {
+	    if(debug==kTRUE) Info("VerifyWorkspace ...", "_parameters found...");
+	  } 	 
+   
+	//------Observables-----
+	obs = (RooArgList*) fWorkspace->obj("_observables");
+	if(obs==0)
+	  {
+	    Error("VerifyWorkspace ...", "_observables NOT found...");
+	    good_workspace=kFALSE;
+	  }
+          
+	else
+	  {
+	    if(debug==kTRUE)  Info("VerifyWorkspace ...", "_observables found...");
+	  }
+       	 
+	//----------ParObs-------  
+	parobs  = (RooArgList*) fWorkspace->obj("_parobs");
+	if(parobs==0)
+	  {
+	    Error("VerifyWorkspace ...", "_parobs NOT found...");
+	    good_workspace=kFALSE;
+	  }
+	   
+	else 
+	  {
+	    if(debug==kTRUE) Info("VerifyWorkspace ...", "_parobs found...");
+	  }	
+   
+	//-------DataSets------
+	dat = (TObjArray*)  fWorkspace->obj("_datahistset");
+	if(dat==0)
+	  {
+	    Error("VerifyWorkspace ...", "_datahistset NOT found...");
+	    good_workspace=kFALSE;
+	  }
+	   
+	else
+	  {
+	    if(debug==kTRUE) Info("VerifyWorkspace ...", "_datahistset found...");
+	  }
+	 
+	//-------DataSets Parameters-------
+	datpar = (TObjArray*)  fWorkspace->obj("_datasetparams");
+	if(datpar==0)
+	  {
+	    Error("VerifyWorkspace ...", "_datasetparams NOT found...");
+	    good_workspace=kFALSE;
+	  }
+	   
+	else
+	  {
+	    if(debug==kTRUE) Info("VerifyWorkspace ...", "_datasetparams found...");
+	  }
+	
+      }	  
+	 
+    return good_workspace;	    		         
+  }
+  
+
+
+
+
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////  
   void GenericModel_Binned::SetWorkspaceFileName(char *file)
   {
-   fwk_name = file;
+    fwk_name = file;
   }
   
    
   void GenericModel_Binned::SaveInitWorkspace(char *file)
   {  
     /*
-    * To save an initial worksapce for further fits
-    * Will save the needed objects for the performing another fit
+     * To save an initial worksapce for further fits
+     * Will save the needed objects for the performing another fit
      without generating the new RooDataSets (can be long)
      will contain: _parameters
-                   _obsevables
-		   _parobs
-		   _datahistset
-		   _datasetparams
-    * This workspace can then be used with SetWorkspace() method	   
-    * By default not saved and saved in a file which name will contain
+     _obsevables
+     _parobs
+     _datahistset
+     _datasetparams
+     * This workspace can then be used with SetWorkspace() method	   
+     * By default not saved and saved in a file which name will contain
      observables informations
-    * If workspace already provided, will not save it again   
-    */ 
+     * If workspace already provided, will not save it again   
+     */ 
       
     if(fBool_prov_workspace==kFALSE)
       {	      
@@ -760,40 +849,40 @@ namespace BackTrack {
 	InitWorkspace->import(datpar,"_datasetparams");
 	       
         if(file==0)
-           {
-	   //For name
+	  {
+	    //For name
 	    TString ss0("_PARA");
             for(Int_t ii=0;ii<GetNumberOfParameters();ii++)
               {	    	  
-	       RooArgList ll = GetParameters();
-	       RooRealVar vv = *((RooRealVar*) ll.at(ii));
-	       TString ss1(Form("_%s[%.1lf,%.1lf,%d]",vv.GetName(),vv.getMin(),vv.getMax(),vv.getBins()));
-	       ss0+=ss1;	    
+		RooArgList ll = GetParameters();
+		RooRealVar vv = *((RooRealVar*) ll.at(ii));
+		TString ss1(Form("_%s[%.1lf,%.1lf,%d]",vv.GetName(),vv.getMin(),vv.getMax(),vv.getBins()));
+		ss0+=ss1;	    
               }
 	
-	   TString ss2("_OBS");  
-	   for(Int_t ii=0;ii<GetNumberOfObservables();ii++)
-             {	    	  
-	       RooArgList ll = GetObservables();
-	       RooRealVar vv = *((RooRealVar*) ll.at(ii));
-	       TString ss3(Form("_%s[%.1lf,%.1lf,%d]",vv.GetName(),vv.getMin(),vv.getMax(),vv.getBins()));
-	       ss2+=ss3;	    
-             }  
+	    TString ss2("_OBS");  
+	    for(Int_t ii=0;ii<GetNumberOfObservables();ii++)
+	      {	    	  
+		RooArgList ll = GetObservables();
+		RooRealVar vv = *((RooRealVar*) ll.at(ii));
+		TString ss3(Form("_%s[%.1lf,%.1lf,%d]",vv.GetName(),vv.getMin(),vv.getMax(),vv.getBins()));
+		ss2+=ss3;	    
+	      }  
 	
-	   ss0+=ss2;
+	    ss0+=ss2;
 		  			  
-	   InitWorkspace->writeToFile(Form("workspace%s.root",ss0.Data()),"recreate");
+	    InitWorkspace->writeToFile(Form("workspace%s.root",ss0.Data()),"recreate");
 	
-	   Info("SaveWorkspace", "Saving created RooDataSet workspace in file 'workspace%s.root'", ss0.Data());
-	   fBool_saved_workspace = kTRUE;
-	   }
+	    Info("SaveWorkspace", "Saving created RooDataSet workspace in file 'workspace%s.root'", ss0.Data());
+	    fBool_saved_workspace = kTRUE;
+	  }
 	
 	else
-	   {
-	     InitWorkspace->writeToFile(Form("%s.root",file),"recreate");	
-	     Info("SaveWorkspace", "Saving Created RooDatSet workspace in file '%s.root'", file);	
-             fBool_saved_workspace = kTRUE;  
-	   }
+	  {
+	    InitWorkspace->writeToFile(Form("%s.root",file),"recreate");	
+	    Info("SaveWorkspace", "Saving Created RooDatSet workspace in file '%s.root'", file);	
+	    fBool_saved_workspace = kTRUE;  
+	  }
       }
     
     //If workspace given by SetWorkspace() method 
@@ -810,16 +899,16 @@ namespace BackTrack {
     //To save the PDF generated with ConstructPseudoPDF() method
   
     if(file==0)
-       {       
+      {       
         fWorkspace->writeToFile("_PseudoPDF.root","recreate");
         Info("ConstructPseudoPdf","...workspace of results saved in file '_fitresults.root'..."); 
-       }	 
+      }	 
      
     else
-       {
+      {
         fWorkspace->writeToFile(Form("%s.root", file), "recreate");
 	Info("ConstructPseudoPdf","...workspace of results saved in file '%s.root'...", file); 
-       }     
+      }     
   }
     
     
