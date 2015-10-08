@@ -5,9 +5,9 @@
 #include "NewRooGlobalFunc.h"
 #include "NewRooMinimizer.h"
 #include "NewRooMinuit.h"
-#include "NewRooAddition.h"
-#include "NewRooNLLVar.h"
-#include "NewRooAbsReal.h"
+//#include "NewRooAddition.h"
+//#include "NewRooNLLVar.h"
+//#include "NewRooAbsReal.h"
 
 #include "RooFit.h"
 #include "RooMsgService.h" 
@@ -292,7 +292,7 @@ NewRooAddPdf::~NewRooAddPdf()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-NewRooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
+RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
 					             const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8,
 						     const RooCmdArg& arg9, const RooCmdArg& arg10, const RooCmdArg& arg11, const RooCmdArg& arg12)
 {
@@ -310,7 +310,7 @@ NewRooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooCmdArg&
   
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-NewRooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList& cmdList)   
+RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList& cmdList)   
 {
   // Fit PDF to given dataset. If dataset is unbinned, an unbinned maximum likelihood is performed. If the dataset
   // is binned, a binned maximum likelihood is performed. By default the fit is executed through the MINUIT

@@ -7,10 +7,11 @@
 #include "RooFit.h"
 #include "RooAddPdf.h"
 #include "RooAddPdf.h"
-#include "NewRooFitResult.h"
 #include "RooAbsReal.h"
 #include "RooArgList.h"
-#include "NewRooAbsReal.h"
+
+//#include "NewRooFitResult.h"
+//#include "NewRooAbsReal.h"
 
 using namespace RooFit;
 
@@ -28,8 +29,8 @@ public:
    
    virtual NewRooAddPdf* clone(const char* newname) const { return new NewRooAddPdf(*this,newname) ; }
    
-   virtual NewRooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) ;
-   virtual NewRooAbsReal* createNLL(RooAbsData& data, const RooCmdArg& arg1=RooCmdArg::none(),  const RooCmdArg& arg2=RooCmdArg::none(),  
+   virtual RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) ;
+   virtual RooAbsReal* createNLL(RooAbsData& data, const RooCmdArg& arg1=RooCmdArg::none(),  const RooCmdArg& arg2=RooCmdArg::none(),  
 				const RooCmdArg& arg3=RooCmdArg::none(),  const RooCmdArg& arg4=RooCmdArg::none(), const RooCmdArg& arg5=RooCmdArg::none(),  
 				const RooCmdArg& arg6=RooCmdArg::none(),  const RooCmdArg& arg7=RooCmdArg::none(), const RooCmdArg& arg8=RooCmdArg::none()) ;
    
@@ -38,11 +39,11 @@ public:
    virtual ~NewRooAddPdf();
    
    
-   NewRooFitResult* improvedFitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(),
+   RooFitResult* improvedFitTo(RooDataHist& data, const RooCmdArg& arg1 = RooCmdArg::none(), const RooCmdArg& arg2 = RooCmdArg::none(), const RooCmdArg& arg3 = RooCmdArg::none(), const RooCmdArg& arg4 = RooCmdArg::none(),
                                                   const RooCmdArg& arg5 = RooCmdArg::none(), const RooCmdArg& arg6 = RooCmdArg::none(), const RooCmdArg& arg7 = RooCmdArg::none(), const RooCmdArg& arg8 = RooCmdArg::none(),
 						  const RooCmdArg& arg9 = RooCmdArg::none(), const RooCmdArg& sarg10 = RooCmdArg::none(), const RooCmdArg& arg11 = RooCmdArg::none(), const RooCmdArg& arg12 = RooCmdArg::none());
 						  
-   NewRooFitResult* improvedFitTo(RooDataHist& data, const RooLinkedList& cmdList);
+   RooFitResult* improvedFitTo(RooDataHist& data, const RooLinkedList& cmdList);
 		   
    
 
