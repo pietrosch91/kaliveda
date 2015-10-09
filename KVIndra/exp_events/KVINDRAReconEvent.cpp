@@ -474,7 +474,7 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
    TIter parts2(grp->GetParticles()); // list may have changed if we have added particles
    // identify & calibrate any remaining particles with status=KVReconstructedNucleus::kStatusOK
    while( (nuc = (KVINDRAReconNuc*)parts2()) ){
-   	if(!nuc->IsIdentified() && nuc->GetStatus()==KVReconstructedNucleus::kStatusOK && !nuc->IsIdentified()){
+        if(!nuc->IsIdentified() && nuc->GetStatus()==KVReconstructedNucleus::kStatusOK){
    		nuc->ResetNSegDet();
    		nuc->Identify();
    		if(nuc->IsIdentified()) {
