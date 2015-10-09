@@ -3,8 +3,9 @@
 
 int main(int argc, char **argv)
 {
-   TRint *myapp=new TRint("kaliveda",&argc,argv,NULL,0);
    KVBase::InitEnvironment();
+   TRint *myapp=new TRint("kaliveda",&argc,argv,NULL,0);
+   myapp->SetPrompt("kaliveda [%d] ");
    myapp->Run();
    return 0;
 }
