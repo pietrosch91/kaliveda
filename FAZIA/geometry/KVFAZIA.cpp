@@ -201,9 +201,4 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
     
 }
 
-void KVFAZIA::GetIDTelescopes(KVDetector *de, KVDetector *e, TCollection *idtels)
-{
-    // Add some ID telescopes for FAZIA array
-    // Everything is managed using KVIDTelescope plugins defined in . kvrootrc
-	KVMultiDetArray::GetIDTelescopes(de,e,idtels);
-}
+
