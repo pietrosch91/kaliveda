@@ -2,7 +2,7 @@
 # up to date as of 9/10/2015
 style=stroustrup
 mode=c
-align-pointer=name
+align-pointer=type
 indent=spaces=3
 indent-switches
 indent-cases
@@ -13,3 +13,5 @@ convert-tabs
 pad-header
 pad-oper
 unpad-paren
+preserve-date
+lineend=linux
