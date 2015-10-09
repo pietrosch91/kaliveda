@@ -45,6 +45,11 @@ set(WITH_GIT_INFOS)
 set(WITH_BZR_INFOS)
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git OR EXISTS ${PROJECT_SOURCE_DIR}/KVGitInfo.h)
    set(WITH_GIT_INFOS yes)
+   #-enforce coding style
+   #-make sure git pre-commit hook is in place
+   if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+      execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/tools/git-hook-pre-commit.sh ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+   endif()
 elseif(EXISTS ${PROJECT_SOURCE_DIR}/.bzr OR EXISTS ${PROJECT_SOURCE_DIR}/KVBzrInfo.h)
    set(WITH_BZR_INFOS yes)
 endif()
