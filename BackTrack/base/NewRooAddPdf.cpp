@@ -5,6 +5,7 @@
 #include "NewRooGlobalFunc.h"
 #include "NewRooMinimizer.h"
 #include "NewRooMinuit.h"
+#include "NewRooFitResult.h"
 //#include "NewRooAddition.h"
 //#include "NewRooNLLVar.h"
 //#include "NewRooAbsReal.h"
@@ -502,14 +503,14 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
       }
       
       if (doSumW2==1 && m.getNPar()>0) {
-	// Make list of NewRooNLLVar components of FCN
+	// Make list of RooNLLVar components of FCN
 	RooArgSet* comps = nll->getComponents();
-	vector<NewRooNLLVar*> nllComponents;
+	vector<RooNLLVar*> nllComponents;
 	nllComponents.reserve(comps->getSize());
 	TIterator* citer = comps->createIterator();
 	RooAbsArg* arg;
 	while ((arg=(RooAbsArg*)citer->Next())) {
-	  NewRooNLLVar* nllComp = dynamic_cast<NewRooNLLVar*>(arg);
+	  RooNLLVar* nllComp = dynamic_cast<RooNLLVar*>(arg);
 	  if (!nllComp) continue;
 	  nllComponents.push_back(nllComp);
 	}
@@ -518,13 +519,13 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
 	
 	// Calculated corrected errors for weighted likelihood fits
 	NewRooFitResult* rw = m.save();
-	for (vector<NewRooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
+	for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
 	  (*it)->applyWeightSquared(kTRUE);
 	}
 	coutI(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
 	m.hesse();
 	NewRooFitResult* rw2 = m.save();
-	for (vector<NewRooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
+	for (vector<RooNLLVar*>::iterator it = nllComponents.begin(); nllComponents.end() != it; ++it) {
 	  (*it)->applyWeightSquared(kFALSE);
 	}
 	
@@ -635,13 +636,13 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
       
       if (doSumW2==1 && m.getNPar()>0) {
 	
-	// Make list of NewRooNLLVar components of FCN
-	list<NewRooNLLVar*> nllComponents ;
+	// Make list of RooNLLVar components of FCN
+	list<RooNLLVar*> nllComponents ;
 	RooArgSet* comps = nll->getComponents() ;
 	RooAbsArg* arg ;
 	TIterator* citer = comps->createIterator() ;
 	while((arg=(RooAbsArg*)citer->Next())) {
-	  NewRooNLLVar* nllComp = dynamic_cast<NewRooNLLVar*>(arg) ;
+	  RooNLLVar* nllComp = dynamic_cast<RooNLLVar*>(arg) ;
 	  if (nllComp) {
 	    nllComponents.push_back(nllComp) ;
 	  }
@@ -651,13 +652,13 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
 	
 	// Calculated corrected errors for weighted likelihood fits
 	NewRooFitResult* rw = m.save() ;
-	for (list<NewRooNLLVar*>::iterator iter1=nllComponents.begin() ; iter1!=nllComponents.end() ; iter1++) {
+	for (list<RooNLLVar*>::iterator iter1=nllComponents.begin() ; iter1!=nllComponents.end() ; iter1++) {
 	  (*iter1)->applyWeightSquared(kTRUE) ;
 	}
 	coutI(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName() << ") Calculating sum-of-weights-squared correction matrix for covariance matrix" << endl ;
 	m.hesse() ;
 	NewRooFitResult* rw2 = m.save() ;
-	for (list<NewRooNLLVar*>::iterator iter2=nllComponents.begin() ; iter2!=nllComponents.end() ; iter2++) {
+	for (list<RooNLLVar*>::iterator iter2=nllComponents.begin() ; iter2!=nllComponents.end() ; iter2++) {
 	  (*iter2)->applyWeightSquared(kFALSE) ;
 	}
 	
@@ -730,7 +731,7 @@ Bool_t NewRooAddPdf::addOwnedComponents(const RooArgSet& comps, Bool_t silent)
 
 
 //_____________________________________________________________________________
-NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
+RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooCmdArg& arg1, const RooCmdArg& arg2, const RooCmdArg& arg3, const RooCmdArg& arg4, 
                                              const RooCmdArg& arg5, const RooCmdArg& arg6, const RooCmdArg& arg7, const RooCmdArg& arg8) 
 {
   // Construct representation of -log(L) of PDFwith given dataset. If dataset is unbinned, an unbinned likelihood is constructed. If the dataset
@@ -788,7 +789,7 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooCmdArg& arg1, 
 
 
 //_____________________________________________________________________________
-NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdList) 
+RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdList) 
 {
   // Construct representation of -log(L) of PDFwith given dataset. If dataset is unbinned, an unbinned likelihood is constructed. If the dataset
   // is binned, a binned likelihood is constructed. 
@@ -919,13 +920,13 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cm
 
   // Construct NLL
   RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CollectErrors) ;
-  NewRooAbsReal* nll ;
+  RooAbsReal* nll ;
   string baseName = Form("nll_%s_%s",GetName(),data.GetName()) ;
   if (!rangeName || strchr(rangeName,',')==0) {
     // Simple case: default range, or single restricted range
     //cout<<"FK: Data test 1: "<<data.sumEntries()<<endl;
 
-    nll = new NewRooNLLVar(baseName.c_str(),"-log(likelihood)",*this,data,projDeps,ext,rangeName,addCoefRangeName,numcpu,interl,verbose,splitr,cloneData) ;
+    nll = new RooNLLVar(baseName.c_str(),"-log(likelihood)",*this,data,projDeps,ext,rangeName,addCoefRangeName,numcpu,interl,verbose,splitr,cloneData) ;
 
   } else {
     // Composite case: multiple ranges
@@ -935,7 +936,7 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cm
     strlcpy(buf,rangeName,bufSize) ;
     char* token = strtok(buf,",") ;
     while(token) {
-      RooAbsReal* nllComp = new NewRooNLLVar(Form("%s_%s",baseName.c_str(),token),"-log(likelihood)",*this,data,projDeps,ext,token,addCoefRangeName,numcpu,interl,verbose,splitr,cloneData) ;
+      RooAbsReal* nllComp = new RooNLLVar(Form("%s_%s",baseName.c_str(),token),"-log(likelihood)",*this,data,projDeps,ext,token,addCoefRangeName,numcpu,interl,verbose,splitr,cloneData) ;
       
       //debug
       printf("ADD IN NLLLIST\n");
@@ -944,7 +945,7 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cm
       token = strtok(0,",") ;
     }
     delete[] buf ;
-    nll = new NewRooAddition(baseName.c_str(),"-log(likelihood)",nllList,kTRUE) ;
+    nll = new RooAddition(baseName.c_str(),"-log(likelihood)",nllList,kTRUE) ;
   }
   RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::PrintErrors) ;
   
@@ -999,7 +1000,7 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cm
     //debug
     printf("NewRooAddition\n");
      
-    nll = new NewRooAddition(Form("%s_with_constr",baseName.c_str()),"nllWithCons",RooArgSet(*nll,*nllCons)) ;
+    nll = new RooAddition(Form("%s_with_constr",baseName.c_str()),"nllWithCons",RooArgSet(*nll,*nllCons)) ;
     
    //debug
     printf("FINISHED NewRooAddition\n");
@@ -1026,7 +1027,7 @@ NewRooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cm
   if (doOffset) {
     //debug
     printf("DOOFFSET\n");
-    nll->enableSilentOffsetting(kTRUE) ;   //Modified for no checkForDup() messages
+    //nll->enableSilentOffsetting(kTRUE) ;   //Modified for no checkForDup() messages
   }
 
   

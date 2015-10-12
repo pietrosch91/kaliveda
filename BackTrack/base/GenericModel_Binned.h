@@ -52,43 +52,40 @@ namespace BackTrack {
       Int_t   fSmoothing;	          // histpdf smoothing factor 
       Bool_t  fBool_expdatahist_set;      // verify if the experimental RooDataHist was given
       Bool_t  fBool_extended;	          // extended/not extended fit
-      Bool_t  fBool_uniform_weights;      // uniform/not uniform guess for parameters 
+      Bool_t  fBool_uniform;              // uniform/not uniform guess for parameters 
       Bool_t  fBool_numint;               // to force integrals to be calculated numerically for the pseudo-PDF
       Bool_t  fBool_provided;             // to control the ImportModelData()
-      Bool_t  fBool_saved_workspace;	  // to know if workspace is indeed saved with the SaveWorkspace() method    
+      Bool_t  fBool_saved;	          // to know if workspace is indeed saved with the SaveWorkspace() method    
         
-      RooArgList fWeights;                 // fitted weight of each pseudo-pdf in result
-      NewRooAddPdf* fModelPseudoPDF;       // pseudo-pdf for model to fit data
-      RooArgList fFractions;               // weights of each kernel in pseudo pdf
-      vector<Double_t> *fInitWeights;      // initital weights 
-      RooFitResult* fLastFit;              // result of last fit
-      RooHistPdf*      fParameterPDF;      // pdf for parameters after fit to data
-      RooDataHist*     fParamDataHist;     // binned parameter dataset used to construct fParameterPDF   
-      TObjArray        fHistPdfs;          // pseudo-pdfs for each dataset     
-          
-      
-//       RooArgList    fParameters;                 // the parameters of the model
-//       RooArgList    fObservables;                // the observables of the data
-//       RooArgList    fParObs;                     // the parameters and observables, used for construction of the dataset from the model tree            
-//       Bool_t  fBool_good_workspace;	         // to know if worksapce was initialized 
-//       Bool_t  fBool_prov_workspace;	         // to know if we have an imported workspace (for the SaveWorkspace() call)                      
-//       TObjArray  fDataSetParams;        // list model parameters for each dataset
-//       TObjArray  fDataSets;             // list of model datasets
-
-
+      RooArgList        fWeights;              // fitted weight of each pseudo-pdf in result
+      NewRooAddPdf*     fModelPseudoPDF;       // pseudo-pdf for model to fit data
+      RooArgList        fFractions;            // weights of each kernel in pseudo pdf
+      vector<Double_t>* fInitWeights;          // initital weights 
+      RooFitResult*     fLastFit;              // result of last fit
+      RooHistPdf*       fParameterPDF;         // pdf for parameters after fit to data
+      RooDataHist*      fParamDataHist;        // binned parameter dataset used to construct fParameterPDF   
+      TObjArray         fHistPdfs;             // pseudo-pdfs for each dataset     
+         
+	 
        
       // Internal checking  
       Bool_t IsExpDataHistSet() const {return fBool_expdatahist_set; }   
       Bool_t IsExtended() const { return fBool_extended; }
-      Bool_t IsUniformWeights() const { return fBool_uniform_weights; } 
+      Bool_t IsUniformInitWeight() const { return fBool_uniform; } 
       Bool_t IsNumInt() const { return fBool_numint; }
       Bool_t VerifyWorkspace(Bool_t debug=kFALSE);		   
       Bool_t IsWorkspaceProvided() const { return fBool_provided; }
-      Bool_t IsWorkspaceSaved() const { return fBool_saved_workspace; } 
+      Bool_t IsWorkspaceSaved() const { return fBool_saved; } 
       
-      // Saving                 
-      void SaveInitWorkspace(char* file);
-      void SavePseudoPDF(char* file);      
+      // For uniform guess: will take into account the experimental number of events for an extended fit
+      void CreateUniformInitWeight(Double_t exp_counts); 
+      
+      // Save
+      void CreateWorkspaceSaving(char *file);
+//      void SavePseudoPDF(char* file); 
+
+      // For data importation
+      void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0);     
             
 	    
 	                
@@ -99,16 +96,16 @@ namespace BackTrack {
       
       // Fit caracteristics
       void SetExperimentalDataHist(RooDataHist& data);
+      Int_t GetExpectedCounts() { return fexpdatahist_counts; }
+      void SetUniformInitWeight(Bool_t uni=kTRUE);
+      void SaveInitWorkspace(char* file=0);
+      char* GetInitWorkspaceFileName() { return fwk_name; }   
       void SetExtended(Bool_t extended=kFALSE);
-      void SetNumInt(Bool_t numint=kFALSE); 
-      void SetInitWeights(vector<Double_t>* vec);
-      void SetUniformInitWeights(Double_t exp_integral);      
+      void SetNumInt(Bool_t numint=kFALSE);      
       void InitWorkspace(Bool_t debug=kFALSE); 
       void ImportWorkspace(RooWorkspace* w, Bool_t debug=kTRUE);
-      
-      void SetWorkspaceFileName(char *file);  
-      char* GetWorkspaceFileName() { return fwk_name; }    
-      
+              
+       
       // Add parameters/Observables
       void AddParameter(const char* name, const char* title, Double_t min, Double_t max, Int_t nbins);
       void AddParameter(const RooRealVar&, Int_t nbins);
@@ -127,8 +124,12 @@ namespace BackTrack {
       // Model data      
       void AddModelData(RooArgList& params, RooDataHist* data);
       virtual RooDataHist* GetModelDataHist(RooArgList& par);
-      void ImportModelData(Int_t parameter_num = 0, RooArgList* plist = 0);
-      void ImportModelData(Bool_t save);
+      void ImportAllModelData();
+      
+      // Initial guess/weights for the fit
+      void AddParamInitWeight(RooArgList& params, Double_t weight);
+      virtual Double_t GetParamInitWeight(RooArgList& par);
+      void ImportParamInitWeight(Int_t parameter_num = 0, RooArgList* plist = 0);
       
             
       Int_t GetNumberOfDataSets();

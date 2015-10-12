@@ -44,12 +44,13 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    
    
    //----------Init weights histogram--------
-   TFile *fileh = new TFile("./histo_par1_par2.root");
-   TH2F *histo = (TH2F*) fileh->Get("fittedParameters");
+//    TFile *fileh = new TFile("./histo_par1_par2.root");
+//    TH2F *histo = (TH2F*) fileh->Get("fittedParameters");
    //TH2F *histo = (TH2F*) fileh->Get("dummy");
 
-   model = new BackTrack::Simple2DModel_Binned();   
-   model->InitParObs(histo, 1);
+   model = new BackTrack::Simple2DModel_Binned(); 
+   model->InitWorkspace();  
+   model->InitParObs();
    
    //===========================
    //==     "EXP" DATASET     ==
@@ -77,8 +78,6 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    //Create the "experimental" RooDataHist used for the fit  with the RooDataSet 
    //generated just before
    RooDataHist datahist("datahist_exp","input parameters", model->GetObservables(), data);
-   //Keep the number of entries in the DataHist if we want an extended fit
-   Double_t ndata_entries= datahist.sumEntries();
    
 //    Modify the ranges for the fit
 //    model->GetObservable("obs1")->setRange("RANGE",-10,32);
@@ -88,10 +87,15 @@ void simple2Dmodel_ex(Int_t statexp, Int_t statmod)
    //==    BACKTRACKING       ==
    //===========================
    //Initialise the BackTracking
+   model->SetExperimentalDataHist(datahist);
+   model->SaveInitWorkspace();
+   model->SetNumInt(kTRUE);
    model->SetExtended(kFALSE);
+   model->SetUniformInitWeight(kTRUE);
    model->SetNumGen(statmod);
-   model->ImportModelData(kTRUE); 
-   model->ConstructPseudoPDF(model->GetInitWeights(), kTRUE, kFALSE, kFALSE);
+   model->ImportAllModelData(); 
+   model->ImportParamInitWeight();
+   model->ConstructPseudoPDF(kFALSE);
    //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(kFALSE), Offset(kTRUE));
    model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("TMinuit","migrad"), Extended(kFALSE), Offset(kTRUE), SetMaxIter(500000), SetMaxCalls(500000));
    //model->fitTo(datahist, Save(), NumCPU(6), SumW2Error(kTRUE), PrintLevel(1), Minimizer("GSLMultiMin","conjugatefr"), Extended(kFALSE), Offset(kTRUE), SetMaxCalls(500000), SetMaxIter(500000));   

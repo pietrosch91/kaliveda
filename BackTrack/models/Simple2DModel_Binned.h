@@ -21,24 +21,26 @@ namespace BackTrack {
 
       ClassDef(Simple2DModel_Binned,1)   //Simple model to test backtrack procedures
       
-      protected:
+    protected:
 
       Int_t fNGen;                      //Number of events to generate for each dataset
-      vector<Double_t> *ffweight;       //Guess on the parameters for the fit   
+      TH2D  *fdistri;
       
+      void InitPar();
+      void InitObs();
       
-      
-      public:
+            
+    public:
       
       Simple2DModel_Binned();
       virtual ~Simple2DModel_Binned();
        
-      void InitParObs(TH2F *hh_par, Double_t exp_int);                                     //Initialize parameters and observables
-      void InitObs();                                                                   //Initialize observables
-      void InitPar(TH2F *hh_par, Double_t exp_int);                                        //Initialize parameters according to histo and experimental entries for the fit       
-      vector<Double_t>* GetInitWeights() { return ffweight; }                           //To get the initial weights
+      void InitParObs();                                                                //Initialize parameters and observables 
+      void SetParamDistribution(TH2D *distri);                                                      //Initialize the guess on parameters according to a 2-D distribution              
       RooDataHist* GetModelDataHist(RooArgList &par);                                   //Definition for the virtual method for GenericModel_Binned class  
+      Double_t GetParamInitiWeight(RooArgList &par);                                    //To get the initial weights
       void generateEvent(const RooArgList& parameters, RooDataSet& data);               //Generate one event for the model
+      Double_t generateWeight(const RooArgList& parameters, TH2D* distri);              //Generate guess/weight for the
       void SetNumGen(Int_t n) { fNGen=n; }                                              //Number of events to generate
       Int_t GetNumGen() const { return fNGen; }      
       TH1* GetParameterDistributions();                                                 //For drawings after the fit

@@ -26,20 +26,16 @@ namespace BackTrack {
 
   Simple2DModel_Binned::Simple2DModel_Binned()
   {
-    fNGen     = 0;  
-    ffweight  = new vector<Double_t>();
-    ffweight  = NULL;	 	        
+    fNGen     = 0;  	        
   }
       
    
-  void Simple2DModel_Binned::InitParObs(TH2F *histo_par, Double_t exp_int)
-  {
-    InitWorkspace();    
-    InitPar(histo_par, exp_int);
+  void Simple2DModel_Binned::InitParObs()
+  {   
+    InitPar();
     InitObs();
   }
-   
-   
+      
    
   void Simple2DModel_Binned::InitObs()
   {
@@ -48,51 +44,21 @@ namespace BackTrack {
   } 
    
    
-  void Simple2DModel_Binned::InitPar(TH2F *hh, Double_t exp_int)
+  void Simple2DModel_Binned::InitPar()
   {
-    //if no workspace given :uniform weights distribution 
-    if(hh==0)	
-       { 
-        Info("InitPar", "...no parameters histogram provided, setting default values...");
-   	AddParameter("par1","parameter #1",0,10,10);
-   	AddParameter("par2","parameter #2",-20,20,20);
-	SetUniformInitWeights(exp_int);
-       }
-
-    else
-       {
-         Info("InitPar", "...parameters histogram provided, setting given values...");
-        //Normalization of histo
-        hh->Scale(exp_int/hh->Integral());
+    AddParameter("par1","parameter #1",0,10,10);
+    AddParameter("par2","parameter #2",-20,20,20);
+  } 
+   
+   
+//////////////////////////////////////////////////////////////////////////////////////////////  
+  void Simple2DModel_Binned::SetParamDistribution(TH2D *distri)
+  {
+   fdistri=distri;
+  }
  
-        Int_t      nbins_par1   = hh->GetNbinsX();
-        Int_t      nbins_par2   = hh->GetNbinsY();
-        Double_t   width_par1   = hh->GetXaxis()->GetBinWidth(1);
-        Double_t   width_par2   = hh->GetYaxis()->GetBinWidth(1);
-        Double_t   par1_min	= hh->GetXaxis()->GetBinCenter(1) - width_par1/2.;   
-        Double_t   par1_max	= hh->GetXaxis()->GetBinCenter(nbins_par1)+ width_par1/2.;
-        Double_t   par2_min	= hh->GetYaxis()->GetBinCenter(1) - width_par2/2.;   
-        Double_t   par2_max	= hh->GetYaxis()->GetBinCenter(nbins_par2)+ width_par2/2.;
-      
-        //Add Parameters
-        AddParameter("par1",  "par1",  par1_min, par1_max, nbins_par1);
-        AddParameter("par2",  "par2",  par2_min, par2_max, nbins_par2); 
-	
-	//SetInitWeights 		    
-        for(Int_t ii=1; ii<=nbins_par1 ;ii++)
-	   {
-	    for(Int_t jj=1; jj<=nbins_par2 ;jj++)
-	       {
-	    	 Double_t val = (Double_t) hh->GetBinContent(ii,jj);
-	    	 //debug
-	    	 //printf("-----InitWeights-----   val=%e, (%d,%d)\n", val, ii, jj);
-		 ffweight->push_back(val);
-	       }
-	   }     	    	       	       	       	    
-       }	
-   }
    
-   
+
 //////////////////////////////////////////////////////////////////////////////////////////////
   void Simple2DModel_Binned::generateEvent(const RooArgList& parameters, RooDataSet& data)
   {
@@ -110,7 +76,7 @@ namespace BackTrack {
     GetObservable("obs2")->setVal(obs2);
     data.add(GetObservables());
   }
-
+  
 
 //////////////////////////////////////////////////////////////////////////////////////////////
   RooDataHist*Simple2DModel_Binned::GetModelDataHist(RooArgList& par)
@@ -169,6 +135,28 @@ namespace BackTrack {
   	                                                                   
     return datahist;
   }
+  
+  
+    
+//////////////////////////////////////////////////////////////////////////////////////////////
+  Double_t Simple2DModel_Binned::generateWeight(const RooArgList& parameters, TH2D* distri)
+  { 
+    if(distri==0) Error("generateWeight", "...set a distribution for initial weights of parameters for the fit with SetParamDistribution() method  first...");
+  
+    Double_t par1 = ((RooRealVar*)parameters.at(0))->getVal();
+    Double_t par2 = ((RooRealVar*)parameters.at(1))->getVal();
+    
+    Double_t weight = distri->GetBinContent(distri->FindBin(par1, par2));
+    return weight;
+  } 
+  
+  
+//////////////////////////////////////////////////////////////////////////////////////////////  
+  Double_t Simple2DModel_Binned::GetParamInitiWeight(RooArgList &par)
+  {
+   return generateWeight(par, fdistri);
+  }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
   TH1*Simple2DModel_Binned::GetParameterDistributions()
@@ -185,6 +173,5 @@ namespace BackTrack {
   Simple2DModel_Binned::~Simple2DModel_Binned()
   {
     // Destructor
-    delete ffweight;
   }	                        
 }
