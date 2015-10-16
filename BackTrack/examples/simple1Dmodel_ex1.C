@@ -1,3 +1,4 @@
+//# Example of use of class BackTrack::Simple1DModel
 /* simple1Dmodel_ex1.C
  *
  * Example of use of class BackTrack::Simple1DModel in order to demonstrate

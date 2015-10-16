@@ -6,6 +6,10 @@
 
 #include "KVMultiDetArray.h"
 
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,32,0)
+#include "TGeoMatrix.h"
+#endif
+
 class KVDetectorEvent;
 
 class KVFAZIA : public KVMultiDetArray
@@ -37,7 +41,6 @@ class KVFAZIA : public KVMultiDetArray
   
    virtual void Build(Int_t run=-1);
 	void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params);
-   void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 	Int_t GetNumberOfBlocks() const { return fNblocks; }
    void IncludeTargetInGeometry(Bool_t include=kTRUE) { fBuildTarget=include; }
    

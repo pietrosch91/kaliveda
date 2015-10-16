@@ -40,10 +40,11 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDetdata_m
 #
 # Different types of data which can be associated with datasets
 # KVDataSet.DataTypes: online raw dst recon ident root
-KVDataSet.DataTypes: raw dst recon ident root
+KVDataSet.DataTypes: bin raw dst recon ident root
 #
 # Names used for subdirectories containing data of different types
 # KVDataSet.DataType.Subdir.online:  raw
+KVDataSet.DataType.Subdir.bin:  bin
 KVDataSet.DataType.Subdir.raw:  raw
 KVDataSet.DataType.Subdir.dst:  dst
 KVDataSet.DataType.Subdir.recon:  recon2
@@ -52,6 +53,7 @@ KVDataSet.DataType.Subdir.root:  root2
 #
 # Default formats for runfile names (run number is used to replace integer format)
 # DataSet.RunFileName.online:    run%d.raw
+DataSet.RunFileName.bin:    run%06d
 DataSet.RunFileName.raw:    run%d.raw
 DataSet.RunFileName.dst:    run%d.dst
 DataSet.RunFileName.recon:    run%d.recon.root
@@ -215,6 +217,7 @@ Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDetidentification "KV
 #
 # KVIDTelescope.DefaultGrid is used for all telescopes which do not define an alternative
 KVIDTelescope.DefaultGrid:              KVIDZAGrid
+KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
 
 # Default identification/cut classes for different ID graphs
 # Used by KVIDGridManagerGUI when creating new grids
@@ -227,6 +230,10 @@ KVTGIDGrid.CutClass:  KVIDCutLine
 +KVTGIDGrid.CutClass:  KVIDCutContour
 KVTGIDGrid.DefaultCutClass:  KVIDCutLine
 KVTGIDGrid.IDClass:  KVIDZALine
+KVIDGCsI.CutClass:  KVIDCutLine
++KVIDGCsI.CutClass:  KVIDCutContour
+KVIDGCsI.DefaultCutClass:  KVIDCutLine
+KVIDGCsI.IDClass:  KVIDCsIRLLine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
@@ -234,6 +241,7 @@ KVTGIDGrid.IDClass:  KVIDZALine
 # Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDetidentification   "KVIDZAGrid()"
 #+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDetidentification   "KVIDZAMap()"
++Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVMultiDetidentification      "KVIDGCsI()"
 
 # Mime-types for GUI
 # These define the icons associated with different objects displayed in KVListView widgets.
@@ -243,12 +251,20 @@ KaliVeda.GUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
 KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVTGIDGrid
 KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGCsI
+KaliVeda.GUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVDBRun
 KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
 +KaliVeda.GUI.MimeTypes:   TCutG
 KaliVeda.GUI.MimeTypes.TCutG.Icon:   cut_t.xpm
 +KaliVeda.GUI.MimeTypes:   TEntryList
 KaliVeda.GUI.MimeTypes.TEntryList.Icon:   rootdb_t.xpm
+
+# Default max number of entries to show in a KVListView
+# Trying to display more than this number will cause a dialog box to open
+# asking whether to display all or only this number of entries.
+# Displaying very long lists can be slow.
+KVListView.MaxListLength: 20000
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    yes

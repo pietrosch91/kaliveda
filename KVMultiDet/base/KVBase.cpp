@@ -155,6 +155,11 @@ const Char_t* KVBase::GetDATADIRFilePath(const Char_t* namefile)
    if(strcmp(namefile,"")) return Form("%s/%s", xstr(DATADIR), namefile);
    return Form("%s", xstr(DATADIR));
 }
+const Char_t* KVBase::GetTEMPLATEDIRFilePath(const Char_t* namefile)
+{
+   if(strcmp(namefile,"")) return Form("%s/%s", xstr(TEMPLATEDIR), namefile);
+   return Form("%s", xstr(TEMPLATEDIR));
+}
 const Char_t* KVBase::GetDATABASEFilePath()
 {
    return Form("%s/db", fWorkingDirectory.Data());
@@ -188,7 +193,7 @@ void KVBase::init()
    InitEnvironment();
    fNumber = 0;
    fNbObj++;
-   fSLabel = "";
+   fLabel = "";
    SetBit( kIsKaliVedaObject );
 }
 
@@ -344,7 +349,7 @@ void KVBase::Clear(Option_t * opt)
    //Clear object properties : name, type/title, number, label
    TNamed::Clear(opt);
    fNumber = 0;
-   fSLabel = "";
+   fLabel = "";
 }
 
 //___________________________________________________________________________________
@@ -359,44 +364,18 @@ void KVBase::Copy(TObject & obj)
 
    TNamed::Copy(obj);
    ((KVBase &) obj).SetNumber(fNumber);
-   ((KVBase &) obj).SetLabel(fSLabel);
+   ((KVBase &) obj).SetLabel(fLabel);
 }
 
 //____________________________________________________________________________________
 void KVBase::Print(Option_t * ) const
 {
    cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
-   if (fSLabel != "")
+   if (fLabel != "")
       cout << " Label=" << GetLabel();
    if (fNumber != 0)
       cout << " Number=" << GetNumber();
    cout << endl;
-};
-
-void KVBase::SetLabel(const Char_t * lab)
-{
-   //Affect a label to this object
-   fSLabel = lab;
-}
-
-const Char_t *KVBase::GetLabel() const
-{
-   //Return object label
-
-   return fSLabel.Data();
-}
-
-Bool_t KVBase::ArrContainsValue(Int_t n, Int_t * arr, Int_t val)
-{
-   //Utility function which returns kTRUE if value "val" is among the values
-   //contained in the array "arr" of "n" members.
-   //On the contrary to TMath::BinarySearch, it is not necessary to sort the
-   //array beforehand.
-   while (n--) {
-      if (arr[n] == val)
-         return kTRUE;
-   }
-   return kFALSE;
 }
 
 void KVBase::Streamer(TBuffer & R__b)
@@ -410,9 +389,17 @@ void KVBase::Streamer(TBuffer & R__b)
       UInt_t R__s, R__c;
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
       if (R__v > 1) {
-         //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 1
-         KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-         if(R__v<3) SetBit(kIsKaliVedaObject);
+         if(R__v<4){
+            TNamed::Streamer(R__b);
+            R__b >> fNumber;
+            R__b >> fLabel;
+            if(R__v<3) SetBit(kIsKaliVedaObject);
+            R__b.CheckByteCount(R__s, R__c, KVBase::IsA());
+         }
+         else{
+            //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 3
+            KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
+         }
          return;
       }
       //OLD STREAMER FOR CLASS VERSION 1
@@ -423,7 +410,7 @@ void KVBase::Streamer(TBuffer & R__b)
       if (LabelLength) {
          Char_t *Label = new Char_t[LabelLength];
          R__b.ReadFastArray(Label, LabelLength);
-         fSLabel = Label;
+         fLabel = Label;
          delete[]Label;
       }
       SetBit(kIsKaliVedaObject);
@@ -711,6 +698,15 @@ const Char_t *KVBase::GetKVSourceDir()
 {
    //Returns top-level directory of source tree used for build
    static TString tmp(KV_SOURCE_DIR);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::GetKVBuildDir()
+{
+   //Returns top-level directory used for build
+   static TString tmp(KV_BUILD_DIR);
    return tmp.Data();
 }
 

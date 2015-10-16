@@ -67,12 +67,11 @@ void KVDataTransferBBFTP::WriteTransferScript()
 
    //write a line for each file to transfer
    //loop over runs in runlist
-   Int_t Nruns;
-   Int_t *runs = fRunList.GetArray(Nruns);
+   fRunList.Begin();
    TString targ_file;
-   for (register int i = 0; i < Nruns; i++) {
+   while( !fRunList.End() ) {
 
-      Int_t run = runs[i];      // current run number
+      Int_t run = fRunList.Next();      // current run number
 
       file << getput.Data();
       cout << getput.Data();

@@ -954,7 +954,7 @@ void KVElasticScatterEvent::DefineTrees()
 	TTree* tt = 0;
 	
 	tt = new TTree("ElasticScatter",IsA()->GetName());
-	tt->Branch("Simulated_evts", "KVEvent", &sim_evt, 10000000, 0)->SetAutoDelete(kFALSE);
+   KVEvent::MakeEventBranch(tt,"Simulated_evts","KVEvent",&sim_evt);
 	ltree->Add(tt);
 }
 

@@ -297,8 +297,8 @@ Int_t KVBreakUp::BreakUsingChain(void)
 	
 	//La cassure a reussie
 	//on recupere les tailles additionelles
-	Int_t mtot_corr=0;
-	Int_t* val = nl.GetArray(mtot_corr);
+        IntArray val = nl.GetArray();
+        Int_t mtot_corr = val.size();
 	
 	Int_t zc=0;
 	//boucle sur les liens casses
@@ -317,7 +317,6 @@ Int_t KVBreakUp::BreakUsingChain(void)
 	bound[val[0]]=1;
 	zc += size[0];
 	
-	delete [] val;
 	//cout << zc << " " << Ztotal << endl;
 	if (zc==Ztotal && mtot_corr==Mtotal) return 1;
 	else return 0;
@@ -359,9 +358,9 @@ Int_t KVBreakUp::BreakUsingLine(void)
 	//cout << "nl="<<nl.AsString() << endl;;
 	//La cassure a reussie
 	//on recupere les tailles additionelles
-	Int_t mtot_corr=0;
-	Int_t* val = nl.GetArray(mtot_corr);
-	//cout << "mtot_corr="<<mtot_corr << endl;
+        IntArray val = nl.GetArray();
+        Int_t mtot_corr=val.size();
+        //cout << "mtot_corr="<<mtot_corr << endl;
 	Int_t zc=0;
 	//boucle sur les liens casses
 	Int_t taille=0;
@@ -374,7 +373,6 @@ Int_t KVBreakUp::BreakUsingLine(void)
 		zc += size[ii-1];	//incrementation de la taille totale de controle
 	}
 	
-	delete [] val;
 	//cout << "zc="<<zc << " " << Ztotal << endl;
 	if (zc==Ztotal && mtot_corr-1==Mtotal) return 1;
 	else return 0;

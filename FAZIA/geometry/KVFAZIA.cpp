@@ -149,7 +149,7 @@ void KVFAZIA::Build(Int_t)
    // the following parameters are optimized for a 12-block compact
 	// geometry placed at 80cm with rings 1-5 of INDRA removed.
 	// make sure that the expected number of detectors get imported!
-   imp.ImportGeometry(0.25, 1, 2., 0, 14);
+   imp.ImportGeometry(0.25, 1, 2., 0, 20);
    
    /*
    KVFAZIADetector* det=0;
@@ -184,7 +184,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
         		par->DeduceFromName();
             if ( (det = GetDetector( par->GetDetectorName() )) )
             {
-            	((KVFAZIADetector* )det)->SetSignal(par,par->GetType());
+					((KVFAZIADetector* )det)->SetSignal(par,par->GetType());
                if ( (grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp) ) {
                	detev->AddGroup(grp);
                }
@@ -201,9 +201,4 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
     
 }
 
-void KVFAZIA::GetIDTelescopes(KVDetector *de, KVDetector *e, TCollection *idtels)
-{
-    // Add some ID telescopes for FAZIA array
-    // Everything is managed using KVIDTelescope plugins defined in . kvrootrc
-	KVMultiDetArray::GetIDTelescopes(de,e,idtels);
-}
+

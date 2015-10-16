@@ -1,5 +1,5 @@
 #--- Top-level CMake file for KaliVeda
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
 project(KaliVeda)
 
@@ -9,8 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 find_package(ROOT
 	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist Minuit
 	RIO Tree MathCore Matrix Gpad Gui Net
-   OPTIONAL_COMPONENTS RGL RooFit RooFitCore)
-
+   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html)
+	
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
@@ -18,6 +18,12 @@ if(ROOT_opengl_FOUND)
 else()
 	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
 endif()
+
+#--check if HTML class reference can be made
+if(ROOT_Html_LIBRARY)
+   set(CAN_DO_HTMLDOC true)
+endif(ROOT_Html_LIBRARY)
+
 
 include(${ROOT_USE_FILE})
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -39,6 +45,11 @@ set(WITH_GIT_INFOS)
 set(WITH_BZR_INFOS)
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git OR EXISTS ${PROJECT_SOURCE_DIR}/KVGitInfo.h)
    set(WITH_GIT_INFOS yes)
+   #-enforce coding style
+   #-make sure git pre-commit hook is in place
+   if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+      execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/tools/git-hook-pre-commit.sh ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
+   endif()
 elseif(EXISTS ${PROJECT_SOURCE_DIR}/.bzr OR EXISTS ${PROJECT_SOURCE_DIR}/KVBzrInfo.h)
    set(WITH_BZR_INFOS yes)
 endif()
@@ -112,6 +123,20 @@ CMAKE_DEPENDENT_OPTION(USE_MODIFIED_RANGE
 if(USE_MODIFIED_RANGE)
 	set(WITH_MODIFIED_RANGE_YANEZ yes)
 endif()
+
+#---Gemini++ interface
+option(USE_GEMINI "Build interface to Gemini++ statistical decay code" ON)
+if(USE_GEMINI)
+	find_package(Gemini)
+	if(GEMINI_FOUND)
+		set(WITH_GEMINI yes)
+		include_directories(${GEMINI_INC_DIR})
+		link_directories(${GEMINI_LIB_DIR})
+	else()
+		set(USE_GEMINI OFF CACHE BOOL "" FORCE)
+	endif()
+endif(USE_GEMINI)
+add_feature_info(gemini USE_GEMINI "Build interface to Gemini++ statistical decay code")
 
 #--- ID Grid fitting routines provided by Laurent Tassan-Got
 option(USE_FITLTG "Use Tassan-Got fits for deltaE-E identification grids" ON)
@@ -212,6 +237,7 @@ if(USE_FAZIA)
 endif()
 
 add_subdirectory(execs)
+add_subdirectory(etc/proof)
 
 #---set up list of '.rootrc' config files to be read by KVBase::InitEnvironment
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
@@ -237,14 +263,6 @@ configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---configure and install kaliveda-config script
-get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
-list(REVERSE KALIVEDA_LIB_LIST)
-set(kaliveda_libraries)
-set(space)
-foreach(l ${KALIVEDA_LIB_LIST})
-	set(kaliveda_libraries "${kaliveda_libraries}${space}-l${l}")
-	set(space " ")
-endforeach()
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -295,3 +313,38 @@ endif()
 
 #---install man pages for KaliVeda
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
+
+#------------------------HTML CLASS REFERENCE & EXAMPLES GENERATION
+if(CAN_DO_HTMLDOC)
+
+   CONVERT_ALL_EXAMPLE_FUNCTIONS()
+   
+   get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
+   get_property(KALIVEDA_EXCLASS GLOBAL PROPERTY KALIVEDA_EXCLASS)
+   
+   #---add a 'html' target to generate ROOT class reference
+   file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
+   get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/index.html
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
+      COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C
+      DEPENDS ${KALIVEDA_LIB_LIST}
+      )
+   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/examples
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/htmldoc/examples
+      )
+   get_property(EXAMPLE_INDEX_TARGETS GLOBAL PROPERTY EXAMPLE_INDEX_TARGETS)
+   get_property(EXAMPLE_SUBPROJ_TARGETS GLOBAL PROPERTY EXAMPLE_SUBPROJ_TARGETS)
+   get_property(CLEAN_EXAMPLE_SUBPROJ_TARGETS GLOBAL PROPERTY CLEAN_EXAMPLE_SUBPROJ_TARGETS)
+   add_custom_target(classref DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/index.html)
+   add_custom_target(exampledir DEPENDS ${CMAKE_BINARY_DIR}/htmldoc/examples)
+   foreach(Exa ${KALIVEDA_EXFUNCS} ${KALIVEDA_EXCLASS})
+      add_dependencies(${Exa} ${EXAMPLE_INDEX_TARGETS} exampledir)
+   endforeach()
+   add_custom_target(examples)
+   add_dependencies(examples ${EXAMPLE_SUBPROJ_TARGETS})
+   add_custom_target(html)      
+   add_dependencies(classref examples)
+   add_dependencies(html ${CLEAN_EXAMPLE_SUBPROJ_TARGETS} classref examples)
+   
+endif(CAN_DO_HTMLDOC)

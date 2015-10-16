@@ -1,0 +1,104 @@
+RunRange:					5046-24423
+B000-Q2-T1.QL1.BaseLineLength:  150
+B000-Q2-T1.QH1.BaseLineLength:  150
+
+RunRange:			  5448-24423
+B000-Q2-T4.QL1.BaseLineLength:  150
+B000-Q2-T4.QH1.BaseLineLength:  150
+B000-Q2-T4.QL1.ShaperRiseTime:  1
+B000-Q2-T4.QL1.ShaperFlatTop:   6
+B000-Q2-T4.QH1.ShaperRiseTime:  1
+B000-Q2-T4.QH1.ShaperFlatTop:   6
+
+RunRange:			  5313-24423
+B000-Q2-T4.Q2.BaseLineLength:   150
+
+RunRange:			  5457-24423
+B000-Q3-T2.QL1.BaseLineLength:  100
+B000-Q3-T2.QH1.BaseLineLength:  100
+B000-Q3-T2.QL1.ShaperRiseTime:  1
+B000-Q3-T2.QL1.ShaperFlatTop:   6
+B000-Q3-T2.QH1.ShaperRiseTime:  1
+B000-Q3-T2.QH1.ShaperFlatTop:   6
+
+RunRange:			  5465-24423
+B000-Q3-T3.QL1.BaseLineLength:  100
+B000-Q3-T3.QH1.BaseLineLength:  100
+B000-Q3-T3.QL1.ShaperRiseTime:  1
+B000-Q3-T3.QL1.ShaperFlatTop:   6
+B000-Q3-T3.QH1.ShaperRiseTime:  1
+B000-Q3-T3.QH1.ShaperFlatTop:   6
+
+RunRange:			  5323-24423
+B000-Q4-T4.Q2.BaseLineLength:   150
+
+RunRange:			  100-24423
+B001-Q1-T3.Q2.ShaperRiseTime:   1
+B001-Q1-T3.Q2.ShaperFlatTop:    3
+
+RunRange:			  5410-24423
+B001-Q2-T3.Q2.BaseLineLength:   100
+B001-Q2-T3.Q2.ShaperRiseTime:   1
+B001-Q2-T3.Q2.ShaperFlatTop:    6
+
+RunRange:			  100-24423
+B001-Q2-T4.Q2.ShaperRiseTime:   1
+B001-Q2-T4.Q2.ShaperFlatTop:    3
+
+RunRange:			  100-24423
+B001-Q3-T1.QL1.ShaperRiseTime:  1
+B001-Q3-T1.QL1.ShaperFlatTop:   2
+B001-Q3-T1.QH1.ShaperRiseTime:  1
+B001-Q3-T1.QH1.ShaperFlatTop:   2
+
+RunRange:			  5442-24423
+B001-Q3-T3.Q2.BaseLineLength:   100
+B001-Q3-T3.Q2.ShaperRiseTime:   1
+B001-Q3-T3.Q2.ShaperFlatTop:    6
+
+RunRange:			  5424-24423
+B001-Q4-T2.Q2.BaseLineLength:   150
+B001-Q4-T2.Q2.ShaperRiseTime:   2
+B001-Q4-T2.Q2.ShaperFlatTop:    5
+
+RunRange:			  5506-24423
+B002-Q3-T1.Q2.BaseLineLength:   150
+B002-Q3-T1.Q2.ShaperRiseTime:   1
+B002-Q3-T1.Q2.ShaperFlatTop:    6
+
+RunRange:			  5514-24423
+B002-Q3-T2.Q2.BaseLineLength:   150
+B002-Q3-T2.Q2.ShaperRiseTime:   1
+B002-Q3-T2.Q2.ShaperFlatTop:    6
+
+RunRange:			  5483-24423
+B002-Q3-T3.QL1.BaseLineLength:  150
+B002-Q3-T3.QH1.BaseLineLength:  150
+B002-Q3-T3.QL1.ShaperRiseTime:  1
+B002-Q3-T3.QL1.ShaperFlatTop:   6
+B002-Q3-T3.QH1.ShaperRiseTime:  1
+B002-Q3-T3.QH1.ShaperFlatTop:   6
+
+RunRange:			  5589-24423
+B003-Q3-T2.QL1.BaseLineLength:  150
+B003-Q3-T2.QH1.BaseLineLength:  150
+B003-Q3-T2.QL1.ShaperRiseTime:  1
+B003-Q3-T2.QL1.ShaperFlatTop:   6
+B003-Q3-T2.QH1.ShaperRiseTime:  1
+B003-Q3-T2.QH1.ShaperFlatTop:   6
+
+RunRange:			  5613-24423
+B003-Q3-T2.Q2.BaseLineLength:   150
+
+RunRange:			  5592-24423
+B003-Q3-T3.QL1.BaseLineLength:  150
+B003-Q3-T3.QH1.BaseLineLength:  150
+B003-Q3-T3.QL1.ShaperRiseTime:  1
+B003-Q3-T3.QL1.ShaperFlatTop:   6
+B003-Q3-T3.QH1.ShaperRiseTime:  1
+B003-Q3-T3.QH1.ShaperFlatTop:   6
+
+RunRange:			  5618-24423
+B003-Q3-T3.Q2.BaseLineLength:   150
+B003-Q3-T3.Q2.ShaperRiseTime:   1
+B003-Q3-T3.Q2.ShaperFlatTop:    6

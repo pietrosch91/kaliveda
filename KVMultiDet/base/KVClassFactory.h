@@ -171,7 +171,6 @@ class KVClassFactory : public TObject {
 
  protected:
 
-   void WriteCVSTags(std::ofstream &);
    void WritePreProc(std::ofstream &);
    void WriteWhoWhen(std::ofstream &);
    void SetWhoWhen();

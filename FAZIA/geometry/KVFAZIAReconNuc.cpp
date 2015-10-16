@@ -25,6 +25,7 @@ $Id: KVFAZIAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "TCollection.h"
 #include "KVDetector.h"
 #include "KVMultiDetArray.h"
+#include "KVFAZIADetector.h"
 
 using namespace std;
 
@@ -147,15 +148,15 @@ void KVFAZIAReconNuc::Clear(Option_t * t)
    
 }
 
-KVDetector *KVFAZIAReconNuc::Get(const Char_t* label) const
+KVFAZIADetector *KVFAZIAReconNuc::Get(const Char_t* label) const
 {
-   KVDetector *det = (KVDetector *) GetDetectorList()->FindObjectByLabel(label);
+   KVFAZIADetector *det = (KVFAZIADetector *) GetDetectorList()->FindObjectByLabel(label);
    return det;
 }
 
-KVDetector *KVFAZIAReconNuc::GetCSI() const { return Get("CSI"); }
-KVDetector *KVFAZIAReconNuc::GetSI1() const { return Get("SI1"); }
-KVDetector *KVFAZIAReconNuc::GetSI2() const { return Get("SI2"); }
+KVFAZIADetector *KVFAZIAReconNuc::GetCSI() const { return Get("CSI"); }
+KVFAZIADetector *KVFAZIAReconNuc::GetSI1() const { return Get("SI1"); }
+KVFAZIADetector *KVFAZIAReconNuc::GetSI2() const { return Get("SI2"); }
 
 
 Bool_t KVFAZIAReconNuc::StoppedIn(const Char_t* label) const
@@ -231,21 +232,22 @@ void KVFAZIAReconNuc::Identify()
 {
 		KVIdentificationResult partID;
 		KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+		//idt_list->ls();
 		if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
         TIter next(idt_list);
         Int_t idnumber = 1;
-        Int_t n_success_id = 0;//nnumber of successful identifications
+
         Bool_t goout = kFALSE;
 		  while ( (idt = (KVIDTelescope *) next()) && !goout ) {
             KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+				//printf("idt getname : %s %d\n",idt->GetName(),idnumber);
 
-            if ( IDR ){
                 if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
                     IDR->IDattempted = kTRUE;
-                    idt->Identify( IDR , GetParameters()->GetDoubleValue(idt->GetVarX()), GetParameters()->GetDoubleValue(idt->GetVarY()));
+                    idt->Identify( IDR );
 
                     if(IDR->IDOK) { 
 						  		partID = *IDR; 
@@ -253,6 +255,7 @@ void KVFAZIAReconNuc::Identify()
 						  }
                 }
 					else{
+						//printf("not ready\n");
 						IDR->IDattempted = kFALSE;
 					}
                 /*
@@ -275,7 +278,7 @@ void KVFAZIAReconNuc::Identify()
                     }
                 }
 					 */
-            }
+
 
         }
 			
@@ -897,3 +900,66 @@ void KVFAZIAReconNuc::Calibrate()
 //     //return idtel->GetIDSubCodeString(code);
 //     return id_tel_type;
 // }
+	void KVFAZIAReconNuc::MakeDetectorList()
+	{
+    // Protected method, called when required to fill fDetList with pointers to
+    // the detectors whose names are stored in fDetNames.
+    // If gMultiDetArray=0x0, fDetList list will be empty.
+		KVFAZIADetector* det = 0;
+		Double_t val=-1;
+		fDetList.Clear();
+		if ( gMultiDetArray ){
+			fDetNames.Begin("/");
+			while ( !fDetNames.End() ) {
+				det = (KVFAZIADetector* )gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
+				if ( det ) {
+					fDetList.Add(det);
+					if ( !strcmp(det->GetLabel(),"SI1") )
+					{
+						val = GetParameters()->GetDoubleValue(Form("%s.QL1.Amplitude",det->GetName()));		det->SetQL1Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QL1.RawAmplitude",det->GetName()));	det->SetQL1RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QL1.BaseLine",det->GetName()));		det->SetQL1BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QL1.SigmaBaseLine",det->GetName()));	det->SetQL1SigmaBaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime",det->GetName()));		det->SetQL1RiseTime(val);
+					
+						val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude",det->GetName()));  	det->SetQH1Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude",det->GetName()));  det->SetQH1RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QH1.BaseLine",det->GetName()));   	det->SetQH1BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QH1.SigmaBaseLine",det->GetName())); det->SetQH1SigmaBaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.QH1.RiseTime",det->GetName()));   	det->SetQH1RiseTime(val);
+					
+						val = GetParameters()->GetDoubleValue(Form("%s.I1.Amplitude",det->GetName()));  		det->SetI1Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I1.RawAmplitude",det->GetName()));  	det->SetI1RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I1.BaseLine",det->GetName()));   		det->SetI1BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine",det->GetName())); 	det->SetI1SigmaBaseLine(val);
+					
+					}
+					else if ( !strcmp(det->GetLabel(),"SI2") )
+					{
+					
+						val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude",det->GetName()));  	det->SetQ2Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude",det->GetName()));  det->SetQ2RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q2.BaseLine",det->GetName()));   	det->SetQ2BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q2.SigmaBaseLine",det->GetName())); det->SetQ2SigmaBaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q2.RiseTime",det->GetName()));   	det->SetQ2RiseTime(val);
+					
+						val = GetParameters()->GetDoubleValue(Form("%s.I2.Amplitude",det->GetName()));  		det->SetI2Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I2.RawAmplitude",det->GetName()));  	det->SetI2RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I2.BaseLine",det->GetName()));   		det->SetI2BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine",det->GetName())); 	det->SetI2SigmaBaseLine(val);
+					}
+					else if ( !strcmp(det->GetLabel(),"CSI") )
+					{
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude",det->GetName()));  	det->SetQ3Amplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude",det->GetName()));  det->SetQ3RawAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude",det->GetName()));  det->SetQ3FastAmplitude(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine",det->GetName()));   	det->SetQ3BaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine",det->GetName())); det->SetQ3SigmaBaseLine(val);
+						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime",det->GetName()));   	det->SetQ3RiseTime(val);
+					
+					}
+					
+				}
+			} 
+		}
+	}	

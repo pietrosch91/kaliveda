@@ -29,7 +29,7 @@ ClassImp(KVINDRARunSheetGUI)
 <h2>KVDataBaseGUI</h2>
 <h4>KaliVeda run/system database configuration tool</h4>
 <img style="width: 910px; height: 627px;" alt=""
-src="images/kvdatabasegui.png"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui.png"><br>
 <h4>DIRECTORY</h4>
 Set path to directory containing runsheets<br>
 <h4>FILENAME</h4>
@@ -45,12 +45,12 @@ Launch TTree browser. There is a branch/leaf for each information read
 from the runsheets:<br>
 <br>
 <img style="width: 663px; height: 398px;" alt=""
-src="images/kvdatabasegui_treeviewer.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_treeviewer.gif"><br>
 <br>
 Here is an example plot: dead time ("temps_mort") vs. run number:<br>
 <br>
 <img style="width: 810px; height: 510px;" alt=""
-src="images/kvdatabasegui_TMplot.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_TMplot.gif"><br>
 <h4>Change dataset</h4>
 Choose a different dataset to work with<br>
 <h4>Read runsheets</h4>
@@ -81,7 +81,7 @@ Print all information on selected run (1 only) in terminal window.<br>
 <h3><a name="Setting_systems_properties"></a>Setting systems properties<br>
 </h3>
 <img style="width: 404px; height: 385px;" alt=""
-src="images/kvdatabasegui_systems.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_systems.gif"><br>
 <br>
 Choose an existing system in the drop-down list:<br>
 <ul>
@@ -105,19 +105,19 @@ properties, see below for Target)</li>
 <li>System name dialog box appears:</li>
 </ul>
 <img style="width: 280px; height: 112px;" alt=""
-src="images/kvdatabasegui_systemname.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_systemname.gif"><br>
 <ul>
 <li>modify as required, then press "OK"</li>
 <li>Target Z dialog box appears:</li>
 </ul>
 <img style="width: 280px; height: 112px;" alt=""
-src="images/kvdatabasegui_Ztarget.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_Ztarget.gif"><br>
 <ul>
 <li>modify as necessary, then press "OK"</li>
 <li>Target A dialog box appears:</li>
 </ul>
 <img style="width: 280px; height: 112px;" alt=""
-src="images/kvdatabasegui_Atarget.gif"><br>
+src="http://indra.in2p3.fr/KaliVedaDoc/images/kvdatabasegui_Atarget.gif"><br>
 <ul>
 <li>modify as necessary, then press "OK"</li>
 </ul>

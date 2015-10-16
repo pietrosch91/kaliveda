@@ -233,6 +233,12 @@ void KVSeqCollection::Copy(TObject & obj) const
    }
 }
 
+KVSeqCollection&KVSeqCollection::operator=(const KVSeqCollection& c)
+{
+   c.Copy(*this);
+   return (*this);
+}
+
 KVSeqCollection* KVSeqCollection::NewCollectionLikeThisOne() const
 {
     // PROTECTED method

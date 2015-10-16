@@ -53,7 +53,7 @@ void KVIdentificationResult::Copy(TObject& obj) const
     id.deltaEpedestal = deltaEpedestal;
 }
 
-void KVIdentificationResult::Reset()
+void KVIdentificationResult::Clear(Option_t*)
 {
 	// Reset to initial values
 	SetIDType("");

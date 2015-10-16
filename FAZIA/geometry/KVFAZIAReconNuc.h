@@ -23,7 +23,7 @@ $Id: KVFAZIAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
 
 #include "KVReconstructedNucleus.h"
 
-class KVDetector;
+class KVFAZIADetector;
 
 class KVFAZIAReconNuc:public KVReconstructedNucleus {
 
@@ -41,6 +41,8 @@ class KVFAZIAReconNuc:public KVReconstructedNucleus {
     void CalculateSi75DEFromResidualEnergy(Double_t ERES);
     void CalculateChIoDEFromResidualEnergy(Double_t ERES);
 	*/
+	virtual void MakeDetectorList();
+
  public:
 
 	/*
@@ -131,16 +133,16 @@ class KVFAZIAReconNuc:public KVReconstructedNucleus {
 		return fECsI;
 	};
 
-   KVDetector *Get(const Char_t* label) const;
-   KVDetector *GetSI1() const;
-   KVDetector *GetSI2() const;
-   KVDetector *GetCSI() const;
+   KVFAZIADetector *Get(const Char_t* label) const;
+   KVFAZIADetector *GetSI1() const;
+   KVFAZIADetector *GetSI2() const;
+   KVFAZIADetector *GetCSI() const;
    Bool_t StoppedIn(const Char_t* dettype) const;
    Bool_t StoppedInSI1() const;
    Bool_t StoppedInSI2() const;
    Bool_t StoppedInCSI() const;
 
-   ClassDef(KVFAZIAReconNuc, 1) //Nucleus identified by FAZIA array
+   ClassDef(KVFAZIAReconNuc, 2) //Nucleus identified by FAZIA array
 };
 
 #endif

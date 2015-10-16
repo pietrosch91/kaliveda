@@ -20,6 +20,7 @@ class KVFAZIADB : public KVDataBase
    Int_t kLastRun;
 	KVDBTable *fRuns;            //-> table of runs
    KVDBTable *fSystems;         //-> table of systems
+   KVDBTable *fExceptions;       //-> table of exceptions
    
    virtual void ReadSystemList();
    virtual void LinkListToRunRanges(TList * list, UInt_t rr_number,
@@ -54,20 +55,20 @@ class KVFAZIADB : public KVDataBase
    	//Returns KVFAZIADBRun describing run number 'run'
    	return (KVFAZIADBRun *) fRuns->GetRecord(run);
    }
-   KVFAZIADBRun *GetRun(const Char_t * run) const
-	{
-   	//Returns KVFAZIADBRun describing run with name "run"
-   	return (KVFAZIADBRun *) GetRuns()->FindObject(run);
-	}
+//   KVFAZIADBRun *GetRun(const Char_t * run) const
+//	{
+//   	//Returns KVFAZIADBRun describing run with name "run"
+//   	return (KVFAZIADBRun *) GetRuns()->FindObject(run);
+//	}
 
-   virtual TList *GetRuns() const { return fRuns->GetRecords(); }
+   virtual KVSeqCollection *GetRuns() const { return fRuns->GetRecords(); }
 	
    virtual KVDBSystem *GetSystem(const Char_t * system) const
    {
    return (KVDBSystem *) fSystems->GetRecord(system);
 	}
 	
-   virtual TList *GetSystems() const
+   virtual KVSeqCollection *GetSystems() const
 	{
 	   return fSystems->GetRecords();
 	}
@@ -75,13 +76,15 @@ class KVFAZIADB : public KVDataBase
    void WriteRunListFile() const;
    void ReadNewRunList();
    void WriteSystemsFile() const;
+	void ReadExceptions();
+	void ReadComments();
 
    virtual void PrintRuns(KVNumberList&) const;
 	virtual void cd();
     const Char_t *GetCalibFileName(const Char_t * type) const {
       return GetDBEnv(type);
    };
-   ClassDef(KVFAZIADB,1)//database for FAZIA detector
+   ClassDef(KVFAZIADB,2)//database for FAZIA detector
 };
 //........ global variable
 R__EXTERN KVFAZIADB *gFaziaDB;

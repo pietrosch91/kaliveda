@@ -36,7 +36,7 @@ ClassImp(KVIDGridManagerGUI)
 
  <h2>KVIDGridManagerGUI</h2>
  <h4><a name="fig1"></a></h4>
- <img alt="" src="images/newIDgridManager.png"
+ <img alt="" src="http://indra.in2p3.fr/KaliVedaDoc/images/newIDgridManager.png"
  style="width: 800px; height: 619px;"><br>
  <h4>Fig 1 : the main window of the ID Grid Manager</h4>
  
@@ -464,6 +464,13 @@ void KVIDGridManagerGUI::OpenFile()
    if (fi.fFilename) {
       int ngri=gIDGridManager->GetGrids()->GetEntries();
       if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
+         if(gMultiDetArray){
+            // set pointers to id telescopes in grids
+            TIter next ( gIDGridManager->GetGrids() );
+            KVIDGraph* gr = 0;
+            while ( ( gr = ( KVIDGraph* ) next() ) ) gMultiDetArray->FillListOfIDTelescopes(gr);
+            UpdateListOfGrids();
+         }
          //read file ok no problem.
          int ngriread=gIDGridManager->GetGrids()->GetEntries()-ngri;
          SetStatus(Form("Read %d grids from file %s", ngriread, fi.fFilename));

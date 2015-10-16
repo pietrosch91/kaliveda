@@ -73,19 +73,19 @@ void KVFAZIARawDataReconstructor::InitRun()
             gDataRepository->GetName()),
          gDataSet->GetName() );
       
-		file = OutputDataset->NewRunfile(datatype.Data(), fCurrentRun);
+                file = OutputDataset->NewRunfile(datatype.Data(), GetCurrentRunNumber());
       
 		std::cout << "Writing \"" << datatype.Data() << "\" events in ROOT file " << file->GetName() << std::endl;
 
       //tree for reconstructed events
 		tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
-			 	gFaziaDB->GetRun(fCurrentRun)->GetName(),
-            gFaziaDB->GetRun(fCurrentRun)->GetTitle(),
+                                gFaziaDB->GetRun(GetCurrentRunNumber())->GetName(),
+            gFaziaDB->GetRun(GetCurrentRunNumber())->GetTitle(),
             datatype.Data())
             );
 
       //leaves for reconstructed events
-		tree->Branch("FAZIAReconEvent", "KVReconstructedEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
+      KVEvent::MakeEventBranch(tree,"FAZIAReconEvent","KVReconstructedEvent",&recev);
       
       Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
       nb_recon = 0;
@@ -120,7 +120,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 //______________________________________________________________________________________//
 
- void KVFAZIARawDataReconstructor::ExtraProcessing()
+void KVFAZIARawDataReconstructor::ExtraProcessing()
 {
 	KVFAZIADetector* det = 0;
 	KVSignal* sig = 0;
@@ -128,17 +128,20 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    while ( (recnuc = recev->GetNextParticle()) )
    {
    	TIter next_d(recnuc->GetDetectorList());
-      while ( (det = (KVFAZIADetector* )next_d()) )
+		while ( (det = (KVFAZIADetector* )next_d()) )
    	{
    		TIter next_s(det->GetListOfSignals());
          while ( (sig = (KVSignal* )next_s()) )
    		{
-              KVNameValueList* psa = sig->TreateSignal();
-              if(psa) *(recnuc->GetParameters()) += *psa;
+				if (!sig->PSAHasBeenComputed()){
+					sig->TreateSignal();
+				}
+				KVNameValueList* psa = sig->GetPSAResult();
+     			if(psa) *(recnuc->GetParameters()) += *psa;
+				delete psa;
 			}
       }   
    }
-   
 }
 
 //______________________________________________________________________________________//
@@ -160,6 +163,6 @@ void KVFAZIARawDataReconstructor::EndRun()
 			gDataRepository->GetName()),
 			gDataSet->GetName() );
 	//add new file to repository
-	OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
+        OutputDataset->CommitRunfile(datatype.Data(), GetCurrentRunNumber(), file);
 
 }

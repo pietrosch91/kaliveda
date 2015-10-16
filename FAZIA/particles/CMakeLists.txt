@@ -1,4 +1,0 @@
-BUILD_KALIVEDA_MODULE(particles
-	PARENT ${KVSUBPROJECT}
-	EXTRA_LIBS KVMultiDetexp_events 
-)

@@ -28,7 +28,7 @@ ClassImp(KVSimDirGUI)
 /* -->
 <h2>KVSimDirGUI</h2>
 <h4>GUI for simulated data</h4>
-<img alt="KVSimDirGUI" src="images/KVSimDirGUI.png"><br><br>
+<img alt="KVSimDirGUI" src="http://indra.in2p3.fr/KaliVedaDoc/images/KVSimDirGUI.png"><br><br>
 <h3>See documentation <a href="KVSimDirGUIDoc/KVSimDirGUI.html">here</a>.</h3>
 <!-- */
 // --> END_HTML
@@ -488,8 +488,7 @@ void KVSimDirGUI::RunAnalysis()
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package
-           TString fullpath;
-           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
            p->UploadPackage(fullpath);
            p->EnablePackage("KaliVeda");
        }
@@ -559,7 +558,7 @@ void KVSimDirGUI::SelectDataSet(const char* name)
       fSystem="";
       fRun="";
       ds->cd();
-      TList* systems = 0;
+      KVSeqCollection* systems = 0;
       if(gDataBase) systems = gDataBase->GetTable("Systems")->GetRecords();
       fCBsystem->RemoveAll();
       fCBsystem->AddEntry("Choose system...", 0);
@@ -701,8 +700,7 @@ void KVSimDirGUI::RunFilter()
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package
-           TString fullpath;
-           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
            p->UploadPackage(fullpath);
            p->EnablePackage("KaliVeda");
        }

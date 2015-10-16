@@ -4,7 +4,7 @@
 ### ROOT
 At least version 5.32, works with version 6 from 6.02 onwards.
 ### CMake
-At least version 2.8 of cmake is required.
+At least version 2.8.8 of cmake is required.
 
 ## 1. Build & Install
 
@@ -37,6 +37,8 @@ By default, only the base classes of the toolkit are built. For experiment-speci
 
 * FAZIA: to build the libraries needed for analysis of FAZIA data, do
 
+
+
     $ cmake S -DCMAKE_INSTALL_PREFIX=I -DUSE_FAZIA=yes
 
 Note that the last two options automatically enable building of the INDRA libraries which are needed by them. To enable building of all optional libraries, you can do:
@@ -59,3 +61,46 @@ To build the KaliVeda interface classes to 'Range', add the following option to 
 If the library is not found, you can give the the path to the installation (should contain both lib/ and include/ directories):
 
     -DUSE_RANGE=yes -DRANGE_DIR=[path to range lib & headers]
+    
+## 2. Setting paths etc.
+
+To set the paths for executables, shared libraries, man pages, etc., you can execute one of the following scripts in an
+ineractive shell:
+
+    $ source I/bin/thiskaliveda.csh   [(t)csh shell]
+    $ . I/bin/thiskaliveda.sh         [(ba)sh shell]
+
+where I is the installation directory (see 1. above). On (t)csh machines, you will probably need to follow this
+with a call to the 'rehash' system function before proceeding. After doing this you should be able to type e.g.:
+
+    $ kaliveda-config
+    Usage: kaliveda-config [--version] [--libs] [--incdir] [--libdir] [--bindir] [--help]
+    
+    $ kaliveda
+      *******************************************
+      *                                         *
+      *        W E L C O M E  to  R O O T       *
+      *                                         *
+      *   Version   5.34/25   12 January 2015   *
+      *                                         *
+      *  You are welcome to visit our Web site  *
+      *          http://root.cern.ch            *
+      *                                         *
+      *******************************************
+    
+    ROOT 5.34/25 (heads/v5-34-00-patches@v5-34-24-89-g05f58e1, Feb 16 2015, 15:19:00 on linuxx8664gcc)
+    
+    CINT/ROOT C/C++ Interpreter version 5.18.00, July 2, 2010
+    Type ? for help. Commands must be C++ statements.
+    Enclose multiple statements between { }.
+    Info in <KVBase::InitEnvironment>: Initialising KaliVeda environment...
+    Info in <KVBase::InitEnvironment>: Using KaliVeda version 1.10/00 built on 2015-03-13
+    Info in <KVBase::InitEnvironment>: (git : bzr/1.10/heads/master@b5ddd55)
+    root [0] 
+
+To setup the KaliVeda paths every time you login to your system, place the call to thiskaliveda.(c)sh
+at the end of whatever login script is appropriate for your shell,
+a slight modification is required for (t)csh shells:
+
+    source I/bin/thiskaliveda.csh I   [(t)csh shell]
+    

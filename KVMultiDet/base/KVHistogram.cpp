@@ -107,12 +107,21 @@ void KVHistogram::ParseExpressionString(const Char_t* exp, KVString& varX, KVStr
 
    KVString tmp(exp);
     tmp.Remove(TString::kBoth,' ');
+    // hide any "::" scope resolution operators (e.g. TMath::DegToRad)
+    tmp.ReplaceAll("::","_scope_");
     Int_t nvar = tmp.CountChar(':');
     tmp.Begin(":");
 	varX=varY=varZ="";
-    if(nvar==2) varZ=tmp.Next();
-    if(nvar>=1) varY=tmp.Next();
+    if(nvar==2) {
+       varZ=tmp.Next();
+       varZ.ReplaceAll("_scope_","::");
+    }
+    if(nvar>=1) {
+       varY=tmp.Next();
+       varY.ReplaceAll("_scope_","::");
+    }
     varX=tmp.Next();
+    varX.ReplaceAll("_scope_","::");
 }
 
 const Char_t* KVHistogram::GetVarX() const

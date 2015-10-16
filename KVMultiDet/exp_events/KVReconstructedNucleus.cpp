@@ -57,14 +57,14 @@ void KVReconstructedNucleus::init()
 }
 
 
-KVReconstructedNucleus::KVReconstructedNucleus()
+KVReconstructedNucleus::KVReconstructedNucleus() : fIDResults("KVIdentificationResult",5)
 {
     //default ctor.
     init();
 }
 
 KVReconstructedNucleus::KVReconstructedNucleus(const KVReconstructedNucleus &obj)
-    : KVNucleus()
+    : KVNucleus(), fIDResults("KVIdentificationResult",5)
 {
     //copy ctor
     init();
@@ -95,8 +95,29 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
     UInt_t R__s, R__c;
     if (R__b.IsReading()) {
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-        //if( R__v < 15 ) { }
-        R__b.ReadClassBuffer(KVReconstructedNucleus::Class(),this,R__v,R__s,R__c);
+        if( R__v < 17 ) {
+           // Before v17, fIDResults was a static array: KVIdentificationResult fIDresults[5]
+           // We convert this to the new TClonesArray format
+           KVNucleus::Streamer(R__b);
+           fDetNames.Streamer(R__b);
+           fIDTelName.Streamer(R__b);
+           if( R__v >= 16 ) {
+              R__b >> fNSegDet;
+              R__b >> fAnalStatus;
+           }
+           R__b >> fRealZ;
+           R__b >> fRealA;
+           R__b >> fTargetEnergyLoss;
+           int R__i;
+           KVIdentificationResult id_array[5];
+           for (R__i = 0; R__i < 5; R__i++){
+              id_array[R__i].Streamer(R__b);
+              id_array[R__i].Copy(*GetIdentificationResult(R__i+1));
+           }
+           R__b.CheckByteCount(R__s, R__c, KVReconstructedNucleus::IsA());
+        }
+        else
+           R__b.ReadClassBuffer(KVReconstructedNucleus::Class(),this,R__v,R__s,R__c);
         // if the multidetector object exists, update some informations
         // concerning the detectors etc. hit by this particle
         if ( gMultiDetArray ){
@@ -107,7 +128,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             TIter next_det(&fDetList);
             KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
-                if( R__v < 16 ) fNSegDet += det->GetSegment(); // fNSegDet non-persistent before v.16
+                if( R__v < 16 ) fNSegDet += det->GetSegment(); // fNSegDet/fAnalStatus non-persistent before v.16
                 det->AddHit(this);
                 det->SetAnalysed();
                 //modify detector's counters depending on particle's identification state
@@ -134,9 +155,9 @@ void KVReconstructedNucleus::Print(Option_t * ) const
             KVDetector *det = GetDetector(i);
             if(det) det->Print("data");
         }
-        for(int i = 1; i<= IDRESULTS_DIM; i++){
+        for(int i = 1; i<=GetNumberOfIdentificationResults(); i++){
         	KVIdentificationResult* idr = const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(i);
-        	if(idr && idr->IDattempted) idr->Print();
+                if(idr->IDattempted) idr->Print();
         }
     }
     if(GetStoppingDetector()) cout << "STOPPED IN : " <<
@@ -243,9 +264,7 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
     if (GetGroup())
         GetGroup()->Reset();
     fDetList.Clear();
-    for (register int i = 0; i < IDRESULTS_DIM; i++) {
-       fIDresults[i].Reset();
-    }
+    fIDResults.Clear("C");
     init();
 }
 
@@ -309,59 +328,59 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
 
 void KVReconstructedNucleus::Identify()
 {
-    // Try to identify this nucleus by calling the Identify() function of each
-    // ID telescope crossed by it, starting with the telescope where the particle stopped, in order
-    //      -  only attempt identification in ID telescopes containing the stopping detector.
-    //      -  only telescopes which have been correctly initialised for the current run are used,
-    //         i.e. those for which KVIDTelescope::IsReadyForID() returns kTRUE.
-    // This continues until a successful identification is achieved or there are no more ID telescopes to try.
-    // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
+   // Try to identify this nucleus by calling the Identify() function of each
+   // ID telescope crossed by it, starting with the telescope where the particle stopped, in order
+   //      -  only attempt identification in ID telescopes containing the stopping detector.
+   //      -  only telescopes which have been correctly initialised for the current run are used,
+   //         i.e. those for which KVIDTelescope::IsReadyForID() returns kTRUE.
+   // This continues until a successful identification is achieved or there are no more ID telescopes to try.
+   // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-    
-	 KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
-    if (idt_list && idt_list->GetSize() > 0) {
 
-        KVIDTelescope *idt;
-        TIter next(idt_list);
-        Int_t idnumber = 1;
-        Int_t n_success_id = 0;//nnumber of successful identifications
-        while ((idt = (KVIDTelescope *) next())) {
-            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+   KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+   if (idt_list && idt_list->GetSize() > 0) {
 
-            if ( IDR ){
-                if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+      KVIDTelescope *idt;
+      TIter next(idt_list);
+      Int_t idnumber = 1;
+      Int_t n_success_id = 0;//number of successful identifications
+      while ((idt = (KVIDTelescope *) next())) {
+         KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
 
-                    IDR->IDattempted = kTRUE;
-                    idt->Identify( IDR );
 
-                    if(IDR->IDOK) n_success_id++;
-                }
-                else
-                    IDR->IDattempted = kFALSE;
+            if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
-                if(n_success_id<1 &&
-                        ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
-                    // the particle is less identifiable than initially thought
-                    // we may have to wait for secondary identification
-                    Int_t nseg = GetNSegDet();
-                    SetNSegDet(TMath::Max(nseg - 1, 0));
-                    //if there are other unidentified particles in the group and NSegDet is < 2
-                    //then exact status depends on segmentation of the other particles : reanalyse
-                    if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
-                        AnalyseParticlesInGroup(GetGroup());
-                        return;
-                    }
-                    //if NSegDet = 0 it's hopeless
-                    if (!GetNSegDet()){
-                        AnalyseParticlesInGroup(GetGroup());
-                        return;
-                    }
-                }
+               IDR->IDattempted = kTRUE;
+               idt->Identify( IDR );
+
+               if(IDR->IDOK) n_success_id++;
+            }
+            else
+               IDR->IDattempted = kFALSE;
+
+            if(n_success_id<1 &&
+               ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
+               // the particle is less identifiable than initially thought
+               // we may have to wait for secondary identification
+               Int_t nseg = GetNSegDet();
+               SetNSegDet(TMath::Max(nseg - 1, 0));
+               //if there are other unidentified particles in the group and NSegDet is < 2
+               //then exact status depends on segmentation of the other particles : reanalyse
+               if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
+                  AnalyseParticlesInGroup(GetGroup());
+                  return;
+               }
+               //if NSegDet = 0 it's hopeless
+               if (!GetNSegDet()){
+                  AnalyseParticlesInGroup(GetGroup());
+                  return;
+               }
             }
 
-        }
 
-    }
+      }
+
+   }
 
 }
 

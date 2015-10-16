@@ -310,26 +310,24 @@ KVNumberList KVFAZIAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
    KVFAZIADBRun *dbrun;
    
    //first read list and find what triggers are available
-   int triggers[10], n_trigs = 0;
+   vector<int> triggers;
    all_runs.Begin();
    while ( !all_runs.End() ) {
       dbrun = (KVFAZIADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
-      if (!KVBase::
-          ArrContainsValue(n_trigs, triggers, dbrun->GetTrigger())) {
-         triggers[n_trigs++] = dbrun->GetTrigger();
-      }
+      if ( triggers.size() == 0
+           || std::find(triggers.begin(),triggers.end(),dbrun->GetTrigger()) != triggers.end() )
+         triggers.push_back( dbrun->GetTrigger() );
    }
    //sort triggers in ascending order
-   int ord_trig[10];
-   TMath::Sort(n_trigs, triggers, ord_trig, kFALSE);
+   std::sort(triggers.begin(),triggers.end());
 
-   int trig = 0;
-   while (trig < n_trigs) {
-      cout << " ---> Trigger M>" << triggers[ord_trig[trig]] << endl;
+   for( std::vector<int>::iterator it = triggers.begin(); it != triggers.end(); ++it )
+   {
+      cout << " ---> Trigger M>" << *it << endl;
       all_runs.Begin();
       while ( !all_runs.End() ) {
          dbrun = (KVFAZIADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
-         if (dbrun->GetTrigger() == triggers[ord_trig[trig]]) {
+         if (dbrun->GetTrigger() == *it) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
             cout << Form("\t(%7d events)", dbrun->GetEvents());
             cout << "\t[File written: " << dbrun->GetDatime().
@@ -339,7 +337,6 @@ KVNumberList KVFAZIAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
             cout << endl;
          }
       }
-      trig++;
       cout << endl;
    }
    return all_runs;

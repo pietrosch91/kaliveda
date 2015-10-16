@@ -27,7 +27,7 @@ ClassImp(KVBIC)
 //
 //Here is the structure used to describe the Blocking Ionisation Chambers:
 //Begin_Html
-//<img src="images/bic.gif">
+//<img src="http://indra.in2p3.fr/KaliVedaDoc/images/bic.gif">
 //End_Html
 //
 //structure as absorbers:

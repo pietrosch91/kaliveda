@@ -35,7 +35,7 @@ class KVIdentificationResult : public KVBase
 		// copy constructor
 		id.Copy(*this);
 	};
-	virtual void Reset();
+        void Clear(Option_t *opt = "");
 	void Copy(TObject&) const;
 	void Print(Option_t* opt="") const;
 	KVIdentificationResult& operator=(const KVIdentificationResult& i)

@@ -226,12 +226,12 @@ Double_t * KVGraph::GetBinArray(Int_t &nbins, Bool_t xAxis)
     KVNumberList nb;
     for(Int_t i=0; i<GetN(); i++) nb.Add((x[i])*100);
 
-    Int_t* ibins = nb.GetArray(nbins);
+    nb.Begin();
 
     Double_t* bins = new Double_t[nbins];
-    for(Int_t i=0;i<nbins;i++) bins[i] = (ibins[i])/100.;
+    Int_t i=0;
+    while( !nb.End() ) bins[i++] = (nb.Next())/100.;
 
-    delete ibins;
     return bins;
 }
 

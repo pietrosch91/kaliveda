@@ -225,54 +225,36 @@ void KV_CCIN2P3_GE::Print(Option_t* option) const
 
 void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 {
-	// PRIVATE method called by SubmitTask() at moment of job submission.
-	// Depending on the current environment, the default job submission options
-	// may be changed by this method.
-   // 
-	// This method overrides and augments KVBatchSystem::ChangeDefJobOpt (which
-	// changes the options as a function of the type of analysis task).
-	// Here we add the CCIN2P3-specific case where the job is launched from a directory
-	// on the /sps/ semi-permanent storage facility. In this case we need to add
-	// the option '-l u_sps_indra' to the 'qsub' command (if not already in the
-	// default job options)
-	//
-	// Due to many people being caught out by this mechanism when submitting
-	// raw->recon, raw->ident, etc. jobs from an SPS directory (and thus being penalised
-	// unfairly by the limited number of SPS-ressource-declaring jobs), we only declare
-	// u_sps_indra if the analysis task is not "Reconstruction", "ReconIdent",
-	// "IdentRoot". We also add some warning messages.
-
-	KVBatchSystem::ChangeDefJobOpt(da);
-	KVString taskname = da->GetAnalysisTask()->GetName();
+   // PRIVATE method called by SubmitTask() at moment of job submission.
+   // Depending on the current environment, the default job submission options
+   // may be changed by this method.
+   //
+   // This method overrides and augments KVBatchSystem::ChangeDefJobOpt (which
+   // changes the options as a function of the type of analysis task).
+   // Here we add the CCIN2P3-specific case where the job is launched from a directory
+   // on the /sps/ semi-permanent storage facility, or if the data being analysed is
+   // stored in a repository on /sps/. In this case we need to add
+   // the option '-l u_sps_indra' to the 'qsub' command (if not already in the
+   // default job options)
+   //
+   KVBatchSystem::ChangeDefJobOpt(da);
+   KVString taskname = da->GetAnalysisTask()->GetName();
    KVString rootdir = gDataRepository->GetRootDirectory();
    Bool_t repIsSPS = rootdir.BeginsWith("/sps/");
-	
-	KVString wrkdir( gSystem->WorkingDirectory() );
-	KVString oldoptions( GetDefaultJobOptions() );
+
+   KVString wrkdir( gSystem->WorkingDirectory() );
+   KVString oldoptions( GetDefaultJobOptions() );
    
-	
-   Bool_t NeedToAddSPS = wrkdir.Contains("/sps/"); //where KaliVedaGUI has been launched ?
-   if (NeedToAddSPS){	//KaliVedaGUI launched from sps ... 
-   	if ( !da->GetAnalysisTask()->WithUserClass() ) //but ... no user class needed ...
- 		{
-   		NeedToAddSPS = kFALSE;	// ... by default no need of sps  ...
-      	if (repIsSPS) 	NeedToAddSPS = kTRUE; // ... except if data repository is on sps
-   	}
+   if ( !oldoptions.Contains("sps") )
+   {
+      Bool_t NeedToAddSPS = wrkdir.Contains("/sps/");
+      if( (NeedToAddSPS || repIsSPS) ){
+         oldoptions += " -l sps=1";
+         SetDefaultJobOptions( oldoptions.Data() );
+         Info("ChangeDefJobOpt",
+              "Your job is being launched from /sps/... zone.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.");
+      }
    }
-   else{ //not from sps ...
-   	if (repIsSPS) 	NeedToAddSPS = kTRUE; //... but data repository is on sps
-   }
-   
-   if (NeedToAddSPS)
-   	NeedToAddSPS = !oldoptions.Contains("sps");
-   
-   
-	if( (NeedToAddSPS) ){
-   	oldoptions += " -l sps=1";
-		SetDefaultJobOptions( oldoptions.Data() );
-		Warning("ChangeDefJobOpt",
-					"Your job is using sps ressource.\nTherefore the ressource 'sps' has been declared and the number of jobs which can be treated concurrently will be limited.");
-	}	
 }
 
          

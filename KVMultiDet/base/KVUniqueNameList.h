@@ -9,6 +9,7 @@
 class KVUniqueNameList : public KVHashList
 {
    Bool_t fReplace;// if kTRUE, objects with same name are replaced
+   mutable Bool_t fLastCheck;//! return value of last call to checkobj
    
    Bool_t checkObjInList(TObject* obj);
    
@@ -20,43 +21,53 @@ class KVUniqueNameList : public KVHashList
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::AddFirst(obj);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::AddFirst(obj);
     };
     virtual void      AddLast(TObject *obj)
     {
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::AddLast(obj);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::AddLast(obj);
     };
     virtual void      AddAt(TObject *obj, Int_t idx)
     {
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::AddAt(obj,idx);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::AddAt(obj,idx);
     };
     virtual void      AddAfter(const TObject *after, TObject *obj)
     {
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::AddAfter(after,obj);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::AddAfter(after,obj);
     };
     virtual void      AddBefore(const TObject *before, TObject *obj)
     {
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::AddBefore(before,obj);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::AddBefore(before,obj);
     };
     virtual void       Add(TObject *obj)
     {
        // Add an object to the list if it is not already in it
        // (no object with same name in list)
        
-       if(checkObjInList(obj)) KVHashList::Add(obj);
+       if((fLastCheck=checkObjInList(obj))) KVHashList::Add(obj);
     };
+
+   Bool_t ObjectAdded() const
+   {
+      // returns kTRUE if the last (immediately previous) attempt ot
+      // add an object to the list was successful
+
+      Bool_t save=fLastCheck;
+      fLastCheck=kFALSE;
+      return save;
+   }
 
    ClassDef(KVUniqueNameList,2)//Optimised list in which objects can only be placed once
 };

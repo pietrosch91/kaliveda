@@ -14,7 +14,9 @@ $Date: 2009/04/28 09:11:29 $
 #include "TRootContextMenu.h"
 #include "TSystem.h"
 #include <KVBase.h>
-
+#include <TGMsgBox.h>
+#include "TGClient.h"
+#include "TEnv.h"
 using namespace std;
 
 class KVLVFrameElement : public TGFrameElement {
@@ -325,22 +327,45 @@ void KVLVContainer::AddFrame(TGFrame *f, TGLayoutHints *l)
 
 void KVLVContainer::Display(const TCollection* list_of_objects)
 {
-    // Display the list of objects in the container.
+   // Display the list of objects in the container.
+   // If the list is very long (> KVListView.MaxListLength)
+   // we pop up a dialog box to ask if all items should be displayed
+   // which can take quite a long time
 
-    /* remove all items from display, but keep list in memory */
-    fKeepUserItems = kTRUE;
-    RemoveAll();
-    fKeepUserItems = kFALSE;
+   /* remove all items from display, but keep list in memory */
+   fKeepUserItems = kTRUE;
+   RemoveAll();
+   fKeepUserItems = kFALSE;
 
-    FillList(list_of_objects);
-    if(!fIsResized){
-        GetListView()->ResizeColumns();
-        fIsResized=kTRUE;
-    }
-    TGCanvas *canvas = (TGCanvas *) this->GetParent()->GetParent();
-    canvas->Layout();
+   Int_t max_entries = gEnv->GetValue("KVListView.MaxListLength",1000);
+   if(list_of_objects->GetEntries() > max_entries){
+      Int_t ret;
+      new TGMsgBox(gClient->GetRoot(), GetMainFrame(), "Long list",
+                   Form("The list contains more than %d items. Do you want to display all items ?",
+                        max_entries),
+                        kMBIconQuestion, kMBYes|kMBNo, &ret);
+      if(ret&kMBNo){
+         // display only the first KVListView.MaxListLength entries
+         TList list2;
+         Int_t N=0;
+         TIter next(list_of_objects);
+         TObject* o;
+         while( (o = next()) && (N++)<max_entries) list2.Add(o);
+         FillList(&list2);
+      }
+      else
+         FillList(list_of_objects);
+   }
+   else
+      FillList(list_of_objects);
+   if(!fIsResized){
+      GetListView()->ResizeColumns();
+      fIsResized=kTRUE;
+   }
+   TGCanvas *canvas = (TGCanvas *) this->GetParent()->GetParent();
+   canvas->Layout();
 
-    MapSubwindows();
+   MapSubwindows();
 }
 
 //______________________________________________________________________________
@@ -530,10 +555,40 @@ void KVLVContainer::ActivateItemWithColumnData(const Char_t* colname, Long_t dat
         f = (TGLVEntry *) el->fFrame;
         CD->GetData( (TObject*)f->GetUserData(), val );
         if(val==data) {
-            if(activ) ActivateItem(el);
-            else DeActivateItem(el);
+            printf("%ld\n",data);
+            if (activ) ActivateItemFromSelectAll(el);
+				else DeActivateItem(el);
             break;
         }
+    }
+    //fClient->NeedRedraw(this);
+}
+//______________________________________________________________________________
+
+void KVLVContainer::ActivateItemsWithColumnData(const Char_t* colname, KVNumberList data, Bool_t activ)
+{
+    KVLVColumnData* CD = fColData[((KVListView*)GetListView())->GetColumnNumber(colname)];
+    TGFrameElement *el;
+    TIter next(fList);
+    TGLVEntry *f=0;
+    Long_t val;
+    data.Begin();
+    while ( !data.End() )
+    {
+    	Int_t nd = data.Next();
+    	//printf("nd=%d\n",nd);
+    	next.Reset();
+      Bool_t find = kFALSE;
+      while ( (el = (TGFrameElement *) next()) && !find)
+      {
+			f = (TGLVEntry *) el->fFrame;
+			CD->GetData( (TObject*)f->GetUserData(), val );
+      	if(val==nd) {
+         	find=kTRUE;
+            if (activ) ActivateItemFromSelectAll(el);
+            else DeActivateItem(el);
+         }
+      }
     }
     fClient->NeedRedraw(this);
 }
@@ -807,8 +862,7 @@ void KVLVContainer::SelectAll()
 void KVLVContainer::ActivateItemFromSelectAll(TGFrameElement *el)
 {
    // Activate item.
-
-   TGFrame *fr = el->fFrame;
+	TGFrame *fr = el->fFrame;
    fr->Activate(kTRUE);
 
    if (fLastActiveEl != el) {
@@ -819,9 +873,6 @@ void KVLVContainer::ActivateItemFromSelectAll(TGFrameElement *el)
    }
 
    if (!fSelected) fSelected = 1;
-
-   //SendMessage(fMsgWindow, MK_MSG(kC_CONTAINER, kCT_SELCHANGED), fTotal, fSelected);
-
-   TGPosition pos = GetPagePosition();
+	TGPosition pos = GetPagePosition();
    DrawRegion(fr->GetX() - pos.fX, fr->GetY() - pos.fY, fr->GetWidth(), fr->GetHeight());
 }

@@ -2474,8 +2474,6 @@ void KVMultiDetArray::SetGridsInTelescopes ( UInt_t run )
    while ( ( gr = ( KVIDGraph* ) next() ) ) {
       if ( gr->GetRuns().Contains ( ( Int_t ) run ) ) {
 
-         FillListOfIDTelescopes(gr);
-
          //Info("SetGridsInTelescopes","la grille %s contient le numero de run %d",gr->GetName(),run);
          TIter nxtid ( gr->GetIDTelescopes() );
          KVIDTelescope* idt;
@@ -2486,7 +2484,7 @@ void KVMultiDetArray::SetGridsInTelescopes ( UInt_t run )
       }
    }
 }
-void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr)
+void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
 {
    // Fill list of ID telescopes with which this grid is associated
    // from list of names read from ascii file.

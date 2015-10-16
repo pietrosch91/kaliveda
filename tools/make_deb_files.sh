@@ -1,6 +1,22 @@
 #!/bin/bash
-# $1 = root source directory
-# $2 = build directory
+#--- make_deb_files [source dir] [build dir]
+#
+# This script is used to update the debian/ubuntu packaging information in case
+# e.g. new classes are added to the libraries.
+#
+# Call this script with two arguments: full paths to source & build directories
+# Make sure the ROOT version used is compatible with current Ubuntu package!
+# This will configure & build all libraries (option USE_ALL=yes), then perform
+# a DESTDIR installation in [build dir]. This will be used to update the debian
+# package information in the [source dir]/debian directory, such as:
+#
+#  kaliveda.dirs
+#  kaliveda.install
+#  libkaliveda-dev.dirs
+#  libkaliveda-dev.install
+# 
+# etc. etc. You should then commit the new files to the version control system
+# for the next build to take them into account.
 
 makeDebFiles()
 {
@@ -113,7 +129,7 @@ for lib in $libs; do
    echo "/$lib" >> $install_file
 done
 if [ "x$3" = "xKVMultiDet" ]; then
-  extras="/usr/share/kaliveda/etc/config.files /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
+  extras="/usr/share/kaliveda/etc/config.files /usr/share/kaliveda/etc/KaliVeda.par /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
   tools="/usr/bin/kaliveda /usr/bin/kaliveda-sim /usr/bin/update_runlist /usr/bin/kvtreeanalyzer /usr/bin/kvdatanalyser /usr/bin/KaliVedaAnalysis"
   dev_extras="/usr/share/kaliveda/etc/kaliveda.m4 /usr/share/kaliveda/etc/nedit.cf /usr/bin/kaliveda-config"
   for e in $extras; do
@@ -154,9 +170,15 @@ if [ $# -lt 2 ]; then
    exit 0
 fi
 
+read -p "Delete build directory $2 ? (y/[n]): " reply
+reply=${reply:-n}
+if [ "x$reply" = "xy" ]; then
+   rm -rf $2
+   mkdir -p $2
+fi
 cd $2
-#cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes
-#make -j4 install DESTDIR=$2/tmp
+cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_ALL=yes -DUSE_GEMINI=no
+make -j3 install DESTDIR=$2/tmp
 makeDebFiles $1 $2 KVMultiDet kaliveda
 makeDebFiles $1 $2 KVIndra kaliveda-indra
 makeDebFiles $1 $2 VAMOS kaliveda-indravamos

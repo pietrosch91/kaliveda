@@ -18,7 +18,7 @@ ClassImp(KVListView)
 <h2>KVListView</h2>
 <h4>Slightly modified TGListView</h4>
 
-<img src="images/KVLVContainer.png"><br>
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/KVLVContainer.png"><br>
 
 <h3>Example of use</h3>
 KVListView takes a list of objects (TObject or derived class) and presents them

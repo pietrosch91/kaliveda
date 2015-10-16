@@ -10,15 +10,26 @@
 
 get_lib_list()
 {
+   # fill $lib_list with all installed libraries
+   # we look for 'lib*.so' symbolic links
+   # we check that it points to an existing file
+   #
    # $1 = KVMultiDet etc.
    # $2 = /usr/lib etc.
-   
+   tmp3=""
    unset lib_list
    tmp=`find $2 -name 'lib'$1'*.so'`
-   if [ ! -z "$tmp" ]; then
-      tmp2=`basename -a -s .so $tmp`
-      lib_list=`echo $tmp2 | sed 's/lib'$1'/-l'$1'/g'`
-   fi
+   #echo $tmp
+   for file in $tmp
+   do
+   	#echo $file
+      if [ -e "$file" ]; then
+   	   tmp2=`basename $file .so`
+         #echo $tmp2
+   	   tmp3="$tmp2 $tmp3"
+   	fi
+   done   
+	lib_list=`echo $tmp3 | sed 's/lib'$1'/-l'$1'/g'`
 }
 
 readlink=readlink
@@ -57,22 +68,26 @@ if [ "$?" -ne "0" ]; then
 fi
 
 VERSION="@KV_VERSION_STRING@"
+srcdir=@CMAKE_SOURCE_DIR@
+buildir=@CMAKE_BINARY_DIR@
 libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
 #features= "@features@"
 get_lib_list KVMultiDet "$libdir"
 multidetlibs="$lib_list"
+get_lib_list BackTrack "$libdir"
+backtracklibs="$lib_list"
 get_lib_list KVIndra $libdir
 indralibs="$lib_list"
 get_lib_list VAMOS $libdir
 vamoslibs=$lib_list
 get_lib_list FAZIA $libdir
 fazialibs=$lib_list
-libs="$fazialibs $vamoslibs $indralibs $multidetlibs"
+libs="$fazialibs $vamoslibs $indralibs $backtracklibs $multidetlibs"
 
 usage="\
-Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir] [--help]"
+Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir] [--buildir] [--srcdir] [--help]"
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -110,6 +125,14 @@ while test $# -gt 0; do
       ### output the executable directory
       out="$out $bindir"
       ;;
+    --buildir)
+      ### output the build directory
+      out="$out $buildir"
+      ;;
+    --srcdir)
+      ### output the source directory
+      out="$out $srcdir"
+      ;;
     --libdir)
       ### output the library directory
       out="$out $libdir"
@@ -131,6 +154,8 @@ while test $# -gt 0; do
       echo "  --libdir              Print the library directory"
       echo "  --incdir              Print the header directory"
       echo "  --libs                Print linker directives for all libraries"
+      echo "  --builddir            Print the CMake build directory"
+      echo "  --srcdir              Print the source directory"
       echo "  --help                Print this message"
       exit 0
       ;;

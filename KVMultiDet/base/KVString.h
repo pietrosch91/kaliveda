@@ -96,6 +96,9 @@ class KVString:public TString
    static KVString ULLtoa (ULong64_t value, Int_t base);
    static KVString BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_out);  // Converts string from base base_in to base base_out (supported bases 2-36)
 
+   void RemoveAllExtraWhiteSpace();
+   KVString StripAllExtraWhiteSpace() const;
+
    ClassDef(KVString, 1)        //TString wrapper compatible with ROOT versions 3.10/02 onwards
 };
 

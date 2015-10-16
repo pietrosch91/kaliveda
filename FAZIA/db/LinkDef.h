@@ -5,4 +5,5 @@
 #pragma link C++ global gFaziaDB;
 #pragma link C++ class KVFAZIADB;
 #pragma link C++ class KVFAZIADBRun;
+#pragma link C++ class KVFAZIAUpDater;
 #endif

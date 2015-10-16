@@ -12,6 +12,60 @@
 
 ClassImp(BackTrack::GenericModel)
 
+//////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>BackTrack - a RooFit approach to backtracing</h2>
+<h4>Backtracing</h4>
+<p>Backtracing is a statistical procedure for deducing
+the distributions of model parameters which give the best description of
+some data which the model is supposed to reproduce by transforming parameter distributions
+into observable distributions. By backtracing we try to deduce the model parameter distributions
+from the data observable distributions. See Nuclear Physics A604(1996)183-207
+and Nuclear Instruments and Methods in Physics Research Section A544(2005)679-683</p>
+
+<p>The model is defined by the conditional probability distributions of observables for a given
+set of parameter values, M(o|p). Then, given a set of parameter distributions P(p) which vary in domain D,
+the observable distributions are given by
+<!-- */
+// --> END_HTML
+// BEGIN_LATEX
+// \mathcal{O}(\mathbf{o})=\int_{D_{p}}\mathcal{P}(\mathbf{p})\mathcal{M}(\mathbf{o}|\mathbf{p})\:d\mathbf{p}
+// END_LATEX
+// BEGIN_HTML <!--
+/* -->
+and the aim of the backtracing procedure is to find the best parameter distributions P(p)
+which reproduce the data observable distributions O(o).</p>
+
+<h4>BackTrack</h4>
+BackTrack aims to perform backtracing using the <a href="https://root.cern.ch/drupal/content/roofit">RooFit</a> package.
+RooFit can fit probability density functions to experimental data distributions conserving all correlations
+between the observables. We discretize the parameter space Dp in order to set up a pseudo-PDF for our model
+whose adjustable parameters are the weight of each bin in the discretized parameter space. Then by fitting the
+experimental data with this pseudo-PDF we find the distribution of weights in the parameter space, i.e. the
+parameter distributions which best describe the data.
+
+<h4>Use</h4>
+<p>In order to perform backtracing/BackTracking, you must write a class which inherits from this class and
+override the method<br>
+RooDataSet* <a class="funcname" href="#BackTrack__GenericModel:GetModelDataSet">GetModelDataSet</a>(RooArgList&amp; par)<br>
+which should create and return a pointer to a RooDataSet containing events generated from the model using the
+parameter values which are passed in the RooArgList argument. This can be by directly generating the events on demand,
+or by importing events from e.g. a TTree - whatever you want.</p>
+
+<p>Then the basic steps for BackTracking are:
+<ul>
+<li> define the parameters for the model with their range and binning using <a class="funcname" href="#BackTrack__GenericModel:AddParameter">AddParameter</a>;
+<li> define the observables of the data/model with their range using <a class="funcname" href="#BackTrack__GenericModel:AddObservable">AddObservable</a>; 
+<li> generate/import the model observable distributions for each cell in the discretized parameter space using <a class="funcname" href="#BackTrack__GenericModel:ImportModelData">ImportModelData</a>; 
+<li> generate the pseudo-PDF from the imported model distributions using <a class="funcname" href="#BackTrack__GenericModel:ConstructPseudoPDF">ConstructPseudoPDF</a>; 
+<li> fit the pseudo-PDF to the data using <a class="funcname" href="#BackTrack__GenericModel:fitTo">fitTo</a>
+</ul>
+See the <a href="BACKTRACK_Index.html">example classes</a> for more details.
+<!-- */
+// --> END_HTML
+//////////////////////////////////////////////////////////////////////
+
 namespace BackTrack {
 
 GenericModel::GenericModel()

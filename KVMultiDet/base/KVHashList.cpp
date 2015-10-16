@@ -78,7 +78,11 @@ void KVHashList::Rehash(Int_t newCapacity)
    ((THashList*)fCollection)->Rehash(newCapacity);
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,5,0)
+const TList* KVHashList::GetListForObject(const char *name) const
+#else
 TList* KVHashList::GetListForObject(const char *name) const
+#endif
 {
    // Return the THashTable's list (bucket) in which obj can be found based on
    // its hash; see THashTable::GetListForObject().
@@ -88,7 +92,11 @@ TList* KVHashList::GetListForObject(const char *name) const
 
 //______________________________________________________________________________
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,5,0)
+const TList *KVHashList::GetListForObject(const TObject *obj) const
+#else
 TList *KVHashList::GetListForObject(const TObject *obj) const
+#endif
 {
    // Return the THashTable's list (bucket) in which obj can be found based on
    // its hash; see THashTable::GetListForObject().

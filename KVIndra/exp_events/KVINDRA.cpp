@@ -57,7 +57,7 @@ ClassImp(KVINDRA)
 <h2>KVINDRA</h2>
 <h4>INDRA multidetector array, 1st campaign configuration</h4>
 
-<img src="images/indra_camp1.png"><br>
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/indra_camp1.png"><br>
 
 <!-- */
 // --> END_HTML

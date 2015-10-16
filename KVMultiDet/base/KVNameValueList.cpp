@@ -126,6 +126,8 @@ void KVNameValueList::Print(Option_t* option) const
    // Option can be used to select type of parameters to print:
    //   option = "int", "double", or "string"
    
+   if(!GetNpar()) return;
+
    TROOT::IndentLevel();
    cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
    TROOT::IncreaseDirLevel();

@@ -5,6 +5,8 @@
 #include "KVNumberList.h"
 #include "KVDataSetManager.h"
 #include "KVRunListLine.h"
+#include "KVFileReader.h"
+#include "KVDBParameterList.h"
 
 KVFAZIADB *gFaziaDB;
 
@@ -26,7 +28,9 @@ void KVFAZIADB::init()
    kLastRun = 0;
 
    fRuns = AddTable("Runs", "List of available runs");
+   fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
+	fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t * name):KVDataBase(name,
@@ -93,7 +97,7 @@ const Char_t *KVFAZIADB::GetDBEnv(const Char_t * type) const
    KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
       return "";
-   return ds->GetDataSetEnv(Form("INDRADB.%s", type));
+   return ds->GetDataSetEnv(Form("FAZIADB.%s", type));
 }
 
 //_____________________________________________________________________
@@ -248,7 +252,7 @@ void KVFAZIADB::ReadSystemList()
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-       next_char = fin.peek();
+         next_char = fin.peek();
       }
       fin.close();
    }
@@ -270,6 +274,9 @@ void KVFAZIADB::ReadSystemList()
          sys->AddRun(run);
       }
    }
+
+   // rehash the record table now that all names are set
+   fSystems->Rehash();
 }
 
 void KVFAZIADB::WriteSystemsFile() const
@@ -375,7 +382,8 @@ void KVFAZIADB::Build()
 	*/
    ReadNewRunList();
    ReadSystemList();
-   
+   ReadExceptions();
+	ReadComments();
 }
 
 
@@ -399,27 +407,57 @@ void KVFAZIADB::ReadNewRunList()
    
    while( fin.good() && !fin.eof() ){
       line.ReadLine( fin );
-		
-      if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
+		if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
          run = new KVFAZIADBRun;
-         //run->ReadRunListLine( line );
-         toks = line.Tokenize(" | ");
+         run->SetTrigger(1);
+			//run->ReadRunListLine( line );
+         toks = line.Tokenize("|");
          for (Int_t ii=0;ii<toks->GetEntries();ii+=1){
          	KVString couple = ((TObjString* )toks->At(ii))->GetString();
             couple.Begin("=");
             KVString name = couple.Next();
+				name = name.Strip(TString::kBoth);
             KVString value="";
-            if (!couple.End())
+            if (!couple.End()){
             	value = couple.Next();
-            if (name=="Run"){
+					value = value.Strip(TString::kBoth);
+            }
+				if (name=="run"){
             	run->SetNumber(value.Atoi());	
             }
-            if (name=="Events"){
+            else if (name=="read events"){
             	run->SetEvents(value.Atoi());	
             }
-            if (name=="Trigger"){
-            	run->SetTrigger(value.Atoi());	
+            else if (name=="good events"){
+            	run->SetGoodEvents(value.Atoi());	
             }
+            else if (name=="starting date"){
+            	run->SetStartDate(value);	
+            }
+            else if (name=="stopping date"){
+            	run->SetEndDate(value);	
+            }
+				else if (name=="aqcuisition status"){
+            	run->SetACQStatus(value);	
+            }
+				else if (name=="wrong number of blocks"){	//events rejected due to the wrong number of blocks
+            	run->SetError_WrongNumberOfBlocks( value.Atoi() );
+				}	
+				else if (name=="block errors"){	//events rejected due to internal error in one block
+            	run->SetError_InternalBlockError(value.Atoi());
+				}
+				else if (name=="nfiles"){	//number of acquisition files
+            	run->SetNumberOfAcqFiles(value.Atoi());
+				}
+				else if (name=="duration"){	//duration in seconds of the run
+            	run->SetDuration(value.Atof());
+				}
+				else if (name=="frequency"){	//number of evts per seconds (aquisition rate)
+            	run->SetFrequency(value.Atof());
+				}
+				else{
+				
+				}	
          }
          delete toks;
          if( run->GetNumber()<1 ){
@@ -435,6 +473,140 @@ void KVFAZIADB::ReadNewRunList()
    fin.close();
 }
 
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadExceptions()
+{
+    if (!strcmp(GetCalibFileName("Exceptions"),"")) {
+        Info("ReadExceptions()", "No file found for Exceptions");
+      return;
+   }
+
+    TString fp;
+    gDataSet->SearchKVFile(GetCalibFileName("Exceptions"),fp,gDataSet->GetName());
+
+	KVFileReader fr;
+	if (!fr.OpenFileToRead(fp.Data())){
+		Error("ReadExceptions()", "Error in opening file %s\n",fp.Data());
+		return;
+	}
+	
+   Info("ReadExceptions()", "Reading exceptions ...");
+	TList* ll = new TList();
+	KVNumberList lruns;
+	KVDBParameterList* dbp=0;
+	
+	ll->SetOwner(kFALSE);
+	while (fr.IsOK())
+    {
+		fr.ReadLine(":");
+		if (fr.GetNparRead()==2)
+		{
+			if (fr.GetReadPar(0)=="RunRange")
+			{
+				if (ll->GetEntries()>0)
+				{
+					printf("\t linkage avec les runs\n");
+					LinkListToRunRange(ll,lruns);
+					ll->Clear();
+				}
+				lruns.SetList(fr.GetReadPar(1));
+				printf("nouvelle plage : %s\n",lruns.AsString());
+			}
+			else{
+				KVString name(fr.GetReadPar(0));
+				name.Begin(".");
+				KVString tel = name.Next();
+				tel.Begin("-");
+				KVString sdet = tel.Next(); sdet.Prepend("-");
+				sdet.Prepend(tel.Next()); sdet.Prepend("-");
+				sdet.Prepend(tel.Next()); sdet.Prepend("-");
+				
+				KVString sig = name.Next();
+				if ( sig=="QH1"||sig=="QL1"||sig=="I1" ) 	sdet.Prepend("SI1");
+				else if ( sig=="Q2"||sig=="I2" ) 			sdet.Prepend("SI2");
+				else if ( sig=="Q3" )							sdet.Prepend("CSI");
+				
+				printf("tel=%s -> sdet=%s\n",tel.Data(),sdet.Data());
+				
+				KVString par = name.Next();
+				if ( !(dbp = (KVDBParameterList* )ll->FindObject(Form("%s.%s",tel.Data(),sig.Data()))) )
+				{
+					dbp = new KVDBParameterList(Form("%s.%s",sdet.Data(),sig.Data()),sdet.Data());
+					dbp->AddKey("Runs", "List of Runs");
+					fExceptions->AddRecord(dbp);
+					ll->Add(dbp);
+					dbp->GetParameters()->SetValue("RunRange",lruns.AsString());
+					dbp->GetParameters()->SetValue("Detector",sdet.Data());
+					dbp->GetParameters()->SetValue("Signal",sig.Data());
+				}
+				dbp->GetParameters()->SetValue(par.Data(),fr.GetDoubleReadPar(1));
+				
+				printf("\t%s %s %s %lf\n",tel.Data(),sig.Data(),par.Data(),fr.GetDoubleReadPar(1));
+			}
+		}
+	}
+	
+	if (ll->GetEntries()>0)
+	{
+		printf("\t linkage avec les runs\n");
+		LinkListToRunRange(ll,lruns);
+		ll->Clear();
+	}
+	
+	delete ll;
+	
+}
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadComments()
+{
+	
+    if(!strcmp(GetCalibFileName("Comments"),"")) {
+        Info("ReadComments()", "No file foud for Comments");
+      return;
+   }
+    TString fp;
+	gDataSet->SearchKVFile(GetCalibFileName("Comments"),fp,gDataSet->GetName());
+   
+
+	KVFileReader fr;
+	if (!fr.OpenFileToRead(fp.Data())){
+		Error("ReadComments()", "Error in opening file %s\n",fp.Data());
+		return;
+	}
+	
+   Info("ReadComments()", "Reading comments ...");
+	KVFAZIADBRun* dbrun=0;
+	while (fr.IsOK())
+	{
+		fr.ReadLine("|");
+		if (fr.GetCurrentLine().BeginsWith("#"))
+		{
+		
+		}
+		else if (fr.GetCurrentLine()=="")
+		{
+		
+		}
+		else{
+			if (fr.GetNparRead()==2)
+			{
+				KVString srun(fr.GetReadPar(0));
+				srun.Begin("="); srun.Next();
+				KVNumberList lruns(srun.Next());
+				KVString comments(fr.GetReadPar(1));
+				lruns.Begin();
+				while ( !lruns.End() )
+				{
+					Int_t run = lruns.Next();
+					dbrun = (KVFAZIADBRun* )GetRun(run);
+					if (dbrun)
+						dbrun->SetComments(comments.Data());
+				}
+			}
+		}
+	}
+	
+}
 //__________________________________________________________________________________________________________________
 
 void KVFAZIADB::PrintRuns(KVNumberList& nl) const

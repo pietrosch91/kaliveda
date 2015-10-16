@@ -24,19 +24,22 @@ class KVString;
 class TPluginHandler;
 
 class KVBase:public TNamed {
- private:
+
+   private:
    static UInt_t fNbObj;        //! Total number of KaliVeda objects (actually counts number of calls to default ctor)
    UInt_t fNumber;              // for numbering objects
-   TString fSLabel;             //label for the object
+   protected:
+   TString fLabel;             //label for the object
 
+   private:
    static Bool_t fEnvIsInit;//! set when environment is initialised
    static TString fWorkingDirectory;//! user working directory for e.g. database files
 
    void init();
-	static void ReadGUIMimeTypes();
+   static void ReadGUIMimeTypes();
    static void ReadConfigFiles();
 
- public:
+   public:
 
     enum EKaliVedaBits {
        kIsKaliVedaObject = BIT(23)   //all KVBase-derived objects have this bit set in TObject::fBits
@@ -65,20 +68,21 @@ class KVBase:public TNamed {
        // Returns true if object has given name (test value returned by GetName())
        return !strcmp(GetName(),name);
    }
-   void SetLabel(const Char_t * lab);
-   const Char_t *GetLabel() const;
+   void SetLabel(const Char_t * lab) { fLabel = lab; }
+   const Char_t *GetLabel() const { return fLabel; }
+   Bool_t HasLabel() const { return fLabel.Length(); }
    virtual void Print(Option_t * option = "") const;
    virtual void List() {
-   };
+   }
    virtual void SetNumber(UInt_t num) {
       fNumber = num;
-   };
+   }
    UInt_t GetNumber() const {
       return fNumber;
-   };
+   }
    UInt_t GetNumberOfObjects() const {
       return fNbObj;
-   };
+   }
    virtual void Clear(Option_t * opt = "");
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
@@ -86,7 +90,6 @@ class KVBase:public TNamed {
    virtual void Copy(TObject &);
 #endif
 
-   static Bool_t ArrContainsValue(Int_t n, Int_t * arr, Int_t val);
    static Bool_t SearchKVFile(const Char_t * name, TString & fullpath,
                               const Char_t * kvsubdir = "");
    static Bool_t SearchAndOpenKVFile(const Char_t * name, std::ifstream & file,
@@ -106,6 +109,7 @@ class KVBase:public TNamed {
    static const Char_t *GetKVBuildType();
    static const Char_t *GetKVBuildUser();
    static const Char_t *GetKVSourceDir();
+   static const Char_t *GetKVBuildDir();
 
 #ifdef WITH_BZR_INFOS
    static const Char_t *bzrRevisionId();
@@ -126,6 +130,7 @@ class KVBase:public TNamed {
    static const Char_t* GetINCDIRFilePath(const Char_t* namefile="");
    static const Char_t* GetBINDIRFilePath(const Char_t* namefile="");
    static const Char_t* GetWORKDIRFilePath(const Char_t* namefile="");
+   static const Char_t* GetTEMPLATEDIRFilePath(const Char_t* namefile="");
 
    static Bool_t FindExecutable(TString & exec, const Char_t * path =
                                 "$(PATH)");
@@ -145,7 +150,7 @@ class KVBase:public TNamed {
 
    virtual TObject* GetObject() const;
 
-   ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
+   ClassDef(KVBase, 4)          //Base class for all KaliVeda objects
 };
 
 //this function is implemented in TSystem.cxx

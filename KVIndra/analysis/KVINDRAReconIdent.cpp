@@ -58,7 +58,7 @@ void KVINDRAReconIdent::InitRun(void)
 #endif
 #endif
       //leaves for reconstructed events
-		fIdentTree->Branch("INDRAReconEvent", "KVINDRAReconEvent", GetEventReference(), 10000000, 0)->SetAutoDelete(kFALSE);
+   KVEvent::MakeEventBranch(fIdentTree,"INDRAReconEvent","KVINDRAReconEvent",GetEventReference());
 
       Info("InitRun", "Created identified/calibrated data tree %s : %s", fIdentTree->GetName(), fIdentTree->GetTitle());
 

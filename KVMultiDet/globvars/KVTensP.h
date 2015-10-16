@@ -19,7 +19,6 @@ class KVTensP:public KVVarGlob {
    static Int_t nb_crea;
    static Int_t nb_dest;
    KVTenseur3 * tenseurP;
-   TString fLabel;              //particle label for which to calculate tensor
    
    Double_t fVal[8];//! used by GetValuePtr
    
@@ -52,12 +51,8 @@ class KVTensP:public KVVarGlob {
 
    virtual Double_t *GetValuePtr(void); // On retourne un tableau de 
 
-   virtual void SetPartGroup(const Char_t * lab) {
-      fLabel = lab;
-   };
-   virtual const Char_t *GetPartGroup() const {
-      return fLabel.Data();
-   };
+   virtual void SetPartGroup(const Char_t * lab) {SetLabel(lab);}
+   virtual const Char_t *GetPartGroup() const {return GetLabel();}
 
    virtual Int_t GetZmin(void) const { return (Int_t)const_cast<KVTensP*>(this)->GetParameter("Zmin");};
    virtual void SetZmin(Int_t zm) { SetParameter("Zmin",zm); };
@@ -67,6 +62,6 @@ class KVTensP:public KVVarGlob {
    };
    void SetTensor(const KVTenseur3 *);
 
-   ClassDef(KVTensP, 2)         // Global variable Momentum tensor
+   ClassDef(KVTensP, 3)         // Global variable Momentum tensor
 };
 #endif

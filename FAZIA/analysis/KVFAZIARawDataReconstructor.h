@@ -19,7 +19,7 @@ class KVFAZIARawDataReconstructor : public KVFAZIAReader
    
    KVReconstructedEvent* recev;
    
-   Int_t nb_recon;//number of reconstructed INDRA events
+   Int_t nb_recon;//number of reconstructed events
    TString taskname;
    TString datatype;
    

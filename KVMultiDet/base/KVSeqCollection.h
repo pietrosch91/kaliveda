@@ -48,6 +48,7 @@ public:
     KVSeqCollection(const Char_t* collection_classname);
     virtual ~KVSeqCollection();
     virtual void Copy(TObject & obj) const;
+    KVSeqCollection& operator=(const KVSeqCollection&);
 
     virtual void Modified()
     {

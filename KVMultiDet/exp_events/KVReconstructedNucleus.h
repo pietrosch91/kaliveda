@@ -8,6 +8,7 @@
 #include "KVIDTelescope.h"
 #include "KVIdentificationResult.h"
 #include "KVGroup.h"
+#include "TClonesArray.h"
 class KVTelescope;
 
 class KVReconstructedNucleus:public KVNucleus {
@@ -32,8 +33,7 @@ protected:
     Float_t fRealA;              //A returned by identification routine
     Double_t fTargetEnergyLoss;   //calculated energy lost in target
     
-#define IDRESULTS_DIM 5
-    KVIdentificationResult fIDresults[IDRESULTS_DIM];//[5] results of every identification attempt made for this nucleus, in order of the ID telescopes used
+    TClonesArray fIDResults;//results of every identification attempt made for this nucleus, in order of the ID telescopes used
 	
     virtual void MakeDetectorList();
 
@@ -288,42 +288,56 @@ public:
     };
     KVIdentificationResult* GetIdentificationResult(Int_t i)
     {
-            // Returns the result of the i-th identification attempted for this nucleus.
-            // i=1 : identification telescope in which particle stopped
-            // i=2 : identification telescope immediately in front of the first
-            // etc. etc.
-            if(i && ((i-1)< IDRESULTS_DIM)){
-                    fIDresults[i-1].SetNumber(i);
-                    return &fIDresults[i-1];
-            }
-            else return NULL;
-    };
+       // Returns the result of the i-th (i>0) identification attempted for this nucleus.
+       // i=1 : identification telescope in which particle stopped
+       // i=2 : identification telescope immediately in front of the first
+       // etc. etc.
+       //
+       // N.B. This method will return a valid KVIdentificationResult object for any
+       //      value of i (objects are created as necessary in the TClonesArray fIDresults).
+       //      To test whether an identification was attempted, do
+       //         if(GetIdentificationResult(i)->IDattempted){...}
+       //      rather than
+       //         if(GetIdentificationResult(i)){ // always true }
+       KVIdentificationResult* id = nullptr;
+       if(i) id = (KVIdentificationResult*)fIDResults.ConstructedAt(i-1);
+       id->SetNumber(i);
+       return id;
+    }
+    Int_t GetNumberOfIdentificationResults() const
+    {
+       // Returns the number of KVIdentificationResult objects in the TClonesArray fIDresults.
+       // Do not assume that all of these correspond to attemted identifications
+       // (see comments in GetIdentificationResult(Int_t))
+       return fIDResults.GetEntries();
+    }
 
     KVIdentificationResult* GetIdentificationResult(const Char_t* idtype)
     {
-            // Return pointer to result of attempted identification of given type.
-            // This type is the type of the KVIdentificationTelescope which was used
-            // (i.e. the string returned by KVIdentificationTelescope::GetType()).
-            // Returns NULL if no identification of given type found.
+       // Return pointer to result of attempted identification of given type.
+       // This type is the type of the KVIdentificationTelescope which was used
+       // (i.e. the string returned by KVIdentificationTelescope::GetType()).
+       // Returns nullptr if no identification of given type found/attempted
 
-            for(int i=0; i<IDRESULTS_DIM; i++){
-                if(!strcmp(fIDresults[i].GetIDType(),idtype)){
-                        fIDresults[i].SetNumber(i+1);
-                    return &fIDresults[i];
-                }
-            }
-            return NULL;
-    };
+       Int_t n = GetNumberOfIdentificationResults();
+       for(int i=1; i<=n; i++){
+          KVIdentificationResult* id = GetIdentificationResult(i);
+          if(!strcmp(id->GetIDType(),idtype)){
+             return id;
+          }
+       }
+       return nullptr;
+    }
 
     KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
     {
-            // Return pointer to result of identification attempted with a
-            // KVIdentificationTelescope of the given type.
-            // Returns NULL if no identification of given type found.
+       // Return pointer to result of identification attempted with a
+       // KVIdentificationTelescope of the given type.
+       // Returns nullptr if no identification of given type found.
 
-       if(!idt) return NULL;
-            return GetIdentificationResult(idt->GetType());
-    };
+       if(!idt) return nullptr;
+       return GetIdentificationResult(idt->GetType());
+    }
     KVIdentificationResult* GetIdentificationResult(Int_t i) const
     { return const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(i); }
     KVIdentificationResult* GetIdentificationResult(const Char_t* idtype) const
@@ -336,7 +350,7 @@ public:
     inline static UInt_t GetNUnidentifiedInGroup(KVGroup* grp);
     static void AnalyseParticlesInGroup(KVGroup* grp);
 
-    ClassDef(KVReconstructedNucleus, 16)  //Nucleus detected by multidetector array
+    ClassDef(KVReconstructedNucleus, 17)  //Nucleus detected by multidetector array
 };
 
 inline UInt_t KVReconstructedNucleus::GetNIdentifiedInGroup(KVGroup* grp)

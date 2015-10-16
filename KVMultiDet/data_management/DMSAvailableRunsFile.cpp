@@ -9,6 +9,7 @@
 #include "KVDBTable.h"
 #include "KVDBRun.h"
 #include "KVUniqueNameList.h"
+#include "TClass.h"
 
 //macro converting octal filemode to decimal value
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
@@ -56,11 +57,9 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    //
    // When no_existing_file=kTRUE we are making an available runs file
    // for the first time. There is no pre-existing file.
+	//Info("Update","Update");
+   TString runlist = GetFullPathToAvailableRunsFile();
 
-   TString runlist;
-   AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
    if(!no_existing_file){
       // read all existing informations
       ReadFile();
@@ -74,14 +73,15 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    KVBase::OpenTempFile(tmp_file_path, tmp_file);
 
    KVDataRepository *repository = GetDataSet()->GetRepository();
-
+	//Info("Update","repository : %s",repository->IsA()->GetName());
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
    KVUniqueNameList *dir_list =
-       repository->GetDirectoryListing(GetDataSet(), GetDataType());
-   if (!dir_list)
+         repository->GetDirectoryListing(GetDataSet(), GetDataType());
+   if (!dir_list){
+    	//Info("Update","Sort au milieu");
       return;
-
+	}
    TIter next(dir_list);
    DMSFile_t *objs;
    //progress bar
@@ -89,44 +89,51 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
    KVDBTable *run_table = GetDataSet()->GetDataBase()->GetTable("Runs");
+   KVNumberList lnewruns;	//list containing run with a valid file but not store  in database
    while ((objs = (DMSFile_t *) next())) {     // loop over all entries in directory
 
+      //Info("Update","objs->GetName()=%s",objs->GetName());
       Int_t run_num;
       //is this the correct name of a run in the repository ?
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
+         KVDatime filedate;
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
          if (run) {
-               //runfile exists in repository
-					//check in case it is possible to extract a date from the name of the file
-					//the file may be much older than its DMS modtime (=date of DMS import)
-					KVDatime filedate;
-					if(!ExtractDateFromFileName(objs->GetName(), filedate))
-						filedate=objs->GetModTime();
-               
-               if(!no_existing_file){
-                  // was there already an entry for exactly the same file in the previous file ?
-                  Int_t occIdx=0;
-                  KVNameValueList* prevEntry = RunHasFileWithDateAndName(run->GetNumber(), objs->GetName(), filedate, occIdx);
-                  if(prevEntry){
-                     // copy infos of previous entry
-                     tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName();
-                     if(prevEntry->HasParameter(Form("KVVersion[%d]",occIdx))){
-                        tmp_file <<"|"<< prevEntry->GetStringValue(Form("KVVersion[%d]",occIdx)) <<"|"<<prevEntry->GetStringValue(Form("Username[%d]",occIdx));
-                     }
-                     tmp_file << endl;
+            //runfile exists in repository
+            //check in case it is possible to extract a date from the name of the file
+            //the file may be much older than its DMS modtime (=date of DMS import)
+            if(!ExtractDateFromFileName(objs->GetName(), filedate))
+               filedate=objs->GetModTime();
+
+            if(!no_existing_file){
+               // was there already an entry for exactly the same file in the previous file ?
+               Int_t occIdx=0;
+               KVNameValueList* prevEntry = RunHasFileWithDateAndName(run->GetNumber(), objs->GetName(), filedate, occIdx);
+               if(prevEntry){
+                  // copy infos of previous entry
+                  tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName();
+                  if(prevEntry->HasParameter(Form("KVVersion[%d]",occIdx))){
+                     tmp_file <<"|"<< prevEntry->GetStringValue(Form("KVVersion[%d]",occIdx)) <<"|"<<prevEntry->GetStringValue(Form("Username[%d]",occIdx));
                   }
-                  else
-                  {
-                     // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
-                     tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
-                  }
+                  tmp_file << endl;
                }
-               else // no previous existing file
+               else
                {
-                  // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+                  // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                   tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
                }
+            }
+            else // no previous existing file
+            {
+               // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+               tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
+            }
+         }
+         else{
+         	lnewruns.Add(run_num);
+            filedate=objs->GetModTime();
+            tmp_file << run_num << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
          }
       }
 
@@ -136,23 +143,25 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    }
 
    cout << " DONE" << endl;
+   Info("Update","%d runs found those are not in db :\n\tlist:%s",lnewruns.GetNValues(),lnewruns.AsString());
    delete dir_list;
    //close temp file
    tmp_file.close();
 
-   if(no_existing_file){
-      //use "lockfile" to make sure nobody else tries to modify available_runs file
-      //while we are working on it
-      if(!runlist_lock.Lock(runlist.Data())) return;
-   }
-   
-   //copy temporary file to KVFiles directory, overwrite previous   
-   gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
-   //set access permissions to 664
-   gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
+   if( CheckDirectoryForAvailableRunsFile() ){
+      if(no_existing_file){
+         //use "lockfile" to make sure nobody else tries to modify available_runs file
+         //while we are working on it
+         if(!runlist_lock.Lock(runlist.Data())) return;
+      }
 
-      //remove lockfile
-      runlist_lock.Release();
+      //copy temporary file to KVFiles directory, overwrite previous
+      gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
+      //set access permissions to 664
+      gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
+   }
+   //remove lockfile
+   runlist_lock.Release();
 
    //delete temp file
    gSystem->Unlink(tmp_file_path);

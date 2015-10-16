@@ -58,7 +58,10 @@ When writing events in a TTree, it is very important to call the TBranch::SetAut
 method of the branch which is used to store the event object.
 If not, when the events are read back, the KVEvent constructor and destructor will be called
 every time an event is read from the TTRee!! Leading to very slow reading times (& probably
-memory leaks)
+memory leaks).
+For this reason we provide the method:
+    void MakeEventBranch(TTree*, const TString&, const TString&, void*)
+which should be used whenever it is required to stock KVEvent-derived objects in a TTree.
 */
 /////////////////////////////////////////////////////////////////////////////://
 
@@ -253,7 +256,7 @@ Int_t KVEvent::GetMult(Option_t * opt)
 
 Double_t KVEvent::GetSum(const Char_t* KVNucleus_method,Option_t * opt)
 {
-   //Returns sum other particles of the observable given by the indicated KVNucleus_method
+   //Returns sum over particles of the observable given by the indicated KVNucleus_method
    //for example
    //if  the method is called this way GetSum("GetZ"), it returns the sum of the charge
    //of particles in the current event
@@ -452,7 +455,7 @@ void KVEvent::SetFrame(const Char_t * frame, const TVector3 & boost, Bool_t beta
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -472,7 +475,7 @@ void KVEvent::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 
 //___________________________________________________________________________//
 
-void KVEvent::SetFrame(const Char_t * frame, TRotation & rot)
+void KVEvent::SetFrame(const Char_t * frame, const TRotation& rot)
 {
    //Define a rotated coordinate frame for all "ok" particles in the event.
    //See KVParticle (method KVParticle::SetFrame()) for details.
@@ -538,7 +541,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TLorentzRotation & rot)
+                       const TLorentzRotation& rot)
 {
    //Define a Lorentz-rotated frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
@@ -563,7 +566,7 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 //___________________________________________________________________________//
 
 void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                       TRotation & rot)
+                       const TRotation& rot)
 {
    //Define a rotated coordinate frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
@@ -605,7 +608,29 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
 		nuc->SetFrame(newframe, oldframe, boost, rot, beta);
-	}
+   }
+}
+
+void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame, const TString& selection)
+{
+   // "Translate" this event into a simple array form
+   // mult will be set to number of nuclei in event
+   // (px,py,pz) momentum components in MeV/c
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = selection i.e. "OK"
+
+   KVNucleus* nuc;
+   Int_t i=0;
+   while( (nuc = GetNextParticle(selection)) ){
+      nuc = (KVNucleus*)nuc->GetFrame(frame);
+           Z[i] = nuc->GetZ();
+           A[i] = nuc->GetA();
+           px[i] = nuc->Px();
+           py[i] = nuc->Py();
+           pz[i] = nuc->Pz();
+           i++;
+   }
+   mult = i;
 }
 
 //______________________________________________________________________________
@@ -672,44 +697,74 @@ TObject *KVEvent::ConstructedAt(Int_t idx, Option_t *clear_options)
 }
 #endif
 	
-void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz)
+void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// (vx,vy,vz) velocity components in cm/ns
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-	while( (nuc = GetNextParticle()) ){
-		Z[i] = nuc->GetZ();
+        while( (nuc = GetNextParticle(selection)) ){
+           nuc = (KVNucleus*)nuc->GetFrame(frame);
+                Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
 		vx[i] = nuc->GetVelocity().X();
 		vy[i] = nuc->GetVelocity().Y();
 		vz[i] = nuc->GetVelocity().Z();
 		i++;
 	}
+        mult =i;
 } 
 	
-void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi)
+void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi, const TString& frame, const TString& selection)
 {
 	// "Translate" this event into a simple array form
 	// mult will be set to number of nuclei in event
 	// E = kinetic energy in MeV
 	// Theta,Phi in degrees
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
 
-	mult = GetMult();
 	KVNucleus* nuc;
 	Int_t i=0;
-	while( (nuc = GetNextParticle()) ){
-		Z[i] = nuc->GetZ();
+        while( (nuc = GetNextParticle(selection)) ){
+           nuc = (KVNucleus*)nuc->GetFrame(frame);
+                Z[i] = nuc->GetZ();
 		A[i] = nuc->GetA();
 		E[i] = nuc->GetEnergy();
 		Theta[i] = nuc->GetTheta();
 		Phi[i] = nuc->GetPhi();
 		i++;
 	}
-} 
+        mult = i;
+}
+
+void KVEvent::FillArraysPtRapPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* Pt, Double_t* Rap, Double_t* Phi, const TString& frame, const TString& selection)
+{
+   // "Translate" this event into a simple array form
+   // mult will be set to number of nuclei in event
+   // Pt = transverse momentum (perpendicular to z-axis)
+   // Rap = rapidity along z-axis
+   // phi = azimuthal angle around z-axis (x-axis=0 deg.)
+   // frame = optional name of reference frame (see SetFrame methods)
+   // selection = optional selection e.g. "OK"
+
+   KVNucleus* nuc;
+   Int_t i=0;
+   while( (nuc = GetNextParticle(selection)) ){
+      nuc = (KVNucleus*)nuc->GetFrame(frame);
+           Z[i] = nuc->GetZ();
+           A[i] = nuc->GetA();
+           Pt[i] = nuc->Pt();
+           Rap[i] = nuc->Rapidity();
+           Phi[i] = nuc->GetPhi();
+           i++;
+   }
+   mult = i;
+}
 
 void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
 {
@@ -724,5 +779,107 @@ void KVEvent::FillIntegerList(KVIntegerList* IL,Option_t* opt)
 	while ( (nuc = (KVNucleus* )GetNextParticle(opt)) ) 
 		IL->Add(nuc->GetZ());
 	IL->SetPopulation(1);
-	IL->CheckForUpdate();	
+        IL->CheckForUpdate();
+}
+
+void KVEvent::GetMasses(Double_t* mass)
+{
+   // Fill array with mass of each nucleus of event (in MeV).
+   // [note: this is the mass including any excitation energy, not ground state]
+   // Make sure array is dimensioned to size GetMult()!
+   KVNucleus* nuc=0; int i=0;
+   while ( (nuc = (KVNucleus* )GetNextParticle()) ) mass[i++] = nuc->GetMass();
+}
+
+void KVEvent::GetGSMasses(Double_t* mass)
+{
+   // Fill array with ground state mass of each nucleus of event (in MeV).
+   // Make sure array is dimensioned to size GetMult()!
+   KVNucleus* nuc=0; int i=0;
+   while ( (nuc = (KVNucleus* )GetNextParticle()) ) mass[i++] = nuc->GetMassGS();
+}
+
+Double_t KVEvent::GetChannelQValue() const
+{
+   // Calculate the Q-value [MeV] for this event as if all nuclei were produced by
+   // the decay of an initial compound nucleus containing the sum of all nuclei
+   // in the event, i.e.
+   //    A -> a1 + a2 + a3 + ...
+   // We take into account any excitation energy of the nuclei of the event
+   // (see GetGSChannelQValue() for an alternative), i.e. we calculate
+   //    Q = M(A) - ( m(a1) + m(a2) + m(a3) + ... )
+   // where
+   //   M(X) = ground state mass of X
+   //   m(X) = M(X) + E*(X)
+   // If Q<0, the excitation energy of the initial compound nucleus, A,
+   // would have to be at least equal to (-Q) in order for the decay to occur.
+   // i.e. decay is possible if
+   //   E*(A) > -Q
+
+   Double_t sumM = 0;
+   KVNucleus CN;
+   Int_t M = const_cast<KVEvent*>(this)->GetMult();
+   for(int i=1;i<=M;i++){
+      sumM += GetParticle(i)->GetMass();
+      CN += *(GetParticle(i));
+   }
+   return CN.GetMassGS() - sumM;
+}
+
+Double_t KVEvent::GetGSChannelQValue() const
+{
+   // Calculate the Q-value [MeV] for this event as if all nuclei were produced by
+   // the decay of an initial compound nucleus containing the sum of all nuclei
+   // in the event, i.e.
+   //    A -> a1 + a2 + a3 + ...
+   // i.e. we calculate
+   //    Q = M(A) - ( M(a1) + M(a2) + M(a3) + ... )
+   // where
+   //   M(X) = ground state mass of X
+   // If Q<0, the excitation energy of the initial compound nucleus, A,
+   // would have to be at least equal to (-Q) in order for the decay to occur.
+   // i.e. decay is possible if
+   //   E*(A) > -Q
+
+   Double_t sumM = 0;
+   KVNucleus CN;
+   Int_t M = const_cast<KVEvent*>(this)->GetMult();
+   for(int i=1;i<=M;i++){
+      sumM += GetParticle(i)->GetMassGS();
+      CN += *(GetParticle(i));
+   }
+   return CN.GetMassGS() - sumM;
+}
+
+const Char_t* KVEvent::GetPartitionName()
+{
+	//
+	//return list of isotopes of the event with the format : 
+	// symbol1(population1) symbol2(population2) ....
+	// if population==1, it is not indicated : 
+	// Example : 
+	//	15C 12C(2) 4He 3He 1H(4) 1n(3)
+	//
+	fParticles->Sort();
+	static KVString partition;
+	
+	KVNameValueList nvl;
+	partition="";
+	ResetGetNextParticle();
+	KVNucleus* nuc=0;
+	while ( (nuc = GetNextParticle()) )
+	{
+		TString st = nuc->GetSymbol();
+		Int_t pop = TMath::Max(nvl.GetIntValue(st.Data()),0);
+		pop+=1;
+		nvl.SetValue(st.Data(),pop);
+	}
+	for (Int_t ii=0;ii<nvl.GetEntries();ii+=1)
+	{
+		Int_t pop = nvl.GetIntValue(ii);
+		if (pop==1) partition+=nvl.GetNameAt(ii);
+		else 			partition+=Form("%s(%d)",nvl.GetNameAt(ii),pop);
+		if (ii<nvl.GetEntries()-1) partition+=" ";
+	}
+	return partition.Data();	
 }

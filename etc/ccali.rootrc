@@ -18,7 +18,7 @@ GE.BatchSystem.JobScript:   $KVROOT/bin/KVA
 GE.BatchSystem.DefaultJobTime:   4000
 GE.BatchSystem.DefaultJobMemory:  256M
 GE.BatchSystem.DefaultJobDisk:   100M
-+Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDet    "KV_CCIN2P3_GE(const Char_t*)"
++Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDetanalysis    "KV_CCIN2P3_GE(const Char_t*)"
 # Modify this variable in order to submit N runs per job in parallel batch mode
 #GE.BatchSystem.RunsPerJob:    1
 

@@ -63,6 +63,8 @@ void KVINDRADB::init()
    kLastRun = 0;
 
    fRuns = AddTable("Runs", "List of available runs");
+   fRuns->SetDefaultFormat("Run %d");// default formatting for run names
+
    fSystems = AddTable("Systems", "List of available systems");
    fChIoPressures = AddTable("ChIo Pressures", "Pressures of ChIo");
    fTapes = AddTable("Tapes", "List of data storage tapes");
@@ -265,7 +267,7 @@ void KVINDRADB::ReadSystemList()
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-       next_char = fin.peek();
+         next_char = fin.peek();
       }
       fin.close();
    }
@@ -287,6 +289,9 @@ void KVINDRADB::ReadSystemList()
          sys->AddRun(run);
       }
    }
+
+   // rehash the record table now that all names are set
+   fSystems->Rehash();
 }
 
 //____________________________________________________________________________

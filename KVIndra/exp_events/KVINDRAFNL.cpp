@@ -34,7 +34,7 @@ ClassImp(KVINDRAFNL)
 <h2>KVINDRAFNL</h2>
 <h4>Describes INDRA as used in FNL experiment E416 (June-July 2003)</h4>
 
-<img src="images/indra_e416a.png"><br>
+<img src="http://indra.in2p3.fr/KaliVedaDoc/images/indra_e416a.png"><br>
 
 <!-- */
 // --> END_HTML

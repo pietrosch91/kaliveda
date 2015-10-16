@@ -31,6 +31,7 @@
 /usr/include/kaliveda/KVEvent.h
 /usr/include/kaliveda/KVSimEvent.h
 /usr/include/kaliveda/KVWilckeReactionParameters.h
+/usr/include/kaliveda/KVGenPhaseSpace.h
 /usr/include/kaliveda/KVEventViewer.h
 /usr/include/kaliveda/KVTestEvent.h
 /usr/include/kaliveda/KVBreakUp.h
@@ -61,6 +62,7 @@
 /usr/include/kaliveda/KVQuadMoment.h
 /usr/include/kaliveda/KVZtotAv.h
 /usr/include/kaliveda/KVTensPCM.h
+/usr/include/kaliveda/KVFlowTensor.h
 /usr/include/kaliveda/KVTensE.h
 /usr/include/kaliveda/KVMultIMFAv.h
 /usr/include/kaliveda/KVMultAv.h
@@ -212,6 +214,7 @@
 /usr/include/kaliveda/KVPartitionGenerator.h
 /usr/include/kaliveda/KVDBRun.h
 /usr/include/kaliveda/KVDataBase.h
+/usr/include/kaliveda/KVDBParameterList.h
 /usr/include/kaliveda/KVDBRecord.h
 /usr/include/kaliveda/KVDBSystem.h
 /usr/include/kaliveda/KVDBParameterSet.h
@@ -282,13 +285,16 @@
 /usr/include/kaliveda/KVIDCutContour.h
 /usr/include/kaliveda/KVIDGrid.h
 /usr/include/kaliveda/KVTGIDManager.h
+/usr/include/kaliveda/KVIDCsIRLLine.h
 /usr/include/kaliveda/KVIDZAGrid.h
 /usr/include/kaliveda/KVIDentifier.h
 /usr/include/kaliveda/KVTGIDZ.h
 /usr/include/kaliveda/KVVirtualIDFitter.h
+/usr/include/kaliveda/KVDP2toCsIGridConvertor.h
 /usr/include/kaliveda/KVIDZALine.h
 /usr/include/kaliveda/KVDroite.h
 /usr/include/kaliveda/KVDP2toIDGridConvertor.h
+/usr/include/kaliveda/KVIDGCsI.h
 /usr/include/kaliveda/KVIDZAContour.h
 /usr/include/kaliveda/KVIDMap.h
 /usr/include/kaliveda/KVTGID.h

@@ -130,7 +130,6 @@ void KVRawDataAnalyser::SubmitTask()
 	// which are executed respectively just before and just after the methods.
 
    if(gDataSet != fDataSet) fDataSet->cd();
-   KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
 
    preInitAnalysis();
    //call user's initialisation

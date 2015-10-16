@@ -23,6 +23,9 @@
 /* Directory containing the sources for the build */
 #define KV_SOURCE_DIR "${KVPROJ_ROOT_ABS}"
 
+/* Directory used for the build */
+#define KV_BUILD_DIR "${CMAKE_BINARY_DIR}"
+
 /* CMake build type (Release, Debug, RelWithDebInfo, ...) */
 #define KV_BUILD_TYPE "${KV_BUILD_TYPE}"
 

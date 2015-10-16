@@ -1,3 +1,32 @@
+kaliveda (1.10.4-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New release v1.10/04
+
+ -- John Frankland <frankland@ganil.fr>  Thu, 01 Oct 2015 09:15:33 +0200
+
+kaliveda (1.10.3-0ubuntu5) vivid; urgency=medium
+
+  * New release v1.10/03
+  * Corrected library version numbers
+  * Removed libFAZIAparticles library
+  * Moved all CsI fast-slow identification tools to base library
+  * New classes KVDBParameterList & KVFAZIAIDCsI,KVFAZIAIDSiCSI;
+  CsI identification grids & PSA parameters for ISOFAZIA experiment
+
+ -- John Frankland <frankland@ganil.fr>  Thu, 01 Oct 2015 09:15:32 +0200
+
+kaliveda (1.10.2-0ubuntu1) vivid; urgency=medium
+
+  * New release v1.10/02
+
+ -- John Frankland <frankland@ganil.fr>  Wed, 29 Jul 2015 15:22:45 +0200
+
+kaliveda (1.10.1-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New release v1.10/01
+
+ -- John Frankland <frankland@ganil.fr>  Sat, 04 Apr 2015 15:28:31 +0200
+
 kaliveda (1.10.0-0ubuntu2) UNRELEASED; urgency=medium
 
   * Move all rootmap files to 'dev' packages as they depend on the '.so'

@@ -226,7 +226,7 @@ protected:
     ClassDef(KVMultiDetArray,7)//Base class for multidetector arrays
     virtual void AnalyseGroupAndReconstructEvent(KVReconstructedEvent* recev, KVGroup* grp);
     virtual void SetGridsInTelescopes(UInt_t run);
-    void FillListOfIDTelescopes(KVIDGraph* gr);
+    void FillListOfIDTelescopes(KVIDGraph* gr) const;
 };
 
 //................  global variable

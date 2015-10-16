@@ -8,98 +8,123 @@ $Author: franklan $
 #ifndef __KVNUMBERLIST_H
 #define __KVNUMBERLIST_H
 
+#include <vector>
 #include <TString.h>
 #include <TArrayI.h>
 #include <TObject.h>
 
+typedef std::vector<Int_t> IntArray;
+typedef std::vector<Int_t>::iterator IntArrayIter;
+typedef std::vector<Int_t>::const_iterator IntArrayCIter;
+
 class KVNumberList : public TObject {
 
-   TString fString;
+   mutable TString fString;
    TArrayI *fLowerBounds;       //->
    TArrayI *fUpperBounds;       //->
-   Int_t fNLimits;              //number of limits in arrays
-   Int_t fMaxNLimits;           //size of arrays
-   Int_t fFirstValue;           //smallest value included in list
-   Int_t fLastValue;            //largest value included in list
-   Int_t fNValues;              //total number of values included in ranges
+   mutable Int_t fNLimits;              //number of limits in arrays
+   mutable Int_t fMaxNLimits;           //size of arrays
+   mutable Int_t fFirstValue;           //smallest value included in list
+   mutable Int_t fLastValue;            //largest value included in list
+   mutable Int_t fNValues;              //total number of values included in ranges
 
-   Int_t fIterIndex;//! used by Next() to iterate over list
-   Bool_t fEndList;//! used by Next() & End() to iterate over list
-   Int_t* fValues;//! used by Next() to iterate over list
+   mutable IntArrayIter fIterIndex;//! used by Next() to iterate over list
+   mutable IntArrayIter fEndList;//! used by Next() & End() to iterate over list
+   mutable IntArray fValues;//! used by Next() to iterate over list
    TString   fName;//name of the list
+
+   mutable Bool_t fIsParsed;//!
    
-	void init_numberlist();
-   void ParseList();
-   void AddLimits(Int_t min, Int_t max);
-   void AddLimits(TString & string);
-   void ParseAndFindLimits(TString & string, const Char_t delim);
+   void init_numberlist();
+   void clear() const;
+   void ParseList() const;
+   void AddLimits(Int_t min, Int_t max) const;
+   void AddLimits(TString & string) const;
+   void ParseAndFindLimits(const TString& string, const Char_t delim) const;
 
- public:
+   public:
 
-	KVNumberList();
-	KVNumberList(const KVNumberList &);
-	KVNumberList(const Char_t *);
-	virtual ~ KVNumberList();
-	
-	virtual void     SetName(const char *name);
-	virtual const char *GetName() const{
-		return fName.Data();
-	}
+   KVNumberList();
+   KVNumberList(const KVNumberList &);
+   KVNumberList(const Char_t *);
+   KVNumberList(Int_t deb,Int_t fin, Int_t pas);
+   virtual ~ KVNumberList();
+
+   virtual void     SetName(const char *name);
+   virtual const char *GetName() const{
+      return fName.Data();
+   }
    
-	void SetList(TString &);
-   void SetList(const Char_t *);
+   /* LIST MODIFIERS */
+   /* Set the number list */
+   void Set(const TString& l) { SetList(l); }
+   void Set(Int_t min, Int_t max, Int_t pas=1) { SetMinMax(min,max,pas); }
+   void SetList(const TString&);
+   void SetMinMax(Int_t min, Int_t max, Int_t pas=1);
+   KVNumberList & operator=(const KVNumberList &);
+   void Copy(TObject &) const;
 
+   /* Add numbers/lists to the list */
    void Add(Int_t);
-   void Remove(Int_t);
-	
-	void Add(const Char_t*);
-	void Remove(const Char_t*);
-   
-	void Add(const KVNumberList&);
-  	void Remove(const KVNumberList&);
-	
-	void Add(Int_t, Int_t *);
-	void Remove(Int_t n, Int_t * arr);
-   
-	void SetMinMax(Int_t min, Int_t max);
-	
-	void Inter(const KVNumberList& list);
+   void Add(const Char_t*);
+   void Add(const KVNumberList&);
+   void Add(Int_t, Int_t *);
+   void Add(const IntArray&);
 
+   /* Remove numbers/lists from the list */
+   void Remove(Int_t);
+   void Remove(const Char_t*);
+   void Remove(const KVNumberList&);
+   void Remove(Int_t n, Int_t * arr);
+
+   /* Clear the list */
+   void Clear(Option_t* = "");
+
+   /* Intersection of two sets of numbers i.e. those which are in both lists */
+   void Inter(const KVNumberList& list);
+
+   /* LIST PROPERTIES */
    Bool_t Contains(Int_t val) const;
-   Int_t First();
-   Int_t Last();
-   Int_t At(Int_t index);
-   Int_t operator[](Int_t index);
-   Int_t *GetArray(Int_t & size);
-   const Char_t *GetList();
-   const Char_t *GetExpandedList();
-   TString GetLogical(const Char_t *observable);
-	const Char_t *AsString(Int_t maxchars=0);
-   
-   Int_t Next(void);
-   void Begin(void);
-   Bool_t End(void) const { return fEndList; };
-   
+   Int_t First() const;
+   Int_t Last() const;
+   Int_t GetNValues() const;
+   Int_t GetEntries() const
+   {
+      return GetNValues();
+   };
    Bool_t IsEmpty() const {
+      if(!fIsParsed) ParseList();
       return (fNValues == 0);
    };
-   
-	void Clear(Option_t* = "");
-   Int_t GetNValues();
-   Int_t GetEntries()
-   {
-   	return GetNValues();
-   };
+   Bool_t IsFull(Int_t vinf=-1,Int_t vsup=-1) const;
 
-   void PrintLimits();
-   Bool_t IsFull();
-	KVNumberList GetComplementaryList();
+   /* LIST MEMBER ACCESS */
+   Int_t At(Int_t index) const;
+   Int_t operator[](Int_t index) const;
+   IntArray GetArray() const;
+   const Char_t *GetList() const;
+   const Char_t *GetExpandedList() const;
+   const Char_t *AsString(Int_t maxchars=0) const;
    
-	KVNumberList & operator=(const KVNumberList &);
-	KVNumberList operator-(const KVNumberList &);
-	
-	   // Type conversion
-   operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }
+   /* LIST ITERATORS */
+   Int_t Next(void) const;
+   void Begin(void) const;
+   Bool_t End(void) const { return (fIterIndex == fEndList); };
+      
+   /* LIST ARITHMETIC OPERATIONS */
+   KVNumberList operator+(const KVNumberList &);
+   KVNumberList operator-(const KVNumberList &);
+   KVNumberList GetComplementaryList() const;
+   KVNumberList GetSubList(Int_t vinf,Int_t vsup) const;
+
+   /* MISCELLANEOUS */
+   /* Generate TTree::Draw selection string */
+   TString GetLogical(const Char_t *observable) const;
+   /* Convert to c-string */
+   operator const char*() const { return GetList(); }
+   /* Print list properties */
+   void Print(Option_t* = "") const;
+   void PrintLimits() const;
 
    ClassDef(KVNumberList, 3)    //Strings used to represent a set of ranges of values
 };

@@ -24,18 +24,3 @@ KVFAZIAIDTelescope::~KVFAZIAIDTelescope()
    // Destructor
 }
 
-//________________________________________________________________
-
-void KVFAZIAIDTelescope::Copy(TObject& obj) const
-{
-   // This method copies the current state of 'this' object into 'obj'
-   // You should add here any member variables, for example:
-   //    (supposing a member variable KVFAZIAIDTelescope::fToto)
-   //    CastedObj.fToto = fToto;
-   // or
-   //    CastedObj.SetToto( GetToto() );
-
-   KVIDTelescope::Copy(obj);
-   //KVFAZIAIDTelescope& CastedObj = (KVFAZIAIDTelescope&)obj;
-}
-

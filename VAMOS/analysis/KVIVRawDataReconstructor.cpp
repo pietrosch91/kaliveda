@@ -69,7 +69,7 @@ void KVIVRawDataReconstructor::InitRun()
 	TObjArray *branches = tree->GetListOfBranches();
 	delete branches->RemoveAt(0);	
 	branches->Compress();
-	tree->Branch("IVReconEvent", "KVIVReconEvent", &fIVevent, 10000000, 0)->SetAutoDelete(kFALSE);
+   KVEvent::MakeEventBranch(tree,"IVReconEvent","KVIVReconEvent",&fIVevent);
 
 	//Detector events for INDRA and VAMOS
 	fINDRADetEv = new KVDetectorEvent;

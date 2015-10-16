@@ -12,6 +12,8 @@ $Date: 2009/04/28 09:11:29 $
 
 #include "TGListView.h"
 #include "KVLVContainer.h"
+#include "KVLVContainer.h"
+#include "KVNumberList.h"
 
 class KVListView : public TGListView
 {
@@ -62,6 +64,8 @@ class KVListView : public TGListView
                         {((KVLVContainer*)GetContainer())->ActivateItemWithColumnData(colname, data, activate);}
 				void  	ActivateItemWithColumnData(const Char_t* colname, Double_t data, Bool_t activate=kTRUE)
                         {((KVLVContainer*)GetContainer())->ActivateItemWithColumnData(colname, data, activate);}
+				void  	ActivateItemsWithColumnData(const Char_t* colname, KVNumberList data, Bool_t activate=kTRUE)
+                        {((KVLVContainer*)GetContainer())->ActivateItemsWithColumnData(colname, data, activate);}
 	TObject* GetLastSelectedObject() const
     { return ((KVLVContainer*)GetContainer())->GetLastSelectedObject(); }
 	TGLVEntry* GetLastSelectedItem() const

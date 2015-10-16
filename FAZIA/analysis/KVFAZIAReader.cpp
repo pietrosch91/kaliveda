@@ -28,6 +28,9 @@
 
 #include "KVFAZIA.h"
 
+#include <KVClassFactory.h>
+
+ClassImp(KVFAZIAReader)
 
 void KVFAZIAReader::Begin(TTree * /*tree*/)
 {
@@ -79,9 +82,9 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
 	fReadEntries+=1;
    
    GetEntry(entry);
-   fEventNumber = entry;
+   fEventNumber = RawEvent->GetNumber();
    
-   gFazia->GetDetectorEvent(GetDetectorEvent(),cl);
+   gFazia->GetDetectorEvent(GetDetectorEvent(),RawEvent->GetSignals());
    
 	if (fReadEntries%10000==0)
    	Info("Process","%d read entries",fReadEntries);
@@ -141,7 +144,18 @@ Bool_t KVFAZIAReader::Notify()
    fReadEntries = 0;
    fCurrentRun = gDataAnalyser->GetRunNumberFromFileName( fChain->GetCurrentFile()->GetName() );
    Info("Notify","Traitement du run %d",fCurrentRun);
-   fChain->SetBranchAddress("signals",&cl);
+   fChain->SetBranchAddress("rawevent",&RawEvent);
    InitRun();
    return kTRUE;
+}
+
+void KVFAZIAReader::Make(const Char_t * kvsname)
+{
+   // Automatic generation of KVFAZIAReader-derived class for KaliVeda analysis
+
+   KVClassFactory cf(kvsname,"User analysis class","KVFAZIAReader",kTRUE);
+   cf.AddImplIncludeFile("KVReconstructedNucleus.h");
+   cf.AddImplIncludeFile("KVBatchSystem.h");
+   cf.AddImplIncludeFile("KVFAZIA.h");
+   cf.GenerateCode();
 }

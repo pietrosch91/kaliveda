@@ -8,7 +8,6 @@ $Date: 2009/03/12 14:01:02 $
 //Author: franklan
 
 #include "KVAvailableRunsFile.h"
-#include "KVDataSet.h"
 #include "KVDataBase.h"
 #include "KVDBRun.h"
 #include "TObjArray.h"
@@ -86,7 +85,7 @@ KVAvailableRunsFile::~KVAvailableRunsFile()
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVAvailableRunsFile::GetFileName()
+const Char_t *KVAvailableRunsFile::GetFileName() const
 {
    // Filename of text file containing information on available runs
    // i.e. [repository].available_runs.[dataset subdir].[dattype subdir]
@@ -102,7 +101,7 @@ const Char_t *KVAvailableRunsFile::GetFileName()
    return filename.Data();
 }
 
-const Char_t*KVAvailableRunsFile::GetFilePath()
+const Char_t*KVAvailableRunsFile::GetFilePath() const
 {
    // Returns the full path to the directory where the available runs file is stored.
    // This is by default
@@ -132,6 +131,38 @@ const Char_t*KVAvailableRunsFile::GetFilePath()
    }
    return filepath.Data();
 }
+
+const Char_t*KVAvailableRunsFile::GetFullPathToAvailableRunsFile() const
+{
+   // Return the full path on the local machine to the text file
+   // used to store information on available runs
+
+   static TString path;
+   AssignAndDelete(path, gSystem->ConcatFileName(GetFilePath(), GetFileName()));
+   return path.Data();
+}
+
+Bool_t KVAvailableRunsFile::CheckDirectoryForAvailableRunsFile()
+{
+   // Check that the directory given by GetFilePath() exists and is writable
+   // If it does not exist, it will be created if possible
+   // If it exists but is not writable, or cannot be created, returns kFALSE.
+
+   if(gSystem->AccessPathName(GetFilePath(),kFileExists)){ // directory does not exist
+      if(gSystem->mkdir(GetFilePath(),kTRUE)==-1){
+         Error("CheckDirectoryForAvailableRunsFile","cannot create directory %s - check access permissions",GetFilePath());
+         return kFALSE;
+      }
+      // set access permissions on created directory
+      gSystem->Chmod(GetFilePath(),CHMODE(6,6,4));
+   }
+   if(gSystem->AccessPathName(GetFilePath(),kWritePermission)){ // directory is not writable
+      Error("CheckDirectoryForAvailableRunsFile","directory %s is not writable - check access permissions",GetFilePath());
+      return kFALSE;
+   }
+   return kTRUE;
+}
+
 //__________________________________________________________________________________________________________________
 
 Int_t KVAvailableRunsFile::IsRunFileName(const Char_t * filename)
@@ -241,10 +272,8 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    // for the first time. There is no pre-existing file.
 
 
-      TString runlist;
-      AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(GetFilePath(),
-                                           GetFileName()));
+   TString runlist = GetFullPathToAvailableRunsFile();
+
    if(!no_existing_file){
       // read all existing informations
       ReadFile();
@@ -262,7 +291,7 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
    KVUniqueNameList *dir_list =
-       repository->GetDirectoryListing(fDataSet, GetDataType());
+         repository->GetDirectoryListing(fDataSet, GetDataType());
    if (!dir_list)
       return;
 
@@ -275,8 +304,8 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    KVDBTable *run_table = 0;
    KVDataBase* db = fDataSet->GetDataBase();
    if (!db){
-   	db = new KVDataBase();
-   	db->AddTable("Runs","List of Runs");
+      db = new KVDataBase();
+      db->AddTable("Runs","List of Runs");
    }
    run_table = db->GetTable("Runs");
    while ((objs = (KVBase *) next())) {     // loop over all entries in directory
@@ -321,17 +350,17 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
             }
          }
          else{
-         	Info("Update","the current run [%s] is not in database",objs->GetName());
+            Info("Update","the current run [%s] is not in database",objs->GetName());
             FileStat_t fs;
             if (repository->GetFileInfo(fDataSet, GetDataType(),objs->GetName(), fs))
             {
                TDatime modt(fs.fMtime);
-            	// New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
-            	tmp_file << run_num  << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
-            }	
+               // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+               tmp_file << run_num  << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
+            }
             else{
                Warning("Update","%s GetFileInfo return kFALSE",objs->GetName());
-         	}
+            }
          }
       }
 
@@ -345,19 +374,22 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    //close temp file
    tmp_file.close();
 
-   if(no_existing_file){
-      //use "lockfile" to make sure nobody else tries to modify available_runs file
-      //while we are working on it
-      if(!runlist_lock.Lock(runlist.Data())) return;
-   }
-   
-   //copy temporary file to KVFiles directory, overwrite previous   
-   gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
-   //set access permissions to 664
-   gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
+   if( CheckDirectoryForAvailableRunsFile() ){
 
-      //remove lockfile
-      runlist_lock.Release();
+      if(no_existing_file){
+         //use "lockfile" to make sure nobody else tries to modify available_runs file
+         //while we are working on it
+         if(!runlist_lock.Lock(runlist.Data())) return;
+      }
+
+      //copy temporary file to available runs file directory, overwrite previous
+      gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
+      //set access permissions to 664
+      gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
+   }
+
+   //remove lockfile
+   runlist_lock.Release();
 
    //delete temp file
    gSystem->Unlink(tmp_file_path);
@@ -557,7 +589,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    //
    //If available runs file does not exist, Update() is called to create it.
 
-    ReadFile(); // this will sanitize the file if necessary (remove duplicates)
+   ReadFile(); // this will sanitize the file if necessary (remove duplicates)
 
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
@@ -576,87 +608,72 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    TString kvversion, username;
    KVDBTable *runs_table = 0;
    if (!fDataSet->GetDataBase()){
-   	runs_table = new KVDBTable("Runs");
+      runs_table = new KVDBTable("Runs");
    }
    else{
-   	runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+      runs_table = fDataSet->GetDataBase()->GetTable("Runs");
    }
+
    while (fRunlist.good()) {
 
-     TObjArray *toks = fLine.Tokenize('|');    // split into fields
-     if(toks->GetSize()){
+      TObjArray *toks = fLine.Tokenize('|');    // split into fields
+      if(toks->GetSize()){
 
-      KVString kvs(((TObjString *) toks->At(0))->GetString());
+         KVString kvs(((TObjString *) toks->At(0))->GetString());
 
-   if(kvs.IsDigit()){
+         if(kvs.IsDigit()){
 
-      good_lines++;
+            good_lines++;
 
-      fRunNumber = kvs.Atoi();
-      kvversion= username="";
-         TString tmp = ((TObjString *) toks->At(1))->GetString();
-         fDatime = TDatime(tmp.Data());
-      if(toks->GetEntries()>3){
-         kvversion = ((TObjString *) toks->At(3))->GetString();
-         username = ((TObjString *) toks->At(4))->GetString();
-      }
-   
-      KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
+            fRunNumber = kvs.Atoi();
+            kvversion= username="";
+            TString tmp = ((TObjString *) toks->At(1))->GetString();
+            fDatime = TDatime(tmp.Data());
+            if(toks->GetEntries()>3){
+               kvversion = ((TObjString *) toks->At(3))->GetString();
+               username = ((TObjString *) toks->At(4))->GetString();
+            }
 
-      KVDBSystem *sys = 0;
-      if (a_run){
-         sys = a_run->GetSystem();
-      }
-      if (!systol) {
-         //making a systems list
-         if (!sys_list)
-            sys_list = new TList;
-         if (sys) {
+            KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
+            KVDBSystem *sys = 0;
+            if (a_run){
+               sys = a_run->GetSystem();
+            }
+            if (!systol) {
+               //making a systems list
+               if (!sys_list)
+                  sys_list = new TList;
+               if (sys) {
 
-				/* Block Modified() signal being emitted by KVDBRun object
-				   when we set its 'datime'. This is to avoid seg fault with
-					KVDataAnalysisGUI, when we are changing system/display,
-					and the KVLVEntry to which this signal was previously connected
-					no longer exists */
-            a_run->BlockSignals(kTRUE);
-				a_run->SetDatime(fDatime);
-            a_run->SetKVVersion(kvversion);
-            a_run->SetUserName(username);
-				a_run->BlockSignals(kFALSE);
+                  a_run->SetDatime(fDatime);
+                  a_run->SetKVVersion(kvversion);
+                  a_run->SetUserName(username);
 
-            if (!sys_list->Contains(sys)) {
-               //new system
-               sys_list->Add(sys);
-               sys->SetNumberRuns(1);   //set run count to 1
+                  if (!sys_list->Contains(sys)) {
+                     //new system
+                     sys_list->Add(sys);
+                     sys->SetNumberRuns(1);   //set run count to 1
+                  } else {
+                     //another run for this system
+                     sys->SetNumberRuns(sys->GetNumberRuns() + 1);
+                  }
+               }
             } else {
-               //another run for this system
-               sys->SetNumberRuns(sys->GetNumberRuns() + 1);
+               //making a runlist
+               if (systol == sys) {   //run belongs to same system
+                  if (!sys_list)
+                     sys_list = new TList;
+                  a_run->SetDatime(fDatime);
+                  a_run->SetKVVersion(kvversion);
+                  a_run->SetUserName(username);
+
+                  sys_list->Add(a_run);
+               }
             }
          }
-      } else {
-         //making a runlist
-         if (systol == sys) {   //run belongs to same system
-            if (!sys_list)
-               sys_list = new TList;
-            //if(noSystems && a_run){
-					/* Block Modified() signal being emitted by KVDBRun object
-				   when we set its 'datime'. This is to avoid seg fault with
-					KVDataAnalysisGUI, when we are changing system/display,
-					and the KVLVEntry to which this signal was previously connected
-					no longer exists */
-            	a_run->BlockSignals(kTRUE);
-					a_run->SetDatime(fDatime);
-               a_run->SetKVVersion(kvversion);
-               a_run->SetUserName(username);
-					a_run->BlockSignals(kFALSE);
-				//}
-            sys_list->Add(a_run);
-         }
       }
-     }
-     }
-     delete toks;
+      delete toks;
       fLine.ReadLine(fRunlist);
    }
 
@@ -733,10 +750,8 @@ void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t * filename, const 
    }
 
    CloseAvailableRunsFile();
-   TString fRunlist_path;
-   AssignAndDelete(fRunlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
+   TString fRunlist_path = GetFullPathToAvailableRunsFile();
+
    //keep lock on runsfile
    if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
 
@@ -818,10 +833,8 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t * filename)
    }
 
    CloseAvailableRunsFile();
-   TString fRunlist_path;
-   AssignAndDelete(fRunlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
+   TString fRunlist_path = GetFullPathToAvailableRunsFile();
+
    //keep lock on runsfile
    if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
 
@@ -865,10 +878,8 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
    }
 
    CloseAvailableRunsFile();
-   TString runlist_path;
-   AssignAndDelete(runlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
+   TString runlist_path = GetFullPathToAvailableRunsFile();
+
    // keep lock on runsfile
    if( !runlist_lock.Lock( runlist_path.Data() ) ) return;
 
@@ -909,10 +920,8 @@ Bool_t KVAvailableRunsFile::OpenAvailableRunsFile()
    //
    //Returns kFALSE in case of problems.
 
-   TString runlist;             //absolute path to runs file
-   AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(GetFilePath(),
-                                           GetFileName()));
+   TString runlist = GetFullPathToAvailableRunsFile();
+
    fRunlist.clear();            // clear any error flags (EOF etc.) before trying to open file
    if (!SearchAndOpenKVFile(runlist, fRunlist, "", &runlist_lock)) {
       //no runlist exists. we therefore have to create it.
@@ -937,23 +946,6 @@ void KVAvailableRunsFile::CloseAvailableRunsFile()
    fRunlist.close();
    fRunlist.clear();
    runlist_lock.Release();
-}
-
-//__________________________________________________________________________________________________________________
-
-KVDataSet *KVAvailableRunsFile::GetDataSet() const
-{
-   //Dataset to which this file belongs
-   return fDataSet;
-}
-
-
-//__________________________________________________________________________________________________________________
-
-void KVAvailableRunsFile::SetDataSet(KVDataSet* d)
-{
-   // Set dataset to which this file belongs
-   fDataSet = d;
 }
 
 //__________________________________________________________________________________________________________________
@@ -1264,10 +1256,8 @@ void KVAvailableRunsFile::RemoveDuplicateLines(KVNumberList lines_to_be_removed)
    }
 
    CloseAvailableRunsFile();
-   TString fRunlist_path;
-   AssignAndDelete(fRunlist_path,
-                   gSystem->ConcatFileName(GetFilePath(),
-                                           GetFileName()));
+   TString fRunlist_path = GetFullPathToAvailableRunsFile();
+
    //keep lock on runsfile
    if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
 

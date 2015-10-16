@@ -45,239 +45,239 @@ ClassImp(KVGFileList)
 //__________________________________________
 void KVGFileList::Init(TString &fileList,const Char_t *title)
 {
-// Init window
- TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsExpandY,
-				       1,1,1,1);
- TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
+   // Init window
+   TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
+                                         kLHintsExpandX|kLHintsExpandY,
+                                         1,1,1,1);
+   TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX,
-				       1,1,1,1);
+                                       1,1,1,1);
 
- // File list TGListBox
- lbFileList=new TGListBox(this,LB_Files);
- lbFileList->SetMultipleSelections(kTRUE);
- lbFileList->Resize(350,96);
- this->AddFrame(lbFileList,eXeY);
- 
- // File Name TGTextEntry
- teFileName=new TGTextEntry(this,"");
- this->AddFrame(teFileName,eX);
- 
- // buttons
- TGCompositeFrame *cf=new TGCompositeFrame(this,1200,350,kHorizontalFrame);
- boutAdd=new TGTextButton(cf,"Add File");
- boutAdd->SetToolTipText("Add a file to the list",TTDELAY);
- boutAdd->Connect("Clicked()",
-                      "KVGFileList",
-		       this,
-		       "AddFile()");
- cf->AddFrame(boutAdd,eX);
- 
- boutRem=new TGTextButton(cf,"Remove File");
- boutRem->SetToolTipText("Remove the selected file from the list",TTDELAY);
- boutRem->Connect("Clicked()",
-                      "KVGFileList",
-		       this,
-		       "RemoveFiles()");
- cf->AddFrame(boutRem,eX);
- 		     
- boutAllRem=new TGTextButton(cf,"Remove All File");
- boutAllRem->SetToolTipText("Remove all files from the list",TTDELAY);
- boutAllRem->Connect("Clicked()",
-                      "KVGFileList",
-		       this,
-		       "RemoveAllFiles()");
- cf->AddFrame(boutAllRem,eX);
- 		     
- this->AddFrame(cf,eX);
+   // File list TGListBox
+   lbFileList=new TGListBox(this,LB_Files);
+   lbFileList->SetMultipleSelections(kTRUE);
+   lbFileList->Resize(350,96);
+   this->AddFrame(lbFileList,eXeY);
 
- TGTextButton *bout=new TGTextButton(this,"Done");
- bout->SetToolTipText("Close window",TTDELAY);
- bout->Connect("Clicked()",
-                      "KVGFileList",
-		       this,
-		       "Done()");
- this->AddFrame(bout,eX);
+   // File Name TGTextEntry
+   teFileName=new TGTextEntry(this,"");
+   this->AddFrame(teFileName,eX);
 
- // Map all widgets
- MapSubwindows();
- Resize(GetDefaultSize());
- SetWindowName(title);
- SetIconName(title);
+   // buttons
+   TGCompositeFrame *cf=new TGCompositeFrame(this,1200,350,kHorizontalFrame);
+   boutAdd=new TGTextButton(cf,"Add File");
+   boutAdd->SetToolTipText("Add a file to the list",TTDELAY);
+   boutAdd->Connect("Clicked()",
+                    "KVGFileList",
+                    this,
+                    "AddFile()");
+   cf->AddFrame(boutAdd,eX);
 
- fileListString=&fileList;
- fileDialogDir=gSystem->Getenv("PWD");
+   boutRem=new TGTextButton(cf,"Remove File");
+   boutRem->SetToolTipText("Remove the selected file from the list",TTDELAY);
+   boutRem->Connect("Clicked()",
+                    "KVGFileList",
+                    this,
+                    "RemoveFiles()");
+   cf->AddFrame(boutRem,eX);
 
- entryMax=0;
+   boutAllRem=new TGTextButton(cf,"Remove All File");
+   boutAllRem->SetToolTipText("Remove all files from the list",TTDELAY);
+   boutAllRem->Connect("Clicked()",
+                       "KVGFileList",
+                       this,
+                       "RemoveAllFiles()");
+   cf->AddFrame(boutAllRem,eX);
+
+   this->AddFrame(cf,eX);
+
+   TGTextButton *bout=new TGTextButton(this,"Done");
+   bout->SetToolTipText("Close window",TTDELAY);
+   bout->Connect("Clicked()",
+                 "KVGFileList",
+                 this,
+                 "Done()");
+   this->AddFrame(bout,eX);
+
+   // Map all widgets
+   MapSubwindows();
+   Resize(GetDefaultSize());
+   SetWindowName(title);
+   SetIconName(title);
+
+   fileListString=&fileList;
+   fileDialogDir=gSystem->Getenv("PWD");
+
+   entryMax=0;
 }
 
 //__________________________________________
 KVGFileList::KVGFileList(TString &fileList,const Char_t *title,
                          const TGWindow *p, const TGWindow *main,
-			 Bool_t ok):
-            TGTransientFrame(p,main,10,10)
+                         Bool_t ok):
+   TGTransientFrame(p,main,10,10)
 {
-// Createur
+   // Createur
 
- if(ok) 
-  {
-  Init(fileList,title);
-  InitFileList();
-  MapRaised();
-  fClient->WaitFor(this);
-  }
+   if(ok)
+   {
+      Init(fileList,title);
+      InitFileList();
+      MapRaised();
+      fClient->WaitFor(this);
+   }
 }
 
 //__________________________________________
 KVGFileList::~KVGFileList()
 {
-// Destructeur
-delete lbFileList;
-delete teFileName;
-delete boutAdd;
-delete boutRem;
-delete boutAllRem;
+   // Destructeur
+   delete lbFileList;
+   delete teFileName;
+   delete boutAdd;
+   delete boutRem;
+   delete boutAllRem;
 }
 
 //__________________________________________
 void KVGFileList::InitFileList()
 {
-// Init the file name list box from a TString. Add all fields separated by a
-// white space.
-TObjArray *oa=fileListString->Tokenize(" ");
-TIter next(oa);
-TObjString *ost=0;
-while((ost=(TObjString *)next()))
- {
- TString fileName=ost->GetString();
- if(fileName.Length() && !lbFileList->FindEntry(fileName.Data()))
-  {
-  lbFileList->AddEntry(new TGString(fileName.Data()),entryMax);
-  entryMax++;
-  }
- }
-oa->SetOwner(kTRUE);
-delete oa;
-lbFileList->MapSubwindows();
-lbFileList->Layout();
+   // Init the file name list box from a TString. Add all fields separated by a
+   // white space.
+   TObjArray *oa=fileListString->Tokenize(" ");
+   TIter next(oa);
+   TObjString *ost=0;
+   while((ost=(TObjString *)next()))
+   {
+      TString fileName=ost->GetString();
+      if(fileName.Length() && !lbFileList->FindEntry(fileName.Data()))
+      {
+         lbFileList->AddEntry(new TGString(fileName.Data()),entryMax);
+         entryMax++;
+      }
+   }
+   oa->SetOwner(kTRUE);
+   delete oa;
+   lbFileList->MapSubwindows();
+   lbFileList->Layout();
 }
 
 //__________________________________________
 void KVGFileList::AddFile(void)
 {
-// Add a file to the listbox. If the TGTextEntry is ampty, a file open dialog 
-// appears
-TString fileName=teFileName->GetText();
-if(!fileName.Length())
- {
- if(Char_t *fn=this->GetFileFromDialog())
-  {
-  fileName=fn;
-  }
- else
-  {
-  fileName="";
-  }
- }
-if(fileName.Length() && 
-   !lbFileList->FindEntry(fileName.Data()) && 
-   this->CanAdd(fileName.Data()))
- {
-  lbFileList->AddEntry(new TGString(fileName.Data()),entryMax);
-  entryMax++;
- }
-lbFileList->MapSubwindows();
-lbFileList->Layout();
+   // Add a file to the listbox. If the TGTextEntry is ampty, a file open dialog
+   // appears
+   TString fileName=teFileName->GetText();
+   if(!fileName.Length())
+   {
+      if(Char_t *fn=this->GetFileFromDialog())
+      {
+         fileName=fn;
+      }
+      else
+      {
+         fileName="";
+      }
+   }
+   if(fileName.Length() &&
+      !lbFileList->FindEntry(fileName.Data()) &&
+      this->CanAdd(fileName.Data()))
+   {
+      lbFileList->AddEntry(new TGString(fileName.Data()),entryMax);
+      entryMax++;
+   }
+   lbFileList->MapSubwindows();
+   lbFileList->Layout();
 }
 
 //__________________________________________
 void KVGFileList::RemoveFiles(void)
 {
-// Remove all the selected files from the TGListBox
-TList *sel=new TList();
-lbFileList->GetSelectedEntries(sel);
-TIter next(sel);
-TGLBEntry *e=0;
-while((e=(TGLBEntry *)next()))
- {
- gSystem->Unload(((TGTextLBEntry *)e)->GetText()->GetString());
- lbFileList->RemoveEntry(e->EntryId());
- }
-lbFileList->MapSubwindows();
-lbFileList->Layout();
+   // Remove all the selected files from the TGListBox
+   TList *sel=new TList();
+   lbFileList->GetSelectedEntries(sel);
+   TIter next(sel);
+   TGLBEntry *e=0;
+   while((e=(TGLBEntry *)next()))
+   {
+      gSystem->Unload(((TGTextLBEntry *)e)->GetText()->GetString());
+      lbFileList->RemoveEntry(e->EntryId());
+   }
+   lbFileList->MapSubwindows();
+   lbFileList->Layout();
 }
 
 //__________________________________________
 void KVGFileList::RemoveAllFiles(void)
 {
-// Remove all the files from the TGListBox
-lbFileList->RemoveEntries(0,entryMax);
-entryMax=0;
-lbFileList->MapSubwindows();
-lbFileList->Layout();
+   // Remove all the files from the TGListBox
+   lbFileList->RemoveEntries(0,entryMax);
+   entryMax=0;
+   lbFileList->MapSubwindows();
+   lbFileList->Layout();
 }
 
 //__________________________________________
 void KVGFileList::Done(void)
 {
-// build the file list string from the content of the TGListBox
-(*fileListString)="";
-for(Int_t i=0;i<entryMax;i++)
- {
- if(TGTextLBEntry *e=(TGTextLBEntry *)lbFileList->GetEntry(i))
-  {
-  if(fileListString->Length()) (*fileListString)+=" ";
-  (*fileListString)+=e->GetText()->GetString();
-  }
- }
-this->CloseWindow();
+   // build the file list string from the content of the TGListBox
+   (*fileListString)="";
+   for(Int_t i=0;i<entryMax;i++)
+   {
+      if(TGTextLBEntry *e=(TGTextLBEntry *)lbFileList->GetEntry(i))
+      {
+         if(fileListString->Length()) (*fileListString)+=" ";
+         (*fileListString)+=e->GetText()->GetString();
+      }
+   }
+   this->CloseWindow();
 }
 
 //__________________________________________
 Char_t *KVGFileList::GetFileFromDialog(void)
 {
-// Gets the file name from a TGFileDialog
- TGFileInfo *fil=new TGFileInfo();
- const char *filTypes[] = {"Shared Object Files","*.so",
-                            0,                  0 };
- fil->fFileTypes=filTypes;
- fil->fIniDir = StrDup(fileDialogDir.Data());
- new TGFileDialog(gClient->GetRoot(),this,kFDOpen,fil);
- fileDialogDir=fil->fIniDir;
- return fil->fFilename;
+   // Gets the file name from a TGFileDialog
+   TGFileInfo *fil=new TGFileInfo();
+   const char *filTypes[] = {"Shared Object Files","*.so",
+                             0,                  0 };
+   fil->fFileTypes=filTypes;
+   fil->fIniDir = StrDup(fileDialogDir.Data());
+   new TGFileDialog(gClient->GetRoot(),this,kFDOpen,fil);
+   fileDialogDir=fil->fIniDir;
+   return fil->fFilename;
 }
 
 //__________________________________________
 Bool_t KVGFileList::CanAdd(const Char_t *fn)
 {
-// tells whether the file in ths string fn can be added to the list box
- Bool_t ok=kTRUE;
+   // tells whether the file in ths string fn can be added to the list box
+   Bool_t ok=kTRUE;
 
- FileStat_t fs; TString tmp = fn; gSystem->ExpandPathName(tmp);
- if(gSystem->GetPathInfo(tmp.Data(),fs))
-  {
-  ok=kFALSE;
-  new TGMsgBox(gClient->GetRoot(),this,
-                "File does not exist",
-		Form("The file \"%s\" does not exist. Nothing added.",
-		     fn),
-		kMBIconExclamation);
-  }
- else
-  {
-  TString fname=fn;
-  if(!fname.EndsWith(".so"))
+   FileStat_t fs; TString tmp = fn; gSystem->ExpandPathName(tmp);
+   if(gSystem->GetPathInfo(tmp.Data(),fs))
    {
-   ok=kFALSE;
-   new TGMsgBox(gClient->GetRoot(),this,
-                "Not a share object",
-		Form("The file \"%s\" is not a shared object. Nothing added.",
-		     fn),
-		kMBIconExclamation);
-   
+      ok=kFALSE;
+      new TGMsgBox(gClient->GetRoot(),this,
+                   "File does not exist",
+                   Form("The file \"%s\" does not exist. Nothing added.",
+                        fn),
+                   kMBIconExclamation);
    }
-  }
- return ok;
+   else
+   {
+      TString fname=fn;
+      if(!fname.EndsWith(".so"))
+      {
+         ok=kFALSE;
+         new TGMsgBox(gClient->GetRoot(),this,
+                      "Not a share object",
+                      Form("The file \"%s\" is not a shared object. Nothing added.",
+                           fn),
+                      kMBIconExclamation);
+
+      }
+   }
+   return ok;
 }
 
 
@@ -286,93 +286,93 @@ ClassImp(KVGDirectoryList)
 //__________________________________________
 void KVGDirectoryList::Init(TString &fileList,const Char_t *title)
 {
-// init window
-KVGFileList::Init(fileList,title);
+   // init window
+   KVGFileList::Init(fileList,title);
 
-boutAdd->SetText("Add Directory");
-boutAdd->SetToolTipText("Add a directory to the list.",TTDELAY);
-boutAdd->Layout();
+   boutAdd->SetText("Add Directory");
+   boutAdd->SetToolTipText("Add a directory to the list.",TTDELAY);
+   boutAdd->Layout();
 
-boutRem->SetText("Remove Directory");
-boutRem->SetToolTipText("Remove the selected directories from the list.",TTDELAY);
-boutRem->Layout();
+   boutRem->SetText("Remove Directory");
+   boutRem->SetToolTipText("Remove the selected directories from the list.",TTDELAY);
+   boutRem->Layout();
 
-boutAllRem->SetText("Remove All Directories");
-boutAllRem->SetToolTipText("Remove all directories from the list.",TTDELAY);
-boutAllRem->Layout();
+   boutAllRem->SetText("Remove All Directories");
+   boutAllRem->SetToolTipText("Remove all directories from the list.",TTDELAY);
+   boutAllRem->Layout();
 }
 
 //__________________________________________
 KVGDirectoryList::KVGDirectoryList(TString &fileList,const Char_t *title,
-                         const TGWindow *p, const TGWindow *main,
-			 Bool_t ok):
-            KVGFileList(fileList,title,p,main,kFALSE)
+                                   const TGWindow *p, const TGWindow *main,
+                                   Bool_t ok):
+   KVGFileList(fileList,title,p,main,kFALSE)
 {
-// Createur
+   // Createur
 
- if(ok)
-  {
-  Init(fileList,title);
-  InitFileList();
-  MapRaised();
-  fClient->WaitFor(this);
-  }
+   if(ok)
+   {
+      Init(fileList,title);
+      InitFileList();
+      MapRaised();
+      fClient->WaitFor(this);
+   }
 }
 
 //__________________________________________
 KVGDirectoryList::~KVGDirectoryList()
 {
-// Destructeur
+   // Destructeur
 }
 
 
 //__________________________________________
 Char_t *KVGDirectoryList::GetFileFromDialog(void)
 {
-// Gets the file name from a TGFileDialog
- TGFileInfo *fil=new TGFileInfo();
- const char *filTypes[] = {"Include Files","*.[h,H]*",
-                            0,                  0 };
- fil->fFileTypes=filTypes;
- fil->fIniDir= StrDup(fileDialogDir.Data());
- new TGFileDialog(gClient->GetRoot(),this,kFDOpen,fil);
- fileDialogDir=fil->fIniDir;
- if(fil->fFilename)
-  return fil->fIniDir;
- else
-  return 0;
+   // Gets the file name from a TGFileDialog
+   TGFileInfo *fil=new TGFileInfo();
+   const char *filTypes[] = {"Include Files","*.[h,H]*",
+                             0,                  0 };
+   fil->fFileTypes=filTypes;
+   fil->fIniDir= StrDup(fileDialogDir.Data());
+   new TGFileDialog(gClient->GetRoot(),this,kFDOpen,fil);
+   fileDialogDir=fil->fIniDir;
+   if(fil->fFilename)
+      return fil->fIniDir;
+   else
+      return 0;
 }
 
 //__________________________________________
 Bool_t KVGDirectoryList::CanAdd(const Char_t *fn)
 {
-// tells whether the file in ths string fn can be added to the list box
- Bool_t ok=kTRUE;
+   // tells whether the file in ths string fn can be added to the list box
+   Bool_t ok=kTRUE;
 
- FileStat_t fs; TString tmp = fn; gSystem->ExpandPathName(tmp);
- if(gSystem->GetPathInfo(tmp.Data(),fs))
-  {
-  ok=kFALSE;
-  new TGMsgBox(gClient->GetRoot(),this,
-                "Directory does not exist",
-		Form("The directory \"%s\" does not exist. Nothing added.",
-		     fn),
-		kMBIconExclamation);
-  }
- else
-  {
-  if(!(fs.fMode & kS_IFDIR))
+   FileStat_t fs; TString tmp = fn; gSystem->ExpandPathName(tmp);
+   if(gSystem->GetPathInfo(tmp.Data(),fs))
    {
-   ok=kFALSE;
-   new TGMsgBox(gClient->GetRoot(),this,
-                "Not a directory",
-		Form("The path \"%s\" is not a directory. Nothing added.",
-		     fn),
-		kMBIconExclamation);
-   
+      ok=kFALSE;
+      new TGMsgBox(gClient->GetRoot(),this,
+                   "Directory does not exist",
+                   Form("The directory \"%s\" does not exist. Nothing added.",
+                        fn),
+                   kMBIconExclamation);
    }
-  }
- return ok;
+   else
+   {
+      if(!(fs.fMode & kS_IFDIR))
+      {
+         ok=kFALSE;
+         new TGMsgBox(gClient->GetRoot(),this,
+                      "Not a directory",
+                      Form("The path \"%s\" is not a directory. Nothing added.",
+                           fn),
+                      kMBIconExclamation);
+
+      }
+   }
+   return ok;
 }
 
 ClassImp(KVDataAnalysisLauncher)
@@ -381,12 +381,12 @@ ClassImp(KVDataAnalysisLauncher)
 KVDataAnalysisLauncher::KVDataAnalysisLauncher(const Char_t* ExpType, const TGWindow *p,UInt_t w,UInt_t h):TGMainFrame(p,w,h)
 {
    // Main window width and height can be set using .kvrootrc variables:
-	//     KaliVedaGUI.MainGUIWidth:       800
-	//     KaliVedaGUI.MainGUIHeight:       600
+   //     KaliVedaGUI.MainGUIWidth:       800
+   //     KaliVedaGUI.MainGUIHeight:       600
    // Maximum column width of runlist can be set using:
-	//     KaliVedaGUI.MaxColWidth:       500
- 
-	entryMax=-1;
+   //     KaliVedaGUI.MaxColWidth:       500
+
+   entryMax=-1;
    //Initialisation of resource file
    GUIenv=new TEnv(".KVDataAnalysisGUIrc");
    //initialisation of list used by Get/SetResource
@@ -411,476 +411,476 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const Char_t* ExpType, const TGWi
       exit(1);
    }
    ia=0;
- GetDataAnalyser();//this will set up gBatchSystemManager
+   GetDataAnalyser();//this will set up gBatchSystemManager
 
-// Creation de l'environnement d'affichage et ajout des 2 boutons a cet
-// environnement 
+   // Creation de l'environnement d'affichage et ajout des 2 boutons a cet
+   // environnement
 
- TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsExpandY,
-				       1,1,1,1);
- TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
+   TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
+                                         kLHintsExpandX|kLHintsExpandY,
+                                         1,1,1,1);
+   TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX,
-				       1,1,1,1);
- TGLayoutHints *centerX=new TGLayoutHints(kLHintsCenterX|kLHintsTop,
-				       1,1,1,1);
- TGLayoutHints *LHtopleft=new TGLayoutHints(kLHintsLeft|kLHintsTop,
-				       1,1,1,1);
-	fMainGuiWidth = gEnv->GetValue("KaliVedaGUI.MainGUIWidth", 400);
-	fMainGuiHeight = gEnv->GetValue("KaliVedaGUI.MainGUIHeight", 600);
+                                       1,1,1,1);
+   TGLayoutHints *centerX=new TGLayoutHints(kLHintsCenterX|kLHintsTop,
+                                            1,1,1,1);
+   TGLayoutHints *LHtopleft=new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                              1,1,1,1);
+   fMainGuiWidth = gEnv->GetValue("KaliVedaGUI.MainGUIWidth", 400);
+   fMainGuiHeight = gEnv->GetValue("KaliVedaGUI.MainGUIHeight", 600);
 
-	// Creation des 3 frames dans la fenetre
- TGCompositeFrame *cfSelect=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
- 
- Int_t justMode=kTextBottom|kTextRight;
- TGCompositeFrame *cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
-// Label du Repository
- TGLabel *lab=new TGLabel(cf,"DATA REPOSITORY : ");
- lab->Resize(150,20);
- lab->SetTextJustify(justMode);
- cf->AddFrame(lab); 
-// ComboBox du Repository
- cbRepository=new TGComboBox(cf,CB_DataRepository);
- cbRepository->Select(-1);
- cbRepository->Resize(150,20);
- cbRepository->Connect("Selected(char*)",
-                       "KVDataAnalysisLauncher",
-		       this,
-		       "SetDataSetList(char*)");
- cf->AddFrame(cbRepository,LHtopleft);
-// cfSelect->AddFrame(cf,eX);
- 
-// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
-// Label du Data Set
- lab=new TGLabel(cf,"DATASET : ");
- lab->Resize(150,20);
- lab->SetTextJustify(justMode);
- cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    20,1,1,1)); 
-// ComboBox du Data Set
- cbDataSet=new TGComboBox(cf,CB_DataSet);
- cbDataSet->Select(-1);
- cbDataSet->Resize(150,20);
- cbDataSet->Connect("Selected(char*)",
-                       "KVDataAnalysisLauncher",
-		       this,
-		       "SetTaskList(char*)");
- cf->AddFrame(cbDataSet,LHtopleft);
- cfSelect->AddFrame(cf,centerX);
+   // Creation des 3 frames dans la fenetre
+   TGCompositeFrame *cfSelect=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
 
- cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
-// Label du Task
- lab=new TGLabel(cf,"ANALYSIS TASK : ");
- lab->SetTextJustify(justMode);
- lab->Resize(150,20);
- cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    1,1,1,1)); 
-// ComboBox du Task
- cbTask=new TGComboBox(cf,CB_AnalysisTask);
- cbTask->Select(-1);
- cbTask->Resize(350,20);
- cbTask->Connect("Selected(int)",
-                       "KVDataAnalysisLauncher",
-		       this,
-		       "SetSystemList(int)");
- cf->AddFrame(cbTask,LHtopleft);
- cfSelect->AddFrame(cf,centerX);
+   Int_t justMode=kTextBottom|kTextRight;
+   TGCompositeFrame *cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+   // Label du Repository
+   TGLabel *lab=new TGLabel(cf,"DATA REPOSITORY : ");
+   lab->Resize(150,20);
+   lab->SetTextJustify(justMode);
+   cf->AddFrame(lab);
+   // ComboBox du Repository
+   cbRepository=new TGComboBox(cf,CB_DataRepository);
+   cbRepository->Select(-1);
+   cbRepository->Resize(150,20);
+   cbRepository->Connect("Selected(char*)",
+                         "KVDataAnalysisLauncher",
+                         this,
+                         "SetDataSetList(char*)");
+   cf->AddFrame(cbRepository,LHtopleft);
+   // cfSelect->AddFrame(cf,eX);
 
-// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
-// Label du systeme
-// lab=new TGLabel(cf,"SYSTEM : ");
-// lab->SetTextJustify(justMode);
-// lab->Resize(150,20);
-// cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-//                                    1,1,1,1));
-// ComboBox du systeme
-// cbSystem=new TGComboBox(cf,CB_System);
-// cbSystem->Select(-1);
-// cbSystem->Resize(250,20);
-// cbSystem->Connect("Selected(int)",
-//                       "KVDataAnalysisLauncher",
-//		       this,
-//		       "SetTriggersList(int)");
-//  cbSystem->Connect("Selected(int)",
-//                        "KVDataAnalysisLauncher",
-// 		       this,
-// 		       "SetRunsList(int)");
-// cf->AddFrame(cbSystem,LHtopleft);
-// cfSelect->AddFrame(cf,eX);
+   // cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+   // Label du Data Set
+   lab=new TGLabel(cf,"DATASET : ");
+   lab->Resize(150,20);
+   lab->SetTextJustify(justMode);
+   cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                      20,1,1,1));
+   // ComboBox du Data Set
+   cbDataSet=new TGComboBox(cf,CB_DataSet);
+   cbDataSet->Select(-1);
+   cbDataSet->Resize(150,20);
+   cbDataSet->Connect("Selected(char*)",
+                      "KVDataAnalysisLauncher",
+                      this,
+                      "SetTaskList(char*)");
+   cf->AddFrame(cbDataSet,LHtopleft);
+   cfSelect->AddFrame(cf,centerX);
 
-// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
-// Label du Trigger
-// lab=new TGLabel(cf,"TRIGGER : ");
-// lab->SetTextJustify(justMode);
-// lab->Resize(150,20);
-// cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-//                                    20,1,1,1));
-// ComboBox du systeme
-// cbTrigger=new TGComboBox(cf,CB_Trigger);
-// cbTrigger->Select(-1);
-// cbTrigger->Resize(100,20);
-// cbTrigger->Connect("Selected(int)",
-//                       "KVDataAnalysisLauncher",
-//		       this,
-//		       "SetTriggerRunsList(int)");
-// cf->AddFrame(cbTrigger,LHtopleft);
-// /* disable trigger selection */
-// cbTrigger->SetEnabled(kFALSE);
- cfSelect->AddFrame(cf,centerX);
+   cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+   // Label du Task
+   lab=new TGLabel(cf,"ANALYSIS TASK : ");
+   lab->SetTextJustify(justMode);
+   lab->Resize(150,20);
+   cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                      1,1,1,1));
+   // ComboBox du Task
+   cbTask=new TGComboBox(cf,CB_AnalysisTask);
+   cbTask->Select(-1);
+   cbTask->Resize(350,20);
+   cbTask->Connect("Selected(int)",
+                   "KVDataAnalysisLauncher",
+                   this,
+                   "SetSystemList(int)");
+   cf->AddFrame(cbTask,LHtopleft);
+   cfSelect->AddFrame(cf,centerX);
+
+   // cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+   // Label du systeme
+   // lab=new TGLabel(cf,"SYSTEM : ");
+   // lab->SetTextJustify(justMode);
+   // lab->Resize(150,20);
+   // cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+   //                                    1,1,1,1));
+   // ComboBox du systeme
+   // cbSystem=new TGComboBox(cf,CB_System);
+   // cbSystem->Select(-1);
+   // cbSystem->Resize(250,20);
+   // cbSystem->Connect("Selected(int)",
+   //                       "KVDataAnalysisLauncher",
+   //		       this,
+   //		       "SetTriggersList(int)");
+   //  cbSystem->Connect("Selected(int)",
+   //                        "KVDataAnalysisLauncher",
+   // 		       this,
+   // 		       "SetRunsList(int)");
+   // cf->AddFrame(cbSystem,LHtopleft);
+   // cfSelect->AddFrame(cf,eX);
+
+   // cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+   // Label du Trigger
+   // lab=new TGLabel(cf,"TRIGGER : ");
+   // lab->SetTextJustify(justMode);
+   // lab->Resize(150,20);
+   // cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+   //                                    20,1,1,1));
+   // ComboBox du systeme
+   // cbTrigger=new TGComboBox(cf,CB_Trigger);
+   // cbTrigger->Select(-1);
+   // cbTrigger->Resize(100,20);
+   // cbTrigger->Connect("Selected(int)",
+   //                       "KVDataAnalysisLauncher",
+   //		       this,
+   //		       "SetTriggerRunsList(int)");
+   // cf->AddFrame(cbTrigger,LHtopleft);
+   // /* disable trigger selection */
+   // cbTrigger->SetEnabled(kFALSE);
+   cfSelect->AddFrame(cf,centerX);
 
 
- AddFrame(cfSelect,new TGLayoutHints(kLHintsLeft|kLHintsTop
-                                         |kLHintsRight|kLHintsExpandX,
-                                    10,10,1,1));
-    // Systems list
-    lvSystems = new KVListView(KVDBSystem::Class(), this, fMainGuiWidth, 150);
-    lvSystems->SetDataColumns(5);
-	lvSystems->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
-    lvSystems->SetDataColumn(1, "Zproj");
-    lvSystems->SetDataColumn(2, "Ztarget");
-    lvSystems->SetDataColumn(3, "Ebeam");
-    lvSystems->GetDataColumn(3)->SetDataFormat("%4.1lf");
-    lvSystems->SetDataColumn(4, "#Runs", "GetNumberRuns");
-    lvSystems->SetDataColumn(0, "Name");
-    lvSystems->ActivateSortButtons();
-    // disable context menu, Browse & multi-select functions
-    lvSystems->AllowBrowse(kFALSE);
-    lvSystems->AllowContextMenu(kFALSE);
-    lvSystems->AllowMultipleSelection(kFALSE);
-    lvSystems->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "SystemSelectionChanged()");
-    AddFrame(lvSystems, new TGLayoutHints(kLHintsExpandX,
-                               10,10,15,15));
+   AddFrame(cfSelect,new TGLayoutHints(kLHintsLeft|kLHintsTop
+                                       |kLHintsRight|kLHintsExpandX,
+                                       10,10,1,1));
+   // Systems list
+   lvSystems = new KVListView(KVDBSystem::Class(), this, fMainGuiWidth, 150);
+   lvSystems->SetDataColumns(5);
+   lvSystems->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
+   lvSystems->SetDataColumn(1, "Zproj");
+   lvSystems->SetDataColumn(2, "Ztarget");
+   lvSystems->SetDataColumn(3, "Ebeam");
+   lvSystems->GetDataColumn(3)->SetDataFormat("%4.1lf");
+   lvSystems->SetDataColumn(4, "#Runs", "GetNumberRuns");
+   lvSystems->SetDataColumn(0, "Name");
+   lvSystems->ActivateSortButtons();
+   // disable context menu, Browse & multi-select functions
+   lvSystems->AllowBrowse(kFALSE);
+   lvSystems->AllowContextMenu(kFALSE);
+   lvSystems->AllowMultipleSelection(kFALSE);
+   lvSystems->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "SystemSelectionChanged()");
+   AddFrame(lvSystems, new TGLayoutHints(kLHintsExpandX,
+                                         10,10,15,15));
 
-// Frame pour la liste des runs
+   // Frame pour la liste des runs
 
    TClass* cl = new TClass( Form("KV%sDBRun",ExpType) );
    TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
-	lvRuns = new KVListView(cl, cfRuns, fMainGuiWidth, 250);
+   lvRuns = new KVListView(cl, cfRuns, fMainGuiWidth, 250);
 
    lvRuns->SetDataColumns(7);
-	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
-    int iicc=0;
-    lvRuns->SetDataColumn(iicc++, "Run", "GetNumber");
-    //lvRuns->SetDataColumn(iicc++, "System", "GetSystemName");
-    lvRuns->SetDataColumn(iicc++, "Trigger", "");
-    lvRuns->SetDataColumn(iicc++, "Events", "", kTextRight);
-    lvRuns->SetDataColumn(iicc++, "File written", "GetDatimeString");
-    //printf("pouet\n");
-    //lvRuns->GetDataColumn(iicc)->SetIsDateTime();
-    //printf("pouet\n");
-    lvRuns->SetDataColumn(iicc++, "Comments", "", kTextLeft);
-    lvRuns->SetDataColumn(iicc++, "Version", "GetKVVersion");
-    lvRuns->SetDataColumn(iicc++, "User", "GetUserName");
-	lvRuns->ActivateSortButtons();
-	// disable context menu & Browse functions
-	lvRuns->AllowBrowse(kFALSE);
-	lvRuns->AllowContextMenu(kFALSE);
-	lvRuns->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "UpdateListOfSelectedRuns()");
-	cfRuns->AddFrame(lvRuns, new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsExpandY,
-				       10,10,15,15));
+   lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
+   int iicc=0;
+   lvRuns->SetDataColumn(iicc++, "Run", "GetNumber");
+   //lvRuns->SetDataColumn(iicc++, "System", "GetSystemName");
+   lvRuns->SetDataColumn(iicc++, "Trigger", "");
+   lvRuns->SetDataColumn(iicc++, "Events", "", kTextRight);
+   lvRuns->SetDataColumn(iicc++, "File written", "GetDatimeString");
+   //printf("pouet\n");
+   //lvRuns->GetDataColumn(iicc)->SetIsDateTime();
+   //printf("pouet\n");
+   lvRuns->SetDataColumn(iicc++, "Comments", "", kTextLeft);
+   lvRuns->SetDataColumn(iicc++, "Version", "GetKVVersion");
+   lvRuns->SetDataColumn(iicc++, "User", "GetUserName");
+   lvRuns->ActivateSortButtons();
+   // disable context menu & Browse functions
+   lvRuns->AllowBrowse(kFALSE);
+   lvRuns->AllowContextMenu(kFALSE);
+   lvRuns->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "UpdateListOfSelectedRuns()");
+   cfRuns->AddFrame(lvRuns, new TGLayoutHints(kLHintsLeft|kLHintsTop|
+                                              kLHintsExpandX|kLHintsExpandY,
+                                              10,10,15,15));
 
-// Boutons de selection
- TGCompositeFrame *cfSelAll=new TGCompositeFrame(cfRuns,fMainGuiWidth,20,kHorizontalFrame);
- TGTextButton *bout=new TGTextButton(cfSelAll,"Select All");
- bout->SetToolTipText("Select all runs for the analysis.",TTDELAY);
- bout->Connect("Clicked()",
-                      "KVDataAnalysisLauncher",
-		       this,
-		       "SelectAll()");
- cfSelAll->AddFrame(bout,eX);
- bout=new TGTextButton(cfSelAll,"Deselect All");
- bout->SetToolTipText("Deselect all runs.",TTDELAY);
- bout->Connect("Clicked()",
-                      "KVDataAnalysisLauncher",
-		       this,
-		       "DeselectAll()");
- cfSelAll->AddFrame(bout,eX);
- bout=new TGTextButton(cfSelAll,"Runlist");
- bout->SetToolTipText("Enter list of runs to analyse.",TTDELAY);
- bout->Connect("Clicked()",
-                      "KVDataAnalysisLauncher",
-		       this,
-		       "EnterRunlist()");
- cfSelAll->AddFrame(bout,eX);
- 
- cfRuns->AddFrame(cfSelAll,eX); 
+   // Boutons de selection
+   TGCompositeFrame *cfSelAll=new TGCompositeFrame(cfRuns,fMainGuiWidth,20,kHorizontalFrame);
+   TGTextButton *bout=new TGTextButton(cfSelAll,"Select All");
+   bout->SetToolTipText("Select all runs for the analysis.",TTDELAY);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "SelectAll()");
+   cfSelAll->AddFrame(bout,eX);
+   bout=new TGTextButton(cfSelAll,"Deselect All");
+   bout->SetToolTipText("Deselect all runs.",TTDELAY);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "DeselectAll()");
+   cfSelAll->AddFrame(bout,eX);
+   bout=new TGTextButton(cfSelAll,"Runlist");
+   bout->SetToolTipText("Enter list of runs to analyse.",TTDELAY);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "EnterRunlist()");
+   cfSelAll->AddFrame(bout,eX);
 
-// label des runs selectionnes
- selectedRuns=new TGLabel(cfRuns,"Selected Runs :");
- cfRuns->AddFrame(selectedRuns,eX); 
-  
- AddFrame(cfRuns,eXeY);
-  
-// UserClass and DataSelector et nombre d'evenements
- cfAnalysis=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
- cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
-// Label for User Class name
- fUserClassLabel=new TGLabel(cf,"User Class");
- cf->AddFrame(fUserClassLabel,eX); 
-// Label du data selector (only for KVINDRAReconDataAnalyser)
- fDataSelectorLabel=new TGLabel(cf,"-");
- cf->AddFrame(fDataSelectorLabel,eX); 
-// Label du Task
- lab=new TGLabel(cf,"Number of events to read");
- cf->AddFrame(lab,eX); 
- 
- cfAnalysis->AddFrame(cf,eX);
- 
- cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
- //teSelector=new TGTextEntry(cf,"");
- //teSelector->Resize(233,20);
- //teSelector->SetToolTipText("Enter the user analysis class name",TTDELAY);
- //cf->AddFrame(teSelector,eX);
- cbUserClass = new TGComboBox(cf);
- cbUserClass->Select(-1);
- cbUserClass->Resize(150,20);
- cf->AddFrame(cbUserClass,eX);
- cbUserClass->Connect("Selected(char*)", "KVDataAnalysisLauncher", this,
-       "UserClassSelected(char*)");
- btEditClass = new TGPictureButton(cf, "query_new.xpm");
- btEditClass->SetEnabled(kFALSE);
- btEditClass->Connect("Clicked()", "KVDataAnalysisLauncher", this, "EditUserClassFiles()");
- btEditClass->SetToolTipText(Form("Open analysis class source files in %s",gSystem->Getenv("EDITOR")), TTDELAY);
- cf->AddFrame(btEditClass, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
+   cfRuns->AddFrame(cfSelAll,eX);
 
- teDataSelector=new TGTextEntry(cf,"");
- //teDataSelector->Resize(233,20);
- teDataSelector->SetToolTipText("Enter the KVDataSelector class name.",TTDELAY);
- cf->AddFrame(teDataSelector,eX);
+   // label des runs selectionnes
+   selectedRuns=new TGLabel(cfRuns,"Selected Runs :");
+   cfRuns->AddFrame(selectedRuns,eX);
 
- teNbToRead=new TGNumberEntry(cf,0);
+   AddFrame(cfRuns,eXeY);
+
+   // UserClass and DataSelector et nombre d'evenements
+   cfAnalysis=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
+   cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
+   // Label for User Class name
+   fUserClassLabel=new TGLabel(cf,"User Class");
+   cf->AddFrame(fUserClassLabel,eX);
+   // Label du data selector (only for KVINDRAReconDataAnalyser)
+   fDataSelectorLabel=new TGLabel(cf,"-");
+   cf->AddFrame(fDataSelectorLabel,eX);
+   // Label du Task
+   lab=new TGLabel(cf,"Number of events to read");
+   cf->AddFrame(lab,eX);
+
+   cfAnalysis->AddFrame(cf,eX);
+
+   cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
+   //teSelector=new TGTextEntry(cf,"");
+   //teSelector->Resize(233,20);
+   //teSelector->SetToolTipText("Enter the user analysis class name",TTDELAY);
+   //cf->AddFrame(teSelector,eX);
+   cbUserClass = new TGComboBox(cf);
+   cbUserClass->Select(-1);
+   cbUserClass->Resize(150,20);
+   cf->AddFrame(cbUserClass,eX);
+   cbUserClass->Connect("Selected(char*)", "KVDataAnalysisLauncher", this,
+                        "UserClassSelected(char*)");
+   btEditClass = new TGPictureButton(cf, "query_new.xpm");
+   btEditClass->SetEnabled(kFALSE);
+   btEditClass->Connect("Clicked()", "KVDataAnalysisLauncher", this, "EditUserClassFiles()");
+   btEditClass->SetToolTipText(Form("Open analysis class source files in %s",gSystem->Getenv("EDITOR")), TTDELAY);
+   cf->AddFrame(btEditClass, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
+
+   teDataSelector=new TGTextEntry(cf,"");
+   //teDataSelector->Resize(233,20);
+   teDataSelector->SetToolTipText("Enter the KVDataSelector class name.",TTDELAY);
+   cf->AddFrame(teDataSelector,eX);
+
+   teNbToRead=new TGNumberEntry(cf,0);
 #ifdef __WITHOUT_TGNUMBERENTRY_SETNUMSTYLE
- teNbToRead->SetFormat(TGNumberFormat::kNESInteger, teNbToRead->GetNumAttr());
+   teNbToRead->SetFormat(TGNumberFormat::kNESInteger, teNbToRead->GetNumAttr());
 #else
- teNbToRead->SetNumStyle(TGNumberFormat::kNESInteger);
+   teNbToRead->SetNumStyle(TGNumberFormat::kNESInteger);
 #endif
 #ifdef __WITHOUT_TGNUMBERENTRY_SETNUMATTR
- teNbToRead->SetFormat(teNbToRead->GetNumStyle(), TGNumberFormat::kNEANonNegative);
+   teNbToRead->SetFormat(teNbToRead->GetNumStyle(), TGNumberFormat::kNEANonNegative);
 #else
- teNbToRead->SetNumAttr(TGNumberFormat::kNEANonNegative);
+   teNbToRead->SetNumAttr(TGNumberFormat::kNEANonNegative);
 #endif
- teNbToRead->GetNumberEntry()->SetToolTipText("Enter the number of events to read.",TTDELAY);
- //teNbToRead->Resize(233,20);
- cf->AddFrame(teNbToRead,eX);
+   teNbToRead->GetNumberEntry()->SetToolTipText("Enter the number of events to read.",TTDELAY);
+   //teNbToRead->Resize(233,20);
+   cf->AddFrame(teNbToRead,eX);
 
- cfAnalysis->AddFrame(cf,eX);
+   cfAnalysis->AddFrame(cf,eX);
 
- this->AddFrame(cfAnalysis,eX);
-// user analysis class options
- cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
- lab=new TGLabel(cf,"User class options : ");
- lab->SetTextJustify(justMode);
- lab->Resize(150,20);
- cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    1,1,1,1));
- teUserOptions=new TGTextEntry(cf,"");
- //teDataSelector->Resize(233,20);
- teUserOptions->SetToolTipText("Comma-separated list of options for user analysis class: PAR1=VAL1,PAR2=VAL2,etc.",TTDELAY);
- cf->AddFrame(teUserOptions,eX);
- AddFrame(cf,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX, 10,10,2,2));
+   this->AddFrame(cfAnalysis,eX);
+   // user analysis class options
+   cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+   lab=new TGLabel(cf,"User class options : ");
+   lab->SetTextJustify(justMode);
+   lab->Resize(150,20);
+   cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                      1,1,1,1));
+   teUserOptions=new TGTextEntry(cf,"");
+   //teDataSelector->Resize(233,20);
+   teUserOptions->SetToolTipText("Comma-separated list of options for user analysis class: PAR1=VAL1,PAR2=VAL2,etc.",TTDELAY);
+   cf->AddFrame(teUserOptions,eX);
+   AddFrame(cf,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX, 10,10,2,2));
 
- cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
- // Frame for the user's libraries
- bout=new TGTextButton(cf,"User's libraries",B_Libs);
- bout->Connect("Clicked()",
-               "KVDataAnalysisLauncher",
-	       this,
-	       "SetUserLibraries()");
- cf->AddFrame(bout,eX);
+   cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+   // Frame for the user's libraries
+   bout=new TGTextButton(cf,"User's libraries",B_Libs);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "SetUserLibraries()");
+   cf->AddFrame(bout,eX);
 
- bout=new TGTextButton(cf,"User's includes",B_Incs);
- bout->Connect("Clicked()",
-               "KVDataAnalysisLauncher",
-		this,
-		"SetUserIncludes()");
- cf->AddFrame(bout,eX);
+   bout=new TGTextButton(cf,"User's includes",B_Incs);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "SetUserIncludes()");
+   cf->AddFrame(bout,eX);
 
- this->AddFrame(cf,eX);
- 
- cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
- TGVerticalFrame * RunMode_frame = new TGVerticalFrame(cf, fMainGuiWidth/2.,  100);
- // Radio buttons for the running mode
- TString tit="Running Mode";
- TGHButtonGroup *gb=new TGHButtonGroup(RunMode_frame,tit);
- rbInteractive=new TGRadioButton(gb,"Now!  ");
- rbInteractive->SetToolTipText("Run the analysis straight away",TTDELAY);
- rbBatch=new TGRadioButton(gb,"Batch");
- rbBatch->
-  SetToolTipText("Submit the analysis as a batch job",TTDELAY);
- RunMode_frame->AddFrame(gb, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
- gb->Connect("Clicked(Int_t)", "KVDataAnalysisLauncher", this, "SetBatch()");
- 
- TGHorizontalFrame* hf913 = new TGHorizontalFrame(RunMode_frame,600,20);
- TGLabel* lab586 = new TGLabel(hf913, "Runs per batch job : ");
- hf913->AddFrame(lab586, new TGLayoutHints(kLHintsTop|kLHintsLeft, 2,15,2,2));
- runsPerJob=new TGNumberEntry(hf913,1.0, 5, 0, TGNumberFormat::kNESInteger,
- 	TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMinMax, 1.0, 1.0);
- runsPerJob->GetNumberEntry()->SetToolTipText("Number of runs to analyse in each batch job",TTDELAY);
- //teNbToRead->Resize(233,20);
- hf913->AddFrame(runsPerJob, new TGLayoutHints(kLHintsTop|kLHintsRight, 2,2,2,2));
- RunMode_frame->AddFrame(hf913, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
- cf->AddFrame(RunMode_frame, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+   this->AddFrame(cf,eX);
 
- justMode=kTextCenterY|kTextLeft;
- TGCompositeFrame *cf2=new TGCompositeFrame(cf,fMainGuiWidth/2.,20,kVerticalFrame);
- TGCompositeFrame *cf3=new TGCompositeFrame(cf2,fMainGuiWidth/2.,20,kHorizontalFrame);
- lab=new TGLabel(cf3," Batch Name ");
- lab->SetTextJustify(justMode);
- cf3->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,15,2,2)); 
- chIsBatchNameAuto=new TGCheckButton(cf3," Auto");
- chIsBatchNameAuto->SetTextJustify(justMode);
- chIsBatchNameAuto->
-  SetToolTipText("Builds the batch name automatically by using the Batch Name Format.",TTDELAY);
- chIsBatchNameAuto->Connect("Clicked()",
-                    "KVDataAnalysisLauncher",this,"SetBatchNameAuto()");
- cf3->AddFrame(chIsBatchNameAuto, new TGLayoutHints(kLHintsLeft, 2,2, 2, 2));
- cf2->AddFrame(cf3, new TGLayoutHints(kLHintsTop|kLHintsLeft,1,1,1,1)); 
- teBatchName=new TGTextEntry(cf2,"");
- teBatchName->SetToolTipText("Enter batch name.",TTDELAY);
- cf2->AddFrame(teBatchName, new TGLayoutHints(kLHintsLeft,2,2,2,2));
- teBatchName->Resize(300,20);
- lab=new TGLabel(cf2," Batch Name Format");
- lab->SetTextJustify(justMode);
- cf2->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,2,2,2)); 
- teBatchNameFormat=new TGTextEntry(cf2,"");
- teBatchNameFormat->
-  SetToolTipText(Form("%s %s",
-  	              "Enter batch name format.",
-		      "Examples : $UserClass_$System_$Date or $System_$DataSelector"),
-                 TTDELAY);
- cf2->AddFrame(teBatchNameFormat, new TGLayoutHints(kLHintsLeft,2,2,2,2));
- teBatchNameFormat->Resize(300,20);
- cf->AddFrame(cf2, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+   cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+   TGVerticalFrame * RunMode_frame = new TGVerticalFrame(cf, fMainGuiWidth/2.,  100);
+   // Radio buttons for the running mode
+   TString tit="Running Mode";
+   TGHButtonGroup *gb=new TGHButtonGroup(RunMode_frame,tit);
+   rbInteractive=new TGRadioButton(gb,"Now!  ");
+   rbInteractive->SetToolTipText("Run the analysis straight away",TTDELAY);
+   rbBatch=new TGRadioButton(gb,"Batch");
+   rbBatch->
+         SetToolTipText("Submit the analysis as a batch job",TTDELAY);
+   RunMode_frame->AddFrame(gb, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
+   gb->Connect("Clicked(Int_t)", "KVDataAnalysisLauncher", this, "SetBatch()");
 
- this->AddFrame(cf,eX);
- 
-// Batch parameters
- //if the default batch system does not have time/memory/disk parameters,
- //we do not display the corresponding widgets
- teBatchMemory=0;teBatchDisk=0;teBatchTime=0;
-if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJobTime") ){
-   withBatchParams = kTRUE;
- TGCompositeFrame *cfBatchPar=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
- cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
- fBatchMemLab=new TGLabel(cf,"Batch Memory");
- cf->AddFrame(fBatchMemLab,eX); 
- fBatchDiskLab=new TGLabel(cf,"Batch Disk");
- cf->AddFrame(fBatchDiskLab,eX); 
- fBatchTimeLab=new TGLabel(cf,"Batch Time");
- cf->AddFrame(fBatchTimeLab,eX);
- cfBatchPar->AddFrame(cf,eX); 
- cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
- teBatchMemory=new TGTextEntry(cf,"1G");
- teBatchMemory->SetToolTipText("Enter max memory per job (xK/xM/xG)",TTDELAY);
- teBatchMemory->SetAlignment(kTextRight);
- cf->AddFrame(teBatchMemory,eX);
- teBatchDisk=new TGTextEntry(cf,"200MB");
- teBatchDisk->SetToolTipText("Enter max scratch disk per job (xK/xM/xG)",TTDELAY);
- teBatchDisk->SetAlignment(kTextRight);
- cf->AddFrame(teBatchDisk,eX);
+   TGHorizontalFrame* hf913 = new TGHorizontalFrame(RunMode_frame,600,20);
+   TGLabel* lab586 = new TGLabel(hf913, "Runs per batch job : ");
+   hf913->AddFrame(lab586, new TGLayoutHints(kLHintsTop|kLHintsLeft, 2,15,2,2));
+   runsPerJob=new TGNumberEntry(hf913,1.0, 5, 0, TGNumberFormat::kNESInteger,
+                                TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMinMax, 1.0, 1.0);
+   runsPerJob->GetNumberEntry()->SetToolTipText("Number of runs to analyse in each batch job",TTDELAY);
+   //teNbToRead->Resize(233,20);
+   hf913->AddFrame(runsPerJob, new TGLayoutHints(kLHintsTop|kLHintsRight, 2,2,2,2));
+   RunMode_frame->AddFrame(hf913, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+   cf->AddFrame(RunMode_frame, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+
+   justMode=kTextCenterY|kTextLeft;
+   TGCompositeFrame *cf2=new TGCompositeFrame(cf,fMainGuiWidth/2.,20,kVerticalFrame);
+   TGCompositeFrame *cf3=new TGCompositeFrame(cf2,fMainGuiWidth/2.,20,kHorizontalFrame);
+   lab=new TGLabel(cf3," Batch Name ");
+   lab->SetTextJustify(justMode);
+   cf3->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,15,2,2));
+   chIsBatchNameAuto=new TGCheckButton(cf3," Auto");
+   chIsBatchNameAuto->SetTextJustify(justMode);
+   chIsBatchNameAuto->
+         SetToolTipText("Builds the batch name automatically by using the Batch Name Format.",TTDELAY);
+   chIsBatchNameAuto->Connect("Clicked()",
+                              "KVDataAnalysisLauncher",this,"SetBatchNameAuto()");
+   cf3->AddFrame(chIsBatchNameAuto, new TGLayoutHints(kLHintsLeft, 2,2, 2, 2));
+   cf2->AddFrame(cf3, new TGLayoutHints(kLHintsTop|kLHintsLeft,1,1,1,1));
+   teBatchName=new TGTextEntry(cf2,"");
+   teBatchName->SetToolTipText("Enter batch name.",TTDELAY);
+   cf2->AddFrame(teBatchName, new TGLayoutHints(kLHintsLeft,2,2,2,2));
+   teBatchName->Resize(300,20);
+   lab=new TGLabel(cf2," Batch Name Format");
+   lab->SetTextJustify(justMode);
+   cf2->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,2,2,2));
+   teBatchNameFormat=new TGTextEntry(cf2,"");
+   teBatchNameFormat->
+         SetToolTipText(Form("%s %s",
+                             "Enter batch name format.",
+                             "Examples : $UserClass_$System_$Date or $System_$DataSelector"),
+                        TTDELAY);
+   cf2->AddFrame(teBatchNameFormat, new TGLayoutHints(kLHintsLeft,2,2,2,2));
+   teBatchNameFormat->Resize(300,20);
+   cf->AddFrame(cf2, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+
+   this->AddFrame(cf,eX);
+
+   // Batch parameters
+   //if the default batch system does not have time/memory/disk parameters,
+   //we do not display the corresponding widgets
+   teBatchMemory=0;teBatchDisk=0;teBatchTime=0;
+   if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJobTime") ){
+      withBatchParams = kTRUE;
+      TGCompositeFrame *cfBatchPar=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
+      cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
+      fBatchMemLab=new TGLabel(cf,"Batch Memory");
+      cf->AddFrame(fBatchMemLab,eX);
+      fBatchDiskLab=new TGLabel(cf,"Batch Disk");
+      cf->AddFrame(fBatchDiskLab,eX);
+      fBatchTimeLab=new TGLabel(cf,"Batch Time");
+      cf->AddFrame(fBatchTimeLab,eX);
+      cfBatchPar->AddFrame(cf,eX);
+      cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
+      teBatchMemory=new TGTextEntry(cf,"1G");
+      teBatchMemory->SetToolTipText("Enter max memory per job (xK/xM/xG)",TTDELAY);
+      teBatchMemory->SetAlignment(kTextRight);
+      cf->AddFrame(teBatchMemory,eX);
+      teBatchDisk=new TGTextEntry(cf,"200MB");
+      teBatchDisk->SetToolTipText("Enter max scratch disk per job (xK/xM/xG)",TTDELAY);
+      teBatchDisk->SetAlignment(kTextRight);
+      cf->AddFrame(teBatchDisk,eX);
 #ifdef USE_KVTIMEENTRY
- teBatchTime=new KVTimeEntry(cf);
- teBatchTime->GetTextEntry()->SetToolTipText("Enter max CPU time per job (ss/mn:ss/hh:mn:ss)",TTDELAY);
+      teBatchTime=new KVTimeEntry(cf);
+      teBatchTime->GetTextEntry()->SetToolTipText("Enter max CPU time per job (ss/mn:ss/hh:mn:ss)",TTDELAY);
 #else
- teBatchTime=new TGNumberEntry(cf);
- teBatchTime->GetNumberEntry()->SetToolTipText("Enter max CPU time per job in seconds",TTDELAY);
+      teBatchTime=new TGNumberEntry(cf);
+      teBatchTime->GetNumberEntry()->SetToolTipText("Enter max CPU time per job in seconds",TTDELAY);
 #ifdef __WITHOUT_TGNUMBERENTRY_SETNUMSTYLE
- teBatchTime->SetFormat(TGNumberFormat::kNESInteger, teBatchTime->GetNumAttr());
+      teBatchTime->SetFormat(TGNumberFormat::kNESInteger, teBatchTime->GetNumAttr());
 #else
- teBatchTime->SetNumStyle(TGNumberFormat::kNESInteger);
+      teBatchTime->SetNumStyle(TGNumberFormat::kNESInteger);
 #endif
 #ifdef __WITHOUT_TGNUMBERENTRY_SETNUMATTR
- teBatchTime->SetFormat(teBatchTime->GetNumStyle(), TGNumberFormat::kNEANonNegative);
+      teBatchTime->SetFormat(teBatchTime->GetNumStyle(), TGNumberFormat::kNEANonNegative);
 #else
- teBatchTime->SetNumAttr(TGNumberFormat::kNEANonNegative);
+      teBatchTime->SetNumAttr(TGNumberFormat::kNEANonNegative);
 #endif
 #endif
- teBatchTime->SetTime(2,30,0);
- cf->AddFrame(teBatchTime,eX);
- cfBatchPar->AddFrame(cf,eX);  
- this->AddFrame(cfBatchPar,eX); 
-}
-else
-{withBatchParams = kFALSE;}
+      teBatchTime->SetTime(2,30,0);
+      cf->AddFrame(teBatchTime,eX);
+      cfBatchPar->AddFrame(cf,eX);
+      this->AddFrame(cfBatchPar,eX);
+   }
+   else
+   {withBatchParams = kFALSE;}
 
-// Process et Quit
+   // Process et Quit
 #ifdef KVDAL_DEBUG 
- cout << "Creation Process/Quit" << endl;
+   cout << "Creation Process/Quit" << endl;
 #endif
- TGCompositeFrame *cfProcess=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
-// Bouton de process
- bout=new TGTextButton(cfProcess,"&Process",B_Process);
- bout->SetToolTipText("Run the analysis.",TTDELAY);
- bout->Connect("Clicked()","KVDataAnalysisLauncher",this,"Process()");
-// bout->Associate(this);
- cfProcess->AddFrame(bout,eX);
-// Bouton de sortie
- bout=new TGTextButton(cfProcess,"&Quit",B_Quit);
- bout->SetToolTipText("Close GUI and quit.",TTDELAY);
- bout->Connect("Clicked()","KVDataAnalysisLauncher",this,"Exit()");
-// bout->Associate(this);
- cfProcess->AddFrame(bout,eX);
- 
- this->AddFrame(cfProcess,eX);
-// On affiche tout le monde maintenant
- MapSubwindows();
+   TGCompositeFrame *cfProcess=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+   // Bouton de process
+   bout=new TGTextButton(cfProcess,"&Process",B_Process);
+   bout->SetToolTipText("Run the analysis.",TTDELAY);
+   bout->Connect("Clicked()","KVDataAnalysisLauncher",this,"Process()");
+   // bout->Associate(this);
+   cfProcess->AddFrame(bout,eX);
+   // Bouton de sortie
+   bout=new TGTextButton(cfProcess,"&Quit",B_Quit);
+   bout->SetToolTipText("Close GUI and quit.",TTDELAY);
+   bout->Connect("Clicked()","KVDataAnalysisLauncher",this,"Exit()");
+   // bout->Associate(this);
+   cfProcess->AddFrame(bout,eX);
 
- Resize(GetDefaultSize());
+   this->AddFrame(cfProcess,eX);
+   // On affiche tout le monde maintenant
+   MapSubwindows();
 
- SetWindowName(Form("KaliVeda Analysis Launcher on %s",gSystem->HostName()));
- SetIconName(Form("KaliVeda Analysis Launcher on %s",gSystem->HostName()));
+   Resize(GetDefaultSize());
 
- MapWindow();
- SetWMSize(fMainGuiWidth,fMainGuiHeight);
- 
- SetRepositoryList();
- 
- FillListOfUserClasses();
- //fill drop down list of user classes in working directory
- SetUserClassList();
- checkCompilation=kFALSE;
+   SetWindowName(Form("KaliVeda Analysis Launcher on %s",gSystem->HostName()));
+   SetIconName(Form("KaliVeda Analysis Launcher on %s",gSystem->HostName()));
 
- // Reset last known state of interface
- TString tmp(GetResource("Repository",""));
- SetRepository(tmp.Data());
- 
- tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchName","");
- teBatchName->SetText(tmp.Data());
- 
- tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","");
- teBatchNameFormat->SetText(tmp.Data());
- if(GUIenv->GetValue("KVDataAnalysisLauncher.Batch",kFALSE))
- 	rbBatch->SetState(kButtonDown);
- else
-  rbInteractive->SetState(kButtonDown);
-  runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
- 
- if(withBatchParams){
-   teBatchMemory->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchMemory","1G"));
-   teBatchDisk->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchDisk","200M"));
-   teBatchTime->SetIntNumber(GUIenv->GetValue("KVDataAnalysisLauncher.BatchTime",9000));
-}
+   MapWindow();
+   SetWMSize(fMainGuiWidth,fMainGuiHeight);
 
- fUserLibraries=GUIenv->GetValue("KVDataAnalysisLauncher.UserLibraries","");
- fUserIncludes=GUIenv->GetValue("KVDataAnalysisLauncher.UserIncludes","");
+   SetRepositoryList();
 
-// Connections are made when all the other widgets are mapped
- //teSelector->Connect("TextChanged(const char*)",
- //                    "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
- teDataSelector->Connect("TextChanged(const char*)",
-                         "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
- teBatchNameFormat->Connect("TextChanged(const char*)",
-                         "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
- 
- if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
-  chIsBatchNameAuto->SetState(kButtonDown,kFALSE);
-  }
- else{
-  chIsBatchNameAuto->SetState(kButtonUp,kFALSE);
-}
- SetBatch();
- 
+   FillListOfUserClasses();
+   //fill drop down list of user classes in working directory
+   SetUserClassList();
+   checkCompilation=kFALSE;
+
+   // Reset last known state of interface
+   TString tmp(GetResource("Repository",""));
+   SetRepository(tmp.Data());
+
+   tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchName","");
+   teBatchName->SetText(tmp.Data());
+
+   tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","");
+   teBatchNameFormat->SetText(tmp.Data());
+   if(GUIenv->GetValue("KVDataAnalysisLauncher.Batch",kFALSE))
+      rbBatch->SetState(kButtonDown);
+   else
+      rbInteractive->SetState(kButtonDown);
+   runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
+
+   if(withBatchParams){
+      teBatchMemory->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchMemory","1G"));
+      teBatchDisk->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchDisk","200M"));
+      teBatchTime->SetIntNumber(GUIenv->GetValue("KVDataAnalysisLauncher.BatchTime",9000));
+   }
+
+   fUserLibraries=GUIenv->GetValue("KVDataAnalysisLauncher.UserLibraries","");
+   fUserIncludes=GUIenv->GetValue("KVDataAnalysisLauncher.UserIncludes","");
+
+   // Connections are made when all the other widgets are mapped
+   //teSelector->Connect("TextChanged(const char*)",
+   //                    "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
+   teDataSelector->Connect("TextChanged(const char*)",
+                           "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
+   teBatchNameFormat->Connect("TextChanged(const char*)",
+                              "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
+
+   if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
+      chIsBatchNameAuto->SetState(kButtonDown,kFALSE);
+   }
+   else{
+      chIsBatchNameAuto->SetState(kButtonUp,kFALSE);
+   }
+   SetBatch();
+
 }
 
 //__________________________________________
@@ -897,62 +897,62 @@ KVDataAnalysisLauncher::~KVDataAnalysisLauncher()
 //__________________________________________
 Bool_t KVDataAnalysisLauncher::ProcessMessage(Long_t msg, Long_t , Long_t )
 {
-// Process messages
+   // Process messages
 #ifdef KVDAL_DEBUG 
- cout << "KVDataAnalysisLauncher::ProcessMessage " << endl;
- cout << msg << " : " << par1 << " / " << par2 << endl;
+   cout << "KVDataAnalysisLauncher::ProcessMessage " << endl;
+   cout << msg << " : " << par1 << " / " << par2 << endl;
 #endif
- switch(GET_MSG(msg))
-  {
-//       case kC_CONTAINER:
-//          switch (GET_SUBMSG(msg)) {
-//             case kCT_ITEMCLICK:
-//                if (par1 == kButton1) {
-// 						cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
-//                   if (lcRuns->NumSelected() > 0) {
-// 							UpdateListOfSelectedRuns();
-//                   }
-// 						else {
-// 							ClearListOfSelectedRuns();
-// 						}
-//                }
-//                break;
-// 					
-//             case kCT_SELCHANGED:
-// 					cout << "SELCHANGED: number selected = " << par2 << endl;
-// 					break;
-// 					
-//    			default:
-//    				break;
-// 			}
-			
-  default:
-   break;
-  }
- return kTRUE;
+   switch(GET_MSG(msg))
+   {
+      //       case kC_CONTAINER:
+      //          switch (GET_SUBMSG(msg)) {
+      //             case kCT_ITEMCLICK:
+      //                if (par1 == kButton1) {
+      // 						cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
+      //                   if (lcRuns->NumSelected() > 0) {
+      // 							UpdateListOfSelectedRuns();
+      //                   }
+      // 						else {
+      // 							ClearListOfSelectedRuns();
+      // 						}
+      //                }
+      //                break;
+      //
+      //             case kCT_SELCHANGED:
+      // 					cout << "SELCHANGED: number selected = " << par2 << endl;
+      // 					break;
+      //
+      //    			default:
+      //    				break;
+      // 			}
+
+      default:
+         break;
+   }
+   return kTRUE;
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetRepositoryList(void)
 {
-// Sets the list of all possible repositories in the repository combo box
+   // Sets the list of all possible repositories in the repository combo box
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbRepository);
+   RemoveAll(cbRepository);
 #else
-  cbRepository->RemoveAll();
+   cbRepository->RemoveAll();
 #endif
-  cbRepository->Select(-1);
-  TIter next((TList *)gDataRepositoryManager->GetListOfRepositories());
-  TObject *o=0;
-  Int_t i=0;
-  while((o=next()))
+   cbRepository->Select(-1);
+   TIter next((TList *)gDataRepositoryManager->GetListOfRepositories());
+   TObject *o=0;
+   Int_t i=0;
+   while((o=next()))
    {
-   //if(((KVDataRepository *)o)->GetDataSetManager()->GetNavailable())
-    cbRepository->AddEntry(o->GetName(),i);
-   i++;
+      //if(((KVDataRepository *)o)->GetDataSetManager()->GetNavailable())
+      cbRepository->AddEntry(o->GetName(),i);
+      i++;
    }
 
-  cbRepository->Layout();
+   cbRepository->Layout();
 
 }
 
@@ -960,35 +960,35 @@ void KVDataAnalysisLauncher::SetRepositoryList(void)
 void KVDataAnalysisLauncher::SetDataSetList(Char_t *repository)
 {
    // Sets the list of all available data sets in the data sets combo box
-  SetResource("Repository",repository);
-  
-  //TString ds=GetDataSet();
-  TString ds=GetSavedResource("DataSet", "");
-  
+   SetResource("Repository",repository);
+
+   //TString ds=GetDataSet();
+   TString ds=GetSavedResource("DataSet", "");
+
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbDataSet);
+   RemoveAll(cbDataSet);
 #else
-  cbDataSet->RemoveAll();
+   cbDataSet->RemoveAll();
 #endif
-  cbDataSet->Select(-1);
-  gDataRepositoryManager->GetRepository(repository)->cd();
-  Int_t nbds=gDataSetManager->GetNavailable();
-  Int_t i=0;
-  while(i<nbds)
+   cbDataSet->Select(-1);
+   gDataRepositoryManager->GetRepository(repository)->cd();
+   Int_t nbds=gDataSetManager->GetNavailable();
+   Int_t i=0;
+   while(i<nbds)
    {
-   cbDataSet->AddEntry(gDataSetManager->GetAvailableDataSet(i+1)->GetName(),i);
-   i++;
+      cbDataSet->AddEntry(gDataSetManager->GetAvailableDataSet(i+1)->GetName(),i);
+      i++;
    }
 
-  cbDataSet->Layout();
-  
-  if(ds.Length())
+   cbDataSet->Layout();
+
+   if(ds.Length())
    {
-   SetDataSet(ds.Data());
+      SetDataSet(ds.Data());
    }
-  else
+   else
    {
-   SetTask();
+      SetTask();
    }
 
 }
@@ -999,47 +999,47 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t *dataset)
    // Sets the list of all possible tasks in the tasks combo box
    // Called when a new dataset is selected in the dropdown list
    
-  SetResource("DataSet",dataset);
-  
+   SetResource("DataSet",dataset);
+
    //Info("SetTaskList", "Called with dataset = %s", dataset);
 
-  TString ds=GetSavedResource("Task", "");
+   TString ds=GetSavedResource("Task", "");
 
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbTask);
+   RemoveAll(cbTask);
 #else
-  cbTask->RemoveAll();
+   cbTask->RemoveAll();
 #endif
-  cbTask->Select(-1);
+   cbTask->Select(-1);
 #ifdef KVDAL_DEBUG 
-  cout << "DataSet : [" << dataset << "]" <<  endl;
+   cout << "DataSet : [" << dataset << "]" <<  endl;
 #endif
-  gDataSetManager->GetDataSet(dataset)->cd();
-  Int_t nbt=gDataSet->GetNtasks();
-  
-  GetDataAnalyser()->SetDataSet(gDataSet);
-  //no systems defined for dataset ?
-//  noSystems=(!gIndraDB || !gIndraDB->GetSystems()->GetSize());
-  
-  noSystems=(!gDataBase || ! ((KVDBTable* )((KVDataBase* )gROOT->FindObjectAny(gDataSet->GetName()))->GetTable("Systems"))->GetRecords()->GetSize());
-  if(noSystems) lvSystems->RemoveAll();
-  
-  Int_t i=0;
-  while(i<nbt)
+   gDataSetManager->GetDataSet(dataset)->cd();
+   Int_t nbt=gDataSet->GetNtasks();
+
+   GetDataAnalyser()->SetDataSet(gDataSet);
+   //no systems defined for dataset ?
+   //  noSystems=(!gIndraDB || !gIndraDB->GetSystems()->GetSize());
+
+   noSystems=(!gDataBase || ! ((KVDBTable* )((KVDataBase* )gROOT->FindObjectAny(gDataSet->GetName()))->GetTable("Systems"))->GetRecords()->GetSize());
+   if(noSystems) lvSystems->RemoveAll();
+
+   Int_t i=0;
+   while(i<nbt)
    {
-   cbTask->AddEntry(gDataSet->GetAnalysisTask(i+1)->GetType(),i);
-   i++;
+      cbTask->AddEntry(gDataSet->GetAnalysisTask(i+1)->GetType(),i);
+      i++;
    }
 
-  cbTask->Layout();
+   cbTask->Layout();
 
-  if(ds.Length())
+   if(ds.Length())
    {
-   SetTask(ds.Data());
+      SetTask(ds.Data());
    }
-  else
+   else
    {
-   SetSystem();
+      SetSystem();
    }
 
    //if no systems are defined for dataset, need to set list of triggers now
@@ -1067,131 +1067,131 @@ KVDataAnalyser* KVDataAnalysisLauncher::GetDataAnalyser(KVDataAnalysisTask* task
 //__________________________________________
 void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
 {
-    // Sets the list of all possible systems in the system list
-    // Called every time a task is selected
+   // Sets the list of all possible systems in the system list
+   // Called every time a task is selected
    
-  KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(itask+1);
-  
-  GetDataAnalyser(task);
-  
-  SetResource("Task", task->GetTitle());
+   KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(itask+1);
 
-  //if needed, set the user class and KVDataSelector fields and/or disable them
-  fDataSelectorLabel->SetText("-");
-  teDataSelector->SetEnabled(kFALSE);
-  teDataSelector->SetToolTipText("");
-  if( !task->WithUserClass() ){
-     //no user class required
-     //teSelector->SetEnabled(kFALSE);
-     //teSelector->SetText(task->GetUserBaseClass());
-     //teSelector->SetToolTipText("Default analysis class name");
-     DisableUserClassList();
-  }
-  else
-  {
-     //user class required
-     //teSelector->SetEnabled(kTRUE);
-     //teSelector->SetToolTipText(Form("Enter name of user analysis class derived from %s", task->GetUserBaseClass()));
-     EnableUserClassList();
-     //is data selector an option ?
-     if( GetDataAnalyser()->IsA()->GetMethodAllAny("SetKVDataSelector") ){
+   GetDataAnalyser(task);
+
+   SetResource("Task", task->GetTitle());
+
+   //if needed, set the user class and KVDataSelector fields and/or disable them
+   fDataSelectorLabel->SetText("-");
+   teDataSelector->SetEnabled(kFALSE);
+   teDataSelector->SetToolTipText("");
+   if( !task->WithUserClass() ){
+      //no user class required
+      //teSelector->SetEnabled(kFALSE);
+      //teSelector->SetText(task->GetUserBaseClass());
+      //teSelector->SetToolTipText("Default analysis class name");
+      DisableUserClassList();
+   }
+   else
+   {
+      //user class required
+      //teSelector->SetEnabled(kTRUE);
+      //teSelector->SetToolTipText(Form("Enter name of user analysis class derived from %s", task->GetUserBaseClass()));
+      EnableUserClassList();
+      //is data selector an option ?
+      if( GetDataAnalyser()->IsA()->GetMethodAllAny("SetKVDataSelector") ){
          fDataSelectorLabel->SetText("Data Selector");
          teDataSelector->SetEnabled(kTRUE);
          teDataSelector->SetToolTipText("Enter name of data selector class derived from KVDataSelector");
-     }
-  }
-  //update display
-  cfAnalysis->Layout();
-  
-  TString ds= GetSavedResource("System","");
-  lastSelectedSystem=0;
-  if(!noSystems){
+      }
+   }
+   //update display
+   cfAnalysis->Layout();
+
+   TString ds= GetSavedResource("System","");
+   lastSelectedSystem=0;
+   if(!noSystems){
       TList *sys_list = gDataSet->GetListOfAvailableSystems(task);
       lvSystems->Display(sys_list);
       delete sys_list;
-  }
-  if(ds.Length())
-  {
+   }
+   if(ds.Length())
+   {
       SetSystem(ds.Data());
-  }
-  else
-  {
+   }
+   else
+   {
       //Info("SetSystemList","no selected system");
       SetRunsList();
-  }
+   }
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetRunsList()
 {
-    // Sets the list of all available runs in the runs list box
+   // Sets the list of all available runs in the runs list box
 
-    SetResource("Trigger", "All");
-    listOfRuns.Clear();
-    listOfSystemRuns.Clear();
-    if(entryMax>-1)
-    {
-        lvRuns->RemoveAll();
-        entryMax=-1;
-    }
-    KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
-    KVDBSystem *system=0;
-    if( !noSystems ) {
-        // case where systems are defined for dataset and user has
-        // selected a specific system
-        system = lastSelectedSystem;
-        GetDataAnalyser()->SetSystem(system);
-        if(!system){
-            // no system selected
-            // clear runs list
-            SetRuns();
-            return;
-        }
-    }
-    //Info("SetRunsList","system=%p",system);
+   SetResource("Trigger", "All");
+   listOfRuns.Clear();
+   listOfSystemRuns.Clear();
+   if(entryMax>-1)
+   {
+      lvRuns->RemoveAll();
+      entryMax=-1;
+   }
+   KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
+   KVDBSystem *system=0;
+   if( !noSystems ) {
+      // case where systems are defined for dataset and user has
+      // selected a specific system
+      system = lastSelectedSystem;
+      GetDataAnalyser()->SetSystem(system);
+      if(!system){
+         // no system selected
+         // clear runs list
+         SetRuns();
+         return;
+      }
+   }
+   //Info("SetRunsList","system=%p",system);
 
-    if(IsBatchNameAuto())
-    {
-        SetAutoBatchName();
-    }
+   if(IsBatchNameAuto())
+   {
+      SetAutoBatchName();
+   }
 
-    //Setting name of system in ressources file
-    if(!noSystems){
-        // dataset with defined systems
-        if(system){
-            // user has chosen a system
-            SetResource("System",system->GetName());
-        }
-        else{
-            // user chose "All" for system
-            SetResource("System","All");
-        }
-    }
-    else
-    {
-        // no systems defined for dataset
-        SetResource("System", "Unknown");
-    }
+   //Setting name of system in ressources file
+   if(!noSystems){
+      // dataset with defined systems
+      if(system){
+         // user has chosen a system
+         SetResource("System",system->GetName());
+      }
+      else{
+         // user chose "All" for system
+         SetResource("System","All");
+      }
+   }
+   else
+   {
+      // no systems defined for dataset
+      SetResource("System", "Unknown");
+   }
 
-    KVNumberList run_list = gDataSet->GetRunList(task->GetPrereq(), system);
-    TList* list_of_runs = gDataSet->GetListOfAvailableSystems(task, system);
-    entryMax=list_of_runs->GetEntries();
-    listOfSystemRuns=run_list;
-    lvRuns->Display(list_of_runs);
-    delete list_of_runs;
+   KVNumberList run_list = gDataSet->GetRunList(task->GetPrereq(), system);
+   TList* list_of_runs = gDataSet->GetListOfAvailableSystems(task, system);
+   entryMax=list_of_runs->GetEntries();
+   listOfSystemRuns=run_list;
+   lvRuns->Display(list_of_runs);
+   delete list_of_runs;
 
-    TString ds=GetSavedResource("RunsList","");
-    //Info("SetRunsList", "SetRuns");
-    SetRuns(ds.Data());
+   TString ds=GetSavedResource("RunsList","");
+   //Info("SetRunsList", "SetRuns");
+   SetRuns(ds.Data());
 
-    // Set saved user class, data selector, number of events for current
-    // repository, dataset, task, system, trigger & runs
-    ds = GetSavedResource("UserClass", "");
-    SetUserClass( ds.Data() );
-    ds=GetSavedResource("KVDataSelector","");
-    teDataSelector->SetText(ds.Data());
-    ds=GetSavedResource("NbEventsToRead","");
-    teNbToRead->SetIntNumber(ds.Atoi());
+   // Set saved user class, data selector, number of events for current
+   // repository, dataset, task, system, trigger & runs
+   ds = GetSavedResource("UserClass", "");
+   SetUserClass( ds.Data() );
+   ds=GetSavedResource("KVDataSelector","");
+   teDataSelector->SetText(ds.Data());
+   ds=GetSavedResource("NbEventsToRead","");
+   teNbToRead->SetIntNumber(ds.Atoi());
 
 }
 
@@ -1199,124 +1199,123 @@ void KVDataAnalysisLauncher::SetRunsList()
 //__________________________________________
 void KVDataAnalysisLauncher::SelectAll(void)
 {
-	// Select all runs currently in the displayed list of runs
-	lvRuns->SelectAll(); 
+   // Select all runs currently in the displayed list of runs
+   lvRuns->SelectAll();
    UpdateListOfSelectedRuns();
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::DeselectAll(void)
 {
-	// Deselect all runs currently in the displayed list of runs
-	lvRuns->UnSelectAll(); 
+   // Deselect all runs currently in the displayed list of runs
+   lvRuns->UnSelectAll();
    UpdateListOfSelectedRuns();
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::Process(void)
 {
-// Run the analysis task
- 
- TString oriIncludePath=gSystem->GetIncludePath();
- 
- if(gDataRepository->IsRemote())
-  {
-  cout << "Checking connection to remote repository." << endl;
-  if(!gDataRepository->IsConnected())
+   // Run the analysis task
+
+   TString oriIncludePath=gSystem->GetIncludePath();
+
+   if(gDataRepository->IsRemote())
    {
-   cout << "Connection to server refused" << endl;
-   cout << "Process aborted." << endl;
-   WarningBox("Connection refused","Connection to server refused\nProcess aborted.");
-   return;
-   }
-  }
-  
-  KVDataAnalysisTask *task = gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
-  KVDataAnalyser *datan = GetDataAnalyser(task);
-  
-  //set global pointer to analyser
-  gDataAnalyser = datan;
-  
- datan->SetDataSet(gDataSet);
- datan->SetAnalysisTask(task);
- if(listOfRuns.GetNValues())
-  {
-  datan->SetRuns(listOfRuns,kFALSE);
-  }
- else
-  {
-  WarningBox("Empty Run List","The list of runs to process is empty.");
-  return;
-  }
- 
- if(fUserIncludes.Length())
-  {
-  datan->SetUserIncludes(fUserIncludes.Data());
-  }
- if(fUserLibraries.Length())
-  {
-  datan->SetUserLibraries(fUserLibraries.Data());
-  }
- 
- //Need a user class for the analysis ?
-TString kvs( GetUserClass() );
- if(task->WithUserClass()){
-    //read user's class name from input box
-    if(kvs.Length())
-   {
-      datan->SetUserClassOptions( teUserOptions->GetText());
-      //Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
-      datan->SetUserClass(kvs.Data(),checkCompilation);
-      if(datan->IsUserClassValid())
-          checkCompilation=kFALSE;
-      else
+      cout << "Checking connection to remote repository." << endl;
+      if(!gDataRepository->IsConnected())
       {
-          // compilation failed. abort processing.
-          delete ia; ia=0;
-          checkCompilation=kTRUE;
-          WarningBox("Compilation failed", "Please correct mistakes in user analysis class");
-          EditUserClassFiles();
-          return;
+         cout << "Connection to server refused" << endl;
+         cout << "Process aborted." << endl;
+         WarningBox("Connection refused","Connection to server refused\nProcess aborted.");
+         return;
       }
+   }
+
+   KVDataAnalysisTask *task = gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
+   KVDataAnalyser *datan = GetDataAnalyser(task);
+
+   //set global pointer to analyser
+   gDataAnalyser = datan;
+
+   datan->SetDataSet(gDataSet);
+   datan->SetAnalysisTask(task);
+   if(listOfRuns.GetNValues())
+   {
+      datan->SetRuns(listOfRuns,kFALSE);
    }
    else
    {
-        delete ia; ia=0;
-        checkCompilation=kTRUE;
-      WarningBox("No User Class","Please enter the user analysis class name.");
+      WarningBox("Empty Run List","The list of runs to process is empty.");
       return;
    }
-}
-else if(strcmp(task->GetUserBaseClass(), "")){
-   //task with default "user" class (i.e. UserClass=no but UserClass.BaseClass!="")
-      datan->SetUserClass(task->GetUserBaseClass(),kFALSE);   
-}
- if(datan->InheritsFrom("KVINDRAReconDataAnalyser"))
-    ((KVINDRAReconDataAnalyser*)datan)->SetKVDataSelector(teDataSelector->GetText());
- Long64_t nbEventRead = (Long64_t)teNbToRead->GetIntNumber();
- // if in batch and nbEventRead>0, ask confirmation
- if(IsBatch() && nbEventRead){
-     if(!WarningBox("Read all events in batch mode?",
-                "This will submit batch jobs which will not read all events.\nAre you sure that is what you want?",
-                kTRUE))
-     {
+
+   if(fUserIncludes.Length())
+   {
+      datan->SetUserIncludes(fUserIncludes.Data());
+   }
+   if(fUserLibraries.Length())
+   {
+      datan->SetUserLibraries(fUserLibraries.Data());
+   }
+
+   //Need a user class for the analysis ?
+   TString kvs( GetUserClass() );
+   if(task->WithUserClass()){
+      //read user's class name from input box
+      if(kvs.Length())
+      {
+         datan->SetUserClassOptions( teUserOptions->GetText());
+         //Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
+         datan->SetUserClass(kvs.Data(),checkCompilation);
+         if(datan->IsUserClassValid())
+            checkCompilation=kFALSE;
+         else
+         {
+            // compilation failed. abort processing.
+            delete ia; ia=0;
+            checkCompilation=kTRUE;
+            if(WarningBox("Compilation failed", "Please correct mistakes in user analysis class",kTRUE)) EditUserClassFiles();
+            return;
+         }
+      }
+      else
+      {
+         delete ia; ia=0;
+         checkCompilation=kTRUE;
+         WarningBox("No User Class","Please enter the user analysis class name.");
+         return;
+      }
+   }
+   else if(strcmp(task->GetUserBaseClass(), "")){
+      //task with default "user" class (i.e. UserClass=no but UserClass.BaseClass!="")
+      datan->SetUserClass(task->GetUserBaseClass(),kFALSE);
+   }
+   if(datan->InheritsFrom("KVINDRAReconDataAnalyser"))
+      ((KVINDRAReconDataAnalyser*)datan)->SetKVDataSelector(teDataSelector->GetText());
+   Long64_t nbEventRead = (Long64_t)teNbToRead->GetIntNumber();
+   // if in batch and nbEventRead>0, ask confirmation
+   if(IsBatch() && nbEventRead){
+      if(!WarningBox("Read all events in batch mode?",
+                     "This will submit batch jobs which will not read all events.\nAre you sure that is what you want?",
+                     kTRUE))
+      {
          delete ia; ia=0;
          return;
-     }
- }
- datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
- SetResource("RunsList", listOfRuns.AsString());
- SetResource("UserClassOptions", teUserOptions->GetText() );
- SetResource("KVDataSelector",teDataSelector->GetText());
- SetResource("NbEventsToRead", Form("%.0f", teNbToRead->GetNumber()));
- GUIenv->SetValue("KVDataAnalysisLauncher.BatchName",teBatchName->GetText());
- if(withBatchParams){
-   GUIenv->SetValue("KVDataAnalysisLauncher.BatchMemory",teBatchMemory->GetText());
-   GUIenv->SetValue("KVDataAnalysisLauncher.BatchDisk",teBatchDisk->GetText());
-   GUIenv->SetValue("KVDataAnalysisLauncher.BatchTime",(Int_t)teBatchTime->GetIntNumber());
-}
- GUIenv->SaveLevel(kEnvUser);
-  if(IsBatch()){
+      }
+   }
+   datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
+   SetResource("RunsList", listOfRuns.AsString());
+   SetResource("UserClassOptions", teUserOptions->GetText() );
+   SetResource("KVDataSelector",teDataSelector->GetText());
+   SetResource("NbEventsToRead", Form("%.0f", teNbToRead->GetNumber()));
+   GUIenv->SetValue("KVDataAnalysisLauncher.BatchName",teBatchName->GetText());
+   if(withBatchParams){
+      GUIenv->SetValue("KVDataAnalysisLauncher.BatchMemory",teBatchMemory->GetText());
+      GUIenv->SetValue("KVDataAnalysisLauncher.BatchDisk",teBatchDisk->GetText());
+      GUIenv->SetValue("KVDataAnalysisLauncher.BatchTime",(Int_t)teBatchTime->GetIntNumber());
+   }
+   GUIenv->SaveLevel(kEnvUser);
+   if(IsBatch()){
       gBatchSystemManager->GetDefaultBatchSystem()->cd();
       gBatchSystem->Clear();
       if(IsBatchNameAuto()) gBatchSystem->SetJobName(teBatchNameFormat->GetText());
@@ -1327,362 +1326,347 @@ else if(strcmp(task->GetUserBaseClass(), "")){
       gBatchSystem->SetRunsPerJob(runsPerJob->GetNumber());
       gBatchSystem->SetMultiJobsMode(runsPerJob->GetNumber()<listOfRuns.GetNValues());
       datan->SetBatchSystem(gBatchSystem);
-  } 
-  else
-  {
-     datan->SetBatchSystem(0);
-  }
- datan->Run();
- 
- //if no batch system GUI window is already open, open it
-  //if(IsBatch() && !KVBatchSystemGUI::IsOpen()) new KVBatchSystemGUI;
-  
- gSystem->SetIncludePath(oriIncludePath.Data());
+   }
+   else
+   {
+      datan->SetBatchSystem(0);
+   }
+   datan->Run();
+
+   //if no batch system GUI window is already open, open it
+   //if(IsBatch() && !KVBatchSystemGUI::IsOpen()) new KVBatchSystemGUI;
+
+   gSystem->SetIncludePath(oriIncludePath.Data());
 }
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetRepository(void)
- {
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbRepository->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
- }
+{
+   if(TGTextLBEntry *e=(TGTextLBEntry *)cbRepository->GetSelectedEntry())
+   {
+      return e->GetText()->GetString();
+   }
+   else
+   {
+      return "";
+   }
+}
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetDataSet(void)
- {
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbDataSet->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
- }
+{
+   if(TGTextLBEntry *e=(TGTextLBEntry *)cbDataSet->GetSelectedEntry())
+   {
+      return e->GetText()->GetString();
+   }
+   else
+   {
+      return "";
+   }
+}
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetTask(void)
- {
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbTask->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
- }
+{
+   if(TGTextLBEntry *e=(TGTextLBEntry *)cbTask->GetSelectedEntry())
+   {
+      return e->GetText()->GetString();
+   }
+   else
+   {
+      return "";
+   }
+}
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetSystem(void)
- {
-    if(noSystems) return "";
-    KVDBSystem* sys = (KVDBSystem*)lvSystems->GetLastSelectedObject();
-    if(sys)
-        return sys->GetName();
-    else
-        return "";
- }
+{
+   if(noSystems) return "";
+   KVDBSystem* sys = (KVDBSystem*)lvSystems->GetLastSelectedObject();
+   if(sys)
+      return sys->GetName();
+   else
+      return "";
+}
 
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetRuns(void)
- {
- return listOfRuns.AsString();
- }
+{
+   return listOfRuns.AsString();
+}
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetRepository(const Char_t *r)
- {
- TGLBEntry *e=0;
- if((e=cbRepository->FindEntry(r)))
-  {
-  Int_t i=e->EntryId();
+{
+   TGLBEntry *e=0;
+   if((e=cbRepository->FindEntry(r)))
+   {
+      Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-  cbRepository->Select(i);
+      cbRepository->Select(i);
 #else
-  cbRepository->Select(i,kFALSE);
+      cbRepository->Select(i,kFALSE);
 #endif
-  SetDataSetList((Char_t *)r);
-  }
- else
-  {
-  SetDataSet();
-  }
- }
+      SetDataSetList((Char_t *)r);
+   }
+   else
+   {
+      SetDataSet();
+   }
+}
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetDataSet(const Char_t *r)
 {
-    if(!strcmp(r,""))
-    {
-        //remove all datasets because no repository has been chosen yet
+   if(!strcmp(r,""))
+   {
+      //remove all datasets because no repository has been chosen yet
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-        RemoveAll(cbDataSet);
+      RemoveAll(cbDataSet);
 #else
-        cbDataSet->RemoveAll();
+      cbDataSet->RemoveAll();
 #endif
-        cbDataSet->Select(-1);
-        SetResource("Repository","");
-        SetTask();
-    }
-    else
-    {
-        TGLBEntry *e=0;
-        if((e=cbDataSet->FindEntry(r)))
-        {
-            Int_t i=e->EntryId();
+      cbDataSet->Select(-1);
+      SetResource("Repository","");
+      SetTask();
+   }
+   else
+   {
+      TGLBEntry *e=0;
+      if((e=cbDataSet->FindEntry(r)))
+      {
+         Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-            cbDataSet->Select(i);
+         cbDataSet->Select(i);
 #else
-            cbDataSet->Select(i,kFALSE);
+         cbDataSet->Select(i,kFALSE);
 #endif
-            SetTaskList((Char_t *)r);
-        }
-        else
-        {
-            SetTask();
-        }
-    }
+         SetTaskList((Char_t *)r);
+      }
+      else
+      {
+         SetTask();
+      }
+   }
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetTask(const Char_t *r)
 {
-    if(!strcmp(r,""))
-    {
-        //remove all tasks from list because no dataset chosen yet
+   if(!strcmp(r,""))
+   {
+      //remove all tasks from list because no dataset chosen yet
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-        RemoveAll(cbTask);
+      RemoveAll(cbTask);
 #else
-        cbTask->RemoveAll();
+      cbTask->RemoveAll();
 #endif
-        cbTask->Select(-1);
-        SetResource("DataSet","");
-        SetSystem();
-    }
-    else
-    {
-        TGLBEntry *e=0;
-        if((e=cbTask->FindEntry(r)))
-        {
-            Int_t i=e->EntryId();
+      cbTask->Select(-1);
+      SetResource("DataSet","");
+      SetSystem();
+   }
+   else
+   {
+      TGLBEntry *e=0;
+      if((e=cbTask->FindEntry(r)))
+      {
+         Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-            cbTask->Select(i);
+         cbTask->Select(i);
 #else
-            cbTask->Select(i,kFALSE);
+         cbTask->Select(i,kFALSE);
 #endif
-            SetSystemList(i);
-        }
-        else
-        {
-            SetSystem();
-        }
-    }
+         SetSystemList(i);
+      }
+      else
+      {
+         SetSystem();
+      }
+   }
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetSystem(const Char_t *r)
 {
-    //Info("SetSystem","system=%s",r);
-    if( !strcmp(r,"") )
-    {
-        //remove all systems from list because no task chosen yet
-        lvSystems->RemoveAll();
-        //if( !noSystems ) SetTrigger();
-        SetResource("Task","");
-        //empty list of analysis classes and disable it
-        DisableUserClassList();
-        //Info("SetSystem","SetRuns()");
-        SetRuns();
-    }
-    else
-    {
-        lvSystems->ActivateItemWithColumnData("Name",r);
-        SystemSelectionChanged();
-    }
+   //Info("SetSystem","system=%s",r);
+   if( !strcmp(r,"") )
+   {
+      //remove all systems from list because no task chosen yet
+      lvSystems->RemoveAll();
+      //if( !noSystems ) SetTrigger();
+      SetResource("Task","");
+      //empty list of analysis classes and disable it
+      DisableUserClassList();
+      //Info("SetSystem","SetRuns()");
+      SetRuns();
+   }
+   else
+   {
+      lvSystems->ActivateItemWithColumnData("Name",r);
+      SystemSelectionChanged();
+   }
 }
 
 void KVDataAnalysisLauncher::SystemSelectionChanged()
 {
-    KVDBSystem* system = (KVDBSystem*)lvSystems->GetLastSelectedObject();
-    //Info("SystemSelectionChanged","system=%p lastSelectedSystem=%p",system,lastSelectedSystem);
-    if(system==lastSelectedSystem) return;
-    lastSelectedSystem=system;
-    GetDataAnalyser()->SetSystem(system);
-    SetRunsList();
+   KVDBSystem* system = (KVDBSystem*)lvSystems->GetLastSelectedObject();
+   //Info("SystemSelectionChanged","system=%p lastSelectedSystem=%p",system,lastSelectedSystem);
+   if(system==lastSelectedSystem) return;
+   lastSelectedSystem=system;
+   GetDataAnalyser()->SetSystem(system);
+   SetRunsList();
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetRuns(const Char_t *r)
 {
-    //Info("SetRuns", "Called with runs = %s", r);
-    if(!strcmp(r,""))
-    {
-        ClearListOfSelectedRuns();
-        SetResource("Trigger","All");
-        SetResource("RunsList","");
-    }
-    else
-    {
-        listOfRuns.SetList(r);
-        Int_t nbr=0;
-        Int_t *lor=listOfRuns.GetArray(nbr);
-        //Info("SetRuns", "1. listOfRuns=%s", listOfRuns.AsString());
-        ClearListOfSelectedRuns();
-        for(Int_t i=0;i<nbr;i++)
-        {
-            if( listOfSystemRuns.Contains( lor[i] ) )
-            {
-                Int_t index=0;
-                while( lor[i] != listOfSystemRuns[index] ) index++;
+   if(!strcmp(r,""))
+   {
+      ClearListOfSelectedRuns();
+      SetResource("Trigger","All");
+      SetResource("RunsList","");
+   }
+   else
+   {
+      listOfRuns.SetList(r);
+      listOfRuns.Inter(listOfSystemRuns);
 
-                lvRuns->ActivateItemWithColumnData("Run", (Long_t)lor[i]);
-                //    SetListOfRuns(index);
-            }
-        }
-        //Info("SetRuns", "2. listOfRuns=%s", listOfRuns.AsString());
-        if(listOfRuns.GetNValues())
-        {
-            //Info("SetRuns", "set RunsList = %s", listOfRuns.AsString());
-            SetResource("RunsList",listOfRuns.AsString());
-        }
-        delete [] lor;
-    }
+      if(listOfRuns.GetNValues())
+      {
+         lvRuns->ActivateItemsWithColumnData("Run", listOfRuns);
+         SetResource("RunsList",listOfRuns.AsString());
+      }
+      UpdateListOfSelectedRuns();
+   }
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetBatch(void)
 {
-	// Set the resource KVDataAnalysisLauncher.Batch according
-	// to whether radio button 'Batch' is down or up
-	// Enable or disable 'runs per job' number entry accordingly.
-	// If enabled, we set the resource KVDataAnalysisLauncher.RunsPerJob
-	// according to the current value.
- GUIenv->SetValue("KVDataAnalysisLauncher.Batch",IsBatch());
- if(IsBatch()) {
- 	runsPerJob->SetState(kTRUE);
- 	GUIenv->SetValue("KVDataAnalysisLauncher.RunsPerJob", (Int_t)runsPerJob->GetNumber());
- 	if(!chIsBatchNameAuto->IsEnabled()){
- 		chIsBatchNameAuto->SetEnabled(kTRUE);
- 	}
- 	SetBatchNameAuto();
- 	if(teBatchMemory&&teBatchTime&&teBatchDisk){
- 		teBatchMemory->SetState(kTRUE);
- 		teBatchTime->SetState(kTRUE);
- 		teBatchDisk->SetState(kTRUE);
- 	}
- }
- else {
- 	runsPerJob->SetState(kFALSE);
- 	teBatchName->SetState(kFALSE);
- 	teBatchNameFormat->SetState(kFALSE);
- 	chIsBatchNameAuto->SetEnabled(kFALSE);
- 	if(teBatchMemory&&teBatchTime&&teBatchDisk){
- 		teBatchMemory->SetState(kFALSE);
- 		teBatchTime->SetState(kFALSE);
- 		teBatchDisk->SetState(kFALSE);
- 	}
- }
- GUIenv->SaveLevel(kEnvUser);
+   // Set the resource KVDataAnalysisLauncher.Batch according
+   // to whether radio button 'Batch' is down or up
+   // Enable or disable 'runs per job' number entry accordingly.
+   // If enabled, we set the resource KVDataAnalysisLauncher.RunsPerJob
+   // according to the current value.
+   GUIenv->SetValue("KVDataAnalysisLauncher.Batch",IsBatch());
+   if(IsBatch()) {
+      runsPerJob->SetState(kTRUE);
+      GUIenv->SetValue("KVDataAnalysisLauncher.RunsPerJob", (Int_t)runsPerJob->GetNumber());
+      if(!chIsBatchNameAuto->IsEnabled()){
+         chIsBatchNameAuto->SetEnabled(kTRUE);
+      }
+      SetBatchNameAuto();
+      if(teBatchMemory&&teBatchTime&&teBatchDisk){
+         teBatchMemory->SetState(kTRUE);
+         teBatchTime->SetState(kTRUE);
+         teBatchDisk->SetState(kTRUE);
+      }
+   }
+   else {
+      runsPerJob->SetState(kFALSE);
+      teBatchName->SetState(kFALSE);
+      teBatchNameFormat->SetState(kFALSE);
+      chIsBatchNameAuto->SetEnabled(kFALSE);
+      if(teBatchMemory&&teBatchTime&&teBatchDisk){
+         teBatchMemory->SetState(kFALSE);
+         teBatchTime->SetState(kFALSE);
+         teBatchDisk->SetState(kFALSE);
+      }
+   }
+   GUIenv->SaveLevel(kEnvUser);
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetBatchNameAuto(void)
 {
-// Set the resource value according to the check box chIsBatch
- 	if(IsBatchNameAuto()){
- 		teBatchName->SetState(kFALSE);
- 		teBatchNameFormat->SetState(kTRUE);
- 	}
- 	else
- 	{
- 		teBatchName->SetState(kTRUE);
- 		teBatchNameFormat->SetState(kFALSE);
- 	}
- GUIenv->SetValue("KVDataAnalysisLauncher.AutoBatchName",IsBatchNameAuto());
- GUIenv->SaveLevel(kEnvUser);
- SetAutoBatchName();
+   // Set the resource value according to the check box chIsBatch
+   if(IsBatchNameAuto()){
+      teBatchName->SetState(kFALSE);
+      teBatchNameFormat->SetState(kTRUE);
+   }
+   else
+   {
+      teBatchName->SetState(kTRUE);
+      teBatchNameFormat->SetState(kFALSE);
+   }
+   GUIenv->SetValue("KVDataAnalysisLauncher.AutoBatchName",IsBatchNameAuto());
+   GUIenv->SaveLevel(kEnvUser);
+   SetAutoBatchName();
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetAutoBatchName(void)
 {
-// Set the automatic batch name
+   // Set the automatic batch name
    if(!IsBatchNameAuto())
-    {
-    return;
-    }
+   {
+      return;
+   }
    if(strcmp(teBatchNameFormat->GetText(),
              GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","")))
-    {
-    GUIenv->SetValue("KVDataAnalysisLauncher.BatchNameFormat",
-                    teBatchNameFormat->GetText());
-    GUIenv->SaveLevel(kEnvUser);
-    }
+   {
+      GUIenv->SetValue("KVDataAnalysisLauncher.BatchNameFormat",
+                       teBatchNameFormat->GetText());
+      GUIenv->SaveLevel(kEnvUser);
+   }
    
    // check if the pointers are valid before doing anything...
    if(GetDataAnalyser()){
-     if(GetDataAnalyser()->GetAnalysisTask()){
-       if(GetDataAnalyser()->GetAnalysisTask()->WithUserClass()){
-         GetDataAnalyser()->SetUserClass( GetUserClass() ,kFALSE);
-         if(GetDataAnalyser()->InheritsFrom("KVINDRAReconDataAnalyser"))
-           ((KVINDRAReconDataAnalyser*)GetDataAnalyser())->SetKVDataSelector(teDataSelector->GetText());
-       }
-     }
-     teBatchName->SetText( GetDataAnalyser()->ExpandAutoBatchName(teBatchNameFormat->GetText()) );
+      if(GetDataAnalyser()->GetAnalysisTask()){
+         if(GetDataAnalyser()->GetAnalysisTask()->WithUserClass()){
+            GetDataAnalyser()->SetUserClass( GetUserClass() ,kFALSE);
+            if(GetDataAnalyser()->InheritsFrom("KVINDRAReconDataAnalyser"))
+               ((KVINDRAReconDataAnalyser*)GetDataAnalyser())->SetKVDataSelector(teDataSelector->GetText());
+         }
+      }
+      teBatchName->SetText( GetDataAnalyser()->ExpandAutoBatchName(teBatchNameFormat->GetText()) );
    }
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetUserLibraries(void)
 {
-// Set the User's libraries
-TString ori=fUserLibraries.Data();
-new KVGFileList(fUserLibraries,"User's Libraries",
-                gClient->GetRoot(),this);
-GUIenv->SetValue("KVDataAnalysisLauncher.UserLibraries",fUserLibraries.Data());
-GUIenv->SaveLevel(kEnvUser);
-checkCompilation=ori.CompareTo(fUserLibraries);
+   // Set the User's libraries
+   TString ori=fUserLibraries.Data();
+   new KVGFileList(fUserLibraries,"User's Libraries",
+                   gClient->GetRoot(),this);
+   GUIenv->SetValue("KVDataAnalysisLauncher.UserLibraries",fUserLibraries.Data());
+   GUIenv->SaveLevel(kEnvUser);
+   checkCompilation=ori.CompareTo(fUserLibraries);
 }
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetUserIncludes(void)
 {
-// Set the User's includes
-TString ori=fUserIncludes.Data();
-new KVGDirectoryList(fUserIncludes,"User's Includes",
-                     gClient->GetRoot(),this);
-GUIenv->SetValue("KVDataAnalysisLauncher.UserIncludes",fUserIncludes.Data());
-GUIenv->SaveLevel(kEnvUser);
-checkCompilation=ori.CompareTo(fUserIncludes);
+   // Set the User's includes
+   TString ori=fUserIncludes.Data();
+   new KVGDirectoryList(fUserIncludes,"User's Includes",
+                        gClient->GetRoot(),this);
+   GUIenv->SetValue("KVDataAnalysisLauncher.UserIncludes",fUserIncludes.Data());
+   GUIenv->SaveLevel(kEnvUser);
+   checkCompilation=ori.CompareTo(fUserIncludes);
 }
 
 
 //__________________________________________
 Bool_t KVDataAnalysisLauncher::WarningBox(const char *title, const char *msg, Bool_t confirm)
 {
-    // Warning box in case of problems
-    // if confirm=kTRUE we ask for a yes/no answer from the user:
-    //     if 'yes' is pressed, we return kTRUE, if 'no', kFALSE.
-    // by default, only a 'dismiss' button is shown, and this method always returns kTRUE.
+   // Warning box in case of problems
+   // if confirm=kTRUE we ask for a yes/no answer from the user:
+   //     if 'yes' is pressed, we return kTRUE, if 'no', kFALSE.
+   // by default, only a 'dismiss' button is shown, and this method always returns kTRUE.
 
-    Bool_t reply = kTRUE;
-    if(!confirm)
-        new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
-    else
-    {
-        Int_t ret_code=0;
-        new TGMsgBox(gClient->GetRoot(), this, title,msg,kMBIconExclamation, kMBYes|kMBNo, &ret_code);
-        reply = (ret_code&kMBYes);
-    }
-    return reply;
+   Bool_t reply = kTRUE;
+   if(!confirm)
+      new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
+   else
+   {
+      Int_t ret_code=0;
+      new TGMsgBox(gClient->GetRoot(), this, title,msg,kMBIconExclamation, kMBYes|kMBNo, &ret_code);
+      reply = (ret_code&kMBYes);
+   }
+   return reply;
 }
 
 //__________________________________________
@@ -1711,7 +1695,7 @@ void KVDataAnalysisLauncher::RemoveAll(TGListBox*box)
    if (box->GetSelectedEntry()) {
       ((TGTextLBEntry*)box->GetSelectedEntry())->SetTitle("");
       fClient->NeedRedraw(box->GetSelectedEntry());
-   } 
+   }
 }
 #endif
 
@@ -1752,8 +1736,8 @@ void KVDataAnalysisLauncher::SetResource(const Char_t* name, const Char_t* value
    TString res, ful_res;
    
    BuildResourceName(name, res, ful_res);
-  
-   // save current value of resource 
+
+   // save current value of resource
    GUIenv->SetValue( res.Data(), value );
    
    // save resource for future use if possible
@@ -1783,11 +1767,11 @@ const Char_t* KVDataAnalysisLauncher::GetSavedResource(const Char_t* name, const
    //
    // We look for a stored value of the resource "name" corresponding to the current
    // values of all the resources which come before "name" in the list :
-   //    Repository              
-   //    DataSet                
-   //    Task                       
-   //    System             
-   //    Trigger               
+   //    Repository
+   //    DataSet
+   //    Task
+   //    System
+   //    Trigger
    // These values are stored in resources with names like:
    //    KVDataAnalysisLauncher.[name].[repository].[dataset]...
    //
@@ -1797,7 +1781,7 @@ const Char_t* KVDataAnalysisLauncher::GetSavedResource(const Char_t* name, const
    
    BuildResourceName(name, res, ful_res);
    
-   if( !ful_res.Length() ){    
+   if( !ful_res.Length() ){
       //cout << "GetSavedResource: current resource : " << res.Data() << endl;
       return GUIenv->GetValue( res.Data(), defaultvalue );
    }
@@ -1832,8 +1816,8 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // System                    KVDataAnalysisLauncher.System
    // Trigger                    KVDataAnalysisLauncher.Trigger
    // RunsList                  KVDataAnalysisLauncher.RunsList
-    // UserClass               KVDataAnalysisLauncher.UserClass
-    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions
+   // UserClass               KVDataAnalysisLauncher.UserClass
+   // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead
    //
@@ -1847,7 +1831,7 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // Trigger                    KVDataAnalysisLauncher.Trigger.[repository].[dataset].[task].[system]
    // RunsList                  KVDataAnalysisLauncher.RunsList.[repository].[dataset].[task].[system].[trigger]
    // UserClass               KVDataAnalysisLauncher.UserClass.[repository].[dataset].[task].[system].[trigger]
-    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions.[repository].[dataset].[task].[system].[trigger].[class]
+   // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions.[repository].[dataset].[task].[system].[trigger].[class]
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector.[repository].[dataset].[task].[system].[trigger]
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead.[repository].[dataset].[task].[system].[trigger]
    //
@@ -1921,13 +1905,13 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
       saved_res += res;
    }
    if(!strcmp(name,"UserClassOptions")){
-       if(strcmp("",GetResource("UserClass",""))) saved_res += Form(".%s",GetResource("UserClass",""));
-       else ok=kFALSE;
+      if(strcmp("",GetResource("UserClass",""))) saved_res += Form(".%s",GetResource("UserClass",""));
+      else ok=kFALSE;
    }
    
    if( !ok ) saved_res="";
 }
- 
+
 //____________________________________________________________________________________________________
 
 void KVDataAnalysisLauncher::FillListOfUserClasses()
@@ -1965,8 +1949,8 @@ void KVDataAnalysisLauncher::FillListOfUserClasses()
       UserClassNames->Remove( obj );
       delete obj;
    }
-  // Info("FillListOfUserClasses", "User classes found in working directory:");
-  // UserClassNames->ls();
+   // Info("FillListOfUserClasses", "User classes found in working directory:");
+   // UserClassNames->ls();
 }
 
 //__________________________________________
@@ -1974,20 +1958,20 @@ void KVDataAnalysisLauncher::FillListOfUserClasses()
 void KVDataAnalysisLauncher::SetUserClassList()
 {
    // Sets the list of all available user classes in the drop down list
-  
+
    //Info("SetUserClassList", "called");
    
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbUserClass);
+   RemoveAll(cbUserClass);
 #else
-  cbUserClass->RemoveAll();
+   cbUserClass->RemoveAll();
 #endif
-  cbUserClass->Select(-1);
-  
-  Int_t nbcl=UserClassNames->GetEntries();
-  Int_t i=0;
-  cbUserClass->AddEntry( "" , i++ );
-  while(i<nbcl+1)
+   cbUserClass->Select(-1);
+
+   Int_t nbcl=UserClassNames->GetEntries();
+   Int_t i=0;
+   cbUserClass->AddEntry( "" , i++ );
+   while(i<nbcl+1)
    {
       cbUserClass->AddEntry( UserClassNames->At(i-1)->GetName() , i );
       i++;
@@ -2028,7 +2012,7 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
    
    // look for user class in list
    TGLBEntry* e = cbUserClass->FindEntry( class_name );
-  //cbUserClass->EnableTextInput(kFALSE);
+   //cbUserClass->EnableTextInput(kFALSE);
    
    if( e ){
       //Info("SetUserClass", "Found class in list");
@@ -2039,8 +2023,8 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
 #else
       cbUserClass->Select(i,kFALSE);
 #endif      
-              // save current user class options
-              //SetResource( "UserClassOptions", teUserOptions->GetText() );
+      // save current user class options
+      //SetResource( "UserClassOptions", teUserOptions->GetText() );
       // save current user class
       SetResource( "UserClass", class_name );
       teUserOptions->SetText( GetSavedResource("UserClassOptions", ""));
@@ -2048,7 +2032,7 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
    }
    
    else
-    // unknown user class  
+      // unknown user class
    {
       //Info("SetUserClass", "Class not found in list");
       cbUserClass->Select(-1);
@@ -2057,7 +2041,7 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
       btEditClass->SetEnabled(kFALSE);
    }
    checkCompilation=kTRUE;
-  //cbUserClass->EnableTextInput(kTRUE);
+   //cbUserClass->EnableTextInput(kTRUE);
 }
 
 //__________________________________________
@@ -2066,14 +2050,14 @@ const Char_t* KVDataAnalysisLauncher::GetUserClass()
 {
    // Returns currently selected user class name
 
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbUserClass->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
+   if(TGTextLBEntry *e=(TGTextLBEntry *)cbUserClass->GetSelectedEntry())
+   {
+      return e->GetText()->GetString();
+   }
+   else
+   {
+      return "";
+   }
 }
 
 //__________________________________________
@@ -2084,14 +2068,14 @@ void KVDataAnalysisLauncher::DisableUserClassList()
    
    //Info("DisableUserClassList", "called");
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-  RemoveAll(cbUserClass);
+   RemoveAll(cbUserClass);
 #else
-  cbUserClass->RemoveAll();
+   cbUserClass->RemoveAll();
 #endif
-  cbUserClass->Select(-1);
-  cbUserClass->SetEnabled(kFALSE);
-  //cbUserClass->EnableTextInput(kFALSE);
-  teUserOptions->SetEnabled(kFALSE);
+   cbUserClass->Select(-1);
+   cbUserClass->SetEnabled(kFALSE);
+   //cbUserClass->EnableTextInput(kFALSE);
+   teUserOptions->SetEnabled(kFALSE);
 }
 
 //__________________________________________
@@ -2104,26 +2088,26 @@ void KVDataAnalysisLauncher::EnableUserClassList()
    
    //Info("EnableUserClassList", "called");
    
-  SetUserClassList();
-  SetUserClass( GetSavedResource( "UserClass", "" ) );
-  //cbUserClass->EnableTextInput(kTRUE);
-  cbUserClass->SetEnabled(kTRUE);
-  teUserOptions->SetEnabled(kTRUE);
+   SetUserClassList();
+   SetUserClass( GetSavedResource( "UserClass", "" ) );
+   //cbUserClass->EnableTextInput(kTRUE);
+   cbUserClass->SetEnabled(kTRUE);
+   teUserOptions->SetEnabled(kTRUE);
 }
 
 void KVDataAnalysisLauncher::EditUserClassFiles()
 {
-    // If environment variable $EDITOR is set, and if the currently selected
-    // user class has available source files, we open them in the
-    // user's favourite editor
+   // If environment variable $EDITOR is set, and if the currently selected
+   // user class has available source files, we open them in the
+   // user's favourite editor
 
-    TString editor = gSystem->Getenv("EDITOR");
-    if(editor=="") return;
-    TString uclass = GetUserClass();
-    if(uclass=="") return;
-    KVString imp, dec;
-    if( !KVBase::FindClassSourceFiles(uclass, imp, dec ) ) return;
-    gSystem->Exec(Form("%s %s %s &",editor.Data(),imp.Data(),dec.Data()));
+   TString editor = gSystem->Getenv("EDITOR");
+   if(editor=="") return;
+   TString uclass = GetUserClass();
+   if(uclass=="") return;
+   KVString imp, dec;
+   if( !KVBase::FindClassSourceFiles(uclass, imp, dec ) ) return;
+   gSystem->Exec(Form("%s %s %s &",editor.Data(),imp.Data(),dec.Data()));
 }
 
 //__________________________________________
@@ -2147,29 +2131,29 @@ void KVDataAnalysisLauncher::EnterRunlist()
 
 void KVDataAnalysisLauncher::UpdateListOfSelectedRuns()
 {
-	// Called when the selected runs in TGListView lvRuns change.
-	// We update the KVNumberList listOfRuns according to the current selection
-	// we modify the limits of the 'runs per job' widget
+   // Called when the selected runs in TGListView lvRuns change.
+   // We update the KVNumberList listOfRuns according to the current selection
+   // we modify the limits of the 'runs per job' widget
 
-	listOfRuns.Clear();
-	TList* novolist = lvRuns->GetSelectedObjects();
-	if( novolist->GetEntries() > 0 ){
-		TIter nxt(novolist); KVDBRun* s=0;
-		while( (s=(KVDBRun*)nxt()) ) listOfRuns.Add( s->GetNumber() );
-	}
-	delete novolist;
+   listOfRuns.Clear();
+   TList* novolist = lvRuns->GetSelectedObjects();
+   if( novolist->GetEntries() > 0 ){
+      TIter nxt(novolist); KVDBRun* s=0;
+      while( (s=(KVDBRun*)nxt()) ) listOfRuns.Add( s->GetNumber() );
+   }
+   delete novolist;
    SetResource("RunsList",listOfRuns.AsString());
    selectedRuns->SetText(Form(" Selected Runs : %s",listOfRuns.AsString(MAX_LENGTH_SELECTED_RUNS)));
    fClient->NeedRedraw(selectedRuns);
-  SetRunsPerJobLimits();
+   SetRunsPerJobLimits();
 }
 
 //__________________________________________
 
 void KVDataAnalysisLauncher::ClearListOfSelectedRuns()
 {
-	// Empty displayed list of selected runs
-	listOfRuns.Clear();
+   // Empty displayed list of selected runs
+   listOfRuns.Clear();
    SetResource("RunsList","");
    selectedRuns->SetText(Form(" Selected Runs : %s",listOfRuns.AsString(MAX_LENGTH_SELECTED_RUNS)));
    fClient->NeedRedraw(selectedRuns);

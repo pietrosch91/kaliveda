@@ -299,7 +299,7 @@ void KVVarGlob::AddInitMethod(const Char_t* classname, KVClassFactory &cf, KVStr
 {
    // PRIVATE method used by MakeClass.
    // add 'init' method
-   cf.AddMethod(Form("init_%s", classname), "void", "protected");
+   cf.AddMethod(Form("init_%s", classname), "void", "private");
    body = "   // Private initialisation method called by all constructors.\n";
    body+= "   // All member initialisations should be done here.\n";
    body+= "   //\n";
