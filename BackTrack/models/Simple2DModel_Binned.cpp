@@ -23,17 +23,23 @@ ClassImp(BackTrack::Simple2DModel_Binned)
 
 namespace BackTrack {
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////  
   Simple2DModel_Binned::Simple2DModel_Binned()
   {
     fNGen     = 0;  	        
   }
       
-   
+//////////////////////////////////////////////////////////////////////////////////////////////     
   void Simple2DModel_Binned::InitParObs()
-  {   
-    InitPar();
-    InitObs();
+  {  
+    if(IsWorkspaceImported()==kFALSE)
+       { 
+        Info("InitParObs","...Creating Parameters and Observables...");
+        InitPar();
+        InitObs();
+       }
+       
+    else Error("InitParObs", "...No need to create Parameters and Observables, workspace impported...");	
   }
       
    

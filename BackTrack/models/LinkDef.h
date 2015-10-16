@@ -8,4 +8,5 @@
 #pragma link C++ class BackTrack::Simple1DModel+;
 #pragma link C++ class BackTrack::Simple2DModel+;
 #pragma link C++ class BackTrack::Simple2DModel_Binned+;
+#pragma link C++ class BackTrack::SimpleGeminiModel_Binned+;
 #endif

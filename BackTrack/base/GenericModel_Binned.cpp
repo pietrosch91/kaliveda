@@ -290,7 +290,7 @@ namespace BackTrack {
   void GenericModel_Binned::ImportModelData(Int_t parameter_num, RooArgList* plist)
   {
     //Initial RooWorksapce already given by the user for the fit, no save or importation   
-    if(IsWorkspaceProvided()==kTRUE)
+    if(IsWorkspaceImported()==kTRUE)
       {
         Info("ImportModelData", "RooWorspace for fit already provided, no importation needed !!!");		
         return;
@@ -434,7 +434,7 @@ namespace BackTrack {
     //-------------Control if DataSets list is given------------
     if(!GetNumberOfDataSets() || GetNumberOfDataSets()==0)
       {
-	if(IsWorkspaceProvided()==kFALSE) Error("ConstructPseudoPDF", "... !!! No DataSets !!! Import model datasets with ImportModelData() first...");
+	if(IsWorkspaceImported()==kFALSE) Error("ConstructPseudoPDF", "... !!! No DataSets !!! Import model datasets with ImportModelData() first...");
 	else                              Error("ConstructPseudoPDF", "... !!! No DataSets !!! Verify provided worspace...");
 	
 	return;
@@ -559,14 +559,10 @@ namespace BackTrack {
         Int_t N = bins.numBins();
         Info("fiTo...","observable%d: name=%s, min=%e, max=%e, nbin=%d",ii, p->GetName(),p->getMin(),p->getMax(),N); 
       }  
-    
-    printf("FIT STARTING !!!!\n");
-    
+        
     //Fit
     fLastFit = fModelPseudoPDF->improvedFitTo(data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
-    
-    printf("SAVING COEFS !!!\n");
-     
+        
     //Save Coefs
     SafeDelete(fParamDataHist);
     fParamDataHist = new RooDataHist("params","params",GetParameters());
@@ -594,8 +590,6 @@ namespace BackTrack {
      
     SafeDelete(fParameterPDF);
     fParameterPDF = new RooHistPdf("paramPDF","paramPDF",GetParameters(),*fParamDataHist); 
-     
-    printf("FIT FINISHED !\n");
      
     return fLastFit;
   }

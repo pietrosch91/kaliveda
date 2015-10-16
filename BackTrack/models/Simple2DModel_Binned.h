@@ -17,10 +17,7 @@ namespace BackTrack {
     *  according to 2 input model parameters [par1,par2] 
     *  We generate obs1 and obs2 according to gaussian distributions of means: mean1=par1+par2  and sigma1=abs(mean1)/5
                                                                                mean2=par1-par2  and sigma2=abs(mean2)/10								      
-    */
-
-      ClassDef(Simple2DModel_Binned,1)   //Simple model to test backtrack procedures
-      
+    */      
     protected:
 
       Int_t fNGen;                      //Number of events to generate for each dataset
@@ -44,6 +41,9 @@ namespace BackTrack {
       void SetNumGen(Int_t n) { fNGen=n; }                                              //Number of events to generate
       Int_t GetNumGen() const { return fNGen; }                                        
       TH1* GetParameterDistributions();                                                 //For drawings after the fit
+      
+      
+    ClassDef(Simple2DModel_Binned,1)   //Simple model to test backtrack procedures
    };
 
 }

@@ -1,7 +1,7 @@
 /*
- * Binned_Binned_GenericModel_2.h
+ * GenericModel_Binned.h
  *
- *  Created on: Mar 3, 2015
+ *  Created on: Mar 24, 2015
  *      Author: john, quentin
  */
 
@@ -74,7 +74,7 @@ namespace BackTrack {
       Bool_t IsUniformInitWeight() const { return fBool_uniform; } 
       Bool_t IsNumInt() const { return fBool_numint; }
       Bool_t VerifyWorkspace(Bool_t debug=kFALSE);		   
-      Bool_t IsWorkspaceProvided() const { return fBool_provided; }
+      Bool_t IsWorkspaceImported() const { return fBool_provided; }
       Bool_t IsWorkspaceSaved() const { return fBool_saved; } 
       
       // For uniform guess: will take into account the experimental number of events for an extended fit
