@@ -1882,7 +1882,7 @@ void KVIDGridEditor::SaveCurrentGrid()
     {
         //if no ".xxx" ending given, we add ".dat"
         TString filenam(fi.fFilename);
-        if(filenam.Contains("toto")) filenam.ReplaceAll("toto",TheGrid->GetName());
+        if(filenam.Contains("toto")) filenam.ReplaceAll("toto",TheHisto->GetName());
         if (!filenam.Contains('.')) filenam += ".dat";
         TheGrid->WriteAsciiFile(filenam.Data());
     }
