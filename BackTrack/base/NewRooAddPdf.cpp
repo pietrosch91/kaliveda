@@ -260,10 +260,7 @@ NewRooAddPdf::NewRooAddPdf(const char *name, const char *title, const RooArgList
       coutE(InputArguments) << "NewRooAddPdf::NewRooAddPdf(" << GetName() << ") pdf " << pdf->GetName() << " is not extendable, ignored" << endl ;
       continue ;
     }
-    
-      //debug
-      printf("ADD IN PDFLIST\n");
-      
+          
     _pdfList.add(*pdf) ;    
   }
 
@@ -396,9 +393,7 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
   Double_t eps   = pc.getDouble("eps");
   
   const RooArgSet* minosSet = static_cast<RooArgSet*>(pc.getObject("minosSet")) ;
-  
-  //debug
-  printf("MINOSSET SET BEFORE!!!!\n");  
+    
   
 #ifdef __ROOFIT_NOROOMINIMIZER
   const char* minType =0 ;
@@ -432,10 +427,7 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
   }
     
   RooAbsReal* nll = createNLL(data,nllCmdList) ;
-  
-   //debug
-  printf("NLL SET BEFORE!!!!\n");   
-    
+        
   NewRooFitResult *ret = 0 ;    
 
   // Instantiate MINUIT
@@ -912,9 +904,6 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
   RooArgSet* tmp = pc.getSet("projDepSet") ;  
   if (tmp) {
   
-      //debug
-      printf("ADD IN PROJDEPS\n");
-  
     projDeps.add(*tmp) ;
   }
 
@@ -937,10 +926,7 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
     char* token = strtok(buf,",") ;
     while(token) {
       RooAbsReal* nllComp = new RooNLLVar(Form("%s_%s",baseName.c_str(),token),"-log(likelihood)",*this,data,projDeps,ext,token,addCoefRangeName,numcpu,interl,verbose,splitr,cloneData) ;
-      
-      //debug
-      printf("ADD IN NLLLIST\n");
-      
+            
       nllList.add(*nllComp) ;
       token = strtok(0,",") ;
     }
@@ -952,28 +938,17 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
   // Collect internal and external constraint specifications
   RooArgSet allConstraints ;
   if (cPars && cPars->getSize()>0) {
-    RooArgSet* constraints = getAllConstraints(*data.get(),*cPars,doStripDisconnected) ;
-    
-      //debug
-      printf("ADD IN ALLCONSTRAINTS1\n");
+    RooArgSet* constraints = getAllConstraints(*data.get(),*cPars,doStripDisconnected) ;    
     
     allConstraints.add(*constraints, kTRUE) ;
-    
-     //debug
-     printf("FINISHED ADD IN ALLCONSTRAINTS1\n");
-     
+         
     delete constraints ;
     
   }
   if (extCons) {
-  
-      //debug
-      printf("ADD IN ALLCONSTRAINTS2\n");
-      
+        
     allConstraints.add(*extCons, kTRUE) ;
-    
-     //debug
-     printf("FINISHED ADD IN ALLCONSTRAINTS1\n");
+
   }
 
   // Include constraints, if any, in likelihood
@@ -985,54 +960,33 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
       coutI(Minimization) << "The following global observables have been defined: " << *glObs << endl ;
     }
     
-     //debug
-     printf("ROOCONSTRAINTSUM\n");
-    
     nllCons = new RooConstraintSum(Form("%s_constr",baseName.c_str()),"nllCons",allConstraints,glObs ? *glObs : *cPars) ;
-    
-    //debug
-     printf("FINISHED ROOCONSTRAINTSUM\n");
-    
+        
     nllCons->setOperMode(ADirty) ;
     RooAbsReal* orignll = nll ;
-
-    
-    //debug
-    printf("NewRooAddition\n");
      
     nll = new RooAddition(Form("%s_with_constr",baseName.c_str()),"nllWithCons",RooArgSet(*nll,*nllCons)) ;
-    
-   //debug
-    printf("FINISHED NewRooAddition\n");
-     
+         
     nll->addOwnedComponents(RooArgSet(*orignll,*nllCons)) ;
   }
 
    //debug
-   printf("LAST OPERATION CREATE NLL\n");
+   //printf("LAST OPERATION CREATE NLL\n");
   
   if (optConst) {
   
-     //debug
-    printf("CONSTOTIMIZETESTSTATISTC\n");
     nll->constOptimizeTestStatistic(RooAbsArg::Activate,optConst>1) ;
   }
 
   if (doStripDisconnected) {
-    //debug
-    printf("DOSTRIP\n");
+
     delete cPars ;
   }
 
   if (doOffset) {
-    //debug
-    printf("DOOFFSET\n");
+
     //nll->enableSilentOffsetting(kTRUE) ;   //Modified for no checkForDup() messages
   }
-
   
-   //debug
-   printf(" FINISHED LAST OPERATION CREATE NLL\n");
-
   return nll ;
 }

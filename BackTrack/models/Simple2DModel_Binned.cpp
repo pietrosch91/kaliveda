@@ -60,7 +60,11 @@ namespace BackTrack {
 //////////////////////////////////////////////////////////////////////////////////////////////  
   void Simple2DModel_Binned::SetParamDistribution(TH2D *distri)
   {
-   fdistri=distri;
+    fdistri= new TH2D(*distri);
+   
+    // Modify scale for the weights if Extended/Not-Extended
+    if(IsExtended()==kTRUE) distri->Scale(GetExpectedCounts()/distri->Integral());
+    else distri->Scale(1./distri->Integral()); 
   }
  
    
@@ -108,7 +112,7 @@ namespace BackTrack {
       
     RooDataHist* datahist = new RooDataHist(Form("DATAHIST#%d",dsnum++),"datahist",GetObservables(),*data);
 
-    //Tip if can't initialize because of too much empty bins in the observables RooHistPdf
+    //Trick if can't initialize because of too much empty bins in the observables RooHistPdf
     //Add a very small value to all bins in the RooDataHist
     //For this we create an histogram that we fill with very small bin contents and we add it to the actual dataset
     //We add a condition on the minimum entries of the DataSet to get ride of empty ones
@@ -129,7 +133,7 @@ namespace BackTrack {
 //           {
 // 	    for(Int_t ny=0; ny<=hh->GetNbinsY();ny++)
 // 	      {
-// 		hh->SetBinContent(nx,ny,1./10000);
+// 		hh->SetBinContent(nx,ny,1./GetExpectedCounts());
 // 	      }
 // 	  }
 // 	 
@@ -148,7 +152,7 @@ namespace BackTrack {
   Double_t Simple2DModel_Binned::generateWeight(const RooArgList& parameters, TH2D* distri)
   { 
     if(distri==0) Error("generateWeight", "...set a distribution for initial weights of parameters for the fit with SetParamDistribution() method  first...");
-  
+    
     Double_t par1 = ((RooRealVar*)parameters.at(0))->getVal();
     Double_t par2 = ((RooRealVar*)parameters.at(1))->getVal();
     
@@ -158,9 +162,9 @@ namespace BackTrack {
   
   
 //////////////////////////////////////////////////////////////////////////////////////////////  
-  Double_t Simple2DModel_Binned::GetParamInitiWeight(RooArgList &par)
-  {
-   return generateWeight(par, fdistri);
+  Double_t Simple2DModel_Binned::GetParamInitWeight(RooArgList &par)
+  {  
+    return generateWeight(par, fdistri);
   }
 
 

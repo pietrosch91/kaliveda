@@ -46,7 +46,7 @@ namespace BackTrack {
         InitObs();
        }
        
-    else Error("InitParObs", "...No need to create Parameters and Observables, workspace impported...");	
+    else Error("InitParObs", "...No need to create Parameters and Observables, workspace imported...");	
   }
       
    
@@ -196,7 +196,7 @@ namespace BackTrack {
       
     RooDataHist* datahist = new RooDataHist(Form("DATAHIST#%d",dsnum++),"datahist",GetObservables(),*data);
 
-    //Tip if can't initialize because of too much empty bins in the observables RooHistPdf
+    //Trick if can't initialize because of too much empty bins in the observables RooHistPdf
     //Add a very small value to all bins in the RooDataHist
     //For this we create an histogram that we fill with very small bin contents and we add it to the actual dataset
     //We add a condition on the minimum entries of the DataSet to get ride of empty ones
@@ -221,7 +221,7 @@ namespace BackTrack {
 // 	      }
 // 	  }
 // 	 
-// 	RooDataHist *datahistinit = new RooDataHist("init","init", GetObservables(), hh);  
+// 	RooDataHist *datahistinit = new RooDataHist("init","init", GetExpectedCounts(), hh);  
 // 	 
 //	datahist->add(*datahistinit);
 //	delete hh;       
