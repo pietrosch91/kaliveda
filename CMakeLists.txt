@@ -7,9 +7,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 
 #--look for ROOT & all essential libraries
 find_package(ROOT
-	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist Minuit
+	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
 	RIO Tree MathCore Matrix Gpad Gui Net
-   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html)
+   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html Minuit)
 	
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
