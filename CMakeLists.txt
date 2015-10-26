@@ -32,6 +32,15 @@ if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 link_directories(${ROOT_LIBRARY_DIRS})
+
+#--check for BOOST - minimum version corresponds progress_display
+set(WITH_BOOST)
+find_package(Boost 1.9)
+if(Boost_FOUND)
+   include_directories(${Boost_INCLUDE_DIRS})
+   set(WITH_BOOST yes)
+endif(Boost_FOUND)
+
 include(KaliVedaInstallDirs)
 
 include_directories(${CMAKE_BINARY_DIR})
