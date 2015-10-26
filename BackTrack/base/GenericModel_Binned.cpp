@@ -335,7 +335,7 @@ namespace BackTrack {
       // Generate/fill the initial weight corresponding to the parameter values in the list.
 
       AbstractMethod("GetParamWeight");
-      return nullptr;
+      return 0;
    }
 
 

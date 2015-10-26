@@ -24,7 +24,7 @@ KVNuclData::KVNuclData(const Char_t* name, const Char_t* units): fName(name), fU
 
 }
 
-KVNuclData::KVNuclData(const KVNuclData& o)
+KVNuclData::KVNuclData(const KVNuclData& o) : TObject()
 {
    // Copy constructor
    o.Copy(*this);
