@@ -59,6 +59,11 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/.git OR EXISTS ${PROJECT_SOURCE_DIR}/KVGitInfo.h
    if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/tools/git-hook-pre-commit.sh ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
    endif()
+   #-if we have git, enforce 'git pull --rebase' policy
+   find_package(Git QUIET)
+   if(GIT_FOUND)
+     execute_process(COMMAND ${GIT_EXECUTABLE} config pull.rebase true WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+   endif(GIT_FOUND)
 elseif(EXISTS ${PROJECT_SOURCE_DIR}/.bzr OR EXISTS ${PROJECT_SOURCE_DIR}/KVBzrInfo.h)
    set(WITH_BZR_INFOS yes)
 endif()
