@@ -274,7 +274,8 @@ KVTreeAnalyzer.LogScale:         off
 KVTreeAnalyzer.UserBinning:           off
 KVTreeAnalyzer.UserWeight:       off
 KVTreeAnalyzer.NewCanvas:      off
-KVTreeAnalyzer.Normalize:      off
+KVTreeAnalyzer.NormalizeIntegral:      off
+KVTreeAnalyzer.NormalizeEvents:      off
 
 # Controls auto-update option and refresh interval (in seconds) for KVBatchSystemGUI
 KVBatchSystemGUI.AutoUpdate:       no

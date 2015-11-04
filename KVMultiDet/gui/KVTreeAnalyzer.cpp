@@ -89,7 +89,8 @@ void KVTreeAnalyzer::init()
    fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
    fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
    fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
-   fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
+   fNormHisto = gEnv->GetValue("KVTreeAnalyzer.NormalizeIntegral", kFALSE);
+   fNormHistoEvents = gEnv->GetValue("KVTreeAnalyzer.NormalizeEvents", kFALSE);
    fStatsHisto = gEnv->GetValue("KVTreeAnalyzer.Stats", kFALSE);
    fAutoSaveHisto = kFALSE;
    fSameColorIndex = 0;
@@ -258,16 +259,22 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
 
    if (!fProfileHisto) drawexp += histo;
    if (fProfileHisto) fTree->Draw(Form("%s>>%s", drawexp.Data(), name.Data()), Selection, "prof,goff");
-   else  fTree->Draw(drawexp, Selection, "goff");
+   else fTree->Draw(drawexp, Selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if (h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
    AddHisto(h);
    fHistoNumber++;
-   if (fNormHisto && !fProfileHisto) {
-      h->Sumw2();
-      h->Scale(1. / h->Integral());
+   if (!fProfileHisto) {
+      if (fNormHisto || fNormHistoEvents) {
+         h->Sumw2();
+         if (fNormHisto) {
+            h->Scale(1. / h->Integral());
+         } else {
+            h->Scale(1. / GetEntriesInCurrentSelection());
+         }
+      }
    }
    return h;
 }
@@ -311,9 +318,13 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
 
    AddHisto(h);
    fHistoNumber++;
-   if (fNormHisto) {
+   if (fNormHisto || fNormHistoEvents) {
       h->Sumw2();
-      h->Scale(1. / h->Integral());
+      if (fNormHisto) {
+         h->Scale(1. / h->Integral());
+      } else {
+         h->Scale(1. / GetEntriesInCurrentSelection());
+      }
    }
    return h;
 }
@@ -401,6 +412,15 @@ void KVTreeAnalyzer::CurrentSelection()
    if (fTree->GetEntryList()) tmp = fTree->GetEntryList()->GetTitle();
    else tmp = "";
    if (tmp != "") cout << "CURRENT SELECTION : " << tmp << endl;
+}
+
+Long64_t KVTreeAnalyzer::GetEntriesInCurrentSelection() const
+{
+   // Return number of entries (events) in the currently active selection,
+   // or the number of entries in the analysed TTree/TChain if no selection active
+
+   if (fTree->GetEntryList()) return fTree->GetEntryList()->GetN();
+   return fTree->GetEntries();
 }
 
 void KVTreeAnalyzer::FillLeafList()
@@ -641,11 +661,17 @@ void KVTreeAnalyzer::OpenGUI()
    G_histo_prof->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetProfileHisto(Bool_t)");
    histo_opts->AddFrame(G_histo_prof, new TGLayoutHints(kLHintsLeft, 15, 2, 8, 2));
 
-   G_histo_norm = new TGCheckButton(histo_opts, "Normalize");
+   G_histo_norm = new TGCheckButton(histo_opts, "Normalize (integral)");
    G_histo_norm->SetToolTipText("Generate normalized histogram with integral=1");
    G_histo_norm->SetState((EButtonState) fNormHisto);
    G_histo_norm->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHisto(Bool_t)");
    histo_opts->AddFrame(G_histo_norm, new TGLayoutHints(kLHintsLeft, 15, 2, 8, 2));
+
+   G_histo_norm_events = new TGCheckButton(histo_opts, "Normalize (events)");
+   G_histo_norm_events->SetToolTipText("Generate histogram with integral divided by number of events");
+   G_histo_norm_events->SetState((EButtonState) fNormHistoEvents);
+   G_histo_norm_events->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHistoEvents(Bool_t)");
+   histo_opts->AddFrame(G_histo_norm_events, new TGLayoutHints(kLHintsLeft, 15, 2, 8, 2));
 
    G_histo_weight = new TGCheckButton(histo_opts, "Weight");
    G_histo_weight->SetToolTipText("User defined binning of the histogram");

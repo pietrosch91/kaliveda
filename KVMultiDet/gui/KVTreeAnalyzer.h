@@ -195,6 +195,7 @@ class KVTreeAnalyzer : public TNamed {
    TGCheckButton* G_histo_log;//!
    TGCheckButton* G_histo_new_can;//!
    TGCheckButton* G_histo_norm;//!
+   TGCheckButton* G_histo_norm_events;//!
    TGCheckButton* G_histo_stats;//!
    TGCheckButton* G_histo_autosave;//!
    Bool_t fDrawSame;//! =kTRUE: draw histograms in same plot
@@ -202,7 +203,8 @@ class KVTreeAnalyzer : public TNamed {
    Bool_t fDrawLog;//! =kTRUE: draw histograms with log-Y (1-D) or log-Z (2-D) scale
    Bool_t fApplySelection;//! =kTRUE: apply current selection to existing histogram
    Bool_t fNewCanvas;//! =kTRUE: draw each histogram in a new canvas
-   Bool_t fNormHisto;//! =kTRUE: generate normalised histograms
+   Bool_t fNormHisto;//! =kTRUE: generate normalised histograms (normalise to integral of histo)
+   Bool_t fNormHistoEvents;//! =kTRUE: generate normalised histograms (normalise to number of events)
    Bool_t fStatsHisto;//! =kTRUE: display histo stats box
    Bool_t fAutoSaveHisto;//! =kTRUE: on draw, generate image file of current displayed histo
    TString fAutoSaveDir;//! directory for autosaving histos
@@ -374,6 +376,14 @@ public:
    void SetNormHisto(Bool_t yes = kTRUE)
    {
       fNormHisto = yes;
+      fNormHistoEvents = (yes ? kFALSE : fNormHistoEvents);
+      G_histo_norm_events->SetState((EButtonState)fNormHistoEvents);
+   }
+   void SetNormHistoEvents(Bool_t yes = kTRUE)
+   {
+      fNormHistoEvents = yes;
+      fNormHisto = (yes ? kFALSE : fNormHisto);
+      G_histo_norm->SetState((EButtonState)fNormHisto);
    }
    void SetNewCanvas(Bool_t yes = kTRUE)
    {
@@ -495,6 +505,7 @@ public:
    void GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin);
    void OpenAnyFriendFile(const Char_t* filepath);
    void HistoFileMenu_OpenFriend();
+   Long64_t GetEntriesInCurrentSelection() const;
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer* gTreeAnalyzer;
