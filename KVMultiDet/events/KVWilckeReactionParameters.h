@@ -141,24 +141,28 @@ public:
       // Total heavy-ion potential (nuclear proximity+coulomb) at distance r
       return ProxPot(r, 0) + VC(r, 0);
    }
-   Double_t CentrifugalPotential(Double_t* x , Double_t* p)
+   Double_t CentrifugalPotential(Double_t* x , Double_t* l)
    {
       // Total heavy-ion potential (nuclear proximity+coulomb+centrifugal) at distance r
       // x[0] = r
-      // p[1] = b (impact parameter)
-      // p[0] = energy (mev/u)
-
-      // angular momentum
-      Double_t l = p[1] * k(p[0]);
+      // l[0] = angular momentum
 
       Double_t R = TMath::Max(0.1, x[0]);
-      Double_t Vcent = l * (l + 1.) * pow(KVNucleus::hbar, 2) / (2.*MU * mu_Wilcke * R * R);
+      Double_t Vcent = l[0] * (l[0] + 1.) * pow(KVNucleus::hbar, 2) / (2.*MU * mu_Wilcke * R * R);
       return ProxPot(&x[0], 0) + VC(&x[0], 0) + Vcent;
    }
-   TF1* GetCentrifugalPotential(Double_t e_sur_a, Double_t b = 0) const
+   TF1* GetCentrifugalPotential(Double_t e_sur_a, Double_t b) const
    {
-      fCentPot->SetParameter(0, e_sur_a);
-      fCentPot->SetParameter(1, b);
+      // Total (nuclear+coulomb+centrifugal) potential for given beam energy (E/A)
+      // and impact parameter (fm)
+      Double_t l = b * k(e_sur_a);
+      fCentPot->SetParameter(0, l);
+      return fCentPot;
+   }
+   TF1* GetCentrifugalPotential(Double_t l) const
+   {
+      // Total (nuclear+coulomb+centrifugal) potential for given angular momentum (hbar)
+      fCentPot->SetParameter(0, l);
       return fCentPot;
    }
    TF1* GetBSSCoulombPotential() const
@@ -273,8 +277,7 @@ public:
    {
       TF1* totpot;
       if (l > 0) {
-         Double_t e = pow(KVNucleus::hbar * l / (1.*AP), 2) / 2. / mu_Wilcke;
-         totpot = GetCentrifugalPotential(e, 1.);
+         totpot = GetCentrifugalPotential(l);
          totpot->SetTitle(Form("HIPOT l=%3.0f", l));
       } else totpot = GetTotalPotential();
       totpot->SetNpx(1000);
@@ -293,6 +296,8 @@ public:
    }
 
    void Print() const;
+   Double_t PotentialPocketRadius(Double_t l);
+   Double_t GetMaximumAngularMomentumWithPocket();
 
    Double_t GetMu() const
    {
