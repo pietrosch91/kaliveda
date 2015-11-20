@@ -7,12 +7,12 @@
 /usr/share/kaliveda/etc/kaliveda-fazia.rootrc
 /usr/lib/libFAZIAidentification.so.1
 /usr/lib/libFAZIAdb.so.1
-/usr/lib/libFAZIAidentification.so.1.10.04
-/usr/lib/libFAZIAanalysis.so.1.10.04
-/usr/lib/libFAZIAgeometry.so.1.10.04
+/usr/lib/libFAZIAanalysis.so.1.10.05
+/usr/lib/libFAZIAidentification.so.1.10.05
+/usr/lib/libFAZIAgeometry.so.1.10.05
 /usr/lib/libFAZIAanalysis.so.1
 /usr/lib/libFAZIAgeometry.so.1
-/usr/lib/libFAZIAdb.so.1.10.04
+/usr/lib/libFAZIAdb.so.1.10.05
 /usr/share/kaliveda/LNS_2014/SI1_QH1toVolt.dat
 /usr/share/kaliveda/LNS_2014/Runlist.csv
 /usr/share/kaliveda/LNS_2014/Systems.dat
