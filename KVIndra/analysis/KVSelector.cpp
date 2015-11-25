@@ -256,11 +256,7 @@ Bool_t KVSelector::Notify()
       }
       fKVDataSelector->Reset(nrun);
    }
-
-   cout << endl << "
-        == == == == == == == == == =  New Run  == == == == == == == == == = " <<
-        endl << endl;
-
+   cout << endl << " == == == == == == == == == =  New Run  == == == == == == == == == = " << endl << endl;
    fCurrentRun->Print();
    if (fCurrentRun->GetSystem()) {
       if(fCurrentRun->GetSystem()->GetKinematics())
@@ -288,11 +284,9 @@ Bool_t KVSelector::Notify()
    }
 
    gDataAnalyser->preInitRun();
-   Info("
-        Notify", "Data written with series % s, release % d",
+   Info("Notify", "Data written with series %s, release %d",
         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries().Data(),
         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber());
-
    InitRun();                   //user initialisations for run
    gDataAnalyser->postInitRun();
    return kTRUE;
@@ -373,8 +367,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    //calculate momenta of particles in reaction cm frame
    if (fCurrentRun->GetSystem() && fCurrentRun->GetSystem()->GetKinematics()) {
 
-      GetEvent()->SetFrame("CM",
-                           fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
+      GetEvent()->SetFrame("CM", fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
 
    }
 
@@ -394,7 +387,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       TString mes("End of run after ");
       mes += (totentry);
       mes += " events.";
-      Info("Process", " % s", mes.Data());
+      Info("Process", " %s", mes.Data());
 
       gDataAnalyser->preEndRun();
       EndRun();                 //user routine end of run
@@ -549,15 +542,16 @@ KVVarGlob *KVSelector::AddGV(const Char_t * class_name,
       if (!ph) {
          //not found
          Error("AddGV(const Char_t*, const Char_t*)",
-               "Called with class_name = % s.\nClass is unknown : not in standard libraries, and plugin(user - defined class) not found",
+               "Called with class_name = %s.\nClass is unknown : not in standard libraries, and plugin(user - defined class) not found",
                class_name);
          return 0;
       } else {
          vg = (KVVarGlob *) ph->ExecPlugin(0);
       }
+
    } else if (!clas->InheritsFrom("KVVarGlob")) {
       Error("AddGV(const Char_t*, const Char_t*)",
-            " % s is not a valid class deriving from KVVarGlob.",
+            " %s is not a valid class deriving from KVVarGlob.",
             class_name);
       return 0;
    } else {
