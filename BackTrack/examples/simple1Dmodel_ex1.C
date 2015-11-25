@@ -26,7 +26,7 @@
 
 using namespace RooFit;
 
-BackTrack::Simple1DModel* model=0;
+BackTrack::Simple1DModel* model = 0;
 
 void simple1Dmodel_ex1()
 {
@@ -34,24 +34,24 @@ void simple1Dmodel_ex1()
    // distribution about a mean value given by the value of
    // parameter PAR; PAR can have any distribution
    model = new BackTrack::Simple1DModel();
-   
+
    // Exponential parameter distirbution
    RooExponential PARdist("PARdist", "parameter distribution",
-         model->GetParameter("PAR"), RooConst(-.05));
-   
+                          model->GetParameter("PAR"), RooConst(-.05));
+
    // Generate data with exponential parameter distribution
    model->SetNumGen(1000);
    RooDataSet* data = model->GenerateDataSet(PARdist);
-   
+
    // Initialise the BackTracking
    model->SetNumGen(1000);
    model->ImportModelData();
    model->SetKernelSmoothing(2);
    model->ConstructPseudoPDF();
-   
+
    // Do the fit i.e. the BackTracking
    model->fitTo(data);
-   
+
    // Plot the data and the fitted result
    RooPlot* fr = model->GetObservable("OBS").frame();
    data->plotOn(fr);

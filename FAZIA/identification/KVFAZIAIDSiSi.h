@@ -9,20 +9,19 @@
 
 class KVIDZAGrid;
 
-class KVFAZIAIDSiSi : public KVFAZIAIDTelescope
-{
-	private:
-	KVIDZAGrid*	fGrid;
-   
-	public:
+class KVFAZIAIDSiSi : public KVFAZIAIDTelescope {
+private:
+   KVIDZAGrid* fGrid;
+
+public:
    KVFAZIAIDSiSi();
    virtual ~KVFAZIAIDSiSi();
    void Copy(TObject& obj) const;
-   virtual void	Initialize();
-	Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
-	
+   virtual void   Initialize();
+   Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
 
-   ClassDef(KVFAZIAIDSiSi,1)//identification telescope for FAZIA Si-Si idcards
+
+   ClassDef(KVFAZIAIDSiSi, 1) //identification telescope for FAZIA Si-Si idcards
 };
 
 #endif

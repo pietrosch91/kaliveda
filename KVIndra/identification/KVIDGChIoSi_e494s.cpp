@@ -60,40 +60,43 @@ KVIDGChIoSi_e494s::~KVIDGChIoSi_e494s()
 }
 //________________________________________________________________
 
-void KVIDGChIoSi_e494s::init(){
-	// Default initialisations
-	
-	fChIoSeuil = NULL;
+void KVIDGChIoSi_e494s::init()
+{
+   // Default initialisations
+
+   fChIoSeuil = NULL;
 }
 //________________________________________________________________
 
-void KVIDGChIoSi_e494s::Identify(Double_t x, Double_t y, KVIdentificationResult *idr) const{
-	// After identification of the particle, we adjust the quality code
-	// (if the particle was well-identified by KVIDGChIoSi::Identify, i.e. with
-	// fICode<KVIDZAGrid::kICODE4) if:
-	//    the particle is below the 'ChIo threshold line' => quality code KVIDGChIoSi_e494s::k_BelowSeuilChIo
+void KVIDGChIoSi_e494s::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
+{
+   // After identification of the particle, we adjust the quality code
+   // (if the particle was well-identified by KVIDGChIoSi::Identify, i.e. with
+   // fICode<KVIDZAGrid::kICODE4) if:
+   //    the particle is below the 'ChIo threshold line' => quality code KVIDGChIoSi_e494s::k_BelowSeuilChIo
 
-	KVIDGChIoSi::Identify(x,y,idr);
+   KVIDGChIoSi::Identify(x, y, idr);
 
-	if(fICode<kICODE4){
+   if (fICode < kICODE4) {
 
-		if(fChIoSeuil && fChIoSeuil->WhereAmI(x,y,"below")){
-			const_cast<KVIDGChIoSi_e494s*>(this)->fICode = k_BelowSeuilChIo;
-			idr->SetComment("warning: point below ChIo threshold line");
-		}
-		idr->IDquality = fICode;
-	}
+      if (fChIoSeuil && fChIoSeuil->WhereAmI(x, y, "below")) {
+         const_cast<KVIDGChIoSi_e494s*>(this)->fICode = k_BelowSeuilChIo;
+         idr->SetComment("warning: point below ChIo threshold line");
+      }
+      idr->IDquality = fICode;
+   }
 }
 //________________________________________________________________
 
-void KVIDGChIoSi_e494s::Initialize(){
-	// General initialisation method for identification grid.
-	// This method MUST be call once before using the grid
-	// for identifications. The ID lines are stored. The natural
-	// line widths of all ID lines are calculated.
-	// The line with the largest Z (Zmax line) is found.
-	// Pointers to different 'OK lines' are initialised.
-	
-	KVIDGChIoSi::Initialize();
-	fChIoSeuil = (KVIDLine *)GetCut("Seuil_ChIo");
+void KVIDGChIoSi_e494s::Initialize()
+{
+   // General initialisation method for identification grid.
+   // This method MUST be call once before using the grid
+   // for identifications. The ID lines are stored. The natural
+   // line widths of all ID lines are calculated.
+   // The line with the largest Z (Zmax line) is found.
+   // Pointers to different 'OK lines' are initialised.
+
+   KVIDGChIoSi::Initialize();
+   fChIoSeuil = (KVIDLine*)GetCut("Seuil_ChIo");
 }

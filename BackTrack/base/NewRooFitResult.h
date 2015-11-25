@@ -26,32 +26,35 @@ class TH2 ;
 typedef RooArgSet* pRooArgSet ;
 
 
-class NewRooFitResult : public RooFitResult
-{
+class NewRooFitResult : public RooFitResult {
 public:
- 
-  // Constructors, assignment etc.
-  NewRooFitResult(const char* name=0, const char* title=0) ;
-  NewRooFitResult(const NewRooFitResult& other) ;   			     
-  virtual TObject* Clone(const char* newname = 0) const { 
-    NewRooFitResult* r =  new NewRooFitResult(*this) ; 
-    if (newname && *newname) r->SetName(newname) ; 
-    return r ; 
-  }
-  virtual TObject* clone() const { return new NewRooFitResult(*this); }   
-  virtual ~NewRooFitResult() ;
 
-  static NewRooFitResult* lastMinuitFit(const RooArgList& varList=RooArgList()) ;
+   // Constructors, assignment etc.
+   NewRooFitResult(const char* name = 0, const char* title = 0) ;
+   NewRooFitResult(const NewRooFitResult& other) ;
+   virtual TObject* Clone(const char* newname = 0) const
+   {
+      NewRooFitResult* r =  new NewRooFitResult(*this) ;
+      if (newname && *newname) r->SetName(newname) ;
+      return r ;
+   }
+   virtual TObject* clone() const
+   {
+      return new NewRooFitResult(*this);
+   }
+   virtual ~NewRooFitResult() ;
 
-  Bool_t isIdentical(const NewRooFitResult& other, Double_t tol=5e-5, Double_t tolCorr=1e-4, Bool_t verbose=kTRUE) const ;
+   static NewRooFitResult* lastMinuitFit(const RooArgList& varList = RooArgList()) ;
+
+   Bool_t isIdentical(const NewRooFitResult& other, Double_t tol = 5e-5, Double_t tolCorr = 1e-4, Bool_t verbose = kTRUE) const ;
 
 protected:
-  
-  friend class NewRooMinuit ;
-  friend class NewRooMinimizer ;
+
+   friend class NewRooMinuit ;
+   friend class NewRooMinimizer ;
 
 
-   ClassDef(NewRooFitResult,1)//Modified Roofit class NewRooFitResult in order to use it with NewRooMinimizer
+   ClassDef(NewRooFitResult, 1) //Modified Roofit class NewRooFitResult in order to use it with NewRooMinimizer
 };
 
 #endif

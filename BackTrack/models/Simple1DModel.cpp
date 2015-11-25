@@ -20,17 +20,17 @@ ClassImp(BackTrack::Simple1DModel)
 namespace BackTrack {
 
    Simple1DModel::Simple1DModel()
-      : fPar("PAR","Model parameter",0.,50.),
-        fObs("OBS","Model observable",-20,70.),
-        a0("a0","a0",0,0,5),a1("a1","a1",1,-1,1),
-        MEAN("MEAN","MEAN",fPar,RooArgSet(a0,a1))
+      : fPar("PAR", "Model parameter", 0., 50.),
+        fObs("OBS", "Model observable", -20, 70.),
+        a0("a0", "a0", 0, 0, 5), a1("a1", "a1", 1, -1, 1),
+        MEAN("MEAN", "MEAN", fPar, RooArgSet(a0, a1))
    {
       // Default constructor
-      AddParameter(fPar.GetName(),fPar.GetTitle(),0.,50.,5);
-      AddObservable(fObs.GetName(),fObs.GetTitle(),-20.,70);
+      AddParameter(fPar.GetName(), fPar.GetTitle(), 0., 50., 5);
+      AddObservable(fObs.GetName(), fObs.GetTitle(), -20., 70);
 
       // conditional distribution of observable for a given mean
-      theModel = new RooGaussian("Simple1DModel","observable distribution for fixed parameter",fObs,MEAN,RooConst(5)) ;
+      theModel = new RooGaussian("Simple1DModel", "observable distribution for fixed parameter", fObs, MEAN, RooConst(5)) ;
 
    }
 
@@ -42,13 +42,13 @@ namespace BackTrack {
    void Simple1DModel::ConstructPseudoPDF(Bool_t debug)
    {
       GenericModel::ConstructPseudoPDF(debug);
-      if(!debug) return;
+      if (!debug) return;
       // draw datasets and kernels
-      for(int i=0; i<GetNumberOfDataSets(); i++){
+      for (int i = 0; i < GetNumberOfDataSets(); i++) {
          const RooArgList* pars = GetParametersForDataset(i);
          RooRealVar* par = (RooRealVar*)pars->find("PAR");
          int pv = (int)par->getVal();
-         new TCanvas(Form("c%d",pv),Form("PAR=%d",pv));
+         new TCanvas(Form("c%d", pv), Form("PAR=%d", pv));
          RooPlot* frame = fObs.frame();
          GetDataSet(i)->plotOn(frame);
          GetKernel(i)->plotOn(frame);

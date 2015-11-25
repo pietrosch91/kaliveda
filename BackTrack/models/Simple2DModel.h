@@ -9,20 +9,25 @@
 
 namespace BackTrack {
 
-   class Simple2DModel : public GenericModel
-   {
+   class Simple2DModel : public GenericModel {
 
-      ClassDef(Simple2DModel,1)//Simple model to test backtrack procedures
+      ClassDef(Simple2DModel, 1) //Simple model to test backtrack procedures
 
       Int_t fNGen;        //number of events to generate for each dataset
-      public:
+   public:
       Simple2DModel();
       virtual ~Simple2DModel();
 
       void generateEvent(const RooArgList& parameters, RooDataSet& data);
-      RooDataSet* GetModelDataSet(RooArgList &par);
-      void SetNumGen(Int_t n) { fNGen=n; }
-      Int_t GetNumGen() const { return fNGen; }
+      RooDataSet* GetModelDataSet(RooArgList& par);
+      void SetNumGen(Int_t n)
+      {
+         fNGen = n;
+      }
+      Int_t GetNumGen() const
+      {
+         return fNGen;
+      }
 
       TH1* GetParameterDistributions();
    };

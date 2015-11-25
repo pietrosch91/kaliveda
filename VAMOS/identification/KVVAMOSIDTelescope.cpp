@@ -40,53 +40,52 @@ KVVAMOSIDTelescope::~KVVAMOSIDTelescope()
    // Destructor
 }
 //________________________________________________________________
-   
-const Char_t *KVVAMOSIDTelescope::GetArrayName(){
- 	// Name of identification telescope given in the form IDV_Det1_Det2.
- 	// Prefix VID for Vamos IDentification.
-   	// The detectors are signified by their names i.e. KVDetector::GetName
 
-	if( GetSize() ){
-		KVDetector *DEdet = GetDetector( 1 );
-		KVDetector *Edet  = GetDetector( 2 );
+const Char_t* KVVAMOSIDTelescope::GetArrayName()
+{
+   // Name of identification telescope given in the form IDV_Det1_Det2.
+   // Prefix VID for Vamos IDentification.
+   // The detectors are signified by their names i.e. KVDetector::GetName
 
-		if( Edet ){
-			SetName( Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()) );
-			SetType( Form("%s_%s"    , DEdet->GetName(), Edet->GetName()) );
-		}
-		else{
-			SetName( Form("VID_%s", DEdet->GetName()) );
-			SetType( Form("%s"    , DEdet->GetName()) );
-		}
-	}
-	else SetName( "VID_EMPTY" );
+   if (GetSize()) {
+      KVDetector* DEdet = GetDetector(1);
+      KVDetector* Edet  = GetDetector(2);
 
-	return fName.Data();
+      if (Edet) {
+         SetName(Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()));
+         SetType(Form("%s_%s"    , DEdet->GetName(), Edet->GetName()));
+      } else {
+         SetName(Form("VID_%s", DEdet->GetName()));
+         SetType(Form("%s"    , DEdet->GetName()));
+      }
+   } else SetName("VID_EMPTY");
+
+   return fName.Data();
 }
 //________________________________________________________________
-   
-Bool_t KVVAMOSIDTelescope::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
- //Particle identification and code setting using identification grid KVIDGChIoSi
 
-		IDR->SetIDType( GetType() );
-		IDR->IDattempted = kTRUE;
-    //identification
-    Double_t de = (y<0. ? GetIDMapY() : y);
-    Double_t e  = (x<0. ? GetIDMapX() : x);
+Bool_t KVVAMOSIDTelescope::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
+{
+//Particle identification and code setting using identification grid KVIDGChIoSi
 
-    if (fGrid->IsIdentifiable(e,de))
-        fGrid->Identify( e,de,IDR);
-    Int_t quality = fGrid->GetQualityCode();
-    IDR->IDquality = quality;
+   IDR->SetIDType(GetType());
+   IDR->IDattempted = kTRUE;
+   //identification
+   Double_t de = (y < 0. ? GetIDMapY() : y);
+   Double_t e  = (x < 0. ? GetIDMapX() : x);
 
-    // set general ID code for correct identification
-    IDR->IDcode = GetIDCode();
-    //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
-    //general ID code = kIDCode5 (Zmin)
-    if (quality==KVIDZAGrid::kICODE7)
-    {
-        IDR->IDcode = GetZminCode();
-    }
+   if (fGrid->IsIdentifiable(e, de))
+      fGrid->Identify(e, de, IDR);
+   Int_t quality = fGrid->GetQualityCode();
+   IDR->IDquality = quality;
+
+   // set general ID code for correct identification
+   IDR->IDcode = GetIDCode();
+   //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
+   //general ID code = kIDCode5 (Zmin)
+   if (quality == KVIDZAGrid::kICODE7) {
+      IDR->IDcode = GetZminCode();
+   }
 
 
 //    //Identified particles with subcode kID_LeftOfBragg are given
@@ -106,29 +105,29 @@ Bool_t KVVAMOSIDTelescope::Identify(KVIdentificationResult *IDR, Double_t x, Dou
 //    }
 //    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
 
-    return kTRUE;
+   return kTRUE;
 }
 //________________________________________________________________
 
-void KVVAMOSIDTelescope::Initialize(){
-	// Initialisation of telescope before identification.
-    // This method MUST be called once before any identification is attempted.
-    // Initialisation of grid is performed here.
-    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
+void KVVAMOSIDTelescope::Initialize()
+{
+   // Initialisation of telescope before identification.
+   // This method MUST be called once before any identification is attempted.
+   // Initialisation of grid is performed here.
+   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
 
-	fDEdet = GetDetector(1);
-	fEdet  = GetDetector(2);
-	fGrid  = (KVIDZAGrid *)GetIDGrid();
-    if ( fDEdet && fEdet && fGrid ){
-        fGrid->Initialize();
-        SetBit(kReadyForID);
-    }
-    else
-        ResetBit(kReadyForID);
+   fDEdet = GetDetector(1);
+   fEdet  = GetDetector(2);
+   fGrid  = (KVIDZAGrid*)GetIDGrid();
+   if (fDEdet && fEdet && fGrid) {
+      fGrid->Initialize();
+      SetBit(kReadyForID);
+   } else
+      ResetBit(kReadyForID);
 }
 //________________________________________________________________
-   
+
 //const Char_t *KVVAMOSIDTelescope::GetIDSubCodeString(KVIDSubCode & concat) const{
 //
-//	Warning("GetIDSubCodeString","TO BE IMPLEMENTED");
+// Warning("GetIDSubCodeString","TO BE IMPLEMENTED");
 //}

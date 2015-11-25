@@ -31,7 +31,7 @@ KVCurrentSignal::KVCurrentSignal()
 KVCurrentSignal::KVCurrentSignal(const char* name) : KVSignal(name, "Current")
 {
    SetType(name);
-	 init();
+   init();
 }
 
 //________________________________________________________________
@@ -58,39 +58,39 @@ void KVCurrentSignal::Copy(TObject& obj) const
 
 void KVCurrentSignal::SetDefaultValues()
 {
-    SetChannelWidth(4.);
-    SetBaseLineLength(30);
+   SetChannelWidth(4.);
+   SetBaseLineLength(30);
 }
 
 void KVCurrentSignal::LoadPSAParameters()
 {
-	
-// 	TString spar; 
-// 	Double_t lval;
-// 	//BaseLineLength
-// 	spar.Form("%s.%s.BaseLineLength",dettype,GetName());
-// 	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
-// 	else 					lval = gEnv->GetValue(spar.Data(),0.0);
-// 	SetBaseLineLength(lval);
-// 	//ChannelWidth
-// 	spar.Form("%s.%s.ChannelWidth",dettype,GetName());
-// 	if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
-// 	else 					lval = gEnv->GetValue(spar.Data(),0.0);
-// 	SetChannelWidth(lval);
+
+//    TString spar;
+//    Double_t lval;
+//    //BaseLineLength
+//    spar.Form("%s.%s.BaseLineLength",dettype,GetName());
+//    if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+//    else              lval = gEnv->GetValue(spar.Data(),0.0);
+//    SetBaseLineLength(lval);
+//    //ChannelWidth
+//    spar.Form("%s.%s.ChannelWidth",dettype,GetName());
+//    if (gDataSet) lval = gDataSet->GetDataSetEnv(spar.Data(),0.0);
+//    else              lval = gEnv->GetValue(spar.Data(),0.0);
+//    SetChannelWidth(lval);
 }
 
 /*
 KVPSAResult *KVCurrentSignal::TreateSignal()
 {
     if (GetN()==0) {
-		//Info("TreateSignal","Empty signal %s",GetName());
-		return 0;
-	}	
+      //Info("TreateSignal","Empty signal %s",GetName());
+      return 0;
+   }
    KVPSAResult* psa = new KVPSAResult(GetName());
-	psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
-	if (fAdc.fN==0) SetADCData();
-	
-	fBaseLine  = FindMedia(fFirstBL, fLastBL);
+   psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
+   if (fAdc.fN==0) SetADCData();
+
+   fBaseLine  = FindMedia(fFirstBL, fLastBL);
    fSigmaBase = FindSigma2(fFirstBL, fLastBL);
 
    Add(-1.*fBaseLine);

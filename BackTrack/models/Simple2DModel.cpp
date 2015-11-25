@@ -20,10 +20,10 @@ namespace BackTrack {
    {
       // <obs1> = par1+par2
       // <obs2> = par1-par2
-      AddParameter("par1","parameter #1",0,10,4);
-      AddParameter("par2","parameter #2",-20,20,5);
-      AddObservable("obs1","observable #1",-20,30);
-      AddObservable("obs2","observable #2",-30,30);
+      AddParameter("par1", "parameter #1", 0, 10, 4);
+      AddParameter("par2", "parameter #2", -20, 20, 5);
+      AddObservable("obs1", "observable #1", -20, 30);
+      AddObservable("obs2", "observable #2", -30, 30);
    }
 
    Simple2DModel::~Simple2DModel()
@@ -38,38 +38,38 @@ namespace BackTrack {
 
       Double_t par1 = ((RooRealVar*)parameters.at(0))->getVal();
       Double_t par2 = ((RooRealVar*)parameters.at(1))->getVal();
-      Double_t obs1 = gRandom->Gaus(par1+par2, abs(par1+par2)/5.);
-      Double_t diff = (par1-par2);
-      Double_t obs2 = gRandom->Gaus(diff,abs(diff)/10.);
+      Double_t obs1 = gRandom->Gaus(par1 + par2, abs(par1 + par2) / 5.);
+      Double_t diff = (par1 - par2);
+      Double_t obs2 = gRandom->Gaus(diff, abs(diff) / 10.);
       GetObservable("obs1").setVal(obs1);
       GetObservable("obs2").setVal(obs2);
       data.add(GetObservables());
    }
 
-   RooDataSet*Simple2DModel::GetModelDataSet(RooArgList& par)
+   RooDataSet* Simple2DModel::GetModelDataSet(RooArgList& par)
    {
       // create and fill data set using uniform distributions of parameters in
       // currently defined ranges
 
-      static int dsnum=1;
-      RooDataSet* data = new RooDataSet(Form("DATA#%d",dsnum++),"dataset",GetObservables());
-      for(int i=0;i<GetNumGen();i++){
+      static int dsnum = 1;
+      RooDataSet* data = new RooDataSet(Form("DATA#%d", dsnum++), "dataset", GetObservables());
+      for (int i = 0; i < GetNumGen(); i++) {
          RooRealVar* par1 = (RooRealVar*)par.at(0);
          RooRealVar* par2 = (RooRealVar*)par.at(1);
-         Double_t P1 = gRandom->Uniform(par1->getMin(),par1->getMax());
-         Double_t P2 = gRandom->Uniform(par2->getMin(),par2->getMax());
+         Double_t P1 = gRandom->Uniform(par1->getMin(), par1->getMax());
+         Double_t P2 = gRandom->Uniform(par2->getMin(), par2->getMax());
          par1->setVal(P1);
          par2->setVal(P2);
-         generateEvent(par,*data);
+         generateEvent(par, *data);
       }
       return data;
    }
 
-   TH1*Simple2DModel::GetParameterDistributions()
+   TH1* Simple2DModel::GetParameterDistributions()
    {
       // Return 2D histo of fitted parameter distributions
 
-      TH1* h = GetParamDataHist()->createHistogram("par1,par2",GetParameter("par1").getBins(),GetParameter("par2").getBins());
+      TH1* h = GetParamDataHist()->createHistogram("par1,par2", GetParameter("par1").getBins(), GetParameter("par2").getBins());
       h->SetName("fittedParameters");
       return h;
    }

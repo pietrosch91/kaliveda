@@ -11,27 +11,38 @@
 #include "KVString.h"
 #include "KVNameValueList.h"
 
-class KVFAZIARawEvent : public TObject
-{
-	protected:
-	TClonesArray* fSignals;//-> array where signals are storred
-	KVNameValueList* fValues;//-> list of values
-	Int_t fNumber;	//event number
-	
-   public:
+class KVFAZIARawEvent : public TObject {
+protected:
+   TClonesArray* fSignals;//-> array where signals are storred
+   KVNameValueList* fValues;//-> list of values
+   Int_t fNumber; //event number
+
+public:
    KVFAZIARawEvent(Int_t ntot);
    KVFAZIARawEvent();
    virtual ~KVFAZIARawEvent();
-   public:
+public:
    void Copy(TObject& obj) const;
-	void Clear(Option_t* = "");
-	KVSignal* AddNewSignal(KVString name,KVString title);
-	TClonesArray* GetSignals() const { return fSignals; }
-	void SetNumber(Int_t num) {fNumber=num; }
-	Int_t GetNumber() const { return fNumber; }
-	KVNameValueList* GetValues() const { return fValues; }
-	
-   ClassDef(KVFAZIARawEvent,1)//Handle list of signals and additional information coming from acquisition file
+   void Clear(Option_t* = "");
+   KVSignal* AddNewSignal(KVString name, KVString title);
+   TClonesArray* GetSignals() const
+   {
+      return fSignals;
+   }
+   void SetNumber(Int_t num)
+   {
+      fNumber = num;
+   }
+   Int_t GetNumber() const
+   {
+      return fNumber;
+   }
+   KVNameValueList* GetValues() const
+   {
+      return fValues;
+   }
+
+   ClassDef(KVFAZIARawEvent, 1) //Handle list of signals and additional information coming from acquisition file
 };
 
 #endif

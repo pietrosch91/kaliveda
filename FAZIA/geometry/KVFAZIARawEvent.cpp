@@ -17,26 +17,26 @@ ClassImp(KVFAZIARawEvent)
 KVFAZIARawEvent::KVFAZIARawEvent(Int_t ntot)
 {
    // Default constructor
-	fSignals = new TClonesArray("KVSignal",ntot);
-	fValues = new KVNameValueList();
-	
-	fNumber=-1;
+   fSignals = new TClonesArray("KVSignal", ntot);
+   fValues = new KVNameValueList();
+
+   fNumber = -1;
 }
 
 KVFAZIARawEvent::KVFAZIARawEvent()
 {
    // Default constructor
-	fSignals = new TClonesArray("KVSignal",10);
-	fValues = new KVNameValueList();
-	
-	fNumber=-1;
+   fSignals = new TClonesArray("KVSignal", 10);
+   fValues = new KVNameValueList();
+
+   fNumber = -1;
 }
 
 KVFAZIARawEvent::~KVFAZIARawEvent()
 {
    // Destructor
-	delete fSignals;
-	delete fValues;
+   delete fSignals;
+   delete fValues;
 }
 
 //________________________________________________________________
@@ -57,15 +57,15 @@ void KVFAZIARawEvent::Copy(TObject& obj) const
 //________________________________________________________________
 void KVFAZIARawEvent::Clear(Option_t*)
 {
-	fSignals->Clear();
-	fValues->Clear();
+   fSignals->Clear();
+   fValues->Clear();
 }
 
 //________________________________________________________________
-KVSignal* KVFAZIARawEvent::AddNewSignal(KVString name,KVString title)
+KVSignal* KVFAZIARawEvent::AddNewSignal(KVString name, KVString title)
 {
-	KVSignal* sig = (KVSignal* )fSignals->ConstructedAt( fSignals->GetEntries() );
-	sig->SetNameTitle(name.Data(),title.Data());
+   KVSignal* sig = (KVSignal*)fSignals->ConstructedAt(fSignals->GetEntries());
+   sig->SetNameTitle(name.Data(), title.Data());
    return sig;
 
 }

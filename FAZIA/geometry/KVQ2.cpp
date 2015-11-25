@@ -17,7 +17,7 @@ ClassImp(KVQ2)
 void KVQ2::init()
 {
    SetDefaultValues();
-	fChannel = kQ2;
+   fChannel = kQ2;
 
 }
 
@@ -30,8 +30,8 @@ KVQ2::KVQ2()
 
 KVQ2::KVQ2(const char* name) : KVSignal(name, "Charge")
 {
-	SetType(name);
-	init();
+   SetType(name);
+   init();
 }
 
 //________________________________________________________________
@@ -58,69 +58,69 @@ void KVQ2::Copy(TObject& obj) const
 
 void KVQ2::SetDefaultValues()
 {
-    SetChannelWidth(10);
-    SetBaseLineLength(500);
+   SetChannelWidth(10);
+   SetBaseLineLength(500);
 }
 
 void KVQ2::LoadPSAParameters()
 {
-	
-	Double_t val = GetPSAParameter("BaseLineLength");
-	SetBaseLineLength(val);
-	
-	val = GetPSAParameter("ChannelWidth");
-	SetChannelWidth(val);
-	
-	val = GetPSAParameter("TauRC");
-	SetTauRC(val);
-	
-	Double_t rise = GetPSAParameter("ShaperRiseTime");
-	val = GetPSAParameter("ShaperFlatTop");
-	SetTrapShaperParameters(rise,val);
-	
-	val = GetPSAParameter("PZCorrection");
-	SetPoleZeroCorrection( (val==1) );
 
-	val = GetPSAParameter("MinimumAmplitude");
-	SetAmplitudeTriggerValue( val );
+   Double_t val = GetPSAParameter("BaseLineLength");
+   SetBaseLineLength(val);
+
+   val = GetPSAParameter("ChannelWidth");
+   SetChannelWidth(val);
+
+   val = GetPSAParameter("TauRC");
+   SetTauRC(val);
+
+   Double_t rise = GetPSAParameter("ShaperRiseTime");
+   val = GetPSAParameter("ShaperFlatTop");
+   SetTrapShaperParameters(rise, val);
+
+   val = GetPSAParameter("PZCorrection");
+   SetPoleZeroCorrection((val == 1));
+
+   val = GetPSAParameter("MinimumAmplitude");
+   SetAmplitudeTriggerValue(val);
 }
 
 
 //________________________________________________________________
 void KVQ2::TreateSignal()
 {
-	if (GetN()==0) return;
-	if (!TestWidth())
-		ChangeChannelWidth(GetChannelWidth());
-	
-	ComputeBaseLine();
-	fBaseLine  = GetBaseLine();
-	fSigmaBase = GetSigmaBaseLine();
-	Add(-1.*fBaseLine);
-	ApplyModifications();
-	if(fWithPoleZeroCorrection)
-		PoleZeroSuppression(fTauRC);
-	FIR_ApplyTrapezoidal(fTrapRiseTime,fTrapFlatTop);
-	ComputeAmplitude();
-	fAmplitude = GetAmplitude();
-	SetADCData();
-	ComputeRiseTime();
-	fRiseTime = GetRiseTime();
-	
-	fPSAIsDone=kTRUE;
+   if (GetN() == 0) return;
+   if (!TestWidth())
+      ChangeChannelWidth(GetChannelWidth());
+
+   ComputeBaseLine();
+   fBaseLine  = GetBaseLine();
+   fSigmaBase = GetSigmaBaseLine();
+   Add(-1.*fBaseLine);
+   ApplyModifications();
+   if (fWithPoleZeroCorrection)
+      PoleZeroSuppression(fTauRC);
+   FIR_ApplyTrapezoidal(fTrapRiseTime, fTrapFlatTop);
+   ComputeAmplitude();
+   fAmplitude = GetAmplitude();
+   SetADCData();
+   ComputeRiseTime();
+   fRiseTime = GetRiseTime();
+
+   fPSAIsDone = kTRUE;
 }
- 
+
 KVPSAResult* KVQ2::GetPSAResult() const
 {
-	if (!fPSAIsDone) return 0;
-	
-	KVPSAResult *psa = new KVPSAResult();
-	psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
-	psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),fSigmaBase);
-	psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
-	psa->SetValue(Form("%s.%s.RiseTime",fDetName.Data(),fType.Data()),fRiseTime);
-	psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
-	return psa;
+   if (!fPSAIsDone) return 0;
+
+   KVPSAResult* psa = new KVPSAResult();
+   psa->SetValue(Form("%s.%s.BaseLine", fDetName.Data(), fType.Data()), fBaseLine);
+   psa->SetValue(Form("%s.%s.SigmaBaseLine", fDetName.Data(), fType.Data()), fSigmaBase);
+   psa->SetValue(Form("%s.%s.Amplitude", fDetName.Data(), fType.Data()), fAmplitude);
+   psa->SetValue(Form("%s.%s.RiseTime", fDetName.Data(), fType.Data()), fRiseTime);
+   psa->SetValue(Form("%s.%s.RawAmplitude", fDetName.Data(), fType.Data()), GetRawAmplitude());
+   return psa;
 
 }
 

@@ -36,16 +36,16 @@ ClassImp(KVFAZIAReconNuc);
 //
 //Nuclei reconstructed from data measured in the FAZIA array.
 //Most useful methods are already defined in parent classes KVReconstructedNucleus,
-//KVNucleus and KVParticle. 
+//KVNucleus and KVParticle.
 
 
 void KVFAZIAReconNuc::init()
 {
-	//default initialisations
-	if (gDataSet)
-		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVFAZIAReconNuc.MassFormula",Double_t(kEALMass))));
-		fECsI=fESi1=fESi2=0.;
-  	}
+   //default initialisations
+   if (gDataSet)
+      SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVFAZIAReconNuc.MassFormula", Double_t(kEALMass))));
+   fECsI = fESi1 = fESi2 = 0.;
+}
 
 KVFAZIAReconNuc::KVFAZIAReconNuc()
 {
@@ -53,14 +53,14 @@ KVFAZIAReconNuc::KVFAZIAReconNuc()
    init();
 }
 
-KVFAZIAReconNuc::KVFAZIAReconNuc(const KVFAZIAReconNuc & obj):
-    KVReconstructedNucleus()
+KVFAZIAReconNuc::KVFAZIAReconNuc(const KVFAZIAReconNuc& obj):
+   KVReconstructedNucleus()
 {
    //copy ctor
    init();
-	obj.Copy(*this);
+   obj.Copy(*this);
 
-	}
+}
 
 KVFAZIAReconNuc::~KVFAZIAReconNuc()
 {
@@ -68,7 +68,7 @@ KVFAZIAReconNuc::~KVFAZIAReconNuc()
    init();
 }
 
-void KVFAZIAReconNuc::Copy(TObject & obj) const
+void KVFAZIAReconNuc::Copy(TObject& obj) const
 {
    //
    //Copy this to obj
@@ -77,97 +77,115 @@ void KVFAZIAReconNuc::Copy(TObject & obj) const
 }
 
 
-void KVFAZIAReconNuc::Print(Option_t * option) const
+void KVFAZIAReconNuc::Print(Option_t* option) const
 {
 
    KVReconstructedNucleus::Print(option);
 
    if (IsIdentified()) {
-       
+
       cout << " =======> ";
-      cout << " Z=" << GetZ() << " A=" << ((KVFAZIAReconNuc *) this)->
-          GetA();
-      if(((KVFAZIAReconNuc *) this)->IsAMeasured()) cout << " Areal=" << ((KVFAZIAReconNuc *) this)->GetRealA();
+      cout << " Z=" << GetZ() << " A=" << ((KVFAZIAReconNuc*) this)->
+           GetA();
+      if (((KVFAZIAReconNuc*) this)->IsAMeasured()) cout << " Areal=" << ((KVFAZIAReconNuc*) this)->GetRealA();
       else cout << " Zreal=" << GetRealZ();
-      
+
    } else {
       cout << "(unidentified)" << endl;
    }
    if (IsCalibrated()) {
       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
-		cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
-      
+      cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
+
    } else {
       cout << "(uncalibrated)" << endl;
    }
 
-      cout << "Analysis : ";
-      switch (GetStatus()) {
+   cout << "Analysis : ";
+   switch (GetStatus()) {
       case 0:
          cout <<
-             "Particle alone in group, or identification independently of other"
-             << endl;
+              "Particle alone in group, or identification independently of other"
+              << endl;
          cout << "particles in group is directly possible." << endl;
          break;
 
       case 1:
          cout <<
-             "Particle status code 1"
-             << endl;
+              "Particle status code 1"
+              << endl;
          break;
 
       case 2:
          cout <<
-             "Particle status code 2"
-             << endl;
+              "Particle status code 2"
+              << endl;
          break;
 
       case 3:
          cout <<
-             "Particle stopped in first stage of telescope. Estimation of minimum Z."
-             << endl;
+              "Particle stopped in first stage of telescope. Estimation of minimum Z."
+              << endl;
          break;
 
       default:
          cout << GetStatus() << endl;
          break;
-      }
-  
+   }
+
    cout <<
-       "-------------------------------------------------------------------------------"
-       << endl;
+        "-------------------------------------------------------------------------------"
+        << endl;
 }
 
 //________________________________________________________________________________________
 
-void KVFAZIAReconNuc::Clear(Option_t * t)
+void KVFAZIAReconNuc::Clear(Option_t* t)
 {
    //reset nucleus' properties
    KVReconstructedNucleus::Clear(t);
    init();
-   
+
 }
 
-KVFAZIADetector *KVFAZIAReconNuc::Get(const Char_t* label) const
+KVFAZIADetector* KVFAZIAReconNuc::Get(const Char_t* label) const
 {
-   KVFAZIADetector *det = (KVFAZIADetector *) GetDetectorList()->FindObjectByLabel(label);
+   KVFAZIADetector* det = (KVFAZIADetector*) GetDetectorList()->FindObjectByLabel(label);
    return det;
 }
 
-KVFAZIADetector *KVFAZIAReconNuc::GetCSI() const { return Get("CSI"); }
-KVFAZIADetector *KVFAZIAReconNuc::GetSI1() const { return Get("SI1"); }
-KVFAZIADetector *KVFAZIAReconNuc::GetSI2() const { return Get("SI2"); }
+KVFAZIADetector* KVFAZIAReconNuc::GetCSI() const
+{
+   return Get("CSI");
+}
+KVFAZIADetector* KVFAZIAReconNuc::GetSI1() const
+{
+   return Get("SI1");
+}
+KVFAZIADetector* KVFAZIAReconNuc::GetSI2() const
+{
+   return Get("SI2");
+}
 
 
 Bool_t KVFAZIAReconNuc::StoppedIn(const Char_t* label) const
 {
    //Returns kTRUE if particle stopped in the labelled detector
-	return ( GetStoppingDetector() == Get(label) );
+   return (GetStoppingDetector() == Get(label));
 }
 
-Bool_t KVFAZIAReconNuc::StoppedInSI2() const { return StoppedIn("SI2"); }
-Bool_t KVFAZIAReconNuc::StoppedInSI1() const { return StoppedIn("SI1"); }
-Bool_t KVFAZIAReconNuc::StoppedInCSI() const { return StoppedIn("CSI"); }
+Bool_t KVFAZIAReconNuc::StoppedInSI2() const
+{
+   return StoppedIn("SI2");
+}
+Bool_t KVFAZIAReconNuc::StoppedInSI1() const
+{
+   return StoppedIn("SI1");
+}
+Bool_t KVFAZIAReconNuc::StoppedInCSI() const
+{
+   return StoppedIn("CSI");
+}
 
 // Int_t KVFAZIAReconNuc::GetIDSubCode(const Char_t * id_tel_type) const
 // {
@@ -187,7 +205,7 @@ Bool_t KVFAZIAReconNuc::StoppedInCSI() const { return StoppedIn("CSI"); }
 //    //to the identifying telescope (whose pointer is given by GetIdentifyingTelescope()).
 //    //
 //    //If no subcode exists (identification in given telescope type was not attempted, etc.) value returned is -1
-// 
+//
 //    KVIdentificationResult* ir = 0;
 //    if(strcmp(id_tel_type,"")) ir = GetIdentificationResult(id_tel_type);
 //    else ir = GetIdentificationResult(GetIdentifyingTelescope());
@@ -211,7 +229,7 @@ Bool_t KVFAZIAReconNuc::StoppedInCSI() const { return StoppedIn("CSI"); }
 //    //In case of problems:
 //    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
 //    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
-// 
+//
 //    KVIdentificationResult* ir = 0;
 //    if(strcmp(id_tel_type,"")) ir = GetIdentificationResult(id_tel_type);
 //    else ir = GetIdentificationResult(GetIdentifyingTelescope());
@@ -230,76 +248,74 @@ Bool_t KVFAZIAReconNuc::StoppedInCSI() const { return StoppedIn("CSI"); }
 
 void KVFAZIAReconNuc::Identify()
 {
-		KVIdentificationResult partID;
-		KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
-		//idt_list->ls();
-		if (idt_list && idt_list->GetSize() > 0) {
+   KVIdentificationResult partID;
+   KVList* idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+   //idt_list->ls();
+   if (idt_list && idt_list->GetSize() > 0) {
 
-        KVIDTelescope *idt;
-        TIter next(idt_list);
-        Int_t idnumber = 1;
+      KVIDTelescope* idt;
+      TIter next(idt_list);
+      Int_t idnumber = 1;
 
-        Bool_t goout = kFALSE;
-		  while ( (idt = (KVIDTelescope *) next()) && !goout ) {
-            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
-				//printf("idt getname : %s %d\n",idt->GetName(),idnumber);
+      Bool_t goout = kFALSE;
+      while ((idt = (KVIDTelescope*) next()) && !goout) {
+         KVIdentificationResult* IDR = GetIdentificationResult(idnumber++);
+         //printf("idt getname : %s %d\n",idt->GetName(),idnumber);
 
-                if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+         if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
 
-                    IDR->IDattempted = kTRUE;
-                    idt->Identify( IDR );
+            IDR->IDattempted = kTRUE;
+            idt->Identify(IDR);
 
-                    if(IDR->IDOK) { 
-						  		partID = *IDR; 
-								goout = kTRUE;
-						  }
-                }
-					else{
-						//printf("not ready\n");
-						IDR->IDattempted = kFALSE;
-					}
-                /*
-					 if(n_success_id<1 &&
-                        ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
-                    // the particle is less identifiable than initially thought
-                    // we may have to wait for secondary identification
-                    Int_t nseg = GetNSegDet();
-                    SetNSegDet(TMath::Max(nseg - 1, 0));
-                    //if there are other unidentified particles in the group and NSegDet is < 2
-                    //then exact status depends on segmentation of the other particles : reanalyse
-                    if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
-                        AnalyseParticlesInGroup(GetGroup());
-                        return;
-                    }
-                    //if NSegDet = 0 it's hopeless
-                    if (!GetNSegDet()){
-                        AnalyseParticlesInGroup(GetGroup());
-                        return;
-                    }
-                }
-					 */
+            if (IDR->IDOK) {
+               partID = *IDR;
+               goout = kTRUE;
+            }
+         } else {
+            //printf("not ready\n");
+            IDR->IDattempted = kFALSE;
+         }
+         /*
+         if(n_success_id<1 &&
+                 ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
+             // the particle is less identifiable than initially thought
+             // we may have to wait for secondary identification
+             Int_t nseg = GetNSegDet();
+             SetNSegDet(TMath::Max(nseg - 1, 0));
+             //if there are other unidentified particles in the group and NSegDet is < 2
+             //then exact status depends on segmentation of the other particles : reanalyse
+             if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
+                 AnalyseParticlesInGroup(GetGroup());
+                 return;
+             }
+             //if NSegDet = 0 it's hopeless
+             if (!GetNSegDet()){
+                 AnalyseParticlesInGroup(GetGroup());
+                 return;
+             }
+         }
+         */
 
 
-        }
-			
-		  //if (!strcmp(partID.GetType(), "Si-Si"))
-		  if (partID.IDOK){
-		  		SetIsIdentified();
-        		idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
-        		if( !idt ){
-        			Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
-        			GetIDTelescopes()->ls();
-        			partID.Print();
-        		}
-        		SetIdentifyingTelescope(  idt );
-        		SetIdentification( &partID );
-		  }
-		  else{
-		  		//partID.Print();
-		  }
-    }
-	 
-	 // INDRA-specific particle identification.
+      }
+
+      //if (!strcmp(partID.GetType(), "Si-Si"))
+      if (partID.IDOK) {
+         SetIsIdentified();
+         idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType(partID.GetType());
+         if (!idt) {
+            Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
+            GetIDTelescopes()->ls();
+            partID.Print();
+         }
+         SetIdentifyingTelescope(idt);
+         SetIdentification(&partID);
+      } else {
+         //partID.Print();
+      }
+   }
+
+   // INDRA-specific particle identification.
    // Here we attribute the Veda6-style general identification codes depending on the
    // result of KVReconstructedNucleus::Identify and the subcodes from the different
    // identification algorithms:
@@ -316,58 +332,58 @@ void KVFAZIAReconNuc::Identify()
    //EXCEPT if their identification in CsI R-L gave subcodes 6 or 7
    //(Zmin) then they are relabelled "Identified" with IDcode = 9 (ident. incomplete dans CsI ou Phoswich (Z.min))
    //Their "identifying" telescope is set to the CsI ID telescope
-   
+
 //    KVReconstructedNucleus::Identify();
-// 
+//
 //    KVIdentificationResult partID;
 //    Bool_t ok = kFALSE;
-// 
+//
 //    // INDRA coherency treatment
 //    if(GetRingNumber()<10)
 //    {
-// 		if(StoppedInCsI()){
-//    		// particles stopping in CsI detectors on rings 1-9
-//    		// check coherency of CsI-R/L and Si-CsI identifications
-//    		ok = CoherencySiCsI(partID);
-//    		// we check that the ChIo contribution is sane:
-//    		// if no other particles hit this group, the Z given by the ChIoSi
-//    		// must be <= the Z found from Si-CsI or CsI-RL identification
-// 
-//    		//if(fCoherent && !fPileup)
-//    		fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
-// 		}
-// 		else
-// 		{
-// 			// particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
-//    		Int_t id_no = 1;
-//    		KVIdentificationResult *pid = GetIdentificationResult(id_no);
-//    		while( pid && pid->IDattempted ){
-//    			if( pid->IDOK ){
-//    				ok = kTRUE;
-//    				partID = *pid;
-//    				break;
-//    			}
-//    			++id_no;
-//    			pid = GetIdentificationResult(id_no);
-//    		}
-// 			fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
-// 		}
+//       if(StoppedInCsI()){
+//          // particles stopping in CsI detectors on rings 1-9
+//          // check coherency of CsI-R/L and Si-CsI identifications
+//          ok = CoherencySiCsI(partID);
+//          // we check that the ChIo contribution is sane:
+//          // if no other particles hit this group, the Z given by the ChIoSi
+//          // must be <= the Z found from Si-CsI or CsI-RL identification
+//
+//          //if(fCoherent && !fPileup)
+//          fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
+//       }
+//       else
+//       {
+//          // particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
+//          Int_t id_no = 1;
+//          KVIdentificationResult *pid = GetIdentificationResult(id_no);
+//          while( pid && pid->IDattempted ){
+//             if( pid->IDOK ){
+//                ok = kTRUE;
+//                partID = *pid;
+//                break;
+//             }
+//             ++id_no;
+//             pid = GetIdentificationResult(id_no);
+//          }
+//          fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
+//       }
 //     }
 //    else
 //    {
 //        //identification couronne 10 a 17
 //        //Arret dans les CsI, coherence entre identification CsI RL et ChIo CsI
-// 
+//
 //        // if particle is alone in group, we can in principle attribute the ChIo energy
 //        // to the energy lost by this particle alone
 //        fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
 //        if (StoppedInCsI()){
-// 
+//
 //            if(GetSiLi()||GetSi75()) /* etalon module */
 //                ok = CoherencyEtalons(partID);
 //            else
 //                ok = CoherencyChIoCsI(partID);
-// 
+//
 //        }
 //        else if(StoppedInChIo()){
 //            // particle stopped in ChIo (=> Zmin)
@@ -388,45 +404,45 @@ void KVFAZIAReconNuc::Identify()
 //            // particle stopped in SiLi or Si75 (etalon modules)
 //            ok = CoherencyEtalons(partID);
 //        }
-// 
+//
 //    }
 //    if(ok){
 //         SetIsIdentified();
 //         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
 //         if( !idt ){
-//         	Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
-//         	GetIDTelescopes()->ls();
-//         	partID.Print();
+//          Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
+//          GetIDTelescopes()->ls();
+//          partID.Print();
 //         }
 //         SetIdentifyingTelescope(  idt );
 //         SetIdentification( &partID );
 //    }
-// 
+//
 //    if ( IsIdentified() ) {
-// 
+//
 //       /******* IDENTIFIED PARTICLES *******/
 //       if ( GetIdentifyingTelescope()->InheritsFrom("KVIDCsI") ) {   /**** CSI R-L IDENTIFICATION ****/
-// 
+//
 //          //Identified particles with ID code = 2 with subcodes 4 & 5
 //          //(masse hors limite superieure/inferieure) are relabelled
 //          //with kIDCode10 (identification entre les lignes CsI)
-// 
+//
 //          Int_t csi_subid = GetIDSubCode();
 //          if (csi_subid == KVIDGCsI::kICODE4 || csi_subid == KVIDGCsI::kICODE5) {
 //             SetIDCode(kIDCode10);
 //          }
-// 
+//
 //       }
-// 
+//
 //    }
 //    else
 //    {
-// 
+//
 //       /******* UNIDENTIFIED PARTICLES *******/
-// 
+//
 //       /*** general ID code for non-identified particles ***/
 //       SetIDCode( kIDCode14 );
-// 
+//
 //       KVIDCsI* idtel = (KVIDCsI*)GetIDTelescopes()->FindObjectByType("CSI_R_L");
 //       if( idtel ){
 //          //Particles remaining unidentified are checked: if their identification in CsI R-L gave subcodes 6 or 7
@@ -439,7 +455,7 @@ void KVFAZIAReconNuc::Identify()
 //             SetIdentifyingTelescope(idtel);
 //          }
 //       }
-// 
+//
 //    }
 }
 
@@ -448,26 +464,26 @@ void KVFAZIAReconNuc::Identify()
 void KVFAZIAReconNuc::Calibrate()
 {
    // Calculate and set the energy of a (previously identified) reconstructed particle.
-   
- /*
-	 if(GetRingNumber()<=9)
-        CalibrateRings1To9();
-    else
-        CalibrateRings10To17();
-	*/
 
-    SetIsCalibrated();
-    //add correction for target energy loss - moving charged particles only!
-    Double_t E_targ = 0.;
-    if(GetZ() && GetEnergy()>0) {
-        E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-        SetTargetEnergyLoss( E_targ );
-    }
-    Double_t E_tot = GetEnergy() + E_targ;
-    SetEnergy( E_tot );
-    // set particle momentum from telescope dimensions (random)
-    GetAnglesFromStoppingDetector();
-    //CheckCsIEnergy();
+   /*
+    if(GetRingNumber()<=9)
+          CalibrateRings1To9();
+      else
+          CalibrateRings10To17();
+   */
+
+   SetIsCalibrated();
+   //add correction for target energy loss - moving charged particles only!
+   Double_t E_targ = 0.;
+   if (GetZ() && GetEnergy() > 0) {
+      E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+      SetTargetEnergyLoss(E_targ);
+   }
+   Double_t E_tot = GetEnergy() + E_targ;
+   SetEnergy(E_tot);
+   // set particle momentum from telescope dimensions (random)
+   GetAnglesFromStoppingDetector();
+   //CheckCsIEnergy();
 
 }
 
@@ -477,7 +493,7 @@ void KVFAZIAReconNuc::Calibrate()
 //    SetNoCalibrationStatus();
 //    return;
 // }
-// 
+//
 // void KVFAZIAReconNuc::DoNeutronCalibration()
 // {
 //    // use energy of CsI calculated using the Z & A of the CsI identification
@@ -494,7 +510,7 @@ void KVFAZIAReconNuc::Calibrate()
 //        SetNoCalibrationStatus();
 //    }
 // }
-// 
+//
 // void KVFAZIAReconNuc::DoBeryllium8Calibration()
 // {
 //    // Beryllium-8 = 2 alpha particles of same energy
@@ -506,7 +522,7 @@ void KVFAZIAReconNuc::Calibrate()
 //    fECsI = -2.*GetCsI()->GetCorrectedEnergy(&tmp,half_light,kFALSE);
 //    SetECode(kECode2);
 // }
-// 
+//
 // Bool_t KVFAZIAReconNuc::CalculateSiliconDEFromResidualEnergy()
 // {
 //    // calculate fESi from fECsI
@@ -527,7 +543,7 @@ void KVFAZIAReconNuc::Calibrate()
 //    }
 //    return kTRUE;
 // }
-// 
+//
 // void KVFAZIAReconNuc::CalibrateRings1To9()
 // {
 //     // Special calibration for particles in rings 1 to 9
@@ -536,7 +552,7 @@ void KVFAZIAReconNuc::Calibrate()
 //     //    kECode1 = everything OK
 //     //    kECode2 = small warning, for example if energy loss in a detector is calculated
 //     //    kECode15 = bad, calibration is no good
-// 	// The contributions from ChIo, Si, and CsI are stored in member variables fEChIo, fESi, fECsI
+//    // The contributions from ChIo, Si, and CsI are stored in member variables fEChIo, fESi, fECsI
 //     // If the contribution is calculated rather than measured (see below), it is stored as a negative value.
 //     // NOTE: in no case do we ever calculate an energy for uncalibrated detector using measured energy
 //     //       loss in the detector placed in front (i.e. calculate ECsI from deSi, or calculate ESi
@@ -562,9 +578,9 @@ void KVFAZIAReconNuc::Calibrate()
 //     //    - if the Ionisation Chamber is not calibrated, or if coherency analysis indicates a pile-up
 //     //      in the ChIo or other inconsistency, this contribution is calculated using the total
 //     //      cumulated energy measured in the CsI and/or Silicon detectors (ECODE=kECode2)
-// 
+//
 //     fECsI=fESi=fEChIo=0;
-// 		
+//
 //     if(GetCodes().TestIDCode(kIDCode_Gamma)){
 //         DoGammaCalibration();
 //         return;
@@ -573,11 +589,11 @@ void KVFAZIAReconNuc::Calibrate()
 //         DoNeutronCalibration();
 //         return;
 //     }
-// 
+//
 //     SetECode(kECode1);
-// 
+//
 //     Bool_t stopped_in_silicon=kTRUE;
-// 
+//
 //     if(GetCsI()){
 //         stopped_in_silicon=kFALSE;
 //         if(GetCsI()->IsCalibrated()){
@@ -605,7 +621,7 @@ void KVFAZIAReconNuc::Calibrate()
 //     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
 //     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
 //     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
-// 
+//
 //         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
 //             // all is apparently well. use full energy deposited in silicon.
 //             Bool_t si_transmission=kTRUE;
@@ -642,7 +658,7 @@ void KVFAZIAReconNuc::Calibrate()
 //                 return;
 //             }
 //         }
-// 
+//
 //     }
 //     if(GetChIo()){
 //     /* CHIO ENERGY CONTRIBUTION */
@@ -681,7 +697,7 @@ void KVFAZIAReconNuc::Calibrate()
 //     }
 //      SetEnergy( TMath::Abs(fECsI) + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
 // }
-// 
+//
 // void KVFAZIAReconNuc::CalculateSiLiDEFromResidualEnergy(Double_t ERES)
 // {
 //    // Etalon modules
@@ -692,7 +708,7 @@ void KVFAZIAReconNuc::Calibrate()
 //     fESiLi = -TMath::Abs(fESiLi);
 //     SetECode(kECode2);
 // }
-// 
+//
 // void KVFAZIAReconNuc::CalculateSi75DEFromResidualEnergy(Double_t ERES)
 // {
 //    // Etalon modules
@@ -703,7 +719,7 @@ void KVFAZIAReconNuc::Calibrate()
 //    fESi75 = -TMath::Abs(fESi75);
 //    SetECode(kECode2);
 // }
-// 
+//
 // void KVFAZIAReconNuc::CalculateChIoDEFromResidualEnergy(Double_t ERES)
 // {
 //    // calculate fEChIo from residual energy
@@ -713,7 +729,7 @@ void KVFAZIAReconNuc::Calibrate()
 //    fEChIo = -TMath::Abs(fEChIo);
 //    SetECode(kECode2);
 // }
-// 
+//
 // //_________________________________________________________________________________
 // void KVFAZIAReconNuc::CalibrateRings10To17()
 // {
@@ -724,8 +740,8 @@ void KVFAZIAReconNuc::Calibrate()
 //     //    kECode2 = small warning, for example if energy loss in a detector is calculated
 //     //    kECode15 = bad, calibration is no good
 //     // The contributions from ChIo & CsI are stored in member variables fEChIo, fECsI
-// 	// If the contribution is calculated rather than measured, it is stored as a negative value
-// 
+//    // If the contribution is calculated rather than measured, it is stored as a negative value
+//
 //     fECsI=fEChIo=fESi75=fESiLi=0;
 //     if(GetCodes().TestIDCode(kIDCode_Gamma)){
 //        DoGammaCalibration();
@@ -737,7 +753,7 @@ void KVFAZIAReconNuc::Calibrate()
 //     // from the ChIo
 //     if(GetCodes().TestIDCode(kIDCode6) || GetCodes().TestIDCode(kIDCode7) || GetCodes().TestIDCode(kIDCode8))
 //        fUseFullChIoEnergyForCalib=kTRUE;
-// 
+//
 //     SetECode(kECode1);
 //     Bool_t stopped_in_chio=kTRUE;
 //     if(GetCsI()){
@@ -748,7 +764,7 @@ void KVFAZIAReconNuc::Calibrate()
 //        }
 //        else
 //           fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
-// 
+//
 //        if(fECsI<=0){
 //           SetBadCalibrationStatus();// bad - no CsI energy
 //           return;
@@ -841,29 +857,29 @@ void KVFAZIAReconNuc::Calibrate()
 //             }
 //         }
 //     }
-//     
-// 	 
+//
+//
 //      SetEnergy( fECsI + TMath::Abs(fESiLi) + TMath::Abs(fESi75) + TMath::Abs(fEChIo) );
 // }
-// 
+//
 // //________________________________________________________________________________//
-// 
+//
 // void KVFAZIAReconNuc::CheckCsIEnergy()
 // {
-// 	// Check calculated CsI energy loss of particle.
-// 	// If it is greater than the maximum theoretical energy loss
-// 	// (depending on the length of CsI, the Z & A of the particle)
-// 	// we set the energy calibration code to kECode3 (historical VEDA code
-// 	// for particles with E_csi > E_max_csi)
-// 	
-// 	KVDetector* csi = GetCsI();
+//    // Check calculated CsI energy loss of particle.
+//    // If it is greater than the maximum theoretical energy loss
+//    // (depending on the length of CsI, the Z & A of the particle)
+//    // we set the energy calibration code to kECode3 (historical VEDA code
+//    // for particles with E_csi > E_max_csi)
+//
+//    KVDetector* csi = GetCsI();
 //     if(csi && GetZ()>0 && GetZ()<3 && (csi->GetEnergy() > csi->GetMaxDeltaE(GetZ(), GetA()))) SetECode(kECode3);
 // }
-// 
+//
 // Int_t KVFAZIAReconNuc::GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode &) const
 // {
 //     // OBSOLETE METHOD
-// 
+//
 //     KVINDRAIDTelescope *idtel;
 //     if (strcmp(id_tel_type, ""))
 //         idtel =
@@ -876,13 +892,13 @@ void KVFAZIAReconNuc::Calibrate()
 // //    return idtel->GetIDSubCode(code);
 //     return -65535;
 // }
-// 
+//
 // //______________________________________________________________________________________________//
-// 
+//
 // const Char_t *KVFAZIAReconNuc::GetIDSubCodeString(const Char_t *id_tel_type,KVIDSubCode &) const
 // {
 //     // OBSOLETE METHOD
-// 
+//
 //     KVINDRAIDTelescope *idtel;
 //     if (strcmp(id_tel_type, ""))
 //         idtel =
@@ -900,66 +916,90 @@ void KVFAZIAReconNuc::Calibrate()
 //     //return idtel->GetIDSubCodeString(code);
 //     return id_tel_type;
 // }
-	void KVFAZIAReconNuc::MakeDetectorList()
-	{
-    // Protected method, called when required to fill fDetList with pointers to
-    // the detectors whose names are stored in fDetNames.
-    // If gMultiDetArray=0x0, fDetList list will be empty.
-		KVFAZIADetector* det = 0;
-		Double_t val=-1;
-		fDetList.Clear();
-		if ( gMultiDetArray ){
-			fDetNames.Begin("/");
-			while ( !fDetNames.End() ) {
-				det = (KVFAZIADetector* )gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
-				if ( det ) {
-					fDetList.Add(det);
-					if ( !strcmp(det->GetLabel(),"SI1") )
-					{
-						val = GetParameters()->GetDoubleValue(Form("%s.QL1.Amplitude",det->GetName()));		det->SetQL1Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QL1.RawAmplitude",det->GetName()));	det->SetQL1RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QL1.BaseLine",det->GetName()));		det->SetQL1BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QL1.SigmaBaseLine",det->GetName()));	det->SetQL1SigmaBaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime",det->GetName()));		det->SetQL1RiseTime(val);
-					
-						val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude",det->GetName()));  	det->SetQH1Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude",det->GetName()));  det->SetQH1RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QH1.BaseLine",det->GetName()));   	det->SetQH1BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QH1.SigmaBaseLine",det->GetName())); det->SetQH1SigmaBaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.QH1.RiseTime",det->GetName()));   	det->SetQH1RiseTime(val);
-					
-						val = GetParameters()->GetDoubleValue(Form("%s.I1.Amplitude",det->GetName()));  		det->SetI1Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I1.RawAmplitude",det->GetName()));  	det->SetI1RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I1.BaseLine",det->GetName()));   		det->SetI1BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine",det->GetName())); 	det->SetI1SigmaBaseLine(val);
-					
-					}
-					else if ( !strcmp(det->GetLabel(),"SI2") )
-					{
-					
-						val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude",det->GetName()));  	det->SetQ2Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude",det->GetName()));  det->SetQ2RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q2.BaseLine",det->GetName()));   	det->SetQ2BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q2.SigmaBaseLine",det->GetName())); det->SetQ2SigmaBaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q2.RiseTime",det->GetName()));   	det->SetQ2RiseTime(val);
-					
-						val = GetParameters()->GetDoubleValue(Form("%s.I2.Amplitude",det->GetName()));  		det->SetI2Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I2.RawAmplitude",det->GetName()));  	det->SetI2RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I2.BaseLine",det->GetName()));   		det->SetI2BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine",det->GetName())); 	det->SetI2SigmaBaseLine(val);
-					}
-					else if ( !strcmp(det->GetLabel(),"CSI") )
-					{
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude",det->GetName()));  	det->SetQ3Amplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude",det->GetName()));  det->SetQ3RawAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude",det->GetName()));  det->SetQ3FastAmplitude(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine",det->GetName()));   	det->SetQ3BaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine",det->GetName())); det->SetQ3SigmaBaseLine(val);
-						val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime",det->GetName()));   	det->SetQ3RiseTime(val);
-					
-					}
-					
-				}
-			} 
-		}
-	}	
+void KVFAZIAReconNuc::MakeDetectorList()
+{
+   // Protected method, called when required to fill fDetList with pointers to
+   // the detectors whose names are stored in fDetNames.
+   // If gMultiDetArray=0x0, fDetList list will be empty.
+   KVFAZIADetector* det = 0;
+   Double_t val = -1;
+   fDetList.Clear();
+   if (gMultiDetArray) {
+      fDetNames.Begin("/");
+      while (!fDetNames.End()) {
+         det = (KVFAZIADetector*)gMultiDetArray->GetDetector(fDetNames.Next(kTRUE));
+         if (det) {
+            fDetList.Add(det);
+            if (!strcmp(det->GetLabel(), "SI1")) {
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.Amplitude", det->GetName()));
+               det->SetQL1Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RawAmplitude", det->GetName()));
+               det->SetQL1RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.BaseLine", det->GetName()));
+               det->SetQL1BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.SigmaBaseLine", det->GetName()));
+               det->SetQL1SigmaBaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime", det->GetName()));
+               det->SetQL1RiseTime(val);
+
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude", det->GetName()));
+               det->SetQH1Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude", det->GetName()));
+               det->SetQH1RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.BaseLine", det->GetName()));
+               det->SetQH1BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.SigmaBaseLine", det->GetName()));
+               det->SetQH1SigmaBaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RiseTime", det->GetName()));
+               det->SetQH1RiseTime(val);
+
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.Amplitude", det->GetName()));
+               det->SetI1Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.RawAmplitude", det->GetName()));
+               det->SetI1RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.BaseLine", det->GetName()));
+               det->SetI1BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine", det->GetName()));
+               det->SetI1SigmaBaseLine(val);
+
+            } else if (!strcmp(det->GetLabel(), "SI2")) {
+
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude", det->GetName()));
+               det->SetQ2Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude", det->GetName()));
+               det->SetQ2RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.BaseLine", det->GetName()));
+               det->SetQ2BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.SigmaBaseLine", det->GetName()));
+               det->SetQ2SigmaBaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RiseTime", det->GetName()));
+               det->SetQ2RiseTime(val);
+
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.Amplitude", det->GetName()));
+               det->SetI2Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.RawAmplitude", det->GetName()));
+               det->SetI2RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.BaseLine", det->GetName()));
+               det->SetI2BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", det->GetName()));
+               det->SetI2SigmaBaseLine(val);
+            } else if (!strcmp(det->GetLabel(), "CSI")) {
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude", det->GetName()));
+               det->SetQ3Amplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude", det->GetName()));
+               det->SetQ3RawAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude", det->GetName()));
+               det->SetQ3FastAmplitude(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine", det->GetName()));
+               det->SetQ3BaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine", det->GetName()));
+               det->SetQ3SigmaBaseLine(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime", det->GetName()));
+               det->SetQ3RiseTime(val);
+
+            }
+
+         }
+      }
+   }
+}

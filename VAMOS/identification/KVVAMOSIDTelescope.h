@@ -7,27 +7,26 @@
 #include "KVINDRAIDTelescope.h"
 #include "KVIDZAGrid.h"
 
-class KVVAMOSIDTelescope : public KVINDRAIDTelescope
-{
-	protected:
+class KVVAMOSIDTelescope : public KVINDRAIDTelescope {
+protected:
 
-		KVDetector *fDEdet;//!
-		KVDetector *fEdet; //!
-		KVIDZAGrid *fGrid; //!
+   KVDetector* fDEdet;//!
+   KVDetector* fEdet; //!
+   KVIDZAGrid* fGrid; //!
 
-   	public:
+public:
 
-   		KVVAMOSIDTelescope();
-   		virtual ~KVVAMOSIDTelescope();
+   KVVAMOSIDTelescope();
+   virtual ~KVVAMOSIDTelescope();
 
-   		virtual const Char_t *GetArrayName();
+   virtual const Char_t* GetArrayName();
 
-   		virtual Bool_t Identify(KVIdentificationResult *, Double_t x=-1., Double_t y=-1.);
-   		virtual void Initialize();
+   virtual Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
+   virtual void Initialize();
 
-   	//	virtual const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
+   // virtual const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
-   		ClassDef(KVVAMOSIDTelescope,1)//A deltaE-E identification telescope in VAMOS
+   ClassDef(KVVAMOSIDTelescope, 1) //A deltaE-E identification telescope in VAMOS
 };
 
 #endif

@@ -27,30 +27,30 @@
 
 using namespace RooFit;
 
-BackTrack::Simple2DModel* model=0;
+BackTrack::Simple2DModel* model = 0;
 
 void simple2Dmodel_ex1()
 {
    model = new BackTrack::Simple2DModel();
-   
+
    // Generate data with correlated parameter distribution
    model->SetNumGen(5000);
-   RooDataSet data("data","data to be fitted",model->GetObservables());
-   RooDataSet params("params","input parameters",model->GetParameters());
+   RooDataSet data("data", "data to be fitted", model->GetObservables());
+   RooDataSet params("params", "input parameters", model->GetParameters());
    RooRealVar& PAR1 = model->GetParameter("par1");
    RooRealVar& PAR2 = model->GetParameter("par2");
-   for(int i=0;i<model->GetNumGen();i++){
-      Double_t par1 = gRandom->Gaus(5,2);
-      Double_t par2 = gRandom->Gaus(0,5);
+   for (int i = 0; i < model->GetNumGen(); i++) {
+      Double_t par1 = gRandom->Gaus(5, 2);
+      Double_t par2 = gRandom->Gaus(0, 5);
       PAR1.setVal(par1);
       PAR2.setVal(par2);
-      model->generateEvent(RooArgList(PAR1,PAR2),data);
-      params.add(model->GetParameters(),1./5000.);
+      model->generateEvent(RooArgList(PAR1, PAR2), data);
+      params.add(model->GetParameters(), 1. / 5000.);
    }
-   TH1* hh_data = data.createHistogram("obs1,obs2",50,50) ;
+   TH1* hh_data = data.createHistogram("obs1,obs2", 50, 50) ;
    hh_data->Draw("col");
 
-   TH1* hh_params = params.createHistogram("par1,par2",PAR1.getBins(),PAR2.getBins()) ;
+   TH1* hh_params = params.createHistogram("par1,par2", PAR1.getBins(), PAR2.getBins()) ;
    new TCanvas;
    hh_params->SetName("inputParameters");
    hh_params->Draw("lego");

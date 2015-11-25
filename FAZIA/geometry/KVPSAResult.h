@@ -6,16 +6,15 @@
 
 #include "KVNameValueList.h"
 
-class KVPSAResult : public KVNameValueList
-{
+class KVPSAResult : public KVNameValueList {
 
-   public:
+public:
    KVPSAResult();
    KVPSAResult(const Char_t* name, const Char_t* title = "");
    virtual ~KVPSAResult();
    void Copy(TObject& obj) const;
 
-   ClassDef(KVPSAResult,1)//class to store PSA parameters and results
+   ClassDef(KVPSAResult, 1) //class to store PSA parameters and results
 };
 
 #endif

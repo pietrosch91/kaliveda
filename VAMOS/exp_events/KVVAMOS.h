@@ -22,203 +22,269 @@ class KVVAMOSTransferMatrix;
 class KVVAMOSReconGeoNavigator;
 class KVReconstructedNucleus;
 
-class KVVAMOS : public KVMultiDetArray
-{
+class KVVAMOS : public KVMultiDetArray {
 
-	private:
+private:
 
-		enum{
-			kGeoModified = BIT(21)  //flag set when the geometry is modified
-		};
+   enum {
+      kGeoModified = BIT(21)  //flag set when the geometry is modified
+   };
 
-		static KVString fACQParamTypes; //!types of available Acquision parameters
-		static KVString fPositionTypes; //!types of available positions
+   static KVString fACQParamTypes; //!types of available Acquision parameters
+   static KVString fPositionTypes; //!types of available positions
 
-	protected:
+protected:
 
-		Double_t    fAngle;        //!Angular rotation around the target (deg)
-		Double_t    fBrhoRef;      //!Reference magnetic rigidity (T.m)
-		Double_t    fBeamHF;       //!High frequency of the beam (MHz)
-		KVHashList *fCalibrators;  //References to calibrator associated to detectors
-		KVList     *fFiredDets;    //!List of fired detectors of VAMOS
-		Double_t    fFocalPos;     //!Position of the focal plane from target center (in cm)
-		TGeoHMatrix fFocalToTarget;//!focal-plane to target position transformation matrix
-		TGeoVolume *fFPvolume;     //!TGeoVolume centered on the focal plane
-		UInt_t      fGr;           //!Used to number groups
-		TGeoRotation          *fRotation;   //!rotation matrix around the target
-		KVMaterial            *fStripFoil; //stripping foil used in experiment
-		Double_t               fStripFoilPos; // distance between the target point and the stripping foil
-		KVVAMOSReconGeoNavigator *fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
-		KVVAMOSTransferMatrix *fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
-		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
-		TGeoVolume  *fVAMOSvol;    //!TGeoVolume of VAMOS 
-		KVList      *fVCalibrators;//->References to calibrator belonging to VAMOS
-
-
-   		virtual void   BuildFocalPlaneGeometry( TEnv *infos );
-   		virtual Bool_t BuildGeoVolume( TEnv *infos );
-   		virtual void   BuildVAMOSGeometry();
-   		virtual void   InitGeometry();
-   		virtual Int_t  LoadGeoInfosIn( TEnv *infos );
-   		virtual void   MakeListOfDetectors();
-		virtual Bool_t ReadDetectorGroupFile( ifstream &ifile );
-   		virtual void   SetArrayACQParams();
-   		virtual void   SetCalibrators();
-   		virtual void   SetGroupsAndIDTelescopes();
-		virtual void   UpdateGeometry();
+   Double_t    fAngle;        //!Angular rotation around the target (deg)
+   Double_t    fBrhoRef;      //!Reference magnetic rigidity (T.m)
+   Double_t    fBeamHF;       //!High frequency of the beam (MHz)
+   KVHashList* fCalibrators;  //References to calibrator associated to detectors
+   KVList*     fFiredDets;    //!List of fired detectors of VAMOS
+   Double_t    fFocalPos;     //!Position of the focal plane from target center (in cm)
+   TGeoHMatrix fFocalToTarget;//!focal-plane to target position transformation matrix
+   TGeoVolume* fFPvolume;     //!TGeoVolume centered on the focal plane
+   UInt_t      fGr;           //!Used to number groups
+   TGeoRotation*          fRotation;   //!rotation matrix around the target
+   KVMaterial*            fStripFoil; //stripping foil used in experiment
+   Double_t               fStripFoilPos; // distance between the target point and the stripping foil
+   KVVAMOSReconGeoNavigator* fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
+   KVVAMOSTransferMatrix* fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
+   KVList*      fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
+   TGeoVolume*  fVAMOSvol;    //!TGeoVolume of VAMOS
+   KVList*      fVCalibrators;//->References to calibrator belonging to VAMOS
 
 
-   	public:
+   virtual void   BuildFocalPlaneGeometry(TEnv* infos);
+   virtual Bool_t BuildGeoVolume(TEnv* infos);
+   virtual void   BuildVAMOSGeometry();
+   virtual void   InitGeometry();
+   virtual Int_t  LoadGeoInfosIn(TEnv* infos);
+   virtual void   MakeListOfDetectors();
+   virtual Bool_t ReadDetectorGroupFile(ifstream& ifile);
+   virtual void   SetArrayACQParams();
+   virtual void   SetCalibrators();
+   virtual void   SetGroupsAndIDTelescopes();
+   virtual void   UpdateGeometry();
 
-   		KVVAMOS();
-   		KVVAMOS ( const KVVAMOS &) ;
-   		virtual ~KVVAMOS();
 
-   		void init();
+public:
 
-   		        void     AddACQParam  ( KVACQParam* par, Bool_t owner );
-   		        Bool_t   AddCalibrator( KVCalibrator *cal, Bool_t owner = kFALSE );
-   		virtual void     Build(Int_t run=-1);
-   		virtual void     Clear( Option_t *opt = "" );
-   		        void     Copy ( TObject & ) const;
-   		        void     FocalToTarget( const Double_t *focal, Double_t *target );
-   		        void     FocalToTargetVect( const Double_t *focal, Double_t *target );
-   		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );
-		virtual void	 GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
- 		virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
-		KVVAMOSReconGeoNavigator *GetReconNavigator();
-		KVVAMOSTransferMatrix *GetTransferMatrix();
-   		virtual void     Initialize();
-   		static  KVVAMOS *MakeVAMOS( const Char_t* name );
-		virtual void     ResetParameters();
-		        void     SetStripFoil( KVMaterial *foil, Double_t pos=0 );
-		        void     SetStripFoil( const Char_t *material, const Float_t area_density, Double_t pos  );
-		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
-   		        void     TargetToFocal( const Double_t *target, Double_t *focal );
-   		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
+   KVVAMOS();
+   KVVAMOS(const KVVAMOS&) ;
+   virtual ~KVVAMOS();
 
-   		// ----- inline methods
+   void init();
 
-		void          GeoModified();
-		Double_t      GetAngle()                            const;
-		Double_t      GetBeamHF()                           const;
-		Double_t      GetBeamPeriod()                       const;
-		Double_t      GetBrhoRef()                          const;
-		KVCalibrator *GetCalibrator( const Char_t * type )  const;
-		Double_t      GetFocalPlanePosition()               const;
-		TGeoVolume   *GetFocalPlaneVolume()                 const;
-   		TGeoHMatrix   GetFocalToTargetMatrix();
-   		TGeoVolume   *GetGeoVolume()                        const;
-		KVHashList   *GetListOfCalibrators()                const;
-   		KVList       *GetListOfVCalibrators()               const;
-		KVMaterial   *GetStripFoil()                        const;
-		Double_t      GetStripFoilPosition()                const;
-		Int_t         GetTrigger()                          const;
- 		KVACQParam   *GetVACQParam(const Char_t * name);
-   		KVList       *GetVACQParams()                       const;
-   		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
-		Bool_t        IsGeoModified()                       const;
-		void          SetAngle( Double_t angle );
-		void          SetBeamHF( Double_t hf );
-		void          SetBrhoRef( Double_t Brho );
-		void          SetCurrentRunNumber( UInt_t run );
+   void     AddACQParam(KVACQParam* par, Bool_t owner);
+   Bool_t   AddCalibrator(KVCalibrator* cal, Bool_t owner = kFALSE);
+   virtual void     Build(Int_t run = -1);
+   virtual void     Clear(Option_t* opt = "");
+   void     Copy(TObject&) const;
+   void     FocalToTarget(const Double_t* focal, Double_t* target);
+   void     FocalToTargetVect(const Double_t* focal, Double_t* target);
+   virtual KVList*  GetFiredDetectors(Option_t* opt = "Pany");
+   virtual void    GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+   virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
+   KVVAMOSReconGeoNavigator* GetReconNavigator();
+   KVVAMOSTransferMatrix* GetTransferMatrix();
+   virtual void     Initialize();
+   static  KVVAMOS* MakeVAMOS(const Char_t* name);
+   virtual void     ResetParameters();
+   void     SetStripFoil(KVMaterial* foil, Double_t pos = 0);
+   void     SetStripFoil(const Char_t* material, const Float_t area_density, Double_t pos);
+   void     SetTransferMatrix(KVVAMOSTransferMatrix* mat);
+   void     TargetToFocal(const Double_t* target, Double_t* focal);
+   void     TargetToFocalVect(const Double_t* target, Double_t* focal);
 
-		//----- static methods
+   // ----- inline methods
 
-		static UInt_t    CalculateUniqueID ( KVBase *param, KVVAMOSDetector *det = NULL );
-		static UChar_t   GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
-		static UChar_t   GetACQParamTypeIdxFromID( UInt_t id ){ return (id/1000)%10;  }
-		static KVString &GetACQParamTypes(){ return fACQParamTypes;	}
-		static UChar_t   GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
-		static UChar_t   GetPositionTypeIdxFromID( UInt_t id ){ return (id/10000)%10;	}
-		static KVString &GetPositionTypes(){ return fPositionTypes;	}
-		static Bool_t    IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det = NULL );
+   void          GeoModified();
+   Double_t      GetAngle()                            const;
+   Double_t      GetBeamHF()                           const;
+   Double_t      GetBeamPeriod()                       const;
+   Double_t      GetBrhoRef()                          const;
+   KVCalibrator* GetCalibrator(const Char_t* type)  const;
+   Double_t      GetFocalPlanePosition()               const;
+   TGeoVolume*   GetFocalPlaneVolume()                 const;
+   TGeoHMatrix   GetFocalToTargetMatrix();
+   TGeoVolume*   GetGeoVolume()                        const;
+   KVHashList*   GetListOfCalibrators()                const;
+   KVList*       GetListOfVCalibrators()               const;
+   KVMaterial*   GetStripFoil()                        const;
+   Double_t      GetStripFoilPosition()                const;
+   Int_t         GetTrigger()                          const;
+   KVACQParam*   GetVACQParam(const Char_t* name);
+   KVList*       GetVACQParams()                       const;
+   KVCalibrator* GetVCalibrator(const Char_t* type) const;
+   Bool_t        IsGeoModified()                       const;
+   void          SetAngle(Double_t angle);
+   void          SetBeamHF(Double_t hf);
+   void          SetBrhoRef(Double_t Brho);
+   void          SetCurrentRunNumber(UInt_t run);
 
-   		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
+   //----- static methods
+
+   static UInt_t    CalculateUniqueID(KVBase* param, KVVAMOSDetector* det = NULL);
+   static UChar_t   GetACQParamTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
+   static UChar_t   GetACQParamTypeIdxFromID(UInt_t id)
+   {
+      return (id / 1000) % 10;
+   }
+   static KVString& GetACQParamTypes()
+   {
+      return fACQParamTypes;
+   }
+   static UChar_t   GetPositionTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
+   static UChar_t   GetPositionTypeIdxFromID(UInt_t id)
+   {
+      return (id / 10000) % 10;
+   }
+   static KVString& GetPositionTypes()
+   {
+      return fPositionTypes;
+   }
+   static Bool_t    IsUsedToMeasure(const Char_t* type, KVVAMOSDetector* det = NULL);
+
+   ClassDef(KVVAMOS, 1) //VAMOS: variable mode spectrometer at GANIL
 };
 
 //_________________________________________________________________________
 
-inline void KVVAMOS::GeoModified() { SetBit( kGeoModified ); }
-
-
-inline Double_t    KVVAMOS::GetAngle()      const { return fAngle;     }
-inline Double_t    KVVAMOS::GetBeamHF()     const { return fBeamHF;    }
-
-
-inline Double_t KVVAMOS::GetBeamPeriod() const {
-	//Return the beam period in ns
- 	return 1.e3/fBeamHF;
+inline void KVVAMOS::GeoModified()
+{
+   SetBit(kGeoModified);
 }
 
 
-inline Double_t KVVAMOS::GetBrhoRef() const { return fBrhoRef; }
-
-
-inline KVCalibrator *KVVAMOS::GetCalibrator( const Char_t * type ) const {
-   	if ( fCalibrators )
-      	return (KVCalibrator *)fCalibrators->FindObjectByType(type);
-   	return 0;
+inline Double_t    KVVAMOS::GetAngle()      const
+{
+   return fAngle;
 }
-
-inline Double_t KVVAMOS::GetFocalPlanePosition()  const { return fFocalPos; }
-inline TGeoVolume *KVVAMOS::GetFocalPlaneVolume() const { return fFPvolume; }
-
-
-inline TGeoHMatrix KVVAMOS::GetFocalToTargetMatrix(){ 
-	if( IsGeoModified() ) UpdateGeometry();
-	return fFocalToTarget; 
+inline Double_t    KVVAMOS::GetBeamHF()     const
+{
+   return fBeamHF;
 }
 
 
-inline TGeoVolume *KVVAMOS::GetGeoVolume() const {
-	// Returns the global TGeoVolume of VAMOS built when the method
-	// BuildVAMOSGeometry() is called.
-	return fVAMOSvol;
+inline Double_t KVVAMOS::GetBeamPeriod() const
+{
+   //Return the beam period in ns
+   return 1.e3 / fBeamHF;
 }
 
 
-inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators;  }
-inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
-
-inline KVMaterial *KVVAMOS::GetStripFoil()           const { return fStripFoil;    }
-inline Double_t KVVAMOS::GetStripFoilPosition()      const { return fStripFoilPos; }
-inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
-
-inline KVACQParam *KVVAMOS::GetVACQParam(const Char_t * name){
-    return (KVACQParam *) fVACQParams->FindObject(name);
-}
-
-inline KVList *KVVAMOS::GetVACQParams() const { return fVACQParams; }
-
-
-inline KVCalibrator *KVVAMOS::GetVCalibrator( const Char_t * type ) const{
-   	if ( fVCalibrators )
-      	return (KVCalibrator *)fVCalibrators->FindObjectByType( type );
-   	return 0;
+inline Double_t KVVAMOS::GetBrhoRef() const
+{
+   return fBrhoRef;
 }
 
 
-inline Bool_t KVVAMOS::IsGeoModified() const { return TestBit( kGeoModified ); }
+inline KVCalibrator* KVVAMOS::GetCalibrator(const Char_t* type) const
+{
+   if (fCalibrators)
+      return (KVCalibrator*)fCalibrators->FindObjectByType(type);
+   return 0;
+}
 
-
-inline void KVVAMOS::SetAngle ( Double_t angle ){
-	if( fAngle == angle ) return;
- 	fAngle = angle;
-	if( fRotation ){ 
-		fRotation->Clear();
-		fRotation->RotateY( angle ); 
-	}
-	GeoModified();
+inline Double_t KVVAMOS::GetFocalPlanePosition()  const
+{
+   return fFocalPos;
+}
+inline TGeoVolume* KVVAMOS::GetFocalPlaneVolume() const
+{
+   return fFPvolume;
 }
 
 
-inline void KVVAMOS::SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;   }
-inline void KVVAMOS::SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho; }
-inline void KVVAMOS::SetCurrentRunNumber( UInt_t run ){ fCurrentRun = run; }
+inline TGeoHMatrix KVVAMOS::GetFocalToTargetMatrix()
+{
+   if (IsGeoModified()) UpdateGeometry();
+   return fFocalToTarget;
+}
+
+
+inline TGeoVolume* KVVAMOS::GetGeoVolume() const
+{
+   // Returns the global TGeoVolume of VAMOS built when the method
+   // BuildVAMOSGeometry() is called.
+   return fVAMOSvol;
+}
+
+
+inline KVHashList* KVVAMOS::GetListOfCalibrators()   const
+{
+   return fCalibrators;
+}
+inline KVList*     KVVAMOS::GetListOfVCalibrators()  const
+{
+   return fVCalibrators;
+}
+
+inline KVMaterial* KVVAMOS::GetStripFoil()           const
+{
+   return fStripFoil;
+}
+inline Double_t KVVAMOS::GetStripFoilPosition()      const
+{
+   return fStripFoilPos;
+}
+inline Int_t       KVVAMOS::GetTrigger()             const
+{
+   return 1;
+}
+
+inline KVACQParam* KVVAMOS::GetVACQParam(const Char_t* name)
+{
+   return (KVACQParam*) fVACQParams->FindObject(name);
+}
+
+inline KVList* KVVAMOS::GetVACQParams() const
+{
+   return fVACQParams;
+}
+
+
+inline KVCalibrator* KVVAMOS::GetVCalibrator(const Char_t* type) const
+{
+   if (fVCalibrators)
+      return (KVCalibrator*)fVCalibrators->FindObjectByType(type);
+   return 0;
+}
+
+
+inline Bool_t KVVAMOS::IsGeoModified() const
+{
+   return TestBit(kGeoModified);
+}
+
+
+inline void KVVAMOS::SetAngle(Double_t angle)
+{
+   if (fAngle == angle) return;
+   fAngle = angle;
+   if (fRotation) {
+      fRotation->Clear();
+      fRotation->RotateY(angle);
+   }
+   GeoModified();
+}
+
+
+inline void KVVAMOS::SetBeamHF(Double_t hf)
+{
+   fBeamHF   = hf;
+}
+inline void KVVAMOS::SetBrhoRef(Double_t Brho)
+{
+   fBrhoRef  = Brho;
+}
+inline void KVVAMOS::SetCurrentRunNumber(UInt_t run)
+{
+   fCurrentRun = run;
+}
 
 
 //................  global variable
-R__EXTERN KVVAMOS *gVamos;
+R__EXTERN KVVAMOS* gVamos;
 
 #endif

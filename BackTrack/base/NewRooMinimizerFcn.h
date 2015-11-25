@@ -17,79 +17,117 @@
 
 class NewRooMinimizer;
 
-class NewRooMinimizerFcn : public ROOT::Math::IBaseFunctionMultiDim
-{
+class NewRooMinimizerFcn : public ROOT::Math::IBaseFunctionMultiDim {
 
- public:
- 
-  NewRooMinimizerFcn(RooAbsReal *funct, NewRooMinimizer *context, 
-	       bool verbose = false);
-  NewRooMinimizerFcn(const NewRooMinimizerFcn& other);
-  virtual ~NewRooMinimizerFcn();
+public:
 
-  virtual ROOT::Math::IBaseFunctionMultiDim* Clone() const;
-  virtual unsigned int NDim() const { return _nDim; }
+   NewRooMinimizerFcn(RooAbsReal* funct, NewRooMinimizer* context,
+                      bool verbose = false);
+   NewRooMinimizerFcn(const NewRooMinimizerFcn& other);
+   virtual ~NewRooMinimizerFcn();
 
-  RooArgList* GetFloatParamList() { return _floatParamList; }
-  RooArgList* GetConstParamList() { return _constParamList; }
-  RooArgList* GetInitFloatParamList() { return _initFloatParamList; }
-  RooArgList* GetInitConstParamList() { return _initConstParamList; }
+   virtual ROOT::Math::IBaseFunctionMultiDim* Clone() const;
+   virtual unsigned int NDim() const
+   {
+      return _nDim;
+   }
 
-  void SetEvalErrorWall(Bool_t flag) { _doEvalErrorWall = flag ; }
-  void SetPrintEvalErrors(Int_t numEvalErrors) { _printEvalErrors = numEvalErrors ; }
-  Bool_t SetLogFile(const char* inLogfile);
-  std::ofstream* GetLogFile() { return _logfile; }
-  void SetVerbose(Bool_t flag=kTRUE) { _verbose = flag ; }
+   RooArgList* GetFloatParamList()
+   {
+      return _floatParamList;
+   }
+   RooArgList* GetConstParamList()
+   {
+      return _constParamList;
+   }
+   RooArgList* GetInitFloatParamList()
+   {
+      return _initFloatParamList;
+   }
+   RooArgList* GetInitConstParamList()
+   {
+      return _initConstParamList;
+   }
 
-  Double_t& GetMaxFCN() { return _maxFCN; }
-  Int_t GetNumInvalidNLL() { return _numBadNLL; }
+   void SetEvalErrorWall(Bool_t flag)
+   {
+      _doEvalErrorWall = flag ;
+   }
+   void SetPrintEvalErrors(Int_t numEvalErrors)
+   {
+      _printEvalErrors = numEvalErrors ;
+   }
+   Bool_t SetLogFile(const char* inLogfile);
+   std::ofstream* GetLogFile()
+   {
+      return _logfile;
+   }
+   void SetVerbose(Bool_t flag = kTRUE)
+   {
+      _verbose = flag ;
+   }
 
-  Bool_t Synchronize(std::vector<ROOT::Fit::ParameterSettings>& parameters, 
-		     Bool_t optConst, Bool_t verbose);
-  void BackProp(const ROOT::Fit::FitResult &results);  
-  void ApplyCovarianceMatrix(TMatrixDSym& V); 
+   Double_t& GetMaxFCN()
+   {
+      return _maxFCN;
+   }
+   Int_t GetNumInvalidNLL()
+   {
+      return _numBadNLL;
+   }
 
-  Int_t evalCounter() const { return _evalCounter ; }
-  void zeroEvalCount() { _evalCounter = 0 ; }
-  
- 
- protected:
- 
-  Double_t GetPdfParamVal(Int_t index);
-  Double_t GetPdfParamErr(Int_t index);
-  void SetPdfParamErr(Int_t index, Double_t value);
-  void ClearPdfParamAsymErr(Int_t index);
-  void SetPdfParamErr(Int_t index, Double_t loVal, Double_t hiVal);
+   Bool_t Synchronize(std::vector<ROOT::Fit::ParameterSettings>& parameters,
+                      Bool_t optConst, Bool_t verbose);
+   void BackProp(const ROOT::Fit::FitResult& results);
+   void ApplyCovarianceMatrix(TMatrixDSym& V);
 
-  inline Bool_t SetPdfParamVal(const Int_t &index, const Double_t &value) const;
+   Int_t evalCounter() const
+   {
+      return _evalCounter ;
+   }
+   void zeroEvalCount()
+   {
+      _evalCounter = 0 ;
+   }
 
 
-  virtual double DoEval(const double * x) const;  
-  void updateFloatVec() ;  
-  
-  mutable Int_t _evalCounter ;
-  
-  RooAbsReal *_funct;
-  NewRooMinimizer *_context;
+protected:
 
-  mutable double _maxFCN;
-  mutable int _numBadNLL;
-  mutable int _printEvalErrors;
-  Bool_t _doEvalErrorWall;
+   Double_t GetPdfParamVal(Int_t index);
+   Double_t GetPdfParamErr(Int_t index);
+   void SetPdfParamErr(Int_t index, Double_t value);
+   void ClearPdfParamAsymErr(Int_t index);
+   void SetPdfParamErr(Int_t index, Double_t loVal, Double_t hiVal);
 
-  int _nDim;
-  std::ofstream *_logfile;
-  bool _verbose;
+   inline Bool_t SetPdfParamVal(const Int_t& index, const Double_t& value) const;
 
-  RooArgList* _floatParamList;
-  std::vector<RooAbsArg*> _floatParamVec ;
-  RooArgList* _constParamList;
-  RooArgList* _initFloatParamList;
-  RooArgList* _initConstParamList;
-  
-  
 
- ClassDef(NewRooMinimizerFcn,1)//Modified Roofit class RooMinimizerFcn in order to use it with NewRooMinimizer
+   virtual double DoEval(const double* x) const;
+   void updateFloatVec() ;
+
+   mutable Int_t _evalCounter ;
+
+   RooAbsReal* _funct;
+   NewRooMinimizer* _context;
+
+   mutable double _maxFCN;
+   mutable int _numBadNLL;
+   mutable int _printEvalErrors;
+   Bool_t _doEvalErrorWall;
+
+   int _nDim;
+   std::ofstream* _logfile;
+   bool _verbose;
+
+   RooArgList* _floatParamList;
+   std::vector<RooAbsArg*> _floatParamVec ;
+   RooArgList* _constParamList;
+   RooArgList* _initFloatParamList;
+   RooArgList* _initConstParamList;
+
+
+
+   ClassDef(NewRooMinimizerFcn, 1) //Modified Roofit class RooMinimizerFcn in order to use it with NewRooMinimizer
 };
 
 #endif

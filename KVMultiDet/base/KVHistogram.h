@@ -9,24 +9,29 @@
 #include "TCutG.h"
 #include "KVNameValueList.h"
 
-class KVHistogram : public KVBase
-{
-   protected:
+class KVHistogram : public KVBase {
+protected:
    TH1* fHisto;//pointer to histogram
    TCutG* fCut;//pointer to cut
    KVNameValueList fParams;//histogram parameters
 
-   public:
-   KVHistogram(TH1* h=0);
+public:
+   KVHistogram(TH1* h = 0);
    KVHistogram(TCutG* cut);
    virtual ~KVHistogram();
 
    static void ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel, KVString& weight);
-   static void ParseExpressionString(const Char_t *exp, KVString& varX, KVString& varY,
+   static void ParseExpressionString(const Char_t* exp, KVString& varX, KVString& varY,
                                      KVString& varZ);
 
-   TH1* GetHisto() const { return fHisto; }
-   TCutG* GetCut() const { return fCut; }
+   TH1* GetHisto() const
+   {
+      return fHisto;
+   }
+   TCutG* GetCut() const
+   {
+      return fCut;
+   }
    const Char_t* GetExpression() const;
    const Char_t* GetHistoTitle() const;
    const Char_t* GetVarX() const;
@@ -36,12 +41,12 @@ class KVHistogram : public KVBase
    const Char_t* GetWeight() const;
    void SetWeight(const Char_t*);
 
-   void ls(Option_t *option = "") const;
+   void ls(Option_t* option = "") const;
 
    TObject* GetObject() const;
    void ParseExpressionAndSelection();
 
-   ClassDef(KVHistogram,1)//Wrapper for histograms used by KVTreeAnalyzer
+   ClassDef(KVHistogram, 1) //Wrapper for histograms used by KVTreeAnalyzer
 };
 
 #endif

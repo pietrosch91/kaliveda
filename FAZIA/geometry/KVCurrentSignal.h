@@ -7,25 +7,24 @@
 #include "KVSignal.h"
 #include "KVPSAResult.h"
 
-class KVCurrentSignal : public KVSignal
-{
+class KVCurrentSignal : public KVSignal {
 
-   protected:
-	void init();
-	
-	public:
+protected:
+   void init();
+
+public:
    KVCurrentSignal();
    KVCurrentSignal(const char* name);
-   
+
    virtual ~KVCurrentSignal();
    void Copy(TObject& obj) const;
 
    virtual void SetDefaultValues();
-	virtual void LoadPSAParameters(); 
-   
-	//virtual KVPSAResult* TreateSignal();
+   virtual void LoadPSAParameters();
 
-   ClassDef(KVCurrentSignal,1)//digitized intensity signal
+   //virtual KVPSAResult* TreateSignal();
+
+   ClassDef(KVCurrentSignal, 1) //digitized intensity signal
 };
 
 #endif

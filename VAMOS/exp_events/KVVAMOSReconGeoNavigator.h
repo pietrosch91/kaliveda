@@ -9,22 +9,21 @@
 class KVVAMOSReconNuc;
 class KVIonRangeTable;
 
-class KVVAMOSReconGeoNavigator : public KVGeoNavigator
-{
+class KVVAMOSReconGeoNavigator : public KVGeoNavigator {
 
-	Bool_t fForward; // 'true/false' for forward/backward propagation
-	TVector3 fOrigine;// Origine of the propagation i.e. coord. intersection point of the trajectory and the focal plan
- 	KVIonRangeTable* fRangeTable;
+   Bool_t fForward; // 'true/false' for forward/backward propagation
+   TVector3 fOrigine;// Origine of the propagation i.e. coord. intersection point of the trajectory and the focal plan
+   KVIonRangeTable* fRangeTable;
 
-   public:
+public:
    KVVAMOSReconGeoNavigator(TGeoManager*, KVIonRangeTable*);
    virtual ~KVVAMOSReconGeoNavigator();
 
-   void ParticleEntersNewVolume(KVNucleus *nuc);
+   void ParticleEntersNewVolume(KVNucleus* nuc);
 
    void PropagateNucleus(KVVAMOSReconNuc*);
 
-   ClassDef(KVVAMOSReconGeoNavigator,1)//Propagate nuclei through the geometry of VAMOS for their reconstruction/calibrate/identification
+   ClassDef(KVVAMOSReconGeoNavigator, 1) //Propagate nuclei through the geometry of VAMOS for their reconstruction/calibrate/identification
 };
 
 #endif

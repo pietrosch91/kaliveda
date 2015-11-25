@@ -13,8 +13,9 @@ ClassImp(KVDriftChamber)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
-void KVDriftChamber::init(){
-	// Initialise non-persistent pointers
+void KVDriftChamber::init()
+{
+   // Initialise non-persistent pointers
 }
 //________________________________________________________________
 
@@ -27,7 +28,7 @@ KVDriftChamber::KVDriftChamber()
 }
 //________________________________________________________________
 
-KVDriftChamber::KVDriftChamber (const KVDriftChamber& obj)  : KVVAMOSDetector()
+KVDriftChamber::KVDriftChamber(const KVDriftChamber& obj)  : KVVAMOSDetector()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -44,7 +45,7 @@ KVDriftChamber::~KVDriftChamber()
 }
 //________________________________________________________________
 
-void KVDriftChamber::Copy (TObject& obj) const
+void KVDriftChamber::Copy(TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
@@ -58,13 +59,14 @@ void KVDriftChamber::Copy (TObject& obj) const
 }
 //________________________________________________________________
 
-const Char_t* KVDriftChamber::GetArrayName(){
-	// Name of detector given in the form
-	// FIL_1 FIL_2
-	// to be compatible with GANIL acquisition parameters.
-	//
-	// The root of the name is the detector type.
-	fFName = Form("%s_%d",GetType(),GetNumber());
-	return fFName.Data();
+const Char_t* KVDriftChamber::GetArrayName()
+{
+   // Name of detector given in the form
+   // FIL_1 FIL_2
+   // to be compatible with GANIL acquisition parameters.
+   //
+   // The root of the name is the detector type.
+   fFName = Form("%s_%d", GetType(), GetNumber());
+   return fFName.Data();
 }
 

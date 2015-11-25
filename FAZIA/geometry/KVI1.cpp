@@ -17,8 +17,8 @@ ClassImp(KVI1)
 void KVI1::init()
 {
    SetDefaultValues();
-	fChannel = kI1;
-	
+   fChannel = kI1;
+
 }
 
 KVI1::KVI1()
@@ -30,8 +30,8 @@ KVI1::KVI1()
 
 KVI1::KVI1(const char* name) : KVSignal(name, "Current")
 {
-	SetType(name);
-	init();
+   SetType(name);
+   init();
 }
 
 //________________________________________________________________
@@ -58,58 +58,58 @@ void KVI1::Copy(TObject& obj) const
 
 void KVI1::SetDefaultValues()
 {
-    SetChannelWidth(4);
-    SetBaseLineLength(30);
+   SetChannelWidth(4);
+   SetBaseLineLength(30);
 }
 
 void KVI1::LoadPSAParameters()
 {
-	
-	Double_t val = GetPSAParameter("BaseLineLength");
-	SetBaseLineLength(val);
-	
-	val = GetPSAParameter("ChannelWidth");
-	SetChannelWidth(val);
 
-	val = GetPSAParameter("InterpolatedChannelWidth");
-	SetInterpolatedChannelWidth(val);
-	
-	val = GetPSAParameter("Interpolation");
-	SetInterpolation( (val==1) );
+   Double_t val = GetPSAParameter("BaseLineLength");
+   SetBaseLineLength(val);
+
+   val = GetPSAParameter("ChannelWidth");
+   SetChannelWidth(val);
+
+   val = GetPSAParameter("InterpolatedChannelWidth");
+   SetInterpolatedChannelWidth(val);
+
+   val = GetPSAParameter("Interpolation");
+   SetInterpolation((val == 1));
 
 }
 
 
 void KVI1::TreateSignal()
 {
-	if (GetN()==0) return;
-	if (!TestWidth())
-		ChangeChannelWidth(GetChannelWidth());
-	
-	ComputeBaseLine();
+   if (GetN() == 0) return;
+   if (!TestWidth())
+      ChangeChannelWidth(GetChannelWidth());
+
+   ComputeBaseLine();
    fBaseLine  = GetBaseLine();
    fSigmaBase = GetSigmaBaseLine();
    Add(-1.*fBaseLine);
-   if(fWithInterpolation)
-		BuildCubicSignal();
-   SetNSamples(GetNSamples()-3); // because we use a 3th order interpolation...
+   if (fWithInterpolation)
+      BuildCubicSignal();
+   SetNSamples(GetNSamples() - 3); // because we use a 3th order interpolation...
    ComputeAmplitude();
    fAmplitude = GetAmplitude();
-	
-	fPSAIsDone=kTRUE;
-	
+
+   fPSAIsDone = kTRUE;
+
 }
 
 
 KVPSAResult* KVI1::GetPSAResult() const
 {
-	if (!fPSAIsDone) return 0;
-	
-	KVPSAResult *psa = new KVPSAResult();
-	psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
-	psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),fSigmaBase);
-	psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
-	psa->SetValue(Form("%s.%s.RawAmplitude",fDetName.Data(),fType.Data()),GetRawAmplitude());
-	return psa;
+   if (!fPSAIsDone) return 0;
+
+   KVPSAResult* psa = new KVPSAResult();
+   psa->SetValue(Form("%s.%s.BaseLine", fDetName.Data(), fType.Data()), fBaseLine);
+   psa->SetValue(Form("%s.%s.SigmaBaseLine", fDetName.Data(), fType.Data()), fSigmaBase);
+   psa->SetValue(Form("%s.%s.Amplitude", fDetName.Data(), fType.Data()), fAmplitude);
+   psa->SetValue(Form("%s.%s.RawAmplitude", fDetName.Data(), fType.Data()), GetRawAmplitude());
+   return psa;
 
 }

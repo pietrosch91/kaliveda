@@ -10,22 +10,30 @@ using namespace RooFit ;
 
 namespace BackTrack {
 
-   class GenericPDFModel : public GenericModel
-   {
+   class GenericPDFModel : public GenericModel {
 
-      ClassDef(GenericPDFModel,1)//Generic model described by PDF
+      ClassDef(GenericPDFModel, 1) //Generic model described by PDF
 
-      protected:
+   protected:
       RooAbsPdf* theModel;//(conditional) PDF describing observable dependence on parameters
       Int_t fNGen;        //number of events to generate for each dataset
 
-      public:
+   public:
       GenericPDFModel();
       virtual ~GenericPDFModel();
 
-      const RooAbsPdf* GetPDFModel() const { return theModel; }
-      void SetNumGen(Int_t n) { fNGen=n; }
-      Int_t GetNumGen() const { return fNGen; }
+      const RooAbsPdf* GetPDFModel() const
+      {
+         return theModel;
+      }
+      void SetNumGen(Int_t n)
+      {
+         fNGen = n;
+      }
+      Int_t GetNumGen() const
+      {
+         return fNGen;
+      }
 
       RooDataSet* GenerateDataSet(RooAbsPdf& parDist, const RooArgList* params = 0);
 

@@ -6,14 +6,13 @@
 
 #include "KVIDTelescope.h"
 
-class KVFAZIAIDTelescope : public KVIDTelescope
-{
+class KVFAZIAIDTelescope : public KVIDTelescope {
 
-   public:
+public:
    KVFAZIAIDTelescope();
    virtual ~KVFAZIAIDTelescope();
-   
-   ClassDef(KVFAZIAIDTelescope,1)//Identification for FAZIA array
+
+   ClassDef(KVFAZIAIDTelescope, 1) //Identification for FAZIA array
 };
 
 #endif

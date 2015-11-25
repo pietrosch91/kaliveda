@@ -9,15 +9,14 @@
 
 namespace BackTrack {
 
-   class Simple1DModel : public GenericPDFModel
-   {
+   class Simple1DModel : public GenericPDFModel {
 
-      ClassDef(Simple1DModel,1)//Simple model to test backtrack procedures
+      ClassDef(Simple1DModel, 1) //Simple model to test backtrack procedures
 
-      RooRealVar fPar,fObs,a0,a1;
+      RooRealVar fPar, fObs, a0, a1;
       RooPolyVar MEAN;
 
-      public:
+   public:
       Simple1DModel();
       virtual ~Simple1DModel();
 

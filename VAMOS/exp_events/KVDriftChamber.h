@@ -6,19 +6,18 @@
 
 #include "KVVAMOSDetector.h"
 
-class KVDriftChamber : public KVVAMOSDetector
-{
-	protected:
-		void init();
+class KVDriftChamber : public KVVAMOSDetector {
+protected:
+   void init();
 
-   public:
+public:
    KVDriftChamber();
-   KVDriftChamber (const KVDriftChamber&) ;
+   KVDriftChamber(const KVDriftChamber&) ;
    virtual ~KVDriftChamber();
-   void Copy (TObject&) const;
+   void Copy(TObject&) const;
 
    virtual const Char_t* GetArrayName();
-   ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
+   ClassDef(KVDriftChamber, 1) //Drift Chamber, used at the focal plan of VAMOS
 };
 
 #endif

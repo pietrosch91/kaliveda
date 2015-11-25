@@ -20,8 +20,8 @@ namespace BackTrack {
    GenericPDFModel::GenericPDFModel()
    {
       // Default constructor
-      theModel=0;
-      fNGen=1000;
+      theModel = 0;
+      fNGen = 1000;
    }
 
    GenericPDFModel::~GenericPDFModel()
@@ -30,25 +30,25 @@ namespace BackTrack {
       SafeDelete(theModel);
    }
 
-   RooDataSet*GenericPDFModel::GenerateDataSet(RooAbsPdf& parDist, const RooArgList* params)
+   RooDataSet* GenericPDFModel::GenerateDataSet(RooAbsPdf& parDist, const RooArgList* params)
    {
       // Generate dataset for the observables using the given parameter probability distribution
       // If optional parameter list params is given, it is used instead of the default
       // defined parameter list of the model
 
-      Info("GenerateDataSet","Generating %d datapoints with parameter distribution %s",
+      Info("GenerateDataSet", "Generating %d datapoints with parameter distribution %s",
            GetNumGen(), parDist.GetName());
-      RooProdPdf Multimodel("Multimodel","observables for parameter distributions", parDist,
-                            Conditional(*theModel,GetObservables()));
+      RooProdPdf Multimodel("Multimodel", "observables for parameter distributions", parDist,
+                            Conditional(*theModel, GetObservables()));
       // get marginalized distributions model for observables
-      if(!params) params = &GetParameters();
+      if (!params) params = &GetParameters();
       RooAbsPdf* margin = Multimodel.createProjection(*params);
-      RooDataSet* data = margin->generate(GetObservables(),fNGen);
+      RooDataSet* data = margin->generate(GetObservables(), fNGen);
       delete margin;
       return data;
    }
 
-   RooDataSet*GenericPDFModel::GetModelDataSet(RooArgList& par)
+   RooDataSet* GenericPDFModel::GetModelDataSet(RooArgList& par)
    {
       // Generate dataset for model using the parameter definitions in the list.
       // We assume that this method is called with each parameter having its
@@ -58,7 +58,7 @@ namespace BackTrack {
       // given ranges.
 
       // uniform distribution of parameters
-      RooUniform uni("uni","uniform parameter distribution",par);
+      RooUniform uni("uni", "uniform parameter distribution", par);
       return GenerateDataSet(uni, &par);
    }
 

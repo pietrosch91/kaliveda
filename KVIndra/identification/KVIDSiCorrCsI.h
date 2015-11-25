@@ -23,29 +23,29 @@
 #include "KVSilicon.h"
 #include "KVCsI.h"
 
-class KVIDSiCorrCsI:public KVIDSiCsI, public KVRTGIDManager{
+class KVIDSiCorrCsI: public KVIDSiCsI, public KVRTGIDManager {
 
-        KVSilicon  *fSi;    //!
-        KVCsI      *fCsI;   //!
+   KVSilicon*  fSi;    //!
+   KVCsI*      fCsI;   //!
 
-    public:
+public:
 
-        KVIDSiCorrCsI(){};
-        virtual ~KVIDSiCorrCsI(){};
+   KVIDSiCorrCsI() {};
+   virtual ~KVIDSiCorrCsI() {};
 
-        virtual void Initialize();
+   virtual void Initialize();
 
-        virtual Double_t GetIDMapX(Option_t *opt = ""); 
-        virtual Double_t GetIDMapY(Option_t *opt = "");
+   virtual Double_t GetIDMapX(Option_t* opt = "");
+   virtual Double_t GetIDMapY(Option_t* opt = "");
 
-        virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
+   virtual Bool_t Identify(KVIdentificationResult* IDR, Double_t x = -1., Double_t y = -1.);
 
-        virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
-        virtual void RemoveIdentificationParameters();
+   virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
+   virtual void RemoveIdentificationParameters();
 
-        void PrintFitParameters();
+   void PrintFitParameters();
 
-        ClassDef(KVIDSiCorrCsI, 2)//Si-CsI identification with TGID functions for E494S/E503  
+   ClassDef(KVIDSiCorrCsI, 2)//Si-CsI identification with TGID functions for E494S/E503
 };
 
 #endif

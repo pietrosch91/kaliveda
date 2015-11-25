@@ -27,7 +27,7 @@
 
 using namespace RooFit;
 
-BackTrack::Simple2DModel* model=0;
+BackTrack::Simple2DModel* model = 0;
 
 void simple2Dmodel_ex2()
 {
@@ -35,23 +35,23 @@ void simple2Dmodel_ex2()
 
    // Generate data with correlated parameter distribution
    model->SetNumGen(5000);
-   RooDataSet data("data","data to be fitted",model->GetObservables());
-   RooDataSet params("params","input parameters",model->GetParameters());
+   RooDataSet data("data", "data to be fitted", model->GetObservables());
+   RooDataSet params("params", "input parameters", model->GetParameters());
    RooRealVar& PAR1 = model->GetParameter("par1");
    RooRealVar& PAR2 = model->GetParameter("par2");
-   for(int i=0;i<model->GetNumGen();i++){
-      Double_t par1 = gRandom->Gaus(3.5,1.);
-      Double_t par2m = 15.-0.5*pow(par1,2.);
-      Double_t par2 = gRandom->Gaus(par2m,1.);
+   for (int i = 0; i < model->GetNumGen(); i++) {
+      Double_t par1 = gRandom->Gaus(3.5, 1.);
+      Double_t par2m = 15. - 0.5 * pow(par1, 2.);
+      Double_t par2 = gRandom->Gaus(par2m, 1.);
       PAR1.setVal(par1);
       PAR2.setVal(par2);
-      model->generateEvent(RooArgList(PAR1,PAR2),data);
+      model->generateEvent(RooArgList(PAR1, PAR2), data);
       params.add(model->GetParameters());
    }
-   TH1* hh_data = data.createHistogram("obs1,obs2",50,50) ;
+   TH1* hh_data = data.createHistogram("obs1,obs2", 50, 50) ;
    hh_data->Draw("col");
 
-   TH1* hh_params = params.createHistogram("par1,par2",20,20) ;
+   TH1* hh_params = params.createHistogram("par1,par2", 20, 20) ;
    new TCanvas;
    hh_params->SetName("inputParameters");
    hh_params->Draw("lego");
@@ -67,9 +67,9 @@ void simple2Dmodel_ex2()
    new TCanvas;
    model->GetParameterDistributions()->Draw("lego");
 
-   RooGaussian g1("g1","gaussian",PAR1,RooConst(5),RooConst(2));
-   RooGaussian g2("g2","gaussian",PAR2,RooConst(0),RooConst(5));
-   RooProdPdf g1g2("g1g2","double gauss",RooArgList(g1,g2));
+   RooGaussian g1("g1", "gaussian", PAR1, RooConst(5), RooConst(2));
+   RooGaussian g2("g2", "gaussian", PAR2, RooConst(0), RooConst(5));
+   RooProdPdf g1g2("g1g2", "double gauss", RooArgList(g1, g2));
    RooPlot* p = PAR1.frame();
    model->GetParamDataHist()->plotOn(p);
    g1g2.plotOn(p);
@@ -84,8 +84,8 @@ void simple2Dmodel_ex2()
    p = model->GetObservable("obs1").frame();
    data.plotOn(p);
    model->GetPseudoPDF()->plotOn(p);
-   TCanvas*c = new TCanvas;
-   c->Divide(2,1);
+   TCanvas* c = new TCanvas;
+   c->Divide(2, 1);
    c->cd(1);
    p->Draw();
    p = model->GetObservable("obs2").frame();

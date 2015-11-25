@@ -9,24 +9,29 @@
 class KVINDRA;
 class KVVAMOS;
 
-class KVINDRA_VAMOS : public KVMultiDetArray
-{
+class KVINDRA_VAMOS : public KVMultiDetArray {
 
-   public:
+public:
    KVINDRA_VAMOS();
    virtual ~KVINDRA_VAMOS();
 
    void init();
 
-   virtual void Build(Int_t run=-1);
-   virtual void Clear(Option_t *opt = "" );
-   virtual void	GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params = 0);
-   virtual void	SetParameters(UShort_t n);
+   virtual void Build(Int_t run = -1);
+   virtual void Clear(Option_t* opt = "");
+   virtual void   GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params = 0);
+   virtual void   SetParameters(UShort_t n);
 
-  inline KVVAMOS* GetVAMOS(){ return (KVVAMOS *)GetStructure("VAMOS"); } 
-  inline KVINDRA* GetINDRA(){ return (KVINDRA *)GetStructure("INDRA"); } 
+   inline KVVAMOS* GetVAMOS()
+   {
+      return (KVVAMOS*)GetStructure("VAMOS");
+   }
+   inline KVINDRA* GetINDRA()
+   {
+      return (KVINDRA*)GetStructure("INDRA");
+   }
 
-   ClassDef(KVINDRA_VAMOS,1)//INDRA + VAMOS experimental setup for the e494s and the e503 experiments performed at GANIL
+   ClassDef(KVINDRA_VAMOS, 1) //INDRA + VAMOS experimental setup for the e494s and the e503 experiments performed at GANIL
 };
 
 #endif

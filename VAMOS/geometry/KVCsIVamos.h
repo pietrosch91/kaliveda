@@ -12,17 +12,19 @@ $Date: 2009/01/21 08:04:20 $
 
 #include "KVCsI.h"
 
-class KVCsIVamos : public KVCsI
-{
+class KVCsIVamos : public KVCsI {
    KVACQParam* fPar;//!
-   
-   public:
+
+public:
    KVCsIVamos();
    KVCsIVamos(Float_t thick);
    virtual ~KVCsIVamos();
-   const Char_t *GetName() const;
+   const Char_t* GetName() const;
    void SetACQParams();
-   KVACQParam* GetACQPar() { return fPar; };
+   KVACQParam* GetACQPar()
+   {
+      return fPar;
+   };
    virtual Double_t GetLumiereTotale(Double_t  = -1.0, Double_t = -1.0)
    {
       return fPar->GetData();
@@ -33,7 +35,7 @@ class KVCsIVamos : public KVCsI
    };
 
 
-   ClassDef(KVCsIVamos,1)//KVCsI for Vamos
+   ClassDef(KVCsIVamos, 1) //KVCsI for Vamos
 };
 
 #endif

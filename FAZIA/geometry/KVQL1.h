@@ -6,27 +6,29 @@
 
 #include "KVSignal.h"
 
-class KVQL1 : public KVSignal
-{
+class KVQL1 : public KVSignal {
 
-   protected:
-	void init();
-   
-	public:
+protected:
+   void init();
+
+public:
    KVQL1();
    KVQL1(const char* name);
-   
-	virtual ~KVQL1();
-   void Copy(TObject& obj) const;
-   
-	virtual void SetDefaultValues();
-	virtual void LoadPSAParameters(); 
-	virtual Bool_t IsCharge() const { return kTRUE; }
 
-	virtual void TreateSignal();
+   virtual ~KVQL1();
+   void Copy(TObject& obj) const;
+
+   virtual void SetDefaultValues();
+   virtual void LoadPSAParameters();
+   virtual Bool_t IsCharge() const
+   {
+      return kTRUE;
+   }
+
+   virtual void TreateSignal();
    virtual KVPSAResult* GetPSAResult() const;
-	
-	ClassDef(KVQL1,1)//QL1 channel of SI1
+
+   ClassDef(KVQL1, 1) //QL1 channel of SI1
 };
 
 #endif

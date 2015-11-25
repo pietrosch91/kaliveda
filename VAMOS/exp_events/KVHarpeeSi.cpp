@@ -23,36 +23,38 @@ ClassImp(KVHarpeeSi)
 // Type of detector : "SI"
 ////////////////////////////////////////////////////////////////////////////////
 
-KVList     *KVHarpeeSi::fHarpeeSiList  = NULL;
-KVHarpeeSi *KVHarpeeSi::fSiForPosition = NULL;
+KVList*     KVHarpeeSi::fHarpeeSiList  = NULL;
+KVHarpeeSi* KVHarpeeSi::fSiForPosition = NULL;
 KVString    KVHarpeeSi::fACQParamTypes("0:E, 1:T_HF, 2:T, 9:NO_TYPE");
 KVString    KVHarpeeSi::fPositionTypes("9:NO_TYPE");
-	
-void KVHarpeeSi::init(){
-	// Initialise non-persistent pointers
 
-	if(!fHarpeeSiList){
- 	   	fHarpeeSiList = new KVList( kFALSE );
-//		fHarpeeSiList->SetCleanup();
-	}
-	fHarpeeSiList->Add( this );
+void KVHarpeeSi::init()
+{
+   // Initialise non-persistent pointers
 
-	fCanalE = NULL;
-	fPHD    = NULL; 
+   if (!fHarpeeSiList) {
+      fHarpeeSiList = new KVList(kFALSE);
+//    fHarpeeSiList->SetCleanup();
+   }
+   fHarpeeSiList->Add(this);
 
-	// fSegment is set to 1 because this silicon detector is
-	// an independant detector (see KVGroup::AnalyseParticles for
-	// more information)
-	fSegment = 1;
+   fCanalE = NULL;
+   fPHD    = NULL;
+
+   // fSegment is set to 1 because this silicon detector is
+   // an independant detector (see KVGroup::AnalyseParticles for
+   // more information)
+   fSegment = 1;
 }
 //________________________________________________________________
 
-KVHarpeeSi::KVHarpeeSi(){
-   	// Default constructor.
-	init();
-	SetType("SI");
-	SetLabel("SI");
-   	SetName(GetArrayName());
+KVHarpeeSi::KVHarpeeSi()
+{
+   // Default constructor.
+   init();
+   SetType("SI");
+   SetLabel("SI");
+   SetName(GetArrayName());
 }
 //________________________________________________________________
 
@@ -67,25 +69,25 @@ KVHarpeeSi::KVHarpeeSi(UInt_t number, Float_t thick) : KVVAMOSDetector(number, "
    SetLabel("SI");
    SetName(GetArrayName());
 
-	Float_t w  = 1.;                // width
-	Float_t h  = 1.;                // height
-	Float_t th = thick*KVUnits::um; // thickness
+   Float_t w  = 1.;                // width
+   Float_t h  = 1.;                // height
+   Float_t th = thick * KVUnits::um; // thickness
 
-	
-	Double_t dx = w/2;
-	Double_t dy = h/2;
-	Double_t dz = th/2;
 
-	fTotThick+=th;
+   Double_t dx = w / 2;
+   Double_t dy = h / 2;
+   Double_t dz = th / 2;
 
-	// adding the absorber
-	TGeoShape *shape = new TGeoBBox(dx,dy,dz);
-	AddAbsorber("Si",shape,0,kTRUE);
+   fTotThick += th;
+
+   // adding the absorber
+   TGeoShape* shape = new TGeoBBox(dx, dy, dz);
+   AddAbsorber("Si", shape, 0, kTRUE);
 
 }
 //________________________________________________________________
 
-KVHarpeeSi::KVHarpeeSi (const KVHarpeeSi& obj)  : KVVAMOSDetector()
+KVHarpeeSi::KVHarpeeSi(const KVHarpeeSi& obj)  : KVVAMOSDetector()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -99,12 +101,12 @@ KVHarpeeSi::KVHarpeeSi (const KVHarpeeSi& obj)  : KVVAMOSDetector()
 KVHarpeeSi::~KVHarpeeSi()
 {
    // Destructor
-	fHarpeeSiList->Remove( this );
-	if( fHarpeeSiList && !fHarpeeSiList->GetEntries() ) SafeDelete( fHarpeeSiList );
+   fHarpeeSiList->Remove(this);
+   if (fHarpeeSiList && !fHarpeeSiList->GetEntries()) SafeDelete(fHarpeeSiList);
 }
 //________________________________________________________________
 
-void KVHarpeeSi::Copy (TObject& obj) const
+void KVHarpeeSi::Copy(TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
@@ -118,56 +120,60 @@ void KVHarpeeSi::Copy (TObject& obj) const
 }
 //________________________________________________________________
 
-const Char_t* KVHarpeeSi::GetArrayName(){
-	// Name of detector given in the form 
-	// SIE_01 SIE_02 ...
-	// to be compatible with GANIL acquisition parameters.
-	//
-	// The root of the name is the detector type + number.
-	
-	fFName = Form("%s_%02d",GetType(),GetNumber());
-	return fFName.Data();
+const Char_t* KVHarpeeSi::GetArrayName()
+{
+   // Name of detector given in the form
+   // SIE_01 SIE_02 ...
+   // to be compatible with GANIL acquisition parameters.
+   //
+   // The root of the name is the detector type + number.
+
+   fFName = Form("%s_%02d", GetType(), GetNumber());
+   return fFName.Data();
 }
 //________________________________________________________________
 
-Double_t KVHarpeeSi::GetCalibT(const Char_t *type){
-	// Calculate calibrated time in ns of type 'type' (SI_HF, SI_SED1,
-	// SI_INDRA, SI_MCP, ...) for coder values.
-	// Returns 0 if calibration not ready or time ACQ parameter not fired.
-	// (we require that the acquisition parameter has a value
-   	// greater than the current pedestal value).
-   	// The reference time T0 used for the calibration is the one of the
-   	// fired silicon detector of Harpee which stopped the time.
+Double_t KVHarpeeSi::GetCalibT(const Char_t* type)
+{
+   // Calculate calibrated time in ns of type 'type' (SI_HF, SI_SED1,
+   // SI_INDRA, SI_MCP, ...) for coder values.
+   // Returns 0 if calibration not ready or time ACQ parameter not fired.
+   // (we require that the acquisition parameter has a value
+   // greater than the current pedestal value).
+   // The reference time T0 used for the calibration is the one of the
+   // fired silicon detector of Harpee which stopped the time.
 
 
-	KVHarpeeSi *firedSi = GetFiredHarpeeSi();
-	if( !firedSi ) return 0;
+   KVHarpeeSi* firedSi = GetFiredHarpeeSi();
+   if (!firedSi) return 0;
 
-	KVFunctionCal *cal = GetTCalibrator( type );
-	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
-		return cal->Compute() + firedSi->GetT0( type );
-	return 0;
+   KVFunctionCal* cal = GetTCalibrator(type);
+   if (cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
+      return cal->Compute() + firedSi->GetT0(type);
+   return 0;
 }
 //________________________________________________________________
 
-Double_t KVHarpeeSi::GetCanalFromEnergy( Double_t e ){
-	// Inverts calibration, i.e. calculates the channel value associated
-	// to a given energy (in MeV). If the energy is not given, the value
-	// returned by GetEnergy() is used.
+Double_t KVHarpeeSi::GetCanalFromEnergy(Double_t e)
+{
+   // Inverts calibration, i.e. calculates the channel value associated
+   // to a given energy (in MeV). If the energy is not given, the value
+   // returned by GetEnergy() is used.
 
-	if( e<0 ) e = GetEnergy();
-	if( fCanalE && fCanalE->GetStatus() ) return fCanalE->Invert( e );
-	return -1.;
+   if (e < 0) e = GetEnergy();
+   if (fCanalE && fCanalE->GetStatus()) return fCanalE->Invert(e);
+   return -1.;
 }
 //________________________________________________________________
 
-const Char_t *KVHarpeeSi::GetEBaseName() const{
-	// Base name of the energy used to be compatible
-	// GANIL acquisition parameters
-	//
-	// The base name is "E<type><number>".
-	
-	return Form("%sE_%.2d",GetType(),GetNumber());
+const Char_t* KVHarpeeSi::GetEBaseName() const
+{
+   // Base name of the energy used to be compatible
+   // GANIL acquisition parameters
+   //
+   // The base name is "E<type><number>".
+
+   return Form("%sE_%.2d", GetType(), GetNumber());
 }
 //______________________________________________________________________________
 
@@ -182,10 +188,10 @@ TF1* KVHarpeeSi::GetELossFunction(Int_t Z, Int_t A)
    //
    // If no PHD is set, we return the usual KVDetector::GetELossFunction
    // which calculates dE(E,Z,A)
-   
-   	if(fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z,A);
 
-   	return KVDetector::GetELossFunction(Z,A);
+   if (fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z, A);
+
+   return KVDetector::GetELossFunction(Z, A);
 }
 //________________________________________________________________
 
@@ -201,61 +207,65 @@ Double_t KVHarpeeSi::GetEnergy()
 
    //fELoss already set, return its value
    Double_t ELoss = KVDetector::GetEnergy();
-   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
-   if( ELoss > 0 ) return ELoss;
+   if (IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if (ELoss > 0) return ELoss;
    ELoss = GetCalibE();
-   if( ELoss < 0 ) ELoss = 0;
+   if (ELoss < 0) ELoss = 0;
    SetEnergy(ELoss);
    return ELoss;
 }
 //________________________________________________________________
 
-Double_t KVHarpeeSi::GetEnergyFromCanal( Double_t c){
-	// Calculates the calibrated energy in MeV from the channel value.
-	// If the channel is not given, the coder value of the acq. parameter
-	// associated to the calibrator channel->MeV is used.
+Double_t KVHarpeeSi::GetEnergyFromCanal(Double_t c)
+{
+   // Calculates the calibrated energy in MeV from the channel value.
+   // If the channel is not given, the coder value of the acq. parameter
+   // associated to the calibrator channel->MeV is used.
 
-	if( !fCanalE ) Error("GetEnergyFromCanal","fCanalE not found");
-	if( fCanalE && fCanalE->GetStatus() ){
-		if( c<0 ) return fCanalE->Compute();
-		else      return fCanalE->Compute( c );
-	}
-	return 0.;
+   if (!fCanalE) Error("GetEnergyFromCanal", "fCanalE not found");
+   if (fCanalE && fCanalE->GetStatus()) {
+      if (c < 0) return fCanalE->Compute();
+      else      return fCanalE->Compute(c);
+   }
+   return 0.;
 }
 //________________________________________________________________
 
-KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
-	// This static method returns the first fired detector found
-	// in the list of all the existing silicon detectors of HARPEE.
-	// See KVDetector::Fired() for more information about the option 'opt'.
+KVHarpeeSi* KVHarpeeSi::GetFiredHarpeeSi(Option_t* opt)
+{
+   // This static method returns the first fired detector found
+   // in the list of all the existing silicon detectors of HARPEE.
+   // See KVDetector::Fired() for more information about the option 'opt'.
 
-	TIter next( fHarpeeSiList );
-	KVHarpeeSi *si = NULL;
-	while( (si =(KVHarpeeSi *)next()) ){
-		if( si->Fired( opt ) ) return si;
-	}
-	return NULL;
+   TIter next(fHarpeeSiList);
+   KVHarpeeSi* si = NULL;
+   while ((si = (KVHarpeeSi*)next())) {
+      if (si->Fired(opt)) return si;
+   }
+   return NULL;
 }
 //________________________________________________________________
 
-KVList *KVHarpeeSi::GetHarpeeSiList(){ 
-	//Returns the global list of all KVHarpeeSi objects.
-	return fHarpeeSiList;
+KVList* KVHarpeeSi::GetHarpeeSiList()
+{
+   //Returns the global list of all KVHarpeeSi objects.
+   return fHarpeeSiList;
 }
 //________________________________________________________________
 
-Int_t KVHarpeeSi::GetMult(Option_t *opt){
-	// Returns the multiplicity of fired silicon detectors of HARPEE. 
-	// See KVDetector::Fired() for more information about the option 'opt'.
+Int_t KVHarpeeSi::GetMult(Option_t* opt)
+{
+   // Returns the multiplicity of fired silicon detectors of HARPEE.
+   // See KVDetector::Fired() for more information about the option 'opt'.
 
-	Int_t mult   = 0;
+   Int_t mult   = 0;
 
-	TIter next( fHarpeeSiList );
-	KVHarpeeSi *si = NULL;
-	while( (si = (KVHarpeeSi *)next()) ){
-		if( si->Fired( opt ) ) mult++;
-	}
-	return mult;
+   TIter next(fHarpeeSiList);
+   KVHarpeeSi* si = NULL;
+   while ((si = (KVHarpeeSi*)next())) {
+      if (si->Fired(opt)) mult++;
+   }
+   return mult;
 }
 //________________________________________________________________
 
@@ -266,84 +276,88 @@ Double_t KVHarpeeSi::GetPHD(Double_t dE, UInt_t Z, UInt_t A)
    //
    //Returns 0 if PHD is not defined.
 
-   if(!fPHD || !fPHD->GetStatus()) return 0.;
-   fPHD->SetZandA(Z,A);
+   if (!fPHD || !fPHD->GetStatus()) return 0.;
+   fPHD->SetZandA(Z, A);
    return fPHD->Compute(dE);
 }
 //________________________________________________________________
 
-void KVHarpeeSi::Initialize(){
-	// Initialize the data members. Called by KVVAMOS::Initialize().
-	fSiForPosition = NULL;
-	ResetBit( kPosIsOK );
+void KVHarpeeSi::Initialize()
+{
+   // Initialize the data members. Called by KVVAMOS::Initialize().
+   fSiForPosition = NULL;
+   ResetBit(kPosIsOK);
 }
 //________________________________________________________________
 
-Bool_t KVHarpeeSi::PositionIsOK(){
-	// Returns true if all the conditions to access to the particle position
-	// are verified. In this case the position is given by the method 
-	// GetPosition(...). 
-	// The conditions are:
-	//   -the multiplicity of fired ( "Pany" option of Fired() ) Harpee Si 
-	//    detectors must be equal to one;
-	//   -this detectector must be the fired detector.
-	
-	if( !TestBit( kPosIsOK ) ){
-		Int_t mult   = 0;
-		TIter next( fHarpeeSiList );
-		KVHarpeeSi *si = NULL;
-		while( (si = (KVHarpeeSi *)next()) ){
-			if( si->Fired( "Pany" ) ){
-				mult++;
-				fSiForPosition = si;
- 			}
-		}
-		if( mult != 1 ) fSiForPosition = NULL;
-		SetBit( kPosIsOK );
-	}
-	return fSiForPosition == this;
+Bool_t KVHarpeeSi::PositionIsOK()
+{
+   // Returns true if all the conditions to access to the particle position
+   // are verified. In this case the position is given by the method
+   // GetPosition(...).
+   // The conditions are:
+   //   -the multiplicity of fired ( "Pany" option of Fired() ) Harpee Si
+   //    detectors must be equal to one;
+   //   -this detectector must be the fired detector.
+
+   if (!TestBit(kPosIsOK)) {
+      Int_t mult   = 0;
+      TIter next(fHarpeeSiList);
+      KVHarpeeSi* si = NULL;
+      while ((si = (KVHarpeeSi*)next())) {
+         if (si->Fired("Pany")) {
+            mult++;
+            fSiForPosition = si;
+         }
+      }
+      if (mult != 1) fSiForPosition = NULL;
+      SetBit(kPosIsOK);
+   }
+   return fSiForPosition == this;
 }
 //________________________________________________________________
 
-void KVHarpeeSi::SetACQParams(){
+void KVHarpeeSi::SetACQParams()
+{
 // Setup the energy acquisition parameter for this silicon detector.
-// This parameter has the name of the detector and has the type 'E' 
+// This parameter has the name of the detector and has the type 'E'
 // (for energy).
-// 
-	KVACQParam *par = new KVACQParam;
-	par->SetName( GetEBaseName() );
-	par->SetType("E");
-	par->SetNumber( GetNumber() );
-	par->SetUniqueID( CalculateUniqueID( par ) );
-	AddACQParam(par);
+//
+   KVACQParam* par = new KVACQParam;
+   par->SetName(GetEBaseName());
+   par->SetType("E");
+   par->SetNumber(GetNumber());
+   par->SetUniqueID(CalculateUniqueID(par));
+   AddACQParam(par);
 }
 //________________________________________________________________
 
-void KVHarpeeSi::SetCalibrators(){
-	// Pulse Height Defect calibrator as well as the calibrators of
-	// KVVAMOSDetector.
+void KVHarpeeSi::SetCalibrators()
+{
+   // Pulse Height Defect calibrator as well as the calibrators of
+   // KVVAMOSDetector.
 
-	KVVAMOSDetector::SetCalibrators();
+   KVVAMOSDetector::SetCalibrators();
 
-	// Set PHD calibrator only if the detector has an acq. parameter
-	// with type 'E'
-	TObject *par = GetACQParamList()->FindObjectByType("E");
-	if( !par ) return;
+   // Set PHD calibrator only if the detector has an acq. parameter
+   // with type 'E'
+   TObject* par = GetACQParamList()->FindObjectByType("E");
+   if (!par) return;
 
-	TString type("channel->MeV ");
-	type.Append( par->GetName() );
-	fCanalE = (KVFunctionCal *)GetCalibrator( type.Data() );
+   TString type("channel->MeV ");
+   type.Append(par->GetName());
+   fCanalE = (KVFunctionCal*)GetCalibrator(type.Data());
 
-	if( !fCanalE ) Error("SetCalibrators","channel->MeV calibrator not found");
+   if (!fCanalE) Error("SetCalibrators", "channel->MeV calibrator not found");
 
-	KVRecombination *c = new KVRecombination(this);
-	type = c->GetType();
-	type.Append(" ");
-	type.Append( par->GetName() );
-	c->SetType( type.Data() );
-   	if( !AddCalibrator(c) ) delete c;
+   KVRecombination* c = new KVRecombination(this);
+   type = c->GetType();
+   type.Append(" ");
+   type.Append(par->GetName());
+   c->SetType(type.Data());
+   if (!AddCalibrator(c)) delete c;
 
-	fPHD = (KVRecombination *)GetCalibrator( type.Data() );
+   fPHD = (KVRecombination*)GetCalibrator(type.Data());
 }
 //________________________________________________________________
 
@@ -358,27 +372,28 @@ void KVHarpeeSi::SetParlogPHDParameter(Double_t a)
    //
    //See class KVRecombination
 
-   if(fPHD){
+   if (fPHD) {
       fPHD->SetParameters(a);
       fPHD->SetStatus(kTRUE);
    }
 }
 //________________________________________________________________
 
-void KVHarpeeSi::Streamer(TBuffer &R__b){
+void KVHarpeeSi::Streamer(TBuffer& R__b)
+{
    // Stream an object of class KVHarpeeSi.
    // We set the pointers to the calibrator objects
 
    if (R__b.IsReading()) {
       KVHarpeeSi::Class()->ReadBuffer(R__b, this);
-	  TIter next( GetListOfCalibrators() );
-	  TObject *cal = NULL;
-	  while( ( cal = next() ) ){
-		  if( cal->InheritsFrom("KVRecombination") )
-      		  fPHD  =  (KVRecombination *)cal;
-		  else if( cal->InheritsFrom("KVFunctionCal") )
-			  fCanalE = (KVFunctionCal *)cal;
-	  }
+      TIter next(GetListOfCalibrators());
+      TObject* cal = NULL;
+      while ((cal = next())) {
+         if (cal->InheritsFrom("KVRecombination"))
+            fPHD  = (KVRecombination*)cal;
+         else if (cal->InheritsFrom("KVFunctionCal"))
+            fCanalE = (KVFunctionCal*)cal;
+      }
    } else {
       KVHarpeeSi::Class()->WriteBuffer(R__b, this);
    }
