@@ -17,12 +17,8 @@ if [ "x$FILES" != "x" ]; then
    fi
 
    for file in $FILES; do
-      if [ "x$file" != "xKVIndra/analysis/KVSelector.cpp" ]; then
-	      $ASTYLE $ASTYLE_PARAMETERS $file
-         git add $file
-      else
-         echo "Formatting disabled for KVSelector.cpp"
-      fi
+	   $ASTYLE $ASTYLE_PARAMETERS $file
+      git add $file
    done
 
 fi
