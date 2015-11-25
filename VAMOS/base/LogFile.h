@@ -9,24 +9,23 @@
 #include <sstream>
 using namespace std;
 
-enum LogLevel{LOG_LOW, LOG_NORMAL, LOG_HIGH};
+enum LogLevel {LOG_LOW, LOG_NORMAL, LOG_HIGH};
 
-class LogFile
-{
- public:
-  LogFile();
-  virtual ~LogFile(void);
-  
-  
-  Char_t LogFileName;
-  std::ofstream Log;
-  void Open(const char *LogFileName); 
-  void Close();
-  
-    void Message(const char *location, const char *msg);
-    string GetTime();
+class LogFile {
+public:
+   LogFile();
+   virtual ~LogFile(void);
 
-  ClassDef(LogFile,0)
+
+   Char_t LogFileName;
+   std::ofstream Log;
+   void Open(const char* LogFileName);
+   void Close();
+
+   void Message(const char* location, const char* msg);
+   string GetTime();
+
+   ClassDef(LogFile, 0)
 };
 
 #endif

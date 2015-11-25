@@ -7,16 +7,15 @@
 #include "TProfile2D.h"
 #include "KVNumberList.h"
 
-class KVVAMOSExperimentalFilter : public TProfile2D
-{
+class KVVAMOSExperimentalFilter : public TProfile2D {
 
-	Int_t fCurBin;
-	Int_t fCurBinDelta;
-	Int_t fCurBinThetaV;
+   Int_t fCurBin;
+   Int_t fCurBinDelta;
+   Int_t fCurBinThetaV;
 
-	KVNumberList fRunList;
+   KVNumberList fRunList;
 
-   public:
+public:
 
    KVVAMOSExperimentalFilter();
 
@@ -27,21 +26,45 @@ class KVVAMOSExperimentalFilter : public TProfile2D
    virtual ~KVVAMOSExperimentalFilter();
    void Copy(TObject& obj) const;
 
-   Bool_t IsTrajectoryAccepted( Double_t delta, Double_t thetav, Double_t phiv);
+   Bool_t IsTrajectoryAccepted(Double_t delta, Double_t thetav, Double_t phiv);
 
 
-   Double_t Delta()   const { return GetXaxis()->GetBinCenter( fCurBinDelta ); }
-   Double_t DDelta()  const { return GetXaxis()->GetBinWidth ( fCurBinDelta ); }
-   Double_t ThetaV()  const { return GetYaxis()->GetBinCenter( fCurBinThetaV ); }
-   Double_t DThetaV() const { return GetYaxis()->GetBinWidth ( fCurBinThetaV ); }
-   Double_t PhiV()    const { return GetBinContent( fCurBin ); }
-   Double_t DPhiV()   const { return 2*GetBinError( fCurBin ); }
+   Double_t Delta()   const
+   {
+      return GetXaxis()->GetBinCenter(fCurBinDelta);
+   }
+   Double_t DDelta()  const
+   {
+      return GetXaxis()->GetBinWidth(fCurBinDelta);
+   }
+   Double_t ThetaV()  const
+   {
+      return GetYaxis()->GetBinCenter(fCurBinThetaV);
+   }
+   Double_t DThetaV() const
+   {
+      return GetYaxis()->GetBinWidth(fCurBinThetaV);
+   }
+   Double_t PhiV()    const
+   {
+      return GetBinContent(fCurBin);
+   }
+   Double_t DPhiV()   const
+   {
+      return 2 * GetBinError(fCurBin);
+   }
 
-   void SetRunList( KVNumberList & runlist ){ fRunList = runlist; }
-   const Char_t *GetRunList(){ return fRunList.GetList(); }
+   void SetRunList(KVNumberList& runlist)
+   {
+      fRunList = runlist;
+   }
+   const Char_t* GetRunList()
+   {
+      return fRunList.GetList();
+   }
 
 
-   ClassDef(KVVAMOSExperimentalFilter,1)//VAMOS filter created from experimental data
+   ClassDef(KVVAMOSExperimentalFilter, 1) //VAMOS filter created from experimental data
 };
 
 #endif

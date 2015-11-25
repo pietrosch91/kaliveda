@@ -36,7 +36,7 @@ ClassImp(KVString)
 //      6.4320  6,4320
 //      6.43e20   6.43E20 6,43e20
 //      6.43e-20  6.43E-20 6,43e-20
-//              
+//
 // Also Atoi() and Atof() are extended to include the following possibilities:
 //
 // Atoi(): with string="123 456", TString::Atoi() gives value=123
@@ -75,7 +75,7 @@ KVString::~KVString()
 }
 
 #ifdef __WITHOUT_TSTRING_TOKENIZE
-TObjArray *KVString::Tokenize(const TString & delim) const
+TObjArray* KVString::Tokenize(const TString& delim) const
 {
    // This function is used to isolate sequential tokens in a TString.
    // These tokens are separated in the string by at least one of the
@@ -103,7 +103,7 @@ TObjArray *KVString::Tokenize(const TString & delim) const
    if (nrDiff > 1)
       splitIndex.sort();
 
-   TObjArray *arr = new TObjArray();
+   TObjArray* arr = new TObjArray();
    arr->SetOwner();
 
    start = -1;
@@ -112,13 +112,13 @@ TObjArray *KVString::Tokenize(const TString & delim) const
    for (it = splitIndex.begin(); it != splitIndex.end(); it++) {
 #else
    for (it = splitIndex.begin();
-        it != (std::list < Int_t >::const_iterator) splitIndex.end();
-        it++) {
+         it != (std::list < Int_t >::const_iterator) splitIndex.end();
+         it++) {
 #endif
       Int_t stop = *it;
       if (stop - 1 >= start + 1) {
-         TString tok = (*this) (start + 1, stop - start - 1);
-         TObjString *objstr = new TObjString(tok);
+         TString tok = (*this)(start + 1, stop - start - 1);
+         TObjString* objstr = new TObjString(tok);
          arr->Add(objstr);
       }
       start = stop;
@@ -136,7 +136,7 @@ Bool_t KVString::IsDigit() const
    // Returns false in case string length is 0 or string contains other
    // characters or only whitespace.
 
-   const char *cp = Data();
+   const char* cp = Data();
    Ssiz_t len = Length();
    if (len == 0) return kFALSE;
    Int_t b = 0, d = 0;
@@ -152,7 +152,7 @@ Bool_t KVString::IsDigit() const
 #endif
 
 #ifdef __WITH_KVSTRING_REMOVE
-KVString & KVString::Remove(TString::EStripType st, char c)
+KVString& KVString::Remove(TString::EStripType st, char c)
 {
    // Remove char c at begin and/or end of string (like Strip() but
    // modifies directly the string.
@@ -176,12 +176,12 @@ Int_t KVString::Atoi() const
    Int_t start = 0;
    TString tmp;
    while (end > -1) {
-      tmp += (*this) (start, end - start);
+      tmp += (*this)(start, end - start);
       start = end + 1;
       end = Index(" ", start);
    }
    end = Length();
-   tmp += (*this) (start, end - start);
+   tmp += (*this)(start, end - start);
    return atoi(tmp.Data());
 }
 #endif
@@ -264,7 +264,7 @@ Bool_t KVString::IsFloat() const
 }
 #endif
 
-KVString & KVString::Substitute(const Char_t c1, const Char_t c2)
+KVString& KVString::Substitute(const Char_t c1, const Char_t c2)
 {
    //Replace every occurence of 'c1' with 'c2'
    ReplaceAll(&c1, 1, &c2, 1);
@@ -279,7 +279,7 @@ Bool_t KVString::IsWhitespace() const
 }
 #endif
 
-Int_t KVString::Sscanf(const Char_t * fmt, ...)
+Int_t KVString::Sscanf(const Char_t* fmt, ...)
 {
    //A more strict implementation than the standard 'sscanf'
    //We require that any characters in the format string which are not format descriptors
@@ -288,7 +288,7 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
    //i.e. for a string "file6.root", sscanf("file6.root", "file%d.root", &some_integer) returns 1
    //but so does sscanf("file6.root", "file%danything_you_want_here_i_dont_care", &some_integer).
    //
-   //Use this method when you ONLY want "file%d.root" to match "file6.root" 
+   //Use this method when you ONLY want "file%d.root" to match "file6.root"
    //
    //Returns number of fields read from string
    //
@@ -296,9 +296,9 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
    //
    //      %d   -  simple integer descriptor
    //      %3d   -  simple integer descriptor with length - only integers of correct length accepted
-	//               (leading characters may be white space, i.e. '  4' for 4 written with '%3d')
+   //               (leading characters may be white space, i.e. '  4' for 4 written with '%3d')
    //      %03d   -  simple integer descriptor with length + zero padding - only integers of correct length accepted
-	//               (leading characters may be zeroes, i.e. '004' for 4 written with '%03d')
+   //               (leading characters may be zeroes, i.e. '004' for 4 written with '%03d')
    //      %*   -  just garbage, no argument required, it is not read. we ignore the rest of the string
    //                      and the rest of the format. this is not counted as a field to be read. i.e. Sscanf("%*")
    //                      gives 0 for any string, not because it doesn't match, but because there is nothing to read.
@@ -309,9 +309,9 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
    Int_t str_index = 0;
    Int_t read_items = 0;
    Int_t fmt_index = 0;
-   const char *cp = Data();
-	Int_t int_format_length_descriptor = 0;
-	Bool_t zero_padding = kFALSE;
+   const char* cp = Data();
+   Int_t int_format_length_descriptor = 0;
+   Bool_t zero_padding = kFALSE;
 
    while (fmt[fmt_index] != '\0') {
 
@@ -319,100 +319,94 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
          //handle format descriptor
          fmt_index++;
          if (fmt[fmt_index] >= '0' && fmt[fmt_index] <= '9') {
-				// case of %nd or %0nd with n=some integer
-				zero_padding = (fmt[fmt_index]=='0');
-				if(zero_padding) fmt_index++;
-				// stick together all figures until 'd' (or some other non-number) is found
-				KVString length_of_number="";
-				while( fmt[fmt_index] >= '0' && fmt[fmt_index] <= '9'){
-					length_of_number+=fmt[fmt_index++];
-				}
-				int_format_length_descriptor = length_of_number.Atoi();
-			}
+            // case of %nd or %0nd with n=some integer
+            zero_padding = (fmt[fmt_index] == '0');
+            if (zero_padding) fmt_index++;
+            // stick together all figures until 'd' (or some other non-number) is found
+            KVString length_of_number = "";
+            while (fmt[fmt_index] >= '0' && fmt[fmt_index] <= '9') {
+               length_of_number += fmt[fmt_index++];
+            }
+            int_format_length_descriptor = length_of_number.Atoi();
+         }
          if (fmt[fmt_index] == 'd') {
             //read an integer
             KVString dummy;
-				if(int_format_length_descriptor){
-					if(zero_padding){
-						// fixed length integer with leading zeroes
-						// i.e. for %03d, '3' will be represented by '003'
-						// we must read int_format_length_descriptor consecutive integers
-						Int_t figures_read=0;
-            		while (cp[str_index] >= '0' && cp[str_index] <= '9'){
-               		dummy += cp[str_index++];
-							figures_read++;
-						}
-						if(figures_read!=int_format_length_descriptor){
-							// number is not correct length, string is not good
-            			va_end(args);
-            			return 0;
-						}
-						else
-						{
-							// good
-            			*(va_arg(args, int *)) = dummy.Atoi();
-            			fmt_index++;
-            			read_items++;
-						}
-					}
-					else
-					{
-						// fixed length integer with white-space padding
-						// i.e. for %3d, '3' will be represented by '  3'
-						// we must read int_format_length_descriptor consecutive characters
-						// which are either white-space or numbers, at least the last one must
-						// be a number, and once we start reading numbers we cannot have any more
-						// white space
-						Bool_t no_more_whitespace = kFALSE;
-						while(int_format_length_descriptor){
-							if(cp[str_index]=='\0'){
-								// tried to read past end of string - no good
-            				va_end(args);
-            				return 0;
-							}
-							if((cp[str_index]!=' ')&&(cp[str_index]<'0'||cp[str_index]>'9')){
-								// read a non-whitespace non-number - no good
-            				va_end(args);
-            				return 0;
-							}
-							if((cp[str_index]==' ')&&no_more_whitespace){
-								// read a whitespace after starting to read numbers - no good
-            				va_end(args);
-            				return 0;
-							}
-							if(cp[str_index]!=' '){
-								no_more_whitespace=kTRUE;
-								dummy+=cp[str_index];
-							}
-							str_index++;
-							int_format_length_descriptor--;
-						}
-						// check we read at least one number
-						if(!no_more_whitespace){
-            			va_end(args);
-            			return 0;
-						}
-						// check that next character in string is not a number
-						if(cp[str_index+1]!='\0'&&(cp[str_index+1]<'0'||cp[str_index+1]>'9')){
-            			va_end(args);
-            			return 0;
-						}
-						// good
-            		*(va_arg(args, int *)) = dummy.Atoi();
-            		fmt_index++;
-            		read_items++;
-						
-					}
-				}
-				else
-				{
-					// any length of integer i.e. '%d'
-            	while (cp[str_index] >= '0' && cp[str_index] <= '9')
-               	dummy += cp[str_index++];
-            	*(va_arg(args, int *)) = dummy.Atoi();
-            	fmt_index++;
-            	read_items++;
-				}
+            if (int_format_length_descriptor) {
+               if (zero_padding) {
+                  // fixed length integer with leading zeroes
+                  // i.e. for %03d, '3' will be represented by '003'
+                  // we must read int_format_length_descriptor consecutive integers
+                  Int_t figures_read = 0;
+                  while (cp[str_index] >= '0' && cp[str_index] <= '9') {
+                     dummy += cp[str_index++];
+                     figures_read++;
+                  }
+                  if (figures_read != int_format_length_descriptor) {
+                     // number is not correct length, string is not good
+                     va_end(args);
+                     return 0;
+                  } else {
+                     // good
+                     *(va_arg(args, int*)) = dummy.Atoi();
+                     fmt_index++;
+                     read_items++;
+                  }
+               } else {
+                  // fixed length integer with white-space padding
+                  // i.e. for %3d, '3' will be represented by '  3'
+                  // we must read int_format_length_descriptor consecutive characters
+                  // which are either white-space or numbers, at least the last one must
+                  // be a number, and once we start reading numbers we cannot have any more
+                  // white space
+                  Bool_t no_more_whitespace = kFALSE;
+                  while (int_format_length_descriptor) {
+                     if (cp[str_index] == '\0') {
+                        // tried to read past end of string - no good
+                        va_end(args);
+                        return 0;
+                     }
+                     if ((cp[str_index] != ' ') && (cp[str_index] < '0' || cp[str_index] > '9')) {
+                        // read a non-whitespace non-number - no good
+                        va_end(args);
+                        return 0;
+                     }
+                     if ((cp[str_index] == ' ') && no_more_whitespace) {
+                        // read a whitespace after starting to read numbers - no good
+                        va_end(args);
+                        return 0;
+                     }
+                     if (cp[str_index] != ' ') {
+                        no_more_whitespace = kTRUE;
+                        dummy += cp[str_index];
+                     }
+                     str_index++;
+                     int_format_length_descriptor--;
+                  }
+                  // check we read at least one number
+                  if (!no_more_whitespace) {
+                     va_end(args);
+                     return 0;
+                  }
+                  // check that next character in string is not a number
+                  if (cp[str_index + 1] != '\0' && (cp[str_index + 1] < '0' || cp[str_index + 1] > '9')) {
+                     va_end(args);
+                     return 0;
+                  }
+                  // good
+                  *(va_arg(args, int*)) = dummy.Atoi();
+                  fmt_index++;
+                  read_items++;
+
+               }
+            } else {
+               // any length of integer i.e. '%d'
+               while (cp[str_index] >= '0' && cp[str_index] <= '9')
+                  dummy += cp[str_index++];
+               *(va_arg(args, int*)) = dummy.Atoi();
+               fmt_index++;
+               read_items++;
+            }
          } else if (fmt[fmt_index] == '*') {
             //rest of string is garbage
             va_end(args);
@@ -443,64 +437,63 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
 
 Bool_t KVString::Match(TString pattern)
 {
-	// Check if pattern fit the considered string
-	// As in ls shell command the * symbol represents the non discriminant part
-	// of the pattern
-	// if no * is present in the pattern, the result correspond to TString::Contains method
-	// Example KVString st(file_R45.dat);
-	// st.Match("*") -> kTRUE
-	// st.Match("file") ->kTRUE
-	// st.Match("*file*R*") ->kTRUE
-	// etc ....  
-	if (!pattern.Contains("*")) return this->Contains(pattern);
-	else if (pattern=="*") return kTRUE;
-	else {
-		TObjArray *tok = pattern.Tokenize("*");
-		Int_t n_tok = tok->GetEntries();
-		if (!pattern.BeginsWith("*"))
-			if ( !this->BeginsWith(((TObjString* )tok->First())->GetString()) ){
-				delete tok;
-				return kFALSE;
-			}
-		if (!pattern.EndsWith("*"))
-			if ( !this->EndsWith(((TObjString* )tok->Last())->GetString()) ) {
-				delete tok;
-				return kFALSE;
-			}
-		
-		Int_t idx=0,num=0;
-		for (Int_t ii=0;ii<n_tok;ii+=1){
-			idx = this->Index( ((TObjString* )tok->At(ii))->GetString() ,idx);
-			if (idx!=-1){
-				num+=1;
-				idx++;
-			}
-			else break;
-		}
+   // Check if pattern fit the considered string
+   // As in ls shell command the * symbol represents the non discriminant part
+   // of the pattern
+   // if no * is present in the pattern, the result correspond to TString::Contains method
+   // Example KVString st(file_R45.dat);
+   // st.Match("*") -> kTRUE
+   // st.Match("file") ->kTRUE
+   // st.Match("*file*R*") ->kTRUE
+   // etc ....
+   if (!pattern.Contains("*")) return this->Contains(pattern);
+   else if (pattern == "*") return kTRUE;
+   else {
+      TObjArray* tok = pattern.Tokenize("*");
+      Int_t n_tok = tok->GetEntries();
+      if (!pattern.BeginsWith("*"))
+         if (!this->BeginsWith(((TObjString*)tok->First())->GetString())) {
+            delete tok;
+            return kFALSE;
+         }
+      if (!pattern.EndsWith("*"))
+         if (!this->EndsWith(((TObjString*)tok->Last())->GetString())) {
+            delete tok;
+            return kFALSE;
+         }
+
+      Int_t idx = 0, num = 0;
+      for (Int_t ii = 0; ii < n_tok; ii += 1) {
+         idx = this->Index(((TObjString*)tok->At(ii))->GetString() , idx);
+         if (idx != -1) {
+            num += 1;
+            idx++;
+         } else break;
+      }
       delete tok;
-		if (num==n_tok) return kTRUE;
-		else return kFALSE;
-	}
+      if (num == n_tok) return kTRUE;
+      else return kFALSE;
+   }
 }
 
 void KVString::Begin(TString delim)
 {
-	// Begin(), Next() and End() can be used to loop over items in
-	// a string separated by the delimiter character given as argument
-	// to Begin().
-	//
-	// Example:
-	//   KVString str("First | Second | Third");
-	//   str.Begin("|");
-	//   while( !str.End() ){
-	//     cout << str.Next().Data() << endl;
-	//   }
-	//
-	// This will give the following output:
-	//
-	// First
-	//  Second
-	//  Third
+   // Begin(), Next() and End() can be used to loop over items in
+   // a string separated by the delimiter character given as argument
+   // to Begin().
+   //
+   // Example:
+   //   KVString str("First | Second | Third");
+   //   str.Begin("|");
+   //   while( !str.End() ){
+   //     cout << str.Next().Data() << endl;
+   //   }
+   //
+   // This will give the following output:
+   //
+   // First
+   //  Second
+   //  Third
    //
    // WARNING: If the delimiter character is not contained in the string,
    // calling Next() will return the entire contents of the string, after
@@ -510,81 +503,94 @@ void KVString::Begin(TString delim)
    //
    //      "par1|par2|par3" -> "par1" "par2" "par3"
    //      "par1"           -> "par1"
-	fEndList=kFALSE;
-	fIterIndex=0;
-	if (IsNull()) { fEndList=kTRUE;}
-	else {
-		if (kObjArr) delete kObjArr;
-		kObjArr = Tokenize(delim);
-	   if (!kObjArr) { fEndList=kTRUE;}
-	   else if (!kObjArr->GetEntries()) { fEndList=kTRUE; delete kObjArr; kObjArr=0;}
-	}
+   fEndList = kFALSE;
+   fIterIndex = 0;
+   if (IsNull()) {
+      fEndList = kTRUE;
+   } else {
+      if (kObjArr) delete kObjArr;
+      kObjArr = Tokenize(delim);
+      if (!kObjArr) {
+         fEndList = kTRUE;
+      } else if (!kObjArr->GetEntries()) {
+         fEndList = kTRUE;
+         delete kObjArr;
+         kObjArr = 0;
+      }
+   }
 }
 
 Bool_t KVString::End()
 {
-	// Begin(), Next() and End() can be used to loop over items in
-	// a string separated by the delimiter character given as argument
-	// to Begin().
-	//
-	// Example:
-	//   KVString str("First | Second | Third");
-	//   str.Begin("|");
-	//   while( !str.End() ){
-	//     cout << str.Next().Data() << endl;
-	//   }
-	//
-	// This will give the following output:
-	//
-	// First
-	//  Second
-	//  Third
-	return fEndList;
+   // Begin(), Next() and End() can be used to loop over items in
+   // a string separated by the delimiter character given as argument
+   // to Begin().
+   //
+   // Example:
+   //   KVString str("First | Second | Third");
+   //   str.Begin("|");
+   //   while( !str.End() ){
+   //     cout << str.Next().Data() << endl;
+   //   }
+   //
+   // This will give the following output:
+   //
+   // First
+   //  Second
+   //  Third
+   return fEndList;
 }
 
 KVString KVString::Next(Bool_t strip_whitespace)
 {
-	// Begin(), Next() and End() can be used to loop over items in
-	// a string separated by the delimiter character given as argument
-	// to Begin().
-	// If strip_whitespace=kTRUE (default is kFALSE), any leading or
-	// trailing whitespace is removed from each item.
-	//
-	// Example:
-	//   KVString str("First | Second | Third");
-	//   str.Begin("|");
-	//   while( !str.End() ){
-	//     cout << str.Next(kTRUE).Data() << endl;
-	//   }
-	//
-	// This will give the following output:
-	//
-	// First
-	// Second
-	// Third
-	//
-	// whereas if Next() is used (i.e. strip_whitespace=kFALSE),
-	// this gives:
-	//
-	// First
-	//  Second
-	//  Third
-	
-	static KVString st;
-	st = "";
-	if(!kObjArr) return st;
-	st = ((TObjString* )kObjArr->At(fIterIndex++))->GetString();
-	fEndList = (fIterIndex==kObjArr->GetEntries());
-	if(fEndList) {delete kObjArr; kObjArr=0;};
-	if(strip_whitespace) st.Remove(kBoth,' ');
-	return st;
+   // Begin(), Next() and End() can be used to loop over items in
+   // a string separated by the delimiter character given as argument
+   // to Begin().
+   // If strip_whitespace=kTRUE (default is kFALSE), any leading or
+   // trailing whitespace is removed from each item.
+   //
+   // Example:
+   //   KVString str("First | Second | Third");
+   //   str.Begin("|");
+   //   while( !str.End() ){
+   //     cout << str.Next(kTRUE).Data() << endl;
+   //   }
+   //
+   // This will give the following output:
+   //
+   // First
+   // Second
+   // Third
+   //
+   // whereas if Next() is used (i.e. strip_whitespace=kFALSE),
+   // this gives:
+   //
+   // First
+   //  Second
+   //  Third
+
+   static KVString st;
+   st = "";
+   if (!kObjArr) return st;
+   st = ((TObjString*)kObjArr->At(fIterIndex++))->GetString();
+   fEndList = (fIterIndex == kObjArr->GetEntries());
+   if (fEndList) {
+      delete kObjArr;
+      kObjArr = 0;
+   };
+   if (strip_whitespace) st.Remove(kBoth, ' ');
+   return st;
 }
 
 Int_t KVString::GetNValues(TString delim)
 {
-	Int_t nn=0;
-	Begin(delim); while (!End()) {KVString dummy=Next(); nn+=1;}
-	return nn;
+   Int_t nn = 0;
+   Begin(delim);
+   while (!End()) {
+      KVString dummy = Next();
+      nn += 1;
+   }
+   return nn;
 }
 #ifdef __WITH_KVSTRING_ITOA
 //______________________________________________________________________________
@@ -594,7 +600,7 @@ Bool_t KVString::IsBin() const
    // Returns false in case string length is 0 or string contains other
    // characters.
 
-   const char *cp = Data();
+   const char* cp = Data();
    Ssiz_t len = Length();
    if (len == 0) return kFALSE;
    for (Ssiz_t i = 0; i < len; ++i)
@@ -610,11 +616,11 @@ Bool_t KVString::IsOct() const
    // Returns false in case string length is 0 or string contains other
    // characters.
 
-   const char *cp = Data();
+   const char* cp = Data();
    Ssiz_t len = Length();
    if (len == 0) return kFALSE;
    for (Ssiz_t i = 0; i < len; ++i)
-      if (!isdigit(cp[i]) || cp[i]=='8' || cp[i]=='9')
+      if (!isdigit(cp[i]) || cp[i] == '8' || cp[i] == '9')
          return kFALSE;
    return kTRUE;
 }
@@ -626,7 +632,7 @@ Bool_t KVString::IsDec() const
    // Returns false in case string length is 0 or string contains other
    // characters.
 
-   const char *cp = Data();
+   const char* cp = Data();
    Ssiz_t len = Length();
    if (len == 0) return kFALSE;
    for (Ssiz_t i = 0; i < len; ++i)
@@ -682,7 +688,7 @@ KVString KVString::Itoa(Int_t value, Int_t base)
    std::string buf;
    // check that the base if valid
    if (base < 2 || base > 36) {
-      Error("KVString::Itoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base) ;
+      Error("KVString::Itoa", "base %d is not supported. Suppported bases are {2,3,...,36}.", base) ;
       return (KVString("!"));
    }
    buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
@@ -713,7 +719,7 @@ KVString KVString::UItoa(UInt_t value, Int_t base)
    std::string buf;
    // check that the base if valid
    if (base < 2 || base > 36) {
-      Error("KVString::UItoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      Error("KVString::UItoa", "base %d is not supported. Suppported bases are {2,3,...,36}.", base);
       return (KVString("!"));
    }
    buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
@@ -742,7 +748,7 @@ KVString KVString::LLtoa(Long64_t value, Int_t base)
    std::string buf;
    // check that the base if valid
    if (base < 2 || base > 36) {
-      Error("KVString::LLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      Error("KVString::LLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.", base);
       return (KVString("!"));
    }
    buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
@@ -773,7 +779,7 @@ KVString KVString::ULLtoa(ULong64_t value, Int_t base)
    std::string buf;
    // check that the base if valid
    if (base < 2 || base > 36) {
-      Error("KVString::ULLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      Error("KVString::ULLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.", base);
       return (KVString("!"));
    }
    buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
@@ -845,110 +851,91 @@ KVString KVString::BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_o
 }
 
 
-KVString::KVString(Double_t value, Double_t error):TString("")
+KVString::KVString(Double_t value, Double_t error): TString("")
 {
-    Double_t y  = value;
-    Double_t ey = error;
+   Double_t y  = value;
+   Double_t ey = error;
 
-    TString sy = Format("%1.2e",y);
-    TString sey = Format("%1.1e",ey);
+   TString sy = Format("%1.2e", y);
+   TString sey = Format("%1.1e", ey);
 
-    TString sy_dec,sy_exp,sey_dec,sey_exp;
-    Double_t y_dec,ey_dec;
-    Int_t y_exp,ey_exp;
+   TString sy_dec, sy_exp, sey_dec, sey_exp;
+   Double_t y_dec, ey_dec;
+   Int_t y_exp, ey_exp;
 
-    //Recup de la valeur y
-    TObjArray *loa_y;
+   //Recup de la valeur y
+   TObjArray* loa_y;
 
-    loa_y=sy.Tokenize("e");
+   loa_y = sy.Tokenize("e");
 
-    TIter next_y(loa_y);
-    TObjString *os_y=0;
-    os_y=(TObjString *)next_y();
-    sy_dec = os_y->GetString();
-    os_y=(TObjString *)next_y();
-    sy_exp = os_y->GetString();
+   TIter next_y(loa_y);
+   TObjString* os_y = 0;
+   os_y = (TObjString*)next_y();
+   sy_dec = os_y->GetString();
+   os_y = (TObjString*)next_y();
+   sy_exp = os_y->GetString();
 
-    y_dec = sy_dec.Atof();
-    y_exp = sy_exp.Atoi();
+   y_dec = sy_dec.Atof();
+   y_exp = sy_exp.Atoi();
 
-    //Recup de la valeur ey
-    TObjArray *loa_ey;
+   //Recup de la valeur ey
+   TObjArray* loa_ey;
 
-    loa_ey=sey.Tokenize("e");
+   loa_ey = sey.Tokenize("e");
 
-    TIter next_ey(loa_ey);
-    TObjString *os_ey=0;
+   TIter next_ey(loa_ey);
+   TObjString* os_ey = 0;
 
-    os_ey=(TObjString *)next_ey();
-    sey_dec = os_ey->GetString();
+   os_ey = (TObjString*)next_ey();
+   sey_dec = os_ey->GetString();
 
-    os_ey=(TObjString *)next_ey();
-    sey_exp = os_ey->GetString();
+   os_ey = (TObjString*)next_ey();
+   sey_exp = os_ey->GetString();
 
-    ey_dec = sey_dec.Atof();
-    ey_exp = sey_exp.Atoi();
+   ey_dec = sey_dec.Atof();
+   ey_exp = sey_exp.Atoi();
 
-    Double_t err = ey_dec*TMath::Power(10.,ey_exp-y_exp);
-    TString s;
+   Double_t err = ey_dec * TMath::Power(10., ey_exp - y_exp);
+   TString s;
 
-    if(!((TString)Format("%1.2g",y_dec)).Contains(".")&&err>=1)
-    {
+   if (!((TString)Format("%1.2g", y_dec)).Contains(".") && err >= 1) {
 
-        if(!((TString)Format("%1.2g",err)).Contains("."))
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g.0(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g.0(%g.0).10$^{%d}$",y_dec,err,y_exp);
-        }
-        else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g.0(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g.0(%g0).10$^{%d}$",y_dec,err,y_exp);
-        }
-        else
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g.0(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g.0(%g).10$^{%d}$",y_dec,err,y_exp);
-        }
-    }
-    else if(((TString)Format("%1.3g",y_dec))==((TString)Format("%1.2g",y_dec))&&((TString)Format("%1.2g",y_dec)).Contains(".")&&err<1)
-    {
+      if (!((TString)Format("%1.2g", err)).Contains(".")) {
+         if (y_exp == ey_exp) s = Format("%1.2g.0(%g.0).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g.0(%g.0).10$^{%d}$", y_dec, err, y_exp);
+      } else if (((TString)Format("%1.2g", err)) == ((TString)Format("%1.1g", err)) && ((TString)Format("%1.2g", err)).Contains(".")) {
+         if (y_exp == ey_exp) s = Format("%1.2g.0(%g0).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g.0(%g0).10$^{%d}$", y_dec, err, y_exp);
+      } else {
+         if (y_exp == ey_exp) s = Format("%1.2g.0(%g).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g.0(%g).10$^{%d}$", y_dec, err, y_exp);
+      }
+   } else if (((TString)Format("%1.3g", y_dec)) == ((TString)Format("%1.2g", y_dec)) && ((TString)Format("%1.2g", y_dec)).Contains(".") && err < 1) {
 
-        if(!((TString)Format("%1.2g",err)).Contains("."))
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g0(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g0(%g.0).10$^{%d}$",y_dec,err,y_exp);
-        }
-        else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g0(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g0(%g0).10$^{%d}$",y_dec,err,y_exp);
-        }
-        else
-        {
-            if(y_exp==ey_exp) s = Format("%1.2g0(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
-            else s = Format("%1.3g0(%g).10$^{%d}$",y_dec,err,y_exp);
-        }
-    }
-    else if(!((TString)Format("%1.2g",err)).Contains("."))
-    {
-        if(y_exp==ey_exp) s = Format("%1.2g(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
-        else s = Format("%1.3g(%g.0).10$^{%d}$",y_dec,err,y_exp);
-    }
-    else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
-    {
-        if(y_exp==ey_exp) s = Format("%1.2g(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
-        else s = Format("%1.3g(%g0).10$^{%d}$",y_dec,err,y_exp);
-    }
-    else
-    {
-        if(y_exp==ey_exp) s = Format("%1.2g(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
-        else s = Format("%1.3g(%g).10$^{%d}$",y_dec,err,y_exp);;
-    }
+      if (!((TString)Format("%1.2g", err)).Contains(".")) {
+         if (y_exp == ey_exp) s = Format("%1.2g0(%g.0).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g0(%g.0).10$^{%d}$", y_dec, err, y_exp);
+      } else if (((TString)Format("%1.2g", err)) == ((TString)Format("%1.1g", err)) && ((TString)Format("%1.2g", err)).Contains(".")) {
+         if (y_exp == ey_exp) s = Format("%1.2g0(%g0).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g0(%g0).10$^{%d}$", y_dec, err, y_exp);
+      } else {
+         if (y_exp == ey_exp) s = Format("%1.2g0(%g).10$^{%d}$", y_dec, ey_dec, y_exp);
+         else s = Format("%1.3g0(%g).10$^{%d}$", y_dec, err, y_exp);
+      }
+   } else if (!((TString)Format("%1.2g", err)).Contains(".")) {
+      if (y_exp == ey_exp) s = Format("%1.2g(%g.0).10$^{%d}$", y_dec, ey_dec, y_exp);
+      else s = Format("%1.3g(%g.0).10$^{%d}$", y_dec, err, y_exp);
+   } else if (((TString)Format("%1.2g", err)) == ((TString)Format("%1.1g", err)) && ((TString)Format("%1.2g", err)).Contains(".")) {
+      if (y_exp == ey_exp) s = Format("%1.2g(%g0).10$^{%d}$", y_dec, ey_dec, y_exp);
+      else s = Format("%1.3g(%g0).10$^{%d}$", y_dec, err, y_exp);
+   } else {
+      if (y_exp == ey_exp) s = Format("%1.2g(%g).10$^{%d}$", y_dec, ey_dec, y_exp);
+      else s = Format("%1.3g(%g).10$^{%d}$", y_dec, err, y_exp);;
+   }
 
-    s.ReplaceAll(".10$^{0}$","");
-    s.ReplaceAll("0)",")");
+   s.ReplaceAll(".10$^{0}$", "");
+   s.ReplaceAll("0)", ")");
 
-    Form("%s",s.Data());
+   Form("%s", s.Data());
 
 }

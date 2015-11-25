@@ -46,7 +46,7 @@ KVModule::~KVModule()
 }
 
 //__________________________________________________________________________
-void KVModule::ConnectDetector(KVDetector * d, const int fcon)
+void KVModule::ConnectDetector(KVDetector* d, const int fcon)
 {
 //   make connection between detector and module. this is a twin of the
 //       KVDetector::ConnectModule method. whichever is called first (with only

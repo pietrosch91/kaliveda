@@ -22,45 +22,52 @@ $Id: KVDBTable.h,v 1.18 2007/05/31 09:59:22 franklan Exp $
 
 class KVDBRecord;
 
-class KVDBTable:public TFolder {
+class KVDBTable: public TFolder {
 
- protected:
+protected:
 
    Bool_t fIsUnique;            // Must each record name be unique ?
    TString fFullPath;  //full path to table in folder structure
 
- public:
+public:
 
    KVDBTable();
-   KVDBTable(const Char_t * name, const Char_t * title =
-             "", Bool_t unique = kFALSE);
-    virtual ~ KVDBTable();
+   KVDBTable(const Char_t* name, const Char_t* title =
+                "", Bool_t unique = kFALSE);
+   virtual ~ KVDBTable();
 
-   inline virtual KVDBRecord *GetRecord(const Char_t * rec_name) const;
-   virtual KVDBRecord *GetRecord(Int_t n) const;
-   inline virtual TList *GetRecords() const;
-   virtual Bool_t AddRecord(KVDBRecord * add);
-   virtual void RemoveRecord(KVDBRecord * add);
-   virtual void ls(Option_t * option = "*") const;
-   virtual TObject *FindObject(const Char_t * name) const;
-   virtual TObject *FindObject(const TObject * obj) const {
+   inline virtual KVDBRecord* GetRecord(const Char_t* rec_name) const;
+   virtual KVDBRecord* GetRecord(Int_t n) const;
+   inline virtual TList* GetRecords() const;
+   virtual Bool_t AddRecord(KVDBRecord* add);
+   virtual void RemoveRecord(KVDBRecord* add);
+   virtual void ls(Option_t* option = "*") const;
+   virtual TObject* FindObject(const Char_t* name) const;
+   virtual TObject* FindObject(const TObject* obj) const
+   {
       return TFolder::FindObject(obj);
    };
 
-   virtual void SetFullPath(const Char_t* path) { fFullPath = path; };
-   virtual const Char_t* GetFullPath() const { return fFullPath.Data(); };
-   
-    ClassDef(KVDBTable, 2)      //Table object for database
+   virtual void SetFullPath(const Char_t* path)
+   {
+      fFullPath = path;
+   };
+   virtual const Char_t* GetFullPath() const
+   {
+      return fFullPath.Data();
+   };
+
+   ClassDef(KVDBTable, 2)      //Table object for database
 };
 
-KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
+KVDBRecord* KVDBTable::GetRecord(const Char_t* rec) const
 {
-   return (KVDBRecord *) FindObject(rec);
+   return (KVDBRecord*) FindObject(rec);
 }
 
-TList *KVDBTable::GetRecords() const
+TList* KVDBTable::GetRecords() const
 {
-   return (TList *) GetListOfFolders();
+   return (TList*) GetListOfFolders();
 }
 
 

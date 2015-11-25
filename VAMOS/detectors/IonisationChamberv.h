@@ -9,60 +9,65 @@
 
 //const int MAXIC=7;
 
-class IonisationChamberv
-{
+class IonisationChamberv {
    Bool_t Ready;
    int logLevel;
 
- public:
-  IonisationChamberv(LogFile *LOg);
-  virtual ~IonisationChamberv(void);
-  
-  LogFile *L;
+public:
+   IonisationChamberv(LogFile* LOg);
+   virtual ~IonisationChamberv(void);
 
-	Int_t NbChio;
-  //bool Present; 
+   LogFile* L;
 
-  void Init(void); 
-  void InitSavedQuantities(void); 
-  void Calibrate(void); 
-  void Show_Raw(void);
-  void Show(void);
-  void Treat(void);
-  void inAttach(TTree *inT);
-  void outAttach(TTree *outT);
-  void CreateHistograms();
-  void FillHistograms();
-  void PrintCounters(void);
+   Int_t NbChio;
+   //bool Present;
 
-  Random *Rnd;
+   void Init(void);
+   void InitSavedQuantities(void);
+   void Calibrate(void);
+   void Show_Raw(void);
+   void Show(void);
+   void Treat(void);
+   void inAttach(TTree* inT);
+   void outAttach(TTree* outT);
+   void CreateHistograms();
+   void FillHistograms();
+   void PrintCounters(void);
 
-  //energy Raw
-  UShort_t *E_Raw;		
-  UShort_t *E_Raw_Nr;		 
-  Int_t *IcRaw;
-  Int_t E_RawM;
-  
-  Int_t *DetChio;
-  
-  //Calibration coeff
-  Float_t *a;
-  Float_t *b;
-  Float_t *Vnorm;
+   Random* Rnd;
 
-  //energy Calibrated
-  Float_t *E;			
-  Int_t EMIC;
-  
-  Float_t eloss;
+   //energy Raw
+   UShort_t* E_Raw;
+   UShort_t* E_Raw_Nr;
+   Int_t* IcRaw;
+   Int_t E_RawM;
 
-  //Counters
-  Int_t Counter[5];
+   Int_t* DetChio;
 
-  ClassDef(IonisationChamberv,0)
+   //Calibration coeff
+   Float_t* a;
+   Float_t* b;
+   Float_t* Vnorm;
 
-    void SetLogLevel(int level){logLevel = level;};
-    int GetLogLevel(){return logLevel;};
+   //energy Calibrated
+   Float_t* E;
+   Int_t EMIC;
+
+   Float_t eloss;
+
+   //Counters
+   Int_t Counter[5];
+
+   ClassDef(IonisationChamberv, 0)
+
+   void SetLogLevel(int level)
+   {
+      logLevel = level;
+   };
+   int GetLogLevel()
+   {
+      return logLevel;
+   };
 };
 
 #endif

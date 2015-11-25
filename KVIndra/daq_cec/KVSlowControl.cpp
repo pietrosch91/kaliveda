@@ -25,35 +25,36 @@ ClassImp(KVSlowControl)
 //Gives access to slow control data
 ////////////////////////////////////////////////////////////////////////////
 
-KVSlowControl::KVSlowControl(){
-	//default constructor
-	fFile = 0;
-	fTree = 0;
-	fBase = 0;
+KVSlowControl::KVSlowControl()
+{
+   //default constructor
+   fFile = 0;
+   fTree = 0;
+   fBase = 0;
 }
 
-void KVSlowControl::Init(const Char_t *filename, const Char_t *treename)
+void KVSlowControl::Init(const Char_t* filename, const Char_t* treename)
 {
-	//open the ROOT file and set up a pointer to the TTree it contains
-	fFile = new TFile(filename);
-	fTree = (TTree*)ffile->Get(treename);
+   //open the ROOT file and set up a pointer to the TTree it contains
+   fFile = new TFile(filename);
+   fTree = (TTree*)ffile->Get(treename);
 }
 
 void KVSlowControl::SetRun(UInt_t run)
 {
-	//fill SLC database from tree for this run
-	fBase = new KVSLCBase();
-	UInt_t fRun;
-	fTree->SetBranchAddress("dB",&fBase);
-	fTree->SetBranchAddress("Run",&fRun);
-	for(UInt_t i=0; i<fTree->GetEntries(); i++)
-	{
-		fTree->GetEntry(i);
-		if(fRun == run) break;
-	}
+   //fill SLC database from tree for this run
+   fBase = new KVSLCBase();
+   UInt_t fRun;
+   fTree->SetBranchAddress("dB", &fBase);
+   fTree->SetBranchAddress("Run", &fRun);
+   for (UInt_t i = 0; i < fTree->GetEntries(); i++) {
+      fTree->GetEntry(i);
+      if (fRun == run) break;
+   }
 }
-KVSlowControl::~KVSlowControl(){
-	if(fTree) delete fTree;
-	if(fFile) delete fFile;
-	if(fBase) delete fBase;
+KVSlowControl::~KVSlowControl()
+{
+   if (fTree) delete fTree;
+   if (fFile) delete fFile;
+   if (fBase) delete fBase;
 }

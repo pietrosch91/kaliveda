@@ -39,81 +39,83 @@ $Date: 2007/06/08 15:49:10 $
 #include "TTree.h"
 #include "TList.h"
 
-class Analysisv_e503 : public Analysisv
-{
- public:
-  
-  DriftChamberv *Dr;
-  Reconstructionv *RC;
-  Identificationv *Id;
-  IonisationChamberv *Ic;
-  Sive503 *Si;
-  CsIv *CsI;
-  CsICalib *energytree;
-  
-  KVDetector *si;  
-  KVDetector *csi;
-  KVDetector *gap;
-  
-	KVTarget *tgt;
-        KVDetector *dcv1;
-        KVMaterial *sed;
-        KVDetector *dcv2;
-        KVDetector *ic;
-        KVMaterial *isogap1;
-        KVMaterial *ssi;
-        KVMaterial *isogap2;	
-        KVMaterial *ccsi;
-			 
+class Analysisv_e503 : public Analysisv {
+public:
+
+   DriftChamberv* Dr;
+   Reconstructionv* RC;
+   Identificationv* Id;
+   IonisationChamberv* Ic;
+   Sive503* Si;
+   CsIv* CsI;
+   CsICalib* energytree;
+
+   KVDetector* si;
+   KVDetector* csi;
+   KVDetector* gap;
+
+   KVTarget* tgt;
+   KVDetector* dcv1;
+   KVMaterial* sed;
+   KVDetector* dcv2;
+   KVDetector* ic;
+   KVMaterial* isogap1;
+   KVMaterial* ssi;
+   KVMaterial* isogap2;
+   KVMaterial* ccsi;
+
    TTree* t;
-   
-  UShort_t T_Raw[10];
-  
-  Analysisv_e503(LogFile *Log);
-  virtual ~Analysisv_e503(void);
-  
-  void inAttach(); //Attaching the variables 
-  void outAttach(); //Attaching the variables 
-  void Treat(); // Treating data
-  void CreateHistograms();
-  void FillHistograms();
-  
-  void SetTel1(KVDetector *si);
-  void SetTel2(KVDetector *gap);  
-  void SetTel3(KVDetector *csi);
-  
-/*TList *fcoup;
-TList *fcoup2;
-TList *fcoup3;
-*/
-void SetFileCut(TList *list);
-void SetFileCutChioSi(TList *list2);
-void SetFileCutSiTof(TList *list3);
-  
-void SetTarget(KVTarget *tgt);
-void SetDC1(KVDetector *dcv1);
-void SetSed(KVMaterial *sed);
-void SetDC2(KVDetector *dcv2);
-void SetIC(KVDetector *ic);
-void SetGap1(KVMaterial *isogap1);
-void SetSi(KVMaterial *ssi);
-void SetGap2(KVMaterial *isogap2);
-void SetCsI(KVMaterial *ccsi); 
 
-virtual void SetAngleVamos(Float_t angle){
-	if( RC ) RC->SetAngleVamos( angle );
-};     
-virtual void SetBrhoRef(Float_t brho){
-	if( RC ) RC->SetBrhoRef( brho );
-	if( Id ) Id->SetBrhoRef( brho );
-};     
+   UShort_t T_Raw[10];
 
-virtual void SetCurrentRun( Int_t run ){
-	if( Si ) Si->SetOffsetRelativisteRun( run );
-}
+   Analysisv_e503(LogFile* Log);
+   virtual ~Analysisv_e503(void);
+
+   void inAttach(); //Attaching the variables
+   void outAttach(); //Attaching the variables
+   void Treat(); // Treating data
+   void CreateHistograms();
+   void FillHistograms();
+
+   void SetTel1(KVDetector* si);
+   void SetTel2(KVDetector* gap);
+   void SetTel3(KVDetector* csi);
+
+   /*TList *fcoup;
+   TList *fcoup2;
+   TList *fcoup3;
+   */
+   void SetFileCut(TList* list);
+   void SetFileCutChioSi(TList* list2);
+   void SetFileCutSiTof(TList* list3);
+
+   void SetTarget(KVTarget* tgt);
+   void SetDC1(KVDetector* dcv1);
+   void SetSed(KVMaterial* sed);
+   void SetDC2(KVDetector* dcv2);
+   void SetIC(KVDetector* ic);
+   void SetGap1(KVMaterial* isogap1);
+   void SetSi(KVMaterial* ssi);
+   void SetGap2(KVMaterial* isogap2);
+   void SetCsI(KVMaterial* ccsi);
+
+   virtual void SetAngleVamos(Float_t angle)
+   {
+      if (RC) RC->SetAngleVamos(angle);
+   };
+   virtual void SetBrhoRef(Float_t brho)
+   {
+      if (RC) RC->SetBrhoRef(brho);
+      if (Id) Id->SetBrhoRef(brho);
+   };
+
+   virtual void SetCurrentRun(Int_t run)
+   {
+      if (Si) Si->SetOffsetRelativisteRun(run);
+   }
 
 
-  ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
+   ClassDef(Analysisv_e503, 0) //VAMOS calibration for e503
 
 };
 

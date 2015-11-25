@@ -9,32 +9,31 @@
 #include "KVINDRADetector.h"
 #include "KVCsI.h"
 
-class KVIDSiLiCsI_e494s : public KVIDSiLiCsI, public KVRTGIDManager
-{
-	protected:
+class KVIDSiLiCsI_e494s : public KVIDSiLiCsI, public KVRTGIDManager {
+protected:
 
-	KVINDRADetector *fSiLi; //!
-	KVCsI           *fCsI;  //!
-	Double_t fThresholdX; //!
-	Double_t fThresholdY; //!
+   KVINDRADetector* fSiLi; //!
+   KVCsI*           fCsI;  //!
+   Double_t fThresholdX; //!
+   Double_t fThresholdY; //!
 
-	Double_t GetThesholdFromVar( const Char_t *var );
+   Double_t GetThesholdFromVar(const Char_t* var);
 
-   	public:
-   	KVIDSiLiCsI_e494s();
-   	virtual ~KVIDSiLiCsI_e494s();
+public:
+   KVIDSiLiCsI_e494s();
+   virtual ~KVIDSiLiCsI_e494s();
 
-   	virtual void Initialize();
+   virtual void Initialize();
 
-    virtual Double_t GetIDMapX(Option_t *opt = ""); 
-    virtual Double_t GetIDMapY(Option_t *opt = "");
+   virtual Double_t GetIDMapX(Option_t* opt = "");
+   virtual Double_t GetIDMapY(Option_t* opt = "");
 
-    virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
+   virtual Bool_t Identify(KVIdentificationResult* IDR, Double_t x = -1., Double_t y = -1.);
 
-    virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
-    virtual void RemoveIdentificationParameters();
+   virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
+   virtual void RemoveIdentificationParameters();
 
-   	ClassDef(KVIDSiLiCsI_e494s,1)//E503/E494S experiment INDRA identification using SiLi-CsI matrices
+   ClassDef(KVIDSiLiCsI_e494s, 1) //E503/E494S experiment INDRA identification using SiLi-CsI matrices
 };
 
 #endif

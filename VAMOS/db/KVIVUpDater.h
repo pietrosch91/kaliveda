@@ -6,24 +6,23 @@
 
 #include "KVINDRAUpDater.h"
 
-class KVIVUpDater : public KVINDRAUpDater
-{
+class KVIVUpDater : public KVINDRAUpDater {
 
-   public:
+public:
    KVIVUpDater();
    virtual ~KVIVUpDater();
 
-   virtual void SetVamosCalibAndConfParams(KVDBRun *);
-   virtual void SetPedestals(KVDBRun *);
-   virtual void SetChIoSiPedestals(KVDBRun *);
-   virtual void SetSi75SiLiPedestals(KVDBRun *);
-   
+   virtual void SetVamosCalibAndConfParams(KVDBRun*);
+   virtual void SetPedestals(KVDBRun*);
+   virtual void SetChIoSiPedestals(KVDBRun*);
+   virtual void SetSi75SiLiPedestals(KVDBRun*);
+
    virtual void SetIDGrids(UInt_t);
    virtual void SetParameters(UInt_t run);
-   virtual void SetPedestalCorrections(KVDBRun *);
+   virtual void SetPedestalCorrections(KVDBRun*);
    virtual void SetChVoltRefGains();
 
-   ClassDef(KVIVUpDater,1)//Class for setting INDRA-VAMOS parameter for each run (e494s/e503 experiment)
+   ClassDef(KVIVUpDater, 1) //Class for setting INDRA-VAMOS parameter for each run (e494s/e503 experiment)
 };
 
 #endif

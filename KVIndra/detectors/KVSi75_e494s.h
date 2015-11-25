@@ -6,10 +6,9 @@
 
 #include "KVSilicon.h"
 
-class KVSi75_e494s : public KVSi75
-{
+class KVSi75_e494s : public KVSi75 {
 
-   public:
+public:
    KVSi75_e494s();
    KVSi75_e494s(Float_t thick);
    virtual ~KVSi75_e494s();
@@ -18,13 +17,12 @@ class KVSi75_e494s : public KVSi75
    Double_t GetCanalPGFromVoltsDouble(Float_t volts);
 //   void Copy(TObject& obj) const;
 
-   ClassDef(KVSi75_e494s,1)//Calib Etalons
+   ClassDef(KVSi75_e494s, 1) //Calib Etalons
 };
 
-class KVSiLi_e494s : public KVSiLi 
-{
-   
-   public:
+class KVSiLi_e494s : public KVSiLi {
+
+public:
    KVSiLi_e494s();
    KVSiLi_e494s(Float_t thick);
    virtual ~KVSiLi_e494s();
@@ -33,7 +31,7 @@ class KVSiLi_e494s : public KVSiLi
    Double_t GetCanalPGFromVoltsDouble(Float_t volts);
 //   void Copy(TObject& obj) const;
 
-   ClassDef(KVSiLi_e494s,1)//Calib Etalons
+   ClassDef(KVSiLi_e494s, 1) //Calib Etalons
 };
-   
+
 #endif

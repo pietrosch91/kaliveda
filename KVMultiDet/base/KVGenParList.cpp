@@ -35,8 +35,8 @@ KVGenParList::~KVGenParList()
 KVGenParList::KVGenParList(const KVGenParList& obj)
 {
    // Copy constructor
-   
-   obj.Copy( *this );
+
+   obj.Copy(*this);
 }
 
 //______________________________________________________________________________
@@ -44,8 +44,8 @@ KVGenParList::KVGenParList(const KVGenParList& obj)
 void KVGenParList::Copy(KVGenParList& obj) const
 {
    // Replaces any existing parameters in list 'obj' with all those defined in this list.
-   
-   KVParameterList<KVString>::Copy( (KVParameterList<KVString>&)obj );
+
+   KVParameterList<KVString>::Copy((KVParameterList<KVString>&)obj);
 }
 
 //______________________________________________________________________________
@@ -54,8 +54,8 @@ const Char_t* KVGenParList::GetStringValue(const Char_t* name)
 {
    // Return string containing value of named parameter
    // Returns empty string if parameter is not defined.
-   
-   if( !HasParameter(name) ) return "";
+
+   if (!HasParameter(name)) return "";
    return GetParameter(name).Data();
 }
 
@@ -65,10 +65,10 @@ Int_t KVGenParList::GetIntValue(const Char_t* name)
 {
    // Return integer value of named parameter
    // Returns 0 if parameter is not defined, or if value is non-numeric.
-   
-   if( !HasParameter(name) ) return 0;
+
+   if (!HasParameter(name)) return 0;
    KVString tmp = GetParameter(name);
-   if( tmp.IsFloat() ) return (Int_t)tmp.Atof();
+   if (tmp.IsFloat()) return (Int_t)tmp.Atof();
    return 0;
 }
 
@@ -78,10 +78,10 @@ Double_t KVGenParList::GetDoubleValue(const Char_t* name)
 {
    // Return floating-point value of named parameter
    // Returns 0 if parameter is not defined, or if value is non-numeric.
-   
-   if( !HasParameter(name) ) return 0;
+
+   if (!HasParameter(name)) return 0;
    KVString tmp = GetParameter(name);
-   if( tmp.IsFloat() ) return tmp.Atof();
+   if (tmp.IsFloat()) return tmp.Atof();
    return 0;
 }
 
@@ -91,7 +91,7 @@ void KVGenParList::SetValue(const Char_t* name, const KVString& val)
 {
    // Set value of parameter "name" to be the string "val".
    // New parameter is created if "name" does not exist.
-   
+
    SetParameter(name, val);
 }
 
@@ -101,7 +101,7 @@ void KVGenParList::SetValue(const Char_t* name, KVString& val)
 {
    // Set value of parameter "name" to be the string "val".
    // New parameter is created if "name" does not exist.
-   
+
    SetParameter(name, val);
 }
 
@@ -111,7 +111,7 @@ void KVGenParList::SetValue(const Char_t* name, const Char_t* val)
 {
    // Set value of parameter "name" to be the string "val".
    // New parameter is created if "name" does not exist.
-   
+
    KVString tmp(val);
    SetParameter(name, tmp);
 }
@@ -122,7 +122,7 @@ void KVGenParList::SetValue(const Char_t* name, Int_t val)
 {
    // Set value of parameter "name" to be the integer value "val".
    // New parameter is created if "name" does not exist.
-   
+
    KVString tmp;
    tmp.Form("%d", val); // write value in temporary string
    SetParameter(name, tmp);
@@ -134,7 +134,7 @@ void KVGenParList::SetValue(const Char_t* name, Double_t val)
 {
    // Set value of parameter "name" to be the floating-point value "val".
    // New parameter is created if "name" does not exist.
-   
+
    KVString tmp;
    tmp.Form("%lf", val); // write value in temporary string
    SetParameter(name, tmp);
@@ -146,9 +146,9 @@ void KVGenParList::IncrementValue(const Char_t* name, Int_t val)
 {
    // Increment parameter value
    // New parameter is created if "name" does not exist.
-   
+
    KVString tmp;
-   tmp.Form("%d", val+GetIntValue(name)); // write value in temporary string
+   tmp.Form("%d", val + GetIntValue(name)); // write value in temporary string
    SetParameter(name, tmp);
 }
 
@@ -158,8 +158,8 @@ void KVGenParList::IncrementValue(const Char_t* name, Double_t val)
 {
    // Increment parameter value
    // New parameter is created if "name" does not exist.
-   
+
    KVString tmp;
-   tmp.Form("%lf", val+GetDoubleValue(name)); // write value in temporary string
+   tmp.Form("%lf", val + GetDoubleValue(name)); // write value in temporary string
    SetParameter(name, tmp);
 }

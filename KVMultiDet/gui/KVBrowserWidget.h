@@ -24,18 +24,18 @@ $Id: KVBrowserWidget.h,v 1.3 2006/10/19 14:32:43 franklan Exp $
 
 class KVMultiDetArray;
 
-class KVBrowserWidget:public KVWidget {
+class KVBrowserWidget: public KVWidget {
 
-   static KVMultiDetArray *fMDA;        //! pointer to multidet array shared by all widgets
+   static KVMultiDetArray* fMDA;        //! pointer to multidet array shared by all widgets
 
- public:
+public:
 
-    KVBrowserWidget();
-    KVBrowserWidget(TObject * obj, Long_t func);
-    virtual ~ KVBrowserWidget();
+   KVBrowserWidget();
+   KVBrowserWidget(TObject* obj, Long_t func);
+   virtual ~ KVBrowserWidget();
    virtual void Action(Long_t parm = 0) const;
 
-    ClassDef(KVBrowserWidget, 0)        //Extension of KVWidget for KVBrowser
+   ClassDef(KVBrowserWidget, 0)        //Extension of KVWidget for KVBrowser
 };
 
 #endif

@@ -20,7 +20,7 @@ ClassImp(KVNuclData)
 KVNuclData::KVNuclData(const Char_t* name): fName(name)
 {
    //Constructor with name
-	init();
+   init();
 
 }
 
@@ -28,7 +28,7 @@ KVNuclData::KVNuclData(const Char_t* name): fName(name)
 KVNuclData::KVNuclData(): fName()
 {
    // Default constructor
-	init();
+   init();
 }
 
 //_________________________________
@@ -40,9 +40,9 @@ KVNuclData::~KVNuclData()
 //_________________________________
 void KVNuclData::init()
 {
-	
-	SetMeasured(kFALSE);
-	SetValue(0);
+
+   SetMeasured(kFALSE);
+   SetValue(0);
 }
 
 
@@ -50,7 +50,7 @@ void KVNuclData::init()
 const Char_t* KVNuclData::GetName() const
 {
 
-	return fName.Data();
+   return fName.Data();
 
 }
 
@@ -58,7 +58,7 @@ const Char_t* KVNuclData::GetName() const
 void KVNuclData::SetValue(Double_t val)
 {
 
-	kValue = val;
+   kValue = val;
 
 }
 
@@ -66,23 +66,25 @@ void KVNuclData::SetValue(Double_t val)
 Double_t KVNuclData::GetValue() const
 {
 
-	return kValue;
+   return kValue;
 
 }
 
 //_________________________________
-const Char_t* KVNuclData::GetUnit() const{
+const Char_t* KVNuclData::GetUnit() const
+{
 
-	TString unit="NONE";
-	return unit.Data();
+   TString unit = "NONE";
+   return unit.Data();
 }
 
 //_________________________________
-void KVNuclData::Print(Option_t* option) const{
-	
-	TString post=" ";
-	if (!IsMeasured()) post += "(SYST)";
-		
-	cout << ClassName() << " : " << GetName() << " " << GetValue() << " " << GetUnit() << " " << post.Data() << endl;
+void KVNuclData::Print(Option_t* option) const
+{
+
+   TString post = " ";
+   if (!IsMeasured()) post += "(SYST)";
+
+   cout << ClassName() << " : " << GetName() << " " << GetValue() << " " << GetUnit() << " " << post.Data() << endl;
 }
 

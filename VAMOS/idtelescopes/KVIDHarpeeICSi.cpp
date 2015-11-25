@@ -26,7 +26,7 @@ KVIDHarpeeICSi::KVIDHarpeeICSi()
 {
    // Default constructor
 
-	fIDCode = kIDCode4;
+   fIDCode = kIDCode4;
 }
 //________________________________________________________________
 

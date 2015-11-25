@@ -6,7 +6,7 @@
 #include "KVDataSetManager.h"
 #include "KVRunListLine.h"
 
-KVFAZIADB *gFaziaDB;
+KVFAZIADB* gFaziaDB;
 
 ClassImp(KVFAZIADB)
 
@@ -29,15 +29,15 @@ void KVFAZIADB::init()
    fSystems = AddTable("Systems", "List of available systems");
 }
 
-KVFAZIADB::KVFAZIADB(const Char_t * name):KVDataBase(name,
-                                                     "FAZIA experiment parameter database")
+KVFAZIADB::KVFAZIADB(const Char_t* name): KVDataBase(name,
+         "FAZIA experiment parameter database")
 {
    init();
 }
 
 
-KVFAZIADB::KVFAZIADB():KVDataBase("KVFAZIADB",
-           "FAZIA experiment parameter database")
+KVFAZIADB::KVFAZIADB(): KVDataBase("KVFAZIADB",
+                                      "FAZIA experiment parameter database")
 {
    init();
 }
@@ -54,13 +54,13 @@ KVFAZIADB::~KVFAZIADB()
 //___________________________________________________________________________
 void KVFAZIADB::cd()
 {
-	KVDataBase::cd();
-	gFaziaDB = this;
+   KVDataBase::cd();
+   gFaziaDB = this;
 
 }
 //__________________________________________________________________________________________________________________
 
-Bool_t KVFAZIADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
+Bool_t KVFAZIADB::OpenCalibFile(const Char_t* type, ifstream& fs) const
 {
    //Find and open calibration parameter file of given type. Return kTRUE if all OK.
    //types are defined in $KVROOT/KVFiles/.kvrootrc by lines such as
@@ -83,21 +83,21 @@ Bool_t KVFAZIADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
 }
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVFAZIADB::GetDBEnv(const Char_t * type) const
+const Char_t* KVFAZIADB::GetDBEnv(const Char_t* type) const
 {
    //Will look for gEnv->GetValue name "name_of_dataset.INDRADB.type"
    //then "INDRADB.type" if no dataset-specific value is found.
 
    if (!gDataSetManager)
       return "";
-   KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
+   KVDataSet* ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
       return "";
    return ds->GetDataSetEnv(Form("INDRADB.%s", type));
 }
 
 //_____________________________________________________________________
-void KVFAZIADB::LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
+void KVFAZIADB::LinkRecordToRunRange(KVDBRecord* rec, UInt_t first_run,
                                      UInt_t last_run)
 {
    //If the KVDBRecord 'rec' (i.e. set of calibration parameters, reaction system, etc.) is
@@ -106,36 +106,36 @@ void KVFAZIADB::LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
    //will have a link to the record.
 
    for (UInt_t ii = first_run; ii <= last_run; ii++) {
-      LinkRecordToRun(rec,ii);
+      LinkRecordToRun(rec, ii);
    }
 }
 //_____________________________________________________________________
-void KVFAZIADB::LinkRecordToRunRange(KVDBRecord * rec, KVNumberList nl)
+void KVFAZIADB::LinkRecordToRunRange(KVDBRecord* rec, KVNumberList nl)
 {
    //If the KVDBRecord 'rec' (i.e. set of calibration parameters, reaction system, etc.) is
    //associated to, or valid for, a range of runs, we use this method in order to link the record
    //and the runs. The list of associated runs will be kept with the record, and each of the runs
    //will have a link to the record.
-	nl.Begin(); 
-	while (!nl.End()){
-		Int_t rr = nl.Next();
-		//Info("LinkRecordToRunRange","run number %d",rr);
-   	LinkRecordToRun(rec,rr);
-	}
+   nl.Begin();
+   while (!nl.End()) {
+      Int_t rr = nl.Next();
+      //Info("LinkRecordToRunRange","run number %d",rr);
+      LinkRecordToRun(rec, rr);
+   }
 }
 
 //_____________________________________________________________________
-void KVFAZIADB::LinkRecordToRun(KVDBRecord * rec, Int_t rnumber)
+void KVFAZIADB::LinkRecordToRun(KVDBRecord* rec, Int_t rnumber)
 {
 
-	KVFAZIADBRun *run = GetRun(rnumber);
-	if (run)
-		rec->AddLink("Runs", run);
+   KVFAZIADBRun* run = GetRun(rnumber);
+   if (run)
+      rec->AddLink("Runs", run);
 
 }
 
 //_____________________________________________________________________
-void KVFAZIADB::LinkRecordToRunRanges(KVDBRecord * rec, UInt_t rr_number,
+void KVFAZIADB::LinkRecordToRunRanges(KVDBRecord* rec, UInt_t rr_number,
                                       UInt_t run_ranges[][2])
 {
    //Call LinkRecordToRunRange for a set of run ranges stored in the two-dimensional array
@@ -151,7 +151,7 @@ void KVFAZIADB::LinkRecordToRunRanges(KVDBRecord * rec, UInt_t rr_number,
 }
 
 //______________________________________________________________________________
-void KVFAZIADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
+void KVFAZIADB::LinkListToRunRanges(TList* list, UInt_t rr_number,
                                     UInt_t run_ranges[][2])
 {
    //Link the records contained in the list to the set of runs (see LinkRecordToRunRanges).
@@ -167,13 +167,13 @@ void KVFAZIADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
       return;
    }
    TIter next(list);
-   KVDBRecord *rec;
+   KVDBRecord* rec;
    for (UInt_t ru_ra = 0; ru_ra < rr_number; ru_ra++) {
       UInt_t first_run = run_ranges[ru_ra][0];
       UInt_t last_run = run_ranges[ru_ra][1];
       for (UInt_t i = first_run; i <= last_run; i++) {
-         KVFAZIADBRun *run = GetRun(i);
-         while ((rec = (KVDBRecord *) next())) {
+         KVFAZIADBRun* run = GetRun(i);
+         while ((rec = (KVDBRecord*) next())) {
             if (run)
                rec->AddLink("Runs", run);
          }
@@ -182,7 +182,7 @@ void KVFAZIADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
    }
 }
 //______________________________________________________________________________
-void KVFAZIADB::LinkListToRunRange(TList * list, KVNumberList nl)
+void KVFAZIADB::LinkListToRunRange(TList* list, KVNumberList nl)
 {
    //Link the records contained in the list to the set of runs (see LinkRecordToRunRanges).
 
@@ -197,10 +197,10 @@ void KVFAZIADB::LinkListToRunRange(TList * list, KVNumberList nl)
       return;
    }
    TIter next(list);
-   KVDBRecord *rec;
-  	while ((rec = (KVDBRecord *) next())) {
-   	LinkRecordToRunRange(rec, nl);
-	}
+   KVDBRecord* rec;
+   while ((rec = (KVDBRecord*) next())) {
+      LinkRecordToRunRange(rec, nl);
+   }
 }
 
 //____________________________________________________________________________
@@ -239,20 +239,19 @@ void KVFAZIADB::ReadSystemList()
       TString line;
 
       char next_char = fin.peek();
-      while( next_char!='+' && fin.good() ){
+      while (next_char != '+' && fin.good()) {
          line.ReadLine(fin, kFALSE);
          next_char = fin.peek();
       }
 
-      while( fin.good() && !fin.eof() && next_char=='+' ){
+      while (fin.good() && !fin.eof() && next_char == '+') {
          KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
          AddSystem(sys);
          sys->Load(fin);
-       next_char = fin.peek();
+         next_char = fin.peek();
       }
       fin.close();
-   }
-   else {
+   } else {
       Error("ReadSystemList()", "Could not open file %s",
             GetCalibFileName("Systems"));
    }
@@ -261,9 +260,9 @@ void KVFAZIADB::ReadSystemList()
    KVDBSystem* sys = 0;
    TIter nextRun(GetRuns());
    KVFAZIADBRun* run;
-   while ( (run = (KVFAZIADBRun*)nextRun()) ) {
-      if(!run->GetSystem()){
-         if(!sys) {
+   while ((run = (KVFAZIADBRun*)nextRun())) {
+      if (!run->GetSystem()) {
+         if (!sys) {
             sys = new KVDBSystem("[unknown]");
             AddSystem(sys);
          }
@@ -282,14 +281,15 @@ void KVFAZIADB::WriteSystemsFile() const
 
    ofstream sysfile;
    KVBase::SearchAndOpenKVFile(GetDBEnv("Systems"), sysfile, fDataSet.Data());
-   TIter next(GetSystems()); KVDBSystem* sys;
+   TIter next(GetSystems());
+   KVDBSystem* sys;
    TDatime now;
    sysfile << "# " << GetDBEnv("Systems") << " file written by "
-         << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
+           << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
    cout << GetDBEnv("Systems") << " file written by "
-         << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
-   while( (sys = (KVDBSystem*)next()) ){
-      if(strcmp(sys->GetName(),"[unknown]")){//do not write dummy 'unknown' system
+        << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
+   while ((sys = (KVDBSystem*)next())) {
+      if (strcmp(sys->GetName(), "[unknown]")) { //do not write dummy 'unknown' system
          sys->Save(sysfile);
          sysfile << endl;
       }
@@ -304,8 +304,8 @@ void KVFAZIADB::Save(const Char_t* what)
    //Save (in the appropriate text file) the informations on:
    // what = "Systems" : write Systems.dat file
    // what = "Runlist" : write Runlist.csv
-   if( !strcmp(what, "Systems") ) WriteSystemsFile();
-   else if( !strcmp(what, "Runlist") ) WriteRunListFile();
+   if (!strcmp(what, "Systems")) WriteSystemsFile();
+   else if (!strcmp(what, "Runlist")) WriteRunListFile();
 }
 
 void KVFAZIADB::WriteRunListFile() const
@@ -321,14 +321,14 @@ void KVFAZIADB::WriteRunListFile() const
    KVBase::SearchAndOpenKVFile(GetDBEnv("Runlist"), rlistf, fDataSet.Data());
    TDatime now;
    rlistf << "# " << GetDBEnv("Runlist") << " file written by "
-         << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
+          << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
    cout << GetDBEnv("Runlist") << " file written by "
-         << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
+        << ClassName() << "::WriteRunListFile on " << now.AsString() << endl;
    TIter next_run(GetRuns());
    //write header in file
-   ((KVFAZIADBRun *) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
-   KVFAZIADBRun *run;
-   while ((run = (KVFAZIADBRun *) next_run())) {
+   ((KVFAZIADBRun*) GetRuns()->At(0))->WriteRunListHeader(rlistf, GetDBEnv("Runlist.Separator")[0]);
+   KVFAZIADBRun* run;
+   while ((run = (KVFAZIADBRun*) next_run())) {
 
       run->WriteRunListLine(rlistf, GetDBEnv("Runlist.Separator")[0]);
 
@@ -356,7 +356,7 @@ void KVFAZIADB::Build()
       SetRLSeparatorChar('\t');
    else
       SetRLSeparatorChar(GetDBEnv("Runlist.Separator")[0]);
-	*/
+   */
    //by default we set two keys for both recognising the 'header' lines and deciding
    //if we have a good run line: the "Run" and "Events" fields must be present
    /*
@@ -364,18 +364,18 @@ void KVFAZIADB::Build()
                                  GetDBEnv("Runlist.Events"));
    GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
                                GetDBEnv("Runlist.Events"));
-	*/
-   
+   */
+
    kFirstRun = 999999;
    kLastRun = 0;
    /*
    ReadRunList(runlist_fullpath.Data());
    //new style runlist
    if( IsNewRunList() ){ ReadNewRunList(); };
-	*/
+   */
    ReadNewRunList();
    ReadSystemList();
-   
+
 }
 
 
@@ -395,43 +395,43 @@ void KVFAZIADB::ReadNewRunList()
 
    KVString line;
    KVFAZIADBRun* run;
-	TObjArray* toks = 0;
-   
-   while( fin.good() && !fin.eof() ){
-      line.ReadLine( fin );
-		
-      if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
+   TObjArray* toks = 0;
+
+   while (fin.good() && !fin.eof()) {
+      line.ReadLine(fin);
+
+      if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
          run = new KVFAZIADBRun;
          //run->ReadRunListLine( line );
          toks = line.Tokenize(" | ");
-         for (Int_t ii=0;ii<toks->GetEntries();ii+=1){
-         	KVString couple = ((TObjString* )toks->At(ii))->GetString();
+         for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
+            KVString couple = ((TObjString*)toks->At(ii))->GetString();
             couple.Begin("=");
             KVString name = couple.Next();
-            KVString value="";
+            KVString value = "";
             if (!couple.End())
-            	value = couple.Next();
-            if (name=="Run"){
-            	run->SetNumber(value.Atoi());	
+               value = couple.Next();
+            if (name == "Run") {
+               run->SetNumber(value.Atoi());
             }
-            if (name=="Events"){
-            	run->SetEvents(value.Atoi());	
+            if (name == "Events") {
+               run->SetEvents(value.Atoi());
             }
-            if (name=="Trigger"){
-            	run->SetTrigger(value.Atoi());	
+            if (name == "Trigger") {
+               run->SetTrigger(value.Atoi());
             }
          }
          delete toks;
-         if( run->GetNumber()<1 ){
+         if (run->GetNumber() < 1) {
             delete run;
          } else {
-            AddRun( run );
+            AddRun(run);
             kLastRun = TMath::Max(kLastRun, run->GetNumber());
             kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
          }
       }
    }
- 
+
    fin.close();
 }
 
@@ -439,27 +439,27 @@ void KVFAZIADB::ReadNewRunList()
 
 void KVFAZIADB::PrintRuns(KVNumberList& nl) const
 {
-	// Print compact listing of runs in the number list like this:
-	//
-	// root [9] gFaziaDB->PrintRuns("8100-8120")
-	// RUN     SYSTEM                          TRIGGER         EVENTS          COMMENTS
-	// ------------------------------------------------------------------------------------------------------------------
-	// 8100    129Xe + 58Ni 8 MeV/A            M>=2            968673
-	// 8101    129Xe + 58Ni 8 MeV/A            M>=2            969166
-	// 8102    129Xe + 58Ni 8 MeV/A            M>=2            960772
-	// 8103    129Xe + 58Ni 8 MeV/A            M>=2            970029
-	// 8104    129Xe + 58Ni 8 MeV/A            M>=2            502992          disjonction ht chassis 1
-	// 8105    129Xe + 58Ni 8 MeV/A            M>=2            957015          intensite augmentee a 200 pA
-	
-	printf("RUN\tSYSTEM\t\t\t\tTRIGGER\t\tEVENTS\t\tCOMMENTS\n");
-	printf("------------------------------------------------------------------------------------------------------------------\n");
-	nl.Begin();
-	while( !nl.End() ){
-		KVFAZIADBRun* run = GetRun(nl.Next());
-		if(!run) continue;
-		printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
-				run->GetNumber(), (run->GetSystem()?run->GetSystem()->GetName():"            "), run->GetTriggerString(),
-				run->GetEvents(), run->GetComments());
-	}
+   // Print compact listing of runs in the number list like this:
+   //
+   // root [9] gFaziaDB->PrintRuns("8100-8120")
+   // RUN     SYSTEM                          TRIGGER         EVENTS          COMMENTS
+   // ------------------------------------------------------------------------------------------------------------------
+   // 8100    129Xe + 58Ni 8 MeV/A            M>=2            968673
+   // 8101    129Xe + 58Ni 8 MeV/A            M>=2            969166
+   // 8102    129Xe + 58Ni 8 MeV/A            M>=2            960772
+   // 8103    129Xe + 58Ni 8 MeV/A            M>=2            970029
+   // 8104    129Xe + 58Ni 8 MeV/A            M>=2            502992          disjonction ht chassis 1
+   // 8105    129Xe + 58Ni 8 MeV/A            M>=2            957015          intensite augmentee a 200 pA
+
+   printf("RUN\tSYSTEM\t\t\t\tTRIGGER\t\tEVENTS\t\tCOMMENTS\n");
+   printf("------------------------------------------------------------------------------------------------------------------\n");
+   nl.Begin();
+   while (!nl.End()) {
+      KVFAZIADBRun* run = GetRun(nl.Next());
+      if (!run) continue;
+      printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
+             run->GetNumber(), (run->GetSystem() ? run->GetSystem()->GetName() : "            "), run->GetTriggerString(),
+             run->GetEvents(), run->GetComments());
+   }
 }
 

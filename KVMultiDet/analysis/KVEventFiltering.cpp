@@ -46,7 +46,7 @@ ClassImp(KVEventFiltering)
 //
 //    Run:        run number to use for detector status, setup, parameters, etc.
 //                if not given, first run of the given experimental system is used.
-//     
+//
 // The filtered data will be written in the directory given as option "OutputDir".
 // The filename is built up from the original simulation filename and the values
 // of various options:
@@ -66,7 +66,7 @@ KVEventFiltering::KVEventFiltering()
 
 //________________________________________________________________
 
-KVEventFiltering::KVEventFiltering (const KVEventFiltering& obj)  : KVEventSelector()
+KVEventFiltering::KVEventFiltering(const KVEventFiltering& obj)  : KVEventSelector()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -85,7 +85,7 @@ KVEventFiltering::~KVEventFiltering()
 
 //________________________________________________________________
 
-void KVEventFiltering::Copy (TObject& obj) const
+void KVEventFiltering::Copy(TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
@@ -98,7 +98,7 @@ void KVEventFiltering::Copy (TObject& obj) const
    //KVEventFiltering& CastedObj = (KVEventFiltering&)obj;
 }
 
-   
+
 Bool_t KVEventFiltering::Analysis()
 {
    // Event-by-event filtering of simulated data.
@@ -107,35 +107,34 @@ Bool_t KVEventFiltering::Analysis()
    // Detection of particles in event is simulated with KVMultiDetArray::DetectEvent,
    // then the reconstructed detected event is treated by the same identification and calibration
    // procedures as for experimental data.
-   
-   if(fTransformKinematics) {
+
+   if (fTransformKinematics) {
       GetEvent()->SetFrame("lab", fCMVelocity);
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
-   }
-   else {
+   } else {
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
    }
    fReconEvent->SetNumber(fEVN++);
    fTree->Fill();
 
-/*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
-      memory_check.Check();
-   }
- */   
-       return kTRUE;
+   /*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
+         memory_check.Check();
+      }
+    */
+   return kTRUE;
 }
-   
+
 void KVEventFiltering::EndAnalysis()
 {
    // Write file containing filtered data to disk.
    //fFile->Write();
    //delete fFile;
 }
-   
+
 void KVEventFiltering::EndRun()
 {
 }
-   
+
 void KVEventFiltering::InitAnalysis()
 {
    // Select required dataset for filtering (option "Dataset")
@@ -152,81 +151,75 @@ void KVEventFiltering::InitAnalysis()
    // be stored in a TTree with name 'ReconstructedEvents', in a branch with name
    // 'ReconEvent'. The class used for reconstructed events depends on the dataset,
    // it is given by KVDataSet::GetReconstructedEventClassName().
-   
+
    TString dataset = GetOpt("Dataset").Data();
-   if(!gDataSetManager) {
-       new KVDataRepositoryManager;
-       gDataRepositoryManager->Init();
+   if (!gDataSetManager) {
+      new KVDataRepositoryManager;
+      gDataRepositoryManager->Init();
    }
    gDataSetManager->GetDataSet(dataset)->cd();
-   if(gMultiDetArray) delete gMultiDetArray;
+   if (gMultiDetArray) delete gMultiDetArray;
    gDataSet->BuildMultiDetector();
    gMultiDetArray->SetSimMode();
 
    TString system = GetOpt("System").Data();
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);
-   fCMVelocity =  (sys ? sys->GetKinematics()->GetCMVelocity() : TVector3(0,0,0));
-   fCMVelocity*=-1.0;
-   
-   Int_t run=0;
-   if(IsOptGiven("Run")) run = GetOpt("Run").Atoi();
-   if(!run && sys) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
-   gMultiDetArray->SetParameters( run );
-   
+   fCMVelocity = (sys ? sys->GetKinematics()->GetCMVelocity() : TVector3(0, 0, 0));
+   fCMVelocity *= -1.0;
+
+   Int_t run = 0;
+   if (IsOptGiven("Run")) run = GetOpt("Run").Atoi();
+   if (!run && sys) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
+   gMultiDetArray->SetParameters(run);
+
    TString geo = GetOpt("Geometry").Data();
-   if(geo=="ROOT"){
+   if (geo == "ROOT") {
       gMultiDetArray->SetROOTGeometry(kTRUE);
       Info("InitAnalysis", "Filtering with ROOT geometry");
       Info("InitAnalysis", "Navigator detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
-   }
-   else
-   {
+   } else {
       gMultiDetArray->SetROOTGeometry(kFALSE);
       Info("InitAnalysis", "Filtering with KaliVeda geometry");
    }
-   
+
    TString filt = GetOpt("Filter").Data();
-   if(filt=="Geo"){
+   if (filt == "Geo") {
       gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Geo);
       Info("InitAnalysis", "Geometric filter");
-   }
-   else if(filt=="GeoThresh"){
+   } else if (filt == "GeoThresh") {
       gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_GeoThresh);
       Info("InitAnalysis", "Geometry + thresholds filter");
-   }
-   else if(filt=="Full"){
+   } else if (filt == "Full") {
       gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Full);
       Info("InitAnalysis", "Full simulation of detector response & calibration");
    }
    TString kine = GetOpt("Kinematics").Data();
-   if(kine=="lab") {
+   if (kine == "lab") {
       fTransformKinematics = kFALSE;
       Info("InitAnalysis", "Simulation is in laboratory/detector frame");
-   }
-   else
-   {
+   } else {
       Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
    }
-   
-   
-   OpenOutputFile(sys,run);
-   if(sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle(), sys->GetName()));
-   else fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() ,gMultiDetArray->GetTitle()));
+
+
+   OpenOutputFile(sys, run);
+   if (sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle(), sys->GetName()));
+   else fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle()));
 
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
-   fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);
+   fTree->Branch("ReconEvent", reconevclass, &fReconEvent, 10000000, 0)->SetAutoDelete(kFALSE);
 
    AddTree(fTree);
 }
-   
+
 void KVEventFiltering::InitRun()
-{ 
+{
 //   memory_check.SetInitStatistics();
-   fEVN=0;
+   fEVN = 0;
 }
 
-void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
+void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
 {
    // Open ROOT file for new filtered events TTree.
    // The file will be written in the directory given as option "OutputDir".
@@ -238,51 +231,49 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    // In addition, informations on the filtered data are stored in the file as
    // TNamed objects. These can be read by KVSimDir::AnalyseFile:
    //
-   // KEY: TNamed	System;1	title=[full system name]
-   // KEY: TNamed	Dataset;1	title=[dataset name]
-   // KEY: TNamed	Run;1	title=[run-number]
-   // KEY: TNamed	Geometry;1	title=[geometry-type]
-   // KEY: TNamed	Filter;1	title=[filter-type]
-   // KEY: TNamed	Origin;1 title=[name of simulation file]
-   //      
-    TString basefile = GetOpt("SimFileName");
-   basefile.Remove(basefile.Index(".root"),5);
+   // KEY: TNamed System;1 title=[full system name]
+   // KEY: TNamed Dataset;1   title=[dataset name]
+   // KEY: TNamed Run;1 title=[run-number]
+   // KEY: TNamed Geometry;1  title=[geometry-type]
+   // KEY: TNamed Filter;1 title=[filter-type]
+   // KEY: TNamed Origin;1 title=[name of simulation file]
+   //
+   TString basefile = GetOpt("SimFileName");
+   basefile.Remove(basefile.Index(".root"), 5);
    TString outfile = basefile + "_geo=";
    outfile += GetOpt("Geometry");
-   outfile+="_filt=";
+   outfile += "_filt=";
    outfile += GetOpt("Filter");
-   outfile+="_";
-   outfile+=gDataSet->GetName();
-   if(S){
-       outfile+="_";
-       outfile+=S->GetBatchName();
-       outfile+="_run=";
-       outfile+=Form("%d",run);
+   outfile += "_";
+   outfile += gDataSet->GetName();
+   if (S) {
+      outfile += "_";
+      outfile += S->GetBatchName();
+      outfile += "_run=";
+      outfile += Form("%d", run);
    }
-   outfile+=".root";
-   
-      TString fullpath;
-      AssignAndDelete(fullpath, gSystem->ConcatFileName(GetOpt("OutputDir").Data(),outfile.Data()));
-   
+   outfile += ".root";
+
+   TString fullpath;
+   AssignAndDelete(fullpath, gSystem->ConcatFileName(GetOpt("OutputDir").Data(), outfile.Data()));
+
    //fFile = new TFile(fullpath,"recreate");
    CreateTreeFile(fullpath);
 
    TDirectory* curdir = gDirectory;
    writeFile->cd();
-   if(S){
-   TNamed* system = new TNamed("System", S->GetName());
-   system->Write();
+   if (S) {
+      TNamed* system = new TNamed("System", S->GetName());
+      system->Write();
    }
-   (new TNamed("Dataset",gDataSet->GetName()))->Write();
-   if(S) (new TNamed("Run",Form("%d",run)))->Write();
-   if(gMultiDetArray->IsROOTGeometry()){
+   (new TNamed("Dataset", gDataSet->GetName()))->Write();
+   if (S)(new TNamed("Run", Form("%d", run)))->Write();
+   if (gMultiDetArray->IsROOTGeometry()) {
       (new TNamed("Geometry", "ROOT"))->Write();
-   }
-   else
-   {
+   } else {
       (new TNamed("Geometry", "KV"))->Write();
    }
-   (new TNamed("Filter",GetOpt("Filter").Data()))->Write();
-   (new TNamed("Origin", (basefile+".root").Data()))->Write();
+   (new TNamed("Filter", GetOpt("Filter").Data()))->Write();
+   (new TNamed("Origin", (basefile + ".root").Data()))->Write();
    curdir->cd();
 }

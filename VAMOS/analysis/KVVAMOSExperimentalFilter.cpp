@@ -56,16 +56,17 @@ void KVVAMOSExperimentalFilter::Copy(TObject& obj) const
 }
 //________________________________________________________________
 
-Bool_t KVVAMOSExperimentalFilter::IsTrajectoryAccepted( Double_t delta, Double_t thetav, Double_t phiv){
+Bool_t KVVAMOSExperimentalFilter::IsTrajectoryAccepted(Double_t delta, Double_t thetav, Double_t phiv)
+{
 
-	fCurBin = fCurBinDelta = fCurBinThetaV = -1;
+   fCurBin = fCurBinDelta = fCurBinThetaV = -1;
 
-	Int_t bin = FindBin( delta, thetav );
-	if( IsBinUnderflow( bin ) ||  IsBinOverflow(bin) ) return kFALSE;
+   Int_t bin = FindBin(delta, thetav);
+   if (IsBinUnderflow(bin) ||  IsBinOverflow(bin)) return kFALSE;
 
-	fCurBin = bin;
-	Int_t bz;
-	GetBinXYZ( bin, fCurBinDelta, fCurBinThetaV, bz );
+   fCurBin = bin;
+   Int_t bz;
+   GetBinXYZ(bin, fCurBinDelta, fCurBinThetaV, bz);
 
-	return ((PhiV()-DPhiV()/2 <= phiv) && (phiv <= PhiV()+DPhiV()/2));
+   return ((PhiV() - DPhiV() / 2 <= phiv) && (phiv <= PhiV() + DPhiV() / 2));
 }

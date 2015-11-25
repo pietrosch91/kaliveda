@@ -6,13 +6,13 @@
  *                                                                           *
  *       Auteur       :  OPDEBECK                                            *
  *       Date         :  16 juillet 1996                                     *
- *                      				                     *
+ *                                                       *
  *                                                                           *
  *       Objet        :  Fonctions de lecture de buffers sur bande pour      *
- *			l'utilitaire EXEMPLE_RELECTURE sous VMS et sous UNIX *
+ *       l'utilitaire EXEMPLE_RELECTURE sous VMS et sous UNIX *
  *                                                                           *
  *****************************************************************************/
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +36,7 @@
 
 
 /******************************************************************************
-	Fonctions de traitement ....
+   Fonctions de traitement ....
  ******************************************************************************/
 
 

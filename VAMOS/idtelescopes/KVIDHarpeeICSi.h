@@ -6,14 +6,13 @@
 
 #include "KVVAMOSIDTelescope.h"
 
-class KVIDHarpeeICSi : public KVVAMOSIDTelescope
-{
+class KVIDHarpeeICSi : public KVVAMOSIDTelescope {
 
-   public:
+public:
    KVIDHarpeeICSi();
    virtual ~KVIDHarpeeICSi();
 
-   ClassDef(KVIDHarpeeICSi,1)//DeltaE-E identification telescope in VAMOS with Harpee's IC-Si detectors
+   ClassDef(KVIDHarpeeICSi, 1) //DeltaE-E identification telescope in VAMOS with Harpee's IC-Si detectors
 };
 
 #endif

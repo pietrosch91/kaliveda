@@ -28,44 +28,44 @@ ClassImp(KVRegHexa)
 
 KVRegHexa::KVRegHexa()
 {
-	//Default ctor
-	
-	     SetName("KVRegHexa");
-	     SetLabel("Hexadecimal register");
+   //Default ctor
+
+   SetName("KVRegHexa");
+   SetLabel("Hexadecimal register");
 }
 
 //___________________________________________________________________________
 
-KVRegHexa::KVRegHexa(const KVRegHexa &reg)
+KVRegHexa::KVRegHexa(const KVRegHexa& reg)
 {
-	//Copy ctor
+   //Copy ctor
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-	reg.Copy(*this);
+   reg.Copy(*this);
 #else
-   	((KVRegHexa &) reg).Copy(*this);
-#endif	
+   ((KVRegHexa&) reg).Copy(*this);
+#endif
 }
-             
+
 //___________________________________________________________________________
 
 const Char_t* KVRegHexa::GetRealValue(const Long_t, const Long_t) const
 {
-	//Returns string with hexadecimal value of register
-	
-	Hexa_t tmp( GetContents() );//temporary hexa variable with decimal value of register
-	return tmp.String();
+   //Returns string with hexadecimal value of register
+
+   Hexa_t tmp(GetContents());  //temporary hexa variable with decimal value of register
+   return tmp.String();
 }
 
 //___________________________________________________________________________
 
 void KVRegHexa::SetRealValue(const Double_t Clair, const Long_t, const Long_t)
 {
-	//Set the (decimal) value of the register.
-	//If this value is less than 0 or greater than GetMaxCont(),
-	//the contents of the register will be set to either the minimum or
-	//maximum allowed value.
-	
-	Long_t Cont = (Long_t)TMath::Max(0., TMath::Min(Clair, GetMaxCont()) );
-	SetContents(Cont);
+   //Set the (decimal) value of the register.
+   //If this value is less than 0 or greater than GetMaxCont(),
+   //the contents of the register will be set to either the minimum or
+   //maximum allowed value.
+
+   Long_t Cont = (Long_t)TMath::Max(0., TMath::Min(Clair, GetMaxCont()));
+   SetContents(Cont);
 }
 

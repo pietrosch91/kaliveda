@@ -31,7 +31,7 @@ ClassImp(KVDBTable)
 //
 //
 //__________________________________________________________________
-    KVDBTable::KVDBTable()
+KVDBTable::KVDBTable()
 {
    fIsUnique = kFALSE;
    SetOwner(kTRUE);
@@ -39,9 +39,9 @@ ClassImp(KVDBTable)
 
 //__________________________________________________________________
 
-KVDBTable::KVDBTable(const Char_t * name, const Char_t * type,
+KVDBTable::KVDBTable(const Char_t* name, const Char_t* type,
                      Bool_t unique)
-:TFolder(name, type)
+   : TFolder(name, type)
 {
    fIsUnique = unique;
    SetOwner(kTRUE);
@@ -51,12 +51,12 @@ KVDBTable::KVDBTable(const Char_t * name, const Char_t * type,
 
 KVDBTable::~KVDBTable()
 {
-	gROOT->GetListOfCleanups()->Remove(this);
+   gROOT->GetListOfCleanups()->Remove(this);
 }
 
 //___________________________________________________________________
 
-Bool_t KVDBTable::AddRecord(KVDBRecord * rec)
+Bool_t KVDBTable::AddRecord(KVDBRecord* rec)
 {
    //Add a KVDBRecord to the list of available records and return kTRUE
 
@@ -67,7 +67,7 @@ Bool_t KVDBTable::AddRecord(KVDBRecord * rec)
 
 //___________________________________________________________________
 
-void KVDBTable::RemoveRecord(KVDBRecord * rec)
+void KVDBTable::RemoveRecord(KVDBRecord* rec)
 {
    //Remove a KVDBRecord from the list of available records
 
@@ -77,15 +77,15 @@ void KVDBTable::RemoveRecord(KVDBRecord * rec)
 
 //___________________________________________________________________________________//
 
-void KVDBTable::ls(Option_t * opt) const
+void KVDBTable::ls(Option_t* opt) const
 {
    cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() <<
-       endl;
+        endl;
 }
 
 //___________________________________________________________________________________//
 
-TObject *KVDBTable::FindObject(const Char_t * name) const
+TObject* KVDBTable::FindObject(const Char_t* name) const
 {
    //Redefinition of TFolder::FindObject, which doesn't seem to work correctly with names that
    //have spaces in them (???)
@@ -96,12 +96,12 @@ TObject *KVDBTable::FindObject(const Char_t * name) const
 
 //___________________________________________________________________________________//
 
-KVDBRecord *KVDBTable::GetRecord(Int_t num) const
+KVDBRecord* KVDBTable::GetRecord(Int_t num) const
 {
    //Search for record using its number.
    //To keep things simple, we only search in the top level of the folder structure.
    TIter next(GetListOfFolders());
-   KVDBRecord *obj = 0;
-   while ((obj = (KVDBRecord *) next()) && (obj->GetNumber() != num));
+   KVDBRecord* obj = 0;
+   while ((obj = (KVDBRecord*) next()) && (obj->GetNumber() != num));
    return (obj ? (obj->GetNumber() == num ? obj : 0) : 0);
 }

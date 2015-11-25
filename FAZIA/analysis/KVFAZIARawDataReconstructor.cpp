@@ -29,8 +29,8 @@ KVFAZIARawDataReconstructor::KVFAZIARawDataReconstructor()
    //Default constructor
    file = 0;
    tree = 0;
-   recev=0;
-   nb_recon=0;
+   recev = 0;
+   nb_recon = 0;
 }
 
 KVFAZIARawDataReconstructor::~KVFAZIARawDataReconstructor()
@@ -53,7 +53,7 @@ void KVFAZIARawDataReconstructor::InitRun()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
    // the raw file (if possible, i.e. if repository is not remote).
-   
+
    // Create new KVINDRAReconEvent used to reconstruct & store events
    // The condition used to seed new reconstructed particles (see KVReconstructedEvent::AnalyseTelescopes)
    // is set by reading the value of the environment variables:
@@ -61,86 +61,83 @@ void KVFAZIARawDataReconstructor::InitRun()
    //     [name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     [all/any]
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
- 
-    Info("InitRun", "called...");
-   if(!recev) recev = new KVReconstructedEvent;
+
+   Info("InitRun", "called...");
+   if (!recev) recev = new KVReconstructedEvent;
    //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
-  
+
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
-            gDataRepository->GetName()),
-         gDataSet->GetName() );
-      
-		file = OutputDataset->NewRunfile(datatype.Data(), fCurrentRun);
-      
-		cout << "Writing \"" << datatype.Data() << "\" events in ROOT file " << file->GetName() << endl;
+         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
+                                 gDataRepository->GetName()),
+         gDataSet->GetName());
 
-      //tree for reconstructed events
-		tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
-			 	gFaziaDB->GetRun(fCurrentRun)->GetName(),
-            gFaziaDB->GetRun(fCurrentRun)->GetTitle(),
-            datatype.Data())
-            );
+   file = OutputDataset->NewRunfile(datatype.Data(), fCurrentRun);
 
-      //leaves for reconstructed events
-		tree->Branch("FAZIAReconEvent", "KVReconstructedEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
-      
-      Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
-      nb_recon = 0;
-		
+   cout << "Writing \"" << datatype.Data() << "\" events in ROOT file " << file->GetName() << endl;
+
+   //tree for reconstructed events
+   tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
+                    gFaziaDB->GetRun(fCurrentRun)->GetName(),
+                    gFaziaDB->GetRun(fCurrentRun)->GetTitle(),
+                    datatype.Data())
+                   );
+
+   //leaves for reconstructed events
+   tree->Branch("FAZIAReconEvent", "KVReconstructedEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
+
+   Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
+   nb_recon = 0;
+
 }
 
 //______________________________________________________________________________________//
 
 Bool_t KVFAZIARawDataReconstructor::Analysis()
 {
-	// Analysis of event.
-	// RawData TTree is filled with values of parameters for event.
-	// If event has INDRA trigger information (IsIndraEvent()==kTRUE)
-	// then
-	//    *) event reconstruction is performed for 'Physics' events
-	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
-	
-   
-   recev->SetNumber( GetEventNumber() );
-   recev->ReconstructEvent( GetDetectorEvent() );
+   // Analysis of event.
+   // RawData TTree is filled with values of parameters for event.
+   // If event has INDRA trigger information (IsIndraEvent()==kTRUE)
+   // then
+   //    *) event reconstruction is performed for 'Physics' events
+   //    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
+
+
+   recev->SetNumber(GetEventNumber());
+   recev->ReconstructEvent(GetDetectorEvent());
 
    ExtraProcessing();
 
    nb_recon++;
-	tree->Fill();
+   tree->Fill();
 
    recev->Clear();
    GetDetectorEvent()->GetGroups()->Clear();
-   
+
    return kTRUE;
 }
 
 //______________________________________________________________________________________//
 
- void KVFAZIARawDataReconstructor::ExtraProcessing()
+void KVFAZIARawDataReconstructor::ExtraProcessing()
 {
-	KVFAZIADetector* det = 0;
-	KVSignal* sig = 0;
-	KVReconstructedNucleus* recnuc=0;
-   while ( (recnuc = recev->GetNextParticle()) )
-   {
-   	TIter next_d(recnuc->GetDetectorList());
-      while ( (det = (KVFAZIADetector* )next_d()) )
-   	{
-   		TIter next_s(det->GetListOfSignals());
-         while ( (sig = (KVSignal* )next_s()) )
-   		{
-              sig->Init();
-              KVNameValueList* psa = sig->TreateSignal();
-              if(psa) *(recnuc->GetParameters()) += *psa;
+   KVFAZIADetector* det = 0;
+   KVSignal* sig = 0;
+   KVReconstructedNucleus* recnuc = 0;
+   while ((recnuc = recev->GetNextParticle())) {
+      TIter next_d(recnuc->GetDetectorList());
+      while ((det = (KVFAZIADetector*)next_d())) {
+         TIter next_s(det->GetListOfSignals());
+         while ((sig = (KVSignal*)next_s())) {
+            sig->Init();
+            KVNameValueList* psa = sig->TreateSignal();
+            if (psa) *(recnuc->GetParameters()) += *psa;
             //recnuc->GetParameters()->SetValue(Form("%s.%s",det->GetFAZIAType(),sig->GetName()),sig->GetAmplitude());
-      	}
-      }   
+         }
+      }
    }
-   
+
 }
 
 //______________________________________________________________________________________//
@@ -149,20 +146,20 @@ void KVFAZIARawDataReconstructor::EndRun()
 {
    Info("EndRun", "called");
    SafeDelete(recev);
-   
-	cout << endl << " *** Number of reconstructed FAZIA events : "
-		<< nb_recon << " ***" << endl<< endl;
-	file->cd();
-	gDataAnalyser->WriteBatchInfo(tree);
-	tree->Write();//write tree to file
-      
-	// get dataset to which we must associate new run
-	KVDataSet* OutputDataset =
-		gDataRepositoryManager->GetDataSet(
-			gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
-			gDataRepository->GetName()),
-			gDataSet->GetName() );
-	//add new file to repository
-	OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
+
+   cout << endl << " *** Number of reconstructed FAZIA events : "
+        << nb_recon << " ***" << endl << endl;
+   file->cd();
+   gDataAnalyser->WriteBatchInfo(tree);
+   tree->Write();//write tree to file
+
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(
+         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
+                                 gDataRepository->GetName()),
+         gDataSet->GetName());
+   //add new file to repository
+   OutputDataset->CommitRunfile(datatype.Data(), fCurrentRun, file);
 
 }

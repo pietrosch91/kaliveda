@@ -9,28 +9,36 @@
 
 class KVVAMOSReconNuc;
 
-class KVIDQA : public KVVAMOSIDTelescope
-{
+class KVIDQA : public KVVAMOSIDTelescope {
 
-	KVIDQAGrid *fQAGrid; //!
+   KVIDQAGrid* fQAGrid; //!
 
-   public:
+public:
    KVIDQA();
    virtual ~KVIDQA();
 
-   virtual const Char_t *GetArrayName();
+   virtual const Char_t* GetArrayName();
 
-   virtual Double_t GetIDMapX( Option_t *opt=""){ return 0.; }
-   virtual Double_t GetIDMapY( Option_t *opt=""){ return 0.; }
+   virtual Double_t GetIDMapX(Option_t* opt = "")
+   {
+      return 0.;
+   }
+   virtual Double_t GetIDMapY(Option_t* opt = "")
+   {
+      return 0.;
+   }
 
-   virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
-   virtual Bool_t Identify(KVIdentificationResult *IDR, const Char_t *tof_name, Double_t realAoQ, Double_t realA);
+   virtual Bool_t Identify(KVIdentificationResult* IDR, Double_t x = -1., Double_t y = -1.);
+   virtual Bool_t Identify(KVIdentificationResult* IDR, const Char_t* tof_name, Double_t realAoQ, Double_t realA);
    virtual void Initialize();
 
-   Double_t GetRealQ() const{ return ( fQAGrid ? fQAGrid->GetRealQ() : 0. ); }
+   Double_t GetRealQ() const
+   {
+      return (fQAGrid ? fQAGrid->GetRealQ() : 0.);
+   }
 
 
-   ClassDef(KVIDQA,1)//ID telescope used to identify Q and A with VAMOS
+   ClassDef(KVIDQA, 1) //ID telescope used to identify Q and A with VAMOS
 };
 
 #endif

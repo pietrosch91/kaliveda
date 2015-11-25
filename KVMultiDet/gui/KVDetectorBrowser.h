@@ -25,19 +25,20 @@ $Id: KVDetectorBrowser.h,v 1.3 2006/10/19 14:32:43 franklan Exp $
 
 class KVDetector;
 
-class KVDetectorBrowser:public KVBrowser, public TGMainFrame {
+class KVDetectorBrowser: public KVBrowser, public TGMainFrame {
 
    friend class KVDetector;
 
- private:
+private:
 
-    KVDetector * fDet;          //! the detector under study
+   KVDetector* fDet;           //! the detector under study
 
- public:
+public:
 
-    KVDetectorBrowser(const TGWindow * p, KVDetector * d, UInt_t w,
-                      UInt_t h);
-    virtual ~ KVDetectorBrowser() {
+   KVDetectorBrowser(const TGWindow* p, KVDetector* d, UInt_t w,
+                     UInt_t h);
+   virtual ~ KVDetectorBrowser()
+   {
    };
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);

@@ -39,32 +39,32 @@ class KVLayerBrowser;
 class KVWidgetList;
 class KVBrowserWidget;
 
-class KVMultiDetBrowser:public TGMainFrame {
+class KVMultiDetBrowser: public TGMainFrame {
 
    friend class KVMultiDetArray;
 
- private:
+private:
 
-    KVMultiDetArray * fDetArray;        //! the multidetector array under study
-   TGMenuBar *fMenuBar;         //!
-   TGPopupMenu *fMenuFile, *fMenuHelp;  //!
-   TGLayoutHints *fMenuBarLayout, *fMenuBarItemLayout, *fMenuBarHelpLayout;     //!
-   TGLayoutHints *fLBLayout;    //!
-   KVLayerBrowser *fLayerBrowser;       //! pointer to layer browser tab widget
-   TList *fCleanup;             //! for keeping track of TGLayoutHints and deleting them at the end
-   KVWidgetList *fWidgets;      //! list of widgets in mainwindow
+   KVMultiDetArray* fDetArray;         //! the multidetector array under study
+   TGMenuBar* fMenuBar;         //!
+   TGPopupMenu* fMenuFile, *fMenuHelp;  //!
+   TGLayoutHints* fMenuBarLayout, *fMenuBarItemLayout, *fMenuBarHelpLayout;     //!
+   TGLayoutHints* fLBLayout;    //!
+   KVLayerBrowser* fLayerBrowser;       //! pointer to layer browser tab widget
+   TList* fCleanup;             //! for keeping track of TGLayoutHints and deleting them at the end
+   KVWidgetList* fWidgets;      //! list of widgets in mainwindow
 
- public:
+public:
 
-    KVMultiDetBrowser(KVMultiDetArray * detarray, const TGWindow * p,
-                      UInt_t w, UInt_t h);
-    virtual ~ KVMultiDetBrowser();
+   KVMultiDetBrowser(KVMultiDetArray* detarray, const TGWindow* p,
+                     UInt_t w, UInt_t h);
+   virtual ~ KVMultiDetBrowser();
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
    void UpdateArray();
-   void AddToWidgetList(KVBrowserWidget * widg);
+   void AddToWidgetList(KVBrowserWidget* widg);
 
-    ClassDef(KVMultiDetBrowser, 0)      // KaliVeda Multidetector Array Browser and Configuration Tool
+   ClassDef(KVMultiDetBrowser, 0)      // KaliVeda Multidetector Array Browser and Configuration Tool
 };
 
 #endif

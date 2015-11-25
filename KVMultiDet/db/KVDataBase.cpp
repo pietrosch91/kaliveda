@@ -24,7 +24,7 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
 #include "KVDataSetManager.h"
 #include "TPluginManager.h"
 
-KVDataBase *gDataBase;
+KVDataBase* gDataBase;
 
 using namespace std;
 
@@ -36,8 +36,8 @@ ClassImp(KVDataBase)
 //linked together using keys, providing cross-referenced entries.
 //
 //All these objects are ROOT TFolder objects. The KVDataBase object is added
-//to the ROOT folder and may be browsed in the TBrowser.                
-//              
+//to the ROOT folder and may be browsed in the TBrowser.
+//
 //               An example of use is given here:
 //
 //{
@@ -134,15 +134,15 @@ ClassImp(KVDataBase)
 //OBJ: KVDBRecord 1967    The Year 1967 : 0 at: 0x89b57a0
 //
 //_______________________________________________________________________
-    KVDataBase::KVDataBase()
+KVDataBase::KVDataBase()
 {
    gROOT->GetRootFolder()->Add(this);
    SetOwner(kTRUE);
 }
 
 //_______________________________________________________________________
-KVDataBase::KVDataBase(const Char_t * name, const Char_t * title)
-:TFolder(name, title)
+KVDataBase::KVDataBase(const Char_t* name, const Char_t* title)
+   : TFolder(name, title)
 {
    gROOT->GetRootFolder()->Add(this);
    SetOwner(kTRUE);
@@ -156,12 +156,12 @@ KVDataBase::~KVDataBase()
    if (gDataBase == this)
       gDataBase = 0;
    gROOT->GetRootFolder()->Remove(this);
-	gROOT->GetListOfCleanups()->Remove(this);
-	Info("~KVDataBase", "%s", GetName());
+   gROOT->GetListOfCleanups()->Remove(this);
+   Info("~KVDataBase", "%s", GetName());
 }
 
 //_______________________________________________________________________
-Bool_t KVDataBase::AddTable(KVDBTable * tab)
+Bool_t KVDataBase::AddTable(KVDBTable* tab)
 {
 // Add a table to the list of available tables and return kTRUE
 // it's added. As each table must have a unique name we check if the new table's name
@@ -174,15 +174,15 @@ Bool_t KVDataBase::AddTable(KVDBTable * tab)
       return kFALSE;
 
    Add(tab);
-   tab->SetFullPath( Form("//root/%s/%s", fDataSet.Data(), tab->GetName()) );
+   tab->SetFullPath(Form("//root/%s/%s", fDataSet.Data(), tab->GetName()));
    return kTRUE;
 }
 
 //_______________________________________________________________________
-KVDBTable *KVDataBase::AddTable(const Char_t * name, const Char_t * title,
+KVDBTable* KVDataBase::AddTable(const Char_t* name, const Char_t* title,
                                 Bool_t unique)
 {
-// Add a table to the list of tables and check if the new table's name already exists. 
+// Add a table to the list of tables and check if the new table's name already exists.
 // If it exists the table is not added and null pointer is returned, otherwise a new
 // table is created and added to the list and its address is returned.
 
@@ -190,9 +190,9 @@ KVDBTable *KVDataBase::AddTable(const Char_t * name, const Char_t * title,
    if (GetTable(name))
       return 0;
 
-   KVDBTable *table = new KVDBTable(name, title, unique);
+   KVDBTable* table = new KVDBTable(name, title, unique);
    Add(table);
-   table->SetFullPath( Form("//root/%s/%s", fDataSet.Data(), name) );
+   table->SetFullPath(Form("//root/%s/%s", fDataSet.Data(), name));
    return table;
 }
 
@@ -201,20 +201,20 @@ void KVDataBase::Build()
 {
 //  Methode that builds the DataBase from the parameter files
 //  It does nothing here. Must be derived for each Database.
-//  
+//
 //
    AbstractMethod("Build");
 
 }
 
 //__________________________________________________________________________
-KVDBRecord *KVDataBase::GetRecord(const Char_t * table_name,
-                                  const Char_t * rec_name) const
+KVDBRecord* KVDataBase::GetRecord(const Char_t* table_name,
+                                  const Char_t* rec_name) const
 {
 //
 // Return the KVDBRecord rec_name found in the table table_name
 //
-   KVDBTable *table = GetTable(table_name);
+   KVDBTable* table = GetTable(table_name);
    if (!table) {
       TObject::Warning("GetRecord(const Char_t*,const Char_t*)",
                        "No Table named %s found.", table_name);
@@ -224,22 +224,22 @@ KVDBRecord *KVDataBase::GetRecord(const Char_t * table_name,
 }
 
 //__________________________________________________________________________
-void KVDataBase::Print(Option_t * option) const
+void KVDataBase::Print(Option_t* option) const
 {
 
 
    cout << "_______________________________________________________" <<
-       endl;
+        endl;
    cout << ClassName() << " : " << GetName() << " <---> " << GetTitle() <<
-       endl;
+        endl;
    cout << "Available Tables :" << endl;
    TIter next(GetTables());
-   KVDBTable *table;
-   while ((table = (KVDBTable *) next())) {
+   KVDBTable* table;
+   while ((table = (KVDBTable*) next())) {
       cout << "    " << table->GetName() << endl;
    }
    cout << "_______________________________________________________" <<
-       endl;
+        endl;
 }
 
 //______________________________________________________________________________
@@ -270,7 +270,7 @@ void KVDataBase::StartBrowser()
 
 //_________________________________________________________________________________
 
-KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
+KVDataBase* KVDataBase::MakeDataBase(const Char_t* name)
 {
    //Static function which will create and 'Build' the database object corresponding to 'name'
    //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
@@ -285,12 +285,12 @@ KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
    //The constructors/macros used have arguments (const Char_t* name)
 
    //does plugin exist for given name ?
-   TPluginHandler *ph;
+   TPluginHandler* ph;
    if (!(ph = KVBase::LoadPlugin("KVDataBase", name))) {
       return 0;
    }
    //execute constructor/macro for database
-   KVDataBase *mda = (KVDataBase *) ph->ExecPlugin(1, name);
+   KVDataBase* mda = (KVDataBase*) ph->ExecPlugin(1, name);
    //call Build() method
    mda->Build();
    return mda;
@@ -300,43 +300,43 @@ KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
 
 void KVDataBase::WriteObjects(TFile*)
 {
-	// Abstract method. Can be overridden in child classes.
-	// When the database is written to disk (by the currently active dataset, see
-	// KVDataSet::WriteDBFile) any associated objects (histograms, trees, etc.)
-	// can be written using this method.
-	// The pointer to the file being written is passed as argument.
-	
-	AbstractMethod("WriteObjects");
+   // Abstract method. Can be overridden in child classes.
+   // When the database is written to disk (by the currently active dataset, see
+   // KVDataSet::WriteDBFile) any associated objects (histograms, trees, etc.)
+   // can be written using this method.
+   // The pointer to the file being written is passed as argument.
+
+   AbstractMethod("WriteObjects");
 }
 
 //______________________________________________________________________________
 
 void KVDataBase::ReadObjects(TFile*)
 {
-	// Abstract method. Can be overridden in child classes.
-	// When the database is read from disk (by the currently active dataset, see
-	// KVDataSet::OpenDBFile) any associated objects (histograms, trees, etc.)
-	// stored in the file can be read using this method.
-	// The pointer to the file being read is passed as argument.
-	
-	AbstractMethod("ReadObjects");
+   // Abstract method. Can be overridden in child classes.
+   // When the database is read from disk (by the currently active dataset, see
+   // KVDataSet::OpenDBFile) any associated objects (histograms, trees, etc.)
+   // stored in the file can be read using this method.
+   // The pointer to the file being read is passed as argument.
+
+   AbstractMethod("ReadObjects");
 }
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVDataBase::GetDataSetDir() const
+const Char_t* KVDataBase::GetDataSetDir() const
 {
    // Returns full path to directory associated to the
-	// dataset associated with this database, i.e. the full path to
-	//
-	//    $KVROOT/KVFiles/[dataset name]
-	//
-	// Use this when building the database instead of gDataSet->GetDataSetDir,
-	// as gDataSet will not yet be positioned correctly.
+   // dataset associated with this database, i.e. the full path to
+   //
+   //    $KVROOT/KVFiles/[dataset name]
+   //
+   // Use this when building the database instead of gDataSet->GetDataSetDir,
+   // as gDataSet will not yet be positioned correctly.
 
    if (!gDataSetManager)
       return "";
-   KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
+   KVDataSet* ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
       return "";
    return ds->GetDataSetDir();

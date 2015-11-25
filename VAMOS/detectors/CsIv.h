@@ -14,46 +14,45 @@
 
 //const int MAX_CSI=80;
 
-class CsIv
-{
+class CsIv {
 
-   public:
-   CsIv(LogFile *Log);
+public:
+   CsIv(LogFile* Log);
    virtual ~CsIv();
-   
-   LogFile *L;
-   
+
+   LogFile* L;
+
    Int_t NbCsI;
-   
+
    void Init(void);
    void InitSavedQuantities(void);
    void Treat(void);
-   void inAttach(TTree *inT);
-   void outAttach(TTree *outT);
+   void inAttach(TTree* inT);
+   void outAttach(TTree* outT);
    void CreateHistograms();
    void FillHistograms();
-  
-  Float_t  *Ped;       //CsI pedestal
-  Float_t  **ECoef;  //CsI calibration coefficients
 
-  TRandom3 *Rnd;
-  
-  
-  //energy Raw
-  UShort_t *E_Raw;
-  Int_t *CsIERaw;
-  UShort_t *E_Raw_Nr;
-  Int_t E_RawM;
-  
-  //energy time Calibrated
-  Int_t   EMCSI;
-  Int_t *DetCsI;
- 
-  
+   Float_t*  Ped;       //CsI pedestal
+   Float_t**  ECoef;  //CsI calibration coefficients
+
+   TRandom3* Rnd;
+
+
+   //energy Raw
+   UShort_t* E_Raw;
+   Int_t* CsIERaw;
+   UShort_t* E_Raw_Nr;
+   Int_t E_RawM;
+
+   //energy time Calibrated
+   Int_t   EMCSI;
+   Int_t* DetCsI;
 
 
 
-   ClassDef(CsIv,2)//VAMOS CsI
+
+
+   ClassDef(CsIv, 2) //VAMOS CsI
 };
 
 #endif

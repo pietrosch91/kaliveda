@@ -30,39 +30,39 @@ KVNamedParameter::~KVNamedParameter()
    // Destructor
 }
 
-KVNamedParameter::KVNamedParameter(const char*nom)
+KVNamedParameter::KVNamedParameter(const char* nom)
    : TNamed(nom, ""), fNumber(0.0)
 {
    ResetBits();
 }
 
-KVNamedParameter::KVNamedParameter(const char*nom, const char*val)
+KVNamedParameter::KVNamedParameter(const char* nom, const char* val)
    : TNamed(nom, val), fNumber(0.0)
 {
    SetType(kIsString);
 }
 
-void KVNamedParameter::Set(const char*name, const char*val)
+void KVNamedParameter::Set(const char* name, const char* val)
 {
    SetNameTitle(name, val);
    SetType(kIsString);
    fNumber = 0.0;
 }
 
-void KVNamedParameter::Set(const char*val)
+void KVNamedParameter::Set(const char* val)
 {
    SetTitle(val);
    SetType(kIsString);
    fNumber = 0.0;
 }
 
-KVNamedParameter::KVNamedParameter(const char*nom, Double_t val)
+KVNamedParameter::KVNamedParameter(const char* nom, Double_t val)
    : TNamed(nom, "Double_t"), fNumber(val)
 {
    SetType(kIsDouble);
 }
 
-void KVNamedParameter::Set(const char*name, Double_t val)
+void KVNamedParameter::Set(const char* name, Double_t val)
 {
    SetNameTitle(name, "Double_t");
    SetType(kIsDouble);
@@ -76,13 +76,13 @@ void KVNamedParameter::Set(Double_t val)
    fNumber = val;
 }
 
-KVNamedParameter::KVNamedParameter(const char*nom, Int_t val)
+KVNamedParameter::KVNamedParameter(const char* nom, Int_t val)
    : TNamed(nom, "Int_t"), fNumber(val)
 {
    SetType(kIsInt);
 }
 
-void KVNamedParameter::Set(const char*name, Int_t val)
+void KVNamedParameter::Set(const char* name, Int_t val)
 {
    SetNameTitle(name, "Int_t");
    SetType(kIsInt);
@@ -106,16 +106,16 @@ void KVNamedParameter::Clear(Option_t*)
 
 const Char_t* KVNamedParameter::GetString() const
 {
-   // returns string value 
-	// whatever the type of the parameter
-	
-	if (IsString()) return GetTitle();
-   static TString convert="";
-	if (IsDouble()) 
-		convert.Form("%lf",fNumber);
-	else
-		convert.Form("%d",(Int_t)fNumber);	
-	return convert.Data();
+   // returns string value
+   // whatever the type of the parameter
+
+   if (IsString()) return GetTitle();
+   static TString convert = "";
+   if (IsDouble())
+      convert.Form("%lf", fNumber);
+   else
+      convert.Form("%d", (Int_t)fNumber);
+   return convert.Data();
 }
 
 Double_t KVNamedParameter::GetDouble() const
@@ -175,7 +175,7 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
    return kFALSE;
 }
 
-void KVNamedParameter::Print(Option_t* ) const
+void KVNamedParameter::Print(Option_t*) const
 {
    if (IsString()) {
       Info("Print", "Name = %s type = string value = %s", GetName(), GetTitle());
@@ -183,19 +183,19 @@ void KVNamedParameter::Print(Option_t* ) const
       Info("Print", "Name = %s type = %s value = %f", GetName(), GetTitle(), fNumber);
 }
 
-void KVNamedParameter::ls(Option_t* ) const
+void KVNamedParameter::ls(Option_t*) const
 {
    TROOT::IndentLevel();
    if (IsString()) {
-      cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
+      cout << "<" << GetName() << "=" << GetTitle() << ">" << endl;
    } else {
       switch (GetType()) {
          case kIsInt:
-            cout << "<"<<GetName() <<"="<< GetInt() <<">"<< endl;
+            cout << "<" << GetName() << "=" << GetInt() << ">" << endl;
             break;
 
          case kIsDouble:
-            cout << "<"<< GetName() <<"="<< GetDouble() <<">"<< endl;
+            cout << "<" << GetName() << "=" << GetDouble() << ">" << endl;
             break;
 
          default:
@@ -204,13 +204,13 @@ void KVNamedParameter::ls(Option_t* ) const
    }
 }
 
-Int_t KVNamedParameter::Compare(const TObject *obj) const
+Int_t KVNamedParameter::Compare(const TObject* obj) const
 {
-    // Compares numerical parameters for sorting lists (such as KVNameValueList)
-    if(!IsNumber()) return 0;
-    const KVNamedParameter* other = dynamic_cast<const KVNamedParameter*>(obj);
-    if(!other || !other->IsNumber()) return 0;
-    // check for equality
-    if((*other)==(*this)) return 0;
-    return ((other->fNumber)>fNumber ? -1 : 1);
+   // Compares numerical parameters for sorting lists (such as KVNameValueList)
+   if (!IsNumber()) return 0;
+   const KVNamedParameter* other = dynamic_cast<const KVNamedParameter*>(obj);
+   if (!other || !other->IsNumber()) return 0;
+   // check for equality
+   if ((*other) == (*this)) return 0;
+   return ((other->fNumber) > fNumber ? -1 : 1);
 }

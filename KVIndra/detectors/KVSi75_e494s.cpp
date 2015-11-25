@@ -40,21 +40,21 @@ Double_t KVSi75_e494s::GetVoltsFromCanalPG(Double_t chan)
    //data for this detector is used to calculate the signal.
    //If the PG parameter is not present (=-1) or no calib we return 0.
    //Change in the coder pedestal between the current run and the reference pedestal
-   //is taken into account, as well as the shift between the pedestal of the 
-   //calibration run (533) and the reference run (293). 
-   // To get correct value for Cf alphas, we must add 7 channels, not 3-4 
-  
-  if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return 0;
+   //is taken into account, as well as the shift between the pedestal of the
+   //calibration run (533) and the reference run (293).
+   // To get correct value for Cf alphas, we must add 7 channels, not 3-4
 
-  if (!chan) {
-    chan = GetPG();
-  }
-  if (chan < -0.5)
-    return 0.;          //PG parameter absent
-  //correct for pedestal drift
-  chan = chan - (Float_t) GetACQParam("PG")->GetDeltaPedestal() + 7.0;
-  return (fChVoltPG->Compute(chan));
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return 0;
+
+   if (!chan) {
+      chan = GetPG();
+   }
+   if (chan < -0.5)
+      return 0.;          //PG parameter absent
+   //correct for pedestal drift
+   chan = chan - (Float_t) GetACQParam("PG")->GetDeltaPedestal() + 7.0;
+   return (fChVoltPG->Compute(chan));
 }
 //____________________________________________________________________________________________
 Int_t KVSi75_e494s::GetCanalPGFromVolts(Float_t volts)
@@ -67,20 +67,20 @@ Int_t KVSi75_e494s::GetCanalPGFromVolts(Float_t volts)
    //Returns -1 if PG <-> Volts calibration is not available
 
 
-      if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return -1;
-      Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) + 
-		  (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5);
-      return chan;
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return -1;
+   Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) +
+                            (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5);
+   return chan;
 
 }
 
 Double_t KVSi75_e494s::GetCanalPGFromVoltsDouble(Float_t volts)
 {
-      if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return -1;
-      return fChVoltPG->InvertDouble(volts) + 
-               (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5;
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return -1;
+   return fChVoltPG->InvertDouble(volts) +
+          (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5;
 
 }
 
@@ -138,21 +138,21 @@ Double_t KVSiLi_e494s::GetVoltsFromCanalPG(Double_t chan)
    //data for this detector is used to calculate the signal.
    //If the PG parameter is not present (=-1) or no calib we return 0.
    //Change in the coder pedestal between the current run and the reference pedestal
-   //is taken into account, as well as the shift between the pedestal of the 
+   //is taken into account, as well as the shift between the pedestal of the
    //calibration run (546) and the reference run (293).
-   // To get correct value for Cf alphas, we must add 7 channels, not 3-4 
-  
-  if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return 0;
+   // To get correct value for Cf alphas, we must add 7 channels, not 3-4
 
-  if (!chan) {
-    chan = GetPG();
-  }
-  if (chan < -0.5)
-    return 0.;          //PG parameter absent
-  //correct for pedestal drift
-  chan = chan - (Float_t) GetACQParam("PG")->GetDeltaPedestal() + 7.0;
-  return (fChVoltPG->Compute(chan));
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return 0;
+
+   if (!chan) {
+      chan = GetPG();
+   }
+   if (chan < -0.5)
+      return 0.;          //PG parameter absent
+   //correct for pedestal drift
+   chan = chan - (Float_t) GetACQParam("PG")->GetDeltaPedestal() + 7.0;
+   return (fChVoltPG->Compute(chan));
 }
 //____________________________________________________________________________________________
 Int_t KVSiLi_e494s::GetCanalPGFromVolts(Float_t volts)
@@ -165,20 +165,20 @@ Int_t KVSiLi_e494s::GetCanalPGFromVolts(Float_t volts)
    //Returns -1 if PG <-> Volts calibration is not available
 
 
-      if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return -1;
-      Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) + 
-		  (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5);
-      return chan;
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return -1;
+   Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) +
+                            (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5);
+   return chan;
 
 }
 
 Double_t KVSiLi_e494s::GetCanalPGFromVoltsDouble(Float_t volts)
 {
-      if (!fChVoltPG || !fChVoltPG->GetStatus())
-         return -1;
-      return fChVoltPG->InvertDouble(volts) + 
-               (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5;
+   if (!fChVoltPG || !fChVoltPG->GetStatus())
+      return -1;
+   return fChVoltPG->InvertDouble(volts) +
+          (Float_t) GetACQParam("PG")->GetDeltaPedestal() - 3.5;
 
 }
 

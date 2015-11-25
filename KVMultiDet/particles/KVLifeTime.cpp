@@ -18,7 +18,7 @@ ClassImp(KVLifeTime)
 KVLifeTime::KVLifeTime(const Char_t* name): KVNuclData(name)
 {
    // Default constructor
-	init();
+   init();
 
 }
 
@@ -26,7 +26,7 @@ KVLifeTime::KVLifeTime(const Char_t* name): KVNuclData(name)
 KVLifeTime::KVLifeTime(): KVNuclData()
 {
    // Default constructor
-	init();
+   init();
 
 }
 
@@ -39,14 +39,15 @@ KVLifeTime::~KVLifeTime()
 //_________________________________
 void KVLifeTime::init()
 {
-	
-	SetResonnance(kFALSE);
-	
+
+   SetResonnance(kFALSE);
+
 }
 
 //_________________________________
-const Char_t* KVLifeTime::GetUnit() const{
+const Char_t* KVLifeTime::GetUnit() const
+{
 
-	if (IsAResonnance())	return "MeV";
-	else return "s";
+   if (IsAResonnance()) return "MeV";
+   else return "s";
 }

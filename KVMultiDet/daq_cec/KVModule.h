@@ -38,58 +38,68 @@ class KVList;
 class KVRList;
 class KVDetector;
 
-class KVModule:public KVBase {
- private:
+class KVModule: public KVBase {
+private:
    Long_t fBaie;
    Long_t fChassis;
    Long_t fSlot;
    Long_t fNbre_de_voies;
    //ensemble<registre> *regs;
-   KVList *fRegisters;          //->list of all registers in module
-   KVRList *fDetectors;         //list of all detectors connected to a module
- public:
-    KVModule();
-    virtual ~ KVModule();
-   void ConnectDetector(KVDetector *, const int fcon = KVD_RECPRC_CNXN);
+   KVList* fRegisters;          //->list of all registers in module
+   KVRList* fDetectors;         //list of all detectors connected to a module
+public:
+   KVModule();
+   virtual ~ KVModule();
+   void ConnectDetector(KVDetector*, const int fcon = KVD_RECPRC_CNXN);
 
 // Lecture du numero de baie
-   Long_t GetBaie(void) {
+   Long_t GetBaie(void)
+   {
       return fBaie;
    };
 // Lecture du numero de chassis
-   Long_t GetChassis(void) {
+   Long_t GetChassis(void)
+   {
       return fChassis;
    };
 // Lecture du numero de slot
-   Long_t GetSlot(void) {
+   Long_t GetSlot(void)
+   {
       return fSlot;
    };
 // Lecture du nombre de voies
-   Long_t GetNbreDeVoies(void) {
+   Long_t GetNbreDeVoies(void)
+   {
       return fNbre_de_voies;
    };
 // Ecriture du numero de baie
-   void SetBaie(Long_t b) {
+   void SetBaie(Long_t b)
+   {
       fBaie = b;
    };
 // Ecriture du numero de chassis
-   void SetChassis(Long_t c) {
+   void SetChassis(Long_t c)
+   {
       fChassis = c;
    };
 // Ecriture du numero de slot
-   void SetSlot(Long_t s) {
+   void SetSlot(Long_t s)
+   {
       fSlot = s;
    };
 // Ecriture du nombre de voies
-   void SetNbreDeVoies(Long_t n) {
+   void SetNbreDeVoies(Long_t n)
+   {
       fNbre_de_voies = n;
    };
 // Ecriture de l'ensemble regs
-   void SetRegs(KVList * r) {
+   void SetRegs(KVList* r)
+   {
       fRegisters = r;
    };
 // Lecture de l'ensemble regs
-   KVList *GetRegs() {
+   KVList* GetRegs()
+   {
       return fRegisters;
    };
 

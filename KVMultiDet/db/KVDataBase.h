@@ -26,59 +26,62 @@ $Id: KVDataBase.h,v 1.20 2009/01/22 13:55:00 franklan Exp $
 class KVDataBaseBrowser;
 class TFile;
 
-class KVDataBase:public TFolder {
+class KVDataBase: public TFolder {
 
    friend class KVDataBaseBrowser;
 
- private:
+private:
 
-    KVDataBaseBrowser * fBrowser;       //! GUI for viewing database
+   KVDataBaseBrowser* fBrowser;        //! GUI for viewing database
 
- protected:
+protected:
 
-    TString fDataSet;           //the name of the dataset to which this database is associated
+   TString fDataSet;           //the name of the dataset to which this database is associated
 
- public:
-    KVDataBase();
-    KVDataBase(const Char_t * name, const Char_t * title);
-    virtual ~ KVDataBase();
+public:
+   KVDataBase();
+   KVDataBase(const Char_t* name, const Char_t* title);
+   virtual ~ KVDataBase();
 
-   inline virtual KVDBTable *GetTable(const Char_t * table) const;
-   inline virtual TList *GetTables() const;
-   virtual Bool_t AddTable(KVDBTable * table);
-   virtual KVDBTable *AddTable(const Char_t * name, const Char_t * title,
+   inline virtual KVDBTable* GetTable(const Char_t* table) const;
+   inline virtual TList* GetTables() const;
+   virtual Bool_t AddTable(KVDBTable* table);
+   virtual KVDBTable* AddTable(const Char_t* name, const Char_t* title,
                                Bool_t unique = kFALSE);
-   virtual KVDBRecord *GetRecord(const Char_t * table_name,
-                                 const Char_t * rec_name) const;
+   virtual KVDBRecord* GetRecord(const Char_t* table_name,
+                                 const Char_t* rec_name) const;
    virtual void Build();
-   virtual void Print(Option_t * option = "") const;
+   virtual void Print(Option_t* option = "") const;
    inline virtual void cd();
    virtual void CloseBrowser();
    virtual void StartBrowser();
 
-   static KVDataBase *MakeDataBase(const Char_t * name);
-   
-   virtual void Save(const Char_t*){;};
-	
-	virtual void WriteObjects(TFile*);
-	virtual void ReadObjects(TFile*);
-	
-	const Char_t* GetDataSetDir() const;
+   static KVDataBase* MakeDataBase(const Char_t* name);
 
-    ClassDef(KVDataBase, 1)     // Base Class for a database of parameters
+   virtual void Save(const Char_t*)
+   {
+      ;
+   };
+
+   virtual void WriteObjects(TFile*);
+   virtual void ReadObjects(TFile*);
+
+   const Char_t* GetDataSetDir() const;
+
+   ClassDef(KVDataBase, 1)     // Base Class for a database of parameters
 };
 
 //........ global variable
-R__EXTERN KVDataBase *gDataBase;
+R__EXTERN KVDataBase* gDataBase;
 
-KVDBTable *KVDataBase::GetTable(const Char_t * table) const
+KVDBTable* KVDataBase::GetTable(const Char_t* table) const
 {
-   return (KVDBTable *) FindObject(table);
+   return (KVDBTable*) FindObject(table);
 }
 
-TList *KVDataBase::GetTables() const
+TList* KVDataBase::GetTables() const
 {
-   return (TList *) GetListOfFolders();
+   return (TList*) GetListOfFolders();
 }
 
 void KVDataBase::cd()

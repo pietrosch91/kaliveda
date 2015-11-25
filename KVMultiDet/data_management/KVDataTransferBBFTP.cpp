@@ -21,7 +21,7 @@ ClassImp(KVDataTransferBBFTP)
 ////////////////////////////////////////////////////////////////////////////////
 // File transfer between repositories using bbftp.
 ////////////////////////////////////////////////////////////////////////////////
-    KVDataTransferBBFTP::KVDataTransferBBFTP()
+KVDataTransferBBFTP::KVDataTransferBBFTP()
 {
    //Default constructor
    fServer = 0;
@@ -36,7 +36,7 @@ void KVDataTransferBBFTP::init()
 {
    //Initialisation of data transfer.
    //A bbftp client must be installed on the user's machine, and the
-   //executable must be located within the user's PATH. 
+   //executable must be located within the user's PATH.
 
    //Deduce from target and source repository properties which has the BBFTP server
    if (!strcmp(fSourceRep->GetFileTransferType(), "bbftp"))
@@ -54,7 +54,7 @@ void KVDataTransferBBFTP::WriteTransferScript()
    KVBase::OpenTempFile(fCmdFile, file);
 
    cout << endl << "Writing command file : " << fCmdFile.
-       Data() << endl << endl;
+        Data() << endl << endl;
 
    file << "setoption remoterfio" << endl;
    cout << "setoption remoterfio" << endl;
@@ -68,7 +68,7 @@ void KVDataTransferBBFTP::WriteTransferScript()
    //write a line for each file to transfer
    //loop over runs in runlist
    Int_t Nruns;
-   Int_t *runs = fRunList.GetArray(Nruns);
+   Int_t* runs = fRunList.GetArray(Nruns);
    TString targ_file;
    for (register int i = 0; i < Nruns; i++) {
 
@@ -79,37 +79,37 @@ void KVDataTransferBBFTP::WriteTransferScript()
 
       //source file name
       file << fSourceRep->GetFullPathToTransferFile(fDataSet,
-                                                    fDataType.Data(),
-                                                    fDataSet->
-                                                    GetRunfileName
-                                                    (fDataType.Data(),
-                                                     run)) << " ";
+            fDataType.Data(),
+            fDataSet->
+            GetRunfileName
+            (fDataType.Data(),
+             run)) << " ";
       cout << fSourceRep->GetFullPathToTransferFile(fDataSet,
-                                                    fDataType.Data(),
-                                                    fDataSet->
-                                                    GetRunfileName
-                                                    (fDataType.Data(),
-                                                     run)) << " ";
+            fDataType.Data(),
+            fDataSet->
+            GetRunfileName
+            (fDataType.Data(),
+             run)) << " ";
 
       //target file name
       //target repository dataset pointer
-      KVDataSet *targ_ds =
-          fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName());
+      KVDataSet* targ_ds =
+         fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName());
       targ_file = fDataSet->GetRunfileName(fDataType.Data(), run);
-      //if the target repository is the local repository, 
+      //if the target repository is the local repository,
       //we have to replace illegal characters like ":" in the target file name
       //to avoid problems due to the meaning of the ":" character for some
       //systems (MacOsX, Windows, some Linux distributions)
       if (!fTargetRep->IsRemote())
          targ_file.ReplaceAll(":", "_");
       file << fTargetRep->GetFullPathToTransferFile(targ_ds,
-                                                    fDataType.Data(),
-                                                    targ_file.
-                                                    Data()) << endl;
+            fDataType.Data(),
+            targ_file.
+            Data()) << endl;
       cout << fTargetRep->GetFullPathToTransferFile(targ_ds,
-                                                    fDataType.Data(),
-                                                    targ_file.
-                                                    Data()) << endl;
+            fDataType.Data(),
+            targ_file.
+            Data()) << endl;
    }
 
    file.close();
@@ -122,7 +122,7 @@ void KVDataTransferBBFTP::ExecuteCommand()
    //
    // [bbftp command] -i [command file name] -u [user] [server]
    //
-   // where 
+   // where
    //
    // [bbftp command] = result of searching for 'bbftp' in user's PATH
    // [command file name] = name of file written by WriteTransferScript()

@@ -24,13 +24,14 @@ $Id: KVBrowserNameDialog.h,v 1.3 2006/10/19 14:32:43 franklan Exp $
 #include "TGWindow.h"
 #include "TGFrame.h"
 
-class KVBrowserNameDialog:public KVBrowser, public TGTransientFrame {
+class KVBrowserNameDialog: public KVBrowser, public TGTransientFrame {
 
- public:
+public:
 
-   KVBrowserNameDialog(const TGWindow *, const TGWindow *, const Char_t *,
-                       Char_t *);
-    virtual ~ KVBrowserNameDialog() {
+   KVBrowserNameDialog(const TGWindow*, const TGWindow*, const Char_t*,
+                       Char_t*);
+   virtual ~ KVBrowserNameDialog()
+   {
    };
 
    virtual void CloseWindow();

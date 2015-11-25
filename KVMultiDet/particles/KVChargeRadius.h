@@ -6,23 +6,31 @@
 
 #include "KVNuclData.h"
 
-class KVChargeRadius : public KVNuclData
-{
-   
-	protected:
-	void init();
-	Double_t fError;
+class KVChargeRadius : public KVNuclData {
 
-   public:
+protected:
+   void init();
+   Double_t fError;
+
+public:
    KVChargeRadius();
    KVChargeRadius(const Char_t* name);
    virtual ~KVChargeRadius();
-   
-	void SetError(Double_t err) {fError = err; }
-	Double_t GetError() const {return fError; }
-	const Char_t* GetUnit() const {return "fm"; }
 
-   ClassDef(KVChargeRadius,1)////Simple class for store charge radius information of nucleus
+   void SetError(Double_t err)
+   {
+      fError = err;
+   }
+   Double_t GetError() const
+   {
+      return fError;
+   }
+   const Char_t* GetUnit() const
+   {
+      return "fm";
+   }
+
+   ClassDef(KVChargeRadius, 1) ////Simple class for store charge radius information of nucleus
 };
 
 #endif

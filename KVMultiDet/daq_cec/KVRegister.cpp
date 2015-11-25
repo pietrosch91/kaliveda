@@ -25,12 +25,12 @@ ClassImp(KVRegister)
 //Base class for description of registers in electronic modules.
 //Each register is characterised by the following:
 //
-//	its address
-//	its contents (the value stored in the register)
-//	the number of bits in the register
-//	the access mode of the register ("R" read only, "W" write only)
-//	the numbers of the first and last channels (Voies) concerned by this
-//		register, and the step in channel number
+// its address
+// its contents (the value stored in the register)
+// the number of bits in the register
+// the access mode of the register ("R" read only, "W" write only)
+// the numbers of the first and last channels (Voies) concerned by this
+//    register, and the step in channel number
 //
 //In addition, the value in the register may correspond to some "real
 //world" value such as a discriminator threshold value in mV. In order to
@@ -61,13 +61,13 @@ KVRegister::KVRegister()
    SetName("KVRegister");
 }
 
-KVRegister::KVRegister(const KVRegister &reg):fFonction_associee()
+KVRegister::KVRegister(const KVRegister& reg): fFonction_associee()
 {
    //Copy constructor
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    reg.Copy(*this);
 #else
-   ((KVRegister &) reg).Copy(*this);
+   ((KVRegister&) reg).Copy(*this);
 #endif
 }
 
@@ -76,7 +76,8 @@ KVRegister::~KVRegister()
    //Destructor
 }
 
-void KVRegister::Print(const Option_t * t)  const {
+void KVRegister::Print(const Option_t* t)  const
+{
    //use Option_t* t="line" for old registre::affiche_ligne behaviour
    //otherwise this is registre::affiche
 
@@ -100,55 +101,54 @@ void KVRegister::Print(const Option_t * t)  const {
    Voie_fin = GetLastVoie();
    Voie_pas = GetVoieStep();
 
-   if (!strcmp(t, "line"))
-   {
+   if (!strcmp(t, "line")) {
       //corresponds to registre::affiche_ligne
       printf("!%19s!%Ld!%Ld!%2d!%2d!%2d!%2d!%c!%20s!",
-		  Nom, Adr, Cont, NbrBits, Voie_deb, Voie_fin, Voie_pas, Acces, s);
+             Nom, Adr, Cont, NbrBits, Voie_deb, Voie_fin, Voie_pas, Acces, s);
    } else {
       //corresponds to registre::affiche
       printf
-          ("Registre:\nNom   :%19s\nAdresse:%Ld\nContenu:%Ld\nnbrBits:%d\nVoie_deb:%d\nVoie_fin:%d\nVoie_pas:%d\nAcces:%c\nFonction associee:%20s\n",
-           Nom, Adr, Cont, NbrBits, Voie_deb, Voie_fin, Voie_pas, Acces,
-           s);
+      ("Registre:\nNom   :%19s\nAdresse:%Ld\nContenu:%Ld\nnbrBits:%d\nVoie_deb:%d\nVoie_fin:%d\nVoie_pas:%d\nAcces:%c\nFonction associee:%20s\n",
+       Nom, Adr, Cont, NbrBits, Voie_deb, Voie_fin, Voie_pas, Acces,
+       s);
    }
 }
 
 //____________________________________________________________________________________//
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-void KVRegister::Copy(TObject & obj)  const
+void KVRegister::Copy(TObject& obj)  const
 #else
-void KVRegister::Copy(TObject & obj)
+void KVRegister::Copy(TObject& obj)
 #endif
 {
    //Copy this to obj
 
    KVBase::Copy(obj);
-   KVRegister &reg = (KVRegister&)obj;
-   reg.SetAccess( GetAccess() );
-   reg.SetAddress( GetAddress() );
-   reg.SetAssocFunc( GetAssocFunc() );
-   reg.SetChannels( Form("%d-%d:%d", GetFirstVoie(), GetLastVoie(), GetVoieStep()) );
-   reg.SetContents( GetContents() );
-   reg.SetNumberBits( GetNumberBits() );
+   KVRegister& reg = (KVRegister&)obj;
+   reg.SetAccess(GetAccess());
+   reg.SetAddress(GetAddress());
+   reg.SetAssocFunc(GetAssocFunc());
+   reg.SetChannels(Form("%d-%d:%d", GetFirstVoie(), GetLastVoie(), GetVoieStep()));
+   reg.SetContents(GetContents());
+   reg.SetNumberBits(GetNumberBits());
 }
 
 //___________________________________________________________________________
 
 const Char_t* KVRegister::GetRealValue(const Long64_t, const Long64_t) const
 {
-	//Returns 0 (null string pointer).
-	//Redefine in child classes for specific types of register.
-	
-      return 0;
+   //Returns 0 (null string pointer).
+   //Redefine in child classes for specific types of register.
+
+   return 0;
 }
 
 //___________________________________________________________________________
 
 void KVRegister::SetRealValue(const Double_t Clair, const Long64_t, const Long64_t)
 {
-	//Does nothing. Redefine in child classes for specific types of register.
+   //Does nothing. Redefine in child classes for specific types of register.
 }
 
 //___________________________________________________________________________

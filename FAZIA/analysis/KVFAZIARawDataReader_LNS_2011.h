@@ -17,7 +17,7 @@
 
 class KVFAZIARawDataReader_LNS_2011 : public KVFAZIARawDataReader {
 public :
-   
+
    // Declaration of leaf types
    /*
    Float_t         tele111_si1_energy;
@@ -237,7 +237,7 @@ public :
    Double_t        scale_elapsed;
    Double_t        scale_approx_rate;
    UInt_t          bitpattern;
-	
+
    // List of branches
    TBranch        *b_tele111_si1_energy;   //!
    TBranch        *b_tele111_si1_A;   //!
@@ -456,19 +456,19 @@ public :
    TBranch        *b_scale_elapsed;   //!
    TBranch        *b_scale_approx_rate;   //!
    TBranch        *b_bitpattern;   //!
-	*/
+   */
    KVFAZIARawDataReader_LNS_2011() : KVFAZIARawDataReader() { }
    virtual ~KVFAZIARawDataReader_LNS_2011() { }
-   
-   virtual void    Begin(TTree *tree);
-   virtual void    SlaveBegin(TTree *tree);
-   
+
+   virtual void    Begin(TTree* tree);
+   virtual void    SlaveBegin(TTree* tree);
+
    virtual void    InitRun();
-   
+
    virtual void    SlaveTerminate();
    virtual void    Terminate();
-	
-   ClassDef(KVFAZIARawDataReader_LNS_2011,0);
+
+   ClassDef(KVFAZIARawDataReader_LNS_2011, 0);
 };
 
 #endif

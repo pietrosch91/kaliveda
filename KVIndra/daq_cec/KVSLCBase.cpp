@@ -23,28 +23,27 @@ ClassImp(KVSLCBase)
 //
 ////////////////////////////////////////////////////////////////////////////
 
-KVSLCBase::KVSLCBase(){
-	//default constructor
-	//set all arrays to zero
+KVSLCBase::KVSLCBase()
+{
+   //default constructor
+   //set all arrays to zero
 
-	for(UInt_t r=0;r<MAX_RINGS;r++)
-	{
-		for(UInt_t m=0;m<MAX_MODS;m++)
-		{
-			for(UInt_t s=0;s<MAX_SIGS;s++)
-			{
-				fTotEv[r][m][s]=0;
-				fPhyEv[r][m][s]=0;
-				fNPhys[r][m][s]=0;
-				fAvPhys[r][m][s]=0.0;
-				fSigPhys[r][m][s]=0.0;
-				fNGen[r][m][s]=0;
-				fAvGen[r][m][s]=0.0;
-				fSigGen[r][m][s]=0.0;
-			}
-		}
-	}
+   for (UInt_t r = 0; r < MAX_RINGS; r++) {
+      for (UInt_t m = 0; m < MAX_MODS; m++) {
+         for (UInt_t s = 0; s < MAX_SIGS; s++) {
+            fTotEv[r][m][s] = 0;
+            fPhyEv[r][m][s] = 0;
+            fNPhys[r][m][s] = 0;
+            fAvPhys[r][m][s] = 0.0;
+            fSigPhys[r][m][s] = 0.0;
+            fNGen[r][m][s] = 0;
+            fAvGen[r][m][s] = 0.0;
+            fSigGen[r][m][s] = 0.0;
+         }
+      }
+   }
 }
 
-KVSLCBase::~KVSLCBase(){
+KVSLCBase::~KVSLCBase()
+{
 }

@@ -26,15 +26,15 @@ class KVSLCBase;
 
 class KVSlowControl : public KVBase  {
 
-	TFile *fFile;//file containing SLC database tree
-	TTree *fTree;//tree containing SLC database
-	KVSLCBase *fBase;//SLC database for 1 run read from tree
+   TFile* fFile;//file containing SLC database tree
+   TTree* fTree;//tree containing SLC database
+   KVSLCBase* fBase;//SLC database for 1 run read from tree
 
-public: 
-	KVSlowControl();
-	virtual ~KVSlowControl();
+public:
+   KVSlowControl();
+   virtual ~KVSlowControl();
 
-	ClassDef(KVSlowControl,0)//Access to Slow Control data
+   ClassDef(KVSlowControl, 0) //Access to Slow Control data
 };
 
 #endif

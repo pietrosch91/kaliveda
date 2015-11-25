@@ -18,7 +18,7 @@ ClassImp(KVAbundance)
 KVAbundance::KVAbundance(const Char_t* name): KVNuclData(name)
 {
    // Default constructor
-	init();
+   init();
 
 }
 
@@ -26,7 +26,7 @@ KVAbundance::KVAbundance(const Char_t* name): KVNuclData(name)
 KVAbundance::KVAbundance()
 {
    // Default constructor
-	init();
+   init();
 }
 
 //_________________________________
@@ -42,9 +42,10 @@ void KVAbundance::init()
 }
 
 //_________________________________
-const Char_t* KVAbundance::GetUnit() const{
+const Char_t* KVAbundance::GetUnit() const
+{
 
-	TString unit="percentage";
-	return unit.Data();
+   TString unit = "percentage";
+   return unit.Data();
 }
 

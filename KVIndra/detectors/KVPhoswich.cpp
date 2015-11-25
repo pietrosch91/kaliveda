@@ -36,11 +36,11 @@ KVPhoswich::KVPhoswich()
 {
    //Default ctor
 
-   fSegment=2;
+   fSegment = 2;
 }
 
 //______________________________________________________________________________
-KVPhoswich::KVPhoswich(Float_t thick):KVINDRADetector("NE102",0.05)
+KVPhoswich::KVPhoswich(Float_t thick): KVINDRADetector("NE102", 0.05)
 {
    //Build phoswich telescope from two layers of plastic - (NE102) and (NE115).
    // 'thick' is a dummy argument, it is not used
@@ -49,10 +49,10 @@ KVPhoswich::KVPhoswich(Float_t thick):KVINDRADetector("NE102",0.05)
    //Both layers are "active" - this requires redefinition of GetEnergy etc. methods
    //Type of detector is "PHOS"
 
-   KVMaterial *ne115 = new KVMaterial("NE102", 25);
+   KVMaterial* ne115 = new KVMaterial("NE102", 25);
    AddAbsorber(ne115);
 
-   fSegment=2;
+   fSegment = 2;
    SetType("PHOS");
 }
 
@@ -82,7 +82,7 @@ void KVPhoswich::SetEnergy(Double_t e)
 }
 
 //_______________________________________________________________________________________
-const Char_t *KVPhoswich::GetArrayName()
+const Char_t* KVPhoswich::GetArrayName()
 {
    //Overrides KVDetector method.
    //Gives name of phoswich as PHOS_01, PHOS_02, etc.

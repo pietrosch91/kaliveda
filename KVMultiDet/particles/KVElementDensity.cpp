@@ -17,7 +17,7 @@ ClassImp(KVElementDensity)
 KVElementDensity::KVElementDensity()
 {
    // Default constructor
-   fIsGas=kFALSE;
+   fIsGas = kFALSE;
 }
 
 //________________________________________________________________
@@ -25,12 +25,12 @@ KVElementDensity::KVElementDensity()
 KVElementDensity::KVElementDensity(const Char_t* name): KVNuclData(name)
 {
    // Default constructor
-   fIsGas=kFALSE;
+   fIsGas = kFALSE;
 }
 
 //________________________________________________________________
 
-KVElementDensity::KVElementDensity (const KVElementDensity& obj)  : KVNuclData()
+KVElementDensity::KVElementDensity(const KVElementDensity& obj)  : KVNuclData()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -48,7 +48,7 @@ KVElementDensity::~KVElementDensity()
 
 //________________________________________________________________
 
-void KVElementDensity::Copy (TObject& obj) const
+void KVElementDensity::Copy(TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
@@ -60,12 +60,12 @@ void KVElementDensity::Copy (TObject& obj) const
    KVNuclData::Copy(obj);
    //KVElementDensity& CastedObj = (KVElementDensity&)obj;
 }
-   
+
 void KVElementDensity::Print(Option_t*) const
 {
    printf("Atomic element: %s (%s) Z=%d. Density=%f g/cm**3",
-         GetElementSymbol(), GetElementName(), GetZ(), GetValue());
-   if(IsGas()) printf(" (gas)");
+          GetElementSymbol(), GetElementName(), GetZ(), GetValue());
+   if (IsGas()) printf(" (gas)");
    printf("\n");
 }
-   
+

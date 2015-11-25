@@ -19,7 +19,7 @@ ClassImp(KVMassExcess)
 KVMassExcess::KVMassExcess(const Char_t* name): KVNuclData(name)
 {
    // Default constructor
-	init();
+   init();
 
 }
 
@@ -27,7 +27,7 @@ KVMassExcess::KVMassExcess(const Char_t* name): KVNuclData(name)
 KVMassExcess::KVMassExcess(): KVNuclData()
 {
    // Default constructor
-	init();
+   init();
 
 }
 
@@ -40,9 +40,10 @@ KVMassExcess::~KVMassExcess()
 
 
 //_________________________________
-const Char_t* KVMassExcess::GetUnit() const{
+const Char_t* KVMassExcess::GetUnit() const
+{
 
-	TString unit="MeV";
-	return unit.Data();
+   TString unit = "MeV";
+   return unit.Data();
 }
 

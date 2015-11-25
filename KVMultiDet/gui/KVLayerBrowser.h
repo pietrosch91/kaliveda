@@ -41,29 +41,31 @@ $Id: KVLayerBrowser.h,v 1.4 2006/11/03 08:01:32 franklan Exp $
 class KVSeqCollection;
 class KVLayer;
 
-class KVLayerBrowser:public TGTab {
+class KVLayerBrowser: public TGTab {
 
    friend class KVLayer;
 
- private:
+private:
 
-    TList * fCleanup;           //! for TGLayoutHints objects, delete at end
-   KVWidgetList *fWidgets;      //! list of all widgets in frame
-   TList *fRingBrowsers;        //! put ring browser of each layer in this list
+   TList* fCleanup;            //! for TGLayoutHints objects, delete at end
+   KVWidgetList* fWidgets;      //! list of all widgets in frame
+   TList* fRingBrowsers;        //! put ring browser of each layer in this list
 
- public:
+public:
 
-    KVLayerBrowser(KVSeqCollection * layers, const TGWindow * p, UInt_t w,
-                   UInt_t h);
-    virtual ~ KVLayerBrowser();
+   KVLayerBrowser(KVSeqCollection* layers, const TGWindow* p, UInt_t w,
+                  UInt_t h);
+   virtual ~ KVLayerBrowser();
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
-   void LayoutLayer(KVLayer * layer);
-   void AddToWidgetList(KVBrowserWidget * widg) {
+   void LayoutLayer(KVLayer* layer);
+   void AddToWidgetList(KVBrowserWidget* widg)
+   {
       if (!fWidgets)
          fWidgets = new KVWidgetList;
       fWidgets->Add(widg);
-   } void AddRingBrowser(KVRingBrowser * w) {
+   } void AddRingBrowser(KVRingBrowser* w)
+   {
       if (!fRingBrowsers)
          fRingBrowsers = new TList;
       fRingBrowsers->Add(w);

@@ -9,9 +9,9 @@ ClassImp(KVRingBrowser)
 ///////////////////////////////////////////////////////////////////////////////////////
 // Ring browser
 ///////////////////////////////////////////////////////////////////////////////////////
-    KVRingBrowser::KVRingBrowser(KVList * rings, const TGWindow * p,
-                                 UInt_t w, UInt_t h)
-:TGTab(p, w, h)
+KVRingBrowser::KVRingBrowser(KVList* rings, const TGWindow* p,
+                             UInt_t w, UInt_t h)
+   : TGTab(p, w, h)
 {
    // Displays all information on rings in a given layer, the ring list of the layer is passed as the argument
    // KVList *rings. a ring browser is basically a TGTab widget with a tab for each ring. the ring name is
@@ -26,10 +26,10 @@ ClassImp(KVRingBrowser)
    fWidgets = 0;
    fCleanup = new TList;
    TIter next_ring(rings);
-   KVBase *robj;
+   KVBase* robj;
 
-   while ((robj = (KVBase *) next_ring())) {    // loop over rings
-      LayoutRing((KVRing *) robj);      // display info for ring on a tab
+   while ((robj = (KVBase*) next_ring())) {     // loop over rings
+      LayoutRing((KVRing*) robj);       // display info for ring on a tab
    }
 }
 
@@ -49,18 +49,18 @@ KVRingBrowser::~KVRingBrowser()
 }
 
 //_______________________________________________________________________________________
-void KVRingBrowser::LayoutRing(KVRing * kvr)
+void KVRingBrowser::LayoutRing(KVRing* kvr)
 {
 
-   TGCompositeFrame *tf, *fF1;
-   TGLayoutHints *fTGL;
+   TGCompositeFrame* tf, *fF1;
+   TGLayoutHints* fTGL;
 
    ULong_t red, green;
    fClient->GetColorByName("red", red);
    fClient->GetColorByName("green", green);
-   TGNumberEntry *nent;
-   TGLabel *lab;
-   KVBrowserWidget *widg;
+   TGNumberEntry* nent;
+   TGLabel* lab;
+   KVBrowserWidget* widg;
 
    // Add a new tab for this ring
    tf = AddTab(kvr->GetName());
@@ -74,7 +74,7 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fCleanup->Add(fF1);
    tf->AddFrame(fF1, fTGL);
 
-   // set up fields for ring properties   
+   // set up fields for ring properties
    //nb_telescopes
    lab = new TGLabel(fF1, "Nb_telescopes=");
    fF1->AddFrame(lab, fTGL);
@@ -82,10 +82,10 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    // new widget associating this ring with this function
    widg = new KVBrowserWidget(kvr, SET_NUMBER_TELESCOPES_RING);
    nent =
-       new TGNumberEntry(fF1, kvr->GetTelescopes()->GetSize(), 5,
-                         widg->GetID(), TGNumberFormat::kNESInteger,
-                         TGNumberFormat::kNEAPositive,
-                         TGNumberFormat::kNELLimitMinMax, 0, 1000);
+      new TGNumberEntry(fF1, kvr->GetTelescopes()->GetSize(), 5,
+                        widg->GetID(), TGNumberFormat::kNESInteger,
+                        TGNumberFormat::kNEAPositive,
+                        TGNumberFormat::kNELLimitMinMax, 0, 1000);
    // number entries for all Ring properties will be dealt with by KVRingBrowser
    nent->Associate(this);
    // give pointer to number entry field to the KVWidget for this widget
@@ -101,10 +101,10 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fCleanup->Add(lab);
    widg = new KVBrowserWidget(kvr, SET_THETA_MIN_RING);
    nent =
-       new TGNumberEntry(fF1, kvr->GetThetaMin(), 5,
-                         widg->GetID(), TGNumberFormat::kNESReal,
-                         TGNumberFormat::kNEAPositive,
-                         TGNumberFormat::kNELLimitMinMax, 0.0, 180.0);
+      new TGNumberEntry(fF1, kvr->GetThetaMin(), 5,
+                        widg->GetID(), TGNumberFormat::kNESReal,
+                        TGNumberFormat::kNEAPositive,
+                        TGNumberFormat::kNELLimitMinMax, 0.0, 180.0);
    nent->Associate(this);
    widg->SetWidget(nent);
    AddToWidgetList(widg);
@@ -116,10 +116,10 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fCleanup->Add(lab);
    widg = new KVBrowserWidget(kvr, SET_THETA_MAX_RING);
    nent =
-       new TGNumberEntry(fF1, kvr->GetThetaMax(), 5,
-                         widg->GetID(), TGNumberFormat::kNESReal,
-                         TGNumberFormat::kNEAPositive,
-                         TGNumberFormat::kNELLimitMinMax, 0.0, 180.0);
+      new TGNumberEntry(fF1, kvr->GetThetaMax(), 5,
+                        widg->GetID(), TGNumberFormat::kNESReal,
+                        TGNumberFormat::kNEAPositive,
+                        TGNumberFormat::kNELLimitMinMax, 0.0, 180.0);
    nent->Associate(this);
    widg->SetWidget(nent);
    AddToWidgetList(widg);
@@ -131,10 +131,10 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fCleanup->Add(lab);
    widg = new KVBrowserWidget(kvr, SET_PHI_MIN_RING);
    nent =
-       new TGNumberEntry(fF1, kvr->GetPhiMin(), 5,
-                         widg->GetID(), TGNumberFormat::kNESReal,
-                         TGNumberFormat::kNEAPositive,
-                         TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
+      new TGNumberEntry(fF1, kvr->GetPhiMin(), 5,
+                        widg->GetID(), TGNumberFormat::kNESReal,
+                        TGNumberFormat::kNEAPositive,
+                        TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
    nent->Associate(this);
    widg->SetWidget(nent);
    AddToWidgetList(widg);
@@ -146,10 +146,10 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fCleanup->Add(lab);
    widg = new KVBrowserWidget(kvr, SET_PHI_MAX_RING);
    nent =
-       new TGNumberEntry(fF1, kvr->GetPhiMax(), 5,
-                         widg->GetID(), TGNumberFormat::kNESReal,
-                         TGNumberFormat::kNEAPositive,
-                         TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
+      new TGNumberEntry(fF1, kvr->GetPhiMax(), 5,
+                        widg->GetID(), TGNumberFormat::kNESReal,
+                        TGNumberFormat::kNEAPositive,
+                        TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
    nent->Associate(this);
    widg->SetWidget(nent);
    AddToWidgetList(widg);
@@ -157,14 +157,14 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
 
 //____________________________________________________________________________________
 //              DESCRIPTION OF TELESCOPES IN THE RING
-//____________________________________________________________________________________          
+//____________________________________________________________________________________
    // set out description of ring telescopes in a TGGroupFrame
    // attached to the current ring tab
-   TGGroupFrame *fGrpFrame;
+   TGGroupFrame* fGrpFrame;
    fGrpFrame = new TGGroupFrame(tf, "Telescopes");
    fTGL =
-       new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY,
-                         2, 2, 0, 0);
+      new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY,
+                        2, 2, 0, 0);
    fCleanup->Add(fTGL);
    fCleanup->Add(fGrpFrame);
    tf->AddFrame(fGrpFrame, fTGL);
@@ -175,8 +175,8 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    // Put "Add Telescope" and "Remove Ring" buttons at bottom of each Ring tab
    fF1 = new TGCompositeFrame(tf, 400, 20, kHorizontalFrame | kFixedWidth);
    widg = new KVBrowserWidget(kvr, ADD_TELESCOPE);
-   TGTextButton *fTB1 =
-       new TGTextButton(fF1, "&Add Telescope", widg->GetID());
+   TGTextButton* fTB1 =
+      new TGTextButton(fF1, "&Add Telescope", widg->GetID());
    fTB1->Associate(this);
    widg->SetWidget(fTB1);
    AddToWidgetList(widg);
@@ -184,8 +184,8 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fTB1->ChangeBackground(green);
 
    widg = new KVBrowserWidget(kvr, REMOVE_RING);
-   TGTextButton *fTB2 =
-       new TGTextButton(fF1, "&Remove Ring", widg->GetID());
+   TGTextButton* fTB2 =
+      new TGTextButton(fF1, "&Remove Ring", widg->GetID());
    fTB2->Associate(this);
    widg->SetWidget(fTB2);
    AddToWidgetList(widg);
@@ -193,8 +193,8 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
    fTB2->ChangeBackground(red);
 
    fTGL =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 2, 2,
-                         2, 2);
+      new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 2, 2,
+                        2, 2);
    fCleanup->Add(fTGL);
    fF1->AddFrame(fTB1, fTGL);
    fF1->AddFrame(fTB2, fTGL);
@@ -207,20 +207,20 @@ void KVRingBrowser::LayoutRing(KVRing * kvr)
 
 //________________________________________________________________________________________
 
-void KVRingBrowser::LayoutTelescopes(KVRing * fRing,
-                                     TGGroupFrame * fGrpFrame)
+void KVRingBrowser::LayoutTelescopes(KVRing* fRing,
+                                     TGGroupFrame* fGrpFrame)
 {
 
    // displays the list of all the telescopes in the current ring
 
-   TGCompositeFrame *fHFrame = new TGCompositeFrame(fGrpFrame, 900, 600,
-                                                    kHorizontalFrame |
-                                                    kFixedWidth);
+   TGCompositeFrame* fHFrame = new TGCompositeFrame(fGrpFrame, 900, 600,
+         kHorizontalFrame |
+         kFixedWidth);
    //horizontal frame to lay out vertical frames containing telescopes side by side
-   TGLayoutHints *fL1 =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
-                         kLHintsExpandY,
-                         0, 0, 5, 0);
+   TGLayoutHints* fL1 =
+      new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
+                        kLHintsExpandY,
+                        0, 0, 5, 0);
    fCleanup->Add(fL1);
    fCleanup->Add(fHFrame);
    fGrpFrame->AddFrame(fHFrame, fL1);
@@ -228,41 +228,41 @@ void KVRingBrowser::LayoutTelescopes(KVRing * fRing,
    ULong_t yellow;
    fClient->GetColorByName("yellow", yellow);
 
-   TGCompositeFrame *TF1 = 0, *TF2 = 0;
-   TGTextButton *TGTB;
+   TGCompositeFrame* TF1 = 0, *TF2 = 0;
+   TGTextButton* TGTB;
 
-   TGLayoutHints *fL2 =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 1, 1,
-                         1, 1);
+   TGLayoutHints* fL2 =
+      new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 1, 1,
+                        1, 1);
    fCleanup->Add(fL2);
-   TGLayoutHints *fL3 =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY,
-                         0, 15, 5, 0);
+   TGLayoutHints* fL3 =
+      new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY,
+                        0, 15, 5, 0);
    fCleanup->Add(fL3);
-   TGLayoutHints *fL4 =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft, 1, 1, 1, 1);
+   TGLayoutHints* fL4 =
+      new TGLayoutHints(kLHintsTop | kLHintsLeft, 1, 1, 1, 1);
    fCleanup->Add(fL4);
 
-   TGNumberEntry *nent;
-   TGLabel *lab;
-   KVBrowserWidget *widg;
+   TGNumberEntry* nent;
+   TGLabel* lab;
+   KVBrowserWidget* widg;
    TIter nxt_tel(fRing->GetTelescopes());
-   KVTelescope *tele;
+   KVTelescope* tele;
    UInt_t count = 0;
 
-   while ((tele = (KVTelescope *) nxt_tel())) { // loop over telescopes
+   while ((tele = (KVTelescope*) nxt_tel())) {  // loop over telescopes
 
       if (!count) {
          TF1 =
-             new TGCompositeFrame(fHFrame, 450, 600,
-                                  kVerticalFrame | kFixedWidth);
+            new TGCompositeFrame(fHFrame, 450, 600,
+                                 kVerticalFrame | kFixedWidth);
          fHFrame->AddFrame(TF1, fL3);
          fCleanup->Add(TF1);
       }
       //a horizontal frame to layout the telescope button and angles
       TF2 =
-          new TGCompositeFrame(TF1, 450, 20,
-                               kHorizontalFrame | kFixedWidth);
+         new TGCompositeFrame(TF1, 450, 20,
+                              kHorizontalFrame | kFixedWidth);
       TF1->AddFrame(TF2, fL2);
       fCleanup->Add(TF2);
       //add button to open telescope browser
@@ -280,10 +280,10 @@ void KVRingBrowser::LayoutTelescopes(KVRing * fRing,
       TF2->AddFrame(lab, fL2);
       widg = new KVBrowserWidget(tele, SET_PHI_MIN_TELESCOPE);
       nent =
-          new TGNumberEntry(TF2, tele->GetPhiMin(), 5,
-                            widg->GetID(), TGNumberFormat::kNESReal,
-                            TGNumberFormat::kNEAPositive,
-                            TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
+         new TGNumberEntry(TF2, tele->GetPhiMin(), 5,
+                           widg->GetID(), TGNumberFormat::kNESReal,
+                           TGNumberFormat::kNEAPositive,
+                           TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
       nent->Associate(this);
       widg->SetWidget(nent);
       AddToWidgetList(widg);
@@ -294,10 +294,10 @@ void KVRingBrowser::LayoutTelescopes(KVRing * fRing,
       fCleanup->Add(lab);
       widg = new KVBrowserWidget(tele, SET_PHI_MAX_TELESCOPE);
       nent =
-          new TGNumberEntry(TF2, tele->GetPhiMax(), 5,
-                            widg->GetID(), TGNumberFormat::kNESReal,
-                            TGNumberFormat::kNEAPositive,
-                            TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
+         new TGNumberEntry(TF2, tele->GetPhiMax(), 5,
+                           widg->GetID(), TGNumberFormat::kNESReal,
+                           TGNumberFormat::kNEAPositive,
+                           TGNumberFormat::kNELLimitMinMax, 0.0, 360.0);
       nent->Associate(this);
       widg->SetWidget(nent);
       AddToWidgetList(widg);
@@ -320,42 +320,42 @@ Bool_t KVRingBrowser::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
    // Handle messages send to the TestMainFrame object. E.g. all menu button
    // messages.
 
-   KVBrowserWidget *widg = (KVBrowserWidget *) fWidgets->GetWidget(parm1);
+   KVBrowserWidget* widg = (KVBrowserWidget*) fWidgets->GetWidget(parm1);
 
    switch (GET_MSG(msg)) {
 
-   case kC_COMMAND:
-      switch (GET_SUBMSG(msg)) {
+      case kC_COMMAND:
+         switch (GET_SUBMSG(msg)) {
 
-      case kCM_BUTTON:
-         // printf("Button was pressed, id = %ld, widget action...\n", parm1);
-         if (widg)
-            widg->Action();
-         break;
+            case kCM_BUTTON:
+               // printf("Button was pressed, id = %ld, widget action...\n", parm1);
+               if (widg)
+                  widg->Action();
+               break;
 
+            default:
+               break;
+         }
+      case kC_TEXTENTRY:
+         switch (GET_SUBMSG(msg)) {
+
+            case kTE_TEXTCHANGED:
+               // printf("Text changed, Wid = %ld\n", parm1);
+               if (widg)
+                  widg->Action();
+               break;
+
+            /*                              case kTE_ENTER:
+               printf("Enter pressed, Wid = %ld\n", parm1);
+               if(widg) widg->Action();
+               break;
+             */
+            default:
+               break;
+
+         }
       default:
          break;
-      }
-   case kC_TEXTENTRY:
-      switch (GET_SUBMSG(msg)) {
-
-      case kTE_TEXTCHANGED:
-         // printf("Text changed, Wid = %ld\n", parm1);
-         if (widg)
-            widg->Action();
-         break;
-
-         /*                              case kTE_ENTER:
-            printf("Enter pressed, Wid = %ld\n", parm1);
-            if(widg) widg->Action();
-            break;
-          */
-      default:
-         break;
-
-      }
-   default:
-      break;
    }
    return kTRUE;
 }

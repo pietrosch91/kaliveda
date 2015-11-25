@@ -27,7 +27,7 @@
 #include "TFile.h"
 
 
-void KVFAZIARawDataReader_LNS_2011::Begin(TTree * /*tree*/)
+void KVFAZIARawDataReader_LNS_2011::Begin(TTree* /*tree*/)
 {
    // The Begin() function is called at the start of the query.
    // When running with PROOF Begin() is only called on the client.
@@ -37,7 +37,7 @@ void KVFAZIARawDataReader_LNS_2011::Begin(TTree * /*tree*/)
 
 }
 
-void KVFAZIARawDataReader_LNS_2011::SlaveBegin(TTree * /*tree*/)
+void KVFAZIARawDataReader_LNS_2011::SlaveBegin(TTree* /*tree*/)
 {
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
@@ -286,5 +286,5 @@ void KVFAZIARawDataReader_LNS_2011::InitRun()
    fChain->SetBranchAddress("scale_approx_rate", &scale_approx_rate, &b_scale_approx_rate);
    fChain->SetBranchAddress("bitpattern", &bitpattern, &b_bitpattern);
 
-	*/
+   */
 }

@@ -8,7 +8,7 @@
 //    email                : patois@ganil.fr
 //////////////////////////////////////////////////////////////////////////
 //
-// Part of ROOTGanilTape 
+// Part of ROOTGanilTape
 //
 // GTScalers
 //
@@ -36,25 +36,29 @@ class GTOneScaler;
 #ifndef __GanAcqBuf_H
 //extern "C"
 //{// This might be written better
-typedef struct SCALE {int bidon;} scale;
+typedef struct SCALE {
+   int bidon;
+} scale;
 //}
 #endif
 
-class GTScalers : public TObject
-{
+class GTScalers : public TObject {
 public:
-  GTScalers       (void    );
-  ~GTScalers      (void    );
-  void Fill       (scale *s);       // Vocabulary: Set or Fill ?
-  void DumpScalers(void    );
+   GTScalers(void);
+   ~GTScalers(void);
+   void Fill(scale* s);              // Vocabulary: Set or Fill ?
+   void DumpScalers(void);
 
-  const GTOneScaler* GetScalerPtr (Int_t index) const;
-  Int_t              GetNbChannel (void       ) const {return fNbChannel;}
+   const GTOneScaler* GetScalerPtr(Int_t index) const;
+   Int_t              GetNbChannel(void) const
+   {
+      return fNbChannel;
+   }
 
 protected:
-  Int_t fNbChannel;          // Number of individual scales
-  TObjArray fScalerArray; // Array of scalers
-  ClassDef(GTScalers,2)      // Scaler events class
+   Int_t fNbChannel;          // Number of individual scales
+   TObjArray fScalerArray; // Array of scalers
+   ClassDef(GTScalers, 2)     // Scaler events class
 };
 
 

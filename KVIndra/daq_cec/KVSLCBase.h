@@ -26,20 +26,20 @@
 
 class KVSLCBase : public KVBase  {
 
-	UInt_t fTotEv[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	UInt_t fPhyEv[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	UInt_t fNPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	Float_t fAvPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	Float_t fSigPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	UInt_t fNGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	Float_t fAvGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
-	Float_t fSigGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   UInt_t fTotEv[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   UInt_t fPhyEv[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   UInt_t fNPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   Float_t fAvPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   Float_t fSigPhys[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   UInt_t fNGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   Float_t fAvGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
+   Float_t fSigGen[MAX_RINGS][MAX_MODS][MAX_SIGS];
 
-public: 
-	KVSLCBase();
-	virtual ~KVSLCBase();
+public:
+   KVSLCBase();
+   virtual ~KVSLCBase();
 
-	ClassDef(KVSLCBase,0)//SlowControl database class
+   ClassDef(KVSLCBase, 0) //SlowControl database class
 };
 
 #endif

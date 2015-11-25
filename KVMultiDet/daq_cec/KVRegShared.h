@@ -19,27 +19,29 @@ $Id: KVRegShared.h,v 1.2 2005/09/28 17:17:01 franklan Exp $
 #include "KVRegister.h"
 #include "KVList.h"
 
-class KVRegShared : public KVRegister
-{
+class KVRegShared : public KVRegister {
 private:
-	
-	KVList *fRegList;//list of registers
-	
-public:
- 	KVRegShared();
-	
-	virtual ~KVRegShared();
-	
- 	KVList* GetListRegs() const {return fRegList;};
 
-	Long64_t GetContents(const Long64_t=0, const Long64_t=0) const;
-	const Char_t* GetRealValue(const Long64_t=0, const Long64_t=0) const;
-	
- 	void Print(Option_t *opt="") const;
-	
-  	void SetContents(const Long64_t, const Long64_t=0, const Long64_t=0);
-	
-	ClassDef(KVRegShared, 1)//Shared register
+   KVList* fRegList;//list of registers
+
+public:
+   KVRegShared();
+
+   virtual ~KVRegShared();
+
+   KVList* GetListRegs() const
+   {
+      return fRegList;
+   };
+
+   Long64_t GetContents(const Long64_t = 0, const Long64_t = 0) const;
+   const Char_t* GetRealValue(const Long64_t = 0, const Long64_t = 0) const;
+
+   void Print(Option_t* opt = "") const;
+
+   void SetContents(const Long64_t, const Long64_t = 0, const Long64_t = 0);
+
+   ClassDef(KVRegShared, 1)//Shared register
 };
 
 #endif

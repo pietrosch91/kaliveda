@@ -31,7 +31,7 @@
 #pragma link C++ class KVSimReader_ELIE;
 #pragma link C++ class KVDalitzPlot;
 #pragma link C++ class KVAutoFit;
-#pragma link C++ class KVGaus1D;																											 
+#pragma link C++ class KVGaus1D;
 #pragma link C++ class KVGaus2D;
 #pragma link C++ class KVGumbelDistribution+;
 #pragma link C++ class KVGausGumDistribution+;

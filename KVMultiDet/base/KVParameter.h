@@ -44,16 +44,28 @@ private:
    AParamType  fVal;
 
 public:
-   KVParameter() { /* leave fVal uninitialized */ }
-   KVParameter(const char *name, const AParamType &val)
-             : fName(name), fVal(val) { }
+   KVParameter()
+   {
+      /* leave fVal uninitialized */
+   }
+   KVParameter(const char* name, const AParamType& val)
+      : fName(name), fVal(val) { }
    ~KVParameter() { }
 
-   const char       *GetName() const { return fName; }
-   const AParamType &GetVal() const { return fVal; }
-   void              SetVal(const AParamType &val) { fVal = val; }
+   const char*       GetName() const
+   {
+      return fName;
+   }
+   const AParamType& GetVal() const
+   {
+      return fVal;
+   }
+   void              SetVal(const AParamType& val)
+   {
+      fVal = val;
+   }
 
-   ClassDef(KVParameter,1)  //Named templated parameter type
+   ClassDef(KVParameter, 1) //Named templated parameter type
 };
 #else
 //for ROOT versions with 'correct' TParameter, we use KVParameter just as

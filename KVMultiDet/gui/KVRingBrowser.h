@@ -41,22 +41,23 @@ $Id: KVRingBrowser.h,v 1.3 2006/10/19 14:32:43 franklan Exp $
 #include "KVWidgetList.h"
 #include "KVBrowserWidget.h"
 
-class KVRingBrowser:public TGTab {
+class KVRingBrowser: public TGTab {
 
- private:
+private:
 
-   TList * fCleanup;            //for TGLayoutHints and TGFrame objects not used in a KVWidget, to delete at end
-   KVWidgetList *fWidgets;      //! list of widgets
+   TList* fCleanup;             //for TGLayoutHints and TGFrame objects not used in a KVWidget, to delete at end
+   KVWidgetList* fWidgets;      //! list of widgets
 
- public:
+public:
 
-    KVRingBrowser(KVList * rings, const TGWindow * p, UInt_t w, UInt_t h);
-    virtual ~ KVRingBrowser();
-   void LayoutRing(KVRing * kvr);
-   void LayoutTelescopes(KVRing * fRing, TGGroupFrame * fGrpFrame);
+   KVRingBrowser(KVList* rings, const TGWindow* p, UInt_t w, UInt_t h);
+   virtual ~ KVRingBrowser();
+   void LayoutRing(KVRing* kvr);
+   void LayoutTelescopes(KVRing* fRing, TGGroupFrame* fGrpFrame);
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
-   void AddToWidgetList(KVBrowserWidget * widg) {
+   void AddToWidgetList(KVBrowserWidget* widg)
+   {
       if (!fWidgets)
          fWidgets = new KVWidgetList;
       fWidgets->Add(widg);

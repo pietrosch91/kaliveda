@@ -19,10 +19,10 @@ ClassImp(KVBasicVAMOSFilter)
 
 KVBasicVAMOSFilter::KVBasicVAMOSFilter()
 {
-	SetName("BasicVAMOSfilter");
+   SetName("BasicVAMOSfilter");
    // Default constructor
-	fCutList = NULL;
-	fNcuts = 0;
+   fCutList = NULL;
+   fNcuts = 0;
 }
 //________________________________________________________________
 
@@ -46,66 +46,71 @@ void KVBasicVAMOSFilter::Copy(TObject& obj) const
 }
 //________________________________________________________________
 
-KVCutList *KVBasicVAMOSFilter::FindCutListForThetaVamos( Float_t th_vamos ){
+KVCutList* KVBasicVAMOSFilter::FindCutListForThetaVamos(Float_t th_vamos)
+{
 
-	return fCutList = (KVCutList *)fMainList.FindObject( GetCutListName( th_vamos ) );
+   return fCutList = (KVCutList*)fMainList.FindObject(GetCutListName(th_vamos));
 }
 //________________________________________________________________
 
-const Char_t *KVBasicVAMOSFilter::GetCutListName( Float_t th_vamos ){
-	return KVCutList::GetCutListName( th_vamos );
+const Char_t* KVBasicVAMOSFilter::GetCutListName(Float_t th_vamos)
+{
+   return KVCutList::GetCutListName(th_vamos);
 }
 //________________________________________________________________
 
-KVCutList *KVBasicVAMOSFilter::NewCutListForThetaVamos( Float_t th_vamos ){
-	KVCutList *l = FindCutListForThetaVamos( th_vamos );
-	if( l ) return l;
-	fMainList.Add( l = new KVCutList );
-	l->SetThetaVamos(  th_vamos  );
-	return l;
+KVCutList* KVBasicVAMOSFilter::NewCutListForThetaVamos(Float_t th_vamos)
+{
+   KVCutList* l = FindCutListForThetaVamos(th_vamos);
+   if (l) return l;
+   fMainList.Add(l = new KVCutList);
+   l->SetThetaVamos(th_vamos);
+   return l;
 }
 //________________________________________________________________
 
-void KVBasicVAMOSFilter::AddCutForThetaVamos( Float_t th_vamos, TCutG *cut ){
-	KVCutList *l = NewCutListForThetaVamos( th_vamos );
-	cut->SetName( Form("cut%d",fNcuts) );
-	l->Add( cut );
-	fNcuts++;
+void KVBasicVAMOSFilter::AddCutForThetaVamos(Float_t th_vamos, TCutG* cut)
+{
+   KVCutList* l = NewCutListForThetaVamos(th_vamos);
+   cut->SetName(Form("cut%d", fNcuts));
+   l->Add(cut);
+   fNcuts++;
 }
 //________________________________________________________________
 
-Bool_t KVBasicVAMOSFilter::IsTrajectoryAccepted( Float_t th_vamos, Double_t delta, Double_t thetav, Double_t phiv ){
+Bool_t KVBasicVAMOSFilter::IsTrajectoryAccepted(Float_t th_vamos, Double_t delta, Double_t thetav, Double_t phiv)
+{
 
-	thetav-=th_vamos;
+   thetav -= th_vamos;
 
-	if( !IsInPhiVrange( phiv ) ){
-//		Info("IsTrajectoryAccepted","out of PhiV range");
- 		return kFALSE;
- 	}
-	if( !IsInThetaVrange( thetav ) ){
-//		Info("IsTrajectoryAccepted","out of ThetaV range");
- 		return kFALSE;
-	}
-	if( !IsInDeltaRange( delta ) ){
-//		Info("IsTrajectoryAccepted","out of delta range");
- 	   	return kFALSE;
-	}
+   if (!IsInPhiVrange(phiv)) {
+//    Info("IsTrajectoryAccepted","out of PhiV range");
+      return kFALSE;
+   }
+   if (!IsInThetaVrange(thetav)) {
+//    Info("IsTrajectoryAccepted","out of ThetaV range");
+      return kFALSE;
+   }
+   if (!IsInDeltaRange(delta)) {
+//    Info("IsTrajectoryAccepted","out of delta range");
+      return kFALSE;
+   }
 
-	if( !fCutList || (fCutList->GetThetaVamos() != th_vamos) )
- 		FindCutListForThetaVamos( th_vamos );
+   if (!fCutList || (fCutList->GetThetaVamos() != th_vamos))
+      FindCutListForThetaVamos(th_vamos);
 
-	if( !fCutList ){
-		Info("IsTrajectoryAccepted","no cutlist of theta_vamos= %.1f",th_vamos);
- 		return kFALSE;
-	}
+   if (!fCutList) {
+      Info("IsTrajectoryAccepted", "no cutlist of theta_vamos= %.1f", th_vamos);
+      return kFALSE;
+   }
 
-	TIter next( fCutList );
-	TCutG *cut = NULL;
-	while( (cut = (TCutG *)next()) ){
-		if( cut->IsInside( thetav, delta ) ) return kTRUE;
-	}
+   TIter next(fCutList);
+   TCutG* cut = NULL;
+   while ((cut = (TCutG*)next())) {
+      if (cut->IsInside(thetav, delta)) return kTRUE;
+   }
 
-//	Info("IsTrajectoryAccepted","out of all cuts");
+// Info("IsTrajectoryAccepted","out of all cuts");
 
-	return kFALSE;
+   return kFALSE;
 }

@@ -8,42 +8,53 @@
 
 class KVSignal;
 
-class KVFAZIADetector : public KVDetector
-{
-	protected:
-   KVList *fSignals;         //list of electronics signal (current, charge, etc... )
-   
+class KVFAZIADetector : public KVDetector {
+protected:
+   KVList* fSignals;         //list of electronics signal (current, charge, etc... )
+
    TString fFAZIAType;
-	Int_t fBlock;
-	Int_t fQuartet;
-	Int_t fTelescope;
-   
-   void init();	//initialisatino method called by the constructors
+   Int_t fBlock;
+   Int_t fQuartet;
+   Int_t fTelescope;
+
+   void init();   //initialisatino method called by the constructors
    Bool_t SetProperties();
-   
-   public:
+
+public:
    KVFAZIADetector();
    KVFAZIADetector(const Char_t* type, const Float_t thick = 0.0);
    virtual ~KVFAZIADetector();
    void Copy(TObject& obj) const;
-	virtual void	Clear(Option_t* opt = "");
-   virtual void	SetName(const char* name);
-   
-   virtual Bool_t Fired(Option_t * opt = "any");
+   virtual void   Clear(Option_t* opt = "");
+   virtual void   SetName(const char* name);
 
-	void SetSignal(KVSignal* signal, const Char_t* type);
-	Bool_t HasSignal() const;
-	KVSignal* GetSignal(const Char_t* name) const;
-	KVSignal* GetSignal(Int_t idx) const;
-	Int_t GetNumberOfSignals() const;
-	KVList* GetListOfSignals() const;
-	
-   Int_t GetBlockNumber() const {return fBlock;}
-   Int_t GetQuartetNumber() const {return fQuartet;}
-   Int_t GetTelescopeNumber() const {return fTelescope;}
-   const Char_t* GetFAZIAType() const {return fFAZIAType.Data(); }
-   
-   ClassDef(KVFAZIADetector,1)//Base class for FAZIA detector
+   virtual Bool_t Fired(Option_t* opt = "any");
+
+   void SetSignal(KVSignal* signal, const Char_t* type);
+   Bool_t HasSignal() const;
+   KVSignal* GetSignal(const Char_t* name) const;
+   KVSignal* GetSignal(Int_t idx) const;
+   Int_t GetNumberOfSignals() const;
+   KVList* GetListOfSignals() const;
+
+   Int_t GetBlockNumber() const
+   {
+      return fBlock;
+   }
+   Int_t GetQuartetNumber() const
+   {
+      return fQuartet;
+   }
+   Int_t GetTelescopeNumber() const
+   {
+      return fTelescope;
+   }
+   const Char_t* GetFAZIAType() const
+   {
+      return fFAZIAType.Data();
+   }
+
+   ClassDef(KVFAZIADetector, 1) //Base class for FAZIA detector
 };
 
 #endif

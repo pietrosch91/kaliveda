@@ -22,16 +22,16 @@
 
 class KVRegHexa : public KVRegister  {
 
-public: 
+public:
 
-	KVRegHexa();
-	KVRegHexa(const KVRegHexa&);
-	virtual ~KVRegHexa(){};
+   KVRegHexa();
+   KVRegHexa(const KVRegHexa&);
+   virtual ~KVRegHexa() {};
 
-	const Char_t* GetRealValue(const Long_t=0, const Long_t=0) const;
-	void SetRealValue(const Double_t, const Long_t=0, const Long_t=0);
-	
-	ClassDef(KVRegHexa,1)//Hexadecimal register in module
+   const Char_t* GetRealValue(const Long_t = 0, const Long_t = 0) const;
+   void SetRealValue(const Double_t, const Long_t = 0, const Long_t = 0);
+
+   ClassDef(KVRegHexa, 1) //Hexadecimal register in module
 };
 
 #endif

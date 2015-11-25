@@ -26,8 +26,8 @@ KVGroup::KVGroup()
 
 void KVGroup::init()
 {
-    // Default initialisation
-    // KVGroup does not own the structures which it groups together
+   // Default initialisation
+   // KVGroup does not own the structures which it groups together
 
    fReconstructedNuclei = 0;
    SetType("GROUP");
@@ -48,33 +48,33 @@ KVGroup::~KVGroup()
 
 UInt_t KVGroup::GetNumberOfDetectorLayers()
 {
-    // The number of detector layers is the maximum number of detectors in the
-    // group which are placed one in front of the other, i.e. we interrogate
-    // each detector as to how many detectors there are in front of it
+   // The number of detector layers is the maximum number of detectors in the
+   // group which are placed one in front of the other, i.e. we interrogate
+   // each detector as to how many detectors there are in front of it
 
-    UInt_t max = 0;
-    TIter next(GetDetectors());
-    KVDetector* d;
-    while( (d = (KVDetector*)next()) ){
-        UInt_t e = d->GetAlignedDetectors()->GetEntries();
-        if(e>max) max=e;
-    }
-    return max;
+   UInt_t max = 0;
+   TIter next(GetDetectors());
+   KVDetector* d;
+   while ((d = (KVDetector*)next())) {
+      UInt_t e = d->GetAlignedDetectors()->GetEntries();
+      if (e > max) max = e;
+   }
+   return max;
 }
 
-TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
+TList* KVGroup::GetDetectorsInLayer(UInt_t lay)
 {
-    // lay=1 : create and fill list with detectors closest to target
-    // lay=GetNumberOfDetectorLayers() : detectors furthest from target
+   // lay=1 : create and fill list with detectors closest to target
+   // lay=GetNumberOfDetectorLayers() : detectors furthest from target
 
-    TList* dets = new TList;
-    TIter next(GetDetectors());
-    KVDetector* d;
+   TList* dets = new TList;
+   TIter next(GetDetectors());
+   KVDetector* d;
 
-    while( (d = (KVDetector*)next()) ){
-        if(lay == (UInt_t)d->GetAlignedDetectors()->GetEntries()) dets->Add(d);
-    }
-    return dets;
+   while ((d = (KVDetector*)next())) {
+      if (lay == (UInt_t)d->GetAlignedDetectors()->GetEntries()) dets->Add(d);
+   }
+   return dets;
 }
 
 //______________________________________________________________________________
@@ -83,7 +83,7 @@ void KVGroup::Reset()
 {
    //Reset the group, i.e. wipe the list of reconstructed nuclei and call "Clear" method of
    //each and every detector in the group.
-	//Info("Reset","Call %s",GetName());
+   //Info("Reset","Call %s",GetName());
    if (fReconstructedNuclei && fReconstructedNuclei->GetSize()) {
       fReconstructedNuclei->Clear();
    }
@@ -94,7 +94,7 @@ void KVGroup::Reset()
 
 //_________________________________________________________________________________
 
-void KVGroup::AddHit(KVReconstructedNucleus * kvd)
+void KVGroup::AddHit(KVReconstructedNucleus* kvd)
 {
    if (!fReconstructedNuclei) {
       fReconstructedNuclei = new KVList(kFALSE);
@@ -105,7 +105,7 @@ void KVGroup::AddHit(KVReconstructedNucleus * kvd)
 
 //_________________________________________________________________________________
 
-void KVGroup::RemoveHit(KVReconstructedNucleus * kvd)
+void KVGroup::RemoveHit(KVReconstructedNucleus* kvd)
 {
    //Remove reconstructed nucleus from group's list of reconstructed
    //particles.
@@ -120,7 +120,7 @@ void KVGroup::RemoveHit(KVReconstructedNucleus * kvd)
    }
 }
 
-TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
+TList* KVGroup::GetAlignedDetectors(KVDetector* det, UChar_t dir)
 {
    //Fill TList with all detectors aligned with "det" which are closer to the target.
    //These are the detectors through which any particle stopping in "det" will have
@@ -130,35 +130,35 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
    //
    //Delete TList after use.
 
-   TList *tmp = new TList;
+   TList* tmp = new TList;
 
-   while(det){
-       tmp->Add(det);
-       KVGeoDetectorNode* node = det->GetNode();
-       KVSeqCollection* infront = node->GetDetectorsInFront();
-       if(!infront) break;
-       if(infront->GetEntries()>1){
-           Warning("GetAlignedDetectors",
-                   "No unique solution. There are %d detectors in front of %s.",
-                   infront->GetEntries(), det->GetName());
-           infront->ls();
-       }
-       det = (KVDetector*)infront->First();
+   while (det) {
+      tmp->Add(det);
+      KVGeoDetectorNode* node = det->GetNode();
+      KVSeqCollection* infront = node->GetDetectorsInFront();
+      if (!infront) break;
+      if (infront->GetEntries() > 1) {
+         Warning("GetAlignedDetectors",
+                 "No unique solution. There are %d detectors in front of %s.",
+                 infront->GetEntries(), det->GetName());
+         infront->ls();
+      }
+      det = (KVDetector*)infront->First();
    }
 
    if (dir == kForwards) {
-       TIter next(tmp, kIterBackward );
-       TList* tmp2 = new TList;
-       while( (det = (KVDetector*)next()) ) tmp2->Add(det);
-       delete tmp;
-       tmp=tmp2;
-    }
+      TIter next(tmp, kIterBackward);
+      TList* tmp2 = new TList;
+      while ((det = (KVDetector*)next())) tmp2->Add(det);
+      delete tmp;
+      tmp = tmp2;
+   }
    return tmp;
 }
 
 //_________________________________________________________________________________
 
-void KVGroup::GetIDTelescopes(TCollection * tel_list)
+void KVGroup::GetIDTelescopes(TCollection* tel_list)
 {
    //Identify all the ways of identifying particles possible from the detectors
    //in the group, create the appropriate KVIDTelescope objects and add them to
@@ -173,20 +173,20 @@ void KVGroup::GetIDTelescopes(TCollection * tel_list)
    //in KVMultiDetArray child classes). It must also make sure that
    //each IDTelescope is added only once (i.e. check it is not already in the list).
 
-         TIter next_det(GetDetectors());
-         KVDetector *det;
-			
-         while ((det = (KVDetector *) next_det())) {
-				if ( det->IsOK() ){
-					//1st call: create ID telescopes, they will be added to the
-            	//gMultiDetArray list of IDTelescopes
-                det->GetAlignedIDTelescopes(tel_list);
-            	//2nd call: set up in the detector a list of pointers to the
-            	//ID telescopes made up of it and all aligned detectors in front
-            	//of it
-            	det->GetAlignedIDTelescopes(0);
-				}
-			}
+   TIter next_det(GetDetectors());
+   KVDetector* det;
+
+   while ((det = (KVDetector*) next_det())) {
+      if (det->IsOK()) {
+         //1st call: create ID telescopes, they will be added to the
+         //gMultiDetArray list of IDTelescopes
+         det->GetAlignedIDTelescopes(tel_list);
+         //2nd call: set up in the detector a list of pointers to the
+         //ID telescopes made up of it and all aligned detectors in front
+         //of it
+         det->GetAlignedIDTelescopes(0);
+      }
+   }
 }
 
 //______________________________________________________________________________________//
@@ -239,8 +239,7 @@ void KVGroup::AnalyseParticles()
    //hit >=2 independent detectors. If more than one particle in the same group only
    //hit 1 independent detector, then one can only make a rough estimation of their
    //nature.
-   if (GetNUnidentified() > 1)  //if there is more than one unidentified particle in the group
-   {
+   if (GetNUnidentified() > 1) { //if there is more than one unidentified particle in the group
 
       UShort_t n_nseg_1 = 0;
       if (!GetParticles()) {
@@ -248,16 +247,16 @@ void KVGroup::AnalyseParticles()
          return;
       }
       TIter next(GetParticles());
-      KVReconstructedNucleus *nuc;
+      KVReconstructedNucleus* nuc;
       //loop over particles counting up different cases
-      while ((nuc = (KVReconstructedNucleus *) next())) {
+      while ((nuc = (KVReconstructedNucleus*) next())) {
          //ignore identified particles
          if (nuc->IsIdentified())
             continue;
 
          if (nuc->GetNSegDet() >= 2) {
             //all part.s crossing 2 or more independent detectors are fine
-            nuc->SetStatus( KVReconstructedNucleus::kStatusOK );
+            nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
          } else if (nuc->GetNSegDet() == 1) {
             //only 1 independent detector hit => depends on what's in the rest
             //of the group
@@ -265,12 +264,12 @@ void KVGroup::AnalyseParticles()
          } else {
             //part.s crossing 0 independent detectors (i.E. arret ChIo)
             //can not be reconstructed
-            nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
+            nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
          }
       }
       next.Reset();
       //loop again, setting status
-      while ((nuc = (KVReconstructedNucleus *) next())) {
+      while ((nuc = (KVReconstructedNucleus*) next())) {
          if (nuc->IsIdentified())
             continue;           //ignore identified particles
 
@@ -280,18 +279,18 @@ void KVGroup::AnalyseParticles()
                //after identifying the others and subtracting their calculated
                //energy losses from the "dependent"/"non-segmented" detector
                //(i.E. the ChIo)
-               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterSub );
+               nuc->SetStatus(KVReconstructedNucleus::kStatusOKafterSub);
             } else {
                //more than one ? then we can make some wild guess by sharing the
                //"non-segmented" (i.e. ChIo) contribution between them, but
                //I wouldn't trust it as far as I can spit
-               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterShare );
+               nuc->SetStatus(KVReconstructedNucleus::kStatusOKafterShare);
             }
             //one possibility remains: the particle may actually have stopped e.g.
             //in the DE detector of a DE-E telescope, in which case AnalStatus = 3
             if (nuc->GetIDTelescopes()->GetSize() == 0) {
                //no ID telescopes with which to identify particle
-               nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
+               nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
             }
          }
       }
@@ -300,8 +299,8 @@ void KVGroup::AnalyseParticles()
 
       //loop over particles looking for the unidentified one
       TIter next(GetParticles());
-      KVReconstructedNucleus *nuc;
-      while ((nuc = (KVReconstructedNucleus *) next()))
+      KVReconstructedNucleus* nuc;
+      while ((nuc = (KVReconstructedNucleus*) next()))
          if (!nuc->IsIdentified())
             break;
 
@@ -326,38 +325,38 @@ void KVGroup::AnalyseParticles()
 
 void KVGroup::ClearHitDetectors()
 {
-	// Loop over all detectors in group and clear their list of 'hits'
-	// i.e. the lists of particles which hit each detector
-    const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, ClearHits)();
+   // Loop over all detectors in group and clear their list of 'hits'
+   // i.e. the lists of particles which hit each detector
+   const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, ClearHits)();
 }
 
 void KVGroup::PrepareModif(KVDetector* dd)
 {
-	//Breaks all links between detectors and groups.
-	//Deletes the IDTelescopes associated to the given detector,
-	//then these IDTelescopes are automatically removed from lists (KVSeqCollection with IsCleanup()=true)
-	//of the multidetector, of the associated detectors and ID grids.
-	//This method prepares addition or removal of a detector see KVDetector::SetPresent()
-	
-	KVDetector* det = 0;
-	TIter nextdet( GetDetectors() );
-	while ( (det = (KVDetector* )nextdet()) ){
-		det->ResetAlignedDetectors(KVGroup::kForwards);
-		det->ResetAlignedDetectors(KVGroup::kBackwards);
-		det->GetIDTelescopes()->R__FOR_EACH(TObject,Delete)();
-	}
+   //Breaks all links between detectors and groups.
+   //Deletes the IDTelescopes associated to the given detector,
+   //then these IDTelescopes are automatically removed from lists (KVSeqCollection with IsCleanup()=true)
+   //of the multidetector, of the associated detectors and ID grids.
+   //This method prepares addition or removal of a detector see KVDetector::SetPresent()
+
+   KVDetector* det = 0;
+   TIter nextdet(GetDetectors());
+   while ((det = (KVDetector*)nextdet())) {
+      det->ResetAlignedDetectors(KVGroup::kForwards);
+      det->ResetAlignedDetectors(KVGroup::kBackwards);
+      det->GetIDTelescopes()->R__FOR_EACH(TObject, Delete)();
+   }
 }
 
-void KVGroup::AnalyseAndReconstruct(KVReconstructedEvent *event)
+void KVGroup::AnalyseAndReconstruct(KVReconstructedEvent* event)
 {
-    // Loop over detectors in group, starting from the furthest from the target,
-    // and working inwards. Calls KVReconstructedEvent::AnalyseDetectors
+   // Loop over detectors in group, starting from the furthest from the target,
+   // and working inwards. Calls KVReconstructedEvent::AnalyseDetectors
 
-    for(Int_t il=GetNumberOfDetectorLayers(); il>0; il--){
-        TList* dets = GetDetectorsInLayer(il);
-        event->AnalyseDetectors(dets);
-        delete dets;
-    }
-    //perform first-order coherency analysis (set fAnalStatus for each particle)
-    AnalyseParticles();
+   for (Int_t il = GetNumberOfDetectorLayers(); il > 0; il--) {
+      TList* dets = GetDetectorsInLayer(il);
+      event->AnalyseDetectors(dets);
+      delete dets;
+   }
+   //perform first-order coherency analysis (set fAnalStatus for each particle)
+   AnalyseParticles();
 }

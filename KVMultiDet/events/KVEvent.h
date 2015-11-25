@@ -32,71 +32,78 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "KVNameValueList.h"
 #include "TMethodCall.h"
 
-class KVEvent:public KVBase {
+class KVEvent: public KVBase {
 
- protected:
+protected:
 
-   TClonesArray * fParticles;   //->array of particles in event
-   TIter *fOKIter;              //!used for iterating over particles
+   TClonesArray* fParticles;    //->array of particles in event
+   TIter* fOKIter;              //!used for iterating over particles
    KVNameValueList fParameters;//general-purpose list of parameters
 #ifdef __WITHOUT_TCA_CONSTRUCTED_AT
    TObject* ConstructedAt(Int_t idx);
    TObject* ConstructedAt(Int_t idx, Option_t* clear_options);
 #endif
- public:
+public:
 
-   KVNameValueList* GetParameters() const { return (KVNameValueList*)&fParameters; }
-   
-    KVEvent(Int_t mult = 50, const char *classname = "KVNucleus");
-    virtual ~ KVEvent();
+   KVNameValueList* GetParameters() const
+   {
+      return (KVNameValueList*)&fParameters;
+   }
+
+   KVEvent(Int_t mult = 50, const char* classname = "KVNucleus");
+   virtual ~ KVEvent();
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   virtual void Copy(TObject & obj) const;
+   virtual void Copy(TObject& obj) const;
 #else
-   virtual void Copy(TObject & obj);
-#endif	
-	
-	KVNucleus *AddParticle();
-   KVNucleus *GetParticle(Int_t npart) const;
-   virtual Int_t GetMult(Option_t * opt = "");
-	virtual Double_t GetSum(const Char_t* KVNucleus_method,Option_t * opt = "");
-   virtual void Clear(Option_t * opt = "");
-   virtual void Print(Option_t * t = "") const;
-   virtual void ls(Option_t * t = "") const { Print(t); }
-   KVNucleus *GetParticleWithName(const Char_t * name) const;
-   KVNucleus *GetParticle(const Char_t * group_name) const;
-   KVNucleus *GetNextParticle(Option_t * opt = "");
+   virtual void Copy(TObject& obj);
+#endif
+
+   KVNucleus* AddParticle();
+   KVNucleus* GetParticle(Int_t npart) const;
+   virtual Int_t GetMult(Option_t* opt = "");
+   virtual Double_t GetSum(const Char_t* KVNucleus_method, Option_t* opt = "");
+   virtual void Clear(Option_t* opt = "");
+   virtual void Print(Option_t* t = "") const;
+   virtual void ls(Option_t* t = "") const
+   {
+      Print(t);
+   }
+   KVNucleus* GetParticleWithName(const Char_t* name) const;
+   KVNucleus* GetParticle(const Char_t* group_name) const;
+   KVNucleus* GetNextParticle(Option_t* opt = "");
    void ResetGetNextParticle();
 
    void ResetEnergies();
 
    virtual Bool_t IsOK();
 
-   void CustomStreamer() {
+   void CustomStreamer()
+   {
       fParticles->BypassStreamer(kFALSE);
    };
-	
-	void DefineGroup(const Char_t* groupname, const Char_t* from="");
-	void DefineGroup(const Char_t* groupname, KVParticleCondition* cond, const Char_t* from="");
-   
-	void SetFrame(const Char_t * frame, const TVector3 & boost, Bool_t beta =
-                 kFALSE);
-   void SetFrame(const Char_t * frame, TLorentzRotation & rot);
-   void SetFrame(const Char_t * frame, TRotation & rot);
-   void SetFrame(const Char_t * frame, const TVector3 & boost, TRotation & rot,
+
+   void DefineGroup(const Char_t* groupname, const Char_t* from = "");
+   void DefineGroup(const Char_t* groupname, KVParticleCondition* cond, const Char_t* from = "");
+
+   void SetFrame(const Char_t* frame, const TVector3& boost, Bool_t beta =
+                    kFALSE);
+   void SetFrame(const Char_t* frame, TLorentzRotation& rot);
+   void SetFrame(const Char_t* frame, TRotation& rot);
+   void SetFrame(const Char_t* frame, const TVector3& boost, TRotation& rot,
                  Bool_t beta = kFALSE);
 
-   void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 const TVector3 & boost, Bool_t beta = kFALSE);
-   void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 TLorentzRotation & rot);
-   void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 TRotation & rot);
-   void SetFrame(const Char_t * newframe, const Char_t * oldframe,
-                 const TVector3 & boost, TRotation & rot, Bool_t beta = kFALSE);
-	
-	virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz); 
-	virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi); 
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
+                 const TVector3& boost, Bool_t beta = kFALSE);
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
+                 TLorentzRotation& rot);
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
+                 TRotation& rot);
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
+                 const TVector3& boost, TRotation& rot, Bool_t beta = kFALSE);
+
+   virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz);
+   virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi);
 
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };

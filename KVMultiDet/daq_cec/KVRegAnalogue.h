@@ -25,35 +25,53 @@ class KVRegAnalogue : public KVRegister  {
 
 private:
 // definition des champs specifiques aux analogiques
-      Double_t	fDebut;
-      Double_t 	fFin;
-      TString   fUnits;
-      
-public: 
+   Double_t fDebut;
+   Double_t    fFin;
+   TString   fUnits;
 
-	KVRegAnalogue();
-	KVRegAnalogue(const KVRegAnalogue&);
-	virtual ~KVRegAnalogue(){};
+public:
+
+   KVRegAnalogue();
+   KVRegAnalogue(const KVRegAnalogue&);
+   virtual ~KVRegAnalogue() {};
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   virtual void Copy(TObject &) const;
+   virtual void Copy(TObject&) const;
 #else
-   virtual void Copy(TObject &);
+   virtual void Copy(TObject&);
 #endif
-	Double_t GetMinValue(void) const { return fDebut; };
-	Double_t GetMaxValue(void) const { return fFin; };
-	const Char_t* GetUnits(void) const { return fUnits; };
+   Double_t GetMinValue(void) const
+   {
+      return fDebut;
+   };
+   Double_t GetMaxValue(void) const
+   {
+      return fFin;
+   };
+   const Char_t* GetUnits(void) const
+   {
+      return fUnits;
+   };
 
-	void SetMinValue(const Double_t start){ fDebut = start; };
-	void SetMaxValue(const Double_t end){ fFin = end; };
-	void SetUnits(const Char_t* unit){ fUnits = unit; };
+   void SetMinValue(const Double_t start)
+   {
+      fDebut = start;
+   };
+   void SetMaxValue(const Double_t end)
+   {
+      fFin = end;
+   };
+   void SetUnits(const Char_t* unit)
+   {
+      fUnits = unit;
+   };
 
-	void Print(Option_t* opt="") const;
-	
-	const Char_t* GetRealValue(const Long64_t=0, const Long64_t=0) const;
-	void SetRealValue(const Double_t, const Long64_t=0, const Long64_t=0);
-	
-	ClassDef(KVRegAnalogue,1)//Analogue register in module
+   void Print(Option_t* opt = "") const;
+
+   const Char_t* GetRealValue(const Long64_t = 0, const Long64_t = 0) const;
+   void SetRealValue(const Double_t, const Long64_t = 0, const Long64_t = 0);
+
+   ClassDef(KVRegAnalogue, 1) //Analogue register in module
 };
 
 #endif

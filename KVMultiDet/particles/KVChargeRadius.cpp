@@ -17,14 +17,14 @@ ClassImp(KVChargeRadius)
 KVChargeRadius::KVChargeRadius()
 {
    // Default constructor
-	init();
+   init();
 }
 
 //________________________________________________________________
 KVChargeRadius::KVChargeRadius(const Char_t* name) : KVNuclData(name)
 {
    // Write your code here
-	init();
+   init();
 }
 
 //________________________________________________________________
@@ -36,8 +36,8 @@ KVChargeRadius::~KVChargeRadius()
 //_________________________________
 void KVChargeRadius::init()
 {
-	
-	SetError(0);
-	
-	
+
+   SetError(0);
+
+
 }

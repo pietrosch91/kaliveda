@@ -8,44 +8,55 @@
 
 class KVDetectorEvent;
 
-class KVFAZIA : public KVMultiDetArray
-{
-	protected:
+class KVFAZIA : public KVMultiDetArray {
+protected:
    TString fFGeoType;  //type of FAZIA geometry (="compact",...)
    Double_t fFDist;    //distance of FAZIA detectors from target (in cm)
    Double_t fFThetaMin;//minimum polar angle for compact geometry (in degrees)
-   Int_t fNblocks;	//number of blocks
-   Int_t fStartingBlockNumber;	//starting number of block incrementation
-   Bool_t fBuildTarget;	//kTRUE to include target frame in the geometry
+   Int_t fNblocks;   //number of blocks
+   Int_t fStartingBlockNumber;   //starting number of block incrementation
+   Bool_t fBuildTarget; //kTRUE to include target frame in the geometry
    TString fCorrespondanceFile; //name of the file where are listed links between geometry and detector names
    KVString fDetectorTypes;
    KVString fSignalTypes;
-   
+
    //methods to be implemented in child classes
    virtual void BuildFAZIA();
    virtual void GetGeometryParameters();
    //
-   
+
    virtual void BuildTarget();
    virtual void GenerateCorrespondanceFile();
-   
-   public:
+
+public:
    KVFAZIA();
    virtual ~KVFAZIA();
-   
-   virtual void Build(Int_t run=-1);
-	void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params);
-   void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
-	Int_t GetNumberOfBlocks() const { return fNblocks; }
-   void IncludeTargetInGeometry(Bool_t include=kTRUE) { fBuildTarget=include; }
-   
-   const Char_t* GetDetectorTypes() const { return fDetectorTypes.Data(); }
-   const Char_t* GetSignalTypes() const { return fSignalTypes.Data(); }
-   
-   ClassDef(KVFAZIA,1)//Base class for description of the FAZIA set up
+
+   virtual void Build(Int_t run = -1);
+   void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params);
+   void GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+   Int_t GetNumberOfBlocks() const
+   {
+      return fNblocks;
+   }
+   void IncludeTargetInGeometry(Bool_t include = kTRUE)
+   {
+      fBuildTarget = include;
+   }
+
+   const Char_t* GetDetectorTypes() const
+   {
+      return fDetectorTypes.Data();
+   }
+   const Char_t* GetSignalTypes() const
+   {
+      return fSignalTypes.Data();
+   }
+
+   ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up
 };
 
 //................  global variable
-R__EXTERN KVFAZIA *gFazia;
+R__EXTERN KVFAZIA* gFazia;
 
 #endif

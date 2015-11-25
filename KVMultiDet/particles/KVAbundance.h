@@ -6,21 +6,20 @@
 
 #include "KVNuclData.h"
 
-class KVAbundance : public KVNuclData
-{
+class KVAbundance : public KVNuclData {
 
-	protected:
-	
-	void init();
-	
-	public:
+protected:
+
+   void init();
+
+public:
    KVAbundance();
-	KVAbundance(const Char_t* name);
-	virtual ~KVAbundance();
+   KVAbundance(const Char_t* name);
+   virtual ~KVAbundance();
 
-	const Char_t* GetUnit() const;
+   const Char_t* GetUnit() const;
 
-   ClassDef(KVAbundance,1)//Value of the relative abundance
+   ClassDef(KVAbundance, 1) //Value of the relative abundance
 };
 
 #endif

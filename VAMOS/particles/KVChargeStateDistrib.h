@@ -8,30 +8,35 @@
 #include "KVNucleus.h"
 
 class TF1;
-class KVChargeStateDistrib : public KVBase
-{
+class KVChargeStateDistrib : public KVBase {
 
-	protected:
-		KVNucleus *fNuc;
-		TF1       *fDistrib;
+protected:
+   KVNucleus* fNuc;
+   TF1*       fDistrib;
 
-   public:
+public:
    KVChargeStateDistrib();
-   KVChargeStateDistrib( KVNucleus *nuc);
+   KVChargeStateDistrib(KVNucleus* nuc);
    virtual ~KVChargeStateDistrib();
    void Copy(TObject& obj) const;
 
    Double_t GetQmean0();
    Double_t GetQmean();
    Double_t GetQsig();
-   TF1 *GetDistribution( KVNucleus *nuc=NULL);
-   Int_t GetRandomQ( KVNucleus *nuc=NULL);
-   
-   void SetNucleus( KVNucleus *nuc ){ fNuc = nuc;  }
-   KVNucleus *GetNucleus() const    { return fNuc; }
+   TF1* GetDistribution(KVNucleus* nuc = NULL);
+   Int_t GetRandomQ(KVNucleus* nuc = NULL);
+
+   void SetNucleus(KVNucleus* nuc)
+   {
+      fNuc = nuc;
+   }
+   KVNucleus* GetNucleus() const
+   {
+      return fNuc;
+   }
 
 
-    ClassDef(KVChargeStateDistrib,1)//Calculate charge state distribution
+   ClassDef(KVChargeStateDistrib, 1) //Calculate charge state distribution
 };
 
 #endif

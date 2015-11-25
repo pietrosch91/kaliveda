@@ -32,9 +32,9 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 Double_t KVNucleus::kAMU = 9.31494043e02;
 Double_t KVNucleus::kMe = 0.510988;
 // hbar*c in MeV.fm = 197.33....
-Double_t KVNucleus::hbar = TMath::Hbarcgs()*TMath::Ccgs()/TMath::Qe();
+Double_t KVNucleus::hbar = TMath::Hbarcgs() * TMath::Ccgs() / TMath::Qe();
 // e^2/(4.pi.epsilon_0) in MeV.fm = 1.44... = hbar*alpha (fine structure constant)
-Double_t KVNucleus::e2 = KVNucleus::hbar/137.035999074;
+Double_t KVNucleus::e2 = KVNucleus::hbar / 137.035999074;
 
 using namespace std;
 
@@ -156,7 +156,7 @@ Char_t KVNucleus::fElements[][3] = {
    "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg"
 };
 
-const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
+const Char_t* KVNucleus::GetSymbol(Option_t* opt) const
 {
    // Returns symbol of isotope corresponding to this nucleus,
    // i.e. "238U", "12C", "3He" etc.
@@ -168,18 +168,17 @@ const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
    Int_t a = GetA();
    Int_t z = GetZ();
    TString& symname = (TString&)fSymbolName;
-   Bool_t Mpfx = strcmp(opt,"EL");// kTRUE if mass prefix required
-	if (0<=GetZ() && GetZ() <= MAXZ_ELEMENT_SYMBOL) {
-		if(Mpfx) symname.Form("%d%s",a,fElements[z]);
+   Bool_t Mpfx = strcmp(opt, "EL"); // kTRUE if mass prefix required
+   if (0 <= GetZ() && GetZ() <= MAXZ_ELEMENT_SYMBOL) {
+      if (Mpfx) symname.Form("%d%s", a, fElements[z]);
       else symname = fElements[z];
-   }
-	else
-		symname="";
-   
-	return symname.Data();
+   } else
+      symname = "";
+
+   return symname.Data();
 }
 
-Int_t KVNucleus::IsMassGiven(const Char_t * isotope)
+Int_t KVNucleus::IsMassGiven(const Char_t* isotope)
 {
    // test if the given string corresponds to the name of an isotope/element,
    // and whether or not a mass is specified.
@@ -187,7 +186,7 @@ Int_t KVNucleus::IsMassGiven(const Char_t * isotope)
    // if the mass of the isotope is given ("13N", "233U") we return the given mass
    // if this is a valid element but no mass is given we return 0
    // if this is not a valid isotope/element, we return -1
-   
+
    Int_t A;
    Char_t name[5];
    TString tmp(isotope);
@@ -196,15 +195,15 @@ Int_t KVNucleus::IsMassGiven(const Char_t * isotope)
    if (sscanf(tmp.Data(), "%d%s", &A, name) == 2) {
       //name given in form "208Pb"
       Int_t z = GetZFromSymbol(name);
-      if(z<0) return z;
+      if (z < 0) return z;
       return A;
    }
    Int_t z = GetZFromSymbol(tmp);
-   if(z<0) return z;
+   if (z < 0) return z;
    return 0;
 }
 
-void KVNucleus::Set(const Char_t * isotope)
+void KVNucleus::Set(const Char_t* isotope)
 {
    //Set nucleus' Z & A using chemical symbol e.g. Set("12C") or Set("233U") etc.
    Int_t A;
@@ -222,7 +221,7 @@ void KVNucleus::Set(const Char_t * isotope)
    }
 }
 
-Int_t KVNucleus::GetZFromSymbol(const Char_t * sym)
+Int_t KVNucleus::GetZFromSymbol(const Char_t* sym)
 {
    //Returns Z of nucleus with given symbol i.e. "C" => Z=6, "U" => Z=92
    //if unknown, returns -1
@@ -234,12 +233,12 @@ Int_t KVNucleus::GetZFromSymbol(const Char_t * sym)
    return -1;
 }
 
-void KVNucleus::SetZFromSymbol(const Char_t * sym)
+void KVNucleus::SetZFromSymbol(const Char_t* sym)
 {
    //Set Z of nucleus with given symbol i.e. "C" => Z=6, "U" => Z=92
-   
-   Int_t z=GetZFromSymbol(sym);
-   if(z>-1) SetZ(z);
+
+   Int_t z = GetZFromSymbol(sym);
+   if (z > -1) SetZ(z);
    else Error("SetZFromSymbol", "%s is unknown", sym);
 }
 
@@ -249,9 +248,9 @@ void KVNucleus::init()
 {
    // Default intialisations
    // The mass formula is kBetaMass, i.e. the formula for the valley of beta-stability.
-  
+
    fZ = fA = 0;
-   if (!fNb_nuc){
+   if (!fNb_nuc) {
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
    }
    fMassFormula = kBetaMass;
@@ -266,19 +265,19 @@ KVNucleus::KVNucleus()
    init();
 }
 
-KVNucleus::KVNucleus(const KVNucleus & obj) : KVParticle()
+KVNucleus::KVNucleus(const KVNucleus& obj) : KVParticle()
 {
    //copy ctor
    init();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    obj.Copy(*this);
 #else
-   ((KVNucleus &) obj).Copy(*this);
+   ((KVNucleus&) obj).Copy(*this);
 #endif
 }
 
 //___________________________________________________________________________________________
-void KVNucleus::Clear(Option_t * opt)
+void KVNucleus::Clear(Option_t* opt)
 {
    //Reset nucleus' properties: set excitation energy to zero,
    //as well as A and Z. For other properties, see KVParticle::Clear
@@ -302,22 +301,22 @@ KVNucleus::KVNucleus(Int_t z, Int_t a, Double_t ekin)
    } else {
       SetA(a);
    }
-	SetKE(ekin);
+   SetKE(ekin);
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(const Char_t * symbol,Double_t EperA)
+KVNucleus::KVNucleus(const Char_t* symbol, Double_t EperA)
 {
    //Create a nucleus defined by symbol e.g. "12C", "34Mg", "42Si" etc. etc.
-	//the second argument is the kinetic energy per nucleon (E/A) in MeV/A unit
+   //the second argument is the kinetic energy per nucleon (E/A) in MeV/A unit
 
    init();
    Set(symbol);
-	SetKE(EperA*GetA());
+   SetKE(EperA * GetA());
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(Int_t z, Double_t t, TVector3 & p)
+KVNucleus::KVNucleus(Int_t z, Double_t t, TVector3& p)
 {
 
 //Create nucleus with given Z, kinetic energy t and direction p
@@ -370,7 +369,7 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 //_________________________
 //Beta (default) - An improved parametrisation of the beta-stability valley,
 //   correct even for heavy nuclei up to 238U. The formula is the result
-//   of a fit to 8 stable nuclear masses from Ne20 up to U238. 
+//   of a fit to 8 stable nuclear masses from Ne20 up to U238.
 //   fA = (.2875 + 1.7622 *Z + .013879 * Z  * Z - .000054875 * Z * Z * Z);
 //
 //mt = KVNucleus::kEALMass
@@ -381,7 +380,7 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 //
 //mt = KVNucleus::kEALResMass
 //________________________
-//EALRes - R.J. Charity ---- improvement of EAL parametrisation for 
+//EALRes - R.J. Charity ---- improvement of EAL parametrisation for
 // Heavy Residue (QP for instance) (PRC 58(1998)1073) (eq 7)
 //    fA = (2.045*Z + 3.57E-03 * Z*Z) ;
 //
@@ -390,26 +389,26 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
    Double_t A;
    switch (mt) {
 
-   case kVedaMass:
-      A = (1.867 * Z + .016 * TMath::Power(Z, 2.) -
-           1.07E-4 * TMath::Power(Z, 3.));
-      break;
+      case kVedaMass:
+         A = (1.867 * Z + .016 * TMath::Power(Z, 2.) -
+              1.07E-4 * TMath::Power(Z, 3.));
+         break;
 
-   case kBetaMass:
-      A = (.2875 + 1.7622 * Z + .013879 * TMath::Power(Z, 2.) -
-           .000054875 * TMath::Power(Z, 3.));
-      break;
+      case kBetaMass:
+         A = (.2875 + 1.7622 * Z + .013879 * TMath::Power(Z, 2.) -
+              .000054875 * TMath::Power(Z, 3.));
+         break;
 
-   case kEALMass:
-      A = (2.072 * Z + 2.32E-03 * TMath::Power(Z, 2.));
-      break;
+      case kEALMass:
+         A = (2.072 * Z + 2.32E-03 * TMath::Power(Z, 2.));
+         break;
 
-   case kEALResMass:
-      A = (2.045 * Z + 3.57E-03 * TMath::Power(Z, 2.));
-      break;
+      case kEALResMass:
+         A = (2.045 * Z + 3.57E-03 * TMath::Power(Z, 2.));
+         break;
 
-   default:
-      A = 2. * Z;
+      default:
+         A = 2. * Z;
    }
 
    return A;
@@ -418,10 +417,10 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 
 Double_t KVNucleus::GetRealNFromZ(Double_t Z, Char_t mt)
 {
-	//Calculate neutron number from the element's atomic number Z.
+   //Calculate neutron number from the element's atomic number Z.
    //This value is not rounded off, we just return the result
-	//obtain from the chosen mass formula (mt)
-	return GetRealAFromZ(Z,mt)-Z;
+   //obtain from the chosen mass formula (mt)
+   return GetRealAFromZ(Z, mt) - Z;
 
 }
 //___________________________________________________________________________________________
@@ -459,7 +458,7 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
 //
 //mt = KVNucleus::kEALResMass
 //________________________
-//EALRes - R.J. Charity ---- improvement of EAL parametrisation for 
+//EALRes - R.J. Charity ---- improvement of EAL parametrisation for
 // Heavy Residues (QP for instance) (PRC 58(1998)1073) (eq 7)
 //    fA = (Int_t)(2.045*Z + 3.57E-03 * Z*Z) + 1 ;
 //
@@ -468,23 +467,23 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
    Int_t A = 0;
    Int_t z = (Int_t) Z;
    switch (z) {                 // masses for lightest nuclei
-   case 1:
-      A = 1;
-      break;
-   case 2:
-      A = 4;
-      break;
-   case 3:
-      A = 7;
-      break;
-   case 4:
-      A = 9;
-      break;
-   case 5:
-      A = 11;
-      break;
-   default:
-      A = (Int_t) KVNucleus::GetRealAFromZ(Z, mt) + 1;
+      case 1:
+         A = 1;
+         break;
+      case 2:
+         A = 4;
+         break;
+      case 3:
+         A = 7;
+         break;
+      case 4:
+         A = 9;
+         break;
+      case 5:
+         A = 11;
+         break;
+      default:
+         A = (Int_t) KVNucleus::GetRealAFromZ(Z, mt) + 1;
    }
    return A;
 }
@@ -492,7 +491,7 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
 Int_t KVNucleus::GetNFromZ(Double_t Z, Char_t mt)
 {
 //Calculate neutron number from the element's atomic number Z.
-	return GetAFromZ(Z,mt)-Int_t(Z);
+   return GetAFromZ(Z, mt) - Int_t(Z);
 
 }
 
@@ -509,7 +508,7 @@ void KVNucleus::SetA(Int_t a)
    //If A<=255 the flag is reset.
 
    if (a > 255) {
-      fA = (UChar_t) (a - 255);
+      fA = (UChar_t)(a - 255);
       SetBit(kIsHeavy);
    } else {
       fA = (UChar_t) a;
@@ -525,8 +524,8 @@ void KVNucleus::SetN(Int_t n)
    //reset the neutron number according to one of the available
    //parametrisations of A (N+Z) as a function of Z.
    //
-	Int_t z = GetZ();
-   SetA(z+n);
+   Int_t z = GetZ();
+   SetA(z + n);
 }
 
 //___________________________________________________________________________________________
@@ -546,47 +545,47 @@ void KVNucleus::SetZ(Int_t z, Char_t mt)
 void KVNucleus::SetZandA(Int_t z, Int_t a)
 {
 //Set atomic number and mass number
-	SetZ(z);
-	SetA(a);
+   SetZ(z);
+   SetA(a);
 }
 
 //___________________________________________________________________________________________
-void KVNucleus::SetZAandE(Int_t z, Int_t a,Double_t ekin)
+void KVNucleus::SetZAandE(Int_t z, Int_t a, Double_t ekin)
 {
 //Set atomic number, mass number, and kinetic energy in MeV
-	SetZ(z);
-	SetA(a);
-	SetKE(ekin);
+   SetZ(z);
+   SetA(a);
+   SetKE(ekin);
 }
 
 //___________________________________________________________________________________________
 void KVNucleus::SetZandN(Int_t z, Int_t n)
 {
 //Set atomic number and mass number
-	SetZ(z);
-	SetN(n);
+   SetZ(z);
+   SetN(n);
 }
 
 //___________________________________________________________________________________________
-void KVNucleus::Print(Option_t * t) const
+void KVNucleus::Print(Option_t* t) const
 {
 // Display nucleus parameters
-   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA()  << " E*=" << GetExcitEnergy()<<endl;
+   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA()  << " E*=" << GetExcitEnergy() << endl;
    KVParticle::Print(t);
 }
 
 //___________________________________________________________________________________________
 Int_t KVNucleus::GetZ() const
 {
-	//Return the number of proton / atomic number
+   //Return the number of proton / atomic number
    return (Int_t) fZ;
 }
 
 //___________________________________________________________________________________________
 Int_t KVNucleus::GetN() const
 {
-	//Return the number of neutron
-    return (Int_t)(GetA()-GetZ());
+   //Return the number of neutron
+   return (Int_t)(GetA() - GetZ());
 }
 
 //___________________________________________________________________________________________
@@ -608,25 +607,25 @@ Int_t KVNucleus::GetA() const
 
 //_______________________________________________________________________________________
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-void KVNucleus::Copy(TObject & obj) const
+void KVNucleus::Copy(TObject& obj) const
 #else
-void KVNucleus::Copy(TObject & obj)
+void KVNucleus::Copy(TObject& obj)
 #endif
 {
    //Copy this KVNucleus into the KVNucleus object referenced by "obj"
    KVParticle::Copy(obj);
-   ((KVNucleus &) obj).SetZ(GetZ());
-   ((KVNucleus &) obj).SetMassFormula(fMassFormula);
-   ((KVNucleus &) obj).SetA(((KVNucleus *) this)->GetA());
-   ((KVNucleus &) obj).SetExcitEnergy(((KVNucleus *) this)->
-                                      GetExcitEnergy());
+   ((KVNucleus&) obj).SetZ(GetZ());
+   ((KVNucleus&) obj).SetMassFormula(fMassFormula);
+   ((KVNucleus&) obj).SetA(((KVNucleus*) this)->GetA());
+   ((KVNucleus&) obj).SetExcitEnergy(((KVNucleus*) this)->
+                                     GetExcitEnergy());
 }
 
 //________________________________________________________________________________________
-void  KVNucleus::CheckZAndA(Int_t &z, Int_t&a) const
+void  KVNucleus::CheckZAndA(Int_t& z, Int_t& a) const
 {
-   if (z == -1)	z = GetZ();
-   if (a == -1)	a = GetA();
+   if (z == -1)   z = GetZ();
+   if (a == -1)   a = GetA();
 
 }
 
@@ -636,60 +635,60 @@ void KVNucleus::SetExcitEnergy(Double_t ex)
    // Define excitation energy of nucleus in MeV.
    // The rest mass of the nucleus is changed: m0 -> m0 + E*
 
-   SetMass(GetMassGS()+ex);
+   SetMass(GetMassGS() + ex);
 }
 
 //________________________________________________________________________________________
 
 Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a) const
 {
-	//Returns mass excess value in MeV for this nucleus.
-	//If optional arguments (z,a) are given we return the value for the
-	//required nucleus.
-	//If the nucleus is not included in the mass table, an extrapolated value
-	//using KVNucleus::LiquidDrop_BrackGuet is returned.
-	
-	CheckZAndA(z,a);
-	
-	Double_t val = gNDTManager->GetValue(z,a,"MassExcess");
-	if (val==-555) return GetExtraMassExcess(z,a);
-	else 				return val;
-	
+   //Returns mass excess value in MeV for this nucleus.
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   //If the nucleus is not included in the mass table, an extrapolated value
+   //using KVNucleus::LiquidDrop_BrackGuet is returned.
+
+   CheckZAndA(z, a);
+
+   Double_t val = gNDTManager->GetValue(z, a, "MassExcess");
+   if (val == -555) return GetExtraMassExcess(z, a);
+   else           return val;
+
 }
 //________________________________________________________________________________________
 
 Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a) const
 {
-	//Calculate the extrapoled mass excess value  
-	// from the LiquidDrop_BrackGuet formula
-	//If optional arguments (z,a) are given we return the value for the
-	//required nucleus.	
-	
-	CheckZAndA(z,a);
-	return (LiquidDrop_BrackGuet(a, z) - a * kAMU);
-	
+   //Calculate the extrapoled mass excess value
+   // from the LiquidDrop_BrackGuet formula
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   return (LiquidDrop_BrackGuet(a, z) - a * kAMU);
+
 }
 
 //_____________________________________________
-Double_t KVNucleus::GetAtomicMass(Int_t zz, Int_t aa) const 
+Double_t KVNucleus::GetAtomicMass(Int_t zz, Int_t aa) const
 {
    // Returns the mass of an isotope in unified atomic mass units
    // (KVNucleus::u() MeV/c**2).
    // This number is also the mass in grammes of 1 mole of this isotope.
-	CheckZAndA(zz,aa);
-   return aa + GetMassExcess(zz,aa)/u();
+   CheckZAndA(zz, aa);
+   return aa + GetMassExcess(zz, aa) / u();
 }
 
 //________________________________________________________________________________________
 
 KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
 {
-	//Returns pointer of corresponding KVMassExcess object 
-	//0 if the Z,A couple is not in the table
-	//If optional arguments (z,a) are given we return the value for the
-	//required nucleus.
-	CheckZAndA(z,a);
-	return (KVMassExcess* )gNDTManager->GetData(z,a,"MassExcess");
+   //Returns pointer of corresponding KVMassExcess object
+   //0 if the Z,A couple is not in the table
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   CheckZAndA(z, a);
+   return (KVMassExcess*)gNDTManager->GetData(z, a, "MassExcess");
 
 }
 
@@ -697,28 +696,28 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
 
 Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 {
-	//Returns life time in seconds (see KVLifeTime class for unit details).
+   //Returns life time in seconds (see KVLifeTime class for unit details).
    //For 'stable' nuclei (for which the abundance is known),
    //if no lifetime exists in the table we return 1.e+100.
-   //For other "nuclei" with no known lifetime we return -1. 
+   //For other "nuclei" with no known lifetime we return -1.
    //For resonances (IsResonance() returns kTRUE) we calculate the lifetime
    //from the width of the resonance, t = hbar/W.
-	//If optional arguments (z,a) are given we return the value for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	KVLifeTime* lf = GetLifeTimePtr(z,a);
-   if(!lf) {
-      if(GetAbundance(z,a)>0) return 1.e+100;
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   KVLifeTime* lf = GetLifeTimePtr(z, a);
+   if (!lf) {
+      if (GetAbundance(z, a) > 0) return 1.e+100;
       return -1.0;
    }
-   if(!lf->IsAResonnance()) {
+   if (!lf->IsAResonnance()) {
       Double_t life = lf->GetValue();
-      return (life<0. ? 1.e+100 : life);
+      return (life < 0. ? 1.e+100 : life);
    }
    // hbar in units of MeV.s
-   static Double_t hbar =  TMath::Hbar()/(1.e+06 * TMath::Qe());
-   Double_t life = hbar/lf->GetValue();
+   static Double_t hbar =  TMath::Hbar() / (1.e+06 * TMath::Qe());
+   Double_t life = hbar / lf->GetValue();
    return life;
 }
 
@@ -727,12 +726,12 @@ Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 
 KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a) const
 {
-	//Returns the pointeur of the life time object associated to this nucleus
-	//If optional arguments (z,a) are given we return object for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	return (KVLifeTime* )gNDTManager->GetData(z,a,"LifeTime");
+   //Returns the pointeur of the life time object associated to this nucleus
+   //If optional arguments (z,a) are given we return object for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   return (KVLifeTime*)gNDTManager->GetData(z, a, "LifeTime");
 
 }
 
@@ -740,70 +739,70 @@ KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a) const
 
 Double_t KVNucleus::GetChargeRadius(Int_t z, Int_t a) const
 {
-	//Returns charge radius in fm for tabulated nuclei
-	//if not tabulated returns the extrapolated radius
-	//calculate in GetExtraChargeRadius
+   //Returns charge radius in fm for tabulated nuclei
+   //if not tabulated returns the extrapolated radius
+   //calculate in GetExtraChargeRadius
    //If optional arguments (z,a) are given we return the value for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	KVChargeRadius* cr = GetChargeRadiusPtr(z,a);
-   if(!cr) {
-   	return GetExtraChargeRadius(z,a);
-	}	
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   KVChargeRadius* cr = GetChargeRadiusPtr(z, a);
+   if (!cr) {
+      return GetExtraChargeRadius(z, a);
+   }
    return cr->GetValue();
- 
+
 }
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a,Int_t rct) const
+Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a, Int_t rct) const
 {
-	//Calculate the extrapoled charge radius
-	// Three formulae taken from Atomic Data and Nuclear Data Tables 87 (2004) 185-201 
-	// are proposed:
-	// rct=2 (kELTON)take into account the finite surfacethickness
-	//	This rct=2 is set by default because it has the best reproduction of exp data
-	//
-	// rct=1 (kEMPFunc) is a purely emperical function re*A**ee
-	// rct=0 (kLDModel) is the standard Liquid Drop model approximation
-	//
-	// Those formulae are valid for nuclei near the stability valley
-	// other parametrization for xotic nuclei are proposed in the same reference
-	// but needed extrapolation from given nuclei and I don't have time
-	// to do it now
-	//
-	// If optional arguments (z,a) are given we return the value for the
-	// required nucleus.	
-	
-	CheckZAndA(z,a);
-	Double_t R = 0;
-	Double_t A = Double_t(a);
-   
-	Double_t rLD=0.9542; //for kLDModel
-	
-	Double_t re=1.153;	//for kEMPFunc
-	Double_t ee=0.2938;	//for kEMPFunc
-	
-	Double_t r0=0.9071;	//for kELTON
-   Double_t r1=1.105;
-   Double_t r2=-0.548;
-	
-	switch (rct) {
+   //Calculate the extrapoled charge radius
+   // Three formulae taken from Atomic Data and Nuclear Data Tables 87 (2004) 185-201
+   // are proposed:
+   // rct=2 (kELTON)take into account the finite surfacethickness
+   // This rct=2 is set by default because it has the best reproduction of exp data
+   //
+   // rct=1 (kEMPFunc) is a purely emperical function re*A**ee
+   // rct=0 (kLDModel) is the standard Liquid Drop model approximation
+   //
+   // Those formulae are valid for nuclei near the stability valley
+   // other parametrization for xotic nuclei are proposed in the same reference
+   // but needed extrapolation from given nuclei and I don't have time
+   // to do it now
+   //
+   // If optional arguments (z,a) are given we return the value for the
+   // required nucleus.
 
-   	case kLDModel:
-      	R = rLD*TMath::Power(A,1./3.);
-      break;
+   CheckZAndA(z, a);
+   Double_t R = 0;
+   Double_t A = Double_t(a);
 
-   	case kEMPFunc:
-      	R = re*TMath::Power(A,ee);
-      break;
+   Double_t rLD = 0.9542; //for kLDModel
 
-   	case kELTON:
-      	R = (r0*TMath::Power(A,1./3.) + r1/TMath::Power(A,1./3.)+r2/A);
-      break;
-	
-	}
+   Double_t re = 1.153; //for kEMPFunc
+   Double_t ee = 0.2938; //for kEMPFunc
+
+   Double_t r0 = 0.9071; //for kELTON
+   Double_t r1 = 1.105;
+   Double_t r2 = -0.548;
+
+   switch (rct) {
+
+      case kLDModel:
+         R = rLD * TMath::Power(A, 1. / 3.);
+         break;
+
+      case kEMPFunc:
+         R = re * TMath::Power(A, ee);
+         break;
+
+      case kELTON:
+         R = (r0 * TMath::Power(A, 1. / 3.) + r1 / TMath::Power(A, 1. / 3.) + r2 / A);
+         break;
+
+   }
 
    return R;
 
@@ -813,12 +812,12 @@ Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a,Int_t rct) const
 
 KVChargeRadius* KVNucleus::GetChargeRadiusPtr(Int_t z, Int_t a) const
 {
-	//Returns the pointeur of charge radius object associated to this nucleus
-	//If optional arguments (z,a) are given we return object for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	return (KVChargeRadius* )gNDTManager->GetData(z,a,"ChargeRadius");
+   //Returns the pointeur of charge radius object associated to this nucleus
+   //If optional arguments (z,a) are given we return object for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   return (KVChargeRadius*)gNDTManager->GetData(z, a, "ChargeRadius");
 
 }
 
@@ -826,13 +825,13 @@ KVChargeRadius* KVNucleus::GetChargeRadiusPtr(Int_t z, Int_t a) const
 
 Double_t KVNucleus::GetAbundance(Int_t z, Int_t a) const
 {
-	//Returns life time value (see KVLifeTime class for unit details).
-	//If optional arguments (z,a) are given we return the value for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	return gNDTManager->GetValue(z,a,"Abundance");
-   
+   //Returns life time value (see KVLifeTime class for unit details).
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   return gNDTManager->GetValue(z, a, "Abundance");
+
 }
 
 
@@ -840,12 +839,12 @@ Double_t KVNucleus::GetAbundance(Int_t z, Int_t a) const
 
 KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a) const
 {
-	//Returns the pointeur of the abundance object associated to this nucleus
-	//If optional arguments (z,a) are given we return the object for the
-	//required nucleus.
-	
-	CheckZAndA(z,a);
-	return (KVAbundance* )gNDTManager->GetData(z,a,"Abundance");
+   //Returns the pointeur of the abundance object associated to this nucleus
+   //If optional arguments (z,a) are given we return the object for the
+   //required nucleus.
+
+   CheckZAndA(z, a);
+   return (KVAbundance*)gNDTManager->GetData(z, a, "Abundance");
 
 }
 
@@ -854,13 +853,13 @@ KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a) const
 Bool_t KVNucleus::IsKnown(int z, int a) const
 {
    //Old method, the answer is only valid for the mass excess table
-	//Returns kTRUE if this nucleus or (z,a) is included in the mass table.
-	//
-	//We kept it for backward compatibility :
-	
-	CheckZAndA(z,a);
-	//return fMassTable->IsKnown(z,a);
-	return gNDTManager->IsInTable(z,a,"MassExcess");
+   //Returns kTRUE if this nucleus or (z,a) is included in the mass table.
+   //
+   //We kept it for backward compatibility :
+
+   CheckZAndA(z, a);
+   //return fMassTable->IsKnown(z,a);
+   return gNDTManager->IsInTable(z, a, "MassExcess");
 }
 
 //________________________________________________________________________________________
@@ -874,11 +873,11 @@ Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a) const
 //If the nucleus is not included in the mass table, an extrapolated value
 //using KVNucleus::LiquidDrop_BrackGuet is returned.
 
-	CheckZAndA(z,a);
+   CheckZAndA(z, a);
 
    return a ==
-       0 ? 0. : (z * GetMassExcess(1, 1) + (a - z) * GetMassExcess(0, 1) -
-                 GetMassExcess(z, a));
+          0 ? 0. : (z * GetMassExcess(1, 1) + (a - z) * GetMassExcess(0, 1) -
+                    GetMassExcess(z, a));
 }
 
 //________________________________________________________________________________________
@@ -887,10 +886,10 @@ Double_t KVNucleus::GetBindingEnergyPerNucleon(Int_t z, Int_t a) const
 {
 //Returns binding energy in MeV/A for this nucleus.
 
-	CheckZAndA(z,a);
-	
-	if (a==0) return 0;
-   return GetBindingEnergy(z,a)/a;
+   CheckZAndA(z, a);
+
+   if (a == 0) return 0;
+   return GetBindingEnergy(z, a) / a;
 }
 //________________________________________________________________________________________
 
@@ -899,7 +898,7 @@ Double_t KVNucleus::GetEnergyPerNucleon()
    //
    //Returns kinetic energy of nucleus per nucleon (in MeV/nucleon, donc)
    //
-   return GetA()? GetEnergy() / GetA() : GetEnergy();
+   return GetA() ? GetEnergy() / GetA() : GetEnergy();
 }
 
 //________________________________________________________________________________________
@@ -917,76 +916,77 @@ Double_t KVNucleus::GetAMeV()
 KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
 {
 
-	if (zz==-1) zz=GetZ();	
-	KVNumberList nla; 
-	nla.SetMinMax(TMath::Max(zz,1),4*TMath::Max(zz,1));
-	KVNumberList nlb;
-	nla.Begin();
-	while (!nla.End()){
-		Int_t aa = nla.Next();
-		if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
-	}
-	return nlb;
+   if (zz == -1) zz = GetZ();
+   KVNumberList nla;
+   nla.SetMinMax(TMath::Max(zz, 1), 4 * TMath::Max(zz, 1));
+   KVNumberList nlb;
+   nla.Begin();
+   while (!nla.End()) {
+      Int_t aa = nla.Next();
+      if (IsKnown(zz, aa) && (GetLifeTime(zz, aa) >= tmin)) nlb.Add(aa);
+   }
+   return nlb;
 }
 
 //________________________________________________________________________________________
 
-Int_t KVNucleus::GetAWithMaxBindingEnergy(Int_t zz){
+Int_t KVNucleus::GetAWithMaxBindingEnergy(Int_t zz)
+{
 
-if (zz==-1) zz=GetZ();	
-KVNumberList nla = GetKnownARange(zz);
-nla.Begin();
-Double_t emax=0;
-Int_t amax=0;
-while (!nla.End()){
-	Int_t aa = nla.Next();
-	if (GetBindingEnergyPerNucleon(zz,aa)>emax) {
-		emax = GetBindingEnergyPerNucleon(zz,aa);
-		amax = aa;
-	}
-}
-return amax;
+   if (zz == -1) zz = GetZ();
+   KVNumberList nla = GetKnownARange(zz);
+   nla.Begin();
+   Double_t emax = 0;
+   Int_t amax = 0;
+   while (!nla.End()) {
+      Int_t aa = nla.Next();
+      if (GetBindingEnergyPerNucleon(zz, aa) > emax) {
+         emax = GetBindingEnergyPerNucleon(zz, aa);
+         amax = aa;
+      }
+   }
+   return amax;
 
 }
 //___________________________________________________________________________//
 
-void KVNucleus::AddGroup_Withcondition(const Char_t* groupname,KVParticleCondition* pc)
+void KVNucleus::AddGroup_Withcondition(const Char_t* groupname, KVParticleCondition* pc)
 {
-	// implementation of AddGroup(const Char_t* groupname,KVParticleCondition* pc)
-	// Can be overriden in child classes [unlike
-	// KVParticle::AddGroup(const Char_t* groupname,KVParticleCondition* pc), which cannot]
-	
-	if (pc){
-		//pc->SetParticleClassName(this->IsA()->GetName());
-		if (pc->Test(this)) AddGroup_Sanscondition(groupname);	
-	}
+   // implementation of AddGroup(const Char_t* groupname,KVParticleCondition* pc)
+   // Can be overriden in child classes [unlike
+   // KVParticle::AddGroup(const Char_t* groupname,KVParticleCondition* pc), which cannot]
+
+   if (pc) {
+      //pc->SetParticleClassName(this->IsA()->GetName());
+      if (pc->Test(this)) AddGroup_Sanscondition(groupname);
+   }
 }
 
 //________________________________________________________________________________________
 
-KVNucleus & KVNucleus::operator=(const KVNucleus & rhs)
+KVNucleus& KVNucleus::operator=(const KVNucleus& rhs)
 {
    //KVNucleus assignment operator.
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    rhs.Copy(*this);
 #else
-   ((KVNucleus &) rhs).Copy(*this);
+   ((KVNucleus&) rhs).Copy(*this);
 #endif
    return *this;
 }
 
 //________________________________________________________________________________________
 
-KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
+KVNucleus KVNucleus::operator+(const KVNucleus& rhs)
 {
    // KVNucleus addition operator.
    // Add two nuclei together to form a compound nucleus whose Z, A, momentum
    // and excitation energy are calculated from energy and momentum conservation.
-   
-   KVNucleus & lhs = *this;
+
+   KVNucleus& lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
-   Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
-   KVNucleus CN(ztot,atot);
+   Int_t atot = lhs.GetA() + ((KVNucleus&) rhs).GetA();
+   KVNucleus CN(ztot, atot);
 
    Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
@@ -999,7 +999,7 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 
 //________________________________________________________________________________________
 
-KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
+KVNucleus KVNucleus::operator-(const KVNucleus& rhs)
 {
    // KVNucleus subtraction operator.
    // If the LHS is a compound nucleus and the RHS an emitted nucleus
@@ -1007,9 +1007,9 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
    // is the residual nucleus, with recoil and residual excitation calculated
    // by conservation laws.
 
-   KVNucleus & lhs = *this;
+   KVNucleus& lhs = *this;
    Int_t zres = lhs.GetZ() - rhs.GetZ();
-   Int_t ares = lhs.GetA() - ((KVNucleus &) rhs).GetA();
+   Int_t ares = lhs.GetA() - ((KVNucleus&) rhs).GetA();
    Double_t eres = lhs.E() - rhs.E();
    TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
@@ -1019,8 +1019,7 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
       KVNucleus RES;
       RES.Clear();
       return RES;
-   }
-   else {
+   } else {
       KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
       RES.SetVect(pres);
       RES.SetT(eres);
@@ -1030,7 +1029,7 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
 
 //________________________________________________________________________________________
 
-KVNucleus & KVNucleus::operator+=(const KVNucleus & rhs)
+KVNucleus& KVNucleus::operator+=(const KVNucleus& rhs)
 {
    //KVNucleus addition and assignment operator.
 
@@ -1041,7 +1040,7 @@ KVNucleus & KVNucleus::operator+=(const KVNucleus & rhs)
 
 //________________________________________________________________________________________
 
-KVNucleus & KVNucleus::operator-=(const KVNucleus & rhs)
+KVNucleus& KVNucleus::operator-=(const KVNucleus& rhs)
 {
    //KVNucleus subtraction and assignment operator.
 
@@ -1076,21 +1075,21 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
    Double_t AUX = 1. + (9. * XJJ / 4. / QQ / X13);
    Double_t EE3 = XJJ * A * SI * SI / AUX;
    Double_t EE4 =
-       AVOL * A + ASUR * TMath::Power(A, 2. / 3.) + AC * X13 + AZER;
+      AVOL * A + ASUR * TMath::Power(A, 2. / 3.) + AC * X13 + AZER;
    Double_t TOTA = EE1 + EE2 + EE3 + EE4;
    return (939.55 * XNEU + 938.77 * Z - TOTA);
 }
 
 //_______________________________________________________________________________________
 
-Int_t KVNucleus::Compare(const TObject * obj) const
+Int_t KVNucleus::Compare(const TObject* obj) const
 {
    //For sorting lists of nuclei according to their Z
    //Largest Z appears first in list
 
-   if (GetZ() > ((KVNucleus *) obj)->GetZ())
+   if (GetZ() > ((KVNucleus*) obj)->GetZ())
       return -1;
-   else if (GetZ() < ((KVNucleus *) obj)->GetZ())
+   else if (GetZ() < ((KVNucleus*) obj)->GetZ())
       return 1;
    else
       return 0;
@@ -1100,15 +1099,15 @@ Int_t KVNucleus::Compare(const TObject * obj) const
 /*
 TH2F* KVNucleus::GetKnownNucleiChart(KVString method)
 {
-	//Draw nuclei chart of tabulated nuclei and tagged as known in KaliVeda
-	//The 2D histogram (AvsZ) has to be deleted by the user
-	//Each content cell correponds to the method passed in argument of nucleus in MeV
-	// Method Pattern has to be Double_t Method() or Double_t Method(obs = default value) in KVNucleus.h
+   //Draw nuclei chart of tabulated nuclei and tagged as known in KaliVeda
+   //The 2D histogram (AvsZ) has to be deleted by the user
+   //Each content cell correponds to the method passed in argument of nucleus in MeV
+   // Method Pattern has to be Double_t Method() or Double_t Method(obs = default value) in KVNucleus.h
 TH2F* chart = new TH2F("nuclei_known_charts",method.Data(),
-					121,-0.5,120.5,
-					351,-0.5,350.5);
+               121,-0.5,120.5,
+               351,-0.5,350.5);
 chart->SetXTitle("Atomic Number");
-chart->SetYTitle("Mass Number");					
+chart->SetYTitle("Mass Number");
 
 TMethodCall *mt = new TMethodCall();
 mt->InitWithPrototype(this->IsA(),Form("%s",method.Data()),"");
@@ -1116,18 +1115,18 @@ if (! mt->IsValid()) { delete mt; return 0; }
 delete mt;
 KVNucleus* ntemp = new KVNucleus();
 for (Int_t zz=0;zz<120;zz+=1){
-	for (Int_t aa=0;aa<350;aa+=1){
-		if (this->IsKnown(zz,aa)){
-			mt = new TMethodCall();
-			mt->InitWithPrototype(ntemp->IsA(),Form("%s",method.Data()),"");
-			if (mt->ReturnType()==TMethodCall::kDouble){
-				ntemp->SetZ(zz); ntemp->SetA(aa);
-				Double_t ret; mt->Execute(ntemp,"",ret);
-				chart->Fill(zz,aa,ret);
-			}
-			delete mt;
-		}
-	}
+   for (Int_t aa=0;aa<350;aa+=1){
+      if (this->IsKnown(zz,aa)){
+         mt = new TMethodCall();
+         mt->InitWithPrototype(ntemp->IsA(),Form("%s",method.Data()),"");
+         if (mt->ReturnType()==TMethodCall::kDouble){
+            ntemp->SetZ(zz); ntemp->SetA(aa);
+            Double_t ret; mt->Execute(ntemp,"",ret);
+            chart->Fill(zz,aa,ret);
+         }
+         delete mt;
+      }
+   }
 }
 delete ntemp;
 return chart;
@@ -1145,87 +1144,87 @@ Double_t KVNucleus::u(void)
 
 //_______________________________________________________________________________________
 
-Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho,Int_t ChargeState){
-    //Retourne l'energie cintetique totale (MeV) du noyau pour
-	//une valeur de Brho et d'etat de charge (Si 0-> Etat de charge=Z)
-	Double_t C_mparns = KVNucleus::C()*10;
-   
-	if (ChargeState == 0) ChargeState = GetZ();
-   
-	Double_t X = Brho*C_mparns*ChargeState;
-	
-	Double_t MassIon = GetMass() - ChargeState*KVNucleus::kMe;
-   
-	Double_t Result = TMath::Sqrt(MassIon*MassIon + X*X) - MassIon;
-   
-	return Result;
+Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho, Int_t ChargeState)
+{
+   //Retourne l'energie cintetique totale (MeV) du noyau pour
+   //une valeur de Brho et d'etat de charge (Si 0-> Etat de charge=Z)
+   Double_t C_mparns = KVNucleus::C() * 10;
+
+   if (ChargeState == 0) ChargeState = GetZ();
+
+   Double_t X = Brho * C_mparns * ChargeState;
+
+   Double_t MassIon = GetMass() - ChargeState * KVNucleus::kMe;
+
+   Double_t Result = TMath::Sqrt(MassIon * MassIon + X * X) - MassIon;
+
+   return Result;
 
 }
 
-Double_t KVNucleus::GetRelativeVelocity(KVNucleus *nuc)
+Double_t KVNucleus::GetRelativeVelocity(KVNucleus* nuc)
 {
-    // Return the reltive velocity between nuc and this in cm/ns.
-    if(!nuc) return 0.;
-    return (GetVelocity()-nuc->GetVelocity()).Mag();
+   // Return the reltive velocity between nuc and this in cm/ns.
+   if (!nuc) return 0.;
+   return (GetVelocity() - nuc->GetVelocity()).Mag();
 }
 
-Double_t KVNucleus::GetViolaVelocity(KVNucleus *nuc, Int_t formula)
+Double_t KVNucleus::GetViolaVelocity(KVNucleus* nuc, Int_t formula)
 {
-    // Relative velocity expected for fission from the Viola systematics (in cm/ns).
-    // If nuc=0, this method returns the relative velocity expected for the symetric fission of this nucleus.
-    // Else, it returns the expected relative velocity considering that nuc and the current nucleus arise
-    // from the fisison of a compound nucleus.
-    // - kDefaultFormula:
-    //   - if nuc=0 : kViola1985
-    //   - else     : kHinde1987
-    // - kHinde1987: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
-    // - kViola1985: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
-    // - kViola1966: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
+   // Relative velocity expected for fission from the Viola systematics (in cm/ns).
+   // If nuc=0, this method returns the relative velocity expected for the symetric fission of this nucleus.
+   // Else, it returns the expected relative velocity considering that nuc and the current nucleus arise
+   // from the fisison of a compound nucleus.
+   // - kDefaultFormula:
+   //   - if nuc=0 : kViola1985
+   //   - else     : kHinde1987
+   // - kHinde1987: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
+   // - kViola1985: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
+   // - kViola1966: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
 
-    Double_t vViola = 0.;
+   Double_t vViola = 0.;
 
-    switch(formula)
-    {
-    case kDefaultFormula:
-        if(nuc) vViola = vrelHinde1987(GetZ(),GetA(),nuc->GetZ(),nuc->GetA());
-        else    vViola = vrelViola1985(GetZ(),GetA());
-        break;
+   switch (formula) {
+      case kDefaultFormula:
+         if (nuc) vViola = vrelHinde1987(GetZ(), GetA(), nuc->GetZ(), nuc->GetA());
+         else    vViola = vrelViola1985(GetZ(), GetA());
+         break;
 
-    case kHinde1987:
-        if(nuc) vViola = vrelHinde1987(GetZ(),GetA(),nuc->GetZ(),nuc->GetA());
-        else    vViola = vrelHinde1987(GetZ()*0.5,GetA()*0.5,GetZ()*0.5,GetA()*0.5);
-        break;
+      case kHinde1987:
+         if (nuc) vViola = vrelHinde1987(GetZ(), GetA(), nuc->GetZ(), nuc->GetA());
+         else    vViola = vrelHinde1987(GetZ() * 0.5, GetA() * 0.5, GetZ() * 0.5, GetA() * 0.5);
+         break;
 
-    case kViola1985:
-        if(nuc) vViola = vrelViola1985(GetZ()+nuc->GetZ(),GetA()+nuc->GetA());
-        else    vViola = vrelViola1985(GetZ(),GetA());
-        break;
+      case kViola1985:
+         if (nuc) vViola = vrelViola1985(GetZ() + nuc->GetZ(), GetA() + nuc->GetA());
+         else    vViola = vrelViola1985(GetZ(), GetA());
+         break;
 
-    case kViola1966:
-        if(nuc) vViola = vrelViola1966(GetZ()+nuc->GetZ(),GetA()+nuc->GetA());
-        else    vViola = vrelViola1966(GetZ(),GetA());
-        break;
-    }
+      case kViola1966:
+         if (nuc) vViola = vrelViola1966(GetZ() + nuc->GetZ(), GetA() + nuc->GetA());
+         else    vViola = vrelViola1966(GetZ(), GetA());
+         break;
+   }
 
-    return vViola;
+   return vViola;
 }
 
 Double_t KVNucleus::vrelHinde1987(Double_t z1, Double_t a1, Double_t z2, Double_t a2)
 {
-    // from: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
-    return TMath::Sqrt(2./(KVNucleus::u()*a1*a2/(a1+a2))*(0.755*z1*z2/(pow(a1,1/3.)+pow(a2,1/3.))+7.3))*29.9792458;
+   // from: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
+   return TMath::Sqrt(2. / (KVNucleus::u() * a1 * a2 / (a1 + a2)) * (0.755 * z1 * z2 / (pow(a1, 1 / 3.) + pow(a2, 1 / 3.)) + 7.3)) * 29.9792458;
 }
 
 Double_t KVNucleus::vrelViola1985(Double_t z, Double_t a)
 {
-    // from: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
-    return TMath::Sqrt(8./(u()*a)*(0.1189*z*z/(pow(a,1/3.))+7.3))*29.9792458;
+   // from: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
+   return TMath::Sqrt(8. / (u() * a) * (0.1189 * z * z / (pow(a, 1 / 3.)) + 7.3)) * 29.9792458;
 }
 
 Double_t KVNucleus::vrelViola1966(Double_t z, Double_t a)
 {
-    // from: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
-    return TMath::Sqrt(8./(u()*a)*(0.1071*z*z/(pow(a,1/3.))+22.2))*29.9792458;
+   // from: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
+   return TMath::Sqrt(8. / (u() * a) * (0.1071 * z * z / (pow(a, 1 / 3.)) + 22.2)) * 29.9792458;
 }
 
 //_______________________________________________________________________________________
@@ -1237,9 +1236,9 @@ Bool_t KVNucleus::IsStable(Double_t min_lifetime) const
    //   if the natural abundance is defined (look up in Abundance table)
    // OR
    //   if lifetime is > min_lifetime
-   if(GetAbundance()>0.) return kTRUE;
+   if (GetAbundance() > 0.) return kTRUE;
    KVLifeTime* ptr = GetLifeTimePtr();
-   return (ptr && !ptr->IsAResonnance() && ptr->GetValue()>min_lifetime);
+   return (ptr && !ptr->IsAResonnance() && ptr->GetValue() > min_lifetime);
 }
 
 //_______________________________________________________________________________________
@@ -1263,25 +1262,25 @@ Double_t KVNucleus::GetWidth() const
 }
 
 //_______________________________________________________________________________________
-   
+
 Double_t KVNucleus::GetNaturalA(Int_t Z) const
 {
    // Calculate and return the effective mass number of element Z
    // taking into account the abundance of naturally-occurring isotopes
-   
+
    KVNumberList isotopes = GetKnownARange(Z);
    isotopes.Begin();
-   Double_t Aeff=0, wtot=0;
-   while( !isotopes.End() ){
-      
+   Double_t Aeff = 0, wtot = 0;
+   while (!isotopes.End()) {
+
       int A = isotopes.Next();
-      Double_t abundance = GetAbundance(Z,A)/100.;
-      if(abundance>0.) {
-         Aeff+=A*abundance;
-         wtot+=abundance;
+      Double_t abundance = GetAbundance(Z, A) / 100.;
+      if (abundance > 0.) {
+         Aeff += A * abundance;
+         wtot += abundance;
       }
-      
+
    }
-   if(wtot>0) Aeff/=wtot;
+   if (wtot > 0) Aeff /= wtot;
    return Aeff;
 }

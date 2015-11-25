@@ -143,19 +143,19 @@ TString KVBase::KVFilesDir = "";
 
 Bool_t KVBase::fEnvIsInit = kFALSE;
 
-const Char_t *KVBase::GetKVRootDir(void)
+const Char_t* KVBase::GetKVRootDir(void)
 {
    // Initialises environment if neccesary.
    if (!fEnvIsInit) InitEnvironment();
    return KVRootDir.Data();
 }
-const Char_t *KVBase::GetKVBinDir(void)
+const Char_t* KVBase::GetKVBinDir(void)
 {
    // Initialises environment if neccesary.
    if (!fEnvIsInit) InitEnvironment();
    return KVBinDir.Data();
 }
-const Char_t *KVBase::GetKVFilesDir(void)
+const Char_t* KVBase::GetKVFilesDir(void)
 {
    // Initialises environment if neccesary.
    if (!fEnvIsInit) InitEnvironment();
@@ -171,7 +171,7 @@ void KVBase::init()
    fNumber = 0;
    fNbObj++;
    fSLabel = "";
-   SetBit( kIsKaliVedaObject );
+   SetBit(kIsKaliVedaObject);
 }
 
 void KVBase::InitEnvironment()
@@ -193,9 +193,9 @@ void KVBase::InitEnvironment()
 
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
-				GetKVVersion(), GetKVBuildDate());
+             GetKVVersion(), GetKVBuildDate());
       ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
-      	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
+             bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
       KVRootDir = gSystem->Getenv("KVROOT");
       TString tmp;
       AssignAndDelete(tmp,
@@ -217,22 +217,22 @@ void KVBase::InitEnvironment()
          tmp = "./.kvrootrc";
          gEnv->ReadFile(tmp.Data(), kEnvLocal);
 
-			// load plugin handlers
+         // load plugin handlers
          gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
 
-			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
-			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
+         // load mime types/icon definitions when not in batch (i.e. GUI-less) mode
+         if (!gROOT->IsBatch()) ReadGUIMimeTypes();
       }
 
       //generate new seed from system clock
       gRandom->SetSeed(0);
-		
-		// initialisation has been performed
+
+      // initialisation has been performed
       fEnvIsInit = kTRUE;
-		
-		//read all nucl data table
-		gNDTManager = new KVNDTManager();
-		//gNDTManager->Print();
+
+      //read all nucl data table
+      gNDTManager = new KVNDTManager();
+      //gNDTManager->Print();
    }
 }
 
@@ -244,21 +244,21 @@ KVBase::KVBase()
 }
 
 //_______________________________________________________________________________
-KVBase::KVBase(const Char_t * name, const Char_t * type):TNamed(name, type)
+KVBase::KVBase(const Char_t* name, const Char_t* type): TNamed(name, type)
 {
    //Ctor for object with given name and type.
    init();
 }
 
 //______________________
-KVBase::KVBase(const KVBase & obj) : TNamed()
+KVBase::KVBase(const KVBase& obj) : TNamed()
 {
    //copy ctor
    init();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    obj.Copy(*this);
 #else
-   ((KVBase &) obj).Copy(*this);
+   ((KVBase&) obj).Copy(*this);
 #endif
 }
 
@@ -270,7 +270,7 @@ KVBase::~KVBase()
 
 //_______________________________________________________________________________
 
-void KVBase::Clear(Option_t * opt)
+void KVBase::Clear(Option_t* opt)
 {
    //Clear object properties : name, type/title, number, label
    TNamed::Clear(opt);
@@ -280,21 +280,21 @@ void KVBase::Clear(Option_t * opt)
 
 //___________________________________________________________________________________
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-void KVBase::Copy(TObject & obj) const
+void KVBase::Copy(TObject& obj) const
 #else
-void KVBase::Copy(TObject & obj)
+void KVBase::Copy(TObject& obj)
 #endif
 {
    //Copy this to obj
    //Redefinition of TObject::Copy
 
    TNamed::Copy(obj);
-   ((KVBase &) obj).SetNumber(fNumber);
-   ((KVBase &) obj).SetLabel(fSLabel);
+   ((KVBase&) obj).SetNumber(fNumber);
+   ((KVBase&) obj).SetLabel(fSLabel);
 }
 
 //____________________________________________________________________________________
-void KVBase::Print(Option_t * ) const
+void KVBase::Print(Option_t*) const
 {
    cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
    if (fSLabel != "")
@@ -304,20 +304,20 @@ void KVBase::Print(Option_t * ) const
    cout << endl;
 };
 
-void KVBase::SetLabel(const Char_t * lab)
+void KVBase::SetLabel(const Char_t* lab)
 {
    //Affect a label to this object
    fSLabel = lab;
 }
 
-const Char_t *KVBase::GetLabel() const
+const Char_t* KVBase::GetLabel() const
 {
    //Return object label
 
    return fSLabel.Data();
 }
 
-const Char_t *KVBase::GetKVRoot()
+const Char_t* KVBase::GetKVRoot()
 {
    // Returns string containing full path to $KVROOT directory.
    // Initialises environment if neccesary.
@@ -325,7 +325,7 @@ const Char_t *KVBase::GetKVRoot()
    return KVBase::KVRootDir.Data();
 };
 
-Bool_t KVBase::ArrContainsValue(Int_t n, Int_t * arr, Int_t val)
+Bool_t KVBase::ArrContainsValue(Int_t n, Int_t* arr, Int_t val)
 {
    //Utility function which returns kTRUE if value "val" is among the values
    //contained in the array "arr" of "n" members.
@@ -338,7 +338,7 @@ Bool_t KVBase::ArrContainsValue(Int_t n, Int_t * arr, Int_t val)
    return kFALSE;
 }
 
-void KVBase::Streamer(TBuffer & R__b)
+void KVBase::Streamer(TBuffer& R__b)
 {
    //Backwards compatible streamer for KVBase objects
    //Needed to handle 'fLabel' char array in class version 1
@@ -351,7 +351,7 @@ void KVBase::Streamer(TBuffer & R__b)
       if (R__v > 1) {
          //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 1
          KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-         if(R__v<3) SetBit(kIsKaliVedaObject);
+         if (R__v < 3) SetBit(kIsKaliVedaObject);
          return;
       }
       //OLD STREAMER FOR CLASS VERSION 1
@@ -360,7 +360,7 @@ void KVBase::Streamer(TBuffer & R__b)
       UInt_t LabelLength;
       R__b >> LabelLength;
       if (LabelLength) {
-         Char_t *Label = new Char_t[LabelLength];
+         Char_t* Label = new Char_t[LabelLength];
          R__b.ReadFastArray(Label, LabelLength);
          fSLabel = Label;
          delete[]Label;
@@ -374,7 +374,7 @@ void KVBase::Streamer(TBuffer & R__b)
 
 //________________________________________________________________________________//
 
-Bool_t SearchFile(const Char_t * name, TString & fullpath, int ndirs, ...)
+Bool_t SearchFile(const Char_t* name, TString& fullpath, int ndirs, ...)
 {
    //Search for file in an arbitrary number of locations, return kTRUE if file found and put full path to file in 'fullpath"
    //
@@ -400,7 +400,7 @@ Bool_t SearchFile(const Char_t * name, TString & fullpath, int ndirs, ...)
    for (; ndirs; ndirs--) {     //loop over directories
 
       AssignAndDelete(fullpath,
-                      gSystem->ConcatFileName(va_arg(args, const char *),
+                      gSystem->ConcatFileName(va_arg(args, const char*),
                                               name));
       if (!gSystem->AccessPathName(fullpath.Data())) {
          va_end(args);
@@ -414,8 +414,8 @@ Bool_t SearchFile(const Char_t * name, TString & fullpath, int ndirs, ...)
    return kFALSE;
 }
 
-Bool_t KVBase::SearchKVFile(const Char_t * name, TString & fullpath,
-                            const Char_t * kvsubdir)
+Bool_t KVBase::SearchKVFile(const Char_t* name, TString& fullpath,
+                            const Char_t* kvsubdir)
 {
    //search for files in the following order:
    //  if 'name' = absolute path the function returns kTRUE if the file exists
@@ -445,7 +445,7 @@ Bool_t KVBase::SearchKVFile(const Char_t * name, TString & fullpath,
 
 //________________________________________________________________________________//
 
-Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ifstream & file, const Char_t * kvsubdir, KVLockfile* locks)
+Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ifstream& file, const Char_t* kvsubdir, KVLockfile* locks)
 {
    //Search and open for READING a file:
    //
@@ -466,21 +466,21 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ifstream & file, const C
    TString fullpath;
    if (SearchKVFile(name, fullpath, kvsubdir)) {
       //put lock on file if required
-      if(locks && !locks->Lock( fullpath.Data() )) return kFALSE;
+      if (locks && !locks->Lock(fullpath.Data())) return kFALSE;
       file.open(fullpath.Data());
       if (file.good()) {
          //cout << "Opened file : " << fullpath.Data() << endl;
          return kTRUE;
       }
       //unlock file if not opened successfully
-      if(locks) locks->Release();
+      if (locks) locks->Release();
    }
    return kFALSE;
 }
 
 //________________________________________________________________________________//
 
-Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const Char_t * kvsubdir, KVLockfile* locks)
+Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ofstream& file, const Char_t* kvsubdir, KVLockfile* locks)
 {
    //Search and CREATE i.e. open for WRITING a file:
    //
@@ -501,12 +501,12 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
    //If this lock is not successful, the file is not opened and we return an error message.
 
    KVString fullpath;
-   if(gSystem->IsAbsoluteFileName(name)){
+   if (gSystem->IsAbsoluteFileName(name)) {
       fullpath = name;
-   } else if(gSystem->IsAbsoluteFileName(kvsubdir)){
+   } else if (gSystem->IsAbsoluteFileName(kvsubdir)) {
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(kvsubdir, name));
-   } else if(strcmp(kvsubdir,"")){
+   } else if (strcmp(kvsubdir, "")) {
       KVString path;
       AssignAndDelete(path,
                       gSystem->ConcatFileName(GetKVFilesDir(), kvsubdir));
@@ -517,16 +517,16 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
                       gSystem->ConcatFileName(GetKVFilesDir(), name));
    }
    //Backup file if necessary
-   BackupFileWithDate( fullpath.Data() );
+   BackupFileWithDate(fullpath.Data());
    //put lock on file if required
-   if(locks && !locks->Lock( fullpath.Data() )) return kFALSE;
+   if (locks && !locks->Lock(fullpath.Data())) return kFALSE;
    file.open(fullpath.Data());
    return kTRUE;
 }
 
 //________________________________________________________________________________//
 
-void KVBase::BackupFileWithDate(const Char_t * path)
+void KVBase::BackupFileWithDate(const Char_t* path)
 {
    //'path' gives the full path (can include environment variables, special symbols)
    //to a file which will be renamed with an extension containing the current date and time
@@ -536,25 +536,27 @@ void KVBase::BackupFileWithDate(const Char_t * path)
    //The file toto.txt will be renamed toto.txt.2007-05-02_16:22:37
 
    //does the file exist ?
-   KVString fullpath=path;
+   KVString fullpath = path;
    gSystem->ExpandPathName(fullpath);
-   if( !gSystem->AccessPathName( fullpath.Data() ) ){
+   if (!gSystem->AccessPathName(fullpath.Data())) {
       //backup file
-      TDatime now; KVString date(now.AsSQLString()); date.ReplaceAll(' ', '_');
+      TDatime now;
+      KVString date(now.AsSQLString());
+      date.ReplaceAll(' ', '_');
       TString backup = fullpath + "." + date;
       //lock both files
       KVLockfile lf1(fullpath.Data()), lf2(backup.Data());
-      if(lf1.Lock() && lf2.Lock()){
+      if (lf1.Lock() && lf2.Lock()) {
          gSystem->Rename(fullpath.Data(), backup.Data());
          printf("Info in <KVBase::BackupFileWithDate(const Char_t *)> : Existing file %s renamed %s\n",
-            fullpath.Data(), backup.Data());
+                fullpath.Data(), backup.Data());
       }
    }
 }
 
 //________________________________________________________________________________//
 
-TPluginHandler *KVBase::LoadPlugin(const Char_t * base, const Char_t * uri)
+TPluginHandler* KVBase::LoadPlugin(const Char_t* base, const Char_t* uri)
 {
    //Load plugin library in order to extend capabilities of base class "base", depending on
    //the given uri (these arguments are used to call TPluginManager::FindHandler).
@@ -562,9 +564,9 @@ TPluginHandler *KVBase::LoadPlugin(const Char_t * base, const Char_t * uri)
    //Returns 0 in case of problems.
 
    //does plugin exist for given name ?
-   TPluginHandler *ph =
-       (TPluginHandler *) gROOT->GetPluginManager()->FindHandler(base,
-                                                                 uri);
+   TPluginHandler* ph =
+      (TPluginHandler*) gROOT->GetPluginManager()->FindHandler(base,
+            uri);
    if (!ph)
       return 0;
 
@@ -581,7 +583,7 @@ TPluginHandler *KVBase::LoadPlugin(const Char_t * base, const Char_t * uri)
 
 //__________________________________________________________________________________________________________________
 
-void KVBase::OpenTempFile(TString & base, ofstream & fp)
+void KVBase::OpenTempFile(TString& base, ofstream& fp)
 {
    //Opens a uniquely-named file in system temp directory (gSystem->TempDirectory)
    //Name of file is "basexxxxxxxxxx" where "xxxxxxxxx" is current time as returned
@@ -594,7 +596,7 @@ void KVBase::OpenTempFile(TString & base, ofstream & fp)
 
 //__________________________________________________________________________________________________________________
 
-void KVBase::GetTempFileName(TString & base)
+void KVBase::GetTempFileName(TString& base)
 {
    //When called with base="toto.dat", the returned value of 'base' is
    //"/full/path/to/temp/dir/toto.dat15930693"
@@ -616,7 +618,7 @@ void KVBase::GetTempFileName(TString & base)
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::GetKVVersion()
+const Char_t* KVBase::GetKVVersion()
 {
    //Returns KaliVeda version string
    static TString tmp(KV_VERSION);
@@ -625,7 +627,7 @@ const Char_t *KVBase::GetKVVersion()
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::GetKVBuildUser()
+const Char_t* KVBase::GetKVBuildUser()
 {
    // Returns username of person who performed build
    static TString tmp(KV_BUILD_USER);
@@ -634,7 +636,7 @@ const Char_t *KVBase::GetKVBuildUser()
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::GetKVBuildDate()
+const Char_t* KVBase::GetKVBuildDate()
 {
    //Returns KaliVeda build date
    static TString tmp(KV_BUILD_DATE);
@@ -643,7 +645,7 @@ const Char_t *KVBase::GetKVBuildDate()
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::GetKVSourceDir()
+const Char_t* KVBase::GetKVSourceDir()
 {
    //Returns top-level directory of source tree used for build
    static TString tmp(KV_SOURCE_DIR);
@@ -652,27 +654,27 @@ const Char_t *KVBase::GetKVSourceDir()
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::bzrRevisionId()
+const Char_t* KVBase::bzrRevisionId()
 {
-   // Returns Bazaar branch revision-id of sources 
+   // Returns Bazaar branch revision-id of sources
    static TString tmp(BZR_REVISION_ID);
    return tmp.Data();
 }
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::bzrRevisionDate()
+const Char_t* KVBase::bzrRevisionDate()
 {
-   // Returns date of Bazaar branch revision of sources 
+   // Returns date of Bazaar branch revision of sources
    static TString tmp(BZR_REVISION_DATE);
    return tmp.Data();
 }
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::bzrBranchNick()
+const Char_t* KVBase::bzrBranchNick()
 {
-   // Returns nickname of Bazaar branch of sources 
+   // Returns nickname of Bazaar branch of sources
    static TString tmp(BZR_BRANCH_NICK);
    return tmp.Data();
 }
@@ -691,13 +693,13 @@ Int_t KVBase::bzrIsBranchClean()
 
 Int_t KVBase::bzrRevisionNumber()
 {
-	// Returns Bazaar branch revision number of sources 
-  	return BZR_REVISION_NUMBER;
+   // Returns Bazaar branch revision number of sources
+   return BZR_REVISION_NUMBER;
 }
 
 //__________________________________________________________________________________________________________________
 
-Bool_t KVBase::FindExecutable(TString & exec, const Char_t * path)
+Bool_t KVBase::FindExecutable(TString& exec, const Char_t* path)
 {
    //By default, FindExecutable(exec) will look for the executable named by 'exec'
    //in the directories contained in the environment variable PATH. You can override
@@ -713,25 +715,25 @@ Bool_t KVBase::FindExecutable(TString & exec, const Char_t * path)
    //If 'exec' is an absolute pathname, we return kTRUE if the file exists
    //(we do not use 'path').
 
-   TString spath(path), backup(exec), backup2(exec),expandexec(exec);
+   TString spath(path), backup(exec), backup2(exec), expandexec(exec);
    gSystem->ExpandPathName(expandexec);
    if (gSystem->IsAbsoluteFileName(expandexec.Data())) {
       //executable given as absolute path
       //we check if it exists
-      if (!gSystem->AccessPathName(expandexec)){
+      if (!gSystem->AccessPathName(expandexec)) {
          exec = expandexec;
          return kTRUE;
       } else {
          //try with ".exe" in case of Windows system
-         if(!expandexec.EndsWith(".exe")){
+         if (!expandexec.EndsWith(".exe")) {
             expandexec += ".exe";
-            if (!gSystem->AccessPathName(expandexec)){
+            if (!gSystem->AccessPathName(expandexec)) {
                exec = expandexec;
                return kTRUE;
             }
          }
       }
-		exec=backup;
+      exec = backup;
       return kFALSE;
    }
    gSystem->ExpandPathName(spath);
@@ -744,18 +746,18 @@ Bool_t KVBase::FindExecutable(TString & exec, const Char_t * path)
          return kTRUE;
       }
    }
-	exec=backup2;
+   exec = backup2;
    return kFALSE;
 }
 
 //__________________________________________________________________________________________________________________
 
-const Char_t *KVBase::FindFile(const Char_t * search, TString & wfil)
+const Char_t* KVBase::FindFile(const Char_t* search, TString& wfil)
 {
    //Backwards compatible fix for TSystem::FindFile which only exists from 5.12/00 onwards
    //Use this method as a replacement for gSystem->FindFile (same arguments)
 #ifdef __WITHOUT_TSYSTEM_FINDFILE
-   Char_t *result = gSystem->Which(search, wfil.Data());
+   Char_t* result = gSystem->Which(search, wfil.Data());
    if (result) {
       wfil = result;
       delete[]result;
@@ -764,7 +766,7 @@ const Char_t *KVBase::FindFile(const Char_t * search, TString & wfil)
    }
    return wfil.Data();
 #else
-   return gSystem->FindFile(search,wfil);
+   return gSystem->FindFile(search, wfil);
 #endif
 }
 
@@ -780,7 +782,8 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    //By default we look in the current working directory, unless argument 'dir_name' is given
    //If found, the names of the two files are written in 'imp_file' and 'dec_file'
 
-   KVParameterList<int> impl_alt; int i=0;
+   KVParameterList<int> impl_alt;
+   int i = 0;
    impl_alt.SetParameter("%s.C", i);
    impl_alt.SetParameter("%s.cpp", i);
    impl_alt.SetParameter("%s.cxx", i);
@@ -789,22 +792,24 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    decl_alt.SetParameter("%s.hh", i);
    decl_alt.SetParameter("%s.H", i);
 
-   TString _dir_name = dir_name; gSystem->ExpandPathName(_dir_name);
+   TString _dir_name = dir_name;
+   gSystem->ExpandPathName(_dir_name);
    TSystemDirectory dir("LocDir", _dir_name.Data());
-   TList *lf = dir.GetListOfFiles();
-   Bool_t ok_imp, ok_dec; ok_imp = ok_dec = kFALSE;
+   TList* lf = dir.GetListOfFiles();
+   Bool_t ok_imp, ok_dec;
+   ok_imp = ok_dec = kFALSE;
 
    //look for implementation file
-   for(i=0; i<impl_alt.GetNPar(); i++){
-      if(lf->FindObject(Form( impl_alt.GetParameter(i)->GetName(), class_name ) )){
-         imp_file = Form( impl_alt.GetParameter(i)->GetName(), class_name );
+   for (i = 0; i < impl_alt.GetNPar(); i++) {
+      if (lf->FindObject(Form(impl_alt.GetParameter(i)->GetName(), class_name))) {
+         imp_file = Form(impl_alt.GetParameter(i)->GetName(), class_name);
          ok_imp = kTRUE;
       }
    }
    //look for header file
-   for(i=0; i<decl_alt.GetNPar(); i++){
-      if(lf->FindObject(Form( decl_alt.GetParameter(i)->GetName(), class_name ) )){
-         dec_file = Form( decl_alt.GetParameter(i)->GetName(), class_name );
+   for (i = 0; i < decl_alt.GetNPar(); i++) {
+      if (lf->FindObject(Form(decl_alt.GetParameter(i)->GetName(), class_name))) {
+         dec_file = Form(decl_alt.GetParameter(i)->GetName(), class_name);
          ok_dec = kTRUE;
       }
    }
@@ -829,23 +834,23 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
    //Most of the code is copied from TPluginManager::LoadHandlersFromEnv
 
    TIter next(gEnv->GetTable());
-   TEnvRec *er;
+   TEnvRec* er;
    static TString tmp;
 
    while ((er = (TEnvRec*) next())) {
-      const char *s;
+      const char* s;
       if ((s = strstr(er->GetName(), "Plugin."))) {
          // use s, i.e. skip possible OS and application prefix to Plugin.
          // so that GetValue() takes properly care of returning the value
          // for the specified OS and/or application
-         const char *val = gEnv->GetValue(s, (const char*)0);
+         const char* val = gEnv->GetValue(s, (const char*)0);
          if (val) {
             Int_t cnt = 0;
             s += 7;
             //is it the right base class ?
-            if( strcmp(s , base) ) continue;//skip to next env var if not right base
+            if (strcmp(s , base)) continue; //skip to next env var if not right base
 
-            char *v = StrDup(val);
+            char* v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
                if (regexp.IsNull()) break;
@@ -856,12 +861,13 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
                TString ctor = strtok(0, ";\"");
                if (!ctor.Contains("("))
                   ctor = strtok(0, ";\"");
-               if( clss == derived ) {
+               if (clss == derived) {
                   //found the required plugin
                   //we remove the 'regexp' operator '^' from the beginning
                   //and '$' from the end of the URI, if necessary
-                  if(regexp.MaybeRegexp()){
-                     regexp.Remove(TString::kBoth, '^'); regexp.Remove(TString::kBoth, '$');
+                  if (regexp.MaybeRegexp()) {
+                     regexp.Remove(TString::kBoth, '^');
+                     regexp.Remove(TString::kBoth, '$');
                   }
                   tmp = regexp;
                   delete [] v;
@@ -882,28 +888,28 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
 const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
 {
    // Return whitespace-separated list of all plugin classes defined for
-	// the given base class.
+   // the given base class.
    //
    // Most of the code is copied from TPluginManager::LoadHandlersFromEnv
 
    TIter next(gEnv->GetTable());
-   TEnvRec *er;
+   TEnvRec* er;
    static TString tmp;
-	tmp = "";
+   tmp = "";
    while ((er = (TEnvRec*) next())) {
-      const char *s;
+      const char* s;
       if ((s = strstr(er->GetName(), "Plugin."))) {
          // use s, i.e. skip possible OS and application prefix to Plugin.
          // so that GetValue() takes properly care of returning the value
          // for the specified OS and/or application
-         const char *val = gEnv->GetValue(s, (const char*)0);
+         const char* val = gEnv->GetValue(s, (const char*)0);
          if (val) {
             Int_t cnt = 0;
             s += 7;
             //is it the right base class ?
-            if( strcmp(s , base) ) continue;//skip to next env var if not right base
+            if (strcmp(s , base)) continue; //skip to next env var if not right base
 
-            char *v = StrDup(val);
+            char* v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
                if (regexp.IsNull()) break;
@@ -914,15 +920,16 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
                TString ctor = strtok(0, ";\"");
                if (!ctor.Contains("("))
                   ctor = strtok(0, ";\"");
-					tmp += clss; tmp += " ";
+               tmp += clss;
+               tmp += " ";
                cnt++;
             }
             delete [] v;
          }
       }
    }
-	//remove final trailing whitespace
-	tmp.Remove(TString::kTrailing,' ');
+   //remove final trailing whitespace
+   tmp.Remove(TString::kTrailing, ' ');
    return tmp;
 }
 
@@ -930,57 +937,58 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
 
 void KVBase::ReadGUIMimeTypes()
 {
-	// Add to standard ROOT mime types some new ones defined in .kvrootrc
-	// for icons associated with graphs, runs, etc. by lines such as:
-	//
-	//  KaliVeda.GUI.MimeTypes :   KVIDMap
-	//  KaliVeda.GUI.MimeTypes.KVIDMap.Icon :   rootdb_t.xpm
-	//  +KaliVeda.GUI.MimeTypes :   KVIDZAGrid
-	//  KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
-	//
-	// etc.
+   // Add to standard ROOT mime types some new ones defined in .kvrootrc
+   // for icons associated with graphs, runs, etc. by lines such as:
+   //
+   //  KaliVeda.GUI.MimeTypes :   KVIDMap
+   //  KaliVeda.GUI.MimeTypes.KVIDMap.Icon :   rootdb_t.xpm
+   //  +KaliVeda.GUI.MimeTypes :   KVIDZAGrid
+   //  KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
+   //
+   // etc.
 
-	KVString mimetypes = gEnv->GetValue("KaliVeda.GUI.MimeTypes","");
-	if(mimetypes!=""){
+   KVString mimetypes = gEnv->GetValue("KaliVeda.GUI.MimeTypes", "");
+   if (mimetypes != "") {
 
-		mimetypes.Begin(" ");
-		while( !mimetypes.End() ){
+      mimetypes.Begin(" ");
+      while (!mimetypes.End()) {
 
-			KVString classname = mimetypes.Next(kTRUE);
-			KVString icon = gEnv->GetValue( Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
-			KVString type = classname; type.ToLower();
+         KVString classname = mimetypes.Next(kTRUE);
+         KVString icon = gEnv->GetValue(Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
+         KVString type = classname;
+         type.ToLower();
 
-			if(gClient) gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
-					classname.Data(), icon.Data(), icon.Data(), "");
+         if (gClient) gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]", type.Data()),
+                  classname.Data(), icon.Data(), icon.Data(), "");
 
-		}
-	}
+      }
+   }
 }
-   
+
 //__________________________________________________________________________________________________________________
 #ifdef WITH_GRULIB
 Int_t KVBase::TestPorts(Int_t port)
 {
    // Test ports for availability. Start from 'port' and go up to port+2000 at most.
    // Returns -1 if no ports available.
-   
-	GNetClientRoot testnet((char*) "localhost");
-	Int_t ret;
-	ret = port;
 
-	for (int i = 0; i < 2000; i++) {
-		ret = testnet.TestPortFree(port, (char*) "localhost");
-		if (ret > 0)
-			break;
-		if ((ret <= 0))
-			port++;
-	}
+   GNetClientRoot testnet((char*) "localhost");
+   Int_t ret;
+   ret = port;
 
-	return ret;
-   
+   for (int i = 0; i < 2000; i++) {
+      ret = testnet.TestPortFree(port, (char*) "localhost");
+      if (ret > 0)
+         break;
+      if ((ret <= 0))
+         port++;
+   }
+
+   return ret;
+
 }
 #endif
-   
+
 Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
 {
    // Comparison between two 64-bit floating-point values
@@ -997,121 +1005,120 @@ Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
       Double_t f;
       Long64_t i;
    } zero, val1, val2;
-   
-   assert( maxdif > 0 );
-   
+
+   assert(maxdif > 0);
+
    if (A == B) return true;
-   
+
    /* rustine to obtain the (64-bit) constant value 0x8000000000000000
       even on 32-bit machines (there is probably an easier way!)      */
    zero.i = 1;
    zero.f = -zero.f;
    zero.i -= 1;
-   
+
    val1.f = A;
    val2.f = B;
    Long64_t Aint, Bint;
    Aint = val1.i;
    Bint = val2.i;
-   if(Aint < 0) Aint = zero.i - Aint;
-   if(Bint < 0) Bint = zero.i - Bint;
-   
+   if (Aint < 0) Aint = zero.i - Aint;
+   if (Bint < 0) Bint = zero.i - Bint;
+
    Long64_t intDiff = abs(val1.i - val2.i);
 
-    if (intDiff <= maxdif) return true;
+   if (intDiff <= maxdif) return true;
 
-    return false;
+   return false;
 }
 
-Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj, const char *alt_method_name)
+Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj, const char* alt_method_name)
 {
-    // Open context menu for given method of object *obj.
-    // By default title of menu is 'obj->ClassName()::method'
-    // You can give an alternative method name in 'alt_method_name'
-    // Returns kFALSE if the given method is not defined for the class of object in question.
-    //
-    // WARNING: even if this method returns kTRUE, this is no guarantee that the method
-    // has indeed been executed. The user may have pressed the 'Cancel' button...
+   // Open context menu for given method of object *obj.
+   // By default title of menu is 'obj->ClassName()::method'
+   // You can give an alternative method name in 'alt_method_name'
+   // Returns kFALSE if the given method is not defined for the class of object in question.
+   //
+   // WARNING: even if this method returns kTRUE, this is no guarantee that the method
+   // has indeed been executed. The user may have pressed the 'Cancel' button...
 
    TMethod* m = obj->IsA()->GetMethodAllAny(method);
-   if(!m)
-     {
-     obj->Warning("OpenContextMenu","%s is not a method of %s",method,obj->ClassName());
-     return kFALSE;
-     }
-   TString Method=alt_method_name;
-   if(Method=="") Method=method;
-   TContextMenu * cm = new TContextMenu(Method, Form("%s::%s",obj->ClassName(),Method.Data()));
-   cm->Action(obj,m);
+   if (!m) {
+      obj->Warning("OpenContextMenu", "%s is not a method of %s", method, obj->ClassName());
+      return kFALSE;
+   }
+   TString Method = alt_method_name;
+   if (Method == "") Method = method;
+   TContextMenu* cm = new TContextMenu(Method, Form("%s::%s", obj->ClassName(), Method.Data()));
+   cm->Action(obj, m);
    delete cm;
    return kTRUE;
 }
 
-void KVBase::CombineFiles(const Char_t *file1, const Char_t *file2, const Char_t *newfilename, Bool_t keep)
+void KVBase::CombineFiles(const Char_t* file1, const Char_t* file2, const Char_t* newfilename, Bool_t keep)
 {
-    // STATIC method which allows to combine the contents of two ROOT files
-    // (file1 and file2) into a new ROOT file (newfilename).
-    // All objects from the two files will be written in the new file.
-    //
-    // if keep=kFALSE, the two files will be deleted after the operation
+   // STATIC method which allows to combine the contents of two ROOT files
+   // (file1 and file2) into a new ROOT file (newfilename).
+   // All objects from the two files will be written in the new file.
+   //
+   // if keep=kFALSE, the two files will be deleted after the operation
 
-    ::Info("KVBase::CombineFiles", "Copying all objects from %s and %s ===> into new file %s", file1, file2, newfilename);
-    TFile* f1 = TFile::Open(file1);
-    TList objL1;//list of objects in file 1
-    TList treeL1;//list of trees in file 1
-    TIter next(f1->GetListOfKeys());
-    TKey*key;
-    while( (key=(TKey*)next()) ){
-        if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TDirectory")){//avoid subdirectories!
-            if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TTree"))
-                objL1.Add(f1->Get(key->GetName()));
-            else
-                treeL1.Add(f1->Get(key->GetName()));
-        }
-    }
-    TFile* f2 = TFile::Open(file2);
-    TList objL2;//list of objects in file 2
-    TList treeL2;//list of trees in file 2
-    TIter next2(f2->GetListOfKeys());
-    while( (key=(TKey*)next2()) ){
-        if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TDirectory")){//avoid subdirectories!
-            if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TTree"))
-                objL2.Add(f2->Get(key->GetName()));
-            else
-                treeL2.Add(f2->Get(key->GetName()));
-        }
-    }
-    TFile* newfile = new TFile(newfilename, "recreate");
-    objL1.Execute("Write", "");
-    objL2.Execute("Write", "");
-    if(treeL1.GetEntries()){
-        TIter nxtT(&treeL1);
-        TTree* t;
-        while( (t = (TTree*)nxtT()) ) t->CloneTree(-1,"fast")->Write();
-    }
-    if(treeL2.GetEntries()){
-        TIter nxtT(&treeL2);
-        TTree* t;
-        while( (t = (TTree*)nxtT()) ) t->CloneTree(-1,"fast")->Write();
-    }
-    newfile->Close();
-    f1->Close();
-    f2->Close();
-    if(!keep){
-        gSystem->Unlink(file1);
-        gSystem->Unlink(file2);
-    }
+   ::Info("KVBase::CombineFiles", "Copying all objects from %s and %s ===> into new file %s", file1, file2, newfilename);
+   TFile* f1 = TFile::Open(file1);
+   TList objL1;//list of objects in file 1
+   TList treeL1;//list of trees in file 1
+   TIter next(f1->GetListOfKeys());
+   TKey* key;
+   while ((key = (TKey*)next())) {
+      if (!TClass::GetClass(key->GetClassName(), kFALSE, kTRUE)->InheritsFrom("TDirectory")) {//avoid subdirectories!
+         if (!TClass::GetClass(key->GetClassName(), kFALSE, kTRUE)->InheritsFrom("TTree"))
+            objL1.Add(f1->Get(key->GetName()));
+         else
+            treeL1.Add(f1->Get(key->GetName()));
+      }
+   }
+   TFile* f2 = TFile::Open(file2);
+   TList objL2;//list of objects in file 2
+   TList treeL2;//list of trees in file 2
+   TIter next2(f2->GetListOfKeys());
+   while ((key = (TKey*)next2())) {
+      if (!TClass::GetClass(key->GetClassName(), kFALSE, kTRUE)->InheritsFrom("TDirectory")) {//avoid subdirectories!
+         if (!TClass::GetClass(key->GetClassName(), kFALSE, kTRUE)->InheritsFrom("TTree"))
+            objL2.Add(f2->Get(key->GetName()));
+         else
+            treeL2.Add(f2->Get(key->GetName()));
+      }
+   }
+   TFile* newfile = new TFile(newfilename, "recreate");
+   objL1.Execute("Write", "");
+   objL2.Execute("Write", "");
+   if (treeL1.GetEntries()) {
+      TIter nxtT(&treeL1);
+      TTree* t;
+      while ((t = (TTree*)nxtT())) t->CloneTree(-1, "fast")->Write();
+   }
+   if (treeL2.GetEntries()) {
+      TIter nxtT(&treeL2);
+      TTree* t;
+      while ((t = (TTree*)nxtT())) t->CloneTree(-1, "fast")->Write();
+   }
+   newfile->Close();
+   f1->Close();
+   f2->Close();
+   if (!keep) {
+      gSystem->Unlink(file1);
+      gSystem->Unlink(file2);
+   }
 }
 
-TObject *KVBase::GetObject()
+TObject* KVBase::GetObject()
 {
-    // Dummy method (returns NULL).
-    // This method may be used in 'container' classes used with KVListView.
-    // In order to open the context menu of the 'contained' object,
-    // GetLabel() should return the real class of the object,
-    // and this method should return its address.
-    // Then call KVListView::SetUseObjLabelAsRealClass(kTRUE).
-    return NULL;
+   // Dummy method (returns NULL).
+   // This method may be used in 'container' classes used with KVListView.
+   // In order to open the context menu of the 'contained' object,
+   // GetLabel() should return the real class of the object,
+   // and this method should return its address.
+   // Then call KVListView::SetUseObjLabelAsRealClass(kTRUE).
+   return NULL;
 }
 
 
