@@ -6,13 +6,7 @@
 #include "TEnv.h"
 #include "TSystem.h"
 #include "TClass.h"
-#ifdef __WITHOUT_TMACRO
-#warning "KVDataSelector source files can not be automatically backed-up \
-with this version of ROOT (no TMacro class). If you lose the sources for your \
-selection, you will not be able to regenerate them."
-#else
 #include "TMacro.h"
-#endif
 #include "TROOT.h"
 #include "KVBase.h"
 #include "KVDataSet.h"
