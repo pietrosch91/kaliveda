@@ -109,6 +109,7 @@
 /usr/include/kaliveda/KVUpDater.h
 /usr/include/kaliveda/KVGeoImport.h
 /usr/include/kaliveda/KVReconstructedNucleus.h
+/usr/include/kaliveda/KVElasticCountRates.h
 /usr/include/kaliveda/KVEventFiltering.h
 /usr/include/kaliveda/KVRawDataAnalyser.h
 /usr/include/kaliveda/KVElasticScatter.h
