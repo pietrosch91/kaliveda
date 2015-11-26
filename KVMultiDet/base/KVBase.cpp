@@ -1197,6 +1197,16 @@ TObject* KVBase::GetObject() const
 }
 
 
+const Char_t* KVBase::GetExampleFilePath(const Char_t* library, const Char_t* namefile)
+{
+   // Return full path to example file for given library (="KVMultiDet", "BackTrack", etc.)
+   static TString path;
+   path = KVBase::GetDATADIRFilePath("examples/");
+   path += library;
+   path += "/";
+   path += namefile;
+   return path.Data();
+}
 
 
 
