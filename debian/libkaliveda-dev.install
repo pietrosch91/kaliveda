@@ -1,3 +1,9 @@
+/usr/share/kaliveda/examples/base_kvbase.C
+/usr/share/kaliveda/examples/base_kvnumberlist.C
+/usr/share/kaliveda/examples/ClassTraj.cpp
+/usr/share/kaliveda/examples/ClassTraj.h
+/usr/share/kaliveda/examples/KVGenPhaseSpace_example2.C
+/usr/share/kaliveda/examples/KVGenPhaseSpace_example.C
 /usr/lib/libKVMultiDetanalysis.so
 /usr/lib/libKVMultiDetdata_management.so
 /usr/lib/libKVMultiDetparticles.so
