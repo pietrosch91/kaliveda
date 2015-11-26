@@ -166,7 +166,7 @@ if(USE_FITLTG)
 endif()
 
 #--- BackTrack package for model parameter optimisation
-option(USE_BACKTRACK "Build BackTrack package" OFF)
+option(USE_BACKTRACK "Build BackTrack backtracing statistical analysis package" OFF)
 if(USE_BACKTRACK)
 	#---check if roofit is available
 	if(NOT ROOT_roofit_FOUND)
@@ -174,11 +174,11 @@ if(USE_BACKTRACK)
       set(USE_BACKTRACK OFF CACHE BOOL "" FORCE)
    endif()
 endif()
-add_feature_info(backtrack USE_BACKTRACK "Build BackTrack package")
+add_feature_info(backtrack USE_BACKTRACK "Build BackTrack backtracing statistical analysis package")
 
 #--- MicroStat package for calculating event statistical weights
-option(USE_MICROSTAT "Build MicroStat package" OFF)
-add_feature_info(microstat USE_MICROSTAT "Build MicroStat package")
+option(USE_MICROSTAT "Build MicroStat package for event generation using statistical weights" OFF)
+add_feature_info(microstat USE_MICROSTAT "Build MicroStat package for event generation using statistical weights")
 
 #--- Libraries for INDRA data
 option(USE_INDRA "Build libraries for analysis of INDRA data" OFF)
