@@ -1,11 +1,12 @@
-kaliveda (1.10.5-0ubuntu3) UNRELEASED; urgency=medium
+kaliveda (1.10.5-0ubuntu4) UNRELEASED; urgency=medium
 
   * New release v1.10/05
   * add new class KVElasticCountRates
   * add examples to packaging
   * add MicroStat package in libkaliveda-microstat & libkaliveda-microstat-dev
+  * correct paths for examples
 
- -- John Frankland <frankland@ganil.fr>  Thu, 26 Nov 2015 17:57:38 +0100
+ -- John Frankland <frankland@ganil.fr>  Fri, 27 Nov 2015 11:06:34 +0100
 
 kaliveda (1.10.4-0ubuntu1) wily; urgency=medium
 
