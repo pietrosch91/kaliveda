@@ -122,7 +122,7 @@ for etc in $etcfiles; do
    echo "/usr/share/kaliveda/etc/$etc" >> $install_file
 done
 for exmpl in $exmplfiles; do
-   echo "/usr/share/kaliveda/examples/$exmpl" >> $dev_install_file
+   echo "/usr/share/kaliveda/examples/$3/$exmpl" >> $dev_install_file
 done
 for lib in $devlibs; do
    echo "/$lib" >> $dev_install_file
