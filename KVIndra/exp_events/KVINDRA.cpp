@@ -540,8 +540,7 @@ KVINDRADetector* KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type)
 
 //_______________________________________________________________________________________
 
-void KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e,
-                              TCollection* idtels)
+void KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* idtels)
 {
    //Override KVASMultiDetArray method for special case of "etalon" modules:
    //we need to add ChIo-CsI identification telescope by hand
@@ -551,9 +550,6 @@ void KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e,
    if (de->InheritsFrom("KVSiLi") && e->InheritsFrom("KVCsI")) {
       KVChIo* chio = (KVChIo*)((KVINDRADetector*)e)->GetChIo();
       if (chio) {
-         /*printf("chio=%p\n",(TObject*)chio);
-         printf("chio-class=%s\n",((TObject*)chio)->ClassName());
-         chio->Print("all");*/
          KVASMultiDetArray::GetIDTelescopes(chio, e, idtels);
       }
    }

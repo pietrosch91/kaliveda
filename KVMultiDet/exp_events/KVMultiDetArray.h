@@ -70,8 +70,16 @@ protected:
    virtual void MakeListOfDetectors();
    virtual void SetACQParams();
 
-   virtual void set_up_telescope(KVDetector* de, KVDetector* e, TCollection* idtels, KVIDTelescope* idt, TString& uri);
-   virtual void set_up_single_stage_telescope(KVDetector* det, TCollection* idtels, KVIDTelescope* idt, TString& uri);
+   virtual void GetIDTelescopes(KVDetector*, KVDetector*, TCollection* list);
+
+   int try_all_doubleID_telescopes(KVDetector* de, KVDetector* e, TCollection* l);
+   bool try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDetector* e, TCollection* l);
+   bool try_upper_and_lower_doubleIDtelescope(TString uri, KVDetector* de, KVDetector* e, TCollection* l);
+   int try_all_singleID_telescopes(KVDetector* d, TCollection* l);
+   bool try_a_singleIDtelescope(TString uri, KVDetector* d, TCollection* l);
+   bool try_upper_and_lower_singleIDtelescope(TString uri, KVDetector* d, TCollection* l);
+   virtual void set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* l);
+   virtual void set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l);
 
    virtual void SetCalibrators();
    virtual void SetDetectorThicknesses();
@@ -108,8 +116,6 @@ public:
 
    virtual void Build(Int_t run = -1);
    virtual void CreateIDTelescopesInGroups();
-
-   virtual void GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
    virtual void Clear(Option_t* opt = "");
 

@@ -160,12 +160,11 @@ void KVMultiDetArray::Build(Int_t)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e,
-                                      TCollection* idtels)
+void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* list)
 {
-   //Create a KVIDTelescope from the two detectors and add it to the list.
+   // Create one or more KVIDTelescope particle-identification objects from the two detectors
    //
-   //The different ID telescopes are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
+   // The different ID telescopes are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
    // # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
    // # create KVIDTelescope instances adapted to the specific array geometry and detector types.
    // # For each pair of detectors we look for a plugin with one of the following names:
@@ -179,137 +178,194 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e,
    // #    [name_of_dataset].e_detector_type[e detector thickness]
    // # then we add also an instance of this 1-detector identification telescope.
    //
-   //This method is called by KVGroup in order to set up all ID telescopes
-   //of the array.
+   // This method is called by DeduceIdentificationTelescopesFromGeometry
+   // in order to set up all ID telescopes of the array.
+   //
+   // Returns number of ID telescopes created
 
+   Int_t ntels = 0;
    // if both detectors are not OK then stop
    if (!de->IsOK() && !e->IsOK()) return;
-   // if only de-detector is not OK then set up single stage telscope with e-detector
-   if (!de->IsOK()) de = e;
-   // else if only e-detector  is not OK then set up single stage telscope with de-detector
-   else if (!e->IsOK()) e = de;
-   // else both detectors are OK then explore all the possiblilities!
-
-   TString sde = "", se = "";
-   if (de->IsOK()) sde = de->GetName();
-   if (e->IsOK()) se = e->GetName();
-
-   KVIDTelescope* idt = 0;
 
    if (fDataSet == "" && gDataSet) fDataSet = gDataSet->GetName();
-   Int_t de_thick = TMath::Nint(de->GetThickness());
-   Int_t e_thick = TMath::Nint(e->GetThickness());
 
-   //first we look for ID telescopes specific to current dataset
-   //these are ID telescopes formed from two distinct detectors
-   TString uri;
    //look for ID telescopes with only one of the two detectors
-   uri.Form("%s", e->GetType());
-   if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-      set_up_single_stage_telescope(e, idtels, idt, uri);
-   }
+   if (de->IsOK()) ntels += try_all_singleID_telescopes(de, list);
+   if (e->IsOK() && de != e) ntels += try_all_singleID_telescopes(e, list);
 
-   uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
-            de_thick);
-   if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-      set_up_single_stage_telescope(de, idtels, idt, uri);
-   } else {
-      uri.Form("%s.%s", fDataSet.Data(), de->GetType());
-      if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-         set_up_single_stage_telescope(de, idtels, idt, uri);
-      } else {
-         uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
-                  e_thick);
-         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-            set_up_single_stage_telescope(e, idtels, idt, uri);
-         } else {
-            uri.Form("%s.%s", fDataSet.Data(), e->GetType());
-            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-               set_up_single_stage_telescope(e, idtels, idt, uri);
-            } else {
-               uri.Form("%s%d", de->GetType(), de_thick);
-               if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                  set_up_single_stage_telescope(de, idtels, idt, uri);
-               } else {
-                  uri.Form("%s", de->GetType());
-                  if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                     set_up_single_stage_telescope(de, idtels, idt, uri);
-                  } else {
-                     uri.Form("%s%d", e->GetType(), e_thick);
-                     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                        set_up_single_stage_telescope(e, idtels, idt, uri);
-                     } else {
-                        uri.Form("%s", e->GetType());
-                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                           set_up_single_stage_telescope(e, idtels, idt, uri);
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
-   idt = 0;
-   if (de != e) {
-      uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
-               de_thick, e->GetType(),
-               e_thick);
-      if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-         set_up_telescope(de, e, idtels, idt, uri);
-      } else {
-         uri.Form("%s.%s%d-%s", fDataSet.Data(), de->GetType(),
-                  de_thick, e->GetType());
-         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-            set_up_telescope(de, e, idtels, idt, uri);
-         } else {
-            uri.Form("%s.%s-%s%d", fDataSet.Data(), de->GetType(), e->GetType(),
-                     e_thick);
-            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-               set_up_telescope(de, e, idtels, idt, uri);
-            } else {
-               uri.Form("%s.%s-%s", fDataSet.Data(), de->GetType(), e->GetType());
-               if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                  set_up_telescope(de, e, idtels, idt, uri);
-               } else {
-                  //now we look for generic ID telescopes
-                  uri.Form("%s%d-%s%d", de->GetType(), de_thick,
-                           e->GetType(), e_thick);
-                  if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                     set_up_telescope(de, e, idtels, idt, uri);
-                  } else {
-                     uri.Form("%s%d-%s", de->GetType(), de_thick,
-                              e->GetType());
-                     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                        set_up_telescope(de, e, idtels, idt, uri);
-                     } else {
-                        uri.Form("%s-%s%d", de->GetType(), e->GetType(),
-                                 e_thick);
-                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                           set_up_telescope(de, e, idtels, idt, uri);
-                        } else {
-                           uri.Form("%s-%s", de->GetType(), e->GetType());
-                           if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-                              set_up_telescope(de, e, idtels, idt, uri);
-                           } else {
-                              // Make a generic de-e identification telescope
-                              idt = new KVIDTelescope;
-                              set_up_telescope(de, e, idtels, idt, uri);
-                           }
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
+   if (de != e && e->IsOK() && de->IsOK()) ntels += try_all_doubleID_telescopes(de, e, list);
 
 }
 
-void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, TCollection* idtels, KVIDTelescope* idt, TString&)
+Int_t KVMultiDetArray::try_all_singleID_telescopes(KVDetector* d, TCollection* l)
 {
-   //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
+   // Attempt to find a plugin KVIDTelescope class for making a single-detector
+   // ID telescope from detector *d
+   // We look for plugins with the following signatures (uri):
+   //
+   //       [type]
+   //       [type][thickness]
+   //
+   // where 'type' is the type of the detector in UPPER or lowercase letters
+   // 'thickness' is the nearest-integer thickness of the detector as returned by d->GetThickness()
+   // In addition, if a dataset is set (gDataSet!=nullptr) we try also for dataset-specific
+   // plugins:
+   //
+   //       [dataset].[type]
+   //       [dataset].[type][thickness]
+   //
+   // Returns number of generated telescopes
+
+   TString uri = d->GetType();
+   Int_t ntels = 0;
+   if (!(ntels += try_upper_and_lower_singleIDtelescope(uri, d, l))) {
+      Int_t d_thick = TMath::Nint(d->GetThickness());
+      uri += d_thick;
+      ntels += try_upper_and_lower_singleIDtelescope(uri, d, l);
+   }
+   return ntels;
+}
+
+
+Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e, TCollection* l)
+{
+   // Attempt to find a plugin KVIDTelescope class for making an ID telescope from detectors de & e.
+   // We look for plugins with the following signatures (uri):
+   //
+   //       [de-type]-[e-type]
+   //       [de-type][thickness]-[e-type]
+   //       [de-type]-[e-type][thickness]
+   //       [de-type][thickness]-[e-type][thickness]
+   //
+   // where 'type' is the type of the detector in UPPER or lowercase letters
+   // 'thickness' is the nearest-integer thickness of the detector.
+   // In addition, if a dataset is set (gDataSet!=nullptr) we try also for dataset-specific
+   // plugins:
+   //
+   //       [dataset].[de-type]-[e-type]
+   //       [dataset].[de-type][thickness]-[e-type]
+   //       [dataset].[de-type]-[e-type][thickness]
+   //       [dataset].[de-type][thickness]-[e-type][thickness]
+   //
+   // if no plugin is found, we return a KVIDTelescope base class object
+   //
+   // Returns 1 (we always generate exactly one telescope)
+
+   TString de_type = de->GetType();
+   TString e_type = e->GetType();
+   TString de_thick = Form("%d", TMath::Nint(de->GetThickness()));
+   TString e_thick = Form("%d", TMath::Nint(e->GetThickness()));
+
+   TString uri = de_type + "-" + e_type;
+   if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
+
+   uri = de_type + de_thick + "-" + e_type;
+   if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
+
+   uri = de_type + "-" + e_type + e_thick;
+   if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
+
+   uri = de_type + de_thick + "-" + e_type + e_thick;
+   if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
+
+   // default id telescope object
+   KVIDTelescope* idt = new KVIDTelescope;
+   uri = de_type + "-" + e_type;
+   idt->SetLabel(uri);
+   set_up_telescope(de, e, idt, l);
+
+   return 1;
+}
+
+bool KVMultiDetArray::try_upper_and_lower_singleIDtelescope(TString uri, KVDetector* d, TCollection* l)
+{
+   // Attempt to find a plugin KVIDTelescope class for making a single-detector
+   // ID telescope from detector *d with the given signature/uri
+   // Both original & all-upper-case versions of uri are tried.
+   // uri is tried both with & without prepended dataset name (if set)
+   // Returns true if successful (the new ID telescope will be added to internal
+   // list fIDTelescopes and also to TCollection* l)
+
+   if (try_a_singleIDtelescope(uri, d, l)) return true;
+   uri.ToUpper();
+   return try_a_singleIDtelescope(uri, d, l);
+}
+
+bool KVMultiDetArray::try_upper_and_lower_doubleIDtelescope(TString uri, KVDetector* de, KVDetector* e, TCollection* l)
+{
+   // Attempt to find a plugin KVIDTelescope class for making an ID telescope with the given signature/uri
+   // Both original & all-upper-case versions of uri are tried.
+   // uri is tried both with & without prepended dataset name (if set)
+   // Returns true if successful (the new ID telescope will be added to internal
+   // list fIDTelescopes and also to TCollection* l)
+
+   if (try_a_doubleIDtelescope(uri, de, e, l)) return true;
+   uri.ToUpper();
+   return try_a_doubleIDtelescope(uri, de, e, l);
+}
+
+bool KVMultiDetArray::try_a_singleIDtelescope(TString uri, KVDetector* d, TCollection* l)
+{
+   // Attempt to find a plugin KVIDTelescope class for making a single-detector
+   // ID telescope from detector *d with the given signature/uri
+   // Both original & all-upper-case versions of uri are tried.
+   // uri is tried both with & without prepended dataset name (if set)
+   // Returns true if successful (the new ID telescope will be added to internal
+   // list fIDTelescopes and also to TCollection* l)
+
+   // dataset-specific version takes precedence over default
+   TString duri = uri;
+   if (gDataSet) {
+      // try with dataset name
+      duri.Prepend(Form("%s.", fDataSet.Data()));
+      KVIDTelescope* idt;
+      if ((idt = KVIDTelescope::MakeIDTelescope(duri))) {
+         set_up_single_stage_telescope(d, idt, l);
+         return true;
+      }
+   }
+
+   // look for default version
+   KVIDTelescope* idt;
+   if ((idt = KVIDTelescope::MakeIDTelescope(uri))) {
+      set_up_single_stage_telescope(d, idt, l);
+      return true;
+   }
+
+   return false;
+}
+
+bool KVMultiDetArray::try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDetector* e, TCollection* l)
+{
+   // Attempt to find a plugin KVIDTelescope class for making an ID telescope with the given signature/uri
+   // uri is tried both with & without prepended dataset name (if set)
+   // Returns true if successful (the new ID telescope will be added to internal
+   // list fIDTelescopes and also to TCollection* l)
+
+   // dataset-specific version takes precedence over default
+   TString duri = uri;
+   if (gDataSet) {
+      // try with dataset name
+      duri.Prepend(Form("%s.", fDataSet.Data()));
+      KVIDTelescope* idt;
+      if ((idt = KVIDTelescope::MakeIDTelescope(duri))) {
+         set_up_telescope(de, e, idt, l);
+         return true;
+      }
+   }
+   // look for default version
+   KVIDTelescope* idt;
+   if ((idt = KVIDTelescope::MakeIDTelescope(uri))) {
+      set_up_telescope(de, e, idt, l);
+      return true;
+   }
+
+   return false;
+}
+
+void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* idtels)
+{
+   // Set up detectors in de-e identification telescope and add to idtels
 
    idt->AddDetector(de);
    idt->AddDetector(e);
@@ -325,8 +381,10 @@ void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, TCollectio
    }
 }
 
-void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, TCollection* idtels, KVIDTelescope* idt, TString&)
+void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* idtels)
 {
+   // Set up detector in single-stage identification telescope and add to idtels
+
    idt->AddDetector(det);
    idt->SetGroup(det->GetGroup());
    if (idtels->FindObject(idt->GetName())) {
@@ -335,7 +393,6 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, TCollection
       idtels->Add(idt);
    }
 }
-
 //______________________________________________________________________________________
 void KVMultiDetArray::CreateIDTelescopesInGroups()
 {

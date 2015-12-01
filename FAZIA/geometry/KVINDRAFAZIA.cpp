@@ -68,22 +68,6 @@ void KVINDRAFAZIA::Build(Int_t)
    imp.ImportGeometry(0.25, 1, 2., 0, 14);
 }
 
-void KVINDRAFAZIA::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* idtels)
-{
-   // Add some ID telescopes for FAZIA array
-
-   KVINDRA::GetIDTelescopes(de, e, idtels);
-
-   TString dename = de->GetName();
-   if (dename.BeginsWith("SI1")) {
-      TString uri = "Si1";
-      KVIDTelescope* idt;
-      if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
-         set_up_single_stage_telescope(de, idtels, idt, uri);
-      }
-   }
-}
-
 void KVINDRAFAZIA::BuildFAZIACompact()
 {
    Info("BuildFAZIA", "Compact geometry, %f cm from target, theta-min=%f deg.",
