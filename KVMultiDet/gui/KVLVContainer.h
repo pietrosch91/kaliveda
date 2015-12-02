@@ -53,7 +53,7 @@ public:
       fMethCall = new TMethodCall(cl, fMethod.Data(), "");
       if (!fMethCall->IsValid()) {
          std::cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
-                   << " is not valid" << std::endl;
+                   << " is not valid for class " << cl->GetName() << std::endl;
       }
       fRetType = (Int_t)fMethCall->ReturnType();
       fDataFormat = "";
@@ -69,6 +69,9 @@ public:
          default:
             break;
       }
+      if (!strcmp(fMethCall->GetMethod()->GetReturnTypeName(), "bool")
+            || !strcmp(fMethCall->GetMethod()->GetReturnTypeName(), "Bool_t")) fIsBoolean = kTRUE;
+      else fIsBoolean = kFALSE;
    };
    virtual ~KVLVColumnData()
    {

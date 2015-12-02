@@ -34,6 +34,7 @@ public:
 
    Int_t eN;
    Int_t status;
+   bool good_bisection;
 
    UShort_t eLightSi;
    UShort_t eLightCsI;
@@ -97,12 +98,17 @@ public:
 
    KVDetector* kvd_gap;
 
+   Int_t entries;
+   KVIDGrid* tmpGrid;
    KVList* list;
+
    KVIDGraph* kvid;
-   KVList* list_chiosi;
    KVIDGraph* kvid_chiosi;
-   KVList* list_sitof;
    KVIDGraph* kvid_sitof;
+   KVIDGraph* kvid_cutscode2;
+   KVIDGraph* kvid_chiov2;
+   KVIDGraph* kvid_qaq;
+   KVIDGraph* kvid_qaq_chiosi;
 
    KVDetector* gap;
    KVDetector* si;
@@ -136,13 +142,12 @@ public:
    void InitTelescope(Int_t, Int_t);
    void InitTelescopeChioSi(Int_t, Int_t);
    void InitTelescopeSiTof(Int_t);
+   void InitCode2Cuts(Float_t);
+   void InitChioV2(Int_t);
+   void InitQStraight(Int_t);
+   void InitQStraight_chiosi(Int_t);
 
    void InitSiCsI(Int_t);
-   //void SetCalSi(Float_t,Float_t,Float_t);
-   //void SetCsIPed(Float_t);
-   //void SetCalCsI(Float_t,Float_t,Float_t);
-
-   //void CalculateCanalCsI();
 
    void SetCalibration(Sive503*, CsIv*, Int_t, Int_t);
 
@@ -154,11 +159,8 @@ public:
 
    void CalculateESi(Double_t);   //UShort_t
    void Bisection(Int_t, Double_t);  //UShort_t
-   //void ECsIch(Double_t);
    Double_t BisectionLight(Double_t , Double_t , Double_t);
-   void CompleteSimulation(Double_t);   //UShort_t
-   //void CalculateECsI();
-   //void SimulateEvent();
+   void CompleteSimulation();  //UShort_t
 
    void Interpolate();
    Double_t GetInterpolationD(Double_t, Double_t, Double_t, Double_t, Double_t);

@@ -205,9 +205,9 @@ void KVSelector::Init(TTree* tree)
    b_data = 0;
    fChain->SetBranchAddress(fBranchName.Data() , &data, &b_data);
 
-   //
-   // Builds a TEventList by adding the contents of the lists for each run
-   //
+//
+// Builds a TEventList by adding the contents of the lists for each run
+//
    BuildEventList();
    if (fKVDataSelector) {       // Init of the KVDataSelector if needed
       fKVDataSelector->Init();
@@ -250,14 +250,17 @@ Bool_t KVSelector::Notify()
       }
       fKVDataSelector->Reset(nrun);
    }
-   cout << endl << " == == == == == == == == == =  New Run  == == == == == == == == == = " << endl << endl;
+
+   cout << endl << " ===================  New Run  =================== " <<
+        endl << endl;
+
    fCurrentRun->Print();
    if (fCurrentRun->GetSystem()) {
       if (fCurrentRun->GetSystem()->GetKinematics())
          fCurrentRun->GetSystem()->GetKinematics()->Print();
    }
 
-   cout << endl << " == == == == == == == == == == == == == == == == == == == == == == == == = " <<
+   cout << endl << " ================================================= " <<
         endl << endl;
 
    // Retrieving the pointer to the raw data tree
@@ -265,9 +268,9 @@ Bool_t KVSelector::Notify()
    // Retrieving the pointer to the gene tree
    fGeneData = (TTree*) fChain->GetCurrentFile()->Get("GeneData");
    if (!fGeneData) {
-      cout << "  -- > No pulser & laser data for this run !!!" << endl << endl;
+      cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
    } else {
-      cout << "  -- > Pulser & laser data tree contains " << fGeneData->GetEntries()
+      cout << "  --> Pulser & laser data tree contains " << fGeneData->GetEntries()
            << " events" << endl << endl;
    }
 
@@ -281,6 +284,7 @@ Bool_t KVSelector::Notify()
    Info("Notify", "Data written with series %s, release %d",
         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries().Data(),
         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber());
+
    InitRun();                   //user initialisations for run
    gDataAnalyser->postInitRun();
    return kTRUE;
@@ -312,8 +316,8 @@ void KVSelector::SlaveBegin(TTree*)
 
    /*    Init(tree);
 
-   TString option = GetOption();
-   */
+      TString option = GetOption();
+    */
 }
 
 #ifdef __WITHOUT_TSELECTOR_LONG64_T
@@ -361,7 +365,8 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    //calculate momenta of particles in reaction cm frame
    if (fCurrentRun->GetSystem() && fCurrentRun->GetSystem()->GetKinematics()) {
 
-      GetEvent()->SetFrame("CM", fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
+      GetEvent()->SetFrame("CM",
+                           fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
 
    }
 
@@ -381,7 +386,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       TString mes("End of run after ");
       mes += (totentry);
       mes += " events.";
-      Info("Process", " %s", mes.Data());
+      Info("Process", "%s", mes.Data());
 
       gDataAnalyser->preEndRun();
       EndRun();                 //user routine end of run
@@ -423,16 +428,16 @@ void KVSelector::Terminate()
       SaveCurrentDataSelection();
    }
 
-   cout << endl << " == == == == == == == == == == == END == == == == == == == == == == == " <<
+   cout << endl << " ====================== END ====================== " <<
         endl << endl;
    cout << "   Total number of events read     = " << totentry << endl;
    cout << "   Real time = " << fTimer->RealTime() << " sec." << endl;
    cout << "    CPU time = " << fTimer->CpuTime() << " sec." << endl;
-   cout << "   Events / Real sec. = " << totentry /
+   cout << "   Events/Real sec. = " << totentry /
         fTimer->RealTime() << endl;
-   cout << "    Events / CPU sec. = " << totentry /
+   cout << "    Events/CPU sec. = " << totentry /
         fTimer->CpuTime() << endl;
-   cout << endl << " == == == == == == == == == == == END == == == == == == == == == == == " <<
+   cout << endl << " ====================== END ====================== " <<
         endl << endl;
 
    if (fEvtList) {
@@ -505,7 +510,7 @@ KVVarGlob* KVSelector::AddGV(const Char_t* class_name,
    //
    //"class_name" must be the name of a valid class inheriting from KVVarGlob, e.g. any of the default global
    //variable classes defined as part of the standard KaliVeda package (in libKVvVarGlob.so). See
-   //"Class Reference" page on website for the available classes (listed by category under "Global Variables : ...").
+   //"Class Reference" page on website for the available classes (listed by category under "Global Variables: ...").
    //
    //USER-DEFINED GLOBAL VARIABLES
    //The user may use her own global variables in an analysis class, without having to add them to the main libraries.
@@ -535,17 +540,16 @@ KVVarGlob* KVSelector::AddGV(const Char_t* class_name,
       TPluginHandler* ph = KVBase::LoadPlugin("KVVarGlob", class_name);
       if (!ph) {
          //not found
-         Error("AddGV(const Char_t*, const Char_t*)",
-               "Called with class_name = %s.\nClass is unknown : not in standard libraries, and plugin(user - defined class) not found",
+         Error("AddGV(const Char_t*,const Char_t*)",
+               "Called with class_name=%s.\nClass is unknown: not in standard libraries, and plugin (user-defined class) not found",
                class_name);
          return 0;
       } else {
          vg = (KVVarGlob*) ph->ExecPlugin(0);
       }
-
    } else if (!clas->InheritsFrom("KVVarGlob")) {
-      Error("AddGV(const Char_t*, const Char_t*)",
-            " %s is not a valid class deriving from KVVarGlob.",
+      Error("AddGV(const Char_t*,const Char_t*)",
+            "%s is not a valid class deriving from KVVarGlob.",
             class_name);
       return 0;
    } else {
@@ -608,10 +612,10 @@ Long64_t KVSelector::GetTreeEntry() const
 //____________________________________________________________________________
 void KVSelector::BuildEventList(void)
 {
-   //
-   // Builds the event list of the TChain by adding the event lists of each TTree.
-   // The event list contain the entry number of the TChain
-   //
+//
+// Builds the event list of the TChain by adding the event lists of each TTree.
+// The event list contain the entry number of the TChain
+//
 
    if (fEvtList) {
       fEvtList->Reset();
@@ -763,6 +767,13 @@ void KVSelector::LoadDataSelector(void)
          TString fileC(Form("%s.cpp", fDataSelector.Data()));
          TString fileh(Form("%s.h", fDataSelector.Data()));
 
+#ifdef __WITHOUT_TMACRO
+         if (gSystem->AccessPathName(fileC.Data()) || gSystem->AccessPathName(fileh.Data())) {
+            Warning("LoadDataSelector(void)",
+                    Form
+                    ("No implementation and/or declaration file found for \"%s\".",
+                     fDataSelector.Data()));
+#else
          TMacro mC;
          if (!mC.ReadFile(fileC.Data()) || !mC.ReadFile(fileh.Data())) {
 
@@ -798,6 +809,7 @@ void KVSelector::LoadDataSelector(void)
                fileDataSelector->Close();
                dataselector_lock.Release();
             }
+#endif
          } else {
             cout << "Files " << fileC.Data() << " and " << fileh.Data() <<
                  " found." << endl;
@@ -883,6 +895,7 @@ void KVSelector::SaveCurrentDataSelection(void)
            GetN() << " entries selected." << endl;
       fKVDataSelector->GetTEventList()->Write();
 
+#ifndef __WITHOUT_TMACRO
       TObject
       * oC =
          fileDataSelector->
@@ -905,6 +918,7 @@ void KVSelector::SaveCurrentDataSelection(void)
                       fKVDataSelector->IsA()->GetName()));
          mh.Write();
       }
+#endif
 
       cout << "Done" << endl;
       fileDataSelector->Close();

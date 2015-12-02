@@ -16,8 +16,6 @@
  ***************************************************************************/
 
 #include "KVIDSiCorrCsI.h"
-#include "KVIdentificationResult.h"
-#include "KVDataSet.h"
 
 ClassImp(KVIDSiCorrCsI)
 
@@ -47,11 +45,20 @@ void KVIDSiCorrCsI::Initialize()
    // This method MUST be called once before any identification is attempted.
    // IsReadyForID() will return kTRUE if KVTGID objects are associated
    // to this telescope for the current run.
+   //
+   // This method deducts also X and Y thresholds from VarX and VarY (see GetThresholdFromVar( varX/varY ).
 
    fSi  = (KVSilicon*)GetDetector(1);
    fCsI = (KVCsI*)GetDetector(2);
 
    Bool_t ok = fSi && fCsI && GetListOfIDFunctions().GetEntries();
+
+   if (ok) {
+      KVTGID* idf = (KVTGID*)GetListOfIDFunctions().First();
+      fThresholdX = GetThesholdFromVar(idf->GetVarX());
+      fThresholdY = GetThesholdFromVar(idf->GetVarY());
+//    Info("Initialize","Thresholds for %s: X= %f, Y= %f", GetName(), fThresholdX, fThresholdY);
+   }
 
    SetBit(kReadyForID, ok);
 }
@@ -118,9 +125,9 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
    Double_t Z = -1.;
 
-   const Bool_t inRange = (0. < X) && (0. < Y) && (Y < 4090.);
+   const Bool_t inRange = (fThresholdX < X) && (fThresholdY < Y) && (Y < 4090.);
 
-   if (inRange) Z = IdentZ(GetName(), X, Y, funLTG_Z, ""); //IdentZ(this, funLTG_Z, "", "");
+   if (inRange) Z = IdentZ(this, funLTG_Z, "", "");
    else return kFALSE;
 
    //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
@@ -142,7 +149,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
    //is mass identification a possibility ?
    if (iz < 9) {
 
-      mass = IdentA(GetName(), X, Y, funLTG_A, "", iz); //IdentA(this, funLTG_A, "", "", iz);
+      mass = IdentA(this, funLTG_A, "", "", iz);
 
       if (GetStatus() != KVTGIDManager::kStatus_OK) {    //mass ID not good ?
 
@@ -178,7 +185,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
             Int_t iz2 = (ia < 2 * iz ? iz - 1 : iz + 1);
             if (iz2 > 0) {
                Double_t old_funLTG_A = funLTG_A;
-               Double_t new_mass = IdentA(GetName(), X, Y, funLTG_A, "", iz2); //IdentA(this, funLTG_A, "", "", iz2);
+               Double_t new_mass = IdentA(this, funLTG_A, "", "", iz2);
                // is this a better solution ?
                if (GetStatus() == KVTGIDManager::kStatus_OK) {
                   Int_t new_ia = TMath::Nint(new_mass);
@@ -218,7 +225,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 }
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray*)
+Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 {
    //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
    //kind (label) in the multidetector array. Therefore this method need only be called once, and not
@@ -277,4 +284,20 @@ void KVIDSiCorrCsI::PrintFitParameters()
    }
 
    std::cout << "----------------- END-----------------------" << std::endl;
+}
+//__________________________________________________________________________//
+
+Double_t KVIDSiCorrCsI::GetThesholdFromVar(const Char_t* var)
+{
+   // returns the threshold deduced from VarX or VarY.
+   // If the string 'var' contains the character '>', we consider
+   // that the threshold is given in the string after this character.
+
+   TString thresh = var;
+   Int_t idx = thresh.Index(">");
+   if (idx > -1) {
+      thresh.Remove(0, idx + 1);
+      return (thresh.IsFloat() ? thresh.Atof() : 0.);
+   }
+   return 0.;
 }

@@ -1,9 +1,10 @@
 //Created by KVClassFactory on Fri Nov  2 14:11:36 2012
 //Author: Guilain ADEMARD
+//// modified Feb. 20 2014 Marie-France Rivet
 
 #include "KVIDSi75SiLi_e494s.h"
-#include "KVIdentificationResult.h"
-#include "KVDataSet.h"
+#include "KVACQParam.h"
+
 
 ClassImp(KVIDSi75SiLi_e494s)
 
@@ -41,6 +42,12 @@ void KVIDSi75SiLi_e494s::Initialize()
    fSiLi  = (KVINDRADetector*)GetDetector(2);
 
    Bool_t ok = fSi75 && fSiLi && GetListOfIDFunctions().GetEntries();
+   if (ok) {
+      KVTGID* idf = (KVTGID*)GetListOfIDFunctions().First();
+      fThresholdX = GetThesholdFromVar(idf->GetVarX());
+      fThresholdY = GetThesholdFromVar(idf->GetVarY());
+//    Info("Initialize","Thresholds for %s: X= %f, Y= %f", GetName(), fThresholdX, fThresholdY);
+   }
 
    SetBit(kReadyForID, ok);
 }
@@ -53,9 +60,10 @@ Double_t KVIDSi75SiLi_e494s::GetIDMapX(Option_t* opt)
    // associated with the Si75-SiLi identification telescope.
    // The X-coordinate is the SiLi current low gain coder data minus the
    // low gain pedestal correction (see KVACQParam::GetDeltaPedestal()).
-   // If the high gain coder data is less than 3900 the the low gain value
+   // If the high gain coder data is less than 3900 the  low gain value
    // is calculated from the current high gain coder data minus the high
    // gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
+
 
    return GetIDMapXY(fSiLi , opt);
 }
@@ -68,7 +76,7 @@ Double_t KVIDSi75SiLi_e494s::GetIDMapY(Option_t* opt)
    // associated with the Si75-SiLi identification telescope.
    // The Y-coordinate is the Si75 current low gain coder data minus the
    // low gain pedestal correction (see KVACQParam::GetDeltaPedestal()).
-   // If the high gain coder data is less than 3900 the the low gain value
+   // If the high gain coder data is less than 3900 the low gain value
    // is calculated from the current high gain coder data minus the high
    // gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
 
@@ -101,6 +109,8 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
    //is deduced from Z using the default mass formula of class KVNucleus.
    //
    // Note that optional arguments (x,y) for testing identification are not used.
+   // We use the presence of the MT to check that SiLi is really stopping.
+   // MFR march 2014
 
    Double_t X = (x < 0. ? GetIDMapX() : x);
    Double_t Y = (y < 0. ? GetIDMapY() : y);
@@ -120,10 +130,16 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
    // set general ID code
    IDR->IDcode = fIDCode;
 
-   const Bool_t inRange = (0. < X) && (X < 4090.) && (0. < Y) && (Y < 4090.);
+   KVACQParam* pmt = (KVACQParam*)fSiLi->GetACQParam("T");  // MFR
+   Short_t MTSiLi = pmt->GetCoderData();                    // MFR
 
-   if (inRange) Z = IdentZ(GetName(), X, Y, funLTG_Z, ""); //Z = IdentZ(this, funLTG_Z, "", "");
-   else return kFALSE;
+   const Bool_t inRange = (fThresholdX < X) && (X < 4090.) && (fThresholdY < Y) && (Y < 4090.) && (MTSiLi > 0); // MFR
+
+   if (inRange) Z = IdentZ(this, funLTG_Z, "", "");
+   else {
+      IDR->IDOK = kFALSE;                 // MFR
+      return kFALSE;
+   }
 
    //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
    IDR->IDquality = GetStatus();
@@ -144,7 +160,7 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
    //is mass identification a possibility ?
    if (iz < 9) {
 
-      mass = IdentA(GetName(), X, Y, funLTG_A, "", iz); //IdentA(this, funLTG_A, "", "", iz);
+      mass = IdentA(this, funLTG_A, "", "", iz);
 
       if (GetStatus() != KVTGIDManager::kStatus_OK) {    //mass ID not good ?
 
@@ -180,7 +196,7 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
             Int_t iz2 = (ia < 2 * iz ? iz - 1 : iz + 1);
             if (iz2 > 0) {
                Double_t old_funLTG_A = funLTG_A;
-               Double_t new_mass = IdentA(GetName(), X, Y, funLTG_A, "", iz2); //IdentA(this, funLTG_A, "", "", iz2);
+               Double_t new_mass = IdentA(this, funLTG_A, "", "", iz2);
                // is this a better solution ?
                if (GetStatus() == KVTGIDManager::kStatus_OK) {
                   Int_t new_ia = TMath::Nint(new_mass);
@@ -220,7 +236,7 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
 }
 //__________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_e494s::SetIdentificationParameters(const KVMultiDetArray*)
+Bool_t KVIDSi75SiLi_e494s::SetIdentificationParameters(const KVMultiDetArray* MDA)
 {
    //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
    //kind (label) in the multidetector array. Therefore this method need only be called once, and not
@@ -254,4 +270,19 @@ void KVIDSi75SiLi_e494s::RemoveIdentificationParameters()
    //Delete any KVTGID objects associated with this identification telescope
    RemoveAllTGID();
 }
+//__________________________________________________________________________//
 
+Double_t KVIDSi75SiLi_e494s::GetThesholdFromVar(const Char_t* var)
+{
+   // returns the threshold deduced from VarX or VarY.
+   // If the string 'var' contains the character '>', we consider
+   // that the threshold is given in the string after this character.
+
+   TString thresh = var;
+   Int_t idx = thresh.Index(">");
+   if (idx > -1) {
+      thresh.Remove(0, idx + 1);
+      return (thresh.IsFloat() ? thresh.Atof() : 0.);
+   }
+   return 0.;
+}

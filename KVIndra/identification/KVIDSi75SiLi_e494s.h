@@ -10,9 +10,14 @@
 
 class KVIDSi75SiLi_e494s : public KVIDSi75SiLi, public KVRTGIDManager {
 
+protected:
+
    KVINDRADetector* fSi75; //!
    KVINDRADetector* fSiLi; //!
+   Double_t fThresholdX; //!
+   Double_t fThresholdY; //!
 
+   Double_t GetThesholdFromVar(const Char_t* var);
    Double_t GetIDMapXY(KVINDRADetector* det, Option_t* opt = "");
 
 public:

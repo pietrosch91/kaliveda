@@ -81,10 +81,13 @@ public:
    void SetTel2(KVDetector* gap);
    void SetTel3(KVDetector* csi);
 
-   TList* fcoup;
-   TList* fcoup2;
+   /*TList *fcoup;
+   TList *fcoup2;
+   TList *fcoup3;
+   */
    void SetFileCut(TList* list);
    void SetFileCutChioSi(TList* list2);
+   void SetFileCutSiTof(TList* list3);
 
    void SetTarget(KVTarget* tgt);
    void SetDC1(KVDetector* dcv1);
@@ -95,6 +98,22 @@ public:
    void SetSi(KVMaterial* ssi);
    void SetGap2(KVMaterial* isogap2);
    void SetCsI(KVMaterial* ccsi);
+
+   virtual void SetAngleVamos(Float_t angle)
+   {
+      if (RC) RC->SetAngleVamos(angle);
+   };
+   virtual void SetBrhoRef(Float_t brho)
+   {
+      if (RC) RC->SetBrhoRef(brho);
+      if (Id) Id->SetBrhoRef(brho);
+   };
+
+   virtual void SetCurrentRun(Int_t run)
+   {
+      if (Si) Si->SetOffsetRelativisteRun(run);
+   }
+
 
    ClassDef(Analysisv_e503, 0) //VAMOS calibration for e503
 

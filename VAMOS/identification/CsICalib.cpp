@@ -80,6 +80,16 @@ CsICalib::CsICalib(LogFile* Log, Sive503* SiD)
    kvt_sicsi = 0;
    lum = 0;
 
+   list = 0;
+   list = (KVList*) gIDGridManager->GetGrids();
+   if (list == 0) {
+      cout << "list = 0 in CsICalib" << endl;
+      entries = 0;
+   } else {
+      cout << "list not null" << endl;
+      entries = (Int_t) list->GetEntries();
+      cout << "entries : " << entries << endl;
+   }
 }
 
 CsICalib::~CsICalib()
@@ -118,36 +128,31 @@ KVDetector* CsICalib::GetTel3(void)
    return ccsi;
 }
 
-void CsICalib::InitTelescopeSiTof(Int_t si_num)
+void CsICalib::InitChioV2(Int_t ci_num)
 {
 
    Char_t tel_name [128] = "null";
-   sprintf(tel_name, "SIE%i_TOF", si_num + 1);
+   sprintf(tel_name, "CI_V2_%02i", ci_num); //1-7
 
-   list_sitof = 0;
-//    KVList *grid_list = 0;
-   kvid_sitof = 0;
+   kvid_chiov2 = 0;
    KVNumberList runList = 0;
 
-   list_sitof = (KVList*) gIDGridManager->GetGrids();
+   if (list != 0) {
 
-   if (list_sitof != 0) {
-      Int_t entries = (Int_t) list_sitof->GetEntries();
-//    Int_t kHasGrids = 0;
-
-      KVIDGrid* tmpGrid = 0;
-//    Int_t nGridsForRun = 0;
+      tmpGrid = 0;
 
       for (Int_t i = 0; i < entries; i++) {
-         tmpGrid = (KVIDGrid*) list_sitof->At(i);
+         tmpGrid = (KVIDGrid*) list->At(i);
          if (tmpGrid != 0) {
             runList = (KVNumberList) tmpGrid->GetRuns();
             runList.Begin();
             while (!runList.End()) {
                UInt_t next_val = (UInt_t) runList.Next();
                if (next_val == gIndra->GetCurrentRunNumber()) {
+                  //cout<<"tel name : "<<tmpGrid->GetName()<<endl;
                   if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
-                     kvid_sitof = tmpGrid;
+                     kvid_chiov2 = tmpGrid;
+                     break;
                   }
                }
 
@@ -156,14 +161,193 @@ void CsICalib::InitTelescopeSiTof(Int_t si_num)
       }
 
 
-      if (kvid_chiosi != 0) {
+      if (kvid_chiov2 == 0) {
 
-      } else {
-         printf("Error: 'kvid_sitof' assignment failed\n");
+         printf("Error: 'kvid_chiov2' assignment failed\n");
          cout << "name : " << tel_name << endl;
       }
-   } else {
-      //printf("Error: 'list' assignment failed\n");
+
+
+   }
+
+
+}
+
+void CsICalib::InitQStraight_chiosi(Int_t chionum)
+{
+
+   Char_t tel_name [128] = "null";
+   sprintf(tel_name, "Q_AQ_CI%02d", chionum);
+
+   kvid_qaq_chiosi = 0;
+   KVNumberList runList = 0;
+
+   if (list != 0) {
+
+      tmpGrid = 0;
+
+      for (Int_t i = 0; i < entries; i++) {
+         tmpGrid = (KVIDGrid*) list->At(i);
+         if (tmpGrid != 0) {
+            runList = (KVNumberList) tmpGrid->GetRuns();
+            runList.Begin();
+            while (!runList.End()) {
+               UInt_t next_val = (UInt_t) runList.Next();
+               if (next_val == gIndra->GetCurrentRunNumber()) {
+                  //cout<<"tel name : "<<tmpGrid->GetName()<<endl;
+                  if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
+                     kvid_qaq_chiosi = tmpGrid;
+                     break;
+                  }
+               }
+
+            }
+         }
+      }
+
+
+      if (kvid_qaq_chiosi == 0) {
+
+         printf("Error: 'kvid_qaq_chiosi' assignment failed\n");
+         cout << "name : " << tel_name << endl;
+      }
+
+
+   }
+
+
+   return;
+}
+
+void CsICalib::InitQStraight(Int_t csinum)
+{
+
+   Char_t tel_name [128] = "null";
+   sprintf(tel_name, "Q_AQ_CSI%02d", csinum);
+
+   kvid_qaq = 0;
+   KVNumberList runList = 0;
+
+   if (list != 0) {
+
+      tmpGrid = 0;
+
+      for (Int_t i = 0; i < entries; i++) {
+         tmpGrid = (KVIDGrid*) list->At(i);
+         if (tmpGrid != 0) {
+            runList = (KVNumberList) tmpGrid->GetRuns();
+            runList.Begin();
+            while (!runList.End()) {
+               UInt_t next_val = (UInt_t) runList.Next();
+               if (next_val == gIndra->GetCurrentRunNumber()) {
+                  //cout<<"tel name : "<<tmpGrid->GetName()<<endl;
+                  if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
+                     kvid_qaq = tmpGrid;
+                     break;
+                  }
+               }
+
+            }
+         }
+      }
+
+
+      if (kvid_qaq == 0) {
+
+         printf("Error: 'kvid_qaq' assignment failed\n");
+         cout << "name : " << tel_name << endl;
+      }
+
+
+   }
+
+
+   return;
+}
+
+void CsICalib::InitCode2Cuts(Float_t brho0)
+{
+
+   Char_t tel_name [128] = "null";
+   sprintf(tel_name, "SIE_TOF_%04.0f", brho0 * 1000.);
+   //sprintf(tel_name, "SIE_TOF_1401");
+
+   kvid_cutscode2 = 0;
+   KVNumberList runList = 0;
+
+   if (list != 0) {
+
+      tmpGrid = 0;
+
+      for (Int_t i = 0; i < entries; i++) {
+         tmpGrid = (KVIDGrid*) list->At(i);
+         if (tmpGrid != 0) {
+            runList = (KVNumberList) tmpGrid->GetRuns();
+            runList.Begin();
+            while (!runList.End()) {
+               UInt_t next_val = (UInt_t) runList.Next();
+               if (next_val == gIndra->GetCurrentRunNumber()) {
+                  //cout<<"tel name : "<<tmpGrid->GetName()<<endl;
+                  if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
+                     kvid_cutscode2 = tmpGrid;
+                     break;
+                  }
+               }
+
+            }
+         }
+      }
+
+
+      if (kvid_cutscode2 == 0) {
+
+         printf("Error: 'kvid_cutscode2' assignment failed\n");
+         cout << "name : " << tel_name << endl;
+      }
+
+
+   }
+
+
+}
+
+void CsICalib::InitTelescopeSiTof(Int_t si_num)
+{
+
+   Char_t tel_name [128] = "null";
+   sprintf(tel_name, "SIE_%02i_TOF", si_num + 1);
+
+   kvid_sitof = 0;
+   KVNumberList runList = 0;
+
+   if (list != 0) {
+
+      tmpGrid = 0;
+
+      for (Int_t i = 0; i < entries; i++) {
+         tmpGrid = (KVIDGrid*) list->At(i);
+         if (tmpGrid != 0) {
+            runList = (KVNumberList) tmpGrid->GetRuns();
+            runList.Begin();
+            while (!runList.End()) {
+               UInt_t next_val = (UInt_t) runList.Next();
+               if (next_val == gIndra->GetCurrentRunNumber()) {
+                  if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
+                     kvid_sitof = tmpGrid;
+                     break;
+                  }
+               }
+
+            }
+         }
+      }
+
+
+      if (kvid_sitof == 0) {
+
+         //printf("Error: 'kvid_sitof' assignment failed\n");
+         //cout<<"name : "<<tel_name<<endl;
+      }
    }
 
    return;
@@ -179,57 +363,44 @@ void CsICalib::InitTelescopeChioSi(Int_t ci_num, Int_t si_num)
    sprintf(ci_name, "CI_%02i", ci_num);
 
    Char_t tel_name [128] = "null";
-   //sprintf(tel_name, "CI_%02i_SIE_%02i", ci_num, si_num+1);
-   sprintf(tel_name, "CI_01_SIE_18"); //Similar grids (using energies) for all Chio-Si combinaisons
-   //cout<<"tel_name 1: "<<tel_name<<endl;
+   sprintf(tel_name, "CI_%02i_SIE_%02i", ci_num, si_num + 1);
 
-   list_chiosi = 0;
-//    KVList *grid_list = 0;
    kvid_chiosi = 0;
    KVNumberList runList = 0;
 
-   list_chiosi = (KVList*) gIDGridManager->GetGrids();
+   //cout<<"Inside Init Telescope Chio-Si"<<endl;
+   if (list != 0) {
 
-   if (list_chiosi != 0) {
-      //cout<<"list_chiosi!=0"<<endl;
-      Int_t entries = (Int_t) list_chiosi->GetEntries();
-//    Int_t kHasGrids = 0;
-
-      KVIDGrid* tmpGrid = 0;
-//    Int_t nGridsForRun = 0;
-
+      tmpGrid = 0;
       for (Int_t i = 0; i < entries; i++) {
-         tmpGrid = (KVIDGrid*) list_chiosi->At(i);
+         tmpGrid = (KVIDGrid*) list->At(i);
          if (tmpGrid != 0) {
-            //cout<<"tmpGrid!=0"<<endl;
             runList = (KVNumberList) tmpGrid->GetRuns();
             runList.Begin();
+
             while (!runList.End()) {
                UInt_t next_val = (UInt_t) runList.Next();
                if (next_val == gIndra->GetCurrentRunNumber()) {
-                  //cout<<"next_val : "<<next_val<<endl;
-                  //L->Log<<"name : "<<tmpGrid->GetName()<<endl;
                   if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
-                     //L->Log<<"tel_name 2 : "<<tmpGrid->GetName()<<endl;
-                     //cout<<"tel_name 2: "<<tel_name<<endl;
                      kvid_chiosi = tmpGrid;
+
                   }
                }
 
             }
+         } else {
+            cout << "tmpGrid =0" << endl;
          }
       }
 
 
       if (kvid_chiosi != 0) {
-
+         //cout<<"Found kvid_chiosi in list"<<endl;
+         //cout<<"Name : "<<kvid_chiosi->GetName()<<endl;
       } else {
-         printf("Error: 'kvid_chiosi' assignment failed\n");
-         cout << "ci_num : " << ci_num << " si_num : " << si_num + 1 << endl;
-         cout << "name : " << tel_name << endl;
+         //printf("Error: 'kvid_chiosi' assignment failed\n");
+         //cout<<"ci_num : "<<ci_num<<" si_num : "<<si_num+1<<endl;
       }
-   } else {
-      //printf("Error: 'list' assignment failed\n");
    }
 
    return;
@@ -247,20 +418,15 @@ void CsICalib::InitTelescope(Int_t si_num , Int_t csi_num)
    Char_t tel_name [128] = "null";
    sprintf(tel_name, "SIE_%02i_CSI%02i", si_num + 1, csi_num + 1);
 
-   list = 0;
-//    KVList *grid_list = 0;
    kvid = 0;
    KVNumberList runList = 0;
 
-   list = (KVList*) gIDGridManager->GetGrids();
-
+   //list = (KVList*) gIDGridManager->GetGrids();
+   //cout<<"Inside Init Telescope Si-CsI"<<endl;
    if (list != 0) {
+      //cout<<"Found List"<<endl;
 
-      Int_t entries = (Int_t) list->GetEntries();
-//    Int_t kHasGrids = 0;
-
-      KVIDGrid* tmpGrid = 0;
-//    Int_t nGridsForRun = 0;
+      tmpGrid = 0;
 
       for (Int_t i = 0; i < entries; i++) {
          tmpGrid = (KVIDGrid*) list->At(i);
@@ -272,20 +438,24 @@ void CsICalib::InitTelescope(Int_t si_num , Int_t csi_num)
                if (next_val == gIndra->GetCurrentRunNumber()) {
                   if (strcmp(tmpGrid->GetName(), tel_name) == 0) {
                      kvid = tmpGrid;
+                     break;
                   }
                }
 
             }
          }
       }
-
+      //cout<<"I'm out!!"<<endl<<flush;
 
       if (kvid != 0) {
+         //cout<<"Found kvid in list"<<endl;
+         //cout<<"Name : "<<kvid->GetName()<<endl;
 
       } else {
+         //sprintf(tel_name, "null");
          /*printf("Error: 'kvid' assignment failed\n");
          cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl;
-         cout<<"name : "<<tel_name<<endl;*/
+         cout<<"name : "<<tel_name<<endl; */
       }
    } else {
       //printf("Error: 'list' assignment failed\n");
@@ -317,7 +487,7 @@ void CsICalib::InitSiCsI(Int_t number) // Si-CsI Telescope  # Si : 1 to 18
 void CsICalib::SetCalibration(Sive503* Si, CsIv* CsI, Int_t sinum, Int_t csinum)
 {
 
-   if (Si->E_RawM > 0) {
+   if (Si->EMSI > 0) {
       a = Si->ECoef[sinum][0];
       b = Si->ECoef[sinum][1];
       c = Si->ECoef[sinum][2];
@@ -326,8 +496,8 @@ void CsICalib::SetCalibration(Sive503* Si, CsIv* CsI, Int_t sinum, Int_t csinum)
    } else {
       a = b = c = alpha = 0.0;
    }
-   if (CsI->E_RawM > 0) {
-      ePied = CsI->Ped[csinum][0];
+   if (CsI->EMCSI > 0) {
+      ePied = CsI->Ped[csinum];
       a1 = CsI->ECoef[csinum][0];
       a2 = CsI->ECoef[csinum][1];
       a3 = CsI->ECoef[csinum][2];
@@ -367,18 +537,22 @@ void CsICalib::SetFragmentA(Int_t Ain)
 }
 
 //Complete procedure to get the best estimate of the residual energy
-Double_t CsICalib::GetResidualEnergyCsI(Double_t chsi, Double_t chcsi)     //UShort_t chsi, UShort_t chcsi
+Double_t CsICalib::GetResidualEnergyCsI(Double_t esi, Double_t chcsi)      //UShort_t chsi, UShort_t chcsi
 {
    Int_t A;
    A = 2 * eZ;
-   CalculateESi(chsi);
+   eEnergySi = esi;
 
-   LightCsI = chcsi - ePied;   //
+   LightCsI = chcsi - ePied;
    //L->Log<<"LightCsI = "<<LightCsI<<endl;
 
    Bisection(A, double(LightCsI));   //Call the bisection method
    Interpolate();        //Interpolation of ECsI and A values
-
+   if (sRefECsI <= 0) {
+      cout << "Z : " << eZ << "	A : " << RetrieveA() << "	light : " << LightCsI << endl;
+      cout << "sRefECsI : " << sRefECsI << endl;
+      cout << "********************" << endl;
+   }
    return sRefECsI;
 }
 
@@ -387,11 +561,17 @@ void CsICalib::CalculateESi(Double_t chan)   //UShort_t chan
 {
    Double_t fact = 1.;
    eEnergySi = fact * alpha * (a + chan * b + chan * chan * c);
+   if (eEnergySi <= 0) cout << "eEnergySi : " << eEnergySi << endl;
 }
 
 //Complete procedure for to get the energy losses from simulation
-void  CsICalib::CompleteSimulation(Double_t)    //UShort_t chan
+void  CsICalib::CompleteSimulation()   //UShort_t chan
 {
+
+   sEnergySi = 0.0;
+   sEnergyCsI = 0.0;
+   eEnergyCsI = 0.0;
+   eEnergyGap = 0.0;
 
    //L->Log<<"light before calculating : "<<LightCsI<<endl;
    eEnergyCsI = lum->Compute(LightCsI);          //Get the ECsI from the known (Z,A) and the calibration
@@ -400,9 +580,16 @@ void  CsICalib::CompleteSimulation(Double_t)    //UShort_t chan
    //L->Log<<"Invert : "<<lum->Invert(eEnergyCsI)<<endl;
    //L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl;     //" eEnergyGap=MeV "<<eEnergyGap<<endl; //paola
 
+   part.Clear();
    part.SetZ(eZ);
    part.SetA(sA);
-   Einc = eEnergySi + eEnergyGap + eEnergyCsI;      //taking into account the energy loss in gap
+   //Einc = eEnergySi+eEnergyGap+eEnergyCsI;           //taking into account the energy loss in gap
+
+   Double_t einc_isogap2 = 0.0;
+   einc_isogap2 = GetTel1()->GetEResFromDeltaE(eZ, sA, eEnergySi);
+   eEnergyGap = GetTel2()->GetDeltaE(eZ, sA, einc_isogap2);
+   Einc = eEnergySi + eEnergyGap + eEnergyCsI;
+
    part.SetEnergy(Einc);
 
    kvt_sicsi->DetectParticle(&part);       //Simulate the fragment through the telescope
@@ -411,11 +598,11 @@ void  CsICalib::CompleteSimulation(Double_t)    //UShort_t chan
    //L->Log<<"simualed energy Si : "<<GetTel1()->GetEnergy()<<endl;
    //L->Log<<"simualed energy gap : "<<GetTel2()->GetEnergy()<<endl;
    //L->Log<<"simualed energy CsI : "<<GetTel3()->GetEnergy()<<endl;
-   eEnergyGap = GetTel2()->GetEnergy();
+   //eEnergyGap = GetTel2()->GetEnergy();
 
-   CanalCsI = lum->Invert(double(eZ), double(sA), GetTel3()->GetEnergy());  //GetTel3()->GetEnergy()); kvd_csi->GetEnergy()
+   //CanalCsI=lum->Invert(double(eZ),double(sA),GetTel3()->GetEnergy());    //GetTel3()->GetEnergy()); kvd_csi->GetEnergy()
    //L->Log<<"Invert simulation: "<<CanalCsI<<endl;
-   difflum = (CanalCsI - LightCsI);
+   //difflum = (CanalCsI-LightCsI);
    //L->Log<<"difflum = "<<difflum<<endl; //paola
 
    sEnergySi = GetTel1()->GetEnergy();     //simulated ESi obtained from the Einc (ESi(calibration) + ECsI(Z,A known and calibration))
@@ -437,11 +624,12 @@ void  CsICalib::CompleteSimulation(Double_t)    //UShort_t chan
 void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
 {
    Int_t middle, it = 0;
+   good_bisection = kTRUE;
    //L->Log<<"------------"<<endl;
    //L->Log<<"Valeur de A : "<<A<<endl;
    //L->Log<<"Energy Si Reference :  "<<eEnergySi<<endl;
    if (A - 5 > 0)
-      left = A - 5.; //left and right are integer!! A is a double
+      left = A - 5; //left and right are integer!! A is a double
    else left = 1;
    right = A + 10;
    //L->Log<<"-----------------------------------BISECTION-------------------"<<endl;//paola
@@ -449,23 +637,50 @@ void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
 //new bisection method
 //=== Test
    SetFragmentA(left);
-   CompleteSimulation(chan);
+   CompleteSimulation();
    Int_t factor = 1;
    Double_t difference = 0.;
+   Double_t diffright = 0.;
    difference = eEnergySi - sEnergySi;
    if (difference > 0) {
       factor = -1;
    }
    difference *= factor;
-   //L->Log<<"A left : "<<left<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
+   //cout<<"A left : "<<left<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
 
    SetFragmentA(right);
-   CompleteSimulation(chan);
+   CompleteSimulation();
    difference = eEnergySi - sEnergySi;
+   if (difference > 0) good_bisection = kFALSE;
    difference *= factor;
-   //L->Log<<"A right : "<<right<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
+   diffright = difference;
+   //cout<<"A right : "<<right<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
    if (difference < 0) {
-      //L->Log<<"Bisection error"<<endl;
+      //cout<<"Bisection error"<<endl;
+      while (diffright < 0) {
+         //cout<<"Searching for new left value"<<endl;
+
+         if (left - 1 > 0) left = left - 1;
+         else left = 1;
+         //cout<<"left : "<<left<<endl;
+
+         SetFragmentA(left);
+         CompleteSimulation();
+         difference = eEnergySi - sEnergySi;
+         //cout<<"sEnergySi : "<<sEnergySi<<"   difference : "<<difference<<endl;
+         if (difference > 0) {
+            factor = -1;
+         }
+         diffright *= factor;
+         //cout<<"diffright : "<<diffright<<endl;
+         if (left == 1) {
+            cout << "Bisection error : Lower value of A not found" << endl;
+            good_bisection = kFALSE;
+
+            break;
+         }
+      }
+
    }
 // === End test
 
@@ -479,14 +694,14 @@ void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
 
       //simulated energies stored for middle A
       SetFragmentA(middle);
-      CompleteSimulation(chan);
+      CompleteSimulation();
       esi2 = sEnergySi;
       ecsi2 = sEnergyCsI;
 
 //new bisection method
 //=== Test
       difference = factor * (eEnergySi - sEnergySi);
-      //L->Log<<"difference : "<<difference<<endl;
+      //cout<<"difference : "<<difference<<endl;
       if (difference < 0) {
          left = middle;
       } else
@@ -499,25 +714,30 @@ void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
       else
       left=middle;*/
 
-      //L->Log<<"A2 (middle) :  "<<middle<<"   ESi2= "<<sEnergySi<<"   ECsI2=   "<<sEnergyCsI<<endl; //paola
+      //cout<<"A2 (middle) : "<<middle<<"   ESi2= "<<sEnergySi<<"   ECsI2=   "<<sEnergyCsI<<endl; //paola
 
       it++;
       //L->Log<<"----------------iteration= "<<it<<endl;
    }    //end of bisection loop
+   //cout<<"end of bisection loop"<<endl;
+   //cout<<"Aleft : "<<left<<" Aright : "<<right<<endl;
 
    //simulated energies for two values of A closest to the point of zero
    //difference between the simulated energy for Si and the one from calibration
    SetFragmentA(left);
-   CompleteSimulation(chan);
+   CompleteSimulation();
    esi1 = sEnergySi;
    ecsi1 = sEnergyCsI;
    //L->Log<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;
+   //cout<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;
 
    SetFragmentA(right);
-   CompleteSimulation(chan);
+   CompleteSimulation();
    esi2 = sEnergySi;
    ecsi2 = sEnergyCsI;
    //L->Log<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
+   //cout<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
+
 
 }
 
@@ -629,7 +849,8 @@ Double_t CsICalib::GetInterpolationD(Double_t x1, Double_t y1, Double_t x2, Doub
    Double_t y;
    slope = (y1 - y2) / (x1 - x2);
    y = slope * (x - x2) + y2;
-   //  cout<<"esi1="<<x1<<" ecsi1="<<y1<<" esi2="<<x2<<" ecsi2="<<y2<<" esi mis="<<x<<" ecsi interp="<<y<<endl; //paola
+   // cout<<"esi1="<<x1<<" ecsi1="<<y1<<" esi2="<<x2<<" ecsi2="<<y2<<" esi mis="<<x<<" ecsi interp="<<y; //paola
+   //cout<<"  slope : "<<slope<<endl;
 
    return y;
 }

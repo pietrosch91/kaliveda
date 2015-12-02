@@ -493,6 +493,23 @@ UShort_t KVVAMOSCodes::GetTCode()
 }
 //________________________________________________________________
 
+UShort_t KVVAMOSCodes::GetTCode(const Char_t* parnam)
+{
+   //This static method allows to get the T-code from the name of the acquisition
+   //parameter used for the time of flight of the nucleus reconstructed in VAMOS.
+   //
+   //for example:
+   //   GetTCode( "TSED1_HF" );
+
+   if (parnam) {
+      for (Int_t i = 0; i < fNToF; i++) {
+         if (!strcmp(parnam, fToFNames[i])) return (1 << (i + 1));
+      }
+   }
+   return 0;
+}
+//________________________________________________________________
+
 void KVVAMOSCodes::SetFPCode(UInt_t mask)
 {
    //Set Focal plan Position reconstruction code - the argument
@@ -519,15 +536,7 @@ void KVVAMOSCodes::SetTCode(const Char_t* parnam)
    //for example:
    //   vamos_code->SetTCode( "TSED1_HF" );
 
-   if (parnam) {
-      for (Int_t i = 0; i < fNToF; i++) {
-         if (!strcmp(parnam, fToFNames[i])) {
-            SetTCodeFromIndex(i + 1);
-            return;
-         }
-      }
-   }
-   SetTCode(kTCode0);
+   SetTCode(GetTCode(parnam));
 }
 //________________________________________________________________
 

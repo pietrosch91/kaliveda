@@ -4,6 +4,7 @@
 #include "KVVAMOSReconEvent.h"
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOS.h"
+#include "KVTarget.h"
 
 ClassImp(KVVAMOSReconEvent)
 
@@ -171,39 +172,6 @@ void KVVAMOSReconEvent::AcceptTCodes(UShort_t code)
 }
 //________________________________________________________________
 
-void KVVAMOSReconEvent::CalibrateEvent()
-{
-   // First, calculate and set energies of all identified nuclei in event.
-   // This is done by calling the KVReconstructeEvent::CalibrateEvent() method.
-   //
-   // Secondly, calculate and set the time and the distance of flight of the
-   // the appropriate nucleus of the event.
-   // If the multiplicity Mult=1 then time and distance is calculated
-   // for the unique nucleus of the event, else if M>1 they are claculated
-   // for the first identified and calibrated nucleus found in the event.
-   //
-   // The treatment of this last case has to be improved.
-
-   // Energy calibration
-   KVReconstructedEvent::CalibrateEvent();
-
-   // Time/Distance of Flight calibration
-   if (GetMult() == 1) GetNextNucleus()->SetFlightDistanceAndTime();
-   else {
-      // for event with mult>1 set time/distance of flight to the
-      // first identified and calibrated nucleus
-      KVVAMOSReconNuc* nuc = NULL;
-      while ((nuc = GetNextNucleus())) {
-         if (nuc->IsIdentified() && nuc->IsCalibrated()) {
-            nuc->SetFlightDistanceAndTime();
-            break;
-         }
-      }
-      ResetGetNextNucleus();
-   }
-}
-//________________________________________________________________
-
 KVVAMOSReconNuc* KVVAMOSReconEvent::GetNextNucleus(Option_t* opt)
 {
    //Use this method to iterate over the list of nuclei in the event.
@@ -235,19 +203,58 @@ KVVAMOSReconNuc* KVVAMOSReconEvent::GetNucleus(Int_t n_nuc) const
 }
 //________________________________________________________________
 
-void KVVAMOSReconEvent::IdentifyEvent_A()
+void KVVAMOSReconEvent::IdentAndCalibEvent()
 {
 
-   Warning("IdentifyEvent_A", "TO BE IMPLEMENTED");
-}
-//________________________________________________________________
-
-void KVVAMOSReconEvent::IdentifyEvent_Z()
-{
    //If the nuclei measured in VAMOS have not been previously Z-identified
    //it will be Z-identified.
 
-   KVReconstructedEvent::IdentifyEvent();
+   // In order to make sure that target energy loss corrections are correctly
+   // calculated, we first set the state of the target in the current multidetector
+
+   KVTarget* t = gMultiDetArray->GetTarget();
+   if (t) {
+      t->SetIncoming(kFALSE);
+      t->SetOutgoing(kTRUE);
+   }
+
+
+   KVVAMOSReconNuc* d;
+   while ((d = GetNextNucleus())) {
+
+      //-----------------------
+      // Z-identification
+      //-----------------------
+      if (!d->IsZidentified()) {
+         if (d->GetStatus() == KVReconstructedNucleus::kStatusOK) {
+            // identifiable particles
+            d->IdentifyZ();
+         } else if (d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
+            // particles stopped in first member of a telescope
+            // estimation of Z (minimum) from energy loss (if detector is calibrated)
+            UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
+            if (zmin) {
+               d->SetZ(zmin);
+               d->SetIsZidentified();
+               // "Identifying" telescope is taken from list of ID telescopes
+               // to which stopping detector belongs
+               d->SetIdentifyingTelescope((KVIDTelescope*)d->GetStoppingDetector()->GetIDTelescopes()->At(0));
+            }
+         }
+      }
+      //-----------------------
+      // Calibration
+      //-----------------------
+      if (d->IsZidentified() && !d->IsCalibrated()) d->Calibrate();
+
+      //--------------------------------------------------------------------------
+      //All particles which have previously Z-identified (IsZidentified=kTRUE) and
+      // calibrated (IsCalibrated=kTRUE) will be Q and A identified.
+      //--------------------------------------------------------------------------
+      if (d->IsZidentified() && d->IsCalibrated() && !d->IsQandAidentified()) {
+         d->IdentifyQandA();
+      }
+   }
 }
 //________________________________________________________________
 
@@ -287,7 +294,7 @@ void KVVAMOSReconEvent::Print(Option_t* option) const
 }
 //________________________________________________________________
 
-void KVVAMOSReconEvent::ReconstructEvent(KVMultiDetArray* mda, KVDetectorEvent* kvde)
+void KVVAMOSReconEvent::ReconstructEvent(KVDetectorEvent* kvde)
 {
    //
    // Reconstruction of detected nuclei
@@ -301,7 +308,7 @@ void KVVAMOSReconEvent::ReconstructEvent(KVMultiDetArray* mda, KVDetectorEvent* 
    //   Then the trajectory (theta, phi, Brho, path) of each reconstructed nucleus is reconstructed
    //   from positions (Xf, Yf, Theta_f, Phi_f) mesured at the focal plane.
 
-   mda->ReconstructEvent(this, kvde);
+   KVReconstructedEvent::ReconstructEvent(kvde);
 
    KVVAMOSReconNuc* nuc = NULL;
 // UChar_t Nnuc = 0;

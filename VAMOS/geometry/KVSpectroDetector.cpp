@@ -190,6 +190,7 @@ void KVSpectroDetector::AddAbsorberLayer(TGeoVolume* vol, Bool_t active)
    } else
       absorber = new KVMaterial(irmat->GetType(), width);
    KVDetector::AddAbsorber(absorber);
+   absorber->SetAbsGeoVolume(vol);
    ClearHits();
    if (active) SetActiveLayer(GetListOfAbsorbers()->GetEntries() - 1);
 }
@@ -299,6 +300,14 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv* infos, TGeoVolume* ref_vol)
       TGeoRotation* rot = new TGeoRotation(tmp.Data(), 0. , Xincline, 0.);
       vol_as->AddNode(GetAbsGeoVolume(), 1, rot);
       SetAbsGeoVolume(vol_as);
+      //update thickness of absorbers;
+      TIter next(GetListOfAbsorbers());
+      KVMaterial* abs = NULL;
+      while ((abs = (KVMaterial*)next())) {
+         Double_t tmptick = abs->GetThickness();
+         tmptick /= TMath::Cos(TMath::DegToRad() * Xincline);
+         abs->SetThickness(tmptick);
+      }
    }
 
    UpdateVolumeAndNodeNames();
@@ -344,13 +353,6 @@ Int_t KVSpectroDetector::Compare(const TObject* obj) const
    if (Delta == 0) return  0;
    if (Delta <  0) return -1;
    return 1;
-}
-//________________________________________________________________
-
-void KVSpectroDetector::DetectParticle(KVNucleus*, TVector3*)
-{
-   // To be implemented. See the same method in KVDetector
-   Warning("DetectParticle", "To be implemented");
 }
 //________________________________________________________________
 
@@ -405,7 +407,7 @@ TGeoHMatrix& KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i) const
 }
 //________________________________________________________________
 
-Double_t KVSpectroDetector::GetELostByParticle(KVNucleus*, TVector3*)
+Double_t KVSpectroDetector::GetELostByParticle(KVNucleus*, TVector3* norm)
 {
    // To be implemented. See the same method in KVDetector
    Warning("GetELostByParticle", "To be implemented");
@@ -568,7 +570,7 @@ Int_t KVSpectroDetector::GetMult(Option_t* opt)
 }
 //________________________________________________________________
 
-Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus*, TVector3*)
+Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus*, TVector3* norm)
 {
    // To be implemented. See the same method in KVDetector
    Warning("GetParticleEIncFromERes", "To be implemented");
@@ -580,11 +582,11 @@ Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus*, TVector3*)
 Double_t KVSpectroDetector::GetXf(Int_t idx)
 {
    // Returns the X coordinate (in cm)  by calling the
-   // methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided
+   // methode GetPosition(Double_t *Xf, Char_t dir, Int_t idx), which can be overrided
    // in child classes;
    // The function returns -666 in case of an invalid request.
    Double_t X[3];
-   if ((GetPosition(X, idx) & 1)) return  X[0];
+   if ((GetPosition(X, 'X', idx) & 1)) return  X[0];
    return -666;
 }
 //________________________________________________________________
@@ -592,11 +594,11 @@ Double_t KVSpectroDetector::GetXf(Int_t idx)
 Double_t KVSpectroDetector::GetYf(Int_t idx)
 {
    // Returns the Y coordinate (in cm)  by calling the
-   // methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided
+   // methode GetPosition(Double_t *Xf, Char_t dir, Int_t idx), which can be overrided
    // in child classes;
    // The function returns -666 in case of an invalid request.
    Double_t X[3];
-   if ((GetPosition(X, idx) & 2)) return  X[1];
+   if ((GetPosition(X, 'Y', idx) & 2)) return  X[1];
    return -666;
 }
 //________________________________________________________________
@@ -604,16 +606,16 @@ Double_t KVSpectroDetector::GetYf(Int_t idx)
 Double_t KVSpectroDetector::GetZf(Int_t idx)
 {
    // Returns the Y coordinate (in cm)  by calling the
-   // methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided
+   // methode GetPosition(Double_t *Xf, Char_t dir, Int_t idx), which can be overrided
    // in child classes;
    // The function returns -666 in case of an invalid request.
    Double_t X[3];
-   if ((GetPosition(X, idx) & 4)) return  X[2];
+   if ((GetPosition(X, 'Z', idx) & 4)) return  X[2];
    return -666;
 }
 //________________________________________________________________
 
-UChar_t KVSpectroDetector::GetPosition(Double_t* XYZf, Int_t idx)
+UChar_t KVSpectroDetector::GetPosition(Double_t* XYZf, Char_t /* dir */, Int_t idx)
 {
    // Returns in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the
    // active volume with index 'idx'. We assume that the shape of this
@@ -626,6 +628,8 @@ UChar_t KVSpectroDetector::GetPosition(Double_t* XYZf, Int_t idx)
    //
    //  If no coordinates are OK, the returned value is null (000) and if
    // X, Y and Z are OK then the returned value is equal 7 (111).
+   //
+   // Argument 'dir' is used in child classes.
 
    TGeoVolume* vol = GetActiveVolume(idx);
    if (!vol ||  !PositionIsOK()) return 0;
@@ -646,13 +650,14 @@ UChar_t KVSpectroDetector::GetPosition(Double_t* XYZf, Int_t idx)
 }
 //________________________________________________________________
 
-void KVSpectroDetector::GetDeltaXYZf(Double_t* DXYZf, Int_t idx)
+void KVSpectroDetector::GetDeltaXYZf(Double_t* DXYZf, Char_t /* dir */, Int_t idx)
 {
    // Returns in the DXYZf array the errors of each coordinate of the position returned by
    // GetPosition(...) in the focal-plane frame of reference.
    //
    // In this mother class, the surface of the detector is assumed to be perpendicular to the
    // Z-axis. To be modified in the child classes.
+   // Argument 'dir' is used in child classes.
 
    DXYZf[0] =  DXYZf[1] =  DXYZf[2] = -1;
    TGeoVolume* vol = GetActiveVolume(idx);

@@ -93,6 +93,8 @@ protected:
    TF2* frx;            //rotation
    TF2* fry;            //rotation
 
+   Double_t fAx, fBx, fAy, fBy; // scaling recap for current grid
+
    Bool_t ownhisto;        //true si histo par defaut
    Bool_t dlmode;       //true si mode delete
    Bool_t drawmode;        //true si mode draw (line, cut)
@@ -248,6 +250,13 @@ public:
    void FindZALines();
    void ChangeMasses(const Char_t* Zl, Int_t dA);
    void ChangeCharges(const Char_t* Zl, Int_t dZ);
+
+   void ResetScalingRecap()
+   {
+      fAx = fAy = 1;
+      fBx = fBy = 0;
+   }
+   void PrintScalingRecap();
 
    ClassDef(KVIDGridEditor, 1) // outil de modification de grille.
 };

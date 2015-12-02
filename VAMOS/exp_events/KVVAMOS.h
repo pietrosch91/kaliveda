@@ -21,6 +21,7 @@ class KVDetector;
 class KVVAMOSTransferMatrix;
 class KVVAMOSReconGeoNavigator;
 class KVReconstructedNucleus;
+class KVBasicVAMOSFilter;
 
 class KVVAMOS : public KVMultiDetArray {
 
@@ -52,7 +53,10 @@ protected:
    KVList*      fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
    TGeoVolume*  fVAMOSvol;    //!TGeoVolume of VAMOS
    KVList*      fVCalibrators;//->References to calibrator belonging to VAMOS
+   Double_t     fECalibPar[4];//! nucleus energy calibration parameters
+   Bool_t       fECalibStatus;//! energy calibration status
 
+   KVBasicVAMOSFilter* fFilter; //! geometric basic VAMOS filter
 
    virtual void   BuildFocalPlaneGeometry(TEnv* infos);
    virtual Bool_t BuildGeoVolume(TEnv* infos);
@@ -64,7 +68,6 @@ protected:
    virtual void   SetArrayACQParams();
    virtual void   SetCalibrators();
    virtual void   SetGroupsAndIDTelescopes();
-   virtual void   UpdateGeometry();
 
 
 public:
@@ -78,8 +81,10 @@ public:
    void     AddACQParam(KVACQParam* par, Bool_t owner);
    Bool_t   AddCalibrator(KVCalibrator* cal, Bool_t owner = kFALSE);
    virtual void     Build(Int_t run = -1);
+   virtual Bool_t   Calibrate(KVReconstructedNucleus* nuc);
    virtual void     Clear(Option_t* opt = "");
    void     Copy(TObject&) const;
+   KVNameValueList* DetectParticle(KVNucleus* part);
    void     FocalToTarget(const Double_t* focal, Double_t* target);
    void     FocalToTargetVect(const Double_t* focal, Double_t* target);
    virtual KVList*  GetFiredDetectors(Option_t* opt = "Pany");
@@ -90,11 +95,14 @@ public:
    virtual void     Initialize();
    static  KVVAMOS* MakeVAMOS(const Char_t* name);
    virtual void     ResetParameters();
+   void     SetECalibParameters(Double_t c_0, Double_t c_chi, Double_t c_si, Double_t c_csi = 0);
+   virtual void     SetPedestal(const Char_t* name, Float_t ped);
    void     SetStripFoil(KVMaterial* foil, Double_t pos = 0);
    void     SetStripFoil(const Char_t* material, const Float_t area_density, Double_t pos);
    void     SetTransferMatrix(KVVAMOSTransferMatrix* mat);
    void     TargetToFocal(const Double_t* target, Double_t* focal);
    void     TargetToFocalVect(const Double_t* target, Double_t* focal);
+   virtual void     UpdateGeometry();
 
    // ----- inline methods
 
@@ -104,6 +112,7 @@ public:
    Double_t      GetBeamPeriod()                       const;
    Double_t      GetBrhoRef()                          const;
    KVCalibrator* GetCalibrator(const Char_t* type)  const;
+   Bool_t        GetECalibStatus()                     const;
    Double_t      GetFocalPlanePosition()               const;
    TGeoVolume*   GetFocalPlaneVolume()                 const;
    TGeoHMatrix   GetFocalToTargetMatrix();
@@ -121,6 +130,8 @@ public:
    void          SetBeamHF(Double_t hf);
    void          SetBrhoRef(Double_t Brho);
    void          SetCurrentRunNumber(UInt_t run);
+   void          SetECalibStatus(Bool_t status);
+   void          SetFocalPlanePosition(Double_t pos);
 
    //----- static methods
 
@@ -145,6 +156,13 @@ public:
    }
    static Bool_t    IsUsedToMeasure(const Char_t* type, KVVAMOSDetector* det = NULL);
 
+   void ShowECalibPar()
+   {
+      cout << "par0= " << fECalibPar[0] << endl;
+      cout << "par1= " << fECalibPar[1] << endl;
+      cout << "par2= " << fECalibPar[2] << endl;
+      cout << "par3= " << fECalibPar[3] << endl;
+   }
    ClassDef(KVVAMOS, 1) //VAMOS: variable mode spectrometer at GANIL
 };
 
@@ -178,6 +196,10 @@ inline Double_t KVVAMOS::GetBrhoRef() const
    return fBrhoRef;
 }
 
+inline Bool_t KVVAMOS::GetECalibStatus() const
+{
+   return fECalibStatus;
+}
 
 inline KVCalibrator* KVVAMOS::GetCalibrator(const Char_t* type) const
 {
@@ -267,6 +289,7 @@ inline void KVVAMOS::SetAngle(Double_t angle)
       fRotation->RotateY(angle);
    }
    GeoModified();
+   UpdateGeometry();
 }
 
 
@@ -281,6 +304,14 @@ inline void KVVAMOS::SetBrhoRef(Double_t Brho)
 inline void KVVAMOS::SetCurrentRunNumber(UInt_t run)
 {
    fCurrentRun = run;
+}
+inline void KVVAMOS::SetECalibStatus(Bool_t status)
+{
+   fECalibStatus = status;
+}
+inline void KVVAMOS::SetFocalPlanePosition(Double_t pos)
+{
+   fFocalPos = pos;
 }
 
 

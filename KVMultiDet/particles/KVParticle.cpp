@@ -277,6 +277,7 @@ void KVParticle::Copy(TObject& obj)
    //La KVList des KVParticle deduite de la methode SetFrame
    //n est pas copiee
    //Info("Copy","je rentre");
+   TLorentzVector::Copy(obj);
    ((KVParticle&) obj) = *this;
    ((KVParticle&) obj).SetGroups(this->GetGroups());
    ((KVParticle&) obj).SetName(this->GetName());

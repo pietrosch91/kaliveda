@@ -97,9 +97,9 @@ KVPSAResult *KVCurrentSignal::TreateSignal()
    ComputeAmplitude();
 
    // storing result
-   psa->SetValue(Form("%s.%s.BaseLine",fDetName.Data(),fType.Data()),fBaseLine);
-   psa->SetValue(Form("%s.%s.SigmaBaseLine",fDetName.Data(),fType.Data()),TMath::Sqrt(fSigmaBase));
-   psa->SetValue(Form("%s.%s.Amplitude",fDetName.Data(),fType.Data()),fAmplitude);
+   psa->SetValue(Form("%s.%s.BaseLine", fDetName.Data(), fType.Data()), fBaseLine);
+   psa->SetValue(Form("%s.%s.SigmaBaseLine", fDetName.Data(), fType.Data()), TMath::Sqrt(fSigmaBase));
+   psa->SetValue(Form("%s.%s.Amplitude", fDetName.Data(), fType.Data()), fAmplitude);
 
    return psa;
 

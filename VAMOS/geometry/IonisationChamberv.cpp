@@ -24,17 +24,28 @@ IonisationChamberv::IonisationChamberv(LogFile* Log)
 #endif
    Ready = kFALSE;
 
-//  char line[255];
-//  int len=255;
-//  Float_t tmp;
-//  Float_t tmp1;
-
    L = Log;
 
-   for (Int_t i = 0; i < 5; i++)
-      Counter[i] = 0;
+   NbChio = gEnv->GetValue("VAMOS.NbIC", -1);
+   if (NbChio < 0) {
+      cout << "Not Reading VAMOS.NbIC in IonisationChamberv Class" << endl;
+   }
+   //energy Raw
+   E_Raw = new UShort_t[NbChio];
+   E_Raw_Nr = new UShort_t[NbChio];
+   IcRaw = new Int_t[NbChio];
 
-   InitRaw();
+   DetChio = new Int_t [NbChio];
+
+   //Calibration coeff
+   a = new Float_t[NbChio];
+   b = new Float_t[NbChio];
+   Vnorm = new Float_t[NbChio];
+
+   //energy Calibrated
+   E = new Float_t[NbChio];
+
+   InitSavedQuantities();
    Init();
 
    Rnd = new Random;
@@ -61,51 +72,6 @@ IonisationChamberv::IonisationChamberv(LogFile* Log)
          }
       }
    }
-   /*
-     else
-       {
-         cout.setf(ios::showpoint);
-         cout << "Reading IonisationChamber.cal" << endl;
-         L->Log << "Reading IonisationChamber.cal" << endl;
-         for(i=0;i<3;i++)
-      {
-        inf.getline(line,len);
-        cout << line << endl;
-        L->Log << line << endl;
-        for(j=0;j<7;j++)
-          {
-            for(k=0;k<3;k++)
-         inf >> ECoef[i][j][k];
-
-            inf >> tmp;
-            inf >> tmp1;
-
-            for(k=0;k<3;k++)
-         ECoef[i][j][k] *= tmp;
-
-            inf.getline(line,len);
-          }
-      }
-         for(j=0;j<3;j++)
-      {
-        inf.getline(line,len);
-        cout << line << endl;
-        L->Log << line << endl;
-        for(k=0;k<2;k++)
-          inf >> ERef[j][k];
-        inf.getline(line,len);
-      }
-         for(j=0;j<3;j++)
-      {
-        inf.getline(line,len);
-        cout << line << endl;
-        L->Log << line << endl;
-        inf >> ETresh[j];
-        cout << "ETresh " << ETresh[j] << endl;
-        inf.getline(line,len);
-      }
-       }
-   */
    inf.close();
    Ready = kTRUE;
 
@@ -115,6 +81,20 @@ IonisationChamberv::~IonisationChamberv(void)
 #ifdef DEBUG
    cout << "IonisationChamberv::Destructor" << endl;
 #endif
+   //energy Raw
+   delete [] E_Raw;
+   delete [] E_Raw_Nr;
+   delete [] IcRaw;
+
+   delete [] DetChio;
+
+   //Calibration coeff
+   delete [] a;
+   delete [] b;
+   delete [] Vnorm;
+
+   //energy Calibrated
+   delete [] E ;
 
    PrintCounters();
 }
@@ -143,18 +123,19 @@ void IonisationChamberv::PrintCounters(void)
 }
 
 
-void IonisationChamberv::InitRaw(void)
+void IonisationChamberv::InitSavedQuantities(void)
 {
 #ifdef DEBUG
    cout << "IonisationChamberv::InitRaw" << endl;
 #endif
 
-   for (Int_t i = 0; i < 3; i++)
-      for (Int_t j = 0; j < 8; j++) {
-         E_Raw[j] = 0;     //E_Raw[i*8+j] = 0;
-         E_Raw_Nr[j] = 0;  //E_Raw_Nr[i*8+j] = 0;
-      }
-   E_RawM = 0;
+   for (Int_t j = 0; j < NbChio; j++) {
+      DetChio[j] = -10;
+      IcRaw[j] = -10;
+      E[j] = -10.0;
+   }
+
+   EMIC = 0;
 }
 
 void IonisationChamberv::Init(void)
@@ -162,26 +143,29 @@ void IonisationChamberv::Init(void)
 #ifdef DEBUG
    cout << "IonisationChamberv::Init" << endl;
 #endif
-   Present = false;
+   //Present = false;
 
-   ETotal = -10.0;
-   EM = 0;
    eloss = 7.54; //Energy loss (MeV) for the elastic pic form the active zone of the IC
-   Number = -10;
 
-   for (Int_t i = 0; i < 3; i++)
-      for (Int_t j = 0; j < 8; j++) {
-         E[j] = 0.0;    //E[i*8+j] = 0.0;
-      }
+   for (Int_t j = 0; j < NbChio; j++) {
+      E_Raw[j] = -10;
+      E_Raw_Nr[j] = -10;
 
-   /*
-     for(Int_t i =0;i<3;i++)
-       ES[i] = 0.;
-   */
+      a[j] = -10.0;
+      b[j] = -10.0;
+      Vnorm[j] = -10.0;
+   }
+
+   E_RawM = -10;
+
+   for (Int_t i = 0; i < 5; i++)
+      Counter[i] = 0;
 }
 
 void IonisationChamberv::Calibrate(void)
 {
+   InitSavedQuantities();
+
 #ifdef DEBUG
    cout << "IonisationChamberv::Calibrate" << endl;
 #endif
@@ -190,64 +174,23 @@ void IonisationChamberv::Calibrate(void)
 
    for (Int_t i = 0; i < E_RawM; i++) {
 
-      //Int_t bb=((E_Raw_Nr[i]+1)%8)-1;
-      //cout<<"bb : "<<bb<<endl;
       if (E_Raw[i] > 160) { //Piedestal ~160
-         Rnd->Next();
-         E[E_Raw_Nr[i]] = ((((Float_t) E_Raw[i] + Rnd->Value()) * a[E_Raw_Nr[i]]) + b[E_Raw_Nr[i]]) * (eloss / Vnorm[E_Raw_Nr[i]]); //The linear fit * k/Vnorm
-         ETotal = E[E_Raw_Nr[i]];
-         Number = E_Raw_Nr[i] + 1;
+         //cout<<"Eraw : "<<E_Raw[i]<<"   Nb : "<<E_Raw_Nr[i]<<"  a : "<<a[E_Raw_Nr[i]]<<" b : "<<b[E_Raw_Nr[i]]<<" Vnorm : "<<Vnorm[E_Raw_Nr[i]]<<" EMIC : "<<EMIC<<endl<<flush;
 
-         //==Raw_signal class==
-         IC_Raw = E_Raw[i];
-         //====================
-         EM++;
+         Rnd->Next();
+         E[EMIC] = ((((Float_t) E_Raw[i] + Rnd->Value()) * a[E_Raw_Nr[i]]) + b[E_Raw_Nr[i]]) * (eloss / Vnorm[E_Raw_Nr[i]]); //The linear fit * k/Vnorm
+         DetChio[EMIC] = E_Raw_Nr[i] + 1;
+         IcRaw[EMIC] = E_Raw[i];
+
+         //cout<<"===Chio==="<<endl;
+         //cout<<" E : "<<E[EMIC]<<" DetChio : "<<DetChio[EMIC]<<" IcRaw[EMIC] : "<<IcRaw[EMIC]<<endl;
+         EMIC++;
       }
    }
+   //cout<<"Mult IC : "<<EMIC<<endl;
+   //cout<<"====="<<endl;
 
-   /*
-     int a,b;
-     int MRow[3];
-
-     MRow[0] = MRow[1] = MRow[2] = 0;
-     for(i=0;i<E_RawM;i++)
-       {
-         a=(E_Raw_Nr[i]+1)/8;
-         b=((E_Raw_Nr[i]+1)%8)-1;
-         if(b!=-1)
-      {
-        Rnd->Next();
-        for(k=0;k<3;k++)
-          {
-            E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
-                (Float_t) k)*ECoef[a][b][k];
-          }
-        E[E_Raw_Nr[i]] *= (ERef[a][1]/ERef[a][0]);
-        if(E[E_Raw_Nr[i]] > ETresh[a])
-          {
-            ES[a] += E[E_Raw_Nr[i]];
-            MRow[a] ++;
-            ETotal += E[E_Raw_Nr[i]];
-            //       ENr[EM] = E_Raw_Nr[i];
-            Number = int(E_Raw_Nr[i]);
-            EM++;
-          }
-
-      }
-
-       }
-   */
-// for(i=0;i<3;i++)
-   // if(ES[i] > 0) Counter[i+1]++;
-
-// if(ES[0] > 0. &&  ETotal > 0.0 )//&& MRow[0] == 1 && MRow[1] ==1 )
-   /*if(ETotal > 0.0)
-      {
-        Present = true;
-        Counter[4]++;
-      }
-    else
-        Init();*/
+   //cout<<"Calibrate done"<<endl;
 }
 
 void IonisationChamberv::Treat(void)
@@ -257,7 +200,6 @@ void IonisationChamberv::Treat(void)
 #endif
    if (!Ready) return;
    Counter[0]++;
-   Init();
    Calibrate();
 #ifdef DEBUG
    Show_Raw();
@@ -304,13 +246,13 @@ void IonisationChamberv::outAttach(TTree* outT)
    //outT->Branch("IcEA",&ES[0],"IcEA/F");
    //outT->Branch("IcEB",&ES[1],"IcEB/F");
    //outT->Branch("IcEC",&ES[2],"IcEC/F");
-   outT->Branch("IcET", &ETotal, "IcET/F");
 
-   outT->Branch("IcM", &EM, "IcM/I");
-   //outT->Branch("IcE",E,"IcE[24]/F");
+   outT->Branch("IcM", &EMIC, "EMIC/I");
 
-   outT->Branch("IcNb", &Number, "IcNb/I");
-   //outT->Branch("IcNb",&Number,"IcNb/S" );
+   outT->Branch("IcRaw", IcRaw, "IcRaw[EMIC]/I");
+   outT->Branch("IcET", E, "E[EMIC]/F");;
+
+   outT->Branch("IcNb", DetChio, "DetChio[EMIC]/I");
 
 
 }
@@ -371,20 +313,23 @@ void IonisationChamberv::Show(void)
    //cout << "Present: " << Present << endl;
    //if(Present)
    //{
-   cout << "EM: " << EM << endl;
-   for (i = 0; i < 24; i++) {
-      a = (i + 1) / 8;
-      b = ((i + 1) % 8) - 1;
-      if (b != -1) {
-         if (E[i] > 0) {
-            cout << "ROW " << a << " PAD " << b << ": ";
-            cout << E[i] << endl;
-         }
-      }
+   //cout << "EM: " << EM << endl;
+   /*for(i=0;i<24;i++)
+   {
+     a=(i+1)/8;
+     b=((i+1)%8)-1;
+     if(b!=-1)
+       {
+         if(E[i] > 0)
+     {
+       cout << "ROW " << a << " PAD " << b << ": ";
+       cout << E[i] <<endl;
+     }
+       }
    }
-   for (i = 0; i < 3; i++)
-      //cout << "SUM ROW:" << i << " " << ES[i] << endl;
-      cout << "ETotal: " << ETotal << endl;
+        for(i=0;i<3;i++)*/
+   //cout << "SUM ROW:" << i << " " << ES[i] << endl;
+   //cout << "ETotal: " << ETotal << endl;
    //}
 }
 

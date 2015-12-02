@@ -111,6 +111,10 @@ public:
    {
       return fDataParameters->GetList();
    };
+   Int_t GetEventCount() const
+   {
+      return fEventCount;
+   }
 
    virtual void SetUserTree(TTree*);
 

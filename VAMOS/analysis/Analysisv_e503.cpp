@@ -296,12 +296,17 @@ void Analysisv_e503::SetTel3(KVDetector* csi)
 
 void Analysisv_e503::SetFileCut(TList* list)
 {
-   Id->SetFileCut(list);
+// Id->SetFileCut(list);
 }
 
 void Analysisv_e503::SetFileCutChioSi(TList* list2)
 {
-   Id->SetFileCutChioSi(list2);
+// Id->SetFileCutChioSi(list2);
+}
+
+void Analysisv_e503::SetFileCutSiTof(TList* list3)
+{
+// Id->SetFileCutSiTof(list3);
 }
 
 void Analysisv_e503::SetTarget(KVTarget* tgt)
@@ -435,49 +440,48 @@ void Analysisv_e503::CreateHistograms()
 }
 void Analysisv_e503::FillHistograms()
 {
-   if (Id->Geometry(Si->Number, CsI->Number) == 1) { //&& si->E_RawM==1 && csi->E_RawM==1)
+
 #ifdef DEBUG
-      cout << "Analysisv_e503::FillHistograms : " << endl;
+   cout << "Analysisv_e503::FillHistograms : " << endl;
 #endif
 
 #ifdef PLASTIC
-      Pl->FillHistograms();
+   Pl->FillHistograms();
 #endif
 
 #ifdef DRIFT
-      Dr->FillHistograms();
-      RC->FillHistograms();
-      Id->FillHistograms();
+   Dr->FillHistograms();
+   RC->FillHistograms();
+   Id->FillHistograms();
 #endif
 
 #ifdef SED1
-      SeD1->FillHistograms();
+   SeD1->FillHistograms();
 #endif
 
 #ifdef SED2
-      SeD2->FillHistograms();
+   SeD2->FillHistograms();
 #endif
 
 #ifdef SED12
-      SeD12->FillHistograms();
-      RC->FillHistograms();
+   SeD12->FillHistograms();
+   RC->FillHistograms();
 #endif
 
 #ifdef IONCHAMBER
-      Ic->FillHistograms();
+   Ic->FillHistograms();
 #endif
 
 #ifdef EXOGAM
-      Ex->FillHistograms();
+   Ex->FillHistograms();
 #endif
 #ifdef SI
-      Si->FillHistograms();
+   Si->FillHistograms();
 #endif
 #ifdef CSI
-      CsI->FillHistograms();
+   CsI->FillHistograms();
 #endif
 
-   }
 }
 
 void Analysisv_e503::outAttach()

@@ -104,6 +104,11 @@ void KVIVUpDater::SetParameters(UInt_t run)
    if (!kvrun) return;
    SetPedestalCorrections(kvrun);
 
+   if (!gVamos) {
+      Error("KVIVUpDater::SetParameters", "VAMOS is not found ( gVamos = NULL )");
+      return;
+   }
+
    gVamos->ResetParameters();
    SetVamosCalibAndConfParams(kvrun);
 }

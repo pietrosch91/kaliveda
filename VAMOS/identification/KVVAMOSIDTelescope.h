@@ -6,12 +6,15 @@
 
 #include "KVINDRAIDTelescope.h"
 #include "KVIDZAGrid.h"
+#include "KVVAMOSDetector.h"
+
+class KVVAMOSDetector;
 
 class KVVAMOSIDTelescope : public KVINDRAIDTelescope {
 protected:
 
-   KVDetector* fDEdet;//!
-   KVDetector* fEdet; //!
+   KVVAMOSDetector* fDEdet;//!
+   KVVAMOSDetector* fEdet; //!
    KVIDZAGrid* fGrid; //!
 
 public:
@@ -20,12 +23,16 @@ public:
    virtual ~KVVAMOSIDTelescope();
 
    virtual const Char_t* GetArrayName();
-
    virtual Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
    virtual void Initialize();
 
    // virtual const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
+   using KVINDRAIDTelescope::GetIDGrid;
+   virtual KVIDGraph* GetIDGrid()
+   {
+      return fGrid;
+   };
    ClassDef(KVVAMOSIDTelescope, 1) //A deltaE-E identification telescope in VAMOS
 };
 

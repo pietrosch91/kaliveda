@@ -29,8 +29,15 @@
 class Identificationv {
 public:
    Identificationv(LogFile* Log, Reconstructionv* Recon,
-                   DriftChamberv* Drift, IonisationChamberv* IonCh, Sive503* SiD, CsIv* CsID, CsICalib* E);
+                   DriftChamberv* Drift, IonisationChamberv* IonCh, Sive503* SiD, CsIv* CsID, CsICalib* Ecsicalibrated);
    virtual ~Identificationv(void);
+
+   Int_t NbCsI;
+   Int_t MaxRun;
+   Int_t NbSilicon;
+
+   bool print;
+   bool debug;
 
    LogFile* L;
    Reconstructionv* Rec;
@@ -43,6 +50,9 @@ public:
    KVIdentificationResult* id;
    KVIdentificationResult* id_chiosi;
    KVIdentificationResult* id_sitof;
+   KVIdentificationResult* id_chiov2;
+   KVIdentificationResult* id_qaq;
+   KVIdentificationResult* id_qaq_chiosi;
    KV2Body* kin;
 
    KVNucleus* kvn;
@@ -74,21 +84,16 @@ public:
    Int_t runNumber;
    Bool_t grids_avail;
 
-   Int_t ZZ;
-   Float_t AA;
-   Int_t CsIRaw;
-   Int_t DetCsI;
-   Int_t SiRaw;
+   Float_t* AA;
+   Double_t* FragECsI;
+   Double_t* FragEGap;
 
    Double_t a_bisec;
    Double_t e_bisec;
 
    Double_t initThickness;
-   Double_t EChio;
-   Double_t EGap;
-   Double_t ECsI;
    Double_t ECsI_corr;
-   Double_t ESi;
+
    Double_t EEtot;
    Double_t NormVamos;
    Double_t DT;
@@ -97,12 +102,18 @@ public:
 
    Float_t stat_tot;
    Float_t stat_indra;
-   Float_t Stat_Indra[600];
 
-   Double_t PID;
-   Double_t PID_chiosi;
-   Double_t Z_PID;
-   Double_t A_PID;
+   Float_t* Stat_Indra;
+
+   Double_t* PID;
+   Double_t* Z_PID;
+   Double_t* A_PID;
+
+   Double_t* PID_sitof;
+   Double_t* Z_PID_sitof;
+
+   Double_t* PID_chiov2;
+   Double_t* Z_PID_chiov2;
 
    Double_t dif11[55];
    Double_t dif12[55];
@@ -111,17 +122,43 @@ public:
    Double_t dif2[21];
 
 
-   Int_t geom[18][6];
-   Int_t geomchiosi[8][6];
-   Int_t i;
-   Int_t zt;
-   Int_t aa;
+   Int_t** geom;      //Geometry Si-CsI
+   Int_t** geom_cross;
+   Int_t** geomchiosi;   //Geometry Chio-Si
+   Int_t** geomchiocsi;  //Geometry Chio-CsI
+
+
+   Int_t* FragDetSi;
+   Int_t* FragSignalSi;
+   Float_t* FragESi;
+   Double_t* FragTfinal;
+   Double_t* Off_chiosi;
+   Double_t* Off_dc1dc2;
+   Double_t* TOF_chiosi;
+
+   Int_t* FragSignalCsI;
+   Int_t* FragDetCsI;
+
+   Int_t* FragDetChio;
+   Int_t* FragSignalChio;
+   Float_t* FragEChio;
+
+   Long64_t event_number;
+   Int_t MaxM;
+   Int_t fMultiplicity_case;
+   Int_t Code_good_event;
+   KVList* grid_list;
+   KVIDGraph* grd;
 
    bool Present; //true if coordinates determined
 
+   void Init(void); //Init for every event,  variables go to -500
+   void InitSavedQuantities();
+   void InitReadVariables();
 
+   Int_t GetMaxMultiplicity(void);
+   void FragPropertiesInOrder(void);
 
-   void Init(void); //Init for every event,  variables go to -500.
    void Calculate(); // Calulate  Initial coordinates
    void Show(void);
    void Treat(void);
@@ -130,14 +167,19 @@ public:
    void CreateHistograms();
    void FillHistograms();
    //void PrintCounters(void);
-
-   void SetFileCut(TList* list);
-   void GetFileCut();
-   void SetFileCutChioSi(TList* list2);
-   void GetFileCutChioSi();
-   TList*  llist;
-   TList*  llist2;
 //===================================================
+// Q Regions
+   /*  void SetFileCut(TList *list);
+     void GetFileCut();
+     void SetFileCutChioSi(TList *list2);
+     void GetFileCutChioSi();
+     void SetFileCutSiTof(TList *list3);
+     void GetFileCutSiTof();
+     TList  *llist;
+     TList  *llist2;
+     TList  *llist3;  */
+//===================================================
+// Total Energy Approximation
    void SetTarget(KVTarget* tgt);
    void SetDC1(KVDetector* dcv1);
    void SetSed(KVMaterial* sed);
@@ -148,7 +190,6 @@ public:
    void SetGap2(KVMaterial* isogap2);
    void SetCsI(KVMaterial* csi);
 //===================================================
-
 
 //===================================================
    KVTarget* GetTarget();
@@ -162,17 +203,49 @@ public:
    KVMaterial* GetCsI();
 //===================================================
 
+//===================================================
+   Double_t GetEnergyLossCsI(Int_t, Int_t, Double_t, Double_t);
+   Double_t GetEnergyLossGap2(Int_t, Int_t, Double_t, Double_t);
+   Double_t GetEnergyLossGap1(Int_t, Int_t, Double_t, Double_t);
+   Double_t GetEnergyLossChio(Int_t, Double_t);
+   Double_t GetEnergyLossDC2(Int_t, Double_t);
+   Double_t GetEnergyLossSed(Int_t, Double_t);
+   Double_t GetEnergyLossDC1(Int_t, Double_t);
+   Double_t GetEnergyLossTarget(Int_t, Double_t);
+//===================================================
+// Geometry Tests
+   Int_t* GetListOfChioFromSi(Int_t);
+   Int_t* GetListOfCsIFromSi(Int_t);
+   Int_t* GetListOfChioFromCsI(Int_t);
+   Int_t* GetListOfCsICrossFromSi(Int_t);
+
+   void Geometry(); //method to reconstruct VAMOS telescopes
+   void GeometryChioSi();
+   void GeometryChioCsI();
+   void GeometrySiCsICross();
+
+   Int_t IsChioCsITelescope(Int_t, Int_t);
+   Int_t IsChioSiTelescope(Int_t, Int_t);
+   Int_t IsSiCsITelescope(Int_t, Int_t);
+   Int_t IsCsISiCrossTelescope(Int_t, Int_t);
+//===================================================
+// Reading Files
+   void ReadQCorrection();
+   void ReadAQCorrection();
+   void ReadACorrection();
+   void ReadFlagVamos();
+   void ReadToFCorrectionChioSi();
+   void ReadToFCorrectionCode1();
+   void ReadStatIndra();
+   void ReadStraightAQ();
+   void ReadDoublingCorrection();
+
+   void ReadOffsetsChiosi();
+   Float_t* Offset_relativiste_chiosi; //(MAXRUN)
+
+   void LoadGridForCode2Cuts();
 
 //===================================================
-
-   Double_t GetEnergyLossCsI(Int_t);
-   Double_t GetEnergyLossGap2(Int_t);
-   Double_t GetEnergyLossGap1(Int_t);
-   Double_t GetEnergyLossChio();
-   Double_t GetEnergyLossDC2();
-   Double_t GetEnergyLossSed();
-   Double_t GetEnergyLossDC1();
-   Double_t GetEnergyLossTarget();
 
    Double_t einc_csi;
    Double_t eloss_csi;
@@ -204,10 +277,10 @@ public:
    Double_t E_chio;
    Double_t E_gap2;
    Double_t E_csi;
-//===================================================
 
-   int Geometry(UShort_t, UShort_t); //method to reconstruct VAMOS telescopes
-   int GeometryChioSi(UShort_t, UShort_t);
+   Float_t E_VAMOS;
+
+
    Random* Rnd;
 
    UShort_t T_Raw;
@@ -216,13 +289,15 @@ public:
    Float_t D;
    Float_t dE;
    Float_t dE1;
-   Float_t E;
+   Float_t* Etot;
    Float_t E_corr;
    Float_t T;
-   Float_t V;
-   Float_t Vx;
-   Float_t Vy;
-   Float_t Vz;
+   Float_t T_straightpaola;
+
+   Float_t* V;
+   Float_t* Vx;
+   Float_t* Vy;
+   Float_t* Vz;
    Float_t VCMx;
    Float_t VCMy;
    Float_t VCMz;
@@ -231,16 +306,25 @@ public:
    Float_t T_FP;
 
    Float_t V2;
-   Float_t Beta;
+   Float_t* Beta;
    Float_t Gamma;
-   Float_t M_Q;
-   Float_t Q;
+   Float_t* M_Q;
+   Float_t* Q;
+   Float_t* M;
+   Float_t* RealQ_straight;
+   Float_t* M_straight;
+   Int_t* Q_straight;
+
+   Float_t* Beta_chiosi;
+   Float_t* M_Q_chiosi;
+   Float_t* Q_chiosi;
+   Float_t* M_chiosi;
+
    Float_t Mr;
    Float_t M_Qr;
    Float_t Qr;
    Float_t Qc;
    Float_t Mc;
-   Float_t M;
    Float_t Mass;
    Float_t M_simul;
    Float_t Z1;
@@ -248,81 +332,127 @@ public:
 
    Float_t Z_tot;
    Float_t Z_si;
-   Double_t ZR;
-
-//Int_t csi;
-//Float_t p0;
-//Float_t p1;
-//Float_t p2;
 
    //Q Correction Function according to the CsI detector
-   Float_t  P0[80];
-   Float_t  P1[80];
-   Float_t  P2[80];
-   Float_t  P3[80];
+   Float_t*  P0;
+   Float_t*  P1;
+   Float_t*  P2;
+   Float_t*  P3;
 
    // Correction de M/Q
-   Float_t  P0_mq[600];
-   Float_t  P1_mq[600];
+   Float_t*  P0_mq;
+   Float_t*  P1_mq;
 
    // Correction de M
-   Float_t  P0_m[600][25];
-   Float_t  P1_m[600][25];
+   Float_t**  P0_m;
+   Float_t**  P1_m;
 
    // Correction de M/Q Chio-Si
-   Float_t  P0_mq_chiosi[600];
-   Float_t  P1_mq_chiosi[600];
+   Float_t*  P0_mq_chiosi;
+   Float_t*  P1_mq_chiosi;
 
    // Correction de M Chio-Si
-   Float_t  P0_m_chiosi[600][25];
-   Float_t  P1_m_chiosi[600][25];
+   Float_t**  P0_m_chiosi;
+   Float_t**  P1_m_chiosi;
+
+   // Correction de M/Q Si-Tof
+   Float_t*  P0_mq_sitof;
+   Float_t*  P1_mq_sitof;
+
+   // Correction de M Si-Tof
+   Float_t**  P0_m_sitof;
+   Float_t**  P1_m_sitof;
 
    // Tag des events
-   Float_t Brho_min[25][60][10][600];
-   Float_t Brho_max[25][60][10][600];
-   Int_t Code_Vamos;
-   Int_t Code_Ident_Vamos;
+   Float_t* Brho_min;
+   Float_t* Brho_max;
+   //Float_t ****Brho_min;
+   //Float_t ****Brho_max;
+   Int_t* Code_Vamos;
+   Int_t* Code_Ident_Vamos;
 
    // Correction de Tof pour identification Chio-Si
-   Int_t    Tof0[600];
-   Int_t    Esi0[600];
+   Float_t*  Tof0;
+   Float_t*  Esi0;
+   Float_t*     Brho0;
+   // Correction de Tof pour identification Si-CsI
+   Float_t*     Tof0_code1;
+   Float_t*     Deltat_code1;
 
-   TCutG* q21;
-   TCutG* q20;
-   TCutG* q19;
-   TCutG* q18;
-   TCutG* q17;
-   TCutG* q16;
-   TCutG* q15;
-   TCutG* q14;
-   TCutG* q13;
-   TCutG* q12;
-   TCutG* q11;
-   TCutG* q10;
-   TCutG* q9;
-   TCutG* q8;
-   TCutG* q7;
-   TCutG* q6;
-   TCutG* q5;
+   // Correction Double tof Pics
+   Float_t*** Fit1;
+   Float_t*** Fit2;
+   Float_t*** Fit3;
+   Float_t*** Fit4;
+   Float_t*** Fit5;
+   Float_t*** Fit6;
+   Float_t*** Fit7;
 
-   TCutG* q21cs;
-   TCutG* q20cs;
-   TCutG* q19cs;
-   TCutG* q18cs;
-   TCutG* q17cs;
-   TCutG* q16cs;
-   TCutG* q15cs;
-   TCutG* q14cs;
-   TCutG* q13cs;
-   TCutG* q12cs;
-   TCutG* q11cs;
-   TCutG* q10cs;
-   TCutG* q9cs;
-   TCutG* q8cs;
-   TCutG* q7cs;
-   TCutG* q6cs;
-   TCutG* q5cs;
+   // Correction Offet relativiste
+   Float_t* Offset_rela;
 
+   // Redressement des distributions A/Q
+   Float_t* P0_aq_straight;
+   Float_t* P1_aq_straight;
+   Float_t* P2_aq_straight;
+
+   Float_t* P0_aq_straight_chiosi;
+   Float_t* P1_aq_straight_chiosi;
+   Float_t* P2_aq_straight_chiosi;
+
+   /*TCutG *q21;
+   TCutG *q20;
+   TCutG *q19;
+   TCutG *q18;
+   TCutG *q17;
+   TCutG *q16;
+   TCutG *q15;
+   TCutG *q14;
+   TCutG *q13;
+   TCutG *q12;
+   TCutG *q11;
+   TCutG *q10;
+   TCutG *q9;
+   TCutG *q8;
+   TCutG *q7;
+   TCutG *q6;
+   TCutG *q5;
+
+   TCutG *q21cs;
+   TCutG *q20cs;
+   TCutG *q19cs;
+   TCutG *q18cs;
+   TCutG *q17cs;
+   TCutG *q16cs;
+   TCutG *q15cs;
+   TCutG *q14cs;
+   TCutG *q13cs;
+   TCutG *q12cs;
+   TCutG *q11cs;
+   TCutG *q10cs;
+   TCutG *q9cs;
+   TCutG *q8cs;
+   TCutG *q7cs;
+   TCutG *q6cs;
+   TCutG *q5cs;
+
+   TCutG *q21st;
+   TCutG *q20st;
+   TCutG *q19st;
+   TCutG *q18st;
+   TCutG *q17st;
+   TCutG *q16st;
+   TCutG *q15st;
+   TCutG *q14st;
+   TCutG *q13st;
+   TCutG *q12st;
+   TCutG *q11st;
+   TCutG *q10st;
+   TCutG *q9st;
+   TCutG *q8st;
+   TCutG *q7st;
+   TCutG *q6st;
+   TCutG *q5st;*/
 
    Double_t    M_corr;
    Int_t    Q_corr;
@@ -332,7 +462,9 @@ public:
    Double_t Q_corr_D2;
    Int_t Q2;
 
-   Int_t Z_corr;
+   Int_t* Z_corr;
+   Int_t* Z_corr_sitof;
+   Int_t* Z_corr_chiov2;
    Double_t    Delta;
    Double_t M_realQ_D;
    Double_t M_realQ;
@@ -344,7 +476,12 @@ public:
    //Counters
    Int_t Counter[6];
 
-   ClassDef(Identificationv, 0)
+   void SetBrhoRef(Float_t brho)
+   {
+      Brho_mag = brho;
+   };
+
+   ClassDef(Identificationv, 1)
 
 };
 

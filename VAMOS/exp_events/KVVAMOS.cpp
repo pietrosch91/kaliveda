@@ -5,6 +5,9 @@
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
+#include "KVVAMOSCodes.h"
+#include "KVBasicVAMOSFilter.h"
+#include "KVChargeStateDistrib.h"
 
 #include "KVGroup.h"
 #include "KVDataSetManager.h"
@@ -12,15 +15,12 @@
 #include "KVFunctionCal.h"
 #include "KVIDGridManager.h"
 #include "KVUnits.h"
-#include "KVIDTelescope.h"
 
 #include "TSystemDirectory.h"
 #include "TPluginManager.h"
 #include "TClass.h"
 
 #include "TGeoBBox.h"
-
-#include <KVReconstructedNucleus.h>
 
 using namespace std;
 
@@ -109,11 +109,13 @@ void KVVAMOS::init()
    fBrhoRef       = -1;
    fBeamHF        = -1;
    fStripFoilPos  = 0;
-
+   fECalibPar[0]  = fECalibPar[1] = fECalibPar[2]  = fECalibPar[3] = 0.;
+   fECalibStatus  = kFALSE;
    //initalise ID grid manager
    if (!gIDGridManager)
       new KVIDGridManager;
 
+   fFilter = NULL;
 
    Info("init", "To be implemented");
 }
@@ -136,6 +138,7 @@ KVVAMOS::~KVVAMOS()
    SafeDelete(fStripFoil);
    SafeDelete(fTransMatrix);
    SafeDelete(fReconNavigator);
+   SafeDelete(fFilter);
 
    if (gVamos == this) gVamos = NULL;
 }
@@ -293,7 +296,7 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv* infos)
 
    // Reading geometry iformations in .cao files
    const Char_t dirname[] = "VAMOSgeometry";
-   TString path(KVBase::GetDATADIRFilePath());
+   TString path(GetKVFilesDir());
    path += "/";
    if (gDataSet) {
       path += gDataSet->GetName();
@@ -394,6 +397,7 @@ Bool_t KVVAMOS::ReadDetectorGroupFile(ifstream& ifile)
       KVSpectroDetector* det      = NULL;
       KVSpectroDetector* lastDet  = NULL;
 
+      sline.ReplaceAll("\t", " ");
       sline.Begin(" ");
       while (!sline.End()) {
 
@@ -515,7 +519,7 @@ void KVVAMOS::SetCalibrators()
       calibtype.Append(" ");
       calibtype.Append(par->GetName());
 
-      func = new TF1(par->GetName(), "pol1", 0., 16384.);
+      func = new TF1(calibtype.Data(), "pol1", 0., 16384.);
       c = new KVFunctionCal(func);
       c->SetType(calibtype.Data());
       c->SetLabel(par->GetLabel());
@@ -584,7 +588,7 @@ void KVVAMOS::UpdateGeometry()
    // to each detector.
 
 
-   if (!IsGeoModified() || !IsBuilt()) return;
+   if (!IsGeoModified()) return;
 
    Int_t prev_id = gGeoManager->GetCurrentNodeId();
 
@@ -669,7 +673,7 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator* cal, Bool_t owner)
 }
 //________________________________________________________________
 
-void KVVAMOS::Build(Int_t)
+void KVVAMOS::Build(Int_t run)
 {
    // Build the VAMOS spectrometer: detectors, geometry, identification
    // telescopes, acquisition parameters and calibrators.
@@ -695,7 +699,7 @@ void KVVAMOS::Build(Int_t)
 }
 //________________________________________________________________
 
-void KVVAMOS::Clear(Option_t*)
+void KVVAMOS::Clear(Option_t* opt)
 {
    // Call "Clear" method of each and every detector in VAMOS,
    // to reset energy loss and KVDetector::IsAnalysed() state
@@ -725,6 +729,64 @@ void KVVAMOS::Copy(TObject& obj) const
 }
 //________________________________________________________________
 
+KVNameValueList* KVVAMOS::DetectParticle(KVNucleus* part)
+{
+
+   if (!fFilter) {
+      //Build Filter
+      TString fullpath;
+      SearchKVFile("KVBasicVAMOSFilter.root", fullpath, gDataSet->GetName());
+      TFile file(fullpath.Data());
+      if (file.IsZombie()) {
+         Error("DetectParticle", "Impossible to open file %s with VAMOS filter", fullpath.Data());
+         return NULL;
+      } else {
+         fFilter = (KVBasicVAMOSFilter*)file.Get("BasicVAMOSfilter");
+         Info("DetectParticle", "VAMOS filter is Loaded from file %s", fullpath.Data());
+         fFilter->Print();
+      }
+   }
+
+   static KVChargeStateDistrib csd;
+
+   Int_t Q = part->GetParameters()->GetIntValue("Q");
+   Q = (Q > 0 ? Q : Int_t(csd.GetRandomQ(part)));
+   if (Q <= 0) return NULL;
+
+   Double_t  Brho = part->GetMomentum().Mag() / (KVNucleus::C() * 10.*Q);
+   Double_t  delta = Brho / GetBrhoRef();
+
+   // spherical angles in VAMOS reference frame
+   Double_t  th_l = part->Theta();               //rad
+   Double_t  ph_l = part->Phi() + TMath::Pi() / 2; //rad
+
+   // normalized cartesian coordinates in VAMOS reference frame
+   Double_t  x    = TMath::Sin(th_l) * TMath::Cos(ph_l);
+   Double_t  y    = TMath::Sin(th_l) * TMath::Sin(ph_l);
+   Double_t  z    = TMath::Cos(th_l);
+
+   // optical angles in VAMOS reference frame
+   Double_t  th_v = TMath::RadToDeg() * TMath::ATan(x / z); //degree
+   Double_t  ph_v = TMath::RadToDeg() * TMath::ASin(y);  //degree
+
+   KVNameValueList* NVL = 0;
+   if (fFilter->IsTrajectoryAccepted(GetAngle(), delta, th_v, ph_v)) {
+
+      if (!NVL) NVL = new KVNameValueList;
+      Double_t de = 0.;
+      NVL->SetValue("VAMOS", de);
+      part->GetParameters()->SetValue("Q", Q);
+      part->GetParameters()->SetValue("Brho", Brho);
+      part->GetParameters()->SetValue("Delta", delta);
+      part->GetParameters()->SetValue("ThetaV", th_v);
+      part->GetParameters()->SetValue("PhiV", ph_v);
+   }
+
+
+   return NVL;
+}
+//________________________________________________________________
+
 void KVVAMOS::FocalToTarget(const Double_t* focal, Double_t* target)
 {
    // Convert the point coordinates from focal plane reference to target reference system.
@@ -736,6 +798,45 @@ void KVVAMOS::FocalToTargetVect(const Double_t* focal, Double_t* target)
 {
    // Convert the vector coordinates from focal plane reference to target reference system.
    GetFocalToTargetMatrix().LocalToMasterVect(focal, target);
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::Calibrate(KVReconstructedNucleus* nuc)
+{
+   // Calculate and set the energy of a reconstructed nucleus from
+   // the energy measured in the detectors listed in the detector
+   // list of this nucleus. A calibration function is used:
+   // Ecal = C_0 + C_1*E_CHI + C_2*E_SI + C_3*E_CSI;
+   // where C_i are calibration parameters and E_i calibrated
+   // energy of the detector i (KVVAMOSDetector::GetEnergy()).
+   // To set these parameters use SetECalibParameters(...) method.
+   //status code
+
+   nuc->SetECode(kECode0);
+   if (!GetECalibStatus()) return kFALSE;
+
+   TIter next(nuc->GetDetectorList());
+   KVVAMOSDetector* det = NULL;
+   KVVAMOSDetector* csi, *si, *chi;
+   csi = si = chi = NULL;
+   while ((det = (KVVAMOSDetector*)next())) {
+      if (det->IsType("CSI")) csi = det;
+      else if (det->IsType("SI")) si = det;
+      else if (det->IsType("CHI")) chi = det;
+   }
+
+   Double_t E =  fECalibPar[0]
+                 + (chi ? fECalibPar[1] * chi->GetEnergy() : 0.)
+                 + (si  ? fECalibPar[2] * si->GetEnergy() : 0.)
+                 + (csi ? fECalibPar[3] * csi->GetEnergy() : 0.);
+
+   if (E <= 0) return kFALSE;
+
+   nuc->SetEnergy(E);
+   nuc->SetECode(kECode1);
+   nuc->SetIsCalibrated();
+
+   return kTRUE;
 }
 //________________________________________________________________
 
@@ -794,26 +895,31 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
    TString uri;
 
    // prefix of the URI
-   TString prefix[2];
-   prefix[0].Form("%s.%s.", fDataSet.Data(), GetName());
-   prefix[1].Form("%s."   , GetName());
-
+   TString prefixes[5];
+   TString prefix;
+   // for E-DE identification (Z)
+   prefixes[0].Form("%s.%s."   , fDataSet.Data(), GetName());
+   prefixes[1].Form("%s."      , GetName());
+   // for Q and A identification with A-A/Q or Q-A/Q maps
+   prefixes[2].Form("%s.%s.QA.", fDataSet.Data(), GetName());
+   prefixes[3].Form("%s.QA."   , GetName());
+   prefixes[4] = "";
 
    //look for ID telescopes with only one of the two detectors
    KVDetector* dets[3] = { de , e, NULL };
    KVDetector* det     = NULL;
 
    for (UChar_t i = 0; (det = dets[i]);  i++) {
-      for (UChar_t j = 0; j < 2; j++) {
+      for (UChar_t j = 0; !((prefix = prefixes[j]).IsNull()); j++) {
 
-         uri.Form("%s%s%d", prefix[j].Data(), det->GetType(),
+         uri.Form("%s%s%d", prefix.Data(), det->GetType(),
                   TMath::Nint(det->GetThickness()));
          if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
             set_up_single_stage_telescope(det, idtels, idt, uri);
             break;
          }
 
-         uri.Form("%s%s", prefix[j].Data(), det->GetType());
+         uri.Form("%s%s", prefix.Data(), det->GetType());
          if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
             set_up_single_stage_telescope(det, idtels, idt, uri);
             break;
@@ -828,30 +934,30 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
    Int_t de_thick = TMath::Nint(de->GetThickness());
    Int_t e_thick  = TMath::Nint(e->GetThickness());
 
-   for (UChar_t j = 0; j < 2; j++) {
+   for (UChar_t j = 0; !((prefix = prefixes[j]).IsNull()); j++) {
 
-      uri.Form("%s%s%d-%s%d", prefix[j].Data(), de->GetType(),
+      uri.Form("%s%s%d-%s%d", prefix.Data(), de->GetType(),
                de_thick, e->GetType(), e_thick);
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idtels, idt, uri);
          break;
       }
 
-      uri.Form("%s%s%d-%s", prefix[j].Data(), de->GetType(),
+      uri.Form("%s%s%d-%s", prefix.Data(), de->GetType(),
                de_thick, e->GetType());
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idtels, idt, uri);
          break;
       }
 
-      uri.Form("%s%s-%s%d", prefix[j].Data(), de->GetType(), e->GetType(),
+      uri.Form("%s%s-%s%d", prefix.Data(), de->GetType(), e->GetType(),
                e_thick);
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idtels, idt, uri);
          break;
       }
 
-      uri.Form("%s%s-%s", prefix[j].Data(), de->GetType(), e->GetType());
+      uri.Form("%s%s-%s", prefix.Data(), de->GetType(), e->GetType());
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idtels, idt, uri);
          break;
@@ -860,7 +966,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
 
    if (!idt) {
       // Make a generic de-e identification telescope
-      uri.Form("%s%s-%s", prefix[1].Data(), de->GetType(), e->GetType());
+      uri.Form("%s%s-%s", prefixes[1].Data(), de->GetType(), e->GetType());
       idt = new KVIDTelescope;
       set_up_telescope(de, e, idtels, idt, uri);
       idt->SetLabel(uri);
@@ -971,6 +1077,33 @@ void KVVAMOS::ResetParameters()
    SetBrhoRef(-1);
    SetBeamHF(-1);
    SetStripFoil(0);
+   fECalibPar[0]  = fECalibPar[1] = fECalibPar[2]  = fECalibPar[3] = 0.;
+   SetECalibStatus(kFALSE);
+}
+//________________________________________________________________
+
+void  KVVAMOS::SetECalibParameters(Double_t c_0, Double_t c_chi, Double_t c_si, Double_t c_csi)
+{
+   //Set the fECalibPar parameters for the energy calibration of a reconstructed
+   //nucleus (see method Calibrate(...)).
+   //Once the parameters have been set with this method, the status of the
+   //for the calibration becomes 'OK' or 'Ready'
+   fECalibPar[0] = c_0;
+   fECalibPar[1] = c_chi;
+   fECalibPar[2] = c_si;
+   fECalibPar[3] = c_csi;
+   SetECalibStatus(kTRUE);
+}
+//________________________________________________________________
+
+void KVVAMOS::SetPedestal(const Char_t* name, Float_t ped)
+{
+   // Set value of pedestal associated to parameter with given name.
+
+   KVACQParam* par = GetACQParam(name);
+   if (par) {
+      par->SetPedestal(ped);
+   }
 }
 //________________________________________________________________
 

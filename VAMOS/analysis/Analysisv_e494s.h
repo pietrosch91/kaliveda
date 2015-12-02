@@ -74,6 +74,10 @@ public:
    {
       list2 = list2;
    };
+   void SetFileCutSiTof(TList* list3)
+   {
+      list3 = list3;
+   };
 
    void SetTarget(KVTarget* tgt)
    {
@@ -112,6 +116,19 @@ public:
       ccsi    = ccsi;
    };
 
+   void SetAngleVamos(Float_t angle)
+   {
+      angle = angle;
+   };
+   void SetBrhoRef(Float_t brho)
+   {
+      brho  = brho;
+   };
+
+   virtual void SetCurrentRun(Int_t run)
+   {
+      run = run;
+   };
 
    ClassDef(Analysisv_e494s, 0) //VAMOS calibration for E494S
 

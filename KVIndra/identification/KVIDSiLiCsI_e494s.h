@@ -10,9 +10,14 @@
 #include "KVCsI.h"
 
 class KVIDSiLiCsI_e494s : public KVIDSiLiCsI, public KVRTGIDManager {
+protected:
 
    KVINDRADetector* fSiLi; //!
    KVCsI*           fCsI;  //!
+   Double_t fThresholdX; //!
+   Double_t fThresholdY; //!
+
+   Double_t GetThesholdFromVar(const Char_t* var);
 
 public:
    KVIDSiLiCsI_e494s();

@@ -25,11 +25,13 @@ public:
    {
       return fPar;
    };
-   virtual Double_t GetLumiereTotale(Double_t  = -1.0, Double_t = -1.0)
+   virtual Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+                                        -1.0)
    {
       return fPar->GetData();
    };
-   virtual Double_t GetCorrectedLumiereTotale(Double_t = -1.0, Double_t  = -1.0)
+   virtual Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+            -1.0)
    {
       return fPar->GetData();
    };

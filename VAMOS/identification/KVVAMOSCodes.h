@@ -108,6 +108,7 @@ public:
    const Char_t* GetTStatus();
    UInt_t   GetFPCode();
    UShort_t GetTCode();
+   static UShort_t GetTCode(const Char_t*);
    void     SetFPCode(UInt_t);
    void     SetFPCode(Int_t nc1, Int_t nc2, Int_t ni1 = -1, Int_t ni2 = -1, Bool_t ni1x = kTRUE);
    void     SetTCode(UShort_t);

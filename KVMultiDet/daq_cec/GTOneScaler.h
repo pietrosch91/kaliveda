@@ -44,6 +44,10 @@ public:
    {
       return (fCount);
    }
+   UInt_t GetStatus(void) const
+   {
+      return (fStatus);
+   }
 
    void ls(Option_t* opt = "") const;
 

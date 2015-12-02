@@ -2,7 +2,6 @@
 #include "TVector3.h"
 #include "KVDataSet.h"
 
-#include "KVINDRADB_e503.h"
 #include "KVINDRAe503.h"
 
 #include <cmath>
@@ -26,24 +25,24 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 
 Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
 {
-#ifdef DEBUG
+//#ifdef DEBUG
    cout << "Reconstructionv::Constructor" << endl;
-#endif
+//#endif
    Ready = kFALSE;
    char line[255];
    char fname[30];
    int len = 255;
-   int i, j;
 
    L = Log;
    Dr = Drift;
 
 
-   for (i = 0; i < 6; i++)
+   for (Int_t i = 0; i < 6; i++)
       Counter[i] = 0;
 
+   cout << "Start Init Reconstructionv" << endl << flush;
    Init();
-
+   cout << "Finish Init Reconstructionv" << endl << flush;
    Rnd = new Random;
 
 //===================================================
@@ -72,6 +71,7 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
       Etendue[i] = 0.0;
    }
 
+   cout << "Start Reading pl_proj.dat" << endl << flush;
    if (!gDataSet->OpenDataSetFile("pl_proj.dat", file)) {
       cout << "Could not open the file for the phiL correction !" << endl;
       return;
@@ -94,14 +94,16 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
       }
    }
    file.close();
+   cout << "Finish Reading pl_proj.dat" << endl << flush;
 //===================================================
 
 
 //===================================================
 //Tagging the event to not count events inside the different overlap regions
 
-   ifstream file2;
+   /*ifstream file2;
    TString sline2;
+   int tmp2=0;
 
    Float_t brho0;
    Int_t run1;
@@ -109,41 +111,46 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
    Float_t brhomin;
    Float_t brhomax;
 
-   for (Int_t i = 0; i < 600; i++) {
+   for(Int_t i=0;i<600;i++){
       Brho_min[i] = -10.0;
       Brho_max[i] = -10.0;
    }
 
-   if (!gDataSet->OpenDataSetFile("Brho_tag.dat", file2)) {
+   if(!gDataSet->OpenDataSetFile("Brho_tag.dat", file2))
+   {
       cout << "Could not open the file for the tag !" << endl;
-      return;
+         return;
    }
 
    while (file2.good()) {         //reading the file
-      sline2.ReadLine(file2);
-      if (!file2.eof()) {          //fin du fichier
-         if (sline2.Sizeof() > 1 && !sline2.BeginsWith("#")) {
-            sscanf(sline2.Data(), "%f %d %d %f %f", &brho0, &run1, &run2, &brhomin, &brhomax);
-            for (Int_t i = run1; i < run2; i++) {
-               Brho_min[i] = brhomin;
-               Brho_max[i] = brhomax;
-            }
-            if (run1 == run2) {
-               Brho_min[run1] = brhomin;
-               Brho_max[run2] = brhomax;
-            }
-            if (TMath::Abs(run2 - run1) == 1) {
-               Brho_min[run1] = brhomin;
-               Brho_max[run1] = brhomax;
-               Brho_min[run2] = brhomin;
-               Brho_max[run2] = brhomax;
-            }
+         sline2.ReadLine(file2);
+         if (!file2.eof()) {          //fin du fichier
+         if (sline2.Sizeof() > 1 && !sline2.BeginsWith("#")){
+            sscanf(sline2.Data(),"%f %d %d %f %f", &brho0, &run1, &run2, &brhomin, &brhomax);
+               for(Int_t i=run1; i<run2; i++){
+                  Brho_min[i] = brhomin;
+                  Brho_max[i] = brhomax;
+                  }
+               if(run1==run2)
+                  {
+                  Brho_min[run1] = brhomin;
+                  Brho_max[run2] = brhomax;
+                  }
+               if(TMath::Abs(run2-run1)==1)
+                  {
+                  Brho_min[run1] = brhomin;
+                  Brho_max[run1] = brhomax;
+                  Brho_min[run2] = brhomin;
+                  Brho_max[run2] = brhomax;
+                  }
          }
       }
    }
-   file2.close();
+   file2.close(); */
 
 //===================================================
+   cout << "Start Reading Vamos_distance.dat" << endl << flush;
+
    ifstream inf3;
    if (!gDataSet->OpenDataSetFile("Vamos_distance.dat", inf3)) {
       cout << "Could not open the calibration file Vamos_distance.dat !" << endl;
@@ -190,7 +197,9 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
       L->Log << DCSI << endl;
    }
    inf3.close();
+   cout << "Finish Reading Vamos_distance.dat" << endl << flush;
 
+   cout << "Start Reading Reconstruction.cal" << endl << flush;
    ifstream inf;
    if (!gDataSet->OpenDataSetFile("Reconstruction.cal", inf)) {
       cout << "Could not open the calibration file Reconstruction.cal !" << endl;
@@ -210,7 +219,7 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
 
       inf.getline(line, len);
 
-      for (j = 0; j < 4; j++) {
+      for (Int_t j = 0; j < 4; j++) {
          inf.getline(line, len);
          cout << line << endl;
          L->Log << line << endl;
@@ -231,7 +240,7 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
             cout << line << endl;
             L->Log << line << endl;
 
-            for (i = 0; i < 330; i++)
+            for (Int_t i = 0; i < 330; i++)
                inf1 >> Coef[j][i];
 
          }
@@ -246,6 +255,8 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
    }
    inf.close();
    Ready = kTRUE;
+
+   cout << "Finish Reading Reconstruction.cal" << endl << flush;
 }
 Reconstructionv::~Reconstructionv(void)
 {
@@ -308,8 +319,8 @@ void Reconstructionv::Calculate(void)
    Vec[4] = 0.; //(Double_t) (-1. * atan(tan((Dr->Pf)/1000.)*cos((Dr->Tf)/1000.)));
    //goes to zgoubi coordinates
 
-//L->Log<<"Xf = "<<Dr->Xf<<endl;
-//L->Log<<"Tf = "<<Dr->Tf<<endl;
+//cout<<"Xf = "<<Dr->Xf<<endl;
+//cout<<"Tf = "<<Dr->Tf<<endl;
 
    i = 0;
    for (j[0] = 0; j[0] < 5; j[0]++)
@@ -360,17 +371,27 @@ void Reconstructionv::Calculate(void)
    //L->Log << "Brhot = "<< Brhot << " " << "Thetat = "<< Thetat << " " <<"Phit = "<< Phit <<" "<<"Patht = "<<Patht<<endl;
    //L->Log<<"-----------"<<endl;
    //  cout << i << " " << Dr->Xf/10. << " " << Dr->Tf << " " << Dr->Yf/10. << " " << Dr->Pf << endl;
+
+   //cout<<"Brho : "<<BrhoRef*((Float_t) Brhot)<<endl;
+   //cout<<"Brhot : "<<Brhot <<" Thetat : "<< Thetat<<" Phit : "<<Phit<<" Patht : "<<Patht<<endl;
+
+   Brho_always = BrhoRef * ((Float_t) Brhot);
+   Theta_always = (Float_t)((Thetat * -1.) / 1000.) * TMath::RadToDeg();
+   Phi_always = (Float_t)((Phit * -1.) / 1000.) * TMath::RadToDeg();
+   Path_always = (Float_t) Patht;
+
+
    if (Brhot > 0.001 && Thetat > -300. && Thetat < 300.
          && Phit > -300. && Phit < 300. && Patht > 0 && Patht < 2000.) {
       Counter[2]++;
       Present = true;
-      Brho = (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")) * ((Float_t) Brhot);
+      Brho = BrhoRef * ((Float_t) Brhot);
       Theta = (Float_t) Thetat * -1;
       Phi = (Float_t) Phit * -1;
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta / 1000.)*cos(Phi / 1000.), sin(Phi / 1000.), cos(Theta / 1000.)*cos(Phi / 1000.));
-      myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*TMath::DegToRad());
+      myVec.RotateY(AngleVamos * TMath::DegToRad());
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
       Thetadeg = (Theta / 1000.) * TMath::RadToDeg();
@@ -397,16 +418,17 @@ void Reconstructionv::Calculate(void)
       //L->Log<<"-----------"<<endl;
 
 //Tagging the event...
-      if (Brho_min[gIndra->GetCurrentRunNumber()] < Brho && Brho < Brho_max[gIndra->GetCurrentRunNumber()]) {
-         Brho_tag = 1;
-      } else {
-         Brho_tag = 0;
-      }
+      /* if(Brho_min[gIndra->GetCurrentRunNumber()] < Brho && Brho < Brho_max[gIndra->GetCurrentRunNumber()]){
+            Brho_tag = 1;
+            }
+         else{
+            Brho_tag = 0;
+            }*/
 
 
 
 //Warning : Correction (corr_pl) is applied for thetaL<0.12 rad and phiL between -1 and 1 rad.
-      deltat = double(Brho / (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")));
+      deltat = double(Brho / BrhoRef);
       //L->Log<<"Delta : "<<deltat<<endl;
 
       for (Int_t j = 0; j < 450; j++) {
@@ -456,19 +478,24 @@ void Reconstructionv::outAttach(TTree* outT)
 #endif
 
    outT->Branch("Brho", &Brho, "Brho/F");
-   //outT->Branch("Theta",&Theta,"Theta/F");
-   //outT->Branch("Phi",&Phi,"Phi/F");
    outT->Branch("Thetadeg", &Thetadeg, "Thetadeg/F");
    outT->Branch("Phideg", &Phideg, "Phideg/F");
-   //outT->Branch("Path",&Path,"Path/F");
-   //outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
-   //outT->Branch("PhiL",&PhiL,"PhiL/F");*/
-
    outT->Branch("ThetaLdeg", &ThetaLdeg, "ThetaLdeg/F");
    outT->Branch("PhiLdeg", &PhiLdeg, "PhiLdeg/F");
    outT->Branch("corr_pl", &corr_pl, "corr_pl/D");
-   //outT->Branch("Brho_tag",&Brho_tag,"Brho_tag/I");
    outT->Branch("Delta", &deltat, "deltat/D");
+
+   //outT->Branch("Theta",&Theta,"Theta/F");
+   //outT->Branch("Phi",&Phi,"Phi/F");
+   outT->Branch("Path", &Path, "Path/F");
+   outT->Branch("Brho_always", &Brho_always, "Brho_always/F");
+   outT->Branch("Theta_always", &Theta_always, "Theta_always/F");
+   outT->Branch("Phi_always", &Phi_always, "Phi_always/F");
+   outT->Branch("Path_always", &Path_always, "Path_always/F");
+   //outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
+   //outT->Branch("PhiL",&PhiL,"PhiL/F");*/
+
+   //outT->Branch("Brho_tag",&Brho_tag,"Brho_tag/I");
 
    /*outT->Branch("Brho_y",&Brho_y,"Brho_y/F");
    outT->Branch("Theta_y",&Theta_y,"Theta_y/F");
