@@ -9,6 +9,7 @@
 #include "KVList.h"
 #include "KVHashList.h"
 #include "TGeoMatrix.h"
+#include "KVReconstructedNucleus.h"
 
 using namespace std;
 

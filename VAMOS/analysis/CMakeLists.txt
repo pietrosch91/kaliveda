@@ -4,7 +4,7 @@ endif()
 
 BUILD_KALIVEDA_MODULE(analysis
 	PARENT ${KVSUBPROJECT}
-	KVMOD_DEPENDS calibration base exp_events geometry reconstruction identification
+	KVMOD_DEPENDS calibration base exp_events geom_deps geometry identification
 	LIB_EXCLUDE ${excluded_classes}
 	EXTRA_LIBS ${KVIndra_LIB_LIST} ${KVMultiDet_LIB_LIST}
 )

@@ -516,7 +516,7 @@ void KVVAMOSReconNuc::IdentifyQandA()
          for (Short_t i = 0; !ok && (tof_name = GetCodes().GetToFName(i)); i++) {
 
 
-            IDR.Reset();
+            IDR.Clear();
             IDR.IDattempted = kTRUE;
 
             Double_t beta    = GetBeta(tof_name);

@@ -14,11 +14,6 @@ ClassImp(KVDriftChamber)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD:VAMOS/exp_events/KVDriftChamber.cpp
-void KVDriftChamber::init()
-{
-   // Initialise non-persistent pointers
-=======
 
 KVString KVDriftChamber::fACQParamTypes("0:Q, 1:E, 2:T, 9:NO_TYPE");
 KVString KVDriftChamber::fPositionTypes("0:X1, 1:X2, , 2:Y, 3:Z, 4:XY, 9:NO_TYPE");
@@ -62,7 +57,6 @@ void KVDriftChamber::init()
 
    //a KVDriftChamber can not be used in a ID telescope
    ResetBit(kOKforID);
->>>>>>> 1.9:VAMOS/detectors/KVDriftChamber.cpp
 }
 //________________________________________________________________
 
@@ -114,17 +108,6 @@ void KVDriftChamber::Copy(TObject& obj) const
 }
 //________________________________________________________________
 
-<<<<<<< HEAD:VAMOS/exp_events/KVDriftChamber.cpp
-const Char_t* KVDriftChamber::GetArrayName()
-{
-   // Name of detector given in the form
-   // FIL_1 FIL_2
-   // to be compatible with GANIL acquisition parameters.
-   //
-   // The root of the name is the detector type.
-   fFName = Form("%s_%d", GetType(), GetNumber());
-   return fFName.Data();
-=======
 void  KVDriftChamber::Clear(Option_t* option)
 {
    // Set the energy losses etc. to zero and reset the histograms used
@@ -454,7 +437,6 @@ void KVDriftChamber::ShowCleanQHisto(Int_t c_num, Option_t* opt)
 {
    TH1F* hh = GetCleanQHisto(c_num);
    if (hh) hh->Draw(opt);
->>>>>>> 1.9:VAMOS/detectors/KVDriftChamber.cpp
 }
 //________________________________________________________________
 

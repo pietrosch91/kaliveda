@@ -37,10 +37,12 @@ public:
    void     AcceptTCodes(UShort_t code);
    KVVAMOSReconNuc*    GetNextNucleus(Option_t* opt = "");
    KVVAMOSReconNuc*    GetNucleus(Int_t n_nuc) const;
+   virtual void     IdentifyEvent_A();
+   virtual void     IdentifyEvent_Z();
    virtual void     IdentAndCalibEvent();
    virtual Bool_t   IsOK();
    virtual void     Print(Option_t* option = "") const;
-   virtual void     ReconstructEvent(KVDetectorEvent* kvde);
+   virtual void     ReconstructEvent(KVMultiDetArray*, KVDetectorEvent* kvde);
 
 
    inline Bool_t CheckCodes(KVVAMOSCodes& code)

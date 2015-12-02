@@ -5,6 +5,7 @@
 #define __KVVAMOSRECONGEONAVIGATOR_H
 
 #include "KVGeoNavigator.h"
+#include "KVIonRangeTable.h"
 
 class KVVAMOSReconNuc;
 class KVIonRangeTable;

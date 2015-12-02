@@ -203,6 +203,21 @@ KVVAMOSReconNuc* KVVAMOSReconEvent::GetNucleus(Int_t n_nuc) const
 }
 //________________________________________________________________
 
+void KVVAMOSReconEvent::IdentifyEvent_A()
+{
+
+   Warning("IdentifyEvent_A", "TO BE IMPLEMENTED");
+}
+//________________________________________________________________
+
+void KVVAMOSReconEvent::IdentifyEvent_Z()
+{
+   //If the nuclei measured in VAMOS have not been previously Z-identified
+   //it will be Z-identified.
+
+   KVReconstructedEvent::IdentifyEvent();
+}
+//________________________________________________________________
 void KVVAMOSReconEvent::IdentAndCalibEvent()
 {
 
@@ -294,7 +309,7 @@ void KVVAMOSReconEvent::Print(Option_t* option) const
 }
 //________________________________________________________________
 
-void KVVAMOSReconEvent::ReconstructEvent(KVDetectorEvent* kvde)
+void KVVAMOSReconEvent::ReconstructEvent(KVMultiDetArray* mda, KVDetectorEvent* kvde)
 {
    //
    // Reconstruction of detected nuclei
@@ -308,7 +323,7 @@ void KVVAMOSReconEvent::ReconstructEvent(KVDetectorEvent* kvde)
    //   Then the trajectory (theta, phi, Brho, path) of each reconstructed nucleus is reconstructed
    //   from positions (Xf, Yf, Theta_f, Phi_f) mesured at the focal plane.
 
-   KVReconstructedEvent::ReconstructEvent(kvde);
+   mda->ReconstructEvent(this, kvde);
 
    KVVAMOSReconNuc* nuc = NULL;
 // UChar_t Nnuc = 0;

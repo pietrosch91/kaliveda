@@ -7,6 +7,7 @@
 #include "KVVAMOSDetector.h"
 #include "TF1.h"
 #include "KVSeDPositionCal.h"
+#include "KVDataSet.h"
 
 
 #define IS_IN_SED_WINDOW( X, Y )( (-20 <= X && X <= 20  && -5 <= Y && Y <= 5) )

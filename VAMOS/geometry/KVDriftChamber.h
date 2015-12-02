@@ -8,13 +8,8 @@
 
 #include "KVVAMOSDetector.h"
 #include "KVUnits.h"
+#include "KVDataSet.h"
 
-<<<<<<< HEAD:VAMOS/exp_events/KVDriftChamber.h
-class KVDriftChamber : public KVVAMOSDetector {
-protected:
-   void init();
-
-=======
 class TH1F;
 
 class KVDriftChamber : public KVVAMOSDetector {
@@ -41,14 +36,11 @@ protected:
 
    void init();
 
->>>>>>> 1.9:VAMOS/detectors/KVDriftChamber.h
 public:
    KVDriftChamber();
    KVDriftChamber(const KVDriftChamber&) ;
    virtual ~KVDriftChamber();
    void Copy(TObject&) const;
-<<<<<<< HEAD:VAMOS/exp_events/KVDriftChamber.h
-=======
 
    virtual Float_t CalculateQThreshold(Int_t c_num);
    virtual void  Clear(Option_t* option = "");
@@ -60,12 +52,9 @@ public:
    virtual Double_t GetRawPosition(Char_t dir = 'X', Int_t num = 0);
    using KVVAMOSDetector::GetRawPositionError;
    virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num = 0);
->>>>>>> 1.9:VAMOS/detectors/KVDriftChamber.h
 
    virtual void  Initialize();
    virtual const Char_t* GetArrayName();
-<<<<<<< HEAD:VAMOS/exp_events/KVDriftChamber.h
-=======
    virtual const Char_t* GetEBaseName() const;
    virtual Bool_t PositionIsOK();
    virtual void  ResetCalculatedData();
@@ -94,7 +83,6 @@ public:
    void      SetZOffsets(Float_t X1 = -2.5, Float_t X2 = 2.5, Float_t Y = 0);
    void      SetXOffsets(Float_t X1 = 0., Float_t X2 = 0.);
 
->>>>>>> 1.9:VAMOS/detectors/KVDriftChamber.h
    ClassDef(KVDriftChamber, 1) //Drift Chamber, used at the focal plan of VAMOS
 };
 //________________________________________________________________

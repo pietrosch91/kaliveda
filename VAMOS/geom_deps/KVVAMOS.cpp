@@ -296,7 +296,7 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv* infos)
 
    // Reading geometry iformations in .cao files
    const Char_t dirname[] = "VAMOSgeometry";
-   TString path(GetKVFilesDir());
+   TString path(KVBase::GetDATADIRFilePath());
    path += "/";
    if (gDataSet) {
       path += gDataSet->GetName();

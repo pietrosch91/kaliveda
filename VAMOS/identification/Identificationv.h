@@ -25,6 +25,7 @@
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
+#include "KVINDRADB.h"
 
 class Identificationv {
 public:

@@ -7,6 +7,7 @@
 #include "KVSpectroDetector.h"
 #include "KVVAMOS.h"
 #include "KVFunctionCal.h"
+#include "KVDataSet.h"
 
 class KVVAMOSDetector : public KVSpectroDetector {
 

@@ -6,6 +6,8 @@
 
 #include "KVIDGrid.h"
 #include "KVIDQALine.h"
+#include "KVIdentificationResult.h"
+#include "KVReconstructedNucleus.h"
 
 class KVIDQAGrid : public KVIDGrid {
 public:
