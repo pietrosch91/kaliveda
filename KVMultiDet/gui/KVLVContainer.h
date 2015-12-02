@@ -11,6 +11,7 @@ $Date: 2009/04/28 09:11:29 $
 #define __KVLVCONTAINER_H
 
 #include "TGListView.h"
+#include "TFunction.h"
 #include "TString.h"
 #include "TMethodCall.h"
 #include "TClass.h"
