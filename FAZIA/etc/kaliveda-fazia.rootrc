@@ -125,8 +125,7 @@ ISOFAZIA.IdentificationParameterFile.Si-Si:       Si1Si2_ISOFAZIA.dat
 ISOFAZIA.ActiveIdentifications:        CsI Si-Si
 
 # ISOFAZIA calibration files
-ISOFAZIA.FAZIADB.Si1Calibration:     calibSI1_ISOFAZIA.dat
-ISOFAZIA.FAZIADB.Si2Calibration:     calibSI2_ISOFAZIA.dat
+ISOFAZIA.FAZIADB.CalibrationFiles:     CalibrationFiles.dat
 
 #
 # parameters for the filter for signal processing

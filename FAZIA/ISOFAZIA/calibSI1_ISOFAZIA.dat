@@ -1,3 +1,6 @@
+#Calibration for SI1 detector
+# Energy = AmplitudeQH1/par
+# Name: par
 SI1-T1-Q1-B000:         3.82121
 SI1-T2-Q1-B000:         1.61908
 SI1-T3-Q1-B000:         3.93004

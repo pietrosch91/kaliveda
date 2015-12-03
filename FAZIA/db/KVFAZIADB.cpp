@@ -7,6 +7,7 @@
 #include "KVRunListLine.h"
 #include "KVFileReader.h"
 #include "KVDBParameterList.h"
+#include "KVDBParameterSet.h"
 
 KVFAZIADB* gFaziaDB;
 
@@ -31,6 +32,7 @@ void KVFAZIADB::init()
    fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
    fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
+   fCalibrations = AddTable("Calibrations", "Available calibration for FAZIA detectors");
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t* name): KVDataBase(name,
@@ -351,39 +353,17 @@ void KVFAZIADB::Build()
    //Use KVINDRARunListReader utility subclass to read complete runlist
 
    //get full path to runlist file, using environment variables for the current dataset
+
    TString runlist_fullpath;
    KVBase::SearchKVFile(GetDBEnv("Runlist"), runlist_fullpath, fDataSet.Data());
-
-   //set comment character for current dataset runlist
-   //SetRLCommentChar(GetDBEnv("Runlist.Comment")[0]);
-
-   //set field separator character for current dataset runlist
-   /*
-   if (!strcmp(GetDBEnv("Runlist.Separator"), "<TAB>"))
-      SetRLSeparatorChar('\t');
-   else
-      SetRLSeparatorChar(GetDBEnv("Runlist.Separator")[0]);
-   */
-   //by default we set two keys for both recognising the 'header' lines and deciding
-   //if we have a good run line: the "Run" and "Events" fields must be present
-   /*
-   GetLineReader()->SetFieldKeys(2, GetDBEnv("Runlist.Run"),
-                                 GetDBEnv("Runlist.Events"));
-   GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
-                               GetDBEnv("Runlist.Events"));
-   */
-
    kFirstRun = 999999;
    kLastRun = 0;
-   /*
-   ReadRunList(runlist_fullpath.Data());
-   //new style runlist
-   if( IsNewRunList() ){ ReadNewRunList(); };
-   */
+
    ReadNewRunList();
    ReadSystemList();
    ReadExceptions();
    ReadComments();
+   ReadCalibrationFiles();
 }
 
 
@@ -583,6 +563,62 @@ void KVFAZIADB::ReadComments()
             }
          }
       }
+   }
+
+}
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadCalibrationFiles()
+{
+
+   if (!strcmp(GetCalibFileName("CalibrationFiles"), "")) {
+      Info("ReadCalibrationFiles()", "No file foud for CalibrationFiles");
+      return;
+   }
+   TString fp;
+   gDataSet->SearchKVFile(GetCalibFileName("CalibrationFiles"), fp, gDataSet->GetName());
+
+
+   KVFileReader fr;
+   if (!fr.OpenFileToRead(fp.Data())) {
+      Error("ReadCalibrationFiles()", "Error in opening file %s\n", fp.Data());
+      return;
+   }
+
+   Info("ReadCalibrationFiles()", "Reading calibration files");
+   while (fr.IsOK()) {
+      fr.ReadLine(0);
+      if (fr.GetCurrentLine().BeginsWith("#") || fr.GetCurrentLine() == "") {}
+      else {
+         ReadCalibFile(fr.GetCurrentLine().Data());
+      }
+   }
+   fr.CloseFile();
+
+}
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadCalibFile(const Char_t* filename)
+{
+
+   if (gSystem->Exec(Form("test -e %s/%s", GetDataSetDir(), filename)) != 0) {
+      Info("ReadCalibFile", "%s/%s do not exist", GetDataSetDir(), filename);
+      return;
+   }
+
+   TEnv env;
+   env.ReadFile(Form("%s/%s", GetDataSetDir(), filename), kEnvAll);
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+   KVNumberList default_run_list;
+   default_run_list.SetMinMax(GetFirstRun(), GetLastRun());
+
+   while ((rec = (TEnvRec*)next())) {
+      TString sdet(rec->GetName());
+      TString sval(rec->GetValue());
+      par = new KVDBParameterSet(sdet.Data(), "Calibration", 1);
+      par->SetParameter(sval.Atof());
+      fCalibrations->AddRecord(par);
+      LinkRecordToRunRange(par, default_run_list);
    }
 
 }

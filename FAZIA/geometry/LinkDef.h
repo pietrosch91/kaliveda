@@ -23,4 +23,5 @@
 #pragma link C++ class KVQ3+;
 #pragma link C++ class KVI1+;
 #pragma link C++ class KVI2+;
+#pragma link C++ class KVFAZIACalibrator+;
 #endif

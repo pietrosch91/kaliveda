@@ -20,6 +20,7 @@ protected:
    KVDBTable* fRuns;            //-> table of runs
    KVDBTable* fSystems;         //-> table of systems
    KVDBTable* fExceptions;       //-> table of exceptions
+   KVDBTable* fCalibrations;       //-> table for calibrations
 
    virtual void ReadSystemList();
    virtual void LinkListToRunRanges(TList* list, UInt_t rr_number,
@@ -35,6 +36,7 @@ protected:
    void init();
    Bool_t OpenCalibFile(const Char_t* type, std::ifstream& fs) const;
    const Char_t* GetDBEnv(const Char_t* type) const;
+   void ReadCalibFile(const Char_t* filename);
 
 public:
 
@@ -66,6 +68,16 @@ public:
 //    return (KVFAZIADBRun *) GetRuns()->FindObject(run);
 // }
 
+   Int_t GetFirstRun() const
+   {
+      return kFirstRun;
+   }
+
+   Int_t GetLastRun() const
+   {
+      return kLastRun;
+   }
+
    virtual KVSeqCollection* GetRuns() const
    {
       return fRuns->GetRecords();
@@ -86,6 +98,7 @@ public:
    void WriteSystemsFile() const;
    void ReadExceptions();
    void ReadComments();
+   void ReadCalibrationFiles();
 
    virtual void PrintRuns(KVNumberList&) const;
    virtual void cd();

@@ -23,6 +23,8 @@ void KVFAZIADetector::init()
 {
    //default initialisations
    fSignals = 0;
+   fChargeToEnergy = 0;
+   fLabel = -1;
 }
 
 //________________________________________________________________
@@ -45,6 +47,27 @@ KVFAZIADetector::~KVFAZIADetector()
    // Destructor
    delete fSignals;
 
+}
+
+//________________________________________________________________
+void KVFAZIADetector::SetCalibrators()
+{
+   //Set up calibrators for this detector. Call once name has been set.
+
+   fChargeToEnergy = new KVFAZIACalibrator(GetName(), "Charge-Energy", 1);
+   fChargeToEnergy->SetDetector(this);
+   AddCalibrator(fChargeToEnergy);
+}
+
+//________________________________________________________________
+Double_t KVFAZIADetector::GetCalibratedEnergy()
+{
+   //Set up calibrators for this detector. Call once name has been set.
+
+   if (fChargeToEnergy->GetStatus()) {
+      return fChargeToEnergy->Compute(fCharge);
+   }
+   return 0;
 }
 
 //________________________________________________________________
@@ -93,6 +116,10 @@ Bool_t KVFAZIADetector::SetProperties()
    KVString sname(GetName());
    sname.Begin("-");
    SetLabel(sname.Next());
+   if (!strcmp(GetLabel(), "SI1")) fIdentifier = kSI1;
+   else if (!strcmp(GetLabel(), "SI2")) fIdentifier = kSI2;
+   else if (!strcmp(GetLabel(), "CSI")) fIdentifier = kCSI;
+
    gFazia->AddDetectorLabel(GetLabel());
 
    tmp = sname.Next();
@@ -136,6 +163,8 @@ Bool_t KVFAZIADetector::SetProperties()
       fSignals->Add(sig);
       delete cl;
    }
+
+   SetCalibrators();
 
    return kTRUE;
 }
