@@ -60,37 +60,6 @@ public:
         // See CoherencySiCsI(KVIdentificationResult&).
         return fPileup;
     };
-    Bool_t IsSi75Pileup() const
-    {
-        // RINGS 10-17
-        // Returns result of coherency tests in etalon modules
-        // See CoherencyEtalons(KVIdentificationResult&).
-        return fPileupSi75;
-    };
-    Bool_t IsSiLiPileup() const
-    {
-        // RINGS 10-17
-        // Returns result of coherency tests in etalon modules
-        // See CoherencyEtalons(KVIdentificationResult&).
-        return fPileupSiLi;
-    };
-    Bool_t IsChIoPileup() const
-   {
-      // RINGS 10-17
-      // Returns result of coherency test between ChIo-CsI and CsI-RL identifications.
-      // See CoherencyChIoCsI(KVIdentificationResult&).
-      return fPileupChIo;
-   };
-   Bool_t UseFullChIoEnergyForCalib() const
-   {
-      // RINGS 1-9
-      // Returns result of coherency test between ChIo-Si, Si-CsI and CsI-RL identifications.
-      // See CoherencyChIoSiCsI(KVIdentificationResult).
-      // RINGS 10-17
-      // Returns kTRUE if there is just one particle in the ChIo, kFALSE if more
-
-      return fUseFullChIoEnergyForCalib;
-   };
    */
    KVFAZIAReconNuc();
    KVFAZIAReconNuc(const KVFAZIAReconNuc&);

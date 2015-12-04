@@ -45,7 +45,7 @@ Bool_t KVFAZIAIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t 
    CsIGrid->Identify(csil, csir, IDR);
 
    // set general ID code
-   IDR->IDcode = 2;
+   IDR->IDcode = GetIDCode();
 
    // general ID code for gammas
    if (IDR->IDquality == KVIDGCsI::kICODE10)
@@ -59,7 +59,7 @@ Bool_t KVFAZIAIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t 
 Double_t KVFAZIAIDCsI::GetIDMapX(Option_t*)
 {
    //X-coordinate for CsI identification map is raw "L" coder value
-   return (Double_t) fCsI->GetQ3Amplitude() - 0.8 * fCsI->GetQ3FastAmplitude();
+   return fCsI->GetQ3Amplitude() - 0.8 * fCsI->GetQ3FastAmplitude();
 }
 
 //____________________________________________________________________________________
@@ -84,6 +84,7 @@ void KVFAZIAIDCsI::Initialize()
    if (CsIGrid) {
       CsIGrid->Initialize();
       SetBit(kReadyForID);
-   } else
+   } else {
       ResetBit(kReadyForID);
+   }
 }

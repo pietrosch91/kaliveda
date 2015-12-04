@@ -26,6 +26,7 @@ $Id: KVFAZIAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "KVDetector.h"
 #include "KVMultiDetArray.h"
 #include "KVFAZIADetector.h"
+#include "KVIDZAGrid.h"
 
 using namespace std;
 
@@ -80,7 +81,7 @@ void KVFAZIAReconNuc::Copy(TObject& obj) const
 void KVFAZIAReconNuc::Print(Option_t* option) const
 {
 
-   KVReconstructedNucleus::Print(option);
+   //KVReconstructedNucleus::Print(option);
 
    if (IsIdentified()) {
 
@@ -110,26 +111,8 @@ void KVFAZIAReconNuc::Print(Option_t* option) const
          cout << "particles in group is directly possible." << endl;
          break;
 
-      case 1:
-         cout <<
-              "Particle status code 1"
-              << endl;
-         break;
-
-      case 2:
-         cout <<
-              "Particle status code 2"
-              << endl;
-         break;
-
-      case 3:
-         cout <<
-              "Particle stopped in first stage of telescope. Estimation of minimum Z."
-              << endl;
-         break;
-
       default:
-         cout << GetStatus() << endl;
+         cout << "Particle status code" << GetStatus() << endl;
          break;
    }
 
@@ -246,6 +229,7 @@ Bool_t KVFAZIAReconNuc::StoppedInCSI() const
 //____________________________________________________________________________________________
 
 
+/*
 void KVFAZIAReconNuc::Identify()
 {
    KVIdentificationResult partID;
@@ -264,6 +248,7 @@ void KVFAZIAReconNuc::Identify()
 
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
 
+            printf("idt getname : %s %d\n",idt->GetName(),idnumber);
             IDR->IDattempted = kTRUE;
             idt->Identify(IDR);
 
@@ -275,26 +260,26 @@ void KVFAZIAReconNuc::Identify()
             //printf("not ready\n");
             IDR->IDattempted = kFALSE;
          }
-         /*
-         if(n_success_id<1 &&
-                 ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
-             // the particle is less identifiable than initially thought
-             // we may have to wait for secondary identification
-             Int_t nseg = GetNSegDet();
-             SetNSegDet(TMath::Max(nseg - 1, 0));
-             //if there are other unidentified particles in the group and NSegDet is < 2
-             //then exact status depends on segmentation of the other particles : reanalyse
-             if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
-                 AnalyseParticlesInGroup(GetGroup());
-                 return;
-             }
-             //if NSegDet = 0 it's hopeless
-             if (!GetNSegDet()){
-                 AnalyseParticlesInGroup(GetGroup());
-                 return;
-             }
-         }
-         */
+
+//          if(n_success_id<1 &&
+//                  ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
+//              // the particle is less identifiable than initially thought
+//              // we may have to wait for secondary identification
+//              Int_t nseg = GetNSegDet();
+//              SetNSegDet(TMath::Max(nseg - 1, 0));
+//              //if there are other unidentified particles in the group and NSegDet is < 2
+//              //then exact status depends on segmentation of the other particles : reanalyse
+//              if (GetNSegDet() < 2 && GetNUnidentifiedInGroup(GetGroup()) > 1){
+//                  AnalyseParticlesInGroup(GetGroup());
+//                  return;
+//              }
+//              //if NSegDet = 0 it's hopeless
+//              if (!GetNSegDet()){
+//                  AnalyseParticlesInGroup(GetGroup());
+//                  return;
+//              }
+//          }
+//
 
 
       }
@@ -315,148 +300,118 @@ void KVFAZIAReconNuc::Identify()
       }
    }
 
-   // INDRA-specific particle identification.
-   // Here we attribute the Veda6-style general identification codes depending on the
-   // result of KVReconstructedNucleus::Identify and the subcodes from the different
-   // identification algorithms:
-   // If the particle's mass A was NOT measured, we make sure that it is calculated
-   // from the measured Z using the mass formula defined by default
-   //
-   //IDENTIFIED PARTICLES
-   //Identified particles with ID code = 2 with subcodes 4 & 5
-   //(masse hors limite superieure/inferieure) are relabelled
-   //with kIDCode10 (identification entre les lignes CsI)
-   //
-   //UNIDENTIFIED PARTICLES
-   //Unidentified particles receive the general ID code for non-identified particles (kIDCode14)
-   //EXCEPT if their identification in CsI R-L gave subcodes 6 or 7
-   //(Zmin) then they are relabelled "Identified" with IDcode = 9 (ident. incomplete dans CsI ou Phoswich (Z.min))
-   //Their "identifying" telescope is set to the CsI ID telescope
 
-//    KVReconstructedNucleus::Identify();
-//
-//    KVIdentificationResult partID;
-//    Bool_t ok = kFALSE;
-//
-//    // INDRA coherency treatment
-//    if(GetRingNumber()<10)
-//    {
-//       if(StoppedInCsI()){
-//          // particles stopping in CsI detectors on rings 1-9
-//          // check coherency of CsI-R/L and Si-CsI identifications
-//          ok = CoherencySiCsI(partID);
-//          // we check that the ChIo contribution is sane:
-//          // if no other particles hit this group, the Z given by the ChIoSi
-//          // must be <= the Z found from Si-CsI or CsI-RL identification
-//
-//          //if(fCoherent && !fPileup)
-//          fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
-//       }
-//       else
-//       {
-//          // particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
-//          Int_t id_no = 1;
-//          KVIdentificationResult *pid = GetIdentificationResult(id_no);
-//          while( pid && pid->IDattempted ){
-//             if( pid->IDOK ){
-//                ok = kTRUE;
-//                partID = *pid;
-//                break;
-//             }
-//             ++id_no;
-//             pid = GetIdentificationResult(id_no);
-//          }
-//          fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
-//       }
-//     }
-//    else
-//    {
-//        //identification couronne 10 a 17
-//        //Arret dans les CsI, coherence entre identification CsI RL et ChIo CsI
-//
-//        // if particle is alone in group, we can in principle attribute the ChIo energy
-//        // to the energy lost by this particle alone
-//        fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
-//        if (StoppedInCsI()){
-//
-//            if(GetSiLi()||GetSi75()) /* etalon module */
-//                ok = CoherencyEtalons(partID);
-//            else
-//                ok = CoherencyChIoCsI(partID);
-//
-//        }
-//        else if(StoppedInChIo()){
-//            // particle stopped in ChIo (=> Zmin)
-//            Int_t id_no = 1;
-//            KVIdentificationResult *pid = GetIdentificationResult(id_no);
-//            while( pid && pid->IDattempted ){
-//                if( pid->IDOK ){
-//                    ok = kTRUE;
-//                    partID = *pid;
-//                    break;
-//                }
-//                ++id_no;
-//                pid = GetIdentificationResult(id_no);
-//            }
-//            partID.Print();
-//        }
-//        else {
-//            // particle stopped in SiLi or Si75 (etalon modules)
-//            ok = CoherencyEtalons(partID);
-//        }
-//
-//    }
-//    if(ok){
-//         SetIsIdentified();
-//         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
-//         if( !idt ){
-//          Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
-//          GetIDTelescopes()->ls();
-//          partID.Print();
-//         }
-//         SetIdentifyingTelescope(  idt );
-//         SetIdentification( &partID );
-//    }
-//
-//    if ( IsIdentified() ) {
-//
-//       /******* IDENTIFIED PARTICLES *******/
-//       if ( GetIdentifyingTelescope()->InheritsFrom("KVIDCsI") ) {   /**** CSI R-L IDENTIFICATION ****/
-//
-//          //Identified particles with ID code = 2 with subcodes 4 & 5
-//          //(masse hors limite superieure/inferieure) are relabelled
-//          //with kIDCode10 (identification entre les lignes CsI)
-//
-//          Int_t csi_subid = GetIDSubCode();
-//          if (csi_subid == KVIDGCsI::kICODE4 || csi_subid == KVIDGCsI::kICODE5) {
-//             SetIDCode(kIDCode10);
-//          }
-//
-//       }
-//
-//    }
-//    else
-//    {
-//
-//       /******* UNIDENTIFIED PARTICLES *******/
-//
-//       /*** general ID code for non-identified particles ***/
-//       SetIDCode( kIDCode14 );
-//
-//       KVIDCsI* idtel = (KVIDCsI*)GetIDTelescopes()->FindObjectByType("CSI_R_L");
-//       if( idtel ){
-//          //Particles remaining unidentified are checked: if their identification in CsI R-L gave subcodes 6 or 7
-//          //(Zmin) then they are relabelled "Identified" with IDcode = 9 (ident. incomplete dans CsI ou Phoswich (Z.min))
-//          //Their "identifying" telescope is set to the CsI ID telescope
-//          Int_t csi_subid = GetIDSubCode( "CSI_R_L" );
-//          if(csi_subid == KVIDGCsI::kICODE6 || csi_subid == KVIDGCsI::kICODE7){
-//             SetIsIdentified();
-//             SetIDCode( kIDCode9 );
-//             SetIdentifyingTelescope(idtel);
-//          }
-//       }
-//
-//    }
+}
+*/
+//---------------------------------
+void KVFAZIAReconNuc::Identify()
+{
+   // Try to identify this nucleus by calling the Identify() function of each
+   // ID telescope crossed by it, starting with the telescope where the particle stopped, in order
+   //      -  only attempt identification in ID telescopes containing the stopping detector.
+   //      -  only telescopes which have been correctly initialised for the current run are used,
+   //         i.e. those for which KVIDTelescope::IsReadyForID() returns kTRUE.
+   // This continues until a successful identification is achieved or there are no more ID telescopes to try.
+   // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
+
+
+   //printf("New particle %d\n",GetNSegDet());
+
+   KVList* idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
+   KVIdentificationResult* IDR = 0;
+   Int_t idnumber = 1;
+   KVNumberList idOK;
+   KVNumberList idnotOK;
+   if (idt_list && idt_list->GetSize() > 0) {
+
+      KVIDTelescope* idt;
+      TIter next(idt_list);
+      while ((idt = (KVIDTelescope*) next())) {
+         IDR = GetIdentificationResult(idnumber);
+         IDR->SetName(idt->GetName());
+         if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
+
+            IDR->IDattempted = kTRUE;
+            idt->Identify(IDR);
+            if (IDR->IDOK) {  //Correspond to Quality code <=3
+               idOK.Add(idnumber);
+            } else {
+               idnotOK.Add(idnumber);
+            }
+         } else {
+            IDR->IDattempted = kFALSE;
+         }
+         idnumber += 1;
+      }
+   }
+
+
+   Int_t last_quality = 2000;
+   if (idOK.GetNValues() > 0) {
+      idOK.Begin();
+      while (!idOK.End()) {
+         Int_t nn = idOK.Next();
+         IDR = GetIdentificationResult(nn);
+         if (IDR->IDquality < last_quality) {
+            last_quality = IDR->IDquality;
+            SetIDCode(IDR->IDcode);
+
+            if (IDR->Aident) {
+               SetAMeasured(kTRUE);
+               SetRealA(IDR->PID);
+               if (IDR->Zident)
+                  SetZMeasured(kTRUE);
+               else
+                  SetZMeasured(kFALSE);
+               SetZandA(IDR->Z, IDR->A);
+            } else if (IDR->Zident) {
+               SetAMeasured(kFALSE);
+               SetZMeasured(kTRUE);
+               SetRealZ(IDR->PID);
+               SetZandA(IDR->Z, IDR->A);
+            } else {
+               Warning("Identify", "Nothing measured (Z&A) but identification quality code=%d ...", IDR->IDquality);
+            }
+         }
+
+         SetIdentification(IDR);
+         SetIdentifyingTelescope((KVIDTelescope*)GetIDTelescopes()->FindObject(IDR->GetName()));
+         SetIsIdentified();
+      }
+   }
+
+   if (!IsIdentified() && idnotOK.GetNValues() > 0) {
+      last_quality = 2000;
+      idnotOK.Begin();
+      while (!idnotOK.End()) {
+         Int_t nn = idnotOK.Next();
+         IDR = GetIdentificationResult(nn);
+         if (IDR->IDquality < last_quality) {
+            last_quality = IDR->IDquality;
+            SetIDCode(IDR->IDquality);
+
+            if (IDR->Aident) {
+               SetAMeasured(kTRUE);
+               SetRealA(IDR->PID);
+               if (IDR->Zident)
+                  SetZMeasured(kTRUE);
+               else
+                  SetZMeasured(kFALSE);
+               SetZandA(IDR->Z, IDR->A);
+            } else if (IDR->Zident) {
+               SetAMeasured(kFALSE);
+               SetZMeasured(kTRUE);
+               SetRealZ(IDR->PID);
+               SetZandA(IDR->Z, IDR->A);
+            }
+         }
+
+         SetIdentification(IDR);
+         SetIdentifyingTelescope((KVIDTelescope*)GetIDTelescopes()->FindObject(IDR->GetName()));
+         SetIsIdentified();
+      }
+   }
+
 }
 
 //_________________________________________________________________________________

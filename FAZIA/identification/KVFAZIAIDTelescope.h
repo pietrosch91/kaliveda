@@ -9,6 +9,14 @@
 class KVFAZIAIDTelescope : public KVIDTelescope {
 
 public:
+   enum {                       //determine identification code
+      kSi1Si2 = 12,
+      kSi1 = 11,
+      kSi2 = 22,
+      kCsI = 33,
+      kSi2CsI = 23
+   };
+
    KVFAZIAIDTelescope();
    virtual ~KVFAZIAIDTelescope();
 
