@@ -8,6 +8,7 @@
 #include "KVVAMOS.h"
 #include "KVFunctionCal.h"
 #include "KVDataSet.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVVAMOSDetector : public KVSpectroDetector {
 

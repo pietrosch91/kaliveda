@@ -837,6 +837,8 @@ void KVVAMOSReconNuc::Propagate(ECalib cal)
 
 void KVVAMOSReconNuc::Print(Option_t* option) const
 {
+   UNUSED(option);
+
    KVReconstructedNucleus::Print();
    cout << " =======> ";
    cout << " Q= " << GetQ() << ", Brho= " << GetBrho() << " T.m, ThetaV= " << GetThetaV() << " deg, PhiV= " << GetPhiV() << " deg" << endl;

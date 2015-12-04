@@ -280,6 +280,8 @@ Double_t KVVAMOSDetector::GetRawPosition(Char_t dir, Int_t num)
    // detector is able to measured several positions (e.g. KVDriftChamber)
    // i.e. GetNMeasuredX() or GetNMeasuredY() is greater than 1. If num=0
    // the mean value of the measured positions is returned.
+   UNUSED(dir);
+   UNUSED(num);
    return -500.;
 }
 //________________________________________________________________
@@ -307,7 +309,8 @@ Double_t KVVAMOSDetector::GetRawPositionError(Char_t dir, Int_t num)
    // detector is able to measured several positions (e.g. KVDriftChamber)
    // i.e. GetNMeasuredX() or GetNMeasuredY() is greater than 1. If num=0
    // the mean value of the measured position errors is returned.
-
+   UNUSED(dir);
+   UNUSED(num);
    return -500.;
 }
 //________________________________________________________________

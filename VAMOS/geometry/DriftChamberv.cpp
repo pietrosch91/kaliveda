@@ -564,7 +564,7 @@ void DriftChamberv::FocalSubseqX(void)
    Int_t FStrip[64];
    Int_t StripsWA;
    bool Neighbours;
-   bool MultiplePeak;
+   //bool MultiplePeak;
    Float_t v[6];
 
 

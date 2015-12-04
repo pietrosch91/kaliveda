@@ -623,6 +623,8 @@ void  CsICalib::CompleteSimulation()   //UShort_t chan
 
 void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
 {
+   UNUSED(chan);
+
    Int_t middle, it = 0;
    good_bisection = kTRUE;
    //L->Log<<"------------"<<endl;

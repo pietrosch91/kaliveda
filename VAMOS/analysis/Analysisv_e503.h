@@ -39,6 +39,8 @@ $Date: 2007/06/08 15:49:10 $
 #include "TTree.h"
 #include "TList.h"
 
+#include "KVMacros.h" // 'UNUSED' macro
+
 class Analysisv_e503 : public Analysisv {
 public:
 

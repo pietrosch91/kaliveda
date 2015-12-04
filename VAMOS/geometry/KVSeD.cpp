@@ -516,6 +516,9 @@ Double_t KVSeD::GetRawPosition2(Char_t dir, Double_t min_amp, Double_t min_sigma
    //                                      for the sigma parameter [2]
    //
    // If these two parameter are not in the limits then the method returns -1.
+
+   UNUSED(maxNpeaks);
+
    Int_t idx = IDX(dir);
    if (fRawPos[ idx ] > -500) return fRawPos[ idx ];
    fRawPos [ idx ] = -1;

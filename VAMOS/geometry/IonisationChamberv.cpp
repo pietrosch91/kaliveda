@@ -301,14 +301,14 @@ void IonisationChamberv::Show_Raw(void)
 }
 void IonisationChamberv::Show(void)
 {
-   Int_t i;
-   int a, b;
+   //Int_t i;
+   //int a, b;
 
 #ifdef DEBUG
    cout << "IonisationChamberv::Show" << endl;
 #endif
 
-   cout.setf(ios::showpoint);
+   //cout.setf(ios::showpoint);
 
    //cout << "Present: " << Present << endl;
    //if(Present)

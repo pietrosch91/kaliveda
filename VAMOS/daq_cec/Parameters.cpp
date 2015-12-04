@@ -1577,8 +1577,8 @@ char* Parameters::CopyParam(char* Dest, char* Source) const
    } while (c != '\0');
    /* Verifier qu'on n'a pas plusieurs 0x0D de suite */
    while (*Source == 0x0d) {
-      Source = '\0';
-      Source ++;
+      *Source = '\0';
+      Source++;
    }
    return (Source);
 }

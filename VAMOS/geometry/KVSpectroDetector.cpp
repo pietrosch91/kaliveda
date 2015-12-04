@@ -412,6 +412,8 @@ TGeoHMatrix& KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i) const
 
 Double_t KVSpectroDetector::GetELostByParticle(KVNucleus*, TVector3* norm)
 {
+   UNUSED(norm);
+
    // To be implemented. See the same method in KVDetector
    Warning("GetELostByParticle", "To be implemented");
 
@@ -575,6 +577,8 @@ Int_t KVSpectroDetector::GetMult(Option_t* opt)
 
 Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus*, TVector3* norm)
 {
+   UNUSED(norm);
+
    // To be implemented. See the same method in KVDetector
    Warning("GetParticleEIncFromERes", "To be implemented");
 

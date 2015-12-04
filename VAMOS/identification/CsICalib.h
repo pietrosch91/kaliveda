@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "KVReconstructedNucleus.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class CsICalib {
 

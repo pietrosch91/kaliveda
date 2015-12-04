@@ -5,6 +5,7 @@
 #define __KVIDHARPEEICSI_E503_H
 
 #include "KVIDHarpeeICSi.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDHarpeeICSi_e503 : public KVIDHarpeeICSi {
 

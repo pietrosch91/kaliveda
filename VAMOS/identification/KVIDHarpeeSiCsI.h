@@ -5,6 +5,7 @@
 #define __KVIDHARPEESICSI_H
 
 #include "KVVAMOSIDTelescope.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDHarpeeSiCsI : public KVVAMOSIDTelescope {
 

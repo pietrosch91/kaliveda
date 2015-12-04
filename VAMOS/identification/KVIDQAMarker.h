@@ -6,6 +6,7 @@
 
 #include "TMarker.h"
 #include "TMath.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDQALine;
 class KVIDQAMarker : public TMarker {

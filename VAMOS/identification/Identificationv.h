@@ -26,6 +26,8 @@
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
 #include "KVINDRADB.h"
+#include "KVMacros.h" // 'UNUSED' macro
+#include <cstdlib>
 
 class Identificationv {
 public:

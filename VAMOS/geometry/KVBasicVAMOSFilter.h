@@ -6,6 +6,7 @@
 
 #include "KVBase.h"
 #include "KVList.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class TCutG;
 class KVBasicVAMOSFilter;
@@ -76,6 +77,7 @@ public:
    using KVBase::Print;
    void Print(Option_t* opt = "")
    {
+      UNUSED(opt);
       fMainList.ls();
    }
 

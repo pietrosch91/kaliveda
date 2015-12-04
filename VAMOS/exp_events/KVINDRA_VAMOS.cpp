@@ -76,6 +76,8 @@ void KVINDRA_VAMOS::Build(Int_t run)
    // couple INDRA+VAMOS. Set up the geometry of INDRA and VAMOS,
    // associate the acquistion parameters with detectors, etc...
 
+   UNUSED(run);
+
    SetName("INDRA_VAMOS");
    SetTitle("INDRA+VAMOS  experimental setup");
    Info("Build", "Building INDRA+VAMOS ...");
@@ -256,6 +258,8 @@ void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fir
    //   gIndra->GetDetectorEvent( detev, fired_params )
    //   gVamos->GetDetectorEvent( detev, fired_params )
    // separately.
+   UNUSED(detev);
+   UNUSED(fired_params);
 }
 //________________________________________________________________
 

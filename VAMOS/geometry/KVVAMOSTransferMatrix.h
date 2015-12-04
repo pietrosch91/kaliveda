@@ -7,6 +7,8 @@
 #include "Riostream.h"
 #include "KVBase.h"
 #include "KVVAMOSReconTrajectory.h"
+#include "KVMacros.h" // 'UNUSED' macro
+
 using namespace std;
 
 class KVVAMOSTransferMatrix : public KVBase {

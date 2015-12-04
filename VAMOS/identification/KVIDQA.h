@@ -6,6 +6,7 @@
 
 #include "KVVAMOSIDTelescope.h"
 #include "KVIDQAGrid.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVVAMOSReconNuc;
 
@@ -21,10 +22,12 @@ public:
 
    virtual Double_t GetIDMapX(Option_t* opt = "")
    {
+      UNUSED(opt);
       return 0.;
    }
    virtual Double_t GetIDMapY(Option_t* opt = "")
    {
+      UNUSED(opt);
       return 0.;
    }
 

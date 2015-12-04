@@ -8,6 +8,7 @@
 #include "TF1.h"
 #include "KVSeDPositionCal.h"
 #include "KVDataSet.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 
 #define IS_IN_SED_WINDOW( X, Y )( (-20 <= X && X <= 20  && -5 <= Y && Y <= 5) )

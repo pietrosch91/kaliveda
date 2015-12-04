@@ -10,6 +10,7 @@
 #include "KVHashList.h"
 #include "TGeoMatrix.h"
 #include "KVReconstructedNucleus.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 using namespace std;
 

@@ -63,6 +63,11 @@ public:
          pressure = 40.;
          gas = new KVMaterial("C4H10", 13.8);   //en cm
          gas->SetPressure(pressure * KVUnits::mbar);
+      } else {
+         // Nasty error state, should not be encountered.
+         std::cerr << "MyFunctionObject: Refusing to proceed (uninitialised!)"
+                   << std::endl;
+         std::abort();
       }
 
       KVIonRangeTable* t = gas->GetRangeTable();
@@ -77,6 +82,7 @@ public:
 // use constructor to customize your function object
    double operator()(double* x, double* p)
    {
+      UNUSED(p);
 
       // z:fZ a:fA
 
@@ -1567,6 +1573,8 @@ void Identificationv::Treat(void)
 }
 void Identificationv::inAttach(TTree* inT)
 {
+   UNUSED(inT);
+
 #ifdef DEBUG
    cout << "Identificationv::inAttach " << endl;
 #endif
@@ -2100,9 +2108,9 @@ void Identificationv::ReadFlagVamos()
 // Tag the event according to the fragment identification (Z,A,Q),
 // Brho0 (or RunNumber) and system
 
-   Int_t z;
-   Int_t a;
-   Int_t q;
+   //Int_t z;
+   //Int_t a;
+   //Int_t q;
    Float_t brho0;
    Int_t run1;
    Int_t run2;

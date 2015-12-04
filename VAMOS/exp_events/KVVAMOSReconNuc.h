@@ -10,6 +10,8 @@
 #include "KVVAMOSReconGeoNavigator.h"
 #include "KVVAMOS.h"
 
+#include "KVMacros.h" // 'UNUSED' macro
+
 class KVVAMOSDetector;
 
 class KVVAMOSReconNuc : public KVReconstructedNucleus {

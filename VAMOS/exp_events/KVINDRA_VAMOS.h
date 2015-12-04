@@ -5,6 +5,7 @@
 #define __KVINDRA_VAMOS_H
 
 #include "KVMultiDetArray.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVINDRA;
 class KVVAMOS;

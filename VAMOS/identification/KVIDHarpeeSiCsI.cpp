@@ -41,5 +41,6 @@ Double_t KVIDHarpeeSiCsI::GetIDMapX(Option_t* opt)
    // Calculates current X coordinate for identification.
    // It is the CsI detector's total light output. 'opt' has no effect.
 
+   UNUSED(opt);
    return fEdet->GetRawE();
 }

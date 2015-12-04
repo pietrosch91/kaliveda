@@ -12,6 +12,7 @@
 #include "TGeoManager.h"
 #include "TGeoMedium.h"
 #include "TGeoMatrix.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 
 class KVSpectroDetector : public KVDetector { //, public TGeoVolume
