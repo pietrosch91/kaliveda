@@ -7,6 +7,7 @@
 #include "KVIDSi75SiLi.h"
 #include "KVRTGIDManager.h"
 #include "KVINDRADetector.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDSi75SiLi_e494s : public KVIDSi75SiLi, public KVRTGIDManager {
 

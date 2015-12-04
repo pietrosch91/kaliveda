@@ -22,6 +22,7 @@
 #include "KVRTGIDManager.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDSiCorrCsI: public KVIDSiCsI, public KVRTGIDManager {
 

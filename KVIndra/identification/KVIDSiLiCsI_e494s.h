@@ -8,6 +8,7 @@
 #include "KVRTGIDManager.h"
 #include "KVINDRADetector.h"
 #include "KVCsI.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDSiLiCsI_e494s : public KVIDSiLiCsI, public KVRTGIDManager {
 protected:

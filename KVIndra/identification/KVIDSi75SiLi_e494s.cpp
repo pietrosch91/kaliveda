@@ -89,7 +89,7 @@ Double_t KVIDSi75SiLi_e494s::GetIDMapY(Option_t* opt)
 
 Double_t KVIDSi75SiLi_e494s::GetIDMapXY(KVINDRADetector* det, Option_t* opt)
 {
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
 
    if (det->GetGG() <= 3900.5)
       return det->GetPGfromGG(det->GetGG() - det->GetACQParam("GG")->GetDeltaPedestal());

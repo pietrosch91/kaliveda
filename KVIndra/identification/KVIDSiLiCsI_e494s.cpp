@@ -59,7 +59,7 @@ Double_t KVIDSiLiCsI_e494s::GetIDMapX(Option_t* opt)
    // associated whith the SiLi-CsI identification telescope.
    // The X-coordinate is the total light of the CsI.
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
    return fCsI->GetLumiereTotale();
 }
 
@@ -75,7 +75,7 @@ Double_t KVIDSiLiCsI_e494s::GetIDMapY(Option_t* opt)
    // is calculated from the current high gain coder data minus the high
    // gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
 
    if (fSiLi->GetGG() <= 3900.5)
       return fSiLi->GetPGfromGG(fSiLi->GetGG() - fSiLi->GetACQParam("GG")->GetDeltaPedestal());
