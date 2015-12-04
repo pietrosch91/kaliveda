@@ -104,11 +104,11 @@ void KVGumGumDistribution::Paint(Option_t* option)
 
    fLastGumbel->SetLineColor(kBlue);
    fLastGumbel->SetLineStyle(9);
-   fLastGumbel->SetLineWidth(1.2);
+   fLastGumbel->SetLineWidth(1);
    fLastGumbel->SetNpx(2000);
 
    fFirstGumbel->SetLineColor(kRed);
-   fFirstGumbel->SetLineWidth(1.2);
+   fFirstGumbel->SetLineWidth(1);
    fFirstGumbel->SetNpx(2000);
 
    fLastGumbel->Paint(option);
