@@ -8,8 +8,18 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link off all classes;
 #pragma link off all functions;
 
-//#pragma link C++ class KVFocalPlanVamos+;
-//
+#pragma link C++ enum FocalPosCodes;
+#pragma link C++ class KVVAMOSCodes+;
+#pragma link C++ class KVChargeStateDistrib+;
+#pragma link C++ class KVCutList+;
+#pragma link C++ class KVBasicVAMOSFilter+;
+#pragma link C++ class KVVAMOSReconGeoNavigator+;
+#pragma link C++ class KVVAMOSReconTrajectory+;
+#pragma link C++ class KVVAMOSTransferMatrix-; //customized streamer
+#pragma link C++ class KVVAMOS+;
+#pragma link C++ class KVVAMOSDetector+;
+#pragma link C++ class KVSpectroDetector+;
+
 #pragma link C++ class CsIv+;
 #pragma link C++ class DriftChamber+;
 #pragma link C++ class DriftChamberv+;
@@ -26,6 +36,5 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class SeDv+;
 #pragma link C++ class Siv+;
 #pragma link C++ class Sive503+;
-
 
 #endif
