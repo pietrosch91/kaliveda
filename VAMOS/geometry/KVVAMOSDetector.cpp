@@ -431,7 +431,7 @@ Bool_t KVVAMOSDetector::IsStopForT(const Char_t* type) const
    return kFALSE;
 }
 //________________________________________________________________
-void KVVAMOSDetector::SetFiredBitmask()
+void KVVAMOSDetector::SetFiredBitmask(KVString& lpar_dummy)
 {
    // Set bitmask used to determine which acquisition parameters are
    // taken into account by KVVAMOSDetector::Fired based on the environment variables
@@ -460,10 +460,13 @@ void KVVAMOSDetector::SetFiredBitmask()
    // if the detector has 3 types of acquisition parameters which are fired byt
    // no position type then the bitmask will be "111000"
 
+   UNUSED(lpar_dummy); // lpar is determined below
+
    fFiredMask.Set("");
 
    KVString inst;
-   inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s", GetType());
+   //inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s", GetType());
+   inst.Form(GetFiredACQParameterListFormatString(), GetType());
    KVString lpar = gDataSet->GetDataSetEnv(inst);
    TObjArray* toks = lpar.Tokenize(",");
    if (!toks->GetEntries()) {

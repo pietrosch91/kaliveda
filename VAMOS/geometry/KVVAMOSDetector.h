@@ -58,7 +58,7 @@ public:
    Bool_t   IsTCalibrated(const Char_t* type) const;
    Bool_t   IsStartForT(const Char_t* type) const;
    Bool_t   IsStopForT(const Char_t* type) const;
-   void     SetFiredBitmask();
+   void     SetFiredBitmask(KVString& lpar_dummy);
    void     SetT0(const Char_t* type, Double_t t0 = 0.);
 
    virtual const Char_t* GetEBaseName() const;
