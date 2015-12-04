@@ -1167,7 +1167,7 @@ void KVIDGridEditor::MakeTransformation()
             line = 0;
             while ((line = (KVIDZALine*)it())) {
                if (ListOfLines->Contains(line)) continue;
-               if ((zmax == zmin)) {
+               if (zmax == zmin) {
                   if ((line->GetA() > amin) && (line->GetA() < amax)) {
                      line->SetLineColor(SelectedColor);
                      ListOfLines->AddLast(line);
