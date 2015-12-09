@@ -725,7 +725,7 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t* 
          percent = (1. * events_read / tot_events) * 100.;
          Increment((Float_t) events_read);      //sends signal to GUI progress bar
          if (percent >= cumul) {
-            cout << (Int_t) percent << "\% processed" << endl;
+            std::cout << (Int_t) percent << "\% processed" << std::endl;
             cumul += 10;
          }
       }
@@ -872,7 +872,7 @@ void KVIDQAGrid::TestIdentification(TH2F* data, TH1F* h1_q,
          percent = (1. * events_read / tot_events) * 100.;
          if (events_read % (tot_events / 10) == 0) Increment((Float_t) events_read); //sends signal to GUI progress bar
          if (percent >= cumul) {
-            //cout << (Int_t) percent << "\% processed" << endl;
+            //std::cout << (Int_t) percent << "\% processed" << std::endl;
             cumul += 10;
          }
          gSystem->ProcessEvents();

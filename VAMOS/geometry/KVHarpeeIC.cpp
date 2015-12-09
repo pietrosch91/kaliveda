@@ -69,9 +69,12 @@ KVHarpeeIC::KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp, Float_t th
    const Char_t* mat[] = {"Myl", "C4H10", "C4H10", "C4H10"};
 
    // thickness of each absorber
-   Float_t th[] = {1.5 * KVUnits::um,    2.068 * KVUnits::cm
-                   , Float_t(thick * KVUnits::cm), 1.278 * KVUnits::cm
-                  };
+   Float_t th[] = {
+      static_cast<Float_t>(1.5 * KVUnits::um),
+      static_cast<Float_t>(2.068 * KVUnits::cm),
+      static_cast<Float_t>(thick * KVUnits::cm),
+      static_cast<Float_t>(1.278 * KVUnits::cm)
+   };
 
    // active absorber flag
    Bool_t  active[] = { kFALSE, kFALSE, kTRUE, kFALSE};

@@ -429,7 +429,7 @@ void KVIDQALine::FindAMarkers(TH1* h)
    fMarkers->Clear();
 
    // Build new IDQAMarkers
-   Float_t* xpeaks = s.GetPositionX();
+   Double_t* xpeaks = s.GetPositionX();
    for (int p = 0; p < nfound; p++) {
       Double_t x = xpeaks[p];
       KVIDQAMarker* m = new KVIDQAMarker;

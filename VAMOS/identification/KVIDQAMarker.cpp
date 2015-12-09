@@ -115,9 +115,9 @@ void KVIDQAMarker::ls(Option_t*) const
    // List TNamed name and title.
 
    TROOT::IndentLevel();
-   cout << "OBJ: " << IsA()->GetName() << "\t" << GetName() << " : "
-        << Form("PtIdx= %d, fDelta= %f, X=%f, Y=%f, marker type=%d :", fIdx, fDelta, fX, fY, fMarkerStyle)
-        << Int_t(TestBit(kCanDelete)) << " at: " << this << endl;
+   std::cout << "OBJ: " << IsA()->GetName() << "\t" << GetName() << " : "
+             << Form("PtIdx= %d, fDelta= %f, X=%f, Y=%f, marker type=%d :", fIdx, fDelta, fX, fY, fMarkerStyle)
+             << Int_t(TestBit(kCanDelete)) << " at: " << this << std::endl;
 }
 //________________________________________________________________
 
@@ -220,15 +220,15 @@ void KVIDQAMarker::SetPointIndexAndX(Int_t idx, Double_t x)
 }
 //________________________________________________________________
 
-void KVIDQAMarker::WriteAsciiFile(ofstream& file)
+void KVIDQAMarker::WriteAsciiFile(std::ofstream& file)
 {
    // Write attributes of this KVIDQAMarker in ascii file
 
-   file << fA << "\t" << fIdx << "\t" << fDelta << "\t" << fX << "\t" << fY << endl;
+   file << fA << "\t" << fIdx << "\t" << fDelta << "\t" << fX << "\t" << fY << std::endl;
 }
 //________________________________________________________________
 
-void KVIDQAMarker::ReadAsciiFile(ifstream& file)
+void KVIDQAMarker::ReadAsciiFile(std::ifstream& file)
 {
    // Read attributes of this KVIDQAMarker in ascii file
 
