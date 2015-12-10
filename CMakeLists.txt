@@ -301,6 +301,7 @@ install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION ${CMAKE_INSTALL_CMAKEPKG
 
 #---generate config & version files for other projects using find_package()
 include(CMakePackageConfigHelpers)
+get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
 configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/KaliVedaConfig.cmake.in
                                  ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake
                                  INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
@@ -345,7 +346,6 @@ if(CAN_DO_HTMLDOC)
    
    #---add a 'html' target to generate ROOT class reference
    file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
-   get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/index.html
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
       COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C
