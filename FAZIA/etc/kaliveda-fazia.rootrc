@@ -16,8 +16,8 @@ INDRAFAZIA.DistanceFAZIA:   80.0
 INDRAFAZIA.ThetaMinCompactGeo: 2.0
 # Geometries
 FAZIASYM.GeoType:        compact
-FAZIASYM.DistanceFAZIA:   100.0
-FAZIASYM.ThetaMinCompactGeo: 2.0
+FAZIASYM.DistanceFAZIA:   80.0
+FAZIASYM.ThetaMinCompactGeo: 2.1
 
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)

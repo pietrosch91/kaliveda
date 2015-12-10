@@ -65,10 +65,10 @@ void KVFAZIASYM::BuildFAZIA()
 
    TVector3 centre;
    for (Int_t bb = 0; bb < fNblocks; bb += 1) {
-      if (bb == 0)        centre.SetXYZ(dx - centre_hole / 2, -dx - centre_hole / 2, distance_block_cible);
-      else if (bb == 1)   centre.SetXYZ(dx + centre_hole / 2, dx - centre_hole / 2, distance_block_cible);
-      else if (bb == 2)   centre.SetXYZ(-dx + centre_hole / 2, dx + centre_hole / 2, distance_block_cible);
-      else if (bb == 3)   centre.SetXYZ(-dx - centre_hole / 2, -dx + centre_hole / 2, distance_block_cible);
+      if (bb == 1)        centre.SetXYZ(-1 * (dx - centre_hole / 2), -dx - centre_hole / 2, distance_block_cible);
+      else if (bb == 2)   centre.SetXYZ(-1 * (dx + centre_hole / 2), dx - centre_hole / 2, distance_block_cible);
+      else if (bb == 3)   centre.SetXYZ(-1 * (-dx + centre_hole / 2), dx + centre_hole / 2, distance_block_cible);
+      else if (bb == 0)   centre.SetXYZ(-1 * (-dx - centre_hole / 2), -dx + centre_hole / 2, distance_block_cible);
       else {
          Warning("BuildFAZIA", "Block position definition is done only for %d blocks", fNblocks);
       }
