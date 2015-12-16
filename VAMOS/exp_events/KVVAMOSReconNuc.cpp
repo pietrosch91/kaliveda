@@ -53,13 +53,15 @@ void KVVAMOSReconNuc::Streamer(TBuffer& R__b)
       R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(), this);
       if (IsCalibrated()) {
          Int_t N = GetDetectorList()->GetEntries();
-         fDetE = new Double_t[ N ];
+         fDetE = new Double_t[N];
          Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
          if (R__v < 3) {
             // Before Version 3 of KVVAMOSReconNuc, fDetE was Float_t array
-            Float_t tmp[N];
+            //Float_t tmp[N]; // Variable Length Arrays are a C99 extension!
+            Float_t* tmp(new Float_t[N]);
             R__b.ReadFastArray(tmp, N);
             for (Int_t i = 0; i < N; i++) fDetE[i] = tmp[i];
+            delete[] tmp;
          }
          // From version 3, fDet E Float_t is Double_t array
          else R__b.ReadFastArray(fDetE, N);

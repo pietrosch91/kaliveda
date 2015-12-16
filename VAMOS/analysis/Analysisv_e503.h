@@ -1,43 +1,50 @@
-/*
-$Id: Analysisv_e503.h,v 1.2 2007/06/08 15:49:10 franklan Exp $
-$Revision: 1.2 $
-$Date: 2007/06/08 15:49:10 $
+#ifndef __ANALYSISV_e503_H
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 12:00:57 BST 2015
 */
 
-//Created by KVClassFactory on Fri Jun  8 15:26:12 2007
-//Author: e_ivamos
+#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
+#ifdef __ENABLE_DEPRECATED_VAMOS__
 
-#ifndef __ANALYSISV_e503_H
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
 #define __ANALYSISV_e503_H
 
-#include"Defines.h"
+#include <cstdlib>
 
-#include "Random.h"
+#include "TList.h"
+#include "TROOT.h"
+#include "TTree.h"
 
 #define DRIFT
 #define IONCHAMBER
 #define SI
 #define CSI
 
-#include"IonisationChamberv.h"
-#include"Sive503.h"
-#include"CsIv.h"
-#include"DriftChamberv.h"
-#include"Reconstructionv.h"
-#include"Identificationv.h"
-#include"CsICalib.h"
-
-#include"Analysisv.h"
-
-#include "KVTelescope.h"
-#include "KVSiliconVamos.h"
+#include "Analysisv.h"
+#include "CsICalib.h"
+#include "CsIv.h"
+#include "Deprecation.h"
+#include "DriftChamberv.h"
+#include "Identificationv.h"
+#include "IonisationChamberv.h"
 #include "KVCsIVamos.h"
-#include "PlaneAbsorber.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
-
-#include "TTree.h"
-#include "TList.h"
+#include "KVSiliconVamos.h"
+#include "KVTelescope.h"
+#include "Random.h"
+#include "Reconstructionv.h"
+#include "Sive503.h"
 
 #include "KVMacros.h" // 'UNUSED' macro
 
@@ -121,4 +128,10 @@ public:
 
 };
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set
+#endif // __ANALYSISV_e503_H is not set
+
+#ifdef __ANALYSISV_e503_H
+DEPRECATED_CLASS(Analysisv_e503);
 #endif
+

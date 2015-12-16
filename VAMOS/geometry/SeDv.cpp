@@ -335,7 +335,9 @@ void SeDv::FocalSubseqX(void)
    Float_t QMax;
    Int_t NMax;
    Int_t FStrip[128];
+#ifdef WEIGHTEDAVERAGE
    Int_t StripsWA;
+#endif
    bool Neighbours;
    Float_t v[6];
 

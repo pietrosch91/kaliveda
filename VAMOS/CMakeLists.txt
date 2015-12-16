@@ -1,3 +1,11 @@
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wdeprecated -Wpedantic")
+set(CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE} -Wdeprecated -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG} -Wdeprecated -Wpedantic")
+
+set(CMAKE_C_FLAGS_RELWITHDEBINFO   "${CMAKE_C_FLAGS_RELWITHDEBINFO} -Wdeprecated -Wpedantic")
+set(CMAKE_C_FLAGS_RELEASE          "${CMAKE_C_FLAGS_RELEASE} -Wdeprecated -Wpedantic")
+set(CMAKE_C_FLAGS_DEBUG            "${CMAKE_C_FLAGS_DEBUG} -Wdeprecated -Wpedantic")
+
 #---list of datasets
 set(datasets VAMOS_e503)
 
@@ -5,6 +13,5 @@ set(datasets VAMOS_e503)
 KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES ${KVMultiDet_MOD_LIST})
 #---set paths to find all KVIndra headers
 KALIVEDA_SET_INCLUDE_DIRS(KVIndra MODULES ${KVIndra_MOD_LIST})
-
 
 BUILD_KALIVEDA_SUBPROJECT(DATASETS ${datasets})

@@ -1,12 +1,21 @@
 #include "Reconstructionv.h"
-#include "TVector3.h"
-#include "KVDataSet.h"
-
-#include "KVINDRAe503.h"
-
-#include <cmath>
-
 //Author: Maurycy Rejmund
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:33:33 BST 2015
+*/
+
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 using namespace std;
 
@@ -531,3 +540,5 @@ void Reconstructionv::Show(void)
    cout.setf(ios::showpoint);
 
 }
+
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

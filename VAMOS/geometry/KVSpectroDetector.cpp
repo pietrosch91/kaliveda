@@ -247,7 +247,10 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv* infos, TGeoVolume* ref_vol)
 
    KVNumberList activeabs(GetDetectorEnv("ACTIVEABS", "", infos));
    Double_t thick_tot = 0;
-   Double_t thick[Nabs];
+
+   std::vector<Double_t> thick;
+   thick.resize(Nabs);
+
    std::vector<TString> mat;
    mat.resize(Nabs, "");
    TString type;

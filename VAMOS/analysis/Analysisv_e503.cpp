@@ -1,16 +1,20 @@
-/*
-$Id: Analysisv_e503.cpp,v 1.4 2008/11/12 10:01:24 franklan Exp $
-$Revision: 1.4 $
-$Date: 2008/11/12 10:01:24 $
+#include "Analysisv_e503.h"
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 12:00:57 BST 2015
 */
 
-//Created by KVClassFactory on Fri Jun  8 15:26:12 2007
-//Author: John Frankland
+#ifdef __ENABLE_DEPRECATED_VAMOS__
 
-#include "TROOT.h"
-#include "Analysisv_e503.h"
-#include <cstdlib>
-#include <stdlib.h>
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 using namespace std;
 
@@ -28,12 +32,13 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-
 Analysisv_e503::Analysisv_e503(LogFile* Log)
-   : Analysisv(Log)
+   : Analysisv(Log), Dr(NULL), RC(NULL), Id(NULL), Ic(NULL), Si(NULL),
+     CsI(NULL), energytree(NULL), si(NULL), csi(NULL),  gap(NULL), tgt(NULL),
+     dcv1(NULL), sed(NULL), dcv2(NULL), ic(NULL), isogap1(NULL), ssi(NULL),
+     isogap2(NULL), ccsi(NULL), t(NULL)
 {
 
-   //Default constructor
 #ifdef DEBUG
    cout << "Analysisv_e503::Constructor" << endl;
 #endif
@@ -45,7 +50,6 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
    cout << "ActiveBranches NOT defined" << endl;
    L->Log << "ActiveBranches NOT defined" << endl;
 #endif
-
 
 #ifdef MULTIPLEPEAK
    cout << "Multiple peak rejection defined" << endl;
@@ -78,6 +82,7 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
    cout << "Follow Peaks NOT defined" << endl;
    L->Log << "Follow Peaks NOT defined" << endl;
 #endif
+
 #ifdef EGCORR
    cout << "EGCORR defined" << endl;
    L->Log << "EGCORR defined" << endl;
@@ -85,7 +90,6 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
    cout << "EGCORR NOT defined" << endl;
    L->Log << "EGCORR NOT defined" << endl;
 #endif
-
 
 #ifdef PLASTIC
    cout << "Plastic defined" << endl;
@@ -157,7 +161,7 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
       exit(EXIT_FAILURE);
    }
 
-
+   Id->InitialiseComponents();
 
 #else
    cout << "DriftChamber will not be treated !" << endl;
@@ -182,6 +186,7 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
    L->Log << "SeD1 will not be treated !" << endl;
 
 #endif
+
 #ifdef SED2
    cout << "SED2 defined" << endl;
    L->Log << "SED2 defined" << endl;
@@ -195,6 +200,7 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
    L->Log << "SeD2 will not be treated !" << endl;
 
 #endif
+
 #ifdef SED12
    cout << "SED12 defined" << endl;
    L->Log << "SED12 defined" << endl;
@@ -216,8 +222,6 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
 
 #endif
 
-
-
 #ifdef EXOGAM
    cout << "Exogam defined" << endl;
    L->Log << "Exogam defined" << endl;
@@ -235,7 +239,7 @@ Analysisv_e503::Analysisv_e503(LogFile* Log)
 
 Analysisv_e503::~Analysisv_e503()
 {
-   //Destructor
+
 #ifdef DEBUG
    cout << "Analysisv_e503::Destuctor" << endl;
 #endif
@@ -255,14 +259,15 @@ Analysisv_e503::~Analysisv_e503()
 #ifdef SED1
    delete SeD1;
 #endif
+
 #ifdef SED2
    delete SeD2;
 #endif
+
 #ifdef SED12
    delete SeD12;
    delete RC;
 #endif
-
 
 #ifdef IONCHAMBER
    delete Ic;
@@ -271,27 +276,30 @@ Analysisv_e503::~Analysisv_e503()
 #ifdef SI
    delete Si;
 #endif
+
 #ifdef CSI
    delete CsI;
 #endif
+
 #ifdef EXOGAM
    delete Ex;
 #endif
+
 }
 
 void Analysisv_e503::SetTel1(KVDetector* si)
 {
-   energytree->SetTel1(si);
+   energytree->set_si_detector(si);
 }
 
 void Analysisv_e503::SetTel2(KVDetector* gap)
 {
-   energytree->SetTel2(gap);
+   energytree->set_gap_detector(gap);
 }
 
 void Analysisv_e503::SetTel3(KVDetector* csi)
 {
-   energytree->SetTel3(csi);
+   energytree->set_csi_detector(csi);
 }
 
 void Analysisv_e503::SetFileCut(TList* list)
@@ -314,47 +322,49 @@ void Analysisv_e503::SetFileCutSiTof(TList* list3)
 
 void Analysisv_e503::SetTarget(KVTarget* tgt)
 {
-   Id->SetTarget(tgt);
+   Id->set_target(tgt);
 }
 void Analysisv_e503::SetDC1(KVDetector* dcv1)
 {
-   Id->SetDC1(dcv1);
+   Id->set_drift_chamber_one(dcv1);
 }
 void Analysisv_e503::SetSed(KVMaterial* sed)
 {
-   Id->SetSed(sed);
+   Id->set_sed(sed);
 }
 void Analysisv_e503::SetDC2(KVDetector* dcv2)
 {
-   Id->SetDC2(dcv2);
+   Id->set_drift_chamber_two(dcv2);
 }
 void Analysisv_e503::SetIC(KVDetector* ic)
 {
-   Id->SetIC(ic);
+   Id->set_chio(ic);
 }
 void Analysisv_e503::SetGap1(KVMaterial* isogap1)
 {
-   Id->SetGap1(isogap1);
+   Id->set_isobutane_gap_one(isogap1);
 }
 void Analysisv_e503::SetSi(KVMaterial* ssi)
 {
-   Id->SetSi(ssi);
+   Id->set_silicon(ssi);
 }
 void Analysisv_e503::SetGap2(KVMaterial* isogap2)
 {
-   Id->SetGap2(isogap2);
+   Id->set_isobutane_gap_two(isogap2);
 }
 void Analysisv_e503::SetCsI(KVMaterial* ccsi)
 {
-   Id->SetCsI(ccsi);
+   Id->set_csi(ccsi);
 }
 
 void Analysisv_e503::Treat()
 {
+
 #ifdef DEBUG
    cout << "Analysisv_e503::Treat " << endl;
-#endif
    //L->Log << "Analysisv_e503::Treat " << endl;
+#endif
+
 #ifdef PLASTIC
    Pl->Treat();
 #endif
@@ -366,9 +376,11 @@ void Analysisv_e503::Treat()
 #ifdef SI
    Si->Treat();
 #endif
+
 #ifdef CSI
    CsI->Treat();
 #endif
+
 #ifdef DRIFT
    Dr->Treat();
    RC->Treat();
@@ -382,16 +394,16 @@ void Analysisv_e503::Treat()
 #ifdef SED2
    SeD2->Treat();
 #endif
+
 #ifdef SED12
    SeD12->Treat();
    RC->Treat();
 #endif
 
-
-
 #ifdef EXOGAM
    Ex->Treat();
 #endif
+
 }
 
 
@@ -424,7 +436,6 @@ void Analysisv_e503::CreateHistograms()
    RC->CreateHistograms();
 #endif
 
-
 #ifdef IONCHAMBER
    Ic->CreateHistograms();
 #endif
@@ -432,13 +443,14 @@ void Analysisv_e503::CreateHistograms()
 #ifdef EXOGAM
    Ex->CreateHistograms();
 #endif
+
 #ifdef SI
    Si->CreateHistograms();
 #endif
+
 #ifdef CSI
    CsI->CreateHistograms();
 #endif
-
 
 }
 void Analysisv_e503::FillHistograms()
@@ -478,9 +490,11 @@ void Analysisv_e503::FillHistograms()
 #ifdef EXOGAM
    Ex->FillHistograms();
 #endif
+
 #ifdef SI
    Si->FillHistograms();
 #endif
+
 #ifdef CSI
    CsI->FillHistograms();
 #endif
@@ -490,6 +504,7 @@ void Analysisv_e503::FillHistograms()
 void Analysisv_e503::outAttach()
 {
    TString option;
+
 #ifdef DEBUG
    cout << "Analysisv_e503::outAttach " << endl;
 #endif
@@ -507,6 +522,7 @@ void Analysisv_e503::outAttach()
 #ifdef SED1
    SeD1->outAttach(outT);
 #endif
+
 #ifdef SED2
    SeD2->outAttach(outT);
 #endif
@@ -515,7 +531,6 @@ void Analysisv_e503::outAttach()
    RC->outAttach(outT);
 #endif
 
-
 #ifdef IONCHAMBER
    Ic->outAttach(outT);
 #endif
@@ -523,6 +538,7 @@ void Analysisv_e503::outAttach()
 #ifdef EXOGAM
    Ex->outAttach(outT);
 #endif
+
 #ifdef SI
    Si->outAttach(outT);
 #endif
@@ -544,11 +560,10 @@ void Analysisv_e503::outAttach()
 
 void Analysisv_e503::inAttach()
 {
+
 #ifdef DEBUG
    cout << "Analysisv_e503::inAttach " << endl;
 #endif
-
-
 
 #ifdef PLASTIC
    Pl->inAttach(inT);
@@ -559,17 +574,19 @@ void Analysisv_e503::inAttach()
    // No inAttach in Reconstruction
    Id->inAttach(inT);
 #endif
+
 #ifdef SED1
    SeD1->inAttach(inT);
 #endif
+
 #ifdef SED2
    SeD2->inAttach(inT);
 #endif
+
 #ifdef SED12
    SeD12->inAttach(inT);
    // No inAttach in Reconstruction
 #endif
-
 
 #ifdef IONCHAMBER
    Ic->inAttach(inT);
@@ -578,12 +595,15 @@ void Analysisv_e503::inAttach()
 #ifdef EXOGAM
    Ex->inAttach(inT);
 #endif
+
 #ifdef SI
    Si->inAttach(inT);
 #endif
+
 #ifdef SI
    CsI->inAttach(inT);
 #endif
+
    /*
      inT->SetBranchStatus("PILEUP",1);
 
@@ -609,5 +629,6 @@ void Analysisv_e503::inAttach()
      inT->SetBranchAddress("TSI_HF",T_Raw+6);
    */
 
-
 }
+
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

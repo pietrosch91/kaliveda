@@ -1,24 +1,45 @@
-#ifndef _ANALYSIS_CLASS
-#define _ANALYSIS_CLASS
+#ifndef __ANALYSISV_H__
 
-#include "Rtypes.h"
-#include "Defines.h"
-#include "LogFile.h"
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
 
-#include "KVTelescope.h"
-#include "KVSiliconVamos.h"
-#include "PlaneAbsorber.h"
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:56:06 BST 2015
+*/
+
+#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
+#define __ANALYSISV_H__
+
+#include <cstdlib>
+
+#include "Deprecation.h"
+#include "KVBase.h"
 #include "KVCsIVamos.h"
-#include "KVTarget.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
+#include "KVSiliconVamos.h"
+#include "KVTarget.h"
+#include "KVTelescope.h"
+#include "LogFile.h"
+#include "Rtypes.h"
+#include "TFile.h"
 #include "TList.h"
-
-class TTree;
-class TFile;
+#include "TPluginManager.h"
+#include "TTree.h"
 
 class Analysisv {
+
 public:
+
    LogFile* L;
 
    TFile* inTree;
@@ -28,16 +49,9 @@ public:
    TFile* outTree;
    TTree* outT;
 
-   Analysisv() {};
-   Analysisv(LogFile* Log)
-   {
-      L = Log;
-      totalEntries = 0;
-   };
-   virtual ~Analysisv()
-   {
-      delete L;
-   };
+   Analysisv();
+   Analysisv(LogFile* Log);
+   virtual ~Analysisv();
 
    virtual void OpenInputTree(TTree*);
    virtual void CloseInputTree(const char* inTreeName);
@@ -69,7 +83,6 @@ public:
    virtual void SetFileCutChioSi(TList* list2) = 0;
    virtual void SetFileCutSiTof(TList* list3) = 0;
 
-
    virtual void SetAngleVamos(Float_t angle) = 0;
    virtual void SetBrhoRef(Float_t brho) = 0;
    virtual void SetCurrentRun(Int_t run) = 0;
@@ -78,4 +91,10 @@ public:
 
 };
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set
+#endif // __ANALYSISV_H__ is not set
+
+#ifdef __ANALYSISV_H__
+DEPRECATED_CLASS(Analysisv);
 #endif
+

@@ -1,14 +1,20 @@
-/*
-$Id: Analysisv_e494s.cpp,v 1.4 2008/11/12 10:01:24 franklan Exp $
-$Revision: 1.4 $
-$Date: 2008/11/12 10:01:24 $
+#include "Analysisv_e494s.h"
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:31:07 BST 2015
 */
 
-//Created by KVClassFactory on Fri Jun  8 15:26:12 2007
-//Author: John Frankland
+#ifdef __ENABLE_DEPRECATED_VAMOS__
 
-#include "Analysisv_e494s.h"
-#include <cstdlib>
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 using namespace std;
 
@@ -501,3 +507,5 @@ void Analysisv_e494s::inAttach()
 
 
 }
+
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

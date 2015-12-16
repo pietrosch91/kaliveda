@@ -18,7 +18,7 @@ ClassImp(KVIDQAGrid)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDQAGrid::KVIDQAGrid()
+KVIDQAGrid::KVIDQAGrid() : fToF(NULL)
 {
    // Default constructor
 }
@@ -146,9 +146,7 @@ void KVIDQAGrid::CalculateLineWidths()
 
       //Q of lines above and below this line - Qxx=-1 if there is no line above or below
       Int_t Qhi =
-         (i <
-          (Int_t) GetNumberOfIdentifiers() -
-          1 ? ((KVIDQALine*) GetIdentifierAt(i + 1))->GetQ() : -1);
+         ((i < (Int_t) GetNumberOfIdentifiers() - 1) ? ((KVIDQALine*) GetIdentifierAt(i + 1))->GetQ() : -1);
       Int_t Qlo = (i > 0 ? ((KVIDQALine*) GetIdentifierAt(i - 1))->GetQ() : -1);
 
       // find line for comparison.
@@ -725,7 +723,7 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t* 
          percent = (1. * events_read / tot_events) * 100.;
          Increment((Float_t) events_read);      //sends signal to GUI progress bar
          if (percent >= cumul) {
-            std::cout << (Int_t) percent << "\% processed" << std::endl;
+            std::cout << (Int_t) percent << "% processed" << std::endl;
             cumul += 10;
          }
       }

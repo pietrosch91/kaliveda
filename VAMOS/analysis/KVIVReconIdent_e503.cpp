@@ -1,22 +1,19 @@
 #include "KVIVReconIdent_e503.h"
-#include "Analysisv.h"
-#include "LogFile.h"
-#include "KVBatchSystem.h"
-#include "KVDataSet.h"
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
 
-#include "Riostream.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <string.h>
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 14:00:13 BST 2015
+*/
 
-#include "KVVAMOS.h"
-#include "KVReconstructedNucleus.h"
-#include "KVINDRAReconNuc.h"
-#include "KVIdentificationResult.h"
-#include "KVCsI.h"
-#include "KVSilicon.h"
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 using namespace std;
 
@@ -409,3 +406,4 @@ Bool_t KVIVReconIdent_e503::LoadGrids_e503()
 
 }
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

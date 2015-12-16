@@ -1,48 +1,76 @@
-//Created by KVClassFactory on Thu Aug 20 16:03:37 2009
-//Author: marini
-
 #ifndef __CSICALIB_H
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 11:55:54 BST 2015
+*/
+
+
+#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
 #define __CSICALIB_H
 
-#include "TTree.h"
-#include "TFile.h"
-#include "TEventList.h"
-#include "KVLightEnergyCsI.h"
-#include "KVLightEnergyCsIVamos.h"
-#include "KVTelescope.h"
-#include "KVDetector.h"
-#include "KVTelescope.h"
-#include "KVIDTelescope.h"
-#include "KVList.h"
-#include "TCut.h"
-#include "Sive503.h"
-#include "CsIv.h"
-#include "LogFile.h"
+// C
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
-#include "KVIDGraph.h"
-#include "KVIDZAGrid.h"
-
-#include "KVClassMonitor.h"
+// C++
 #include <string>
-#include <string.h>
 
+// ROOT
+#include "Riostream.h"
+#include "TCut.h"
+#include "TEventList.h"
+#include "TFile.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TTree.h"
+
+// KaliVeda (Standard)
+#include "KVDetector.h"
+#include "KVIDGraph.h"
+#include "KVIDGridManager.h"
+#include "KVIDTelescope.h"
+#include "KVIDZAGrid.h"
+#include "KVLightEnergyCsI.h"
+#include "KVList.h"
 #include "KVReconstructedNucleus.h"
-#include "KVMacros.h" // 'UNUSED' macro
+#include "KVSeqCollection.h"
+#include "KVTelescope.h"
+#include "KVUnits.h"
+#include "KVMacros.h" // UNUSED macro
+
+// KaliVeda (VAMOS)
+#include "CsIv.h"
+#include "Deprecation.h"
+#include "GridLoader.h"
+#include "KVIDSiCsIVamos.h"
+#include "KVIVReconIdent.h"
+#include "KVLightEnergyCsIVamos.h"
+#include "LogFile.h"
+#include "Sive503.h"
 
 class CsICalib {
-
-public:
-
    Int_t eN;
    Int_t status;
-   bool good_bisection;
 
    UShort_t eLightSi;
    UShort_t eLightCsI;
    Double_t LightCsI;
    Double_t eEnergySi;
    Double_t eEnergyCsI;
-   Double_t eEnergyGap;
 
    Double_t Einc;
    Double_t EEsi;
@@ -99,69 +127,70 @@ public:
 
    KVDetector* kvd_gap;
 
-   Int_t entries;
-   KVIDGrid* tmpGrid;
-   KVList* list;
-
-   KVIDGraph* kvid;
-   KVIDGraph* kvid_chiosi;
-   KVIDGraph* kvid_sitof;
-   KVIDGraph* kvid_cutscode2;
-   KVIDGraph* kvid_chiov2;
-   KVIDGraph* kvid_qaq;
-   KVIDGraph* kvid_qaq_chiosi;
-
    KVDetector* gap;
    KVDetector* si;
    KVDetector* csi;
 
-
-   KVDetector* ssi;
-   KVDetector* ggap;
-   KVDetector* ccsi;
+   // Used to store the address of the reference detectors.
+   const KVDetector* si_detector;
+   const KVDetector* gap_detector;
+   const KVDetector* csi_detector;
 
    KVNucleus part;
    KVNucleus part2;
 
    Sive503* Si;
    CsIv* CsI;
+   LogFile* L;
+
+   const KVIDGrid* kvid;
+   const KVIDGrid* kvid_chiosi;
+   const KVIDGrid* kvid_sitof;
+   const KVIDGrid* kvid_cutscode2;
+   const KVIDGrid* kvid_chiov2;
+   const KVIDGrid* kvid_qaq;
+   const KVIDGrid* kvid_qaq_chiosi;
+
+   Bool_t good_bisection;
+   Double_t eEnergyGap;
+
+   GridLoader* grid_loader;
+   Bool_t kInitialised;
+
+   // Number of bisector simulations
+   Int_t bisector_iterations_;
+
+public:
 
    CsICalib(LogFile* Log, Sive503* Si);
-   LogFile* L;
    virtual ~CsICalib();
 
-   //Int_t ClearEvent(Int_t);
-   string name;
+   Bool_t Init();
+   Bool_t InitRun(const UInt_t run);
 
-   void SetTel1(KVDetector* si);
-   KVDetector* GetTel1(void);
-   void SetTel2(KVDetector* gap);
-   KVDetector* GetTel2(void);
-   void SetTel3(KVDetector* csi);
-   KVDetector* GetTel3(void);
-
-   void InitTelescope(Int_t, Int_t);
-   void InitTelescopeChioSi(Int_t, Int_t);
-   void InitTelescopeSiTof(Int_t);
-   void InitCode2Cuts(Float_t);
-   void InitChioV2(Int_t);
-   void InitQStraight(Int_t);
-   void InitQStraight_chiosi(Int_t);
+   Bool_t InitTelescope(Int_t num_si, Int_t num_csi);
+   Bool_t InitTelescopeChioSi(Int_t num_chio, Int_t num_si);
+   Bool_t InitTelescopeSiTof(Int_t num_si);
+   Bool_t InitCode2Cuts(Float_t brho0);
+   Bool_t InitChioV2(Int_t num_chio);
+   Bool_t InitQStraight(Int_t num_csi);
+   Bool_t InitQStraight_chiosi(Int_t num_chio);
 
    void InitSiCsI(Int_t);
 
    void SetCalibration(Sive503*, CsIv*, Int_t, Int_t);
+   void SetSimCalibration(Sive503*, CsIv*, Int_t, Int_t);
 
    void SetFragmentZ(Int_t);
    void SetFragmentA(Int_t);
 
    //necessary methods to GetResidualEnergyCsI: best estimation of ECsI and A
-   Double_t GetResidualEnergyCsI(Double_t, Double_t);  //UShort_t,UShort_t
+   Double_t GetResidualEnergyCsI(Double_t, Double_t); //UShort_t,UShort_t
 
-   void CalculateESi(Double_t);   //UShort_t
-   void Bisection(Int_t, Double_t);  //UShort_t
+   void CalculateESi(Double_t); //UShort_t
+   void Bisection(Int_t, Double_t); //UShort_t
    Double_t BisectionLight(Double_t , Double_t , Double_t);
-   void CompleteSimulation();  //UShort_t
+   void CompleteSimulation(); //UShort_t
 
    void Interpolate();
    Double_t GetInterpolationD(Double_t, Double_t, Double_t, Double_t, Double_t);
@@ -171,7 +200,35 @@ public:
    Double_t RetrieveLight();
    Double_t RetrieveEnergyCsI();
 
+   void PrintAssertionStatus() const;
+
+   // Accessor methods:
+
+   Bool_t          get_good_bisection()      const;
+   Double_t        get_eEnergyGap()          const;
+   const KVIDGrid* get_kvid()                const;
+   const KVIDGrid* get_kvid_chiosi()         const;
+   const KVIDGrid* get_kvid_sitof()          const;
+   const KVIDGrid* get_kvid_cutscode2()      const;
+   const KVIDGrid* get_kvid_chiov2()         const;
+   const KVIDGrid* get_kvid_qaq()            const;
+   const KVIDGrid* get_kvid_qaq_chiosi()     const;
+   Int_t           get_bisector_iterations() const;
+
+   // Mutator Methods:
+
+   void set_si_detector(const KVDetector* const detector);
+   void set_gap_detector(const KVDetector* const detector);
+   void set_csi_detector(const KVDetector* const detector);
+
+
    ClassDef(CsICalib, 1) //CsICalib
 };
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set
+#endif // __CSICALIB_H is not set
+
+#ifdef __CSICALIB_H
+DEPRECATED_CLASS(CsICalib);
 #endif
+

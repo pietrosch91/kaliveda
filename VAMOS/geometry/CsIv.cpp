@@ -3,8 +3,22 @@
 //2010-10-04 : Files CsI.cal and CsI.pied have been modified to take account the right distances between detectors
 
 #include "CsIv.h"
-#include <cmath>
-#include "TRandom3.h"
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:14:41 BST 2015
+*/
+
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 ClassImp(CsIv)
 
@@ -242,3 +256,5 @@ void CsIv::FillHistograms(void)
 #endif
 
 }
+
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

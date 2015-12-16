@@ -1,15 +1,24 @@
 #include "Analysisv.h"
-#include "TFile.h"
-#include "KVBase.h"
-#include "TPluginManager.h"
-#include "TTree.h"
-#include "LogFile.h"
-#include <cstdlib>
 
 //Author: Maurycy Rejmund
 
-using namespace std;
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
 
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:56:06 BST 2015
+*/
+
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
+using namespace std;
 ClassImp(Analysisv)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +32,28 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+
+Analysisv::Analysisv() :
+   L(NULL),
+   totalEntries(0)
+{
+
+}
+
+Analysisv::Analysisv(LogFile* Log) :
+   L(Log),
+   totalEntries(0)
+{
+
+}
+
+Analysisv::~Analysisv()
+{
+   if (L) {
+      delete L;
+      L = NULL;
+   }
+}
 
 void Analysisv::OpenInputTree(TTree* readtree)
 {
@@ -126,3 +157,4 @@ Analysisv* Analysisv::NewAnalyser(const Char_t* dataset, LogFile* Log)
    return mda;
 }
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

@@ -1,18 +1,23 @@
-/*
-$Id: Analysisv_e494s.h,v 1.2 2007/06/08 15:49:10 franklan Exp $
-$Revision: 1.2 $
-$Date: 2007/06/08 15:49:10 $
+#ifndef __ANALYSISV_E494S_H
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:31:07 BST 2015
 */
 
-//Created by KVClassFactory on Fri Jun  8 15:26:12 2007
-//Author: e_ivamos
+#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
+#ifdef __ENABLE_DEPRECATED_VAMOS__
 
-#ifndef __ANALYSISV_E494S_H
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
 #define __ANALYSISV_E494S_H
-
-#include"Defines.h"
-
-#include "Random.h"
 
 #define SED1
 #define SED2
@@ -25,13 +30,15 @@ $Date: 2007/06/08 15:49:10 $
 #endif
 #endif
 
-#include"IonisationChamberv.h"
-#include"Siv.h"
-#include"SeDv.h"
-#include"SeD12v.h"
-#include"ReconstructionSeDv.h"
-
 #include "Analysisv.h"
+#include "Deprecation.h"
+#include "IonisationChamberv.h"
+#include "Random.h"
+#include "ReconstructionSeDv.h"
+#include "SeD12v.h"
+#include "SeDv.h"
+#include "Siv.h"
+#include <cstdlib>
 
 class Analysisv_e494s : public Analysisv {
 public:
@@ -54,8 +61,14 @@ public:
    void CreateHistograms();
    void FillHistograms();
 
-   ClassDef(Analysisv_e494s, 0) //VAMOS calibration for E494S
+   ClassDef(Analysisv_e494s, 0); //VAMOS calibration for E494S
 
 };
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set
+#endif // __ANALYSISV_E494S_H is not set
+
+#ifdef __ANALYSISV_E494S_H
+DEPRECATED_CLASS(Analysisv_e494s);
 #endif
+

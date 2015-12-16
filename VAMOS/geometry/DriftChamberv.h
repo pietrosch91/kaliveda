@@ -1,12 +1,33 @@
 #ifndef _DRIFT_CLASS
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:24:01 BST 2015
+*/
+
+#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
+
 #define _DRIFT_CLASS
 
+#include "Deprecation.h"
+#include "KVDataSet.h"
+#include "LogFile.h"
+#include "Random.h"
 #include "Rtypes.h"
-#include"Defines.h"
-#include"LogFile.h"
-#include"Random.h"
 #include "Sive503.h"
 #include "TH2.h"
+#include <cmath>
+#include <cstdlib>
 
 class DriftChamberv {
    Bool_t Ready;
@@ -122,5 +143,10 @@ public:
 
 };
 
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set
+#endif // _DRIFT_CLASS is not set
+
+#ifdef _DRIFT_CLASS
+DEPRECATED_CLASS(DriftChamberv);
 #endif
 

@@ -1,9 +1,21 @@
 #include "DriftChamberv.h"
-#include "KVDataSet.h"
-#include <cmath>
-#include <cstdlib>
-
 //Author: Maurycy Rejmund
+
+/**
+   WARNING: This class has been deprecated and will eventually be removed.
+
+   Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
+   Date:          Thu  8 Oct 13:24:01 BST 2015
+*/
+
+#ifdef __ENABLE_DEPRECATED_VAMOS__
+
+// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
+// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
+// build options then a LARGE number of warnings will be printed to the
+// terminal. To disable these warnings (not advised) compile VAMOS with
+// -Wno-deprecated-declarations. Despite the warnings the code should compile
+// just fine.
 
 using namespace std;
 
@@ -320,7 +332,7 @@ void DriftChamberv::SetMatX(void)
 
 
    Det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
-   L->Log << "Déterminant SetMatX" << Det << endl;
+   L->Log << "DÃ©terminant SetMatX" << Det << endl;
    if (Det == 0.0) {
       cout << "DriftChamberv::SetMatX: Det == 0 !" << endl;
       exit(EXIT_FAILURE);
@@ -1035,3 +1047,5 @@ void DriftChamberv::Show(void)
            Xf << " " << Tf << " " <<
            Yf << " " << Pf << endl;
 }
+
+#endif // __ENABLE_DEPRECATED_VAMOS__ is set

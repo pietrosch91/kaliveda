@@ -23,11 +23,14 @@ ClassImp(KVIDSiCsIVamos)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDSiCsIVamos::KVIDSiCsIVamos()
+KVIDSiCsIVamos::KVIDSiCsIVamos() :
+#if __cplusplus < 201103L
+   fgrid(NULL), fSi(NULL), fCsI(NULL), fgrid(NULL)
+#else
+   // C++11 supported, use nullptr
+   fgrid(nullptr), fSi(nullptr), fCsI(nullptr)
+#endif
 {
-   // Default constructor
-   fSi = 0;
-   fCsI = 0;
 }
 
 KVIDSiCsIVamos::~KVIDSiCsIVamos()
