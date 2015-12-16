@@ -27,8 +27,6 @@ void KVISOFAZIA::GetGeometryParameters()
 {
 
    fNblocks = 4;
-   fFGeoType = "";
-   fFThetaMin = 2.3;
    fFDist = 80.0;
 
 }
@@ -52,8 +50,6 @@ void KVISOFAZIA::BuildFAZIA()
    trans.SetDz(distance_block_cible + thick_si1 / 2.);
 
    KVFAZIABlock* block = new KVFAZIABlock;
-
-   Int_t block_starting_number = fStartingBlockNumber;
 
    TGeoRotation rot1, rot2;
    TGeoHMatrix h;
@@ -84,7 +80,7 @@ void KVISOFAZIA::BuildFAZIA()
       rot1.SetAngles(-1.*phi, 0., 0.);
       h = rot2 * trans * rot1;
       ph = new TGeoHMatrix(h);
-      top->AddNode(block, block_starting_number++, ph);
+      top->AddNode(block, bb, ph);
 
    }
 

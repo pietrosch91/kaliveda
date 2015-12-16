@@ -156,10 +156,25 @@ void KVFAZIA::Build(Int_t)
    }
    */
    SetIdentifications();
+   SortIDTelescopes();
+   KVDetector* det = GetDetector("SI2-T1-Q1-B001");
+   det->GetIDTelescopes()->ls();
+
+
+
    SetDetectorThicknesses();
    SetBit(kIsBuilt);
 }
 
+void KVFAZIA::SortIDTelescopes()
+{
+   KVDetector* det = 0;
+   TIter next(GetDetectors());
+   while ((det = (KVDetector*)next())) {
+      ((KVFAZIADetector*)det)->SortIDTelescopes();
+   }
+
+}
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
 {
    // First step in event reconstruction based on current status of detectors in array.

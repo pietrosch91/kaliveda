@@ -30,17 +30,15 @@ void KVFAZIASYM::GetGeometryParameters()
 {
 
    fNblocks = 4;
-   //fFGeoType = gEnv->GetValue("FAZIASYM.GeoType", "2B");
-   fFDist    = gEnv->GetValue("FAZIASYM.DistanceFAZIA", 100.0);
-   fFThetaMin = gEnv->GetValue("FAZIASYM.ThetaMinCompactGeo", 0.5);
+   fFDist = 80.0;
 
 }
 
 
 void KVFAZIASYM::BuildFAZIA()
 {
-   Info("BuildFAZIA", "Compact geometry, %f cm from target, theta-min=%f deg.",
-        fFDist, fFThetaMin);
+   Info("BuildFAZIA", "Compact geometry, %f cm from target",
+        fFDist);
 
    TGeoVolume* top = gGeoManager->GetTopVolume();
 
@@ -51,20 +49,25 @@ void KVFAZIASYM::BuildFAZIA()
 
    KVFAZIABlock* block = new KVFAZIABlock;
 
-   Int_t block_starting_number = fStartingBlockNumber;
-
    TGeoRotation rot1, rot2;
    TGeoHMatrix h;
    TGeoHMatrix* ph = 0;
    Double_t theta = 0;
    Double_t phi = 0;
 
-   Double_t theta_min = fFThetaMin;//smallest lab polar angle in degrees
-   Double_t centre_hole = 2.*tan(theta_min * TMath::DegToRad()) * distance_block_cible;
-   Double_t dx = (block->GetTotalSideWithBlindage()) / 2.;
+   Double_t arc = block->GetTotalSideWithBlindage() / (distance_block_cible + thick_si1 / 2.);
+   arc /= 2;
+   arc *= TMath::RadToDeg();
+   fNblocks = 4;
+   //theta theorique 5.2
+   //dphi trouve par tatonnement ...
+   Double_t dphi = 20;
+   dphi -= 5;
 
-   TVector3 centre;
+   phi = -1 * (dphi + 90);
    for (Int_t bb = 0; bb < fNblocks; bb += 1) {
+
+/*
       if (bb == 1)        centre.SetXYZ(-1 * (dx - centre_hole / 2), -dx - centre_hole / 2, distance_block_cible);
       else if (bb == 2)   centre.SetXYZ(-1 * (dx + centre_hole / 2), dx - centre_hole / 2, distance_block_cible);
       else if (bb == 3)   centre.SetXYZ(-1 * (-dx + centre_hole / 2), dx + centre_hole / 2, distance_block_cible);
@@ -74,12 +77,17 @@ void KVFAZIASYM::BuildFAZIA()
       }
       theta = centre.Theta() * TMath::RadToDeg();
       phi = centre.Phi() * TMath::RadToDeg();
+*/
+
+      phi += 90;
+      theta = 5.2;
+      printf("BLK #%d => theta=%1.2lf - phi=%1.2lf\n", bb, theta, phi);
+
       rot2.SetAngles(phi + 90., theta, 0.);
       rot1.SetAngles(-1.*phi, 0., 0.);
       h = rot2 * trans * rot1;
       ph = new TGeoHMatrix(h);
-      top->AddNode(block, block_starting_number++, ph);
-
+      top->AddNode(block, bb, ph);
    }
 
    gGeoManager->CloseGeometry();

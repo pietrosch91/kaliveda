@@ -70,7 +70,6 @@ public:
 
    virtual void Clear(Option_t* t = "");
    void Print(Option_t* option = "") const;
-
    virtual void Identify();
    virtual void Calibrate();
 

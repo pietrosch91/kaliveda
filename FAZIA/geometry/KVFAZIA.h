@@ -39,6 +39,8 @@ public:
    void AddDetectorLabel(const Char_t* label);
 
    virtual void Build(Int_t run = -1);
+   void SortIDTelescopes();
+
    void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params);
    Int_t GetNumberOfBlocks() const
    {

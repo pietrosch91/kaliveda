@@ -2,6 +2,7 @@
 //Author: ,,,
 
 #include "KVFAZIADetector.h"
+#include "KVIDTelescope.h"
 #include "KVFAZIA.h"
 #include "KVSignal.h"
 #include "KVPSAResult.h"
@@ -25,6 +26,7 @@ void KVFAZIADetector::init()
    fSignals = 0;
    fChargeToEnergy = 0;
    fLabel = -1;
+   fCharge = 0;
 }
 
 //________________________________________________________________
@@ -50,6 +52,48 @@ KVFAZIADetector::~KVFAZIADetector()
 }
 
 //________________________________________________________________
+KVList* KVFAZIADetector::PrepareIDTelescopeList()
+{
+
+   KVList* lsub = new KVList();
+   lsub->SetOwner(kFALSE);
+
+   KVList* ltel = GetAlignedIDTelescopes();
+   TList* ldet = GetAlignedDetectors();
+   KVNumberList nl;
+   nl.SetMinMax(0, ltel->GetEntries() - 1);
+   for (Int_t ii = 0; ii < ldet->GetEntries(); ii += 1) {
+      KVDetector* det = (KVDetector*)ldet->At(ii);
+      for (Int_t jj = 0; jj < ltel->GetEntries(); jj += 1) {
+         KVIDTelescope* tel = (KVIDTelescope*)ltel->At(jj);
+         if (tel->GetDetector(1) == det || (tel->GetSize() == 2 && tel->GetDetector(2) == det)) {
+            if (nl.Contains(jj)) {
+               lsub->Add(tel);
+               nl.Remove(jj);
+            }
+         }
+      }
+   }
+   return lsub;
+
+}
+
+//________________________________________________________________
+void KVFAZIADetector::SortIDTelescopes()
+{
+
+   KVList* lsub = PrepareIDTelescopeList();
+   KVList* ltel = GetAlignedIDTelescopes();
+   Int_t nn = ltel->GetEntries();
+   for (Int_t ii = 0; ii < nn; ii += 1)
+      ltel->RemoveAt(0);
+   for (Int_t ii = 0; ii < nn; ii += 1)
+      ltel->Add(lsub->At(ii));
+   delete lsub;
+
+}
+
+//________________________________________________________________
 void KVFAZIADetector::SetCalibrators()
 {
    //Set up calibrators for this detector. Call once name has been set.
@@ -70,6 +114,20 @@ Double_t KVFAZIADetector::GetCalibratedEnergy()
    return 0;
 }
 
+//________________________________________________________________
+Double_t KVFAZIADetector::GetEnergy()
+{
+   //
+   // Returns energy lost in active layer by particles.
+   //
+   Double_t eloss = (GetActiveLayer() ? GetActiveLayer()->GetEnergyLoss() : KVMaterial::GetEnergyLoss());
+   if (eloss <= 0) {
+      Double_t ecal = GetCalibratedEnergy();
+      if (ecal > 0) SetEnergy(ecal);
+      return ecal;
+   }
+   return eloss;
+}
 //________________________________________________________________
 void KVFAZIADetector::Copy(TObject& obj) const
 {
@@ -181,6 +239,11 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
    // In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
    //
    //Info("Fired","Appel - %s",GetName());
+
+   /*
+   if (fCharge >= sig->GetAmplitudeTriggerValue())
+      return kTRUE;
+   */
    Int_t nempty = 0;
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer

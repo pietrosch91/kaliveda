@@ -77,9 +77,12 @@ public:
    void Copy(TObject& obj) const;
    virtual void   Clear(Option_t* opt = "");
    virtual void   SetName(const char* name);
+   KVList* PrepareIDTelescopeList();
+   void SortIDTelescopes();
 
    virtual Bool_t Fired(Option_t* opt = "any");
    Double_t GetCalibratedEnergy();
+   Double_t GetEnergy();
 
    void SetSignal(KVSignal* signal, const Char_t* type);
    Bool_t HasSignal() const;

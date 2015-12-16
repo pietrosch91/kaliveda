@@ -5,6 +5,7 @@
 #define __KVFAZIAIDTELESCOPE_H
 
 #include "KVIDTelescope.h"
+#include "KVReconstructedNucleus.h"
 
 class KVFAZIAIDTelescope : public KVIDTelescope {
 
