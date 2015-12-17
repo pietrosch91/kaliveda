@@ -78,7 +78,7 @@ void KVFAZIAReconNuc::Copy(TObject& obj) const
 }
 
 
-void KVFAZIAReconNuc::Print(Option_t* option) const
+void KVFAZIAReconNuc::Print(Option_t*) const
 {
 
    //KVReconstructedNucleus::Print(option);
@@ -186,7 +186,6 @@ void KVFAZIAReconNuc::Identify()
    KVList* idt_list = GetStoppingDetector()->GetIDTelescopes();
    KVIdentificationResult* IDR = 0;
    Int_t idnumber = 1;
-   SetIsIdentified(kFALSE);
    if (idt_list && idt_list->GetSize() > 0) {
 
       KVIDTelescope* idt;
