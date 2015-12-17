@@ -8,9 +8,17 @@
 /usr/lib/libFAZIAidentification.so.1
 /usr/lib/libFAZIAdb.so.1
 /usr/lib/libFAZIAanalysis.so.1.10.05
+/usr/lib/libFAZIAparticles.so.1
 /usr/lib/libFAZIAidentification.so.1.10.05
+/usr/lib/libFAZIAevents.so.1
+/usr/lib/libFAZIAcalibration.so.1.10.05
+/usr/lib/libFAZIAparticles.so.1.10.05
+/usr/lib/libFAZIAevents.so.1.10.05
+/usr/lib/libFAZIAsignals.so.1
+/usr/lib/libFAZIAcalibration.so.1
 /usr/lib/libFAZIAgeometry.so.1.10.05
 /usr/lib/libFAZIAanalysis.so.1
+/usr/lib/libFAZIAsignals.so.1.10.05
 /usr/lib/libFAZIAgeometry.so.1
 /usr/lib/libFAZIAdb.so.1.10.05
 /usr/share/kaliveda/LNS_2014/SI1_QH1toVolt.dat
@@ -31,6 +39,7 @@
 /usr/share/kaliveda/INDRAFAZIA/ChIoPressures.dat
 /usr/share/kaliveda/ISOFAZIA/calibSI1_ISOFAZIA.dat
 /usr/share/kaliveda/ISOFAZIA/ISOFAZIA-PSA-Params.dat
+/usr/share/kaliveda/ISOFAZIA/CalibrationFiles.dat
 /usr/share/kaliveda/ISOFAZIA/Si1Si2_ISOFAZIA.dat
 /usr/share/kaliveda/ISOFAZIA/Runlist.csv
 /usr/share/kaliveda/ISOFAZIA/IDGrid_CSIRL.dat

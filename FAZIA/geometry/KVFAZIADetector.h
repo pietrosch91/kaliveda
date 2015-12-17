@@ -5,8 +5,7 @@
 #define __KVFAZIADETECTOR_H
 
 #include "KVDetector.h"
-#include "KVFAZIACalibrator.h"
-
+class KVFAZIACalibrator;
 class KVSignal;
 
 class KVFAZIADetector : public KVDetector {

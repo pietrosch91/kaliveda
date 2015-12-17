@@ -360,7 +360,7 @@ public:
    // apply modifications of fAdc to the original signal
    void ApplyModifications(TGraph* newSignal = 0, Int_t nsa = -1);
 
-   ClassDef(KVSignal, 3) //simple class to store TArray in a list
+   ClassDef(KVSignal, 3) //Base class for FAZIA signal processing
 };
 
 #endif

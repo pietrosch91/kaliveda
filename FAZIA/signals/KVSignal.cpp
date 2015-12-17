@@ -18,7 +18,7 @@ ClassImp(KVSignal)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVSignal</h2>
-<h4>simple class to store TArray in a list</h4>
+<h4>Base class for FAZIA signal processing</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

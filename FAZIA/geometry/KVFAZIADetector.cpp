@@ -2,6 +2,7 @@
 //Author: ,,,
 
 #include "KVFAZIADetector.h"
+#include "KVFAZIACalibrator.h"
 #include "KVIDTelescope.h"
 #include "KVFAZIA.h"
 #include "KVSignal.h"
