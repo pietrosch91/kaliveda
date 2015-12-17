@@ -1,12 +1,11 @@
 #include "Parameters.h"
-#include "TTree.h"
-#include "Riostream.h"
-#include <cstdlib>
+
 //Author: Maurycy Rejmund
 
 using namespace std;
 
 ClassImp(Parameters)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
@@ -19,7 +18,26 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-Parameters::Parameters(void)
+Parameters::Parameters(void) :
+#if __cplusplus < 201103L
+   fParameterNumber(NULL),
+   fParameterType(NULL),
+   fParameterBits(NULL),
+   fParameterName(NULL),
+   fParameterMap(NULL),
+   fParameterMapT(NULL),
+   fParameterData(NULL),
+   fParametersTouched(NULL)
+#else
+   fParameterNumber(nullptr),
+   fParameterType(nullptr),
+   fParameterBits(nullptr),
+   fParameterName(nullptr),
+   fParameterMap(nullptr),
+   fParameterMapT(nullptr),
+   fParameterData(nullptr),
+   fParametersTouched(nullptr)
+#endif
 {
 
 #ifdef ECHI
@@ -85,6 +103,8 @@ Parameters::Parameters(void)
 
    for (UShort_t i = 0; i < MAX_PAR_NUM; i++) {
       fParameterNumber[i] = fParameterType[i] = fParameterBits[i] = 0;
+      // Allocate memory for parameter names
+      fParameterName[i].Init();
    }
 
 }
@@ -93,10 +113,76 @@ Parameters::Parameters(void)
 Parameters::~Parameters(void)
 {
 
-   delete [] fParameterMap;
-   delete [] fParameterMapT;
-   delete [] fParameterData;
-   delete [] fParametersTouched;
+   if (fParameterMap) {
+      delete [] fParameterMap;
+#if __cplusplus < 201103L
+      fParameterMap = NULL;
+#else
+      fParameterMap = nullptr;
+#endif
+   }
+
+   if (fParameterMapT) {
+      delete [] fParameterMapT;
+#if __cplusplus < 201103L
+      fParameterMapT = NULL;
+#else
+      fParameterMapT = nullptr;
+#endif
+   }
+
+   if (fParameterData) {
+      delete [] fParameterData;
+#if __cplusplus < 201103L
+      fParameterData = NULL;
+#else
+      fParameterData = nullptr;
+#endif
+   }
+
+   if (fParametersTouched) {
+      delete [] fParametersTouched;
+#if __cplusplus < 201103L
+      fParametersTouched = NULL;
+#else
+      fParametersTouched = nullptr;
+#endif
+   }
+
+   if (fParameterNumber) {
+      delete[] fParameterNumber;
+#if __cplusplus < 201103L
+      fParameterNumber = NULL;
+#else
+      fParameterNumber = nullptr;
+#endif
+   }
+
+   if (fParameterType) {
+      delete[] fParameterType;
+#if __cplusplus < 201103L
+      fParameterType = NULL;
+#else
+      fParameterType = nullptr;
+#endif
+   }
+   if (fParameterBits) {
+      delete[] fParameterBits;
+#if __cplusplus < 201103L
+      fParameterBits = NULL;
+#else
+      fParameterBits = nullptr;
+#endif
+   }
+
+   if (fParameterName) {
+      delete[] fParameterName;
+#if __cplusplus < 201103L
+      fParameterName = NULL;
+#else
+      fParameterName = nullptr;
+#endif
+   }
 }
 
 
@@ -1611,4 +1697,3 @@ void Parameters::Fill(const char* buffParam)
    }
 }
 
-ClassImp(ParameterName)

@@ -185,6 +185,12 @@ if(USE_INDRAVAMOS)
 	set(USE_INDRA ON)
 endif()
 
+option(USE_DEPRECATED_VAMOS "Enable deprecated VAMOS code" OFF)
+if (USE_DEPRECATED_VAMOS)
+	set(USE_INDRAVAMOS ON)
+	add_definitions(-D__ENABLE_DEPRECATED_VAMOS__)
+endif()
+
 #--- Libraries for FAZIA data
 option(USE_FAZIA "Build libraries for analysis of FAZIA data" OFF)
 if(USE_FAZIA)
@@ -199,6 +205,7 @@ if(USE_ALL)
 endif()
 add_feature_info(indra USE_INDRA "Build libraries for analysis of INDRA data")
 add_feature_info(indravamos USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data")
+add_feature_info(indravamosdep USE_DEPRECATED_VAMOS "Build libraries for deprecated INDRA-VAMOS analysis")
 add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
 
 #----------------------------------------------------------

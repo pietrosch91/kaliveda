@@ -1,31 +1,31 @@
-Deprecation Procedure and Info                      Thu  8 Oct 14:51:14 BST 2015
+Deprecation Procedure and Info                      Thu 17 Dec 18:54:51 GMT 2015
 --------------------------------------------------------------------------------
 
 I have now deprecated much of the old VAMOS code as it is expected to be removed
 at some future date and is largely superseded by the new code. The main reason
-for deprecating the old code is to discourage its use and to prevent any further
-development on these parts of the code.
+for deprecating the old code is to discourage its use while providing a time
+frame within which analysis codes and such can be updated to use the new code.
 
-In the default situation, if you attempt to use any parts of the deprecated code
-the compiler will print a warning to the terminal. However if you ABSOLUTELY
-MUST use the old code and do not desire to see the compiler warnings (if for
-example they are blinding the terminal so you can't see 'genuine' errors and
-warnings) then you should comment the lines in the VAMOS Makefile which add the
-switch -Wno-deprecated-declarations to the CXX compiler flags. Or in your own
-makefiles simply append the aforementioned switch.
+The deprecated code resides in VAMOS/deprecated and is only compiled if the
+USE_DEPRECATED_VAMOS build option is enabled at build time (cmake
+-DUSE_DEPRECATED_VAMOS). If you choose to compile the deprecated code you will
+see many warnings the first time you compile the VAMOS code (intended to
+discourage future use of the deprecated code). If you subsequently attempt to
+use any part of the deprecated code the compiler will print a warning to the
+terminal the next time you recompile. 
+
+However if you ABSOLUTELY MUST use the old code and do not desire to see the
+compiler warnings (if for example they are blinding the terminal so you can't
+see 'genuine' errors and warnings) then you should compile with the
+-Wno-deprecated-declarations switch.
 
 Each deprecated class contains a warning at the top of the header and source
 file which should be easily visible. This should prevent people spending a lot
 of time developing programs based off the old code only to find that the
 compiler tells them that the class is deprecated.
 
-Deprecation is handled using the macros defined in VAMOS/base/Deprecation.h. The
-deprecated code is not compiled by default but can be enabled by defining
-__ENABLE_DEPRECATED_VAMOS__ in VAMOS/analysis/Defines.h (Simply uncomment the
-appropriate line). At the moment the best method I've found to exclude the
-deprecated code is to wrap the header and source files in #ifdef conditions
-looking for the definition of __ENABLE_DEPRECATED_VAMOS__. There is probably a
-better way of doing all of this...
+Deprecation is handled using the macros defined in
+VAMOS/deprecated/Deprecation.h. 
 
 To deprecate a class:
 
@@ -34,26 +34,25 @@ To deprecate a class:
                             ######################
 
 #ifndef __SOME_CLASS_H__
+#define __SOME_CLASS_H__
 
 /**
-    WARNING: This class has been deprecated and will eventually be removed.
+   WARNING: This class has been deprecated and will eventually be removed. Do
+   not use!
 
-    Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
-    Date:          Thu  8 Oct 11:55:54 BST 2015
+   This class is only compiled if the deprecated code is enabled in the build
+   configuration (e.g. cmake -DUSE_DEPRECATED_VAMOS=yes). If you enable the
+   deprecated code then a large number of warnings will be printed to the
+   terminal. To disable these warnings (not advised) compile VAMOS with
+   -Wno-deprecated-declarations. Despite these warnings the code should compile
+   just fine. The warnings are there to prevent the unwitting use of the
+   deprecated code (which should be strongly discouraged). 
+  
+   BY DEFAULT THIS CLASS IS NOT COMPILED.
+
+   Deprecated by: Your Name (your_name@email.com)
+   Date:          Thu 17 Dec 17:24:38 GMT 2015
 */
-
-
-#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
-#ifdef __ENABLE_DEPRECATED_VAMOS__
-
-// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
-// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
-// build options then a LARGE number of warnings will be printed to the
-// terminal. To disable these warnings (not advised) compile VAMOS with
-// -Wno-deprecated-declarations. Despite the warnings the code should compile
-// just fine.
-
-#define __SOME_CLASS_H__
 
 #include "Deprecation.h" // DEPRECATED_CLASS() Macro
 
@@ -66,7 +65,6 @@ class
 
 DEPRECATED_CLASS(SomeClass);
 
-#endif // __ENABLE_DEPRECATED_VAMOS__ is set
 #endif // __SOME_CLASS_H__ is not set
 
                             ######################
@@ -76,32 +74,25 @@ DEPRECATED_CLASS(SomeClass);
 #include "SomeClass.h"
 
 /**
-    WARNING: This class has been deprecated and will eventually be removed.
+   WARNING: This class has been deprecated and will eventually be removed. Do
+   not use!
 
-    Deprecated by: Peter Wigg (peter.wigg.314159@gmail.com)
-    Date:          Thu  8 Oct 11:55:54 BST 2015
+   This class is only compiled if the deprecated code is enabled in the build
+   configuration (e.g. cmake -DUSE_DEPRECATED_VAMOS=yes). If you enable the
+   deprecated code then a large number of warnings will be printed to the
+   terminal. To disable these warnings (not advised) compile VAMOS with
+   -Wno-deprecated-declarations. Despite these warnings the code should compile
+   just fine. The warnings are there to prevent the unwitting use of the
+   deprecated code (which should be strongly discouraged). 
+  
+   BY DEFAULT THIS CLASS IS NOT COMPILED.
+
+   Deprecated by: Your Name (your_name@email.com)
+   Date:          Thu 17 Dec 17:24:38 GMT 2015
 */
-
-#ifdef __ENABLE_DEPRECATED_VAMOS__
-
-// This class is only compiled if __ENABLE_DEPRECATED_VAMOS__ is set in
-// VAMOS/analysis/Defines.h. If you enable the deprecated code using the default
-// build options then a LARGE number of warnings will be printed to the
-// terminal. To disable these warnings (not advised) compile VAMOS with
-// -Wno-deprecated-declarations. Despite the warnings the code should compile
-// just fine.
 
 ... Your code goes here ...
 
-#endif // __ENABLE_DEPRECATED_VAMOS__ is set
-
-                              ####################
-                              # In the LinkDef.h #
-                              ####################
-
-#ifdef __ENABLE_DEPRECATED_VAMOS__
-#pragma link C++ class SomeClass+;
-#endif
-
 
                                         Peter Wigg (peter.wigg.314159@gmail.com)
+

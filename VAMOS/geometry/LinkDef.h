@@ -5,7 +5,6 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #ifdef __CINT__
 
 #include "RVersion.h"
-#include "Defines.h" // __ENABLE_DEPRECATED_VAMOS__
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -30,16 +29,5 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class KVHarpeeSi-;
 #pragma link C++ class KVSeD+;
 #pragma link C++ class KVSiliconVamos+;
-
-#pragma link C++ class SeD12v+;
-#pragma link C++ class SeDv+;
-#pragma link C++ class Siv+;
-
-#ifdef __ENABLE_DEPRECATED_VAMOS__
-#pragma link C++ class DriftChamberv+;
-#pragma link C++ class IonisationChamberv+;
-#pragma link C++ class Sive503+;
-#pragma link C++ class CsIv+;
-#endif
 
 #endif
