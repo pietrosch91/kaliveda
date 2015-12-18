@@ -6,11 +6,11 @@
 
 class ParameterName {
 
-   const size_t maxlen_;
 
 public:
 
    char* Name;
+   static const std::size_t maxlen;
 
    ParameterName();
    virtual ~ParameterName();

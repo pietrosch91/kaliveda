@@ -112,7 +112,6 @@ Parameters::Parameters(void) :
 
 Parameters::~Parameters(void)
 {
-
    if (fParameterMap) {
       delete [] fParameterMap;
 #if __cplusplus < 201103L
@@ -1266,12 +1265,40 @@ void Parameters::Set(TTree* theTree)
    }
 
 
+   if (fParameterNumber) {
+      delete[] fParameterNumber;
+#if __cplusplus < 201103L
+      fParameterNumber = NULL;
+#else
+      fParameterNumber = nullptr;
+#endif
+   }
 
+   if (fParameterType) {
+      delete[] fParameterType;
+#if __cplusplus < 201103L
+      fParameterType = NULL;
+#else
+      fParameterType = nullptr;
+#endif
+   }
+   if (fParameterBits) {
+      delete[] fParameterBits;
+#if __cplusplus < 201103L
+      fParameterBits = NULL;
+#else
+      fParameterBits = nullptr;
+#endif
+   }
 
-   delete [] fParameterNumber;
-   delete [] fParameterType;
-   delete [] fParameterBits;
-   delete [] fParameterName;
+   if (fParameterName) {
+      delete[] fParameterName;
+#if __cplusplus < 201103L
+      fParameterName = NULL;
+#else
+      fParameterName = nullptr;
+#endif
+   }
 
 }
 void Parameters::GetData(Short_t* data)
@@ -1650,13 +1677,14 @@ char* Parameters::CopyParam(char* Dest, char* Source) const
 {
    // Small utility routine to copy a char string.
    char c;
-   int len = 0;
+   std::size_t len(0);
+
    do {
       len++;
       c = *Source++;
       if ((c == ',') || (c == 0x0d))
          c = '\0';
-      if (len <= 20)
+      if (len <= ParameterName::maxlen) // 20
          *Dest++ = c;
       else
          *Dest = '\0';
@@ -1678,7 +1706,15 @@ void Parameters::Fill(const char* buffParam)
    // index.
 
    char* CurrPointer;
-   char tmp[20];
+#if __cplusplus < 201103L
+   char* tmp(NULL);
+#else
+   char* tmp(nullptr);
+#endif
+
+   // Ideally should be updated to use std::shared_ptr<char> but this whole
+   // class could do with updating really.
+   tmp = new char[ParameterName::maxlen];
 
    CurrPointer = (char*)buffParam;
 
@@ -1694,6 +1730,15 @@ void Parameters::Fill(const char* buffParam)
          Check();
       } else
          fNumberofParameters--;
+   }
+
+   if (tmp) {
+      delete[] tmp;
+#if __cplusplus < 201103L
+      tmp = NULL;
+#else
+      tmp = nullptr;
+#endif
    }
 }
 

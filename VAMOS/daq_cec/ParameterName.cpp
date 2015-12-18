@@ -2,8 +2,9 @@
 
 ClassImp(ParameterName)
 
+const std::size_t ParameterName::maxlen = 20;
+
 ParameterName::ParameterName(void):
-   maxlen_(20),
 #if __cplusplus < 201103L
    Name(NULL)
 #else
@@ -29,7 +30,7 @@ ParameterName::~ParameterName()
 
 void ParameterName::Init()
 {
-   Name = new char[maxlen_];
-   std::memset(Name, '\0', maxlen_);
+   Name = new char[maxlen];
+   std::memset(Name, '\0', maxlen);
 }
 
