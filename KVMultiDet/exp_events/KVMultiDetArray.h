@@ -258,6 +258,13 @@ public:
    virtual void AnalyseGroupAndReconstructEvent(KVReconstructedEvent* recev, KVGroup* grp);
    virtual void SetGridsInTelescopes(UInt_t run);
    void FillListOfIDTelescopes(KVIDGraph* gr) const;
+
+   void Draw(Option_t* = "")
+   {
+      // Use OpenGL viewer to view multidetector geometry (only for ROOT geometries)
+      if (IsROOTGeometry()) GetGeometry()->GetTopVolume()->Draw("ogl");
+      else Error("Draw", "Only ROOT geometries can be viewed");
+   }
 };
 
 //................  global variable

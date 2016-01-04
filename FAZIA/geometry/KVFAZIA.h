@@ -6,6 +6,8 @@
 
 #include "KVMultiDetArray.h"
 
+#include <KVGeoImport.h>
+
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,32,0)
 #include "TGeoMatrix.h"
 #endif
@@ -23,6 +25,12 @@ protected:
    TString fCorrespondanceFile; //name of the file where are listed links between geometry and detector names
    KVString fDetectorLabels;
    KVString fSignalTypes;
+   Double_t fImport_dTheta;//! for geometry import
+   Double_t fImport_dPhi;//! for geometry import
+   Double_t fImport_ThetaMin;//! for geometry import
+   Double_t fImport_ThetaMax;//! for geometry import
+   Double_t fImport_PhiMin;//! for geometry import
+   Double_t fImport_PhiMax;//! for geometry import
 
    //methods to be implemented in child classes
    virtual void BuildFAZIA();
@@ -31,6 +39,7 @@ protected:
 
    virtual void BuildTarget();
    virtual void GenerateCorrespondanceFile();
+   virtual void DefineStructureFormats(KVGeoImport&) {}
 
 public:
 
@@ -58,6 +67,17 @@ public:
    const Char_t* GetSignalTypes() const
    {
       return fSignalTypes.Data();
+   }
+
+   void SetGeometryImportParameters(Double_t dt = 0.25, Double_t dp = 1.0, Double_t tmin = 2., Double_t pmin = 0, Double_t tmax = 20., Double_t pmax = 360.)
+   {
+      // Set angular arguments for call to KVGeoImport::ImportGeometry in KVFAZIA::Build
+      fImport_dPhi = dp;
+      fImport_dTheta = dt;
+      fImport_PhiMax = pmax;
+      fImport_PhiMin = pmin;
+      fImport_ThetaMax = tmax;
+      fImport_ThetaMin = tmin;
    }
 
    ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up

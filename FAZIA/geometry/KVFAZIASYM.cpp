@@ -5,6 +5,8 @@
 #include "KVUnits.h"
 #include "KVFAZIABlock.h"
 
+#include <TGeoMatrix.h>
+
 ClassImp(KVFAZIASYM)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +34,40 @@ void KVFAZIASYM::GetGeometryParameters()
    fNblocks = 4;
    fFDist = 80.0;
    fFThetaMin = 2.1;
+}
+
+void KVFAZIASYM::RutherfordTelescope()
+{
+   // Telescope for elastic scattering monitoring
+   // Two 5mm2 silicon detectors of 500um thickness
+   // placed 2m from the target at theta=1.84deg phi=-90deg.
+   // distance between centres of detectors = 1mm
+
+   KVMaterial silicon("Si");
+   const double area = 5 * KVUnits::mm * KVUnits::mm;
+   double radius = pow(area / TMath::Pi(), 0.5);
+   const double thick = 500 * KVUnits::um;
+   const double centre_dist = 1 * KVUnits::mm;
+   double total_thickness = thick + centre_dist;
+
+   TGeoVolume* si_det = gGeoManager->MakeTube("DET_SI", silicon.GetGeoMedium(), 0., radius, thick / 2);
+
+   TGeoVolumeAssembly* ruth_tel = gGeoManager->MakeVolumeAssembly("STRUCT_RUTH");
+
+   ruth_tel->AddNode(si_det, 1, new TGeoTranslation(0, 0, -centre_dist / 2));
+   ruth_tel->AddNode(si_det, 2, new TGeoTranslation(0, 0, centre_dist / 2));
+
+   // front entrance of first detector at 2 metres from target
+   const double distance = 2 * KVUnits::m + 0.5 * total_thickness;
+   const double theta = 1.84;
+   const double phi = -90;
+
+   TGeoRotation rot1, rot2;
+   rot2.SetAngles(phi + 90, theta, 0);
+   rot1.SetAngles(-90, 0., 0.);
+   TGeoTranslation trans(0, 0, distance);
+   TGeoHMatrix h = rot2 * trans * rot1;
+   gGeoManager->GetTopVolume()->AddNode(ruth_tel, 1, new TGeoHMatrix(h));
 }
 
 
@@ -99,7 +135,12 @@ void KVFAZIASYM::BuildFAZIA()
       top->AddNode(block, bb, ph);
    }
 
+   // add telescope for elastic scattering monitoring
+   RutherfordTelescope();
+
    gGeoManager->CloseGeometry();
    gGeoManager->DefaultColors();
 
+   // Change default geometry import angular range for rutherford telescope
+   SetGeometryImportParameters(.25, 1., 1.84);
 }

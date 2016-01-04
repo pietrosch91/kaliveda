@@ -11,6 +11,12 @@ class KVFAZIASYM : public KVFAZIA {
    virtual void BuildFAZIA();
    virtual void GetGeometryParameters();
 
+   void RutherfordTelescope();
+   void DefineStructureFormats(KVGeoImport& g)
+   {
+      g.SetStructureNameFormat("RUTH", "$type");
+   }
+
 public:
    KVFAZIASYM();
    virtual ~KVFAZIASYM();
