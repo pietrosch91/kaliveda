@@ -4,6 +4,8 @@
 #include "KVFAZIASYM.h"
 #include "KVUnits.h"
 #include "KVFAZIABlock.h"
+#include "TSystem.h"
+#include "KVEnv.h"
 
 #include <TGeoMatrix.h>
 
@@ -39,14 +41,15 @@ void KVFAZIASYM::GetGeometryParameters()
 void KVFAZIASYM::RutherfordTelescope()
 {
    // Telescope for elastic scattering monitoring
-   // Two 5mm2 silicon detectors of 500um thickness
-   // placed 2m from the target at theta=1.84deg phi=-90deg.
+   // Two 5mm diameter silicon detectors of 525um thickness
+   // placed 2m20 from the target at theta=1.84deg phi=-90deg.
    // distance between centres of detectors = 1mm
 
    KVMaterial silicon("Si");
-   const double area = 5 * KVUnits::mm * KVUnits::mm;
-   double radius = pow(area / TMath::Pi(), 0.5);
-   const double thick = 500 * KVUnits::um;
+
+   const double radius = 5 * KVUnits::mm / 2.;
+
+   const double thick = 525 * KVUnits::um;
    const double centre_dist = 1 * KVUnits::mm;
    double total_thickness = thick + centre_dist;
 
@@ -58,7 +61,7 @@ void KVFAZIASYM::RutherfordTelescope()
    ruth_tel->AddNode(si_det, 2, new TGeoTranslation(0, 0, centre_dist / 2));
 
    // front entrance of first detector at 2 metres from target
-   const double distance = 2 * KVUnits::m + 0.5 * total_thickness;
+   const double distance = 2.20 * KVUnits::m + 0.5 * total_thickness;
    const double theta = 1.84;
    const double phi = -90;
 
@@ -143,4 +146,13 @@ void KVFAZIASYM::BuildFAZIA()
 
    // Change default geometry import angular range for rutherford telescope
    SetGeometryImportParameters(.25, 1., 1.84);
+}
+
+void KVFAZIASYM::SetNameOfDetectors(KVEnv& env)
+{
+
+   KVFAZIA::SetNameOfDetectors(env);
+   env.SetValue("RUTH_SI_1", "SI1-RUTH");
+   env.SetValue("RUTH_SI_2", "SI2-RUTH");
+
 }

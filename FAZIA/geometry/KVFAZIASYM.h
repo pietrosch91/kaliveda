@@ -16,6 +16,7 @@ class KVFAZIASYM : public KVFAZIA {
    {
       g.SetStructureNameFormat("RUTH", "$type");
    }
+   virtual void SetNameOfDetectors(KVEnv& env);
 
 public:
    KVFAZIASYM();

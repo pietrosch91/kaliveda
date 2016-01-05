@@ -7,6 +7,7 @@
 #include "KVMultiDetArray.h"
 
 #include <KVGeoImport.h>
+#include <KVEnv.h>
 
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,32,0)
 #include "TGeoMatrix.h"
@@ -38,7 +39,9 @@ protected:
    //
 
    virtual void BuildTarget();
-   virtual void GenerateCorrespondanceFile();
+   void GenerateCorrespondanceFile();
+   virtual void SetNameOfDetectors(KVEnv& env);
+
    virtual void DefineStructureFormats(KVGeoImport&) {}
 
 public:

@@ -9,7 +9,6 @@
 #include "KVFAZIABlock.h"
 #include "KVDetectorEvent.h"
 #include "KVTarget.h"
-#include "KVEnv.h"
 #include "TSystem.h"
 #include "KVDataSet.h"
 #include "KVConfig.h"
@@ -65,6 +64,17 @@ void KVFAZIA::GenerateCorrespondanceFile()
 #endif
    Info("GenerateCorrespondanceFile", "Creation de %s", fCorrespondanceFile.Data());
    KVEnv env;
+
+   SetNameOfDetectors(env);
+
+   env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
+   env.AddCommentLine("Make link between geometric ROOT objects and detector names");
+   env.WriteFile(fCorrespondanceFile.Data());
+   fDetectorLabels = "";
+}
+
+void KVFAZIA::SetNameOfDetectors(KVEnv& env)
+{
    for (Int_t bb = fStartingBlockNumber; bb < fNblocks; bb += 1) {
       for (Int_t qq = 1; qq <= 4; qq += 1) {
          for (Int_t tt = 1; tt <= 4; tt += 1) {
@@ -79,10 +89,6 @@ void KVFAZIA::GenerateCorrespondanceFile()
          }
       }
    }
-   env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
-   env.AddCommentLine("Make link between geometric ROOT objects and detector names");
-   env.WriteFile(fCorrespondanceFile.Data());
-   fDetectorLabels = "";
 }
 
 void KVFAZIA::GetGeometryParameters()
