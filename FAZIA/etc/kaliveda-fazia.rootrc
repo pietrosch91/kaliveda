@@ -31,7 +31,7 @@ LNS_2014.KVDataSet.DataType.Subdir.root:  root
 
 +DataSet:   FAZIASYM
 FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
-FAZIASYM.DataSet.RepositoryDir:   faziasym
+FAZIASYM.DataSet.RepositoryDir:   FAZIASYM
 FAZIASYM.DataSet.RunFileName.raw:    run%06d.root
 FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIASYM.DataSet.RunFileClass.raw:    TFile
@@ -101,6 +101,9 @@ LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 ISOFAZIA.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 ISOFAZIA.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
+FAZIASYM.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+FAZIASYM.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
+
 +Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
 +Plugin.TSelector:  FAZIAReader    KVFAZIAReader      FAZIAanalysis    "KVFAZIAReader()"
 ############

@@ -64,7 +64,7 @@ protected:
    //
    Bool_t   fPSAIsDone;             // indicate if PSA has been done
    Double_t fChannelWidthInt;       // internal parameter channel width of interpolated signal in ns
-
+   void ResetIndexes();
    virtual void BuildCubicSignal(); //Interpolazione mediante cubic
    void init();
 

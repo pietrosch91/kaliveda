@@ -283,7 +283,7 @@ void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
    if (sig)
       sig->SetData(signal->GetN(), signal->GetX(), signal->GetY());
    else
-      Warning("SetSignal", "%s : No signal of type %s is available", GetName(), type);
+      Warning("SetSignal", "%s : No signal of type #%s# is available", GetName(), type);
 }
 
 //_________________________________________________________________________________
