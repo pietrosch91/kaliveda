@@ -158,7 +158,7 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 +Plugin.KVIDTelescope:  ^INDRA_e503.CI-SI75$       KVIDChIoSi75_e494s    KVIndraidentification  "KVIDChIoSi75_e494s()"
 +Plugin.KVIDTelescope:  ^INDRA_e503.SI75-SILI$     KVIDSi75SiLi_e494s    KVIndraidentification  "KVIDSi75SiLi_e494s()"
 +Plugin.KVIDTelescope:  ^INDRA_e503.SILI-CSI$      KVIDSiLiCsI_e494s     KVIndraidentification  "KVIDSiLiCsI_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.VAMOS.SI-CSI$  KVIDHarpeeSiCsI_e503  VAMOSidentification    "KVIDHarpeeSiCsI()"
++Plugin.KVIDTelescope:  ^INDRA_e503.VAMOS.SI-CSI$  KVIDHarpeeSiCsI_e503  VAMOSidentification    "KVIDHarpeeSiCsI_e503()"
 +Plugin.KVIDTelescope:  ^INDRA_e503.VAMOS.CHI-SI$  KVIDHarpeeICSi_e503   VAMOSidentification    "KVIDHarpeeICSi_e503()"
 ###############################################
 # ===> Plugin pour FocalPlanVamos
