@@ -63,7 +63,6 @@ void KVI2::SetDefaultValues()
 
 void KVI2::LoadPSAParameters()
 {
-
    Double_t val = GetPSAParameter("BaseLineLength");
    SetBaseLineLength(val);
 
@@ -82,15 +81,18 @@ void KVI2::LoadPSAParameters()
 void KVI2::TreateSignal()
 {
    if (GetN() == 0) return;
-   if (!TestWidth())
+   if (!TestWidth()) {
       ChangeChannelWidth(GetChannelWidth());
-
+   }
    ComputeBaseLine();
    fBaseLine  = GetBaseLine();
    fSigmaBase = GetSigmaBaseLine();
+
    Add(-1.*fBaseLine);
-   if (fWithInterpolation)
+   if (fWithInterpolation) {
       BuildCubicSignal();
+   }
+
    SetNSamples(GetNSamples() - 3); // because we use a 3th order interpolation...
    ComputeAmplitude();
    fAmplitude = GetAmplitude();
