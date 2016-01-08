@@ -284,6 +284,8 @@ configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---configure and install kaliveda-config script
+get_property(KALIVEDA_SUBPROJ_LIST GLOBAL PROPERTY KALIVEDA_SUBPROJ_LIST)
+CHANGE_LIST_TO_STRING(subprojlist ${KALIVEDA_SUBPROJ_LIST})
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
