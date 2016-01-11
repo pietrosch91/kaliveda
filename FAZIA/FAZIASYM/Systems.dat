@@ -2,4 +2,9 @@
 40 20 40 20 35.00
 Target: 1 0
 Calcium 0.500
-Runs: 100-50000
+Runs: 100-6999
++48Ca + 40Ca 35.0 MeV/A
+48 20 40 20 35.00
+Target: 1 0
+Calcium 0.500
+Runs: 7000-16000
