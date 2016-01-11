@@ -20,23 +20,32 @@ public:
    void SetACQStatus(const KVString& status);
    const Char_t* GetACQStatus() const;
 
-   void SetGoodEvents(Int_t evt_number);
+   void SetGoodEvents(Int_t);
    Int_t GetGoodEvents() const;
 
-   void SetError_WrongNumberOfBlocks(Int_t evt_number);
+   void SetError_WrongNumberOfBlocks(Int_t);
    Int_t GetError_WrongNumberOfBlocks() const;
 
-   void SetError_InternalBlockError(Int_t evt_number);
+   void SetError_InternalBlockError(Int_t);
    Int_t GetError_InternalBlockError() const;
 
-   void SetNumberOfAcqFiles(Int_t number);
+   void SetNumberOfAcqFiles(Int_t);
    Int_t GetNumberOfAcqFiles() const;
 
-   void SetDuration(Double_t duration);
+   void SetDuration(Double_t);
    Double_t GetDuration() const;
 
-   void SetFrequency(Double_t frequency);
+   void SetFrequency(Double_t);
    Double_t GetFrequency() const;
+
+   void SetTriggerRate(Double_t);
+   Double_t GetTriggerRate() const;
+
+   void SetDeadTime(Double_t);
+   Double_t GetDeadTime() const;
+
+   void SetNumberOfTriggerBlocks(Double_t);
+   Double_t GetNumberOfTriggerBlocks() const;
 
    ClassDef(KVFAZIADBRun, 1) //run description for FAZIA experiment
 };

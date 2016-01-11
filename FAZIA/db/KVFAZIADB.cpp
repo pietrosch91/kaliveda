@@ -389,8 +389,11 @@ void KVFAZIADB::ReadNewRunList()
       line.ReadLine(fin);
       if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
          run = new KVFAZIADBRun;
-         run->SetTrigger(1);
-         //run->ReadRunListLine( line );
+         run->SetTrigger(0);
+         run->SetNumberOfTriggerBlocks(0);
+         run->SetDeadTime(0);
+         run->SetTriggerRate(0);
+
          toks = line.Tokenize("|");
          for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
             KVString couple = ((TObjString*)toks->At(ii))->GetString();
@@ -424,8 +427,16 @@ void KVFAZIADB::ReadNewRunList()
                run->SetDuration(value.Atof());
             } else if (name == "frequency") { //number of evts per seconds (aquisition rate)
                run->SetFrequency(value.Atof());
+            } else if (name == "triggerrate") { //trigger rate
+               run->SetTriggerRate(value.Atof());
+            } else if (name == "mtrigger") { //trigger multiplicity
+               run->SetTrigger(value.Atof());
+            } else if (name == "deadtime") { //deadtime of the acquisition between 0 and 1
+               run->SetDeadTime(value.Atof());
+            } else if (name == "trig info") { //number of trigger block in the acquisition file
+               run->SetNumberOfTriggerBlocks(value.Atoi());
             } else {
-
+               //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
             }
          }
          delete toks;
