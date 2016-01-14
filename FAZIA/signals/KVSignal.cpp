@@ -9,6 +9,9 @@
 #include "KVEnv.h"
 #include "KVDBParameterList.h"
 
+#include "TMatrixD.h"
+#include "TMatrixF.h"
+
 #define LOG2 (double)6.93147180559945286e-01
 # define M_PI     3.14159265358979323846  /* pi */
 
@@ -762,6 +765,107 @@ double KVSignal::GetDataInterCubic(double t)
 }
 
 /***********************************************/
+double KVSignal::GetDataCubicSpline(double t)
+{
+   // see HSIEH S.HOU IEEE Trans. Acoustic Speech, vol. ASSP-26, NO.6, DECEMBER 1978
+   Double_t h = fChannelWidth;
+   Double_t xk = floor(t / h) * h;
+   int xk_index = (int)(t / h);
+   Double_t s = (t - xk) / h;
+
+   float* data = fAdc.GetArray();
+   int N = fAdc.GetSize();
+   int dimensione = 18; //dimensione della matrice dei campioni.!!!!deve essere pari!!!!
+   float cm1, cNm1;
+
+
+   TMatrixD e(dimensione, dimensione);
+   TArrayD data_e(dimensione * dimensione);
+   for (int k = 0, i = 0; i < dimensione; i++) {
+      data_e[k] = 4.;
+      if ((k + 1) < pow(dimensione, 2)) data_e[k + 1] = 1.;
+      if ((k - 1) > 0)                 data_e[k - 1] = 1.;
+      k += dimensione + 1;
+   }
+   e.SetMatrixArray(data_e.GetArray());
+   e *= 1. / 6 / h;
+   e.Invert();
+
+   double dati_b[] = { -1, 3, -3, 1, 3, -6, 3, 0, -3, 0, 3, 0, 1, 4, 1, 0};
+   TMatrixD delta(4, 4, dati_b);
+
+
+   TMatrixF samples(dimensione, 1);
+   TMatrixF coeff(dimensione, 1);
+   TMatrixF b(4, 1);
+   TMatrixF coefficienti(4, 1);
+
+   if (xk_index < (dimensione / 2 - 1)) {
+      samples.SetMatrixArray(data);//prendiamo i dati a partire dal primo
+   } else if (xk_index > (N - dimensione / 2 - 1)) {
+      samples.SetMatrixArray(data + N - dimensione); //prendiamo 18 dati partendo dalla fine
+   } else {
+      samples.SetMatrixArray(data + xk_index - (dimensione / 2 - 1)); //perche l'interp deve avvenire tra i campioni centrali della matrice
+   }
+   float* samples_interp = samples.GetMatrixArray();
+
+   //        coeff=e*samples;
+   coeff.Mult(e, samples);
+   float* ck = coeff.GetMatrixArray();
+
+   if (xk_index < (dimensione / 2 - 1)) {
+      if (xk_index == 0) {
+         cm1 = (*samples_interp) * 6 * h - ((*ck) * 4 + (*(ck + 1)));
+         float caso_zero[4] = {cm1, *ck, *(ck + 1), *(ck + 2)};
+         coefficienti.SetMatrixArray(caso_zero);
+      } else coefficienti.SetMatrixArray(ck + xk_index - 1);
+   } else if (xk_index > (N - dimensione / 2 - 1)) {
+      if (xk_index == N - 2) {
+         cNm1 = (*(samples_interp + dimensione - 1)) * 6 * h - (*(ck + dimensione - 1) * 4 + (*(ck + dimensione - 2)));
+         float casoN[4] = {*(ck + dimensione - 3), *(ck + dimensione - 2), *(ck + dimensione - 1), cNm1};
+         coefficienti.SetMatrixArray(casoN);
+      } else coefficienti.SetMatrixArray(ck + dimensione - (N - xk_index + 1));
+   } else {
+      coefficienti.SetMatrixArray(ck + (dimensione / 2 - 2));
+   }
+
+   //   b=delta*coefficienti;
+   b.Mult(delta, coefficienti);
+   float* b_interp = b.GetMatrixArray();
+   float a0 = *b_interp;
+   float a1 = *(b_interp + 1);
+   float a2 = *(b_interp + 2);
+   float a3 = *(b_interp + 3);
+
+   return (1. / 6 / h * (a3 + a2 * s + a1 * s * s + a0 * s * s * s));
+}
+
+
+/***********************************************/
+void KVSignal::BuildCubicSplineSignal(double taufinal)
+{
+   const int Nsa = fAdc.GetSize();
+   const double tau = fChannelWidth;
+
+   fChannelWidthInt = taufinal;
+   TArrayF interpo;
+   interpo.Set((int)(Nsa * tau / taufinal));
+
+   for (int i = 0; i < interpo.GetSize(); i++) interpo.AddAt(GetDataCubicSpline(i * taufinal), i);
+   fAdc.Set(0);
+   fAdc.Set(interpo.GetSize());
+   for (int i = 0; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(i), i);
+
+}
+/***********************************************/
+void KVSignal::BuildCubicSplineSignal()
+{
+   BuildCubicSplineSignal(GetInterpolatedChannelWidth());
+}
+
+
+
+/***********************************************/
 void KVSignal::BuildCubicSignal(double taufinal)
 {
    const int Nsa = fAdc.GetSize();
@@ -895,6 +999,19 @@ void KVSignal::FIR_ApplyRecursiveFilter(double a0, int N, double* a, double* b, 
       datax[i] = (float)datay[i];
    delete [] datay;
 }
+
+void KVSignal::FIR_ApplyMovingAverage(int npoints)  // causal moving average
+{
+   TArrayF sorig = fAdc;
+   float* data = fAdc.GetArray();
+   float* datao = sorig.GetArray();
+
+   for (int n = npoints; n < GetNSamples(); n++)
+      data[n] = data[n - 1] + (datao[n] - datao[n - npoints]) / npoints;
+   for (int n = 0; n < npoints; n++)  data[n] = data[npoints]; // first npoints samples are put equal to first good value
+
+}
+
 
 void KVSignal::PoleZeroSuppression(Double_t tauRC)
 {

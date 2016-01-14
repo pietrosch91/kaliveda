@@ -66,6 +66,7 @@ protected:
    Double_t fChannelWidthInt;       // internal parameter channel width of interpolated signal in ns
    void ResetIndexes();
    virtual void BuildCubicSignal(); //Interpolazione mediante cubic
+   virtual void BuildCubicSplineSignal(); //Interpolazione mediante cubic
    void init();
 
 public:
@@ -201,7 +202,7 @@ public:
    {
       return fLastBL - fFirstBL;
    }
-   Double_t ComputeBaseLine();
+   virtual Double_t ComputeBaseLine();
    Double_t GetBaseLine() const
    {
       return fBaseLine;
@@ -339,9 +340,13 @@ public:
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
    Double_t CubicInterpolation(float* data, int x2, double fmax, int Nrecurr);
+
    virtual void BuildCubicSignal(double taufinal); //Interpolazione mediante cubic
+   virtual void BuildCubicSplineSignal(double taufinal);
+
    virtual double GetDataInter(double t);
    virtual double GetDataInterCubic(double t);
+   virtual double GetDataCubicSpline(double t);
 
    // different shapers (modify only fAdc)
    void FIR_ApplyTrapezoidal(double trise, double tflat); // trise=sqrt(12)*tausha di CR-RC^4 se tflat=trise/2
@@ -349,6 +354,7 @@ public:
    void FIR_ApplyRCLowPass(double time_usec, int reverse = 0);
    void FIR_ApplyRCHighPass(double time_usec, int reverse = 0);
    void FIR_ApplyRecursiveFilter(double a0, int N, double* a, double* b, int reverse);
+   void FIR_ApplyMovingAverage(int npoints);
    void PoleZeroSuppression(Double_t tauRC);
 
    // fast fourier transform and windowing of the signal (modify only fAdc)
