@@ -27,6 +27,7 @@ public:
 
    virtual void TreateSignal();
    virtual KVPSAResult* GetPSAResult() const;
+   virtual Double_t ComputeBaseLine();
 
    ClassDef(KVI1, 1) //I1 channel of SI1
 };

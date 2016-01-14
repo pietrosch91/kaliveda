@@ -3,6 +3,7 @@
 
 #include "KVI2.h"
 #include "KVPSAResult.h"
+#include "TMath.h"
 
 ClassImp(KVI2)
 
@@ -75,6 +76,25 @@ void KVI2::LoadPSAParameters()
    val = GetPSAParameter("Interpolation");
    SetInterpolation((val == 1));
 
+}
+Double_t KVI2::ComputeBaseLine()
+{
+   // special case for current signal
+   // in case the pulse start to early,
+   // base line is calculated at the end of the signal
+
+   double bls = FindMedia(fFirstBL, fLastBL);
+   double ble = FindMedia(GetNSamples() - 1 - (fLastBL - fFirstBL), GetNSamples() - 1);
+
+   if (bls < ble) {
+      fBaseLine = bls;
+      fSigmaBase = TMath::Sqrt(FindSigma2(fFirstBL, fLastBL));
+   } else {
+      fBaseLine = ble;
+      fSigmaBase = TMath::Sqrt(FindSigma2(GetNSamples() - 1 - (fLastBL - fFirstBL), GetNSamples() - 1));
+
+   }
+   return fBaseLine;
 }
 
 
