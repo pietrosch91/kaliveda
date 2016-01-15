@@ -107,6 +107,7 @@ void KVI1::TreateSignal()
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 
+   FIR_ApplyMovingAverage(4);
    ComputeBaseLine();
    fBaseLine  = GetBaseLine();
    fSigmaBase = GetSigmaBaseLine();
