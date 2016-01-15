@@ -15,8 +15,10 @@ protected:
    TCutG* fCut;//pointer to cut
    KVNameValueList fParams;//histogram parameters
 
+   Double_t GetMean(Int_t axis = 1) const;
+
 public:
-   KVHistogram(TH1* h = 0);
+   KVHistogram(TH1* h = nullptr);
    KVHistogram(TCutG* cut);
    virtual ~KVHistogram();
 
@@ -39,6 +41,17 @@ public:
    const Char_t* GetVarZ() const;
    const Char_t* GetSelection() const;
    const Char_t* GetWeight() const;
+   Double_t GetMeanX() const
+   {
+      return GetMean();
+   }
+   Double_t GetMeanY() const
+   {
+      return GetMean(2);
+   }
+   const Char_t* GetMeanRMSX() const;
+   const Char_t* GetMeanRMSY() const;
+
    void SetWeight(const Char_t*);
 
    void ls(Option_t* option = "") const;

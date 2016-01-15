@@ -20,7 +20,7 @@ ClassImp(KVHistogram)
 void KVHistogram::ParseExpressionAndSelection()
 {
    if (!fHisto) return;
-   KVString exp, sel, weight, x, y, z;
+   KVString exp, sel, weight, x, y, z, meanrms;
    ParseHistoTitle(fHisto->GetTitle(), exp, sel, weight);
    ParseExpressionString(exp, x, y, z);
    fParams.SetValue("VARX", x);
@@ -29,13 +29,23 @@ void KVHistogram::ParseExpressionAndSelection()
    fParams.SetValue("SELECTION", sel);
    fParams.SetValue("EXPRESSION", exp);
    fParams.SetValue("WEIGHT", weight);
+   meanrms.Form("%f (%f)", fHisto->GetMean(), fHisto->GetRMS());
+   fParams.SetValue("MEANRMSX", meanrms);
+   meanrms.Form("%f (%f)", fHisto->GetMean(2), fHisto->GetRMS(2));
+   fParams.SetValue("MEANRMSY", meanrms);
+}
+
+Double_t KVHistogram::GetMean(Int_t axis) const
+{
+   if (fHisto) return fHisto->GetMean(axis);
+   return fCut->GetMean(axis);
 }
 
 KVHistogram::KVHistogram(TH1* h)
 {
    // Default constructor
    fHisto = h;
-   fCut = 0;
+   fCut = nullptr;
    fParams.SetValue("WEIGHT", "1");
    if (h) {
       ParseExpressionAndSelection();
@@ -48,7 +58,7 @@ KVHistogram::KVHistogram(TH1* h)
 KVHistogram::KVHistogram(TCutG* cut)
 {
    // Ctor for TCutG object
-   fHisto = 0;
+   fHisto = nullptr;
    fCut = cut;
    SetType("Cut");
    fParams.SetValue("VARX", cut->GetVarX());
@@ -143,6 +153,16 @@ const Char_t* KVHistogram::GetWeight() const
 {
    // Return weighting used for filling histogram
    return fParams.GetStringValue("WEIGHT");
+}
+
+const Char_t* KVHistogram::GetMeanRMSX() const
+{
+   return fParams.GetStringValue("MEANRMSX");
+}
+
+const Char_t* KVHistogram::GetMeanRMSY() const
+{
+   return fParams.GetStringValue("MEANRMSY");
 }
 
 void KVHistogram::SetWeight(const Char_t* weight)

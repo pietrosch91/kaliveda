@@ -236,7 +236,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    // Number of bins on X (and Y for a 2-D spectrum) are given. Axis limits are
    // automatically adjusted to data.
    //
-   // For 2-D spectra the drawing option is set to "COL"
+   // For 2-D spectra the initial drawing option is set to "COL"
    //
    // If normalisation of spectra is required (fNormHisto = kTRUE) the histogram
    // bin contents are divided by the integral (sum of weights).
@@ -270,7 +270,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    if (IsPROOFEnabled()) h = (TH1*)gProof->GetOutputList()->FindObject(name);
    else h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
-   if (h->InheritsFrom("TH2")) h->SetOption("col");
+   if (h->InheritsFrom("TH2")) h->SetOption(fDrawOption);
    h->SetDirectory(0);
    AddHisto(h);
    fHistoNumber++;
@@ -323,7 +323,7 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    if (IsPROOFEnabled()) h = (TH1*)gProof->GetOutputList()->FindObject(name);
    else h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
-   if (h->InheritsFrom("TH2")) h->SetOption("col");
+   if (h->InheritsFrom("TH2")) h->SetOption(fDrawOption);
    h->SetDirectory(0);
 
    AddHisto(h);
@@ -806,15 +806,17 @@ void KVTreeAnalyzer::OpenGUI()
    //G_histolist->SetDataColumns(1);
    //G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
    G_histolist = new KVListView(KVHistogram::Class(), histo_group, hWidth, hHeight);
-   G_histolist->SetDataColumns(6);
+   G_histolist->SetDataColumns(8);
    G_histolist->SetDataColumn(0, "Name", "", kTextLeft);
    G_histolist->SetDataColumn(1, "VarX", "", kTextCenterX);
    G_histolist->SetDataColumn(2, "VarY", "", kTextCenterX);
    G_histolist->SetDataColumn(3, "VarZ", "", kTextCenterX);
    G_histolist->SetDataColumn(4, "Selection", "", kTextCenterX);
    G_histolist->SetDataColumn(5, "Weight", "", kTextCenterX);
+   G_histolist->SetDataColumn(6, "MeanX (RMS)", "GetMeanRMSX", kTextCenterX);
+   G_histolist->SetDataColumn(7, "MeanY (RMS)", "GetMeanRMSY", kTextCenterX);
    G_histolist->ActivateSortButtons();
-   G_histolist->SetMaxColumnSize(30);
+   G_histolist->SetMaxColumnSize(20);
    G_histolist->SetUseObjLabelAsRealClass();//to have icons & context menus of TH* & TCutG classes, not KVHistogram
    G_histolist->SetDoubleClickAction("KVTreeAnalyzer", this, "DrawHisto(TObject*)");
    G_histolist->Connect("SelectionChanged()", "KVTreeAnalyzer", this, "HistoSelectionChanged()");
@@ -842,6 +844,41 @@ void KVTreeAnalyzer::OpenGUI()
    G_histo_add->Connect("Clicked()", "KVTreeAnalyzer", this, "AddSelectedHistos()");
    G_histo_add->Resize(G_histo_del->GetSize());
    histo_opts->AddFrame(G_histo_add, new TGLayoutHints(kLHintsLeft, 15, 25, 8, 2));
+
+   G_histo_draw_option = new TGComboBox(histo_opts);
+   TString draw_options[] = {
+      "",
+      "COL",
+      "COLZ",
+      "BOX",
+      "CONT",
+      "SURF",
+      "LEGO",
+      "ARR",
+      "TEXT",
+      "CONT1",
+      "CONT2",
+      "CONT3",
+      "CONT4",
+      "SURF1",
+      "SURF2",
+      "SURF3",
+      "SURF4",
+      "LEGO1",
+      "LEGO2",
+      "LEGO3",
+      "LEGO4",
+      "BOX1",
+      " "
+   };
+   int dop = 0;
+   while (draw_options[dop] != " ") {
+      G_histo_draw_option->AddEntry(draw_options[dop], dop);
+      ++dop;
+   }
+   G_histo_draw_option->Resize(100, 20);
+   histo_opts->AddFrame(G_histo_draw_option, new TGLayoutHints(kLHintsLeft, 15, 2, 8, 2));
+   G_histo_draw_option->Connect("Selected(const char*)", "KVTreeAnalyzer", this, "SetDrawOption(Option_t*)");
 
    G_histo_new_can = new TGCheckButton(histo_opts, "New canvas");
    G_histo_new_can->SetToolTipText("Draw in a new canvas");
@@ -1165,15 +1202,24 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
       // legend which is also displayed in the plot
       histo->SetLineColor(my_color_array[++fSameColorIndex]);
       if (fSameColorIndex == MAX_COLOR_INDEX) fSameColorIndex = -1;
-      histo->Draw("same");
+      if (fDrawOption != "" && histo->InheritsFrom("TH2")) histo->SetOption(fDrawOption);
+      if (histo->InheritsFrom("TH2")) {
+         TString hopt = histo->GetOption();
+         if (hopt != "") hopt.Form("%s,same", histo->GetOption());
+         else hopt = "same";
+         histo->Draw(hopt);
+      } else
+         histo->Draw("same");
       TObject* legend = gPad->GetListOfPrimitives()->FindObject("TPave");
       if (legend) {
          gPad->GetListOfPrimitives()->Remove(legend);
          delete legend;
       }
       ((TPad*) gPad)->BuildLegend();
-      if (histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else {
+      if (histo->InheritsFrom("TH2")) {
+         gPad->SetLogy(kFALSE);
+         gPad->SetLogz(fDrawLog);
+      } else {
          gPad->SetLogy(fDrawLog);
          // adjust y-scale to new histogram if needed
          // find first histogram
@@ -1201,12 +1247,15 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
          gPad->GetCanvas()->SetTitle(histo->GetTitle());
       }
       histo->SetLineColor(my_color_array[0]);
-      if (histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else {
+      if (histo->InheritsFrom("TH2")) {
+         gPad->SetLogy(kFALSE);
+         gPad->SetLogz(fDrawLog);
+      } else {
          histo->SetMaximum(-1111);//in case maximum was changed to accomodate superimposition
          gPad->SetLogy(fDrawLog);
       }
       histo->SetStats(fStatsHisto);//show/hide stat box according to check-box
+      if (fDrawOption != "" && histo->InheritsFrom("TH2")) histo->SetOption(fDrawOption);
       histo->Draw();
       gPad->Modified();
       gPad->Update();
@@ -1590,7 +1639,7 @@ void KVTreeAnalyzer::DrawLeafExpr()
    else
       h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
-   if (h->InheritsFrom("TH2")) h->SetOption("col");
+   if (h->InheritsFrom("TH2")) h->SetOption(fDrawOption);
    h->SetDirectory(0);
    if (h->InheritsFrom("TH1")) h->GetXaxis()->SetTitle(fXLeaf->GetTitle());
    if (h->InheritsFrom("TH2") || h->InheritsFrom("TProfile")) h->GetYaxis()->SetTitle(fYLeaf->GetTitle());
@@ -2471,7 +2520,6 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
          if (TClass::GetClass(akey->GetClassName())->InheritsFrom("TH1")) {
             if (!fHistolist.FindObject(akey->GetName())) {
                TH1* h = (TH1*)file->Get(akey->GetName());
-               if (h->InheritsFrom("TH2")) h->SetOption("col");
                h->SetDirectory(0);
                fHistolist.Add(new KVHistogram(h));
             }
@@ -2755,7 +2803,6 @@ void KVTreeAnalyzer::OpenAnyFriendFile(const Char_t* filepath)
       if (TClass::GetClass(akey->GetClassName())->InheritsFrom("TH1")) {
          if (!fHistolist.FindObject(akey->GetName())) {
             TH1* h = (TH1*)file->Get(akey->GetName());
-            if (h->InheritsFrom("TH2")) h->SetOption("col");
             h->SetDirectory(0);
             fHistolist.Add(new KVHistogram(h));
          }
