@@ -167,7 +167,7 @@ void KVNumberList::ParseAndFindLimits(const TString& string, const Char_t delim)
    //Any part which contains "-" will be sent to AddLimits().
    TObjArray* toks1 = string.Tokenize(delim);
    Int_t n_toks = toks1->GetEntries();
-   for (register int i = 0; i < n_toks; i++) {
+   for (int i = 0; i < n_toks; i++) {
       TString tok = ((TObjString*)(*toks1)[i])->GetString();
       KVString kvtok(tok);
       if (tok.Contains(','))
@@ -262,10 +262,8 @@ void KVNumberList::PrintLimits() const
 
 void KVNumberList::SetList(const TString& list)
 {
-   //Analyse list contained in the string given as argument,
-   //use it to replace any previously defined list.
-   //New ranges are calculated automatically.
-   //Any number will only appear once.
+   // Replace internal string representation of number list
+   // List will be parsed before any subsequent operations
    fString = list;
    fIsParsed = kFALSE;
 }
@@ -316,10 +314,10 @@ IntArray KVNumberList::GetArray() const
 
    IntArray temp(fNValues);
    Int_t index = 0;
-   for (register int i = 0; i < fNLimits; i++) {
+   for (int i = 0; i < fNLimits; i++) {
       Int_t min = (*fLowerBounds)[i];
       Int_t max = (*fUpperBounds)[i];
-      for (register int j = min; j <= max; j++) {
+      for (int j = min; j <= max; j++) {
          temp[index++] = j;
       }
    }
@@ -336,10 +334,9 @@ IntArray KVNumberList::GetArray() const
       // reduce the size of the vector
       temp.resize(n_uniq);
       // we reconstruct a string containing all unique values & reparse it
-      fString = (*(beg++));
+      fString.Form("%d", (*(beg++)));
       while (beg != end) {
-         fString += " ";
-         fString += (*(beg++));
+         fString += Form(" %d", (*(beg++)));
       }
       fNValues = n_uniq;
       fIsParsed = kFALSE; // force re-parsing
