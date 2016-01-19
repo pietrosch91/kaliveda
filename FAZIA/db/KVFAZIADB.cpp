@@ -661,3 +661,65 @@ void KVFAZIADB::PrintRuns(KVNumberList& nl) const
    }
 }
 
+void KVFAZIADB::BuildQuickAndDirtyDataBase() const
+{
+
+   TString pouet;
+   Info("BuildQuickAndDirtyDataBase", "Please fill path of where acquisition files are located");
+   pouet.ReadLine(cin);
+
+   if (gSystem->Exec(Form("test -d %s", pouet.Data())) != 0) {
+      Error("BuildQuickAndDirtyDataBase", "%s is not an existing directory", pouet.Data());
+      return;
+   }
+
+   Int_t run, nfiles;
+   ULong64_t size, totalsize;
+   Int_t date, idx;
+   KVDatime kvdate;
+
+   KVString ldir = gSystem->GetFromPipe(Form("du %s", pouet.Data()));
+   ldir.Begin("\n");
+   Int_t numberofruns = 0;
+   KVNumberList lruns;
+
+   while (!ldir.End()) {
+      KVString sdir = ldir.Next();
+      sdir.Begin("\t");
+      size = sdir.Next().Atoll(); // /TMath::Power(2,10)+1;
+      sdir = gSystem->BaseName(sdir.Next());
+      if (sscanf(sdir.Data(), "run%d", &run) == 1) {
+         totalsize += size;
+         //printf("%s/%s\n",pouet.Data(),sdir.Data());
+         Int_t dmin = 0;
+         Int_t dmax = 0;
+         KVString lfile = gSystem->GetFromPipe(Form("ls %s/%s", pouet.Data(), sdir.Data()));
+         lfile.Begin("\n");
+         nfiles = 0;
+         while (!lfile.End()) {
+            KVString sfile = lfile.Next();
+            //FzEventSet-1434434675-41784.pb
+            if (sscanf(sfile.Data(), "FzEventSet-%d-%d.pb", &date, &idx) == 2) {
+               if (dmin == 0) {
+                  dmin = dmax = date;
+               } else {
+                  if (date < dmin) dmin = date;
+                  if (date > dmax) dmax = date;
+               }
+               nfiles += 1;
+            }
+         }
+         if (nfiles == 0 || size == 0) {
+            Warning("BuildQuickAndDirtyDataBase", "%d -> empty run", run);
+         }
+         kvdate.Set(dmin);
+         Info("BuildQuickAndDirtyDataBase", "run=%d - StartingDate=%s - Nfiles=%d", run, kvdate.AsString(), nfiles);
+         numberofruns += 1;
+         lruns.Add(run);
+      } else {
+         Info("BuildQuickAndDirtyDataBase", "total size=%1.1lf MB - %1.1lf MB", Double_t(size) / TMath::Power(2, 10), Double_t(size) / TMath::Power(2, 10));
+         Info("BuildQuickAndDirtyDataBase", "number of runs %d", numberofruns);
+         Info("BuildQuickAndDirtyDataBase", "last run %d done at %s", lruns.Last(), kvdate.AsString());
+      }
+   }
+}

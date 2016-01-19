@@ -106,6 +106,9 @@ public:
    {
       return GetDBEnv(type);
    };
+
+   void BuildQuickAndDirtyDataBase() const;
+
    ClassDef(KVFAZIADB, 2) //database for FAZIA detector
 };
 //........ global variable
