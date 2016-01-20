@@ -4,13 +4,27 @@
 #ifndef __KVVAMOSRECONNUC_H
 #define __KVVAMOSRECONNUC_H
 
-#include "KVReconstructedNucleus.h"
-#include "KVVAMOSCodes.h"
-#include "KVVAMOSReconTrajectory.h"
-#include "KVVAMOSReconGeoNavigator.h"
-#include "KVVAMOS.h"
+// C++
+#include <cassert>
 
+// ROOT
+#include "TGraphErrors.h"
+#include "TROOT.h"
+
+// KaliVeda (Standard)
+#include "KVNamedParameter.h"
+#include "KVReconstructedNucleus.h"
+#include "KVTarget.h"
 #include "KVMacros.h" // 'UNUSED' macro
+
+// KaliVeda (VAMOS)
+#include "KVHarpeeCsI.h"
+#include "KVVAMOS.h"
+#include "KVVAMOSCodes.h"
+#include "KVVAMOSDetector.h"
+#include "KVVAMOSReconGeoNavigator.h"
+#include "KVVAMOSReconTrajectory.h"
+#include "KVVAMOSTransferMatrix.h"
 
 class KVVAMOSDetector;
 
@@ -157,6 +171,10 @@ inline Double_t KVVAMOSReconNuc::CalculateEnergy(Int_t Z, Int_t A, Int_t Q, Doub
    // If Z is set lower or equal 0 then the mass excess is null to calculate
    // M (i.e. M = A*u)
 
+   assert(Z > 0);
+   assert(A > 0);
+   assert(Q > 0);
+   assert(Brho > 0.);
 
    Double_t M = 0.;
    if (Z > 0) {
@@ -181,7 +199,12 @@ inline Double_t KVVAMOSReconNuc::CalculateEnergy(Int_t Z, Int_t A, Double_t beta
    // If Z is set lower or equal 0 then the mass excess is null to calculate
    // M (i.e. M = A*u)
 
+   assert(Z > 0);
+   assert(A > 0);
+   assert((beta > 0.) && (beta < 1.));
+
    if (beta <= 0) return 0.;
+
    Double_t M = 0.;
    if (Z > 0) {
       static KVNucleus nuc;
@@ -222,7 +245,12 @@ inline Double_t KVVAMOSReconNuc::CalculateRealA(Int_t Z, Double_t E, Double_t be
    //   u     : atomic mass unit in MeV/c^2
    //   gamma : Lorentz factor calculated from beta
 
+   assert(Z > 0);
+   assert(E > 0.);
+   assert((beta > 0.) && (beta < 1.));
+
    if (beta <= 0) return 0.;
+
    Double_t gamma = 1.0 / TMath::Sqrt(1 - beta * beta);
    Double_t realA = E / ((gamma - 1) * u());
    if (Z > 0) {
@@ -249,7 +277,11 @@ inline Double_t KVVAMOSReconNuc::CalculateMassOverQ(Double_t Brho, Double_t beta
    //   C     : speed of light in vacuum in cm/ns
    //   gamma : Lorentz factor calculated from beta
 
+   assert((beta > 0.) && (beta < 1.));
+   assert(Brho > 0.);
+
    if (beta <= 0) return 0.;
+
    Double_t gamma = 1.0 / TMath::Sqrt(1 - beta * beta);
    Double_t tmp = beta * gamma;
    return Brho * C() * 10. / tmp;

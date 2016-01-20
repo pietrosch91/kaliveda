@@ -39,7 +39,7 @@ function check_directory()
     2>&1 | tee -a "${logfile}"
 }
 
-if [ $# -eq 1 ]; then 
+if [ $# -eq 1 ]; then
   # Single directory requested (rather than the whole VAMOS code)
   check_directory "${1}"
   exit 0
@@ -50,7 +50,14 @@ Cppcheck log file for VAMOS.
 Started @ $(date)
 EOF
 
-directories=$(find ./* -maxdepth 1 -type d)
+directories="exp_events \
+  daq_cec \
+  identification \
+  geometry \
+  calibration \
+  db \
+  factory \
+  analysis"
 
 for d in ${directories}; do
   check_directory "${d}"

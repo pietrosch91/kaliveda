@@ -2,7 +2,6 @@
 //Author: Guilain ADEMARD
 
 #include "KVIDHarpeeSiCsI.h"
-#include "KVVAMOSCodes.h"
 
 ClassImp(KVIDHarpeeSiCsI)
 
@@ -38,9 +37,30 @@ KVIDHarpeeSiCsI::~KVIDHarpeeSiCsI()
 
 Double_t KVIDHarpeeSiCsI::GetIDMapX(Option_t* opt)
 {
-   // Calculates current X coordinate for identification.
-   // It is the CsI detector's total light output. 'opt' has no effect.
+   // Override the VAMOS default X component of the IDMAP. We require CsI total
+   // light output.
 
    UNUSED(opt);
-   return fEdet->GetRawE();
+
+   KVHarpeeCsI* csi(static_cast<KVHarpeeCsI*>(fEdet));
+   assert(csi);
+
+   Double_t csi_light(
+      csi->GetACQData(csi->GetEBaseName())
+      - csi->GetPedestal(csi->GetEBaseName())
+   );
+
+   return csi_light;
 }
+
+Double_t KVIDHarpeeSiCsI::GetIDMapY(Option_t* opt)
+{
+   UNUSED(opt);
+
+   KVHarpeeSi* si(static_cast<KVHarpeeSi*>(fDEdet));
+   assert(si);
+
+   Double_t si_energy(si->GetCalibE());
+   return si_energy;
+}
+

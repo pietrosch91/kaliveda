@@ -1712,8 +1712,8 @@ void Parameters::Fill(const char* buffParam)
    char* tmp(nullptr);
 #endif
 
-   // Ideally should be updated to use std::shared_ptr<char> but this whole
-   // class could do with updating really.
+   // Ideally should be updated to use smart pointers but this whole class could
+   // do with updating really.
    tmp = new char[ParameterName::maxlen];
 
    CurrPointer = (char*)buffParam;

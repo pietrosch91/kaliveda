@@ -1,142 +1,2502 @@
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7
-4840    20      332     332     2.27457 2.29519 2.31690 2.33860 2.36140 2.38907 2.41837 2.43845 0.0     0.0     0.0     0.0     0.0     0.0
-4840    19      332     332     2.28922 2.30713 2.33589 2.35814 2.38853 2.41078 2.43953 2.46775 2.49217 2.51605 0.0     0.0     0.0     0.0
-4840    18      332     332     2.25070 2.26969 2.30442 2.32775 2.35705 2.38147 2.41403 2.43519 2.46938 2.49109 2.52853 2.54209 0.0     0.0
-4840    17      332     332     2.26643 2.28922 2.32504 2.34566 2.38039 2.40589 2.44330 2.46233 2.50194 2.51605 0.0     0.0     0.0     0.0
-4840    16      332     332     2.22248 2.24853 2.28000 2.30550 2.34512 2.36574 2.40752 2.43085 2.47209 2.49054 0.0     0.0     0.0     0.0
-4840    15      332     332     2.24256 2.26426 2.30333 2.32884 2.35651 2.37550 2.42705 2.45690 0.0     0.0     0.0     0.0     0.0     0.0
-4840    14      332     332     2.26372 2.28109 0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
 
-4840    22      333     338     2.06556 2.07994 2.10647 2.12305 2.15732 2.16949 2.20321 2.21205 0.0     0.0     0.0     0.0     0.0     0.0
-4840    21      333     338     2.06943 2.08380 2.11476 2.12858 2.16396 2.17391 0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
-4840    20      333     338     2.07712 2.08705 2.12459 2.13667 2.17379 2.18328 2.33216 2.34726 0.0     0.0     0.0     0.0     0.0     0.0
-4840    19      333     338     2.08058 2.09395 2.13365 2.14401 2.18544 2.19407 2.35071 2.36754 0.0     0.0     0.0     0.0     0.0     0.0
-4840    18      333     338     2.08403 2.09870 2.13969 2.15307 2.19660 2.20615 2.31274 2.33690 2.36970 2.38825 0.0     0.0     0.0     0.0
+# Doublepeak_mins:
+#
+# These parameters are used to make cuts on the mass:charge ratio.
+#
+# The format of this file is designed so that it can be easily read by the
+# KVIVDB_e503 parser in a generic way. By doing this we avoid having to define a
+# separate method to read each file as the format is now regulated. 
+#
+# Any field can be made a parameter by prefixing it like this: 
+#     +parameter: some_name = value. 
+#
+# Beware that the parameter will be converted to a Double_t and that 'some_name'
+# is optional and is not used in the program, it is used purely to convey to the
+# human reader what the value of that parameter is.  Parameters will be added in
+# the order they are specified. 
+#
+# Any line without a +something will be ignored by the parser. 
+#
+# WARNING: If you change the record_ids then you will also need to change the
+# hard-coded values in KVIVUpDater_e503.
+#
 
-4840	21	339	343	2.06614	2.08495	2.11346	2.12600	2.15850	2.17218	0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0	
-4840	20	339	343	2.06889	2.08781	2.11574	2.13398	2.16819	2.18016	0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
-4840	19	339	343	2.07526	2.08895	2.12543	2.13855	2.17731	2.18871	0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
-4840	18	339	343	2.03307	2.04676	2.07811	2.09693	2.13056	2.14995	2.18929	2.20126	0.0     0.0     0.0     0.0     0.0     0.0
-4840	17	339	343	2.02794	2.04790	2.08381	2.10434	2.14368	2.15907	2.19841	2.21665	0.0     0.0     0.0     0.0     0.0     0.0
-4840	16	339	343	2.03022	2.05189	2.09180	2.11175	2.15337	2.17218	0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0	
-4840	15	339	343	1.98062	1.99374	2.03421	2.05759	2.10035	2.11574	2.16534	2.18358	0.0     0.0     0.0     0.0     0.0     0.0
-4840	14	339	343	1.97321	1.98633	2.04106	2.05702	2.11004	2.12600	2.18187	2.19841	0.0     0.0     0.0     0.0     0.0     0.0
-4840	13	339	343	1.97435	1.99545	2.03878	2.06329	2.11517	2.14026	2.19556	2.21437	0.0	0.0	0.0	0.0	0.0	0.0
-4840	12	339	343	1.96865	1.98918	2.04904	2.07184	2.13284	2.14881	2.21494	2.23147	0.0	0.0	0.0	0.0	0.0	0.0
-4840	11	339	343	2.05930	2.07811	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+[entry]
++record_id: = double_peak_mins_4840_z20
+system = 4840
+z_value = 20
++run_range: = 332-332
++parameter: min1 = 2.27457
++parameter: max1 = 2.29519
++parameter: min2 = 2.3169
++parameter: max2 = 2.3386
++parameter: min3 = 2.3614
++parameter: max3 = 2.38907
++parameter: min4 = 2.41837
++parameter: max4 = 2.43845
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7		
-4040	7	531	536	1.82095	1.84986	1.95974	1.99059	2.09565	2.13228	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
-4040	8	531	536	1.83733	1.86914	1.95974	1.99059	2.08321	2.11589	2.20939	2.24023	0.0	0.0	0.0	0.0	0.0	0.0
-4040	9	531	536	1.84890	1.88553	1.95589	1.99348	2.06481	2.10240	2.17854	2.21324	0.0	0.0	0.0	0.0	0.0	0.0	
-4040	10	531	536	1.76741	1.76629	1.85757	1.89420	1.95492	1.99155	2.05324	2.0918	2.15156	2.18818	0.0	0.0	0.0	0.0
-4040	11	531	536	1.78546	1.81193	1.87210	1.90460	1.95995	1.99365	2.04780	2.08150	2.13204	2.16574	2.22952	2.25840	0.0	0.0
-4040	12	531	536	1.80624	1.82796	1.87864	1.91329	1.95827	1.99292	2.03998	2.07411	2.11961	2.15581	2.20597	2.23338	0.0	0.0	
-4040	13	531	536	1.81245	1.84089	1.88329	1.91639	1.95827	1.99292	2.03429	2.06480	2.11030	2.13875	0.0	0.0	0.0	0.0		
-4040	14	531	536	1.82331	1.85278	1.88898	1.92311	1.95776	1.99189	2.02602	2.05859	2.09893	2.12892	0.0	0.0	0.0	0.0
-4040	15	531	536	1.83779	1.86261	1.89725	1.92673	1.95827	1.99085	2.02395	2.05549	2.08859	2.12013	0.0	0.0	0.0	0.0	
-4040	16	531	536	1.84296	1.87037	1.90036	1.93190	1.95983	1.99189	2.02136	2.05187	2.08290	2.11186	0.0	0.0	0.0	0.0
-4040	17	531	536	1.85433	1.87760	1.90708	1.93397	1.96034	1.98982	2.01619	2.04773	2.07617	2.10255	0.0	0.0	0.0	0.0
-4040	18	531	536	1.85692	1.87760	1.90915	1.93759	1.96034	1.98982	2.01774	2.04360	2.0710	2.09531	0.0	0.0	0.0	0.0
-4040	19	531	536	1.86002	1.88536	1.91122	1.93914	1.96344	1.99033	2.01412	2.04049	0.0	0.0	0.0	0.0	0.0	0.0
-4040	20	531	536	1.86313	1.89260	1.91432	1.94276	1.86396	1.98827	2.01412	2.03687	0.0	0.0	0.0	0.0	0.0	0.0	
-4040	21	531	536	1.91949	1.94017	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0		
+[entry]
++record_id: = double_peak_mins_4840_z19
+system = 4840
+z_value = 19
++run_range: = 332-332
++parameter: min1 = 2.28922
++parameter: max1 = 2.30713
++parameter: min2 = 2.33589
++parameter: max2 = 2.35814
++parameter: min3 = 2.38853
++parameter: max3 = 2.41078
++parameter: min4 = 2.43953
++parameter: max4 = 2.46775
++parameter: min5 = 2.49217
++parameter: max5 = 2.51605
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7	
-4040	7	537	542     1.82270 1.85480 1.95488 1.99705 2.09171 2.13606 2.23701 2.28166 0.0     0.0     0.0     0.0     0.0     0.0
-4040	8	537	542     1.83613 1.86536 1.95393 1.98832 2.08548 2.11299 2.21273 2.23766 2.25405 2.30239 0.0     0.0     0.0     0.0
-4040	9	537	542     1.70    1.80000 1.84989 1.87740 1.95736 1.98746 2.07000 2.09579 2.17404 2.20499 2.29527 2.32708 2.36264 2.40
-4040	10	537	542     1.77680 1.79228 1.85677 1.88600 1.95393 1.98660 2.05194 2.08548 2.15426 2.18436 2.26260 2.28065 2.35715 2.40
-4040	11	537	542     1.78626 1.81411 1.87138 1.87804 1.95822 1.98574 2.04593 2.07516 2.14222 2.16630 2.23164 2.25314 2.31615 2.34944
-4040	12	537	542     1.78024 1.82027 1.87826 1.90406 1.95564 1.98316 2.03991 2.06742 2.12073 2.14996 2.20255 2.23079 2.28813 2.34223
-4040	13	537	542     1.81814 1.84138 1.89286 1.91183 1.96068 1.98597 2.03310 2.06242 2.11300 2.13656 2.19639 2.21013 2.26761 2.40
-4040	14	537	542     1.82791 1.84860 1.89688 1.91815 1.95521 1.98597 2.02793 2.05437 2.10150 2.12564 2.16990 2.19634 2.24932 2.40    
-4040	15	537	542     1.90321 1.92505 1.96068 1.98540 2.02616 2.04747 2.07946 2.11299 2.14403 2.17047 2.21300 2.22795 2.30519 2.40    
-4040	16	537	542     1.90206 1.92620 1.96241 1.98655 2.01931 2.0469  2.08081 2.10610 2.14288 2.16875 2.21415 2.23714 2.28097 2.40
-4040	17	537	542     1.91240 1.93594 1.96690 1.98827 2.01816 2.04345 2.07571 2.09978 2.13227 2.15610 2.19915 2.22222 2.26487 2.40    
-4040	18	537	542     1.91413 1.93924 1.96734 1.98540 2.01643 2.04172 2.07131 2.09230 2.12564 2.14978 2.18427 2.20726 2.24624 2.40
-4040	19	537	542     1.91737 1.93504 1.96280 1.98656 2.01563 2.03513 2.06506 2.08616 2.12443 2.14553 2.17889 2.19656 0.0     0.0
-4040	20	537	542     1.87272 1.89480 1.91371 1.93798 1.96371 1.99096 2.02041 2.03513 2.06539 2.08223 2.11462 2.13326 2.17075 2.19361
-4040	21	537	542     1.88205 1.89284 1.92817 1.94534 0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
+[entry]
++record_id: = double_peak_mins_4840_z18
+system = 4840
+z_value = 18
++run_range: = 332-332
++parameter: min1 = 2.2507
++parameter: max1 = 2.26969
++parameter: min2 = 2.30442
++parameter: max2 = 2.32775
++parameter: min3 = 2.35705
++parameter: max3 = 2.38147
++parameter: min4 = 2.41403
++parameter: max4 = 2.43519
++parameter: min5 = 2.46938
++parameter: max5 = 2.49109
++parameter: min6 = 2.52853
++parameter: max6 = 2.54209
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7	
-4040	7	543     547     1.81484 1.83939 1.95486 1.98669 2.06113 2.12944 2.24037 2.26674 0.0     0.0     0.0     0.0     0.0     0.0
-4040	8	543     547     1.84121 1.86757 1.95759 1.99032 2.06060 2.11307 2.17670 2.23946 2.33584 2.36312 0.0     0.0     0.0     0.0
-4040	9	543     547     1.70000	1.80000 1.85575 1.88030 1.96032 1.99123 2.04735 2.09944 2.16133 2.21218 2.29129 2.32493 2.40222 2.42768
-4040	10	543     547     1.77680 1.79228 1.86757 1.89303 1.96396 1.99123 2.03197 2.08943 2.13588 2.18854 2.26038 2.28765 2.37040 2.40222
-4040	11	543     547     1.78626 1.81411 1.88121 1.90122 1.96668 1.99123 2.03091 2.07943 2.12369 2.17036 2.23310 2.26128 2.32584 2.35039
-4040	12	543     547     1.80129 1.82245 1.88456 1.90708 1.96714 1.99035 2.02616 2.07293 2.11361 2.15510 2.21012 2.23742 2.29884 2.32136
-4040	13	543     547     1.83200 1.85589 1.89480 1.91527 1.96714 1.99103 2.01964 2.06679 2.10407 2.14186 2.19032 2.21899 2.27291 2.29475
-4040	14	543     547     1.90151 1.92194 1.95204 1.99181 2.01964 2.06215 2.09402 2.13202 2.16910 2.20284 2.24989 2.27223 2.33942 2.36248    
-4040	15	543     547     1.90959 1.92575 1.95427 1.99086 2.02414 2.05693 2.09179 2.12299 2.16577 2.18620 2.23801 2.25940 2.30978 2.32689    
-4040	16	543     547     1.91054 1.93098 1.96805	1.99134 2.02340 2.05312	2.08584 2.11586 2.15056 2.17575 2.21567 2.24276 2.28506 2.31120
-4040	17	543     547     1.91767 1.93620 1.96947 1.99086 2.02223 2.04837 2.08021 2.10588 2.13867 2.16244 2.20617 2.22565 2.26510 2.29267    
-4040	18	543     547     1.92194 1.93763 1.96852 1.99181 2.02413 2.04599 2.07321 2.10018 2.13297 2.15531 2.19713 2.21757 2.25274 2.27318
-4040	19	543     547     1.92290 1.94286 1.96995 1.99086 2.02413 2.04314 2.07546 2.09590 2.12774 2.15056 2.18383 2.20712	2.23944	2.25892 
-4040	20	543     547     1.92717 1.94476 1.96900 1.99086 2.02271 2.04124 2.06738 2.09162 2.12679 2.14438 2.17480 2.19999 0.0	0.0
+[entry]
++record_id: = double_peak_mins_4840_z17
+system = 4840
+z_value = 17
++run_range: = 332-332
++parameter: min1 = 2.26643
++parameter: max1 = 2.28922
++parameter: min2 = 2.32504
++parameter: max2 = 2.34566
++parameter: min3 = 2.38039
++parameter: max3 = 2.40589
++parameter: min4 = 2.4433
++parameter: max4 = 2.46233
++parameter: min5 = 2.50194
++parameter: max5 = 2.51605
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7
-4040	20	548	548	2.13894	2.15537	2.19181	2.20875	2.24725	2.26316	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
-4040	19	548	548	2.09120	2.10763	2.13740	2.15845	2.19284	2.21080	2.26316	2.27959	0.0	0.0	0.0	0.0	0.0	0.0
-4040	18	548	548	2.09326	2.11133	2.13799	2.16675	2.20253	2.22288	2.26146	2.28040	0.0	0.0	0.0	0.0	0.0	0.0	
-4040	17	548	548	2.03978	2.05381	2.08959	2.11204	2.14851	2.17307	2.21867	2.23901	2.2825	2.30074	0.0	0.0	0.0	0.0
-4040	16	548	548	2.04188	2.05802	2.09800	2.11905	2.15763	2.17798	2.22498	2.25234	2.29794	2.32039	0.0	0.0	0.0	0.0
-4040	15	548	548	2.03697	2.06082	2.10572	2.12817	2.16816	2.18850	2.24743	2.27058	2.32039	2.34143	2.38914	2.41229	0.0	0.0
-4040	14	548	548	1.96963	1.99348	2.03978	2.06503	2.11204	2.13519	2.18149	2.20323	2.26637	2.29303	2.34073	2.36669	0.0	0.0		
-4040	13	548	548	1.97734	1.99208	2.04469	2.07065	2.12186	2.14571	2.19552	2.21937	2.28391	2.31548	2.37931	2.39826	0.0	0.0
-4040	12	548	548	1.97103	1.99348	2.05381	2.07415	2.13519	2.15693	2.21586	2.23971	2.29794	2.32249	2.38493	2.41369	0.0	0.0
-4040	11	548	548	1.97173	1.99488	2.05732	2.08257	2.14571	2.17237	2.24041	2.26216	2.32530	2.26809	2.42070	2.45157	0.0	0.0	
-4040	10	548	548	1.96612	1.99418	2.07065	2.09239	2.16395	2.19271	2.25865	2.28601	2.36248	2.40176	0.0	0.0	0.0	0.0
-4040	9	548	548	1.95913	1.98862	2.07322	2.10114	2.18574	2.21281	2.29911	2.31857	0.0	0.0	0.0	0.0	0.0	0.0
-4040	8	548	548	1.96578	1.99201	2.08761	2.11722	2.21451	2.23904	2.32533	2.35410	0.0	0.0	0.0	0.0	0.0	0.0
-4040	7	548	548	1.96240	1.99031	2.09607	2.13247	2.23926	2.27179	2.38424	2.41394	0.0	0.0	0.0	0.0	0.0	0.0
+[entry]
++record_id: = double_peak_mins_4840_z16
+system = 4840
+z_value = 16
++run_range: = 332-332
++parameter: min1 = 2.22248
++parameter: max1 = 2.24853
++parameter: min2 = 2.28
++parameter: max2 = 2.3055
++parameter: min3 = 2.34512
++parameter: max3 = 2.36574
++parameter: min4 = 2.40752
++parameter: max4 = 2.43085
++parameter: min5 = 2.47209
++parameter: max5 = 2.49054
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7
-4048	20	455 	465  1.87  1.89   1.91  1.93   1.96  1.981   2.015 2.03    2.06  2.0797  2.11 2.133 
-4048	19	455 	465  1.96  1.98   2.015 2.033  2.065 2.0805  2.115 2.136   0     0       0    0
-4048	18	455 	465 1.91  1.929  1.96  1.98   2.017 2.035	2.78  2.088   0     0	    0	 0
-4048	17	455 	465 1.96  1.98   2.019 2.039  2.084 2.094	2.13  2.15    0     0	    0	 0
-4048	16	455 	465 1.966 1.981  2.026 2.04   2.084 2.104	2.148 2.161   0     0	    0	 0
-4048	15	455 	465 1.968 1.981  2.026 2.04   2.094 2.107	0     0       0     0	    0	 0
-4048	14	455 	465 1.946 1.964  2.015 2.032  2.090 2.107	0     0       0     0	    0	 0
-4048	13	455 	465 2.021 2.037  2.110 2.126  0	0	0     0       0     0	    0	 0
-4048	12	455 	465 1.94  1.963  2.027 2.0467 2.113 2.128	0     0       0     0	    0	 0
-4048	11	455 	465 1.94  1.965  2.0278 2.051 0	0	0     0       0     0	    0	 0
-4048	10	455 	465 1.94  1.965  2.038 2.059  0	0	0     0       0     0	    0	 0
-4048	9	455 	465 1.94  1.962  2.048 2.073  0	0	0     0       0     0	    0	 0
-4048	8	455 	465 1.91  1.96   0     0	  0	0	0     0       0     0	    0	 0 
-4048	7	455 	465 2.051 2.107  0     0	  0	0	0     0       0     0	    0	 0 
+[entry]
++record_id: = double_peak_mins_4840_z15
+system = 4840
+z_value = 15
++run_range: = 332-332
++parameter: min1 = 2.24256
++parameter: max1 = 2.26426
++parameter: min2 = 2.30333
++parameter: max2 = 2.32884
++parameter: min3 = 2.35651
++parameter: max3 = 2.3755
++parameter: min4 = 2.42705
++parameter: max4 = 2.4569
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-4048	20	467 	474  1.927 1.943  1.956 1.99   2.018 2.041   2.066 2.089   2.118 2.136   0    0 
-4048	19	467 	474  1.922 1.936  1.970 1.99   2.02  2.041   2.07  2.09    2.129 2.145   0    0 
-4048	18	467 	474  1.918 1.934  1.967 1.989  2.021 2.043   2.073 2.097   2.129 2.153 2.1995 2.21578
-4048	17	467 	474  1.969 1.988  2.019 2.0479 2.083 2.102   0     0       0     0       0    0 
-4048	16	467 	474  1.91  1.929  1.964 1.9896 2.022 2.051   2.085 2.107   2.149 2.171   0    0 
-4048	15	467 	474  1.967 1.991  2.027 2.052  2.092 2.1180  0     0       0     0       0    0  
-4048	14	467 	474  1.964 1.986  2.031 2.058  0	 0	 0     0       0     0       0    0 
-4048	13	467 	474  1.971 1.986  2.021 2.039  0	 0	 0     0       0     0       0    0  
-4048	12	467 	474  1.965 1.985  2.041 2.062  0	 0	 0     0       0     0       0    0   
-4048	11	467 	474  2.03  2.05   0     0	   0	 0	 0     0       0     0       0    0 
+[entry]
++record_id: = double_peak_mins_4840_z14
+system = 4840
+z_value = 14
++run_range: = 332-332
++parameter: min1 = 2.26372
++parameter: max1 = 2.28109
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-#Sys	Z	run1	run2	min1	max1	min2	max2	min3	max3	min4	max4	min5	max5	min6	max6	min7	max7
-4848	21	383 	383	2.34 	2.36 	2.385 	2.409 	2.438 	2.457 	2.494 	2.508	0.0	0.0	0.0	0.0	0.0	0.0
-4848	20	383 	383 	2.273 	2.289 	2.317 	2.334 	2.364 	2.384 	2.412 	2.431  	2.462 	2.484 	2.509 	2.541	0.0	0.0	
-4848	19	383 	383 	2.285 	2.305 	2.334 	2.356 	2.386 	2.406 	2.435 	2.4596 	2.489 	2.511 	2.54  	2.565	0.0	0.0
-4848	18	383 	383 	2.25  	2.269 	2.30  	2.325 	2.354 	2.375 	2.408 	2.43   	2.46  	2.483 	2.518 	2.537	0.0	0.0
-4848	17	383 	383 	2.26  	2.284 	2.319 	2.341 	2.377 	2.40  	2.429 	2.461  	2.490	2.511 	2.55  	2.57	0.0	0.0
-4848	16	383 	383 	2.22  	2.24  	2.28  	2.300 	2.340 	2.365 	2.40  	2.428  	2.455 	2.489 	2.523 	2.546	0.0	0.0
-4848	15	383 	383 	2.25  	2.256 	2.300 	2.326 	2.365 	2.386 	2.433 	2.454  	2.491 	2.517 	2.56 	2.59	0.0	0.0
-4848	14	383 	383 	2.18  	2.21  	2.254 	2.274 	2.317 	2.349 	2.395 	2.419  	2.448 	2.481	0.0	0.0	0.0	0.0 
-4848	13	383 	383 	2.15  	2.22  	2.273 	2.30  	2.344 	2.377 	2.423 	2.45   	2.478 	2.517	0.0	0.0	0.0	0.0
-4848	12	383 	383 	2.13  	2.15  	2.21  	2.240 	2.297 	2.326 	2.380 	2.416  	2.458 	2.497	0.0	0.0	0.0	0.0
-4848	11	383 	383 	2.156 	2.176 	2.234 	2.264 	2.322 	2.357 	2.411 	2.445  	2.507 	2.539	0.0	0.0	0.0	0.0
-4848	10	383 	383 	2.166 	2.193 	2.265 	2.293 	2.365 	2.392 	2.466 	2.493	0.0	0.0	0.0	0.0	0.0	0.0
-4848	9	383 	383 	2.19  	2.215 	2.295 	2.324 	2.406 	2.437 	2.517 	2.550	0.0	0.0	0.0	0.0	0.0	0.0 
-4848	8	383 	383 	2.087 	2.113 	2.203 	2.239 	2.34  	2.368 	2.465 	2.495 	2.59 	2.62	0.0	0.0	0.0	0.0
-4848	7	383 	383 	2.249 	2.276 	2.394 	2.419 	2.527 	2.565 	2.668 	2.706	0.0	0.0	0.0	0.0	0.0	0.0  
-4848	6	383 	383	2.289 	2.328 	2.464 	2.496	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+[entry]
++record_id: = double_peak_mins_4840_z22
+system = 4840
+z_value = 22
++run_range: = 333-338
++parameter: min1 = 2.06556
++parameter: max1 = 2.07994
++parameter: min2 = 2.10647
++parameter: max2 = 2.12305
++parameter: min3 = 2.15732
++parameter: max3 = 2.16949
++parameter: min4 = 2.20321
++parameter: max4 = 2.21205
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
-4848	22	379 	397 	2.1588 2.1729	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0 
-4848	21	379 	397 	2.316 2.341	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0 
-4848	20	379 	397 	2.035 2.047 	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0  
+[entry]
++record_id: = double_peak_mins_4840_z21
+system = 4840
+z_value = 21
++run_range: = 333-338
++parameter: min1 = 2.06943
++parameter: max1 = 2.0838
++parameter: min2 = 2.11476
++parameter: max2 = 2.12858
++parameter: min3 = 2.16396
++parameter: max3 = 2.17391
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
 
+[entry]
++record_id: = double_peak_mins_4840_z20
+system = 4840
+z_value = 20
++run_range: = 333-338
++parameter: min1 = 2.07712
++parameter: max1 = 2.08705
++parameter: min2 = 2.12459
++parameter: max2 = 2.13667
++parameter: min3 = 2.17379
++parameter: max3 = 2.18328
++parameter: min4 = 2.33216
++parameter: max4 = 2.34726
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z19
+system = 4840
+z_value = 19
++run_range: = 333-338
++parameter: min1 = 2.08058
++parameter: max1 = 2.09395
++parameter: min2 = 2.13365
++parameter: max2 = 2.14401
++parameter: min3 = 2.18544
++parameter: max3 = 2.19407
++parameter: min4 = 2.35071
++parameter: max4 = 2.36754
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z18
+system = 4840
+z_value = 18
++run_range: = 333-338
++parameter: min1 = 2.08403
++parameter: max1 = 2.0987
++parameter: min2 = 2.13969
++parameter: max2 = 2.15307
++parameter: min3 = 2.1966
++parameter: max3 = 2.20615
++parameter: min4 = 2.31274
++parameter: max4 = 2.3369
++parameter: min5 = 2.3697
++parameter: max5 = 2.38825
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z21
+system = 4840
+z_value = 21
++run_range: = 339-343
++parameter: min1 = 2.06614
++parameter: max1 = 2.08495
++parameter: min2 = 2.11346
++parameter: max2 = 2.126
++parameter: min3 = 2.1585
++parameter: max3 = 2.17218
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z20
+system = 4840
+z_value = 20
++run_range: = 339-343
++parameter: min1 = 2.06889
++parameter: max1 = 2.08781
++parameter: min2 = 2.11574
++parameter: max2 = 2.13398
++parameter: min3 = 2.16819
++parameter: max3 = 2.18016
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z19
+system = 4840
+z_value = 19
++run_range: = 339-343
++parameter: min1 = 2.07526
++parameter: max1 = 2.08895
++parameter: min2 = 2.12543
++parameter: max2 = 2.13855
++parameter: min3 = 2.17731
++parameter: max3 = 2.18871
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z18
+system = 4840
+z_value = 18
++run_range: = 339-343
++parameter: min1 = 2.03307
++parameter: max1 = 2.04676
++parameter: min2 = 2.07811
++parameter: max2 = 2.09693
++parameter: min3 = 2.13056
++parameter: max3 = 2.14995
++parameter: min4 = 2.18929
++parameter: max4 = 2.20126
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z17
+system = 4840
+z_value = 17
++run_range: = 339-343
++parameter: min1 = 2.02794
++parameter: max1 = 2.0479
++parameter: min2 = 2.08381
++parameter: max2 = 2.10434
++parameter: min3 = 2.14368
++parameter: max3 = 2.15907
++parameter: min4 = 2.19841
++parameter: max4 = 2.21665
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z16
+system = 4840
+z_value = 16
++run_range: = 339-343
++parameter: min1 = 2.03022
++parameter: max1 = 2.05189
++parameter: min2 = 2.0918
++parameter: max2 = 2.11175
++parameter: min3 = 2.15337
++parameter: max3 = 2.17218
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z15
+system = 4840
+z_value = 15
++run_range: = 339-343
++parameter: min1 = 1.98062
++parameter: max1 = 1.99374
++parameter: min2 = 2.03421
++parameter: max2 = 2.05759
++parameter: min3 = 2.10035
++parameter: max3 = 2.11574
++parameter: min4 = 2.16534
++parameter: max4 = 2.18358
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z14
+system = 4840
+z_value = 14
++run_range: = 339-343
++parameter: min1 = 1.97321
++parameter: max1 = 1.98633
++parameter: min2 = 2.04106
++parameter: max2 = 2.05702
++parameter: min3 = 2.11004
++parameter: max3 = 2.126
++parameter: min4 = 2.18187
++parameter: max4 = 2.19841
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z13
+system = 4840
+z_value = 13
++run_range: = 339-343
++parameter: min1 = 1.97435
++parameter: max1 = 1.99545
++parameter: min2 = 2.03878
++parameter: max2 = 2.06329
++parameter: min3 = 2.11517
++parameter: max3 = 2.14026
++parameter: min4 = 2.19556
++parameter: max4 = 2.21437
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z12
+system = 4840
+z_value = 12
++run_range: = 339-343
++parameter: min1 = 1.96865
++parameter: max1 = 1.98918
++parameter: min2 = 2.04904
++parameter: max2 = 2.07184
++parameter: min3 = 2.13284
++parameter: max3 = 2.14881
++parameter: min4 = 2.21494
++parameter: max4 = 2.23147
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4840_z11
+system = 4840
+z_value = 11
++run_range: = 339-343
++parameter: min1 = 2.0593
++parameter: max1 = 2.07811
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z7
+system = 4040
+z_value = 7
++run_range: = 531-536
++parameter: min1 = 1.82095
++parameter: max1 = 1.84986
++parameter: min2 = 1.95974
++parameter: max2 = 1.99059
++parameter: min3 = 2.09565
++parameter: max3 = 2.13228
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z8
+system = 4040
+z_value = 8
++run_range: = 531-536
++parameter: min1 = 1.83733
++parameter: max1 = 1.86914
++parameter: min2 = 1.95974
++parameter: max2 = 1.99059
++parameter: min3 = 2.08321
++parameter: max3 = 2.11589
++parameter: min4 = 2.20939
++parameter: max4 = 2.24023
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z9
+system = 4040
+z_value = 9
++run_range: = 531-536
++parameter: min1 = 1.8489
++parameter: max1 = 1.88553
++parameter: min2 = 1.95589
++parameter: max2 = 1.99348
++parameter: min3 = 2.06481
++parameter: max3 = 2.1024
++parameter: min4 = 2.17854
++parameter: max4 = 2.21324
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z10
+system = 4040
+z_value = 10
++run_range: = 531-536
++parameter: min1 = 1.76741
++parameter: max1 = 1.76629
++parameter: min2 = 1.85757
++parameter: max2 = 1.8942
++parameter: min3 = 1.95492
++parameter: max3 = 1.99155
++parameter: min4 = 2.05324
++parameter: max4 = 2.0918
++parameter: min5 = 2.15156
++parameter: max5 = 2.18818
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z11
+system = 4040
+z_value = 11
++run_range: = 531-536
++parameter: min1 = 1.78546
++parameter: max1 = 1.81193
++parameter: min2 = 1.8721
++parameter: max2 = 1.9046
++parameter: min3 = 1.95995
++parameter: max3 = 1.99365
++parameter: min4 = 2.0478
++parameter: max4 = 2.0815
++parameter: min5 = 2.13204
++parameter: max5 = 2.16574
++parameter: min6 = 2.22952
++parameter: max6 = 2.2584
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z12
+system = 4040
+z_value = 12
++run_range: = 531-536
++parameter: min1 = 1.80624
++parameter: max1 = 1.82796
++parameter: min2 = 1.87864
++parameter: max2 = 1.91329
++parameter: min3 = 1.95827
++parameter: max3 = 1.99292
++parameter: min4 = 2.03998
++parameter: max4 = 2.07411
++parameter: min5 = 2.11961
++parameter: max5 = 2.15581
++parameter: min6 = 2.20597
++parameter: max6 = 2.23338
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z13
+system = 4040
+z_value = 13
++run_range: = 531-536
++parameter: min1 = 1.81245
++parameter: max1 = 1.84089
++parameter: min2 = 1.88329
++parameter: max2 = 1.91639
++parameter: min3 = 1.95827
++parameter: max3 = 1.99292
++parameter: min4 = 2.03429
++parameter: max4 = 2.0648
++parameter: min5 = 2.1103
++parameter: max5 = 2.13875
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z14
+system = 4040
+z_value = 14
++run_range: = 531-536
++parameter: min1 = 1.82331
++parameter: max1 = 1.85278
++parameter: min2 = 1.88898
++parameter: max2 = 1.92311
++parameter: min3 = 1.95776
++parameter: max3 = 1.99189
++parameter: min4 = 2.02602
++parameter: max4 = 2.05859
++parameter: min5 = 2.09893
++parameter: max5 = 2.12892
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z15
+system = 4040
+z_value = 15
++run_range: = 531-536
++parameter: min1 = 1.83779
++parameter: max1 = 1.86261
++parameter: min2 = 1.89725
++parameter: max2 = 1.92673
++parameter: min3 = 1.95827
++parameter: max3 = 1.99085
++parameter: min4 = 2.02395
++parameter: max4 = 2.05549
++parameter: min5 = 2.08859
++parameter: max5 = 2.12013
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z16
+system = 4040
+z_value = 16
++run_range: = 531-536
++parameter: min1 = 1.84296
++parameter: max1 = 1.87037
++parameter: min2 = 1.90036
++parameter: max2 = 1.9319
++parameter: min3 = 1.95983
++parameter: max3 = 1.99189
++parameter: min4 = 2.02136
++parameter: max4 = 2.05187
++parameter: min5 = 2.0829
++parameter: max5 = 2.11186
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z17
+system = 4040
+z_value = 17
++run_range: = 531-536
++parameter: min1 = 1.85433
++parameter: max1 = 1.8776
++parameter: min2 = 1.90708
++parameter: max2 = 1.93397
++parameter: min3 = 1.96034
++parameter: max3 = 1.98982
++parameter: min4 = 2.01619
++parameter: max4 = 2.04773
++parameter: min5 = 2.07617
++parameter: max5 = 2.10255
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z18
+system = 4040
+z_value = 18
++run_range: = 531-536
++parameter: min1 = 1.85692
++parameter: max1 = 1.8776
++parameter: min2 = 1.90915
++parameter: max2 = 1.93759
++parameter: min3 = 1.96034
++parameter: max3 = 1.98982
++parameter: min4 = 2.01774
++parameter: max4 = 2.0436
++parameter: min5 = 2.071
++parameter: max5 = 2.09531
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z19
+system = 4040
+z_value = 19
++run_range: = 531-536
++parameter: min1 = 1.86002
++parameter: max1 = 1.88536
++parameter: min2 = 1.91122
++parameter: max2 = 1.93914
++parameter: min3 = 1.96344
++parameter: max3 = 1.99033
++parameter: min4 = 2.01412
++parameter: max4 = 2.04049
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z20
+system = 4040
+z_value = 20
++run_range: = 531-536
++parameter: min1 = 1.86313
++parameter: max1 = 1.8926
++parameter: min2 = 1.91432
++parameter: max2 = 1.94276
++parameter: min3 = 1.86396
++parameter: max3 = 1.98827
++parameter: min4 = 2.01412
++parameter: max4 = 2.03687
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z21
+system = 4040
+z_value = 21
++run_range: = 531-536
++parameter: min1 = 1.91949
++parameter: max1 = 1.94017
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z7
+system = 4040
+z_value = 7
++run_range: = 537-542
++parameter: min1 = 1.8227
++parameter: max1 = 1.8548
++parameter: min2 = 1.95488
++parameter: max2 = 1.99705
++parameter: min3 = 2.09171
++parameter: max3 = 2.13606
++parameter: min4 = 2.23701
++parameter: max4 = 2.28166
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z8
+system = 4040
+z_value = 8
++run_range: = 537-542
++parameter: min1 = 1.83613
++parameter: max1 = 1.86536
++parameter: min2 = 1.95393
++parameter: max2 = 1.98832
++parameter: min3 = 2.08548
++parameter: max3 = 2.11299
++parameter: min4 = 2.21273
++parameter: max4 = 2.23766
++parameter: min5 = 2.25405
++parameter: max5 = 2.30239
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z9
+system = 4040
+z_value = 9
++run_range: = 537-542
++parameter: min1 = 1.7
++parameter: max1 = 1.8
++parameter: min2 = 1.84989
++parameter: max2 = 1.8774
++parameter: min3 = 1.95736
++parameter: max3 = 1.98746
++parameter: min4 = 2.07
++parameter: max4 = 2.09579
++parameter: min5 = 2.17404
++parameter: max5 = 2.20499
++parameter: min6 = 2.29527
++parameter: max6 = 2.32708
++parameter: min7 = 2.36264
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z10
+system = 4040
+z_value = 10
++run_range: = 537-542
++parameter: min1 = 1.7768
++parameter: max1 = 1.79228
++parameter: min2 = 1.85677
++parameter: max2 = 1.886
++parameter: min3 = 1.95393
++parameter: max3 = 1.9866
++parameter: min4 = 2.05194
++parameter: max4 = 2.08548
++parameter: min5 = 2.15426
++parameter: max5 = 2.18436
++parameter: min6 = 2.2626
++parameter: max6 = 2.28065
++parameter: min7 = 2.35715
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z11
+system = 4040
+z_value = 11
++run_range: = 537-542
++parameter: min1 = 1.78626
++parameter: max1 = 1.81411
++parameter: min2 = 1.87138
++parameter: max2 = 1.87804
++parameter: min3 = 1.95822
++parameter: max3 = 1.98574
++parameter: min4 = 2.04593
++parameter: max4 = 2.07516
++parameter: min5 = 2.14222
++parameter: max5 = 2.1663
++parameter: min6 = 2.23164
++parameter: max6 = 2.25314
++parameter: min7 = 2.31615
++parameter: max7 = 2.34944
+
+[entry]
++record_id: = double_peak_mins_4040_z12
+system = 4040
+z_value = 12
++run_range: = 537-542
++parameter: min1 = 1.78024
++parameter: max1 = 1.82027
++parameter: min2 = 1.87826
++parameter: max2 = 1.90406
++parameter: min3 = 1.95564
++parameter: max3 = 1.98316
++parameter: min4 = 2.03991
++parameter: max4 = 2.06742
++parameter: min5 = 2.12073
++parameter: max5 = 2.14996
++parameter: min6 = 2.20255
++parameter: max6 = 2.23079
++parameter: min7 = 2.28813
++parameter: max7 = 2.34223
+
+[entry]
++record_id: = double_peak_mins_4040_z13
+system = 4040
+z_value = 13
++run_range: = 537-542
++parameter: min1 = 1.81814
++parameter: max1 = 1.84138
++parameter: min2 = 1.89286
++parameter: max2 = 1.91183
++parameter: min3 = 1.96068
++parameter: max3 = 1.98597
++parameter: min4 = 2.0331
++parameter: max4 = 2.06242
++parameter: min5 = 2.113
++parameter: max5 = 2.13656
++parameter: min6 = 2.19639
++parameter: max6 = 2.21013
++parameter: min7 = 2.26761
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z14
+system = 4040
+z_value = 14
++run_range: = 537-542
++parameter: min1 = 1.82791
++parameter: max1 = 1.8486
++parameter: min2 = 1.89688
++parameter: max2 = 1.91815
++parameter: min3 = 1.95521
++parameter: max3 = 1.98597
++parameter: min4 = 2.02793
++parameter: max4 = 2.05437
++parameter: min5 = 2.1015
++parameter: max5 = 2.12564
++parameter: min6 = 2.1699
++parameter: max6 = 2.19634
++parameter: min7 = 2.24932
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z15
+system = 4040
+z_value = 15
++run_range: = 537-542
++parameter: min1 = 1.90321
++parameter: max1 = 1.92505
++parameter: min2 = 1.96068
++parameter: max2 = 1.9854
++parameter: min3 = 2.02616
++parameter: max3 = 2.04747
++parameter: min4 = 2.07946
++parameter: max4 = 2.11299
++parameter: min5 = 2.14403
++parameter: max5 = 2.17047
++parameter: min6 = 2.213
++parameter: max6 = 2.22795
++parameter: min7 = 2.30519
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z16
+system = 4040
+z_value = 16
++run_range: = 537-542
++parameter: min1 = 1.90206
++parameter: max1 = 1.9262
++parameter: min2 = 1.96241
++parameter: max2 = 1.98655
++parameter: min3 = 2.01931
++parameter: max3 = 2.0469
++parameter: min4 = 2.08081
++parameter: max4 = 2.1061
++parameter: min5 = 2.14288
++parameter: max5 = 2.16875
++parameter: min6 = 2.21415
++parameter: max6 = 2.23714
++parameter: min7 = 2.28097
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z17
+system = 4040
+z_value = 17
++run_range: = 537-542
++parameter: min1 = 1.9124
++parameter: max1 = 1.93594
++parameter: min2 = 1.9669
++parameter: max2 = 1.98827
++parameter: min3 = 2.01816
++parameter: max3 = 2.04345
++parameter: min4 = 2.07571
++parameter: max4 = 2.09978
++parameter: min5 = 2.13227
++parameter: max5 = 2.1561
++parameter: min6 = 2.19915
++parameter: max6 = 2.22222
++parameter: min7 = 2.26487
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z18
+system = 4040
+z_value = 18
++run_range: = 537-542
++parameter: min1 = 1.91413
++parameter: max1 = 1.93924
++parameter: min2 = 1.96734
++parameter: max2 = 1.9854
++parameter: min3 = 2.01643
++parameter: max3 = 2.04172
++parameter: min4 = 2.07131
++parameter: max4 = 2.0923
++parameter: min5 = 2.12564
++parameter: max5 = 2.14978
++parameter: min6 = 2.18427
++parameter: max6 = 2.20726
++parameter: min7 = 2.24624
++parameter: max7 = 2.4
+
+[entry]
++record_id: = double_peak_mins_4040_z19
+system = 4040
+z_value = 19
++run_range: = 537-542
++parameter: min1 = 1.91737
++parameter: max1 = 1.93504
++parameter: min2 = 1.9628
++parameter: max2 = 1.98656
++parameter: min3 = 2.01563
++parameter: max3 = 2.03513
++parameter: min4 = 2.06506
++parameter: max4 = 2.08616
++parameter: min5 = 2.12443
++parameter: max5 = 2.14553
++parameter: min6 = 2.17889
++parameter: max6 = 2.19656
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z20
+system = 4040
+z_value = 20
++run_range: = 537-542
++parameter: min1 = 1.87272
++parameter: max1 = 1.8948
++parameter: min2 = 1.91371
++parameter: max2 = 1.93798
++parameter: min3 = 1.96371
++parameter: max3 = 1.99096
++parameter: min4 = 2.02041
++parameter: max4 = 2.03513
++parameter: min5 = 2.06539
++parameter: max5 = 2.08223
++parameter: min6 = 2.11462
++parameter: max6 = 2.13326
++parameter: min7 = 2.17075
++parameter: max7 = 2.19361
+
+[entry]
++record_id: = double_peak_mins_4040_z21
+system = 4040
+z_value = 21
++run_range: = 537-542
++parameter: min1 = 1.88205
++parameter: max1 = 1.89284
++parameter: min2 = 1.92817
++parameter: max2 = 1.94534
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z7
+system = 4040
+z_value = 7
++run_range: = 543-547
++parameter: min1 = 1.81484
++parameter: max1 = 1.83939
++parameter: min2 = 1.95486
++parameter: max2 = 1.98669
++parameter: min3 = 2.06113
++parameter: max3 = 2.12944
++parameter: min4 = 2.24037
++parameter: max4 = 2.26674
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z8
+system = 4040
+z_value = 8
++run_range: = 543-547
++parameter: min1 = 1.84121
++parameter: max1 = 1.86757
++parameter: min2 = 1.95759
++parameter: max2 = 1.99032
++parameter: min3 = 2.0606
++parameter: max3 = 2.11307
++parameter: min4 = 2.1767
++parameter: max4 = 2.23946
++parameter: min5 = 2.33584
++parameter: max5 = 2.36312
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z9
+system = 4040
+z_value = 9
++run_range: = 543-547
++parameter: min1 = 1.7
++parameter: max1 = 1.8
++parameter: min2 = 1.85575
++parameter: max2 = 1.8803
++parameter: min3 = 1.96032
++parameter: max3 = 1.99123
++parameter: min4 = 2.04735
++parameter: max4 = 2.09944
++parameter: min5 = 2.16133
++parameter: max5 = 2.21218
++parameter: min6 = 2.29129
++parameter: max6 = 2.32493
++parameter: min7 = 2.40222
++parameter: max7 = 2.42768
+
+[entry]
++record_id: = double_peak_mins_4040_z10
+system = 4040
+z_value = 10
++run_range: = 543-547
++parameter: min1 = 1.7768
++parameter: max1 = 1.79228
++parameter: min2 = 1.86757
++parameter: max2 = 1.89303
++parameter: min3 = 1.96396
++parameter: max3 = 1.99123
++parameter: min4 = 2.03197
++parameter: max4 = 2.08943
++parameter: min5 = 2.13588
++parameter: max5 = 2.18854
++parameter: min6 = 2.26038
++parameter: max6 = 2.28765
++parameter: min7 = 2.3704
++parameter: max7 = 2.40222
+
+[entry]
++record_id: = double_peak_mins_4040_z11
+system = 4040
+z_value = 11
++run_range: = 543-547
++parameter: min1 = 1.78626
++parameter: max1 = 1.81411
++parameter: min2 = 1.88121
++parameter: max2 = 1.90122
++parameter: min3 = 1.96668
++parameter: max3 = 1.99123
++parameter: min4 = 2.03091
++parameter: max4 = 2.07943
++parameter: min5 = 2.12369
++parameter: max5 = 2.17036
++parameter: min6 = 2.2331
++parameter: max6 = 2.26128
++parameter: min7 = 2.32584
++parameter: max7 = 2.35039
+
+[entry]
++record_id: = double_peak_mins_4040_z12
+system = 4040
+z_value = 12
++run_range: = 543-547
++parameter: min1 = 1.80129
++parameter: max1 = 1.82245
++parameter: min2 = 1.88456
++parameter: max2 = 1.90708
++parameter: min3 = 1.96714
++parameter: max3 = 1.99035
++parameter: min4 = 2.02616
++parameter: max4 = 2.07293
++parameter: min5 = 2.11361
++parameter: max5 = 2.1551
++parameter: min6 = 2.21012
++parameter: max6 = 2.23742
++parameter: min7 = 2.29884
++parameter: max7 = 2.32136
+
+[entry]
++record_id: = double_peak_mins_4040_z13
+system = 4040
+z_value = 13
++run_range: = 543-547
++parameter: min1 = 1.832
++parameter: max1 = 1.85589
++parameter: min2 = 1.8948
++parameter: max2 = 1.91527
++parameter: min3 = 1.96714
++parameter: max3 = 1.99103
++parameter: min4 = 2.01964
++parameter: max4 = 2.06679
++parameter: min5 = 2.10407
++parameter: max5 = 2.14186
++parameter: min6 = 2.19032
++parameter: max6 = 2.21899
++parameter: min7 = 2.27291
++parameter: max7 = 2.29475
+
+[entry]
++record_id: = double_peak_mins_4040_z14
+system = 4040
+z_value = 14
++run_range: = 543-547
++parameter: min1 = 1.90151
++parameter: max1 = 1.92194
++parameter: min2 = 1.95204
++parameter: max2 = 1.99181
++parameter: min3 = 2.01964
++parameter: max3 = 2.06215
++parameter: min4 = 2.09402
++parameter: max4 = 2.13202
++parameter: min5 = 2.1691
++parameter: max5 = 2.20284
++parameter: min6 = 2.24989
++parameter: max6 = 2.27223
++parameter: min7 = 2.33942
++parameter: max7 = 2.36248
+
+[entry]
++record_id: = double_peak_mins_4040_z15
+system = 4040
+z_value = 15
++run_range: = 543-547
++parameter: min1 = 1.90959
++parameter: max1 = 1.92575
++parameter: min2 = 1.95427
++parameter: max2 = 1.99086
++parameter: min3 = 2.02414
++parameter: max3 = 2.05693
++parameter: min4 = 2.09179
++parameter: max4 = 2.12299
++parameter: min5 = 2.16577
++parameter: max5 = 2.1862
++parameter: min6 = 2.23801
++parameter: max6 = 2.2594
++parameter: min7 = 2.30978
++parameter: max7 = 2.32689
+
+[entry]
++record_id: = double_peak_mins_4040_z16
+system = 4040
+z_value = 16
++run_range: = 543-547
++parameter: min1 = 1.91054
++parameter: max1 = 1.93098
++parameter: min2 = 1.96805
++parameter: max2 = 1.99134
++parameter: min3 = 2.0234
++parameter: max3 = 2.05312
++parameter: min4 = 2.08584
++parameter: max4 = 2.11586
++parameter: min5 = 2.15056
++parameter: max5 = 2.17575
++parameter: min6 = 2.21567
++parameter: max6 = 2.24276
++parameter: min7 = 2.28506
++parameter: max7 = 2.3112
+
+[entry]
++record_id: = double_peak_mins_4040_z17
+system = 4040
+z_value = 17
++run_range: = 543-547
++parameter: min1 = 1.91767
++parameter: max1 = 1.9362
++parameter: min2 = 1.96947
++parameter: max2 = 1.99086
++parameter: min3 = 2.02223
++parameter: max3 = 2.04837
++parameter: min4 = 2.08021
++parameter: max4 = 2.10588
++parameter: min5 = 2.13867
++parameter: max5 = 2.16244
++parameter: min6 = 2.20617
++parameter: max6 = 2.22565
++parameter: min7 = 2.2651
++parameter: max7 = 2.29267
+
+[entry]
++record_id: = double_peak_mins_4040_z18
+system = 4040
+z_value = 18
++run_range: = 543-547
++parameter: min1 = 1.92194
++parameter: max1 = 1.93763
++parameter: min2 = 1.96852
++parameter: max2 = 1.99181
++parameter: min3 = 2.02413
++parameter: max3 = 2.04599
++parameter: min4 = 2.07321
++parameter: max4 = 2.10018
++parameter: min5 = 2.13297
++parameter: max5 = 2.15531
++parameter: min6 = 2.19713
++parameter: max6 = 2.21757
++parameter: min7 = 2.25274
++parameter: max7 = 2.27318
+
+[entry]
++record_id: = double_peak_mins_4040_z19
+system = 4040
+z_value = 19
++run_range: = 543-547
++parameter: min1 = 1.9229
++parameter: max1 = 1.94286
++parameter: min2 = 1.96995
++parameter: max2 = 1.99086
++parameter: min3 = 2.02413
++parameter: max3 = 2.04314
++parameter: min4 = 2.07546
++parameter: max4 = 2.0959
++parameter: min5 = 2.12774
++parameter: max5 = 2.15056
++parameter: min6 = 2.18383
++parameter: max6 = 2.20712
++parameter: min7 = 2.23944
++parameter: max7 = 2.25892
+
+[entry]
++record_id: = double_peak_mins_4040_z20
+system = 4040
+z_value = 20
++run_range: = 543-547
++parameter: min1 = 1.92717
++parameter: max1 = 1.94476
++parameter: min2 = 1.969
++parameter: max2 = 1.99086
++parameter: min3 = 2.02271
++parameter: max3 = 2.04124
++parameter: min4 = 2.06738
++parameter: max4 = 2.09162
++parameter: min5 = 2.12679
++parameter: max5 = 2.14438
++parameter: min6 = 2.1748
++parameter: max6 = 2.19999
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z20
+system = 4040
+z_value = 20
++run_range: = 548-548
++parameter: min1 = 2.13894
++parameter: max1 = 2.15537
++parameter: min2 = 2.19181
++parameter: max2 = 2.20875
++parameter: min3 = 2.24725
++parameter: max3 = 2.26316
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z19
+system = 4040
+z_value = 19
++run_range: = 548-548
++parameter: min1 = 2.0912
++parameter: max1 = 2.10763
++parameter: min2 = 2.1374
++parameter: max2 = 2.15845
++parameter: min3 = 2.19284
++parameter: max3 = 2.2108
++parameter: min4 = 2.26316
++parameter: max4 = 2.27959
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z18
+system = 4040
+z_value = 18
++run_range: = 548-548
++parameter: min1 = 2.09326
++parameter: max1 = 2.11133
++parameter: min2 = 2.13799
++parameter: max2 = 2.16675
++parameter: min3 = 2.20253
++parameter: max3 = 2.22288
++parameter: min4 = 2.26146
++parameter: max4 = 2.2804
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z17
+system = 4040
+z_value = 17
++run_range: = 548-548
++parameter: min1 = 2.03978
++parameter: max1 = 2.05381
++parameter: min2 = 2.08959
++parameter: max2 = 2.11204
++parameter: min3 = 2.14851
++parameter: max3 = 2.17307
++parameter: min4 = 2.21867
++parameter: max4 = 2.23901
++parameter: min5 = 2.2825
++parameter: max5 = 2.30074
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z16
+system = 4040
+z_value = 16
++run_range: = 548-548
++parameter: min1 = 2.04188
++parameter: max1 = 2.05802
++parameter: min2 = 2.098
++parameter: max2 = 2.11905
++parameter: min3 = 2.15763
++parameter: max3 = 2.17798
++parameter: min4 = 2.22498
++parameter: max4 = 2.25234
++parameter: min5 = 2.29794
++parameter: max5 = 2.32039
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z15
+system = 4040
+z_value = 15
++run_range: = 548-548
++parameter: min1 = 2.03697
++parameter: max1 = 2.06082
++parameter: min2 = 2.10572
++parameter: max2 = 2.12817
++parameter: min3 = 2.16816
++parameter: max3 = 2.1885
++parameter: min4 = 2.24743
++parameter: max4 = 2.27058
++parameter: min5 = 2.32039
++parameter: max5 = 2.34143
++parameter: min6 = 2.38914
++parameter: max6 = 2.41229
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z14
+system = 4040
+z_value = 14
++run_range: = 548-548
++parameter: min1 = 1.96963
++parameter: max1 = 1.99348
++parameter: min2 = 2.03978
++parameter: max2 = 2.06503
++parameter: min3 = 2.11204
++parameter: max3 = 2.13519
++parameter: min4 = 2.18149
++parameter: max4 = 2.20323
++parameter: min5 = 2.26637
++parameter: max5 = 2.29303
++parameter: min6 = 2.34073
++parameter: max6 = 2.36669
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z13
+system = 4040
+z_value = 13
++run_range: = 548-548
++parameter: min1 = 1.97734
++parameter: max1 = 1.99208
++parameter: min2 = 2.04469
++parameter: max2 = 2.07065
++parameter: min3 = 2.12186
++parameter: max3 = 2.14571
++parameter: min4 = 2.19552
++parameter: max4 = 2.21937
++parameter: min5 = 2.28391
++parameter: max5 = 2.31548
++parameter: min6 = 2.37931
++parameter: max6 = 2.39826
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z12
+system = 4040
+z_value = 12
++run_range: = 548-548
++parameter: min1 = 1.97103
++parameter: max1 = 1.99348
++parameter: min2 = 2.05381
++parameter: max2 = 2.07415
++parameter: min3 = 2.13519
++parameter: max3 = 2.15693
++parameter: min4 = 2.21586
++parameter: max4 = 2.23971
++parameter: min5 = 2.29794
++parameter: max5 = 2.32249
++parameter: min6 = 2.38493
++parameter: max6 = 2.41369
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z11
+system = 4040
+z_value = 11
++run_range: = 548-548
++parameter: min1 = 1.97173
++parameter: max1 = 1.99488
++parameter: min2 = 2.05732
++parameter: max2 = 2.08257
++parameter: min3 = 2.14571
++parameter: max3 = 2.17237
++parameter: min4 = 2.24041
++parameter: max4 = 2.26216
++parameter: min5 = 2.3253
++parameter: max5 = 2.26809
++parameter: min6 = 2.4207
++parameter: max6 = 2.45157
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z10
+system = 4040
+z_value = 10
++run_range: = 548-548
++parameter: min1 = 1.96612
++parameter: max1 = 1.99418
++parameter: min2 = 2.07065
++parameter: max2 = 2.09239
++parameter: min3 = 2.16395
++parameter: max3 = 2.19271
++parameter: min4 = 2.25865
++parameter: max4 = 2.28601
++parameter: min5 = 2.36248
++parameter: max5 = 2.40176
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z9
+system = 4040
+z_value = 9
++run_range: = 548-548
++parameter: min1 = 1.95913
++parameter: max1 = 1.98862
++parameter: min2 = 2.07322
++parameter: max2 = 2.10114
++parameter: min3 = 2.18574
++parameter: max3 = 2.21281
++parameter: min4 = 2.29911
++parameter: max4 = 2.31857
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z8
+system = 4040
+z_value = 8
++run_range: = 548-548
++parameter: min1 = 1.96578
++parameter: max1 = 1.99201
++parameter: min2 = 2.08761
++parameter: max2 = 2.11722
++parameter: min3 = 2.21451
++parameter: max3 = 2.23904
++parameter: min4 = 2.32533
++parameter: max4 = 2.3541
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4040_z7
+system = 4040
+z_value = 7
++run_range: = 548-548
++parameter: min1 = 1.9624
++parameter: max1 = 1.99031
++parameter: min2 = 2.09607
++parameter: max2 = 2.13247
++parameter: min3 = 2.23926
++parameter: max3 = 2.27179
++parameter: min4 = 2.38424
++parameter: max4 = 2.41394
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z20
+system = 4048
+z_value = 20
++run_range: = 455-465
++parameter: min1 = 1.87
++parameter: max1 = 1.89
++parameter: min2 = 1.91
++parameter: max2 = 1.93
++parameter: min3 = 1.96
++parameter: max3 = 1.981
++parameter: min4 = 2.015
++parameter: max4 = 2.03
++parameter: min5 = 2.06
++parameter: max5 = 2.0797
++parameter: min6 = 2.11
++parameter: max6 = 2.133
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z19
+system = 4048
+z_value = 19
++run_range: = 455-465
++parameter: min1 = 1.96
++parameter: max1 = 1.98
++parameter: min2 = 2.015
++parameter: max2 = 2.033
++parameter: min3 = 2.065
++parameter: max3 = 2.0805
++parameter: min4 = 2.115
++parameter: max4 = 2.136
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z18
+system = 4048
+z_value = 18
++run_range: = 455-465
++parameter: min1 = 1.91
++parameter: max1 = 1.929
++parameter: min2 = 1.96
++parameter: max2 = 1.98
++parameter: min3 = 2.017
++parameter: max3 = 2.035
++parameter: min4 = 2.78
++parameter: max4 = 2.088
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z17
+system = 4048
+z_value = 17
++run_range: = 455-465
++parameter: min1 = 1.96
++parameter: max1 = 1.98
++parameter: min2 = 2.019
++parameter: max2 = 2.039
++parameter: min3 = 2.084
++parameter: max3 = 2.094
++parameter: min4 = 2.13
++parameter: max4 = 2.15
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z16
+system = 4048
+z_value = 16
++run_range: = 455-465
++parameter: min1 = 1.966
++parameter: max1 = 1.981
++parameter: min2 = 2.026
++parameter: max2 = 2.04
++parameter: min3 = 2.084
++parameter: max3 = 2.104
++parameter: min4 = 2.148
++parameter: max4 = 2.161
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z15
+system = 4048
+z_value = 15
++run_range: = 455-465
++parameter: min1 = 1.968
++parameter: max1 = 1.981
++parameter: min2 = 2.026
++parameter: max2 = 2.04
++parameter: min3 = 2.094
++parameter: max3 = 2.107
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z14
+system = 4048
+z_value = 14
++run_range: = 455-465
++parameter: min1 = 1.946
++parameter: max1 = 1.964
++parameter: min2 = 2.015
++parameter: max2 = 2.032
++parameter: min3 = 2.09
++parameter: max3 = 2.107
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z13
+system = 4048
+z_value = 13
++run_range: = 455-465
++parameter: min1 = 2.021
++parameter: max1 = 2.037
++parameter: min2 = 2.11
++parameter: max2 = 2.126
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z12
+system = 4048
+z_value = 12
++run_range: = 455-465
++parameter: min1 = 1.94
++parameter: max1 = 1.963
++parameter: min2 = 2.027
++parameter: max2 = 2.0467
++parameter: min3 = 2.113
++parameter: max3 = 2.128
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z11
+system = 4048
+z_value = 11
++run_range: = 455-465
++parameter: min1 = 1.94
++parameter: max1 = 1.965
++parameter: min2 = 2.0278
++parameter: max2 = 2.051
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z10
+system = 4048
+z_value = 10
++run_range: = 455-465
++parameter: min1 = 1.94
++parameter: max1 = 1.965
++parameter: min2 = 2.038
++parameter: max2 = 2.059
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z9
+system = 4048
+z_value = 9
++run_range: = 455-465
++parameter: min1 = 1.94
++parameter: max1 = 1.962
++parameter: min2 = 2.048
++parameter: max2 = 2.073
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z8
+system = 4048
+z_value = 8
++run_range: = 455-465
++parameter: min1 = 1.91
++parameter: max1 = 1.96
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z7
+system = 4048
+z_value = 7
++run_range: = 455-465
++parameter: min1 = 2.051
++parameter: max1 = 2.107
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z20
+system = 4048
+z_value = 20
++run_range: = 467-474
++parameter: min1 = 1.927
++parameter: max1 = 1.943
++parameter: min2 = 1.956
++parameter: max2 = 1.99
++parameter: min3 = 2.018
++parameter: max3 = 2.041
++parameter: min4 = 2.066
++parameter: max4 = 2.089
++parameter: min5 = 2.118
++parameter: max5 = 2.136
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z19
+system = 4048
+z_value = 19
++run_range: = 467-474
++parameter: min1 = 1.922
++parameter: max1 = 1.936
++parameter: min2 = 1.97
++parameter: max2 = 1.99
++parameter: min3 = 2.02
++parameter: max3 = 2.041
++parameter: min4 = 2.07
++parameter: max4 = 2.09
++parameter: min5 = 2.129
++parameter: max5 = 2.145
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z18
+system = 4048
+z_value = 18
++run_range: = 467-474
++parameter: min1 = 1.918
++parameter: max1 = 1.934
++parameter: min2 = 1.967
++parameter: max2 = 1.989
++parameter: min3 = 2.021
++parameter: max3 = 2.043
++parameter: min4 = 2.073
++parameter: max4 = 2.097
++parameter: min5 = 2.129
++parameter: max5 = 2.153
++parameter: min6 = 2.1995
++parameter: max6 = 2.21578
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z17
+system = 4048
+z_value = 17
++run_range: = 467-474
++parameter: min1 = 1.969
++parameter: max1 = 1.988
++parameter: min2 = 2.019
++parameter: max2 = 2.0479
++parameter: min3 = 2.083
++parameter: max3 = 2.102
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z16
+system = 4048
+z_value = 16
++run_range: = 467-474
++parameter: min1 = 1.91
++parameter: max1 = 1.929
++parameter: min2 = 1.964
++parameter: max2 = 1.9896
++parameter: min3 = 2.022
++parameter: max3 = 2.051
++parameter: min4 = 2.085
++parameter: max4 = 2.107
++parameter: min5 = 2.149
++parameter: max5 = 2.171
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z15
+system = 4048
+z_value = 15
++run_range: = 467-474
++parameter: min1 = 1.967
++parameter: max1 = 1.991
++parameter: min2 = 2.027
++parameter: max2 = 2.052
++parameter: min3 = 2.092
++parameter: max3 = 2.118
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z14
+system = 4048
+z_value = 14
++run_range: = 467-474
++parameter: min1 = 1.964
++parameter: max1 = 1.986
++parameter: min2 = 2.031
++parameter: max2 = 2.058
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z13
+system = 4048
+z_value = 13
++run_range: = 467-474
++parameter: min1 = 1.971
++parameter: max1 = 1.986
++parameter: min2 = 2.021
++parameter: max2 = 2.039
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z12
+system = 4048
+z_value = 12
++run_range: = 467-474
++parameter: min1 = 1.965
++parameter: max1 = 1.985
++parameter: min2 = 2.041
++parameter: max2 = 2.062
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4048_z11
+system = 4048
+z_value = 11
++run_range: = 467-474
++parameter: min1 = 2.03
++parameter: max1 = 2.05
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z21
+system = 4848
+z_value = 21
++run_range: = 383-383
++parameter: min1 = 2.34
++parameter: max1 = 2.36
++parameter: min2 = 2.385
++parameter: max2 = 2.409
++parameter: min3 = 2.438
++parameter: max3 = 2.457
++parameter: min4 = 2.494
++parameter: max4 = 2.508
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z20
+system = 4848
+z_value = 20
++run_range: = 383-383
++parameter: min1 = 2.273
++parameter: max1 = 2.289
++parameter: min2 = 2.317
++parameter: max2 = 2.334
++parameter: min3 = 2.364
++parameter: max3 = 2.384
++parameter: min4 = 2.412
++parameter: max4 = 2.431
++parameter: min5 = 2.462
++parameter: max5 = 2.484
++parameter: min6 = 2.509
++parameter: max6 = 2.541
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z19
+system = 4848
+z_value = 19
++run_range: = 383-383
++parameter: min1 = 2.285
++parameter: max1 = 2.305
++parameter: min2 = 2.334
++parameter: max2 = 2.356
++parameter: min3 = 2.386
++parameter: max3 = 2.406
++parameter: min4 = 2.435
++parameter: max4 = 2.4596
++parameter: min5 = 2.489
++parameter: max5 = 2.511
++parameter: min6 = 2.54
++parameter: max6 = 2.565
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z18
+system = 4848
+z_value = 18
++run_range: = 383-383
++parameter: min1 = 2.25
++parameter: max1 = 2.269
++parameter: min2 = 2.3
++parameter: max2 = 2.325
++parameter: min3 = 2.354
++parameter: max3 = 2.375
++parameter: min4 = 2.408
++parameter: max4 = 2.43
++parameter: min5 = 2.46
++parameter: max5 = 2.483
++parameter: min6 = 2.518
++parameter: max6 = 2.537
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z17
+system = 4848
+z_value = 17
++run_range: = 383-383
++parameter: min1 = 2.26
++parameter: max1 = 2.284
++parameter: min2 = 2.319
++parameter: max2 = 2.341
++parameter: min3 = 2.377
++parameter: max3 = 2.4
++parameter: min4 = 2.429
++parameter: max4 = 2.461
++parameter: min5 = 2.49
++parameter: max5 = 2.511
++parameter: min6 = 2.55
++parameter: max6 = 2.57
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z16
+system = 4848
+z_value = 16
++run_range: = 383-383
++parameter: min1 = 2.22
++parameter: max1 = 2.24
++parameter: min2 = 2.28
++parameter: max2 = 2.3
++parameter: min3 = 2.34
++parameter: max3 = 2.365
++parameter: min4 = 2.4
++parameter: max4 = 2.428
++parameter: min5 = 2.455
++parameter: max5 = 2.489
++parameter: min6 = 2.523
++parameter: max6 = 2.546
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z15
+system = 4848
+z_value = 15
++run_range: = 383-383
++parameter: min1 = 2.25
++parameter: max1 = 2.256
++parameter: min2 = 2.3
++parameter: max2 = 2.326
++parameter: min3 = 2.365
++parameter: max3 = 2.386
++parameter: min4 = 2.433
++parameter: max4 = 2.454
++parameter: min5 = 2.491
++parameter: max5 = 2.517
++parameter: min6 = 2.56
++parameter: max6 = 2.59
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z14
+system = 4848
+z_value = 14
++run_range: = 383-383
++parameter: min1 = 2.18
++parameter: max1 = 2.21
++parameter: min2 = 2.254
++parameter: max2 = 2.274
++parameter: min3 = 2.317
++parameter: max3 = 2.349
++parameter: min4 = 2.395
++parameter: max4 = 2.419
++parameter: min5 = 2.448
++parameter: max5 = 2.481
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z13
+system = 4848
+z_value = 13
++run_range: = 383-383
++parameter: min1 = 2.15
++parameter: max1 = 2.22
++parameter: min2 = 2.273
++parameter: max2 = 2.3
++parameter: min3 = 2.344
++parameter: max3 = 2.377
++parameter: min4 = 2.423
++parameter: max4 = 2.45
++parameter: min5 = 2.478
++parameter: max5 = 2.517
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z12
+system = 4848
+z_value = 12
++run_range: = 383-383
++parameter: min1 = 2.13
++parameter: max1 = 2.15
++parameter: min2 = 2.21
++parameter: max2 = 2.24
++parameter: min3 = 2.297
++parameter: max3 = 2.326
++parameter: min4 = 2.38
++parameter: max4 = 2.416
++parameter: min5 = 2.458
++parameter: max5 = 2.497
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z11
+system = 4848
+z_value = 11
++run_range: = 383-383
++parameter: min1 = 2.156
++parameter: max1 = 2.176
++parameter: min2 = 2.234
++parameter: max2 = 2.264
++parameter: min3 = 2.322
++parameter: max3 = 2.357
++parameter: min4 = 2.411
++parameter: max4 = 2.445
++parameter: min5 = 2.507
++parameter: max5 = 2.539
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z10
+system = 4848
+z_value = 10
++run_range: = 383-383
++parameter: min1 = 2.166
++parameter: max1 = 2.193
++parameter: min2 = 2.265
++parameter: max2 = 2.293
++parameter: min3 = 2.365
++parameter: max3 = 2.392
++parameter: min4 = 2.466
++parameter: max4 = 2.493
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z9
+system = 4848
+z_value = 9
++run_range: = 383-383
++parameter: min1 = 2.19
++parameter: max1 = 2.215
++parameter: min2 = 2.295
++parameter: max2 = 2.324
++parameter: min3 = 2.406
++parameter: max3 = 2.437
++parameter: min4 = 2.517
++parameter: max4 = 2.55
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z8
+system = 4848
+z_value = 8
++run_range: = 383-383
++parameter: min1 = 2.087
++parameter: max1 = 2.113
++parameter: min2 = 2.203
++parameter: max2 = 2.239
++parameter: min3 = 2.34
++parameter: max3 = 2.368
++parameter: min4 = 2.465
++parameter: max4 = 2.495
++parameter: min5 = 2.59
++parameter: max5 = 2.62
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z7
+system = 4848
+z_value = 7
++run_range: = 383-383
++parameter: min1 = 2.249
++parameter: max1 = 2.276
++parameter: min2 = 2.394
++parameter: max2 = 2.419
++parameter: min3 = 2.527
++parameter: max3 = 2.565
++parameter: min4 = 2.668
++parameter: max4 = 2.706
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z6
+system = 4848
+z_value = 6
++run_range: = 383-383
++parameter: min1 = 2.289
++parameter: max1 = 2.328
++parameter: min2 = 2.464
++parameter: max2 = 2.496
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z22
+system = 4848
+z_value = 22
++run_range: = 379-397
++parameter: min1 = 2.1588
++parameter: max1 = 2.1729
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z21
+system = 4848
+z_value = 21
++run_range: = 379-397
++parameter: min1 = 2.316
++parameter: max1 = 2.341
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0
+
+[entry]
++record_id: = double_peak_mins_4848_z20
+system = 4848
+z_value = 20
++run_range: = 379-397
++parameter: min1 = 2.035
++parameter: max1 = 2.047
++parameter: min2 = 0.0
++parameter: max2 = 0.0
++parameter: min3 = 0.0
++parameter: max3 = 0.0
++parameter: min4 = 0.0
++parameter: max4 = 0.0
++parameter: min5 = 0.0
++parameter: max5 = 0.0
++parameter: min6 = 0.0
++parameter: max6 = 0.0
++parameter: min7 = 0.0
++parameter: max7 = 0.0

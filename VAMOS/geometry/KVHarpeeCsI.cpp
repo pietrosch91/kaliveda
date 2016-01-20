@@ -164,6 +164,7 @@ const Char_t* KVHarpeeCsI::GetEBaseName() const
 
    return Form("%s%.2d", GetType(), GetNumber());
 }
+
 //______________________________________________________________________________
 void KVHarpeeCsI::SetCalibrators()
 {

@@ -110,6 +110,7 @@ INDRA_e503.INDRADB.ElectronicCalibration.Etalons:  ChVolt_e503_etalons.dat
 INDRA_e503.INDRADB.Pedestals:                      PedestalsE503.dat
 INDRA_e503.INDRADB.PedestalCorrections:            DeltaPiedQDC10.dat
 INDRA_e503.INDRADB.GGtoPGFactors:                  ParamFitPG_GG.dat
+INDRA_e503.INDRADB.VAMOSIDCorrectionList:          VAMOSIDCorrectionList.txt
 
 INDRA_e494s.INDRADB.Pedestals:                      PedestalsE494s.dat
 INDRA_e494s.INDRADB.PedestalCorrections:            DeltaPiedQDC10.dat
@@ -129,7 +130,7 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
-+Plugin.KVDataBase:  INDRA_e503   KVIVDB  VAMOSdb  "KVIVDB(const  Char_t*)"
++Plugin.KVDataBase:  INDRA_e503   KVIVDB_e503  VAMOSdb  "KVIVDB_e503(const  Char_t*)"
 +Plugin.KVDataBase:  INDRA_e494s  KVIVDB  VAMOSdb  "KVIVDB(const  Char_t*)"
 
 #================================ Plugins for different datasets
@@ -137,8 +138,8 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 # If there is no entry here for a dataset, an object of the default KVUpDater class will be used.
 # Syntax:
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
-+Plugin.KVUpDater:  INDRA_e494s  KVIVUpDater  VAMOSexp_events  "KVIVUpDater()"
-+Plugin.KVUpDater:  INDRA_e503   KVIVUpDater  VAMOSexp_events  "KVIVUpDater()"
++Plugin.KVUpDater:  INDRA_e494s  KVIVUpDater  VAMOSdb "KVIVUpDater()"
++Plugin.KVUpDater:  INDRA_e503   KVIVUpDater_e503  VAMOSdb "KVIVUpDater_e503()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to

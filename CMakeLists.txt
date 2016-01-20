@@ -10,7 +10,7 @@ find_package(ROOT
 	REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
 	RIO Tree MathCore Matrix Gpad Gui Net
    OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html Minuit)
-	
+
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
 	set(WITH_OPENGL yes)
@@ -85,7 +85,7 @@ endif(gnuinstall)
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
 		"Use built-in package for reading GANIL acquisition data (not MFM format)"
-		ON)		
+		ON)
 add_feature_info(builtin_gru USE_BUILTIN_GRU "Use built-in package for reading GANIL acquisition data (not MFM format)")
 if(USE_BUILTIN_GRU)
 	set(WITH_BUILTIN_GRU yes)
@@ -218,18 +218,18 @@ Feature_Summary(WHAT DISABLED_FEATURES DESCRIPTION "------DISABLED FEATURES:")
 
 
 #---Set the library version in the main CMakeLists.txt------------------------------------------
-file(READ ${CMAKE_SOURCE_DIR}/VERSION versionstr)	
+file(READ ${CMAKE_SOURCE_DIR}/VERSION versionstr)
 string(STRIP ${versionstr} versionstr)
 string(REGEX REPLACE "([0-9]+)[.][0-9]+[/][0-9]+" "\\1" KV_MAJOR_VERSION ${versionstr})
 string(REGEX REPLACE "[0-9]+[.]([0-9]+)[/][0-9]+" "\\1" KV_MINOR_VERSION ${versionstr})
 string(REGEX REPLACE "[0-9]+[.][0-9]+[/]([0-9]+)" "\\1" KV_PATCH_VERSION ${versionstr})
-set(KV_VERSION "${KV_MAJOR_VERSION}.${KV_MINOR_VERSION}.${KV_PATCH_VERSION}")	
-set(KV_VERSION_STRING "${versionstr}")	
+set(KV_VERSION "${KV_MAJOR_VERSION}.${KV_MINOR_VERSION}.${KV_PATCH_VERSION}")
+set(KV_VERSION_STRING "${versionstr}")
 set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
       VERSION ${KV_VERSION}
       SOVERSION ${KV_MAJOR_VERSION}
 		)
-		
+
 
 #---configure the KVVersion.h file
 include(CreateKaliVedaVersionHeader)
@@ -339,10 +339,10 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/man/ DESTINATION ${CMAKE_INSTALL_MANDIR})
 if(CAN_DO_HTMLDOC)
 
    CONVERT_ALL_EXAMPLE_FUNCTIONS()
-   
+
    get_property(KALIVEDA_EXFUNCS GLOBAL PROPERTY KALIVEDA_EXFUNCS)
    get_property(KALIVEDA_EXCLASS GLOBAL PROPERTY KALIVEDA_EXCLASS)
-   
+
    #---add a 'html' target to generate ROOT class reference
    file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
    get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
@@ -364,8 +364,8 @@ if(CAN_DO_HTMLDOC)
    endforeach()
    add_custom_target(examples)
    add_dependencies(examples ${EXAMPLE_SUBPROJ_TARGETS})
-   add_custom_target(html)      
+   add_custom_target(html)
    add_dependencies(classref examples)
    add_dependencies(html ${CLEAN_EXAMPLE_SUBPROJ_TARGETS} classref examples)
-   
+
 endif(CAN_DO_HTMLDOC)

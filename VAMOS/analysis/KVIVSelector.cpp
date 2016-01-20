@@ -48,3 +48,22 @@ void KVIVSelector::Make(const Char_t* kvsname)
    cf.GenerateCode();
 }
 
+Bool_t KVIVSelector::Notify()
+{
+   // Wrapper for KVSelector::Notify to catch exceptions thrown in
+   // KVIVDB_e503::SetParameters() method.
+
+   Bool_t status(kFALSE);
+
+   try {
+      status = KVSelector::Notify();
+   } catch (const std::exception& e) {
+      // We've caught an exception from the SetParameters method! We handle
+      // this event by terminating the current run.
+      Error("Notify", "%s", e.what());
+      EndRun();
+   }
+
+   return status;
+}
+

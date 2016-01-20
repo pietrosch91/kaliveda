@@ -209,7 +209,7 @@ public :
    };
 
    static void Make(const Char_t* kvsname = "MyOwnKVIVSelector");
-
+   virtual Bool_t Notify();
 
    ClassDef(KVIVSelector, 0);
 };
