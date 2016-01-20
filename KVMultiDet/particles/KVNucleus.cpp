@@ -1353,3 +1353,37 @@ Double_t KVNucleus::GetNaturalA(Int_t Z) const
    if (wtot > 0) Aeff /= wtot;
    return Aeff;
 }
+
+//-------------------------
+Double_t KVNucleus::ShimaChargeState(Int_t Ztarget) const
+//-------------------------
+{
+   //Nuclear Instruments and Methods 200 (1982) 605-608
+   //Shima et al
+   // "The present formula is useful for the collision range"
+   // Zprojectile>=8
+   // 4<=Ztarget<=79
+   // Eproj<=6 MeV/A
+   // Precision DeltaQ/Zproj <0.04.
+   //
+
+   //v=sqrt((2*E*1.6022)/(A*1.66054))*10.;
+   //X=v/((3.6)*pow(Z,0.45));
+
+   Double_t vel = nn->GetVelocity().Mag();   // (cm/ns)
+   vel *= 10; //  (mm/ns)
+   Double_t X = vel / ((3.6) * pow(nn->GetZ(), 0.45));
+
+   Double_t Q = nn->GetZ() * (1 - exp(-1.25 * X + 0.32 * TMath::Power(X, 2.) - 0.11 * TMath::Power(X, 3.)));
+   Q *= (1 - 0.0019 * (Ztarget - 6) * TMath::Sqrt(X) + 0.00001 * TMath::Power(Ztarget - 6, 2.) * X); //Correction respect to the carbon
+
+   return Q;
+
+}
+
+//-------------------------
+Double_t ShimaChargeStatePrecision() const
+//-------------------------
+{
+   return 0.04 * GetZ();
+}
