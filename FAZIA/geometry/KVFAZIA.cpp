@@ -9,7 +9,6 @@
 #include "KVFAZIABlock.h"
 #include "KVDetectorEvent.h"
 #include "KVTarget.h"
-#include "KVEnv.h"
 #include "TSystem.h"
 #include "KVDataSet.h"
 #include "KVConfig.h"
@@ -41,6 +40,7 @@ KVFAZIA::KVFAZIA()
    IncludeTargetInGeometry();
    fDetectorLabels = "";
    fSignalTypes = "QL1,I1,QH1,Q2,I2,Q3";
+   SetGeometryImportParameters();
 }
 
 KVFAZIA::~KVFAZIA()
@@ -64,6 +64,17 @@ void KVFAZIA::GenerateCorrespondanceFile()
 #endif
    Info("GenerateCorrespondanceFile", "Creation de %s", fCorrespondanceFile.Data());
    KVEnv env;
+
+   SetNameOfDetectors(env);
+
+   env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
+   env.AddCommentLine("Make link between geometric ROOT objects and detector names");
+   env.WriteFile(fCorrespondanceFile.Data());
+   fDetectorLabels = "";
+}
+
+void KVFAZIA::SetNameOfDetectors(KVEnv& env)
+{
    for (Int_t bb = fStartingBlockNumber; bb < fNblocks; bb += 1) {
       for (Int_t qq = 1; qq <= 4; qq += 1) {
          for (Int_t tt = 1; tt <= 4; tt += 1) {
@@ -78,10 +89,6 @@ void KVFAZIA::GenerateCorrespondanceFile()
          }
       }
    }
-   env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
-   env.AddCommentLine("Make link between geometric ROOT objects and detector names");
-   env.WriteFile(fCorrespondanceFile.Data());
-   fDetectorLabels = "";
 }
 
 void KVFAZIA::GetGeometryParameters()
@@ -142,11 +149,13 @@ void KVFAZIA::Build(Int_t)
    KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
    imp.SetDetectorPlugin(ClassName());
    imp.SetNameCorrespondanceList(fCorrespondanceFile.Data());
+   // any additional structure name formatting definitions
+   DefineStructureFormats(imp);
 
    // the following parameters are optimized for a 12-block compact
    // geometry placed at 80cm with rings 1-5 of INDRA removed.
    // make sure that the expected number of detectors get imported!
-   imp.ImportGeometry(0.25, 1, 2., 0, 20);
+   imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
 
    /*
    KVFAZIADetector* det=0;
@@ -156,10 +165,25 @@ void KVFAZIA::Build(Int_t)
    }
    */
    SetIdentifications();
+   SortIDTelescopes();
+   KVDetector* det = GetDetector("SI2-T1-Q1-B001");
+   det->GetIDTelescopes()->ls();
+
+
+
    SetDetectorThicknesses();
    SetBit(kIsBuilt);
 }
 
+void KVFAZIA::SortIDTelescopes()
+{
+   KVDetector* det = 0;
+   TIter next(GetDetectors());
+   while ((det = (KVDetector*)next())) {
+      ((KVFAZIADetector*)det)->SortIDTelescopes();
+   }
+
+}
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
 {
    // First step in event reconstruction based on current status of detectors in array.

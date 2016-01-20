@@ -7,6 +7,7 @@
 #include "KVRunListLine.h"
 #include "KVFileReader.h"
 #include "KVDBParameterList.h"
+#include "KVDBParameterSet.h"
 
 KVFAZIADB* gFaziaDB;
 
@@ -31,6 +32,7 @@ void KVFAZIADB::init()
    fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
    fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
+   fCalibrations = AddTable("Calibrations", "Available calibration for FAZIA detectors");
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t* name): KVDataBase(name,
@@ -351,39 +353,17 @@ void KVFAZIADB::Build()
    //Use KVINDRARunListReader utility subclass to read complete runlist
 
    //get full path to runlist file, using environment variables for the current dataset
+
    TString runlist_fullpath;
    KVBase::SearchKVFile(GetDBEnv("Runlist"), runlist_fullpath, fDataSet.Data());
-
-   //set comment character for current dataset runlist
-   //SetRLCommentChar(GetDBEnv("Runlist.Comment")[0]);
-
-   //set field separator character for current dataset runlist
-   /*
-   if (!strcmp(GetDBEnv("Runlist.Separator"), "<TAB>"))
-      SetRLSeparatorChar('\t');
-   else
-      SetRLSeparatorChar(GetDBEnv("Runlist.Separator")[0]);
-   */
-   //by default we set two keys for both recognising the 'header' lines and deciding
-   //if we have a good run line: the "Run" and "Events" fields must be present
-   /*
-   GetLineReader()->SetFieldKeys(2, GetDBEnv("Runlist.Run"),
-                                 GetDBEnv("Runlist.Events"));
-   GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
-                               GetDBEnv("Runlist.Events"));
-   */
-
    kFirstRun = 999999;
    kLastRun = 0;
-   /*
-   ReadRunList(runlist_fullpath.Data());
-   //new style runlist
-   if( IsNewRunList() ){ ReadNewRunList(); };
-   */
+
    ReadNewRunList();
    ReadSystemList();
    ReadExceptions();
    ReadComments();
+   ReadCalibrationFiles();
 }
 
 
@@ -409,8 +389,11 @@ void KVFAZIADB::ReadNewRunList()
       line.ReadLine(fin);
       if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
          run = new KVFAZIADBRun;
-         run->SetTrigger(1);
-         //run->ReadRunListLine( line );
+         run->SetTrigger(0);
+         run->SetNumberOfTriggerBlocks(0);
+         run->SetDeadTime(0);
+         run->SetTriggerRate(0);
+
          toks = line.Tokenize("|");
          for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
             KVString couple = ((TObjString*)toks->At(ii))->GetString();
@@ -444,8 +427,16 @@ void KVFAZIADB::ReadNewRunList()
                run->SetDuration(value.Atof());
             } else if (name == "frequency") { //number of evts per seconds (aquisition rate)
                run->SetFrequency(value.Atof());
+            } else if (name == "triggerrate") { //trigger rate
+               run->SetTriggerRate(value.Atof());
+            } else if (name == "mtrigger") { //trigger multiplicity
+               run->SetTrigger(value.Atof());
+            } else if (name == "deadtime") { //deadtime of the acquisition between 0 and 1
+               run->SetDeadTime(value.Atof());
+            } else if (name == "trig info") { //number of trigger block in the acquisition file
+               run->SetNumberOfTriggerBlocks(value.Atoi());
             } else {
-
+               //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
             }
          }
          delete toks;
@@ -460,6 +451,93 @@ void KVFAZIADB::ReadNewRunList()
    }
 
    fin.close();
+}
+
+//____________________________________________________________________________
+void KVFAZIADB::ReadDBFile(TString file)
+{
+   KVFileReader fr;
+   fr.OpenFileToRead(file.Data());
+   KVFAZIADBRun* run = new KVFAZIADBRun();
+   KVFAZIADBRun* ref = new KVFAZIADBRun();
+
+   KVNumberList lmismatch;
+   KVNumberList lok;
+   KVNumberList lnotpresent;
+   KVString datadir = "";
+
+   FILE* fok = fopen("runlist_ok.dat", "w");
+   FILE* fnotpresent = fopen("runlist_notpresent.dat", "w");
+   FILE* fmismatch = fopen("runlist_mismatch.dat", "w");
+
+   while (fr.IsOK()) {
+
+      fr.ReadLine("|");
+      if (fr.GetCurrentLine().BeginsWith("#")) {
+         KVString line = fr.GetCurrentLine();
+         line.ReplaceAll("#", "");
+         line = line.StripAllExtraWhiteSpace();
+         line.Begin("=");
+         KVString name = line.Next();
+         if (!line.End() && name == "--dir") {
+            datadir = line.Next();
+            Info("ReadDBFile", "acquisition file directory: %s", datadir.Data());
+            fprintf(fok, "%s\n", datadir.Data());
+            fprintf(fnotpresent, "%s\n", datadir.Data());
+            fprintf(fmismatch, "%s\n", datadir.Data());
+         }
+      } else {
+         if (datadir == "") {
+            fr.CloseFile();
+            Warning("ReadDBFile", "no data directory has been found ...");
+            return;
+         }
+         if (fr.GetNparRead() > 0) {
+            for (Int_t ii = 0; ii < fr.GetNparRead(); ii += 1) {
+
+               KVString couple = fr.GetReadPar(ii);
+               couple.Begin("=");
+               KVString name = couple.Next();
+               name = name.Strip(TString::kBoth);
+               KVString value = "";
+               if (!couple.End()) {
+                  value = couple.Next();
+                  value = value.Strip(TString::kBoth);
+               }
+               if (name == "run") {
+                  run->SetNumber(value.Atoi());
+               } else if (name == "nfiles") {
+                  run->SetNumberOfAcqFiles(value.Atoi());
+               }
+            }
+            if ((ref = GetRun(run->GetNumber()))) {
+               if (run->GetNumberOfAcqFiles() != ref->GetNumberOfAcqFiles()) {
+                  lmismatch.Add(run->GetNumber());
+                  fprintf(fmismatch, "%d\n", run->GetNumber());
+               } else {
+                  lok.Add(run->GetNumber());
+                  fprintf(fok, "%d\n", run->GetNumber());
+               }
+            } else {
+               lnotpresent.Add(run->GetNumber());
+               fprintf(fnotpresent, "%d\n", run->GetNumber());
+            }
+         }
+      }
+   }
+   fr.CloseFile();
+
+   Info("ReadDBFile", "To resume ...");
+   printf("---\nruns OK:\nnumber: %d\nlist: ", lok.GetNValues());
+   std::cout << lok.AsString() << endl;
+   printf("---\nruns not present:\nnumber: %d\nlist: ", lnotpresent.GetNValues());
+   std::cout << lnotpresent.AsString() << endl;
+   printf("---\nruns with mismatch:\nnumber: %d\nlist: ", lmismatch.GetNValues());
+   std::cout << lmismatch.AsString() << endl;
+
+   fclose(fok);
+   fclose(fnotpresent);
+   fclose(fmismatch);
 }
 
 //__________________________________________________________________________________________________________________
@@ -587,6 +665,62 @@ void KVFAZIADB::ReadComments()
 
 }
 //__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadCalibrationFiles()
+{
+
+   if (!strcmp(GetCalibFileName("CalibrationFiles"), "")) {
+      Info("ReadCalibrationFiles()", "No file foud for CalibrationFiles");
+      return;
+   }
+   TString fp;
+   gDataSet->SearchKVFile(GetCalibFileName("CalibrationFiles"), fp, gDataSet->GetName());
+
+
+   KVFileReader fr;
+   if (!fr.OpenFileToRead(fp.Data())) {
+      Error("ReadCalibrationFiles()", "Error in opening file %s\n", fp.Data());
+      return;
+   }
+
+   Info("ReadCalibrationFiles()", "Reading calibration files");
+   while (fr.IsOK()) {
+      fr.ReadLine(0);
+      if (fr.GetCurrentLine().BeginsWith("#") || fr.GetCurrentLine() == "") {}
+      else {
+         ReadCalibFile(fr.GetCurrentLine().Data());
+      }
+   }
+   fr.CloseFile();
+
+}
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadCalibFile(const Char_t* filename)
+{
+
+   if (gSystem->Exec(Form("test -e %s/%s", GetDataSetDir(), filename)) != 0) {
+      Info("ReadCalibFile", "%s/%s do not exist", GetDataSetDir(), filename);
+      return;
+   }
+
+   TEnv env;
+   env.ReadFile(Form("%s/%s", GetDataSetDir(), filename), kEnvAll);
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+   KVNumberList default_run_list;
+   default_run_list.SetMinMax(GetFirstRun(), GetLastRun());
+
+   while ((rec = (TEnvRec*)next())) {
+      TString sdet(rec->GetName());
+      TString sval(rec->GetValue());
+      par = new KVDBParameterSet(sdet.Data(), "Calibration", 1);
+      par->SetParameter(sval.Atof());
+      fCalibrations->AddRecord(par);
+      LinkRecordToRunRange(par, default_run_list);
+   }
+
+}
+//__________________________________________________________________________________________________________________
 
 void KVFAZIADB::PrintRuns(KVNumberList& nl) const
 {
@@ -614,3 +748,70 @@ void KVFAZIADB::PrintRuns(KVNumberList& nl) const
    }
 }
 
+void KVFAZIADB::BuildQuickAndDirtyDataBase(TString acqfiles_dir)
+{
+
+
+   if (gSystem->Exec(Form("test -d %s", acqfiles_dir.Data())) != 0) {
+      printf("Error in KVFAZIADB::BuildQuickAndDirtyDataBase: %s is not an existing directory\n", acqfiles_dir.Data());
+      return;
+   }
+
+   FILE* fout = fopen("runlist.dat", "w");
+   fprintf(fout, "# Runlist generated by KVFAZIADB::BuildQuickAndDirtyDataBase from files located at:\n");
+   fprintf(fout, "# --dir=%s\n", acqfiles_dir.Data());
+
+   Int_t run, nfiles;
+   Long64_t size = 0;
+   Long64_t totalsize = 0;
+   Int_t date, idx;
+   KVDatime kvdate;
+
+   KVString ldir = gSystem->GetFromPipe(Form("du %s", acqfiles_dir.Data()));
+   ldir.Begin("\n");
+   Int_t numberofruns = 0;
+   KVNumberList lruns;
+
+   while (!ldir.End()) {
+      KVString sdir = ldir.Next();
+      sdir.Begin("\t");
+      size = sdir.Next().Atoll(); // /TMath::Power(2,10)+1; //read values are in KB
+      sdir = gSystem->BaseName(sdir.Next());
+      if (sscanf(sdir.Data(), "run%d", &run) == 1) {
+         totalsize += size;
+         Int_t dmin = 0;
+         Int_t dmax = 0;
+         KVString lfile = gSystem->GetFromPipe(Form("ls %s/%s", acqfiles_dir.Data(), sdir.Data()));
+         lfile.Begin("\n");
+         nfiles = 0;
+         while (!lfile.End()) {
+            KVString sfile = lfile.Next();
+            //FzEventSet-1434434675-41784.pb
+            if (sscanf(sfile.Data(), "FzEventSet-%d-%d.pb", &date, &idx) == 2) {
+               if (dmin == 0) {
+                  dmin = dmax = date;
+               } else {
+                  if (date < dmin) dmin = date;
+                  if (date > dmax) dmax = date;
+               }
+               nfiles += 1;
+            }
+         }
+         if (nfiles == 0 || size == 0) {
+            printf("Warning in KVFAZIADB::BuildQuickAndDirtyDataBase: %d -> empty run\n", run);
+         }
+         kvdate.Set(dmin);
+         fprintf(fout, "run=%d | starting date=%s | nfiles=%d | size(GB)=%1.2lf\n", run, kvdate.AsString(), nfiles, size * TMath::Power(2., -20));
+         numberofruns += 1;
+         lruns.Add(run);
+      } else {
+         Double_t conv = TMath::Power(2., -30);
+         printf("Info in KVFAZIADB::BuildQuickAndDirtyDataBase: total size %lld - %lld\n", size, totalsize);
+         printf("Info in KVFAZIADB::BuildQuickAndDirtyDataBase: total size (TB) %1.2lf - %1.2lf\n", size * conv, totalsize * conv);
+         printf("Info in KVFAZIADB::BuildQuickAndDirtyDataBase: number of runs %d\n", numberofruns);
+         printf("Info in KVFAZIADB::BuildQuickAndDirtyDataBase: last run %d done at %s\n", lruns.Last(), kvdate.AsString());
+      }
+   }
+
+   fclose(fout);
+}

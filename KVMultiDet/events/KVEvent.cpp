@@ -270,21 +270,21 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, Option_t* opt)
    TString Opt(opt);
    Opt.ToUpper();
    Double_t fSum = 0;
-   KVNucleus* tmp = new KVNucleus();
    TMethodCall mt;
-   mt.InitWithPrototype(tmp->IsA(), KVNucleus_method, "");
-   delete tmp;
+   mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, "");
 
    if (mt.IsValid()) {
       ResetGetNextParticle();
       if (mt.ReturnType() == TMethodCall::kLong) {
          Long_t ret;
+         KVNucleus* tmp;
          while ((tmp = GetNextParticle(Opt))) {
             mt.Execute(tmp, "", ret);
             fSum += ret;
          }
       } else if (mt.ReturnType() == TMethodCall::kDouble) {
          Double_t ret;
+         KVNucleus* tmp;
          while ((tmp = GetNextParticle(Opt))) {
             mt.Execute(tmp, "", ret);
             fSum += ret;
@@ -293,6 +293,82 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, Option_t* opt)
    }
 
    return fSum;
+}
+
+Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, const Char_t* method_prototype, const Char_t* args, Option_t* opt)
+{
+   //Returns sum over particles of the observable given by the indicated KVNucleus_method
+   // with given prototype (e.g. method_prototype="int,int") and argument values
+   // e.g. args="2,4")
+   //
+   //If opt = "ok" only particles with IsOK()==kTRUE are considered.
+   //If opt = "name" only particles with GetName()=="name" are considered.
+   //
+   //IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
+   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+
+   TString Opt(opt);
+   Opt.ToUpper();
+   Double_t fSum = 0;
+   TMethodCall mt;
+   mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, method_prototype);
+
+   if (mt.IsValid()) {
+      ResetGetNextParticle();
+      if (mt.ReturnType() == TMethodCall::kLong) {
+         Long_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, args, ret);
+            fSum += ret;
+         }
+      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+         Double_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, args, ret);
+            fSum += ret;
+         }
+      }
+   }
+
+   return fSum;
+}
+
+Int_t KVEvent::GetMultiplicity(Int_t Z, Int_t A, Option_t* opt)
+{
+   // Calculate the multiplicity of nuclei given Z (if A not given)
+   // or of nuclei with given Z & A (if given)
+   //
+   //If opt = "ok" only particles with IsOK()==kTRUE are considered.
+   //If opt = "name" only particles with GetName()=="name" are considered.
+
+   if (A > 0) return (Int_t)GetSum("IsIsotope", "int,int", Form("%d,%d", Z, A), opt);
+   return (Int_t)GetSum("IsElement", "int", Form("%d", Z), opt);
+}
+
+void KVEvent::GetMultiplicities(Int_t mult[], const TString& species)
+{
+   // Fill array mult[] with the number of each nuclear species in the
+   // comma-separated list in this event. Make sure that mult[] is
+   // large enough for the list.
+   //
+   // Example:
+   //   Int_t mult[4];
+   //   event.GetMultiplicities(mult, "1n,1H,2H,3H");
+   //
+   // N.B. the species name must correspond to that given by KVNucleus::GetSymbol
+
+   TObjArray* spec = species.Tokenize(", ");// remove any spaces
+   Int_t nspec = spec->GetEntries();
+   memset(mult, 0, nspec * sizeof(Int_t)); // set multiplicities to zero
+   KVNucleus* nuc;
+   while ((nuc = GetNextParticle())) {
+      for (int i = 0; i < nspec; i++) {
+         if (((TObjString*)(*spec)[i])->String() == nuc->GetSymbol()) mult[i] += 1;
+      }
+   }
+   delete spec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

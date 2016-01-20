@@ -4,9 +4,11 @@
 #include "KVFAZIAUpDater.h"
 #include "KVFAZIADB.h"
 #include "KVDBParameterList.h"
+#include "KVDBParameterSet.h"
 #include "KVFAZIA.h"
 #include "KVSignal.h"
 #include "KVFAZIADetector.h"
+#include "KVCalibrator.h"
 
 ClassImp(KVFAZIAUpDater)
 
@@ -32,6 +34,7 @@ KVFAZIAUpDater::~KVFAZIAUpDater()
 void KVFAZIAUpDater::SetCalibParameters(KVDBRun* dbrun)
 {
    SetPSAParameters(dbrun);
+   SetCalibrations(dbrun);
 }
 
 void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
@@ -73,4 +76,24 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
          Warning("SetPSAParameters", "Unkonwn detector %s", sdet.Data());
       }
    }
+}
+void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
+{
+
+   //Loop on calibrations stores in the database
+   //and update parameters for each concerned calibrators
+   KVFAZIADetector* det = 0;
+   KVCalibrator* cal = 0;
+   KVDBParameterSet* par = 0;
+   TList* list = (TList*)dbrun->GetLinks("Calibrations");
+   TIter next(list);
+   while ((par = (KVDBParameterSet*)next())) {
+      TString sdet(par->GetName());
+      det = (KVFAZIADetector*)gFazia->GetDetector(sdet.Data());
+      if (det && (cal = det->GetCalibrator("Charge-Energy"))) {
+         cal->SetParameter(0, par->GetParameter(0));
+         cal->SetStatus(1);
+      }
+   }
+
 }

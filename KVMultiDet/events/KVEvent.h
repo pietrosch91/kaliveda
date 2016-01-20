@@ -65,7 +65,10 @@ public:
    KVNucleus* AddParticle();
    KVNucleus* GetParticle(Int_t npart) const;
    virtual Int_t GetMult(Option_t* opt = "");
-   virtual Double_t GetSum(const Char_t* KVNucleus_method, Option_t* opt = "");
+   Int_t GetMultiplicity(Int_t Z, Int_t A = 0, Option_t* opt = "");
+   void GetMultiplicities(Int_t mult[], const TString& species);
+   Double_t GetSum(const Char_t* KVNucleus_method, Option_t* opt = "");
+   Double_t GetSum(const Char_t* KVNucleus_method, const Char_t* method_prototype, const Char_t* args, Option_t* opt = "");
    virtual void Clear(Option_t* opt = "");
    virtual void Print(Option_t* t = "") const;
    virtual void ls(Option_t* t = "") const

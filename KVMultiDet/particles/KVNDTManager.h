@@ -26,6 +26,7 @@ public:
 
    Bool_t IsInTable(Int_t zz, Int_t aa, const Char_t* name) const;
    Double_t GetValue(Int_t zz, Int_t aa, const Char_t* name) const;
+   void SetValue(Int_t zz, Int_t aa, const Char_t* name, Double_t val);
    KVNuclData* GetData(Int_t zz, Int_t aa, const Char_t* name) const;
    Bool_t IsMeasured(Int_t zz, Int_t aa, const Char_t* name) const;
    const Char_t* GetUnit(Int_t zz, Int_t aa, const Char_t* name) const;

@@ -108,7 +108,7 @@ public:
    };
    virtual void UpdateArray();
 
-   virtual void GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+   void GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
    KVLayer* GetChIoLayer();
    inline KVHashList* GetListOfChIo() const

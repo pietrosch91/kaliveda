@@ -119,3 +119,33 @@ Double_t KVFAZIADBRun::GetFrequency() const
    return Get("ACQ rate (evts/s)");
 }
 
+void KVFAZIADBRun::SetTriggerRate(Double_t triggerrate)
+{
+   Set("trigger rate (evts/s)", triggerrate);
+}
+
+Double_t KVFAZIADBRun::GetTriggerRate() const
+{
+   return Get("trigger rate (evts/s)");
+}
+
+void KVFAZIADBRun::SetDeadTime(Double_t deadtime)
+{
+   Set("deadtime [0;1]", deadtime);
+}
+
+Double_t KVFAZIADBRun::GetDeadTime() const
+{
+   return Get("deadtime [0;1]");
+}
+
+void KVFAZIADBRun::SetNumberOfTriggerBlocks(Double_t number)
+{
+   Set("number of trigger blocks", number);
+}
+
+Double_t KVFAZIADBRun::GetNumberOfTriggerBlocks() const
+{
+   return Get("number of trigger blocks");
+}
+

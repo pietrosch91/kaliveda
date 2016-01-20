@@ -205,6 +205,8 @@ class KVTreeAnalyzer : public TNamed {
    TGCheckButton* G_histo_norm_events;//!
    TGCheckButton* G_histo_stats;//!
    TGCheckButton* G_histo_autosave;//!
+   TGComboBox* G_histo_draw_option;//!
+   TString fDrawOption;//!
    Bool_t fDrawSame;//! =kTRUE: draw histograms in same plot
    Int_t fSameColorIndex;//!
    Bool_t fDrawLog;//! =kTRUE: draw histograms with log-Y (1-D) or log-Z (2-D) scale
@@ -409,14 +411,29 @@ public:
       fNormHisto = (yes ? kFALSE : fNormHisto);
       G_histo_norm->SetState((EButtonState)fNormHisto);
    }
+   void SetDrawOption(Option_t* option = "")
+   {
+      fDrawOption = option;
+   }
+
    void SetNewCanvas(Bool_t yes = kTRUE)
    {
       fNewCanvas = yes;
+      // deselect 'same' if it was selected
+      if (G_histo_same->IsOn()) {
+         G_histo_same->SetState((EButtonState)kFALSE);
+         fDrawSame = kFALSE;
+      }
    }
    void SetDrawSame(Bool_t yes = kTRUE)
    {
       fSameColorIndex = 0;
       fDrawSame = yes;
+      // deselect 'new canvas' if it was selected
+      if (G_histo_new_can->IsOn()) {
+         G_histo_new_can->SetState((EButtonState)kFALSE);
+         fNewCanvas = kFALSE;
+      }
    }
    void SetDrawLog(Bool_t yes = kTRUE)
    {

@@ -5,7 +5,7 @@
 #define __KVFAZIADETECTOR_H
 
 #include "KVDetector.h"
-
+class KVFAZIACalibrator;
 class KVSignal;
 
 class KVFAZIADetector : public KVDetector {
@@ -15,6 +15,11 @@ protected:
    Int_t fBlock;
    Int_t fQuartet;
    Int_t fTelescope;
+   Int_t fIdentifier;   //to difference SI1 SI2 CSI detectors
+
+   Double_t fCharge;
+
+
    //values defined for SI1 detectors
    Double_t fAmplitudeQL1;
    Double_t fRawAmplitudeQL1;
@@ -53,19 +58,30 @@ protected:
    Double_t fSigmaBaseLineQ3;
    Double_t fRiseTimeQ3;
 
+   KVFAZIACalibrator* fChargeToEnergy;//!To obtain energy
 
    void init();   //initialisatino method called by the constructors
    Bool_t SetProperties();
 
+
 public:
+   enum {                       //determine identification of the detector
+      kSI1,
+      kSI2,
+      kCSI
+   };
    KVFAZIADetector();
    KVFAZIADetector(const Char_t* type, const Float_t thick = 0.0);
    virtual ~KVFAZIADetector();
    void Copy(TObject& obj) const;
    virtual void   Clear(Option_t* opt = "");
    virtual void   SetName(const char* name);
+   KVList* PrepareIDTelescopeList();
+   void SortIDTelescopes();
 
    virtual Bool_t Fired(Option_t* opt = "any");
+   Double_t GetCalibratedEnergy();
+   Double_t GetEnergy();
 
    void SetSignal(KVSignal* signal, const Char_t* type);
    Bool_t HasSignal() const;
@@ -74,7 +90,11 @@ public:
    KVSignal* GetSignal(Int_t idx) const;
    Int_t GetNumberOfSignals() const;
    KVList* GetListOfSignals() const;
-
+   void SetCalibrators();
+   Int_t GetIdentifier() const
+   {
+      return fIdentifier;
+   }
    Int_t GetBlockNumber() const
    {
       return fBlock;
@@ -132,6 +152,8 @@ public:
    void SetQH1Amplitude(Double_t value)
    {
       fAmplitudeQH1 = value;
+      if (fIdentifier == kSI1)
+         fCharge = value;
    }
    Double_t GetQH1Amplitude() const
    {
@@ -206,6 +228,8 @@ public:
    void SetQ2Amplitude(Double_t value)
    {
       fAmplitudeQ2 = value;
+      if (fIdentifier == kSI2)
+         fCharge = value;
    }
    Double_t GetQ2Amplitude() const
    {
@@ -280,6 +304,8 @@ public:
    void SetQ3Amplitude(Double_t value)
    {
       fAmplitudeQ3 = value;
+      if (fIdentifier == kCSI)
+         fCharge = value;
    }
    Double_t GetQ3Amplitude() const
    {

@@ -166,7 +166,7 @@ if(USE_FITLTG)
 endif()
 
 #--- BackTrack package for model parameter optimisation
-option(USE_BACKTRACK "Build BackTrack package" OFF)
+option(USE_BACKTRACK "Build BackTrack backtracing statistical analysis package" OFF)
 if(USE_BACKTRACK)
 	#---check if roofit is available
 	if(NOT ROOT_roofit_FOUND)
@@ -174,7 +174,11 @@ if(USE_BACKTRACK)
       set(USE_BACKTRACK OFF CACHE BOOL "" FORCE)
    endif()
 endif()
-add_feature_info(backtrack USE_BACKTRACK "Build BackTrack package")
+add_feature_info(backtrack USE_BACKTRACK "Build BackTrack backtracing statistical analysis package")
+
+#--- MicroStat package for calculating event statistical weights
+option(USE_MICROSTAT "Build MicroStat package for event generation using statistical weights" OFF)
+add_feature_info(microstat USE_MICROSTAT "Build MicroStat package for event generation using statistical weights")
 
 #--- Libraries for INDRA data
 option(USE_INDRA "Build libraries for analysis of INDRA data" OFF)
@@ -245,6 +249,9 @@ get_property(KVMultiDet_LIB_LIST GLOBAL PROPERTY KVMultiDet_LIB_LIST)
 if(USE_BACKTRACK)
 	add_subdirectory(BackTrack)
 endif()
+if(USE_MICROSTAT)
+	add_subdirectory(MicroStat)
+endif()
 if(USE_INDRA)
 	add_subdirectory(KVIndra)
 	get_property(KVIndra_MOD_LIST GLOBAL PROPERTY KVIndra_MOD_LIST)
@@ -284,6 +291,8 @@ configure_file(etc/config.files.in etc/config.files)
 install(FILES ${CMAKE_BINARY_DIR}/etc/config.files DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---configure and install kaliveda-config script
+get_property(KALIVEDA_SUBPROJ_LIST GLOBAL PROPERTY KALIVEDA_SUBPROJ_LIST)
+CHANGE_LIST_TO_STRING(subprojlist ${KALIVEDA_SUBPROJ_LIST})
 configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -301,6 +310,7 @@ install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION ${CMAKE_INSTALL_CMAKEPKG
 
 #---generate config & version files for other projects using find_package()
 include(CMakePackageConfigHelpers)
+get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
 configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/KaliVedaConfig.cmake.in
                                  ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake
                                  INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
@@ -345,7 +355,6 @@ if(CAN_DO_HTMLDOC)
 
    #---add a 'html' target to generate ROOT class reference
    file(WRITE ${CMAKE_BINARY_DIR}/makehtml.C "{\nmakedoc(\"${CMAKE_BINARY_DIR}/htmldoc\");\n}")
-   get_property(KALIVEDA_LIB_LIST GLOBAL PROPERTY KALIVEDA_LIB_LIST)
    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/htmldoc/index.html
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tools/html ${CMAKE_BINARY_DIR}
       COMMAND ${ROOT_EXECUTABLE} -q -l makehtml.C

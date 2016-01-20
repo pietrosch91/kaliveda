@@ -76,6 +76,7 @@ public:
 
    KVNuclData* GetData(Int_t zz, Int_t aa) const;
    Double_t GetValue(Int_t zz, Int_t aa)  const;
+   void SetValue(Int_t zz, Int_t aa, Double_t val);
    const Char_t*  GetUnit(Int_t zz, Int_t aa) const;
    Bool_t  IsMeasured(Int_t zz, Int_t aa) const;
 

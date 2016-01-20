@@ -203,6 +203,18 @@ public:
    static Double_t vrelViola1985(Double_t z, Double_t a);
    static Double_t vrelViola1966(Double_t z, Double_t a);
 
+   Bool_t IsElement(Int_t Z) const
+   {
+      return GetZ() == Z;
+   }
+   Bool_t IsIsotope(Int_t Z, Int_t A) const
+   {
+      return (GetZ() == Z && GetA() == A);
+   }
+
+   Double_t ShimaChargeState(Int_t) const;
+   Double_t ShimaChargeStatePrecision() const;
+
    ClassDef(KVNucleus, 6)      //Class describing atomic nuclei
 };
 
