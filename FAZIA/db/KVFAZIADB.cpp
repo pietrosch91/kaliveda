@@ -529,11 +529,11 @@ void KVFAZIADB::ReadDBFile(TString file)
 
    Info("ReadDBFile", "To resume ...");
    printf("---\nruns OK:\nnumber: %d\nlist: ", lok.GetNValues());
-   std::cout << lok.AsString() << endl;
+   std::cout << lok.AsString() << std::endl;
    printf("---\nruns not present:\nnumber: %d\nlist: ", lnotpresent.GetNValues());
-   std::cout << lnotpresent.AsString() << endl;
+   std::cout << lnotpresent.AsString() << std::endl;
    printf("---\nruns with mismatch:\nnumber: %d\nlist: ", lmismatch.GetNValues());
-   std::cout << lmismatch.AsString() << endl;
+   std::cout << lmismatch.AsString() << std::endl;
 
    fclose(fok);
    fclose(fnotpresent);
