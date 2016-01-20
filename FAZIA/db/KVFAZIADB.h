@@ -108,6 +108,7 @@ public:
    };
 
    static void BuildQuickAndDirtyDataBase(TString);
+   void ReadDBFile(TString file);
 
    ClassDef(KVFAZIADB, 2) //database for FAZIA detector
 };
