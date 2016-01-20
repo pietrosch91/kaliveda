@@ -107,7 +107,7 @@ public:
       return GetDBEnv(type);
    };
 
-   void BuildQuickAndDirtyDataBase() const;
+   static void BuildQuickAndDirtyDataBase(TString);
 
    ClassDef(KVFAZIADB, 2) //database for FAZIA detector
 };
