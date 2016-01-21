@@ -180,6 +180,7 @@
 /usr/include/kaliveda/KVCouple.h
 /usr/include/kaliveda/KVSystemDirectory.h
 /usr/include/kaliveda/KVPartitionList.h
+/usr/include/kaliveda/KVMacros.h
 /usr/include/kaliveda/KVRList.h
 /usr/include/kaliveda/KVDatedFileManager.h
 /usr/include/kaliveda/KVClassMonitor.h

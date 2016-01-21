@@ -16,6 +16,7 @@
 /usr/lib/libKVIndragui.rootmap
 /usr/include/kaliveda/KVLightEnergyCsI.h
 /usr/include/kaliveda/KVCsI.h
+/usr/include/kaliveda/KVSi75_e494s.h
 /usr/include/kaliveda/KVINDRATelescope.h
 /usr/include/kaliveda/KVChIo_e475s.h
 /usr/include/kaliveda/KVSiB.h
@@ -95,6 +96,7 @@
 /usr/include/kaliveda/KVINDRAIDTelescope.h
 /usr/include/kaliveda/KVIDChIoSi.h
 /usr/include/kaliveda/KVIDSiCsI_e613.h
+/usr/include/kaliveda/KVIDCsIRLLine.h
 /usr/include/kaliveda/KVIDSiCsI5.h
 /usr/include/kaliveda/KVIDSi75SiLi_camp5.h
 /usr/include/kaliveda/KVIDSiCsI.h
