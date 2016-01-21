@@ -5,6 +5,7 @@
 #define __KVSEDPOSITIONCAL_H
 
 #include "KVCalibrator.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 #define SEDPOSCAL_FIT_ORDER 4
 #define NPAR_SEDPOSCAL 4*(SEDPOSCAL_FIT_ORDER+1)*(SEDPOSCAL_FIT_ORDER+1)

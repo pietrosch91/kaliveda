@@ -14,6 +14,17 @@ private:
 
    void init();
 
+protected:
+
+   virtual Bool_t AcceptIDForTest()
+   {
+      // Used by test Identification.
+      // For a general (Z,A) grid we only include particles with
+      // GetQualityCode()<4 (i.e. well identified) or equal to kICODE9
+      // (i.e. well identified from extrapolated ID lines).
+      return (KVIDGChIoSi::AcceptIDForTest() || (fICode == kICODE9));
+   };
+
 public:
 
    enum {
@@ -24,7 +35,7 @@ public:
    KVIDGChIoSi_e494s();
    virtual ~KVIDGChIoSi_e494s();
 
-
+   virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
    virtual void Initialize();
 

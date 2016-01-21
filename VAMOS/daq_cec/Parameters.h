@@ -1,7 +1,11 @@
 #ifndef _PARAMETERS_CLASS
 #define _PARAMETERS_CLASS
 
+#include "ParameterName.h"
+#include "Riostream.h"
 #include "Rtypes.h"
+#include "TTree.h"
+#include <cstdlib>
 
 #define MAX_PAR_NUM 20000
 
@@ -31,20 +35,10 @@
 #define NOETALON
 #define NOMT4
 
-class ParameterName {
-public:
-   char Name[20];
-
-   ParameterName() {};
-   virtual ~ParameterName() {};
-
-   ClassDef(ParameterName, 0) //VAMOS: A parameter name
-};
-
-class TTree;
-
 class Parameters {
+
 public:
+
    Parameters(void);
    virtual ~Parameters(void);
 
@@ -55,50 +49,50 @@ public:
    char* CopyParam(char* Dest, char* Source) const;
    void Fill(const char* buffparam);
 
-   UShort_t    fMaxParameterNumber;
-   UShort_t    fNumberofParameters;
-   UShort_t*    fParameterNumber;
-   Short_t*     fParameterType;
-   UShort_t*    fParameterBits;
-   ParameterName*  fParameterName;
+   UShort_t  fMaxParameterNumber;
+   UShort_t  fNumberofParameters;
+   UShort_t* fParameterNumber;
+   Short_t*  fParameterType;
+   UShort_t* fParameterBits;
 
+   ParameterName* fParameterName;
 
-   UShort_t*   fParameterMap;
-   Short_t*   fParameterMapT;
-   UShort_t*   fParameterData;
-   UShort_t*   fParametersTouched;
-   UShort_t   fNumberofParametersFree;
-   UShort_t   fParametersM;
+   UShort_t* fParameterMap;
+   Short_t*  fParameterMapT;
+   UShort_t* fParameterData;
+   UShort_t* fParametersTouched;
+   UShort_t  fNumberofParametersFree;
+   UShort_t  fParametersM;
 
 #ifdef ECHI
    bool     EchiB;
-   Int_t EchiM;
-   UShort_t  EchiNr[3 * 8];
-   UShort_t  Echi[3 * 8];
+   Int_t    EchiM;
+   UShort_t EchiNr[3 * 8];
+   UShort_t Echi[3 * 8];
 #endif
 
 #ifdef STRIPS
    bool     STRB;
-   Int_t     STRM1, STRM2, STRM3, STRM4;
-   UShort_t  STRNr[4 * 64];
-   UShort_t  STR[4 * 64];
+   Int_t    STRM1, STRM2, STRM3, STRM4;
+   UShort_t STRNr[4 * 64];
+   UShort_t STR[4 * 64];
 #endif
 
 #ifdef SED
-   bool      SEDB;
-   Int_t     SEDMX1, SEDMY1, SEDMX2, SEDMY2;
-   UShort_t  SEDQ[4 * 128];
-   UShort_t  SEDNr[4 * 128];
+   bool     SEDB;
+   Int_t    SEDMX1, SEDMY1, SEDMX2, SEDMY2;
+   UShort_t SEDQ[4 * 128];
+   UShort_t SEDNr[4 * 128];
 #endif
 #ifdef CSI
-   bool      CSIEB, CSITB, CSIPB;
-   Int_t     CSIEM, CSITM, CSIPM;
-   UShort_t  CSIE[50];
-   UShort_t  CSIENr[50];
-   UShort_t  CSIT[50];
-   UShort_t  CSITNr[50];
-   UShort_t  CSIP[50];
-   UShort_t  CSIPNr[50];
+   bool     CSIEB, CSITB, CSIPB;
+   Int_t    CSIEM, CSITM, CSIPM;
+   UShort_t CSIE[50];
+   UShort_t CSIENr[50];
+   UShort_t CSIT[50];
+   UShort_t CSITNr[50];
+   UShort_t CSIP[50];
+   UShort_t CSIPNr[50];
 #endif
 
 #ifdef SI
@@ -198,7 +192,6 @@ public:
    UShort_t ESSQNr[16 * 4];
    UShort_t ESSQ[16 * 4];
 #endif
-
 
    ClassDef(Parameters, 0) //VAMOS: The list of acquisition parameters
 

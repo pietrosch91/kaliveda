@@ -38,16 +38,16 @@ public:
    KVSilicon(Float_t thick /* um */);
    virtual ~ KVSilicon();
 
-   Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
+   virtual Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
    Double_t GetVoltsFromCanalGG(Double_t chan = 0.0);
    Double_t GetCalibratedEnergy();
    Double_t GetVolts();
    Double_t GetVoltsFromEnergy(Double_t);
 
-   Int_t GetCanalPGFromVolts(Float_t volts);
+   virtual Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
-   Double_t GetCanalPGFromVoltsDouble(Float_t volts);
+   virtual Double_t GetCanalPGFromVoltsDouble(Float_t volts);
    Double_t GetCanalGGFromVoltsDouble(Float_t volts);
 
    Double_t GetEnergyFromVolts(Double_t volts = 0.0);

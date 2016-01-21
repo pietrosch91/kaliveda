@@ -18,6 +18,7 @@ $Id: KVDBParameterSet.h,v 1.13 2007/04/18 14:28:49 ebonnet Exp $
 #ifndef KVDB_PARAMETER_SET_H
 #define KVDB_PARAMETER_SET_H
 
+#include <cassert>
 #include "KVDBRecord.h"
 #include "TString.h"
 class KVDBParameterSet: public KVDBRecord {
@@ -44,6 +45,7 @@ public:
    virtual void SetParameter(Double_t val);
    virtual void SetParameter(TString name, Double_t val);
    virtual void SetParameters(Double_t val, ...);
+   virtual void SetParameters(const std::vector<Double_t>* const pars);
    virtual void SetParamName(UShort_t i, const Char_t* name);
    virtual void SetParamNames(const Char_t* name, ...);
    virtual void Print(Option_t* option = "") const;

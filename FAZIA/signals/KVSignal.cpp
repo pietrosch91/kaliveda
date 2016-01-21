@@ -930,7 +930,7 @@ void KVSignal::FIR_ApplyRCLowPass(double time_usec, int reverse)
    double b = x;
    double a = 0;
    //    printf("f=%f, x=%f\n",x,f);
-   FIR_ApplyRecursiveFilter(a0, 1, &a, &b  , reverse);
+   FIR_ApplyRecursiveFilter(a0, 1, &a, &b, reverse);
 }
 
 void KVSignal::FIR_ApplyRCHighPass(double time_usec, int reverse)
@@ -945,7 +945,7 @@ void KVSignal::FIR_ApplyRCHighPass(double time_usec, int reverse)
    double a1 = -(1 + x) / 2.;
    double b1 = x;
    //    printf("f=%f, x=%f\n",x,f);
-   FIR_ApplyRecursiveFilter(a0, 1, &a1, &b1 , reverse);
+   FIR_ApplyRecursiveFilter(a0, 1, &a1, &b1, reverse);
 }
 #undef DUEPI
 

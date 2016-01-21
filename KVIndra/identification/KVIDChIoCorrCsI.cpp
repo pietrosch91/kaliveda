@@ -64,7 +64,7 @@ Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t* opt)
    // associated whith the ChIo-CsI identification telescope.
    // The X-coordinate is the CsI current total light minus.
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
    return fCsI->GetLumiereTotale();
 }
 
@@ -76,7 +76,7 @@ Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t* opt)
    // associated whith the ChIo-CsI identification telescope.
    // The Y-coordinate is the ionisation chamber's current petit gain coder data minus the petit gain pedestal.
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
    return fChIo->GetPG() - fChIo->GetPedestal("PG");
 }
 

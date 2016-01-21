@@ -78,6 +78,10 @@ public:
    {
       return fVAMOSev->GetNucleus(n_nuc);
    }
+   KVVAMOSReconEvent* GetVAMOSEvent() const
+   {
+      return fVAMOSev;
+   }
 
    Int_t GetINDRAMult(Option_t* opt = "")
    {
@@ -101,6 +105,11 @@ public:
    void ResetGetNextNucleus()
    {
       fVAMOSev->ResetGetNextNucleus();
+   }
+
+   void  IdentAndCalibVAMOSEvent()
+   {
+      fVAMOSev->IdentAndCalibEvent();
    }
 
    void  ReconstructVAMOSEvent(KVMultiDetArray* mda, KVDetectorEvent* kvde)

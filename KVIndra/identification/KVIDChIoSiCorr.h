@@ -13,6 +13,7 @@ $Date: 2007/12/10 13:02:13 $
 #include "KVIDChIoSi.h"
 #include "KVIDGChIoSi_e494s.h"
 #include "KVINDRADetector.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIdentificationResult;
 

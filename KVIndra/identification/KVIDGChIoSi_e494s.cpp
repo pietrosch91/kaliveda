@@ -83,6 +83,11 @@ void KVIDGChIoSi_e494s::Identify(Double_t x, Double_t y, KVIdentificationResult*
          const_cast<KVIDGChIoSi_e494s*>(this)->fICode = k_BelowSeuilChIo;
          idr->SetComment("warning: point below ChIo threshold line");
       }
+      Int_t ZValidityvalue = -1;
+      ZValidityvalue = const_cast<KVIDGChIoSi_e494s*>(this)->GetParameters()->GetIntValue("ZValidity");
+      if (ZValidityvalue > -1 && idr->Z > ZValidityvalue) {
+         const_cast<KVIDGChIoSi_e494s*>(this)->fICode = kICODE9;
+      }
       idr->IDquality = fICode;
    }
 }
@@ -100,3 +105,27 @@ void KVIDGChIoSi_e494s::Initialize()
    KVIDGChIoSi::Initialize();
    fChIoSeuil = (KVIDLine*)GetCut("Seuil_ChIo");
 }
+//---------------------------------------------------------------------
+//  added by MFR june 2014 to take into account the ChIoCsI_seuil line
+//
+Bool_t KVIDGChIoSi_e494s::IsIdentifiable(Double_t x, Double_t y) const
+{
+
+   KVIDGChIoSi::IsIdentifiable(x, y);
+
+   Bool_t can_id = kTRUE;
+
+//must be above of arret chio/seuil csi line
+   if (fChIoSeuil) {
+      can_id = fChIoSeuil->WhereAmI(x, y, "above");
+      if (!can_id) {
+         const_cast < KVIDGChIoSi_e494s* >(this)->fICode = k_BelowSeuilChIo;
+         return kFALSE;
+      };
+   }
+
+   return can_id;
+
+
+}
+//----------------------------------------------------------------------

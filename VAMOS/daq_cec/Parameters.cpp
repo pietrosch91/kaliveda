@@ -1,12 +1,11 @@
 #include "Parameters.h"
-#include "TTree.h"
-#include "Riostream.h"
-#include <cstdlib>
+
 //Author: Maurycy Rejmund
 
 using namespace std;
 
 ClassImp(Parameters)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
@@ -19,7 +18,26 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-Parameters::Parameters(void)
+Parameters::Parameters(void) :
+#if __cplusplus < 201103L
+   fParameterNumber(NULL),
+   fParameterType(NULL),
+   fParameterBits(NULL),
+   fParameterName(NULL),
+   fParameterMap(NULL),
+   fParameterMapT(NULL),
+   fParameterData(NULL),
+   fParametersTouched(NULL)
+#else
+   fParameterNumber(nullptr),
+   fParameterType(nullptr),
+   fParameterBits(nullptr),
+   fParameterName(nullptr),
+   fParameterMap(nullptr),
+   fParameterMapT(nullptr),
+   fParameterData(nullptr),
+   fParametersTouched(nullptr)
+#endif
 {
 
 #ifdef ECHI
@@ -85,6 +103,8 @@ Parameters::Parameters(void)
 
    for (UShort_t i = 0; i < MAX_PAR_NUM; i++) {
       fParameterNumber[i] = fParameterType[i] = fParameterBits[i] = 0;
+      // Allocate memory for parameter names
+      fParameterName[i].Init();
    }
 
 }
@@ -92,11 +112,76 @@ Parameters::Parameters(void)
 
 Parameters::~Parameters(void)
 {
+   if (fParameterMap) {
+      delete [] fParameterMap;
+#if __cplusplus < 201103L
+      fParameterMap = NULL;
+#else
+      fParameterMap = nullptr;
+#endif
+   }
 
-   delete [] fParameterMap;
-   delete [] fParameterMapT;
-   delete [] fParameterData;
-   delete [] fParametersTouched;
+   if (fParameterMapT) {
+      delete [] fParameterMapT;
+#if __cplusplus < 201103L
+      fParameterMapT = NULL;
+#else
+      fParameterMapT = nullptr;
+#endif
+   }
+
+   if (fParameterData) {
+      delete [] fParameterData;
+#if __cplusplus < 201103L
+      fParameterData = NULL;
+#else
+      fParameterData = nullptr;
+#endif
+   }
+
+   if (fParametersTouched) {
+      delete [] fParametersTouched;
+#if __cplusplus < 201103L
+      fParametersTouched = NULL;
+#else
+      fParametersTouched = nullptr;
+#endif
+   }
+
+   if (fParameterNumber) {
+      delete[] fParameterNumber;
+#if __cplusplus < 201103L
+      fParameterNumber = NULL;
+#else
+      fParameterNumber = nullptr;
+#endif
+   }
+
+   if (fParameterType) {
+      delete[] fParameterType;
+#if __cplusplus < 201103L
+      fParameterType = NULL;
+#else
+      fParameterType = nullptr;
+#endif
+   }
+   if (fParameterBits) {
+      delete[] fParameterBits;
+#if __cplusplus < 201103L
+      fParameterBits = NULL;
+#else
+      fParameterBits = nullptr;
+#endif
+   }
+
+   if (fParameterName) {
+      delete[] fParameterName;
+#if __cplusplus < 201103L
+      fParameterName = NULL;
+#else
+      fParameterName = nullptr;
+#endif
+   }
 }
 
 
@@ -1180,12 +1265,40 @@ void Parameters::Set(TTree* theTree)
    }
 
 
+   if (fParameterNumber) {
+      delete[] fParameterNumber;
+#if __cplusplus < 201103L
+      fParameterNumber = NULL;
+#else
+      fParameterNumber = nullptr;
+#endif
+   }
 
+   if (fParameterType) {
+      delete[] fParameterType;
+#if __cplusplus < 201103L
+      fParameterType = NULL;
+#else
+      fParameterType = nullptr;
+#endif
+   }
+   if (fParameterBits) {
+      delete[] fParameterBits;
+#if __cplusplus < 201103L
+      fParameterBits = NULL;
+#else
+      fParameterBits = nullptr;
+#endif
+   }
 
-   delete [] fParameterNumber;
-   delete [] fParameterType;
-   delete [] fParameterBits;
-   delete [] fParameterName;
+   if (fParameterName) {
+      delete[] fParameterName;
+#if __cplusplus < 201103L
+      fParameterName = NULL;
+#else
+      fParameterName = nullptr;
+#endif
+   }
 
 }
 void Parameters::GetData(Short_t* data)
@@ -1564,21 +1677,22 @@ char* Parameters::CopyParam(char* Dest, char* Source) const
 {
    // Small utility routine to copy a char string.
    char c;
-   int len = 0;
+   std::size_t len(0);
+
    do {
       len++;
       c = *Source++;
       if ((c == ',') || (c == 0x0d))
          c = '\0';
-      if (len <= 20)
+      if (len <= ParameterName::maxlen) // 20
          *Dest++ = c;
       else
          *Dest = '\0';
    } while (c != '\0');
    /* Verifier qu'on n'a pas plusieurs 0x0D de suite */
    while (*Source == 0x0d) {
-      Source = '\0';
-      Source ++;
+      *Source = '\0';
+      Source++;
    }
    return (Source);
 }
@@ -1592,7 +1706,15 @@ void Parameters::Fill(const char* buffParam)
    // index.
 
    char* CurrPointer;
-   char tmp[20];
+#if __cplusplus < 201103L
+   char* tmp(NULL);
+#else
+   char* tmp(nullptr);
+#endif
+
+   // Ideally should be updated to use smart pointers but this whole class could
+   // do with updating really.
+   tmp = new char[ParameterName::maxlen];
 
    CurrPointer = (char*)buffParam;
 
@@ -1609,6 +1731,14 @@ void Parameters::Fill(const char* buffParam)
       } else
          fNumberofParameters--;
    }
+
+   if (tmp) {
+      delete[] tmp;
+#if __cplusplus < 201103L
+      tmp = NULL;
+#else
+      tmp = nullptr;
+#endif
+   }
 }
 
-ClassImp(ParameterName)

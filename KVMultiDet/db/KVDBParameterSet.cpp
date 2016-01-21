@@ -143,6 +143,19 @@ void KVDBParameterSet::SetParameters(Double_t val, ...)
 }
 
 //____________________________________________________________________________
+void KVDBParameterSet::SetParameters(const std::vector<Double_t>* const pars)
+{
+   assert(pars->size() <= static_cast<UInt_t>(fParamNumber));
+
+   UInt_t arg_n(0);
+   std::vector<Double_t>::const_iterator it;
+   for (it = pars->begin(); it != pars->end(); ++it) {
+      fParameters[arg_n] = *it;
+      ++arg_n;
+   }
+}
+
+//____________________________________________________________________________
 void KVDBParameterSet::SetParamName(UShort_t i, const Char_t* name)
 {
    strcpy(fParamNames[i], name);

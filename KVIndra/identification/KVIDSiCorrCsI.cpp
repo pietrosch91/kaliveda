@@ -47,11 +47,20 @@ void KVIDSiCorrCsI::Initialize()
    // This method MUST be called once before any identification is attempted.
    // IsReadyForID() will return kTRUE if KVTGID objects are associated
    // to this telescope for the current run.
+   //
+   // This method deducts also X and Y thresholds from VarX and VarY (see GetThresholdFromVar( varX/varY ).
 
    fSi  = (KVSilicon*)GetDetector(1);
    fCsI = (KVCsI*)GetDetector(2);
 
    Bool_t ok = fSi && fCsI && GetListOfIDFunctions().GetEntries();
+
+   if (ok) {
+      KVTGID* idf = (KVTGID*)GetListOfIDFunctions().First();
+      fThresholdX = GetThesholdFromVar(idf->GetVarX());
+      fThresholdY = GetThesholdFromVar(idf->GetVarY());
+//    Info("Initialize","Thresholds for %s: X= %f, Y= %f", GetName(), fThresholdX, fThresholdY);
+   }
 
    SetBit(kReadyForID, ok);
 }
@@ -64,7 +73,7 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t* opt)
    // associated with the Si-CsI identification telescope.
    // The X-coordinate is the total light of the CsI.
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
    return fCsI->GetLumiereTotale();
 }
 
@@ -78,7 +87,7 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t* opt)
    // data is less than 3900 then the petit gain value is calculated
    // from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
 
-   opt = opt; // not used (keeps the compiler quiet)
+   UNUSED(opt);
 
    if (fSi->GetGG() < 3900.) return fSi->GetPGfromGG() - fSi->GetPedestal("PG");
    return fSi->GetPG() - fSi->GetPedestal("PG");
@@ -118,7 +127,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
    Double_t Z = -1.;
 
-   const Bool_t inRange = (0. < X) && (0. < Y) && (Y < 4090.);
+   const Bool_t inRange = (fThresholdX < X) && (fThresholdY < Y) && (Y < 4090.);
 
    if (inRange) Z = IdentZ(GetName(), X, Y, funLTG_Z, ""); //IdentZ(this, funLTG_Z, "", "");
    else return kFALSE;
@@ -277,4 +286,20 @@ void KVIDSiCorrCsI::PrintFitParameters()
    }
 
    std::cout << "----------------- END-----------------------" << std::endl;
+}
+//__________________________________________________________________________//
+
+Double_t KVIDSiCorrCsI::GetThesholdFromVar(const Char_t* var)
+{
+   // returns the threshold deduced from VarX or VarY.
+   // If the string 'var' contains the character '>', we consider
+   // that the threshold is given in the string after this character.
+
+   TString thresh = var;
+   Int_t idx = thresh.Index(">");
+   if (idx > -1) {
+      thresh.Remove(0, idx + 1);
+      return (thresh.IsFloat() ? thresh.Atof() : 0.);
+   }
+   return 0.;
 }

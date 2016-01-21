@@ -72,20 +72,20 @@ public:
 #endif
 inline UInt_t KVGroup::GetNIdentified()
 {
-    //number of identified particles reconstructed in group
-    UInt_t n = 0;
-    if (GetHits()) {
-        TIter next(fReconstructedNuclei);
-        KVReconstructedNucleus *nuc = 0;
-        while ((nuc = (KVReconstructedNucleus *) next()))
-            n += (UInt_t) nuc->IsIdentified();
-    }
-    return n;
+   //number of identified particles reconstructed in group
+   UInt_t n = 0;
+   if (GetHits()) {
+      TIter next(fReconstructedNuclei);
+      KVReconstructedNucleus* nuc = 0;
+      while ((nuc = (KVReconstructedNucleus*) next()))
+         n += (UInt_t) nuc->IsIdentified();
+   }
+   return n;
 };
 inline UInt_t KVGroup::GetNUnidentified()
 {
-    //number of unidentified particles reconstructed in group
-    return (GetHits() - GetNIdentified());
+   //number of unidentified particles reconstructed in group
+   return (GetHits() - GetNIdentified());
 };
 */
 #endif

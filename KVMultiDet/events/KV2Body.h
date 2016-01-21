@@ -166,8 +166,8 @@ public:
    Double_t GetXSecRuthCM(Double_t ThetaLab_Proj, Int_t OfNucleus = 3) const;
 
    Double_t GetIntegratedXSecRuthLab(Float_t th1, Float_t th2, Float_t phi1 = -1, Float_t phi2 = -1, Int_t OfNucleus = 3);
-//    Double_t GetIntegratedXSecRuthLab(KVTelescope*tel, Int_t OfNucleus=3);
-//    Double_t GetIntegratedXSecRuthLab(KVDetector*det, Int_t OfNucleus=3);
+   //Double_t GetIntegratedXSecRuthLab(KVTelescope* tel, Int_t OfNucleus = 3);
+   //Double_t GetIntegratedXSecRuthLab(KVDetector* det, Int_t OfNucleus = 3);
 
    TF1* GetXSecRuthLabFunc(Int_t OfNucleus = 3, Double_t theta_min = 1., Double_t theta_max = 179.);
    TF1* GetXSecRuthLabIntegralFunc(Int_t OfNucleus = 3, Double_t theta_min = 1., Double_t theta_max = 179.);

@@ -49,12 +49,14 @@ TF1 KVLightEnergyCsIVamos::fLightVamos("fLight_CsI", CalculLumiereVamos, 0., 100
 KVLightEnergyCsIVamos::KVLightEnergyCsIVamos()
 {
    // Default constructor
+   SetNumberParams(3);
 }
 
 KVLightEnergyCsIVamos::KVLightEnergyCsIVamos(KVDetector* kvd)
    : KVLightEnergyCsI(kvd)
 {
    // ctor avec adresse du detecteur associe
+   SetNumberParams(3);
 }
 
 KVLightEnergyCsIVamos::~KVLightEnergyCsIVamos()

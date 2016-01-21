@@ -12,6 +12,7 @@
 #include "TGeoManager.h"
 #include "TGeoMedium.h"
 #include "TGeoMatrix.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 
 class KVSpectroDetector : public KVDetector { //, public TGeoVolume
@@ -54,7 +55,6 @@ public:
    void AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix = 0, Bool_t active = kFALSE);
    virtual Bool_t BuildGeoVolume(TEnv* infos, TGeoVolume* ref_vol = 0);
    virtual Int_t  Compare(const TObject* obj) const;
-   virtual void DetectParticle(KVNucleus*, TVector3* norm = 0);
    virtual KVList* GetFiredACQParamList(Option_t* opt = "P");
    TGeoHMatrix& GetActiveVolToFocalMatrix(Int_t i = 0) const;
    virtual Double_t GetELostByParticle(KVNucleus*, TVector3* norm = 0);
@@ -64,8 +64,8 @@ public:
    virtual TGeoVolume* GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params);
    virtual Int_t    GetMult(Option_t* opt = "");
    virtual Double_t GetParticleEIncFromERes(KVNucleus*, TVector3* norm = 0);
-   virtual UChar_t GetPosition(Double_t* XYZf, Int_t idx = 0);
-   virtual void GetDeltaXYZf(Double_t* XYZf, Int_t idx = 0);
+   virtual UChar_t GetPosition(Double_t* XYZf, Char_t dir = 0, Int_t idx = 0);
+   virtual void GetDeltaXYZf(Double_t* XYZf, Char_t dir = 0, Int_t idx = 0);
 
    void SetActiveVolume(TGeoVolume*);
 
@@ -102,9 +102,9 @@ public:
    {
       fFocalToTarget = matrix;
    };
-   inline UChar_t GetXYZf(Double_t* XYZf, Int_t idx = 0)
+   inline UChar_t GetXYZf(Double_t* XYZf, Char_t dir = 0, Int_t idx = 0)
    {
-      return GetPosition(XYZf, idx);
+      return GetPosition(XYZf, dir, idx);
    }
 
    inline Bool_t IsOKforID() const

@@ -226,28 +226,58 @@ inline Bool_t KVIDLine::WhereAmI(Double_t px, Double_t py, Option_t* opt)
    //First of all, the closest segment/point of the line to the point is found.
    //Then the relative position of the point and this segment/point is tested.
 
+   Double_t* XX, *YY;
+   Double_t  xx,  yy;
+   Int_t    sign  = 1;
 
-   //Find closest point/segment
-   Int_t i_close = 0;
-   Double_t d = DistanceToLine(px, py, i_close);
-   if (d < 0) {
-      //negative distance => closest point
-      if (!strcmp(opt, "left")) {
-         return (px < fX[i_close]);
-      } else if (!strcmp(opt, "right")) {
-         return (px > fX[i_close]);
-      } else if (!strcmp(opt, "above")) {
-         return (py > fY[i_close]);
-      } else if (!strcmp(opt, "below")) {
-         return (py < fY[i_close]);
+   if (!strcmp(opt, "left")) {
+      XX = fY;
+      xx = py;
+      YY = fX;
+      yy = px;
+   } else if (!strcmp(opt, "right")) {
+      XX = fY;
+      xx = py;
+      YY = fX;
+      yy = px;
+      sign = -1;
+   } else if (!strcmp(opt, "above")) {
+      XX = fX;
+      xx = px;
+      YY = fY;
+      yy = py;
+      sign = -1;
+   } else if (!strcmp(opt, "below")) {
+      XX = fX;
+      xx = px;
+      YY = fY;
+      yy = py;
+   } else return kFALSE;
+
+   Int_t i_start     = 0;
+   Int_t i_stop      = fNpoints - 1;
+   Int_t prev_i_stop = 0;
+   Bool_t same_sign = TMath::Sign(1., XX[i_start] - xx) == TMath::Sign(1., XX[i_stop] - xx);
+   while ((i_start < i_stop - 1) || same_sign) {
+
+      if (same_sign && (prev_i_stop == 0))  break;
+      else if (same_sign) {
+         i_start = i_stop;
+         i_stop  = prev_i_stop;
+      } else {
+         prev_i_stop = i_stop;
+         i_stop = (Int_t)((i_start + i_stop) / 2 + 0.5);
       }
-      return kFALSE;
-   } else {
-      //positive distance => closest segment
-      return PosRelToLine(opt, px, py, fX[i_close], fY[i_close],
-                          fX[i_close + 1], fY[i_close + 1]);
+
+      same_sign = TMath::Sign(1., XX[i_start] - xx) == TMath::Sign(1., XX[i_stop] - xx);
    }
-   return kFALSE;
+
+   Double_t a = (YY[i_stop] - YY[i_start]) / (XX[i_stop] - XX[i_start]);
+   Double_t b = YY[i_start] - a * XX[i_start];
+
+   Bool_t res = (sign * yy < sign * (a * xx + b));
+
+   return res;
 }
 
 //_____________________________________________________________________________________________

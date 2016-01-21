@@ -7,6 +7,11 @@ class KVIVReconIdent: public KVINDRAReconIdent {
 
 protected:
 
+   enum {
+      kVAMOSdata = BIT(20),
+      kINDRAdata = BIT(21)
+   };
+
    Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
 
 

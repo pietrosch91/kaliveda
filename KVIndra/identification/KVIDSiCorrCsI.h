@@ -22,11 +22,19 @@
 #include "KVRTGIDManager.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDSiCorrCsI: public KVIDSiCsI, public KVRTGIDManager {
 
+protected:
+
    KVSilicon*  fSi;    //!
    KVCsI*      fCsI;   //!
+
+   Double_t fThresholdX; //!
+   Double_t fThresholdY; //!
+
+   Double_t GetThesholdFromVar(const Char_t* var);
 
 public:
 

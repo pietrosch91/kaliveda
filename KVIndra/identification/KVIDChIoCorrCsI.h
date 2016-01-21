@@ -14,6 +14,7 @@ $Date: 2009/04/06 15:21:31 $
 #include "KVChIo.h"
 #include "KVIDChIoCsI.h"
 #include "KVCsI.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVIDChIoCorrCsI : public KVIDChIoCsI {
 protected:

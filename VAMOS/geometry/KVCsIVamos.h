@@ -11,6 +11,7 @@ $Date: 2009/01/21 08:04:20 $
 #define __KVCSIVAMOS_H
 
 #include "KVCsI.h"
+#include "KVMacros.h" // 'UNUSED' macro
 
 class KVCsIVamos : public KVCsI {
    KVACQParam* fPar;//!
@@ -25,12 +26,23 @@ public:
    {
       return fPar;
    };
-   virtual Double_t GetLumiereTotale(Double_t  = -1.0, Double_t = -1.0)
+   virtual Double_t GetLumiereTotale(
+      Double_t rapide = -1.0,
+      Double_t lente = -1.0
+   )
    {
+      UNUSED(rapide);
+      UNUSED(lente);
       return fPar->GetData();
    };
-   virtual Double_t GetCorrectedLumiereTotale(Double_t = -1.0, Double_t  = -1.0)
+
+   virtual Double_t GetCorrectedLumiereTotale(
+      Double_t rapide = -1.0,
+      Double_t lente = -1.0
+   )
    {
+      UNUSED(rapide);
+      UNUSED(lente);
       return fPar->GetData();
    };
 

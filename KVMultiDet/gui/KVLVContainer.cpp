@@ -813,7 +813,7 @@ Bool_t KVLVContainer::HandleButton(Event_t* event)
    fControlClick = kFALSE;
    if (event->fCode == kButton1 && (event->fState & kKeyControlMask)) fControlClick = kTRUE;
 
-   if ((event->fCode == kButton3)) {
+   if (event->fCode == kButton3) {
       TList* list = GetSelectedItems();
       if (list->GetSize() == 0) {
          fContextMenu->Popup(event->fXRoot, event->fYRoot, this);
