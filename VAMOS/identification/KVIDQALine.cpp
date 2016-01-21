@@ -429,7 +429,11 @@ void KVIDQALine::FindAMarkers(TH1* h)
    fMarkers->Clear();
 
    // Build new IDQAMarkers
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    Double_t* xpeaks = s.GetPositionX();
+#else
+   Float_t* xpeaks = s.GetPositionX();
+#endif
    for (int p = 0; p < nfound; p++) {
       Double_t x = xpeaks[p];
       KVIDQAMarker* m = new KVIDQAMarker;

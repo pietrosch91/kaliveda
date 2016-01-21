@@ -23,9 +23,8 @@ MEDetectorStack::MEDetectorStack() :
    si_(NULL),
    isobutane_(NULL),
    csi_(NULL),
-   calibrator_(NULL),
    sim_nucleus_(NULL),
-
+   calibrator_(NULL),
 #else
    si_(nullptr),
    isobutane_(nullptr),
@@ -192,9 +191,15 @@ Bool_t MEDetectorStack::Simulate(
    sim_nucleus_->Clear();
    sim_nucleus_->SetZAandE(parameters->z, parameters->a, incident_energy);
 
+#if __cplusplus < 201103L
+   si_->DetectParticle(sim_nucleus_);
+   isobutane_->DetectParticle(sim_nucleus_);
+   csi_->DetectParticle(sim_nucleus_);
+#else
    si_->DetectParticle(sim_nucleus_.get());
    isobutane_->DetectParticle(sim_nucleus_.get());
    csi_->DetectParticle(sim_nucleus_.get());
+#endif
 
    Double_t delta(0.);
 
@@ -236,8 +241,13 @@ Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
    // Set the silicon material thickness
    // ----------------------------------
 
-   KVDetector* si_target(idt->GetDetector(1));
-   si_->SetThickness(si_target->GetThickness());
+   KVDetector* si_detector(idt->GetDetector(1));
+   assert(si_detector);
+
+   KVMaterial* si_absorber(si_detector->GetAbsorber(0));
+   assert(si_absorber);
+
+   si_->SetThickness(si_absorber->GetThickness());
 
    // --------------------------------------
    // Set the CsI light -> energy calibrator

@@ -16,7 +16,7 @@
 #pragma link C++ function idc::Identify;
 #pragma link C++ function idc::ApplyCorrections;
 #pragma link C++ function idc::ApplyIcSiCorrections;
-#pragma link C++ function idc::ApplySiCsICorrections;
+#pragma link C++ function idc::ApplySiCsiCorrections;
 #pragma link C++ function idc::CorrectAoverQ;
 
 #endif

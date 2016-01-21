@@ -71,14 +71,14 @@ void ThreadedMinimiserImpl::Init()
    if (kInitialised_) return;
 
 #if __cplusplus < 201103L
-   estimator_input_ = new struct me::EstimatorInput;
-   possible_a_values_ = new std::vector<Int_t>;
-   estimator_result_ = new struct me::EstimatorResult;
+   estimator_input_ = new struct me::EstimatorInput();
+   possible_a_values_ = new std::vector<Int_t>();
+   estimator_result_ = new struct me::EstimatorResult();
    mass_estimator_ = new ThreadedMassEstimator();
 #else
-   estimator_input_.reset(new struct me::EstimatorInput);
-   possible_a_values_.reset(new std::vector<Int_t>);
-   estimator_result_.reset(new struct me::EstimatorResult);
+   estimator_input_.reset(new struct me::EstimatorInput());
+   possible_a_values_.reset(new std::vector<Int_t>());
+   estimator_result_.reset(new struct me::EstimatorResult());
    mass_estimator_.reset(new ThreadedMassEstimator());
 #endif
 

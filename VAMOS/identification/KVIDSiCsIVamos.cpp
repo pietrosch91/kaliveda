@@ -25,7 +25,7 @@ ClassImp(KVIDSiCsIVamos)
 
 KVIDSiCsIVamos::KVIDSiCsIVamos() :
 #if __cplusplus < 201103L
-   fgrid(NULL), fSi(NULL), fCsI(NULL), fgrid(NULL)
+   fgrid(NULL), fSi(NULL), fCsI(NULL)
 #else
    // C++11 supported, use nullptr
    fgrid(nullptr), fSi(nullptr), fCsI(nullptr)

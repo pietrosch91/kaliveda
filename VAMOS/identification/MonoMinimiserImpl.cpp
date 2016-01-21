@@ -82,12 +82,12 @@ void MonoMinimiserImpl::Init()
    if (kInitialised_) return;
 
 #if __cplusplus < 201103L
-   sim_parameters_ = new struct me::SimulationParameters;
-   sim_results_ = new struct me::SimulationResult;
+   sim_parameters_ = new struct me::SimulationParameters();
+   sim_results_ = new struct me::SimulationResult();
    stack_ = new MEDetectorStack();
 #else
-   sim_parameters_.reset(new struct me::SimulationParameters);
-   sim_results_.reset(new struct me::SimulationResult);
+   sim_parameters_.reset(new struct me::SimulationParameters());
+   sim_results_.reset(new struct me::SimulationResult());
    stack_.reset(new MEDetectorStack());
 #endif
 
@@ -145,7 +145,11 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
 
    // Same starting point (A = 2Z) for both directions (while loops)
    sim_parameters_->a = a_value;
+#if __cplusplus < 201103L
+   if (stack_->Simulate(sim_parameters_, sim_results_)) {
+#else
    if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
+#endif
       delta_last = sim_results_->delta;
    } else {
       delta_last = 100000.;
@@ -176,7 +180,11 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       }
 
       sim_parameters_->a = a_value;
+#if __cplusplus < 201103L
+      if (stack_->Simulate(sim_parameters_, sim_results_)) {
+#else
       if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
+#endif
          delta = sim_results_->delta;
       } else {
          delta = 100000.;
@@ -232,7 +240,11 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       }
 
       sim_parameters_->a = a_value;
+#if __cplusplus < 201103L
+      if (stack_->Simulate(sim_parameters_, sim_results_)) {
+#else
       if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
+#endif
          delta = sim_results_->delta;
       } else {
          delta = 100000.;
