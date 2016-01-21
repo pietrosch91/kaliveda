@@ -18,6 +18,8 @@ void KVQL1::init()
 {
    SetDefaultValues();
    fChannel = kQL1;
+   SetType("QL1");
+   LoadPSAParameters();
 }
 
 KVQL1::KVQL1()
@@ -29,7 +31,6 @@ KVQL1::KVQL1()
 
 KVQL1::KVQL1(const char* name) : KVSignal(name, "Charge")
 {
-   SetType(name);
    init();
 }
 
@@ -91,11 +92,8 @@ void KVQL1::TreateSignal()
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 
-   ComputeBaseLine();
-   fBaseLine  = GetBaseLine();
-   fSigmaBase = GetSigmaBaseLine();
-   Add(-1.*fBaseLine);
-   ApplyModifications();
+   RemoveBaseLine();
+
    if (fWithPoleZeroCorrection)
       PoleZeroSuppression(fTauRC);
    FIR_ApplyTrapezoidal(fTrapRiseTime, fTrapFlatTop);

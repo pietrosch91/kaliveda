@@ -19,8 +19,8 @@ void KVQ3::init()
 {
    SetDefaultValues();
    fChannel = kQ3;
-   fFastTrapRiseTime = -1;
-   fFastTrapFlatTop = -1;
+   SetType("Q3");
+   LoadPSAParameters();
 
 }
 
@@ -33,7 +33,6 @@ KVQ3::KVQ3()
 
 KVQ3::KVQ3(const char* name) : KVSignal(name, "Charge")
 {
-   SetType(name);
    init();
 }
 
@@ -126,11 +125,7 @@ void KVQ3::TreateSignal()
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 
-   ComputeBaseLine();
-   fBaseLine  = GetBaseLine();
-   fSigmaBase = GetSigmaBaseLine();
-   Add(-1.*fBaseLine);
-   ApplyModifications();
+   RemoveBaseLine();
 
    FIR_ApplyTrapezoidal(fFastTrapRiseTime, fFastTrapFlatTop);
    ComputeAmplitude();

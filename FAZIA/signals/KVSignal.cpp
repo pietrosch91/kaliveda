@@ -270,6 +270,19 @@ void KVSignal::Print(Option_t*) const
       printf("\tBlock# %d - Quartet# %d - Telescope# %d\n", fBlock, fQuartet, fTelescope);
       printf("\tType: %s - Detecteur: %s\n", fType.Data(), fDet.Data());
    }
+   printf("################\nPSA parameters:\n");
+   printf("\tBaseLine: length: %lf first: %lf\n", GetBLLength(), GetBLFirst());
+   printf("\tChannelWidth: %lf\n", GetChannelWidth());
+   printf("\tTauRC: %lf\n", GetTauRC());
+   printf("\tShaperRiseTime: %lf\n", GetShaperRiseTime());
+   printf("\tShaperFlatTop: %lf\n", GetShaperFlatTop());
+   printf("\tWith Interpolation: %d", Int_t(fWithInterpolation));
+   if (fWithInterpolation)
+      printf(" %1.2lf", GetInterpolatedChannelWidth());
+   printf("\n");
+   printf("\tWith PoleZero correction: %d\n", Int_t(fWithPoleZeroCorrection));
+
+
 }
 
 //________________________________________________________________
@@ -319,6 +332,16 @@ Double_t KVSignal::ComputeBaseLine()
    fBaseLine  = FindMedia(fFirstBL, fLastBL);
    fSigmaBase = TMath::Sqrt(FindSigma2(fFirstBL, fLastBL));
    return fBaseLine;
+}
+
+//________________________________________________________________
+
+void KVSignal::RemoveBaseLine()
+{
+
+   Add(-1.*ComputeBaseLine());
+   ApplyModifications();
+
 }
 
 Double_t KVSignal::ComputeAmplitude()

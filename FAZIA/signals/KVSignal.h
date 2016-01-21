@@ -202,7 +202,10 @@ public:
    {
       return fLastBL - fFirstBL;
    }
+
    virtual Double_t ComputeBaseLine();
+   virtual void RemoveBaseLine();
+
    Double_t GetBaseLine() const
    {
       return fBaseLine;

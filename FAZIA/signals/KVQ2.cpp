@@ -18,6 +18,8 @@ void KVQ2::init()
 {
    SetDefaultValues();
    fChannel = kQ2;
+   SetType("Q2");
+   LoadPSAParameters();
 
 }
 
@@ -30,7 +32,6 @@ KVQ2::KVQ2()
 
 KVQ2::KVQ2(const char* name) : KVSignal(name, "Charge")
 {
-   SetType(name);
    init();
 }
 
@@ -93,11 +94,8 @@ void KVQ2::TreateSignal()
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 
-   ComputeBaseLine();
-   fBaseLine  = GetBaseLine();
-   fSigmaBase = GetSigmaBaseLine();
-   Add(-1.*fBaseLine);
-   ApplyModifications();
+   RemoveBaseLine();
+
    if (fWithPoleZeroCorrection)
       PoleZeroSuppression(fTauRC);
    FIR_ApplyTrapezoidal(fTrapRiseTime, fTrapFlatTop);

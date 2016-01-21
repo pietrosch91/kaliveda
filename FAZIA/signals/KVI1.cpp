@@ -19,6 +19,8 @@ void KVI1::init()
 {
    SetDefaultValues();
    fChannel = kI1;
+   SetType("I1");
+   LoadPSAParameters();
 
 }
 
@@ -31,7 +33,6 @@ KVI1::KVI1()
 
 KVI1::KVI1(const char* name) : KVSignal(name, "Current")
 {
-   SetType(name);
    init();
 }
 
@@ -108,10 +109,8 @@ void KVI1::TreateSignal()
       ChangeChannelWidth(GetChannelWidth());
 
    FIR_ApplyMovingAverage(4);
-   ComputeBaseLine();
-   fBaseLine  = GetBaseLine();
-   fSigmaBase = GetSigmaBaseLine();
-   Add(-1.*fBaseLine);
+
+   Add(-1.*ComputeBaseLine());
    if (fWithInterpolation)
       BuildCubicSignal();
    SetNSamples(GetNSamples() - 3); // because we use a 3th order interpolation...

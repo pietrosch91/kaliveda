@@ -248,7 +248,7 @@ ISOFAZIA.FAZIADB.Comments:				Comments.txt
 ###
 
 # standard values
-FAZIASYM.QL1.BaseLineLength:  	  100
+FAZIASYM.QL1.BaseLineLength:  	  50
 FAZIASYM.QL1.TauRC:  		  250
 FAZIASYM.QL1.ChannelWidth:        4
 FAZIASYM.QL1.ShaperRiseTime:  	  2

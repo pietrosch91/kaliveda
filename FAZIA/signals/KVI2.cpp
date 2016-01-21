@@ -19,6 +19,8 @@ void KVI2::init()
 {
    SetDefaultValues();
    fChannel = kI2;
+   SetType("I2");
+   LoadPSAParameters();
 }
 
 KVI2::KVI2()
@@ -30,7 +32,6 @@ KVI2::KVI2()
 
 KVI2::KVI2(const char* name) : KVSignal(name, "Current")
 {
-   SetType(name);
    init();
 }
 
@@ -106,11 +107,8 @@ void KVI2::TreateSignal()
    }
 
    FIR_ApplyMovingAverage(4);
-   ComputeBaseLine();
-   fBaseLine  = GetBaseLine();
-   fSigmaBase = GetSigmaBaseLine();
 
-   Add(-1.*fBaseLine);
+   Add(-1.*ComputeBaseLine());
    if (fWithInterpolation) {
       BuildCubicSignal();
    }
