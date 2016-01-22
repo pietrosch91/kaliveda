@@ -1,5 +1,6 @@
 #ifdef __CINT__
 #include "RVersion.h"
+#include "KVConfig.h"
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -8,5 +9,7 @@
 #pragma link C++ class BackTrack::Simple1DModel+;
 #pragma link C++ class BackTrack::Simple2DModel+;
 #pragma link C++ class BackTrack::Simple2DModel_Binned+;
+#ifdef WITH_GEMINI
 #pragma link C++ class BackTrack::SimpleGeminiModel_Binned+;
+#endif
 #endif
