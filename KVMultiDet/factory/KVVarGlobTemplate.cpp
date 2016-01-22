@@ -79,7 +79,7 @@ Double_t* KVVarGlobTemplate::GetValuePtr(void)
 }
 
 //_________________________________________________________________
-TObject* KVVarGlobTemplate::GetObject(void)
+TObject* KVVarGlobTemplate::GetObject(void) const
 {
    // You can use this method to return the address of an object associated with your global variable.
    // This may be a list of particles, an intermediate object used to compute values, etc.
