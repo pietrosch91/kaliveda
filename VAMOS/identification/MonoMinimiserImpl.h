@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Sun 17 Jan 20:43:44  2016
 
 ///
 /// @file MonoMinimiserImpl.h

@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
+//Created Wed 20 Jan 13:58:10  2016
 
 ///
 /// @file Corrections_e503.cpp
@@ -12,6 +14,20 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Wed 20 Jan 13:58:10  2016
 ///
+
+///////////////////////////////////////////////////////////////////////////////
+// Corrections_e503.cpp
+//
+// Description
+//
+// A set of non-member, non-friend functions which together act as a wrapper
+// for the standard KaliVeda identification functions and enable the
+// identified nucleus to be modified in accordance with the implemented
+// identification corrections.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed 20 Jan 13:58:10  2016
+///////////////////////////////////////////////////////////////////////////////
 
 #include "Corrections_e503.h"
 

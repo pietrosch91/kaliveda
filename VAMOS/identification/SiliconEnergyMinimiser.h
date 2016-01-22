@@ -1,3 +1,6 @@
+//Author: Peter C. Wigg
+//Created Sun 17 Jan 20:35:37  2016
+
 ///
 /// @file SiliconEnergyMinimiser.h
 ///

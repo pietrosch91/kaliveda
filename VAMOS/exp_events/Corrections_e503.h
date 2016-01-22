@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
+//Created Wed 20 Jan 13:58:10  2016
 
 ///
 /// @file Corrections_e503.h

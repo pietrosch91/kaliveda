@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 14:07:48  2016
 
 ///
 /// @file AbsorberEnergies.cpp
@@ -10,6 +12,18 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Wed 20 Jan 14:07:48  2016
 ///
+
+//////////////////////////////////////////////////////////////////////////
+// AbsorberEnergies.cpp
+//
+// Description
+//
+// Basic class acting as a container for the energy loss information of a
+// particle passing through the VAMOS absorber materials.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed 20 Jan 14:07:48  2016
+//////////////////////////////////////////////////////////////////////////
 
 #include "AbsorberEnergies.h"
 

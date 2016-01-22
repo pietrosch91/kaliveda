@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
+//Created Wed 20 Jan 14:03:01  2016
 
 ///
 /// @file CorrectionData.h

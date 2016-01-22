@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed Jun 11 15:09:35 CEST 2014
 
 ///
 /// @file KVIVUpDater_e503.cpp
@@ -11,6 +13,19 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Wed Jun 11 15:09:35 CEST 2014
 ///
+
+//////////////////////////////////////////////////////////////////////////////////
+// KVIVUpDater_e503.cpp
+//
+// Description
+//
+// KVIVUpDater class for the E503 experiment. This class inherits from that of
+// our sister experiment (E494s) and adds the functionality required to
+// implement the VAMOS identification corrections.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed Jun 11 15:09:35 CEST 2014
+//////////////////////////////////////////////////////////////////////////////////
 
 #include "KVIVUpDater_e503.h"
 

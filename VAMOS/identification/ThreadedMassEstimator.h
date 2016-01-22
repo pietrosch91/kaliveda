@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 15:19:33  2016
 
 ///
 /// @file ThreadedMassEstimator.h

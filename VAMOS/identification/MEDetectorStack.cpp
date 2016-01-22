@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 14:12:39  2016
 
 ///
 /// @file MEDetectorStack.cpp
@@ -13,6 +15,21 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Wed 20 Jan 14:12:39  2016
 ///
+
+///////////////////////////////////////////////////////////////////////////////////
+// MEDetectorStack.cpp
+//
+// Description
+//
+//   A simple Silicon-Isobutane-CsI detector stack, used in the A value
+//   estimation algorithms - see SiliconEnergyMinimiser. Allows one to calculate
+//   the "delta" between the measured and simulated silicon detector energies in
+//   order to determine the most likely candidate for the A value (ideally
+//   "delta" would be zero so we look for the minimum value of "delta").
+//
+// Peter C. Wigg
+// Wed 20 Jan 14:12:39  2016
+/////////////////////////////////////////////////////////////////////////////////
 
 #include "MEDetectorStack.h"
 

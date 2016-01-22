@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 14:12:39  2016
 
 ///
 /// @file MEDetectorStack.h

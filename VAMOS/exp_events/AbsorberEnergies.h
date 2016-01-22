@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 14:07:48  2016
 
 ///
 /// @file AbsorberEnergies.h

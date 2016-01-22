@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Sun 17 Jan 20:40:12  2016
 
 ///
 /// @file ThreadedMinimiserImpl.h

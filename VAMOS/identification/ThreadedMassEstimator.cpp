@@ -1,3 +1,5 @@
+//Author: Peter C. Wigg
+//Created Wed 20 Jan 15:19:33  2016
 
 ///
 /// @file ThreadedMassEstimator.cpp
@@ -16,6 +18,24 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Wed 20 Jan 15:19:33  2016
 ///
+
+//////////////////////////////////////////////////////////////////////////////
+// ThreadedMassEstimator.cpp
+//
+// Description
+//
+// This class estimates the A value of a fragment detected in the
+// Si:Isobutane:CsI detector stack, given the experimentally measured data
+// (Z, Silicon Energy, CsI Light).
+//
+// It achieves this by minimising the absolute magnitude of the difference
+// between the experimentally measured silicon energy and the silicon energy
+// simulated in a set of test nuclei (with fixed Z) to determine which nucleus
+// (A value) provides the closest match.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed 20 Jan 15:19:33  2016
+//////////////////////////////////////////////////////////////////////////////
 
 #include "ThreadedMassEstimator.h"
 

@@ -1,3 +1,6 @@
+//Author: Peter C. Wigg
+//Created Sun 17 Jan 20:35:37  2016
+
 ///
 /// @file SiliconEnergyMinimiser.cpp
 ///
@@ -10,6 +13,19 @@
 /// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
 /// @date Sun 17 Jan 20:35:37  2016
 ///
+
+//////////////////////////////////////////////////////////////////////////
+// SiliconEnergyMinimiser.cpp
+//
+// Description
+//
+// Wrapper class for the silicon energy minimisation routines. This class
+// allows the underlying implementation to be changed easily and without
+// affecting any existing code.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Sun 17 Jan 20:35:37  2016
+//////////////////////////////////////////////////////////////////////////
 
 #include "SiliconEnergyMinimiser.h"
 
