@@ -132,8 +132,13 @@ ISOFAZIA.IdentificationParameterFile.CsI:       IDGrid_CSIRL.dat
 ISOFAZIA.IdentificationParameterFile.Si-Si:       Si1Si2_ISOFAZIA.dat
 ISOFAZIA.ActiveIdentifications:        CsI Si-Si
 
-# ISOFAZIA calibration files
-ISOFAZIA.FAZIADB.CalibrationFiles:     CalibrationFiles.dat
+# file which gather all calibration files
+FAZIADB.CalibrationFiles:     CalibrationFiles.dat
+
+# definition of the calibration function for detectors
+FAZIADetector.Calib.Channel-Volt: pol2
+FAZIADetector.Calib.Volt-Energy: pol2
+FAZIADetector.Calib.Channel-Energy: pol2
 
 #
 # parameters for the filter for signal processing

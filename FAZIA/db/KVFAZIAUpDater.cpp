@@ -9,6 +9,7 @@
 #include "KVSignal.h"
 #include "KVFAZIADetector.h"
 #include "KVCalibrator.h"
+#include "KVFAZIACalibrator.h"
 
 ClassImp(KVFAZIAUpDater)
 
@@ -80,6 +81,7 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
 void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
 {
 
+   printf("KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)\n");
    //Loop on calibrations stores in the database
    //and update parameters for each concerned calibrators
    KVFAZIADetector* det = 0;
@@ -90,8 +92,8 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
    while ((par = (KVDBParameterSet*)next())) {
       TString sdet(par->GetName());
       det = (KVFAZIADetector*)gFazia->GetDetector(sdet.Data());
-      if (det && (cal = det->GetCalibrator("Charge-Energy"))) {
-         cal->SetParameter(0, par->GetParameter(0));
+      if (det && (cal = det->GetCalibrator(par->GetTitle()))) {
+         ((KVFAZIACalibrator*)cal)->ChangeParameters(par->GetParameters());
          cal->SetStatus(1);
       }
    }

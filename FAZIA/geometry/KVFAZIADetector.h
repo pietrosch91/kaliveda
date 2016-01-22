@@ -17,7 +17,8 @@ protected:
    Int_t fTelescope;
    Int_t fIdentifier;   //to difference SI1 SI2 CSI detectors
 
-   Double_t fCharge;
+   Double_t fChannel;
+   Double_t fVolt;
 
 
    //values defined for SI1 detectors
@@ -58,7 +59,9 @@ protected:
    Double_t fSigmaBaseLineQ3;
    Double_t fRiseTimeQ3;
 
-   KVFAZIACalibrator* fChargeToEnergy;//!To obtain energy
+   KVFAZIACalibrator* fChannelToEnergy;//!To obtain energy from charge
+   KVFAZIACalibrator* fChannelToVolt;//!To obtain volt from channel
+   KVFAZIACalibrator* fVoltToEnergy;//!To obtain energy from volt
 
    void init();   //initialisatino method called by the constructors
    Bool_t SetProperties();
@@ -82,6 +85,7 @@ public:
    virtual Bool_t Fired(Option_t* opt = "any");
    Double_t GetCalibratedEnergy();
    Double_t GetEnergy();
+   Double_t GetCalibratedVolt();
 
    void SetSignal(KVSignal* signal, const Char_t* type);
    Bool_t HasSignal() const;
@@ -153,7 +157,7 @@ public:
    {
       fAmplitudeQH1 = value;
       if (fIdentifier == kSI1)
-         fCharge = value;
+         fChannel = value;
    }
    Double_t GetQH1Amplitude() const
    {
@@ -229,7 +233,7 @@ public:
    {
       fAmplitudeQ2 = value;
       if (fIdentifier == kSI2)
-         fCharge = value;
+         fChannel = value;
    }
    Double_t GetQ2Amplitude() const
    {
@@ -305,7 +309,7 @@ public:
    {
       fAmplitudeQ3 = value;
       if (fIdentifier == kCSI)
-         fCharge = value;
+         fChannel = value;
    }
    Double_t GetQ3Amplitude() const
    {

@@ -14,33 +14,67 @@ ClassImp(KVFAZIACalibrator)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+UInt_t KVFAZIACalibrator::fNCalibFunc = 0;
+
+//___________________________________________________________________________
 KVFAZIACalibrator::KVFAZIACalibrator()
 {
    // Default constructor
+   fFunc = 0;
 }
 
-KVFAZIACalibrator::KVFAZIACalibrator(const Char_t* name, const Char_t* type, UShort_t pnum) : KVCalibrator(name, type, pnum)
+//___________________________________________________________________________
+KVFAZIACalibrator::KVFAZIACalibrator(const Char_t* name, const Char_t* type) : KVCalibrator(name, type, 1)
 {
    // Default constructor
+   fFunc = 0;
 }
 
 //___________________________________________________________________________
 KVFAZIACalibrator::~KVFAZIACalibrator()
 {
    // Destructor
+   if (fFunc)
+      delete fFunc;
 }
 
+//___________________________________________________________________________
+void KVFAZIACalibrator::SetFunction(TF1* f1)
+{
+   if (fFunc)
+      delete fFunc;
+   fFunc = (TF1*)f1->Clone(Form("calibfunc_%d", fNCalibFunc++));
+}
+
+//___________________________________________________________________________
+void KVFAZIACalibrator::SetFunction(TString formula)
+{
+   if (fFunc)
+      delete fFunc;
+   fFunc = new TF1(Form("calibfunc_%d", fNCalibFunc++), formula.Data(), 0, 1);
+}
+
+//___________________________________________________________________________
+void KVFAZIACalibrator::ChangeParameters(Double_t* val)
+{
+   if (!fFunc)
+      return;
+   for (Int_t nn = 0; nn < fFunc->GetNpar(); nn += 1) {
+      fFunc->SetParameter(nn, val[nn]);
+   }
+   SetStatus(kTRUE);
+
+}
 //___________________________________________________________________________
 Double_t KVFAZIACalibrator::Compute(Double_t chan) const
 {
    //Calculate the calibrated energy.
-   //Returns -99 if calibrator is not ready (parameters not set)
+   //Returns 0 if calibrator is not ready (parameters not set)
 
-   if (fReady) {
-      if (GetParameter(0) != 0)
-         return (chan / GetParameter(0));
+   if (GetStatus()) {
+      return fFunc->Eval(chan);
    }
-   return -99.;
+   return 0;
 }
 
 
@@ -66,10 +100,28 @@ Double_t KVFAZIACalibrator::Invert(Double_t energy)
    //calculate the corresponding channel number according to the
    //calibration parameters (useful for filtering simulations).
 
-   Int_t channel = 0;
-
-   if (fReady) {
-      channel = (Int_t)energy * GetParameter(0);
+   if (GetStatus()) {
+      return fFunc->GetX(energy);
    }
-   return (Double_t) channel;
+   return 0;
+}
+
+//___________________________________________________________________________
+void KVFAZIACalibrator::Print(Option_t*) const
+{
+   //Print a description of the calibration object, including a list of its parameters
+   cout << "_________________________________________________" << endl
+        << "KVCalibrator :" << endl
+        << "  Name : " << GetName() << endl
+        << "  Type : " << GetType() << endl
+        << "  Formula : " << GetFunction()->GetExpFormula() << endl
+        << "  Number of Parameters : " << GetFunction()->GetNpar() << endl
+        << "  Parameters :" << endl;
+   for (UShort_t i = 0; i < GetFunction()->GetNpar(); i++) {
+      cout << "    " << GetFunction()->GetParName(i) << ": " << GetFunction()->GetParameter(i) << endl;
+   }
+   if (GetStatus())
+      cout << "  Status : ready" << endl;
+   else
+      cout << "  Status : not ready" << endl;
 }

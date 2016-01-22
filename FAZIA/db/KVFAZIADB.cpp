@@ -710,15 +710,37 @@ void KVFAZIADB::ReadCalibFile(const Char_t* filename)
    KVNumberList default_run_list;
    default_run_list.SetMinMax(GetFirstRun(), GetLastRun());
 
+   TString ssignal = "";
+   TString stype = "";
+
    while ((rec = (TEnvRec*)next())) {
-      TString sdet(rec->GetName());
-      TString sval(rec->GetValue());
-      par = new KVDBParameterSet(sdet.Data(), "Calibration", 1);
-      par->SetParameter(sval.Atof());
-      fCalibrations->AddRecord(par);
-      LinkRecordToRunRange(par, default_run_list);
+      TString sname(rec->GetName());
+      if (sname == "Signal") {
+         ssignal = rec->GetValue();
+      } else if (sname == "CalibType") {
+         stype = rec->GetValue();
+      } else {
+         KVString lval(rec->GetValue());
+         Int_t np = 0;
+         lval.Begin(",");
+         while (!lval.End()) {
+            KVString sval = lval.Next();
+            np += 1;
+         }
+         par = new KVDBParameterSet(sname.Data(), stype.Data(), np);
+
+         np = 0;
+         lval.Begin(",");
+         while (!lval.End()) {
+            par->SetParameter(np++, lval.Next().Atof());
+         }
+         fCalibrations->AddRecord(par);
+         LinkRecordToRunRange(par, default_run_list);
+      }
    }
 
+   if (ssignal == "") Error("ReadCalibFile", "No signal defined");
+   if (stype == "") Error("ReadCalibFile", "No calibration type defined");
 }
 //__________________________________________________________________________________________________________________
 

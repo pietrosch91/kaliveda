@@ -25,9 +25,12 @@ void KVFAZIADetector::init()
 {
    //default initialisations
    fSignals = 0;
-   fChargeToEnergy = 0;
+   fChannelToEnergy = 0;
+   fChannelToVolt = 0;
+   fVoltToEnergy = 0;
    fLabel = -1;
-   fCharge = 0;
+   fChannel = 0;
+   fVolt = 0;
 }
 
 //________________________________________________________________
@@ -98,10 +101,37 @@ void KVFAZIADetector::SortIDTelescopes()
 void KVFAZIADetector::SetCalibrators()
 {
    //Set up calibrators for this detector. Call once name has been set.
+   TString sf = "";
 
-   fChargeToEnergy = new KVFAZIACalibrator(GetName(), "Charge-Energy", 1);
-   fChargeToEnergy->SetDetector(this);
-   AddCalibrator(fChargeToEnergy);
+   fChannelToEnergy = new KVFAZIACalibrator(GetName(), "Channel-Energy");
+   fChannelToEnergy->SetDetector(this);
+   sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Energy", "");
+   if (sf == "") {
+      Warning("SetCalibrators", "No formula defined for Calibration Channel-Energy");
+   } else {
+      fChannelToEnergy->SetFunction(sf.Data());
+   }
+   fChannelToVolt = new KVFAZIACalibrator(GetName(), "Channel-Volt");
+   fChannelToVolt->SetDetector(this);
+   sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Volt", "");
+   if (sf == "") {
+      Warning("SetCalibrators", "No formula defined for Calibration Channel-Volt");
+   } else {
+      fChannelToVolt->SetFunction(sf.Data());
+   }
+
+   fVoltToEnergy = new KVFAZIACalibrator(GetName(), "Volt-Energy");
+   fVoltToEnergy->SetDetector(this);
+   sf = gEnv->GetValue("FAZIADetector.Calib.Volt-Energy", "");
+   if (sf == "") {
+      Warning("SetCalibrators", "No formula defined for Calibration Volt-Energy");
+   } else {
+      fVoltToEnergy->SetFunction(sf.Data());
+   }
+
+   AddCalibrator(fChannelToEnergy);
+   AddCalibrator(fChannelToVolt);
+   AddCalibrator(fVoltToEnergy);
 }
 
 //________________________________________________________________
@@ -109,8 +139,8 @@ Double_t KVFAZIADetector::GetCalibratedEnergy()
 {
    //Set up calibrators for this detector. Call once name has been set.
 
-   if (fChargeToEnergy->GetStatus()) {
-      return fChargeToEnergy->Compute(fCharge);
+   if (fChannelToEnergy->GetStatus()) {
+      return fChannelToEnergy->Compute(fChannel);
    }
    return 0;
 }
@@ -129,6 +159,18 @@ Double_t KVFAZIADetector::GetEnergy()
    }
    return eloss;
 }
+//________________________________________________________________
+Double_t KVFAZIADetector::GetCalibratedVolt()
+{
+   //Set up calibrators for this detector. Call once name has been set.
+
+   if (fChannelToVolt->GetStatus()) {
+      return fChannelToVolt->Compute(fChannel);
+   }
+   return 0;
+
+}
+
 //________________________________________________________________
 void KVFAZIADetector::Copy(TObject& obj) const
 {
@@ -241,10 +283,6 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
    //
    //Info("Fired","Appel - %s",GetName());
 
-   /*
-   if (fCharge >= sig->GetAmplitudeTriggerValue())
-      return kTRUE;
-   */
    Int_t nempty = 0;
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer
