@@ -391,7 +391,7 @@ double KVSignal::FindMedia(int tsta, int tsto)
    if (n1 < 0 || n1 >= fAdc.GetSize() ||
          n2 < n1 || n2 >= fAdc.GetSize() ||
          N <= 0 || N >= fAdc.GetSize()) {
-      printf("--- FSignal::FindMedia:  tsta=%d, tsto=%d ??\n", tsta, tsto);
+      printf("--- FSignal::FindMedia:  tsta=%d, tsto=%d ?? (%d)\n", tsta, tsto, fAdc.GetSize());
       return -1E10;//non cambiare, serve a FindSigma2!!
    }
    double media = 0;
