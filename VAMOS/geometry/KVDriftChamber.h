@@ -64,7 +64,7 @@ public:
 
    virtual void ShowCleanQHisto(Int_t c_num = 1, Option_t* opt = "");
    virtual void ShowQrawHisto(Int_t c_num = 1, Option_t* opt = "");
-   virtual void ShowQHisto(Int_t c_num = 1 , Option_t* opt = "");
+   virtual void ShowQHisto(Int_t c_num = 1, Option_t* opt = "");
 
    virtual UChar_t GetPosition(Double_t* XYZf, Char_t dir = 0, Int_t num = 0);
    virtual void    GetDeltaXYZf(Double_t* XYZf, Char_t dir = 0, Int_t num = 0);

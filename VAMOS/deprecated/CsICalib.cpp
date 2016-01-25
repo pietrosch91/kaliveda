@@ -163,7 +163,7 @@ Bool_t CsICalib::InitRun(const UInt_t run)
    return kTRUE;
 }
 
-Bool_t CsICalib::InitTelescope(Int_t num_si , Int_t num_csi)
+Bool_t CsICalib::InitTelescope(Int_t num_si, Int_t num_csi)
 {
    // Si input (0..17)
    assert((num_si >= 0) && (num_si < 18));

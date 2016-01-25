@@ -62,6 +62,13 @@ namespace me {
 /// different directions in each thread)
    struct ThreadData {
 
+      /// You must initialise this pointer before thread execution!
+#if __cplusplus < 201103L
+      MEDetectorStack* detector_stack;
+#else
+      std::unique_ptr<MEDetectorStack> detector_stack;
+#endif
+
       /// @brief A list of possible A values for the given Z value
       std::vector<Int_t> possible_a_values;
 
@@ -197,20 +204,9 @@ public:
 
 private:
 
-   /// @brief Si-Isobutane-CsI detector stack used to simulate particle
-   /// passage.
-   ///
-   /// @see MEDetectorStack
-#if __cplusplus < 201103L
-   static MEDetectorStack* medetector_stack_;
-#else
-   static std::unique_ptr<MEDetectorStack> medetector_stack_;
-#endif
 
    /// @brief Mutex used for locking the console (stdout)
    static pthread_mutex_t io_mutex_;
-   /// @brief Mutex used for locking the detector stack.
-   static pthread_mutex_t medetector_mutex_;
 
    /// @brief Thread execution function (Called when each thread is run)
    ///
@@ -237,6 +233,14 @@ private:
    Bool_t kInitialised_;  ///< Initialisation status
    Float_t load_balance_; ///< Load balance factor
    Int_t max_iterations_; ///< Maximum number of iterations allowed per thread
+
+#if __cplusplus < 201103L
+   struct me::ThreadData* thread_data_;
+   MEDetectorStack* detector_stack_; ///< Stack used for initial calculation only!
+#else
+   std::unique_ptr<struct me::ThreadData[]> thread_data_;
+   std::unique_ptr<MEDetectorStack> detector_stack_;
+#endif
 
    /// @brief Copy constructor (Declared private to prevent copying as it is
    /// not worth implementing yet).

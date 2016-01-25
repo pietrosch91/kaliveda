@@ -303,7 +303,7 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv* infos, TGeoVolume* ref_vol)
    if (Xincline) {
       TGeoVolume*  vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d", GetName(), fNumVol++));
       tmp.Form("%s_rot_x", GetName());
-      TGeoRotation* rot = new TGeoRotation(tmp.Data(), 0. , Xincline, 0.);
+      TGeoRotation* rot = new TGeoRotation(tmp.Data(), 0., Xincline, 0.);
       vol_as->AddNode(GetAbsGeoVolume(), 1, rot);
       SetAbsGeoVolume(vol_as);
       //update thickness of absorbers;
@@ -655,7 +655,7 @@ UChar_t KVSpectroDetector::GetPosition(Double_t* XYZf, Char_t /* dir */, Int_t i
    xyz[0] = ox + (TestBit(kRdmPos) ? dx * (2 * gRandom->Rndm() - 1) : 0.);
    xyz[1] = oy + (TestBit(kRdmPos) ? dy * (2 * gRandom->Rndm() - 1) : 0.);
    xyz[2] = oz + (TestBit(kRdmPos) ? dz * (2 * gRandom->Rndm() - 1) : 0.);
-   if (ActiveVolumeToFocal(xyz , XYZf, idx)) return 7;
+   if (ActiveVolumeToFocal(xyz, XYZf, idx)) return 7;
    return 0;
 }
 //________________________________________________________________

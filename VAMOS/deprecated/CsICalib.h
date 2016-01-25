@@ -188,7 +188,7 @@ public:
 
    void CalculateESi(Double_t); //UShort_t
    void Bisection(Int_t, Double_t); //UShort_t
-   Double_t BisectionLight(Double_t , Double_t , Double_t);
+   Double_t BisectionLight(Double_t, Double_t, Double_t);
    void CompleteSimulation(); //UShort_t
 
    void Interpolate();

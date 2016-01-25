@@ -38,7 +38,7 @@ const Char_t* KVIDQA::GetArrayName()
    KVDetector* det  = (KVDetector*)GetDetectors()->Last();
    if (det) {
       SetName(Form("VID_QA_%s", det->GetName()));
-      SetType(Form("%s"    , det->GetType()));
+      SetType(Form("%s", det->GetType()));
    } else SetName("VID_QA_EMPTY");
 
    return fName.Data();

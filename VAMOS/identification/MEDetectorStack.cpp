@@ -188,6 +188,12 @@ Bool_t MEDetectorStack::Simulate(
       )
    );
 
+   if (isobutane_energy <= 0.) {
+      // Problem finding the energy solution for this point, can not do
+      // anything with it.
+      return kFALSE;
+   }
+
    assert((isobutane_energy > 0.) && (isobutane_energy < 3000.));
 
    // We now have all the data we need to calculate the incident energy of the

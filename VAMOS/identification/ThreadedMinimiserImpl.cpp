@@ -186,6 +186,12 @@ void ThreadedMinimiserImpl::SetMaximumIterations(UInt_t max_iterations)
    mass_estimator_->set_max_iterations(max_iterations);
 }
 
+void ThreadedMinimiserImpl::SetTolerance(Double_t tolerance)
+{
+   UNUSED(tolerance);
+   // Currently not implemented
+}
+
 void ThreadedMinimiserImpl::Print() const
 {
    Info("ThreadedMinimiserImpl::Print", "Threaded minimiser");

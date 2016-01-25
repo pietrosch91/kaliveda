@@ -589,7 +589,7 @@ Double_t KVDriftChamber::GetRawPositionError(Char_t dir, Int_t num)
 }
 //________________________________________________________________
 
-UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir , Int_t num)
+UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
 {
    // Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
    // in the focal plane reference frame from the raw positions in channel

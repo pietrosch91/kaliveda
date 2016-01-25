@@ -19,10 +19,10 @@ ClassImp(KVIVDB)
 
 
 const Char_t KVIVDB::fVAMOSscalerNames[40][8] = {
-   "SI01" , "SI02" , "SI03" , "SI04" , "SI05", "SI06"   , "SI07", "SI08", "SI09" , "SI10"   ,
-   "SI11" , "SI12" , "SI13" , "SI14" , "SI15",  "SI16"   , "SI17", "SI18", "SIE05", "SIE06"  ,
-   "SIE08", "U2M22", "U2M23", "U2M24", "SED1", "SED2"   , "SED3", "FTA" , "INDRA", "CLOCKDT",
-   "CLOCK", "U2M32", "FIL1" , "FIL2" , "CSI" , "CURRENT", "MCP" , "ORSI", "U2M39", "U2M40"
+   "SI01", "SI02", "SI03", "SI04", "SI05", "SI06", "SI07", "SI08", "SI09", "SI10",
+   "SI11", "SI12", "SI13", "SI14", "SI15",  "SI16", "SI17", "SI18", "SIE05", "SIE06",
+   "SIE08", "U2M22", "U2M23", "U2M24", "SED1", "SED2", "SED3", "FTA", "INDRA", "CLOCKDT",
+   "CLOCK", "U2M32", "FIL1", "FIL2", "CSI", "CURRENT", "MCP", "ORSI", "U2M39", "U2M40"
 };
 
 

@@ -72,6 +72,10 @@ public:
    /// @brief Set maximum number of iterations per thread
    void SetMaximumIterations(UInt_t max_iterations);
 
+   /// @brief Set the algorithm tolerance
+   /// @param tolerance algorithm tolerance (if applicable)
+   void SetTolerance(Double_t tolerance = 0.05);
+
    /// @brief Print minimiser implementation information
    void Print() const;
 
