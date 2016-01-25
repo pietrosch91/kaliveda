@@ -25,7 +25,7 @@
 /// single error.
 ///
 /// On my desktop this algorithm processes at about 85 events/s compared with
-/// 120 events/s for the threaded version (ThreadedMassEstimator).
+/// 220 events/s for the threaded version (ThreadedMassEstimator).
 ///
 /// @note: It is important that you keep the public interface (public member
 /// functions) of the implementation classes in agreement with those in this

@@ -96,3 +96,8 @@ void SiliconEnergyMinimiser::SetTolerance(Double_t tolerance)
    impl_->SetTolerance(tolerance);
 }
 
+void SiliconEnergyMinimiser::Print() const
+{
+   impl_->Print();
+}
+

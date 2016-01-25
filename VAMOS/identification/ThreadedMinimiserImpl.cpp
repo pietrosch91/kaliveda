@@ -194,6 +194,6 @@ void ThreadedMinimiserImpl::SetTolerance(Double_t tolerance)
 
 void ThreadedMinimiserImpl::Print() const
 {
-   Info("ThreadedMinimiserImpl::Print", "Threaded minimiser");
+   Info("ThreadedMinimiserImpl::Print", "Multi-threaded minimiser");
 }
 

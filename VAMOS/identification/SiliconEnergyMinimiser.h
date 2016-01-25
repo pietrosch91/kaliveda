@@ -84,6 +84,9 @@ public:
    /// @param tolerance algorithm tolerance (if applicable)
    void SetTolerance(Double_t tolerance = 0.05);
 
+   /// @brief Print minimiser information
+   void Print() const;
+
 private:
 
    /// @brief Copy constructor (Declared private to prevent copying as it is
