@@ -82,6 +82,9 @@ const Char_t* KVFAZIARawEvent::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TS
    if (blk == 0 && qua == 0 && tel == 0)
       sene.Form("ENER%d-RUTH-%s", idx, signaltype.Data());
 
-   return fValues->GetStringValue(sene.Data());
+   if (fValues->HasParameter(sene.Data()))
+      return fValues->GetStringValue(sene.Data());
+   else
+      return "0.0";
 
 }

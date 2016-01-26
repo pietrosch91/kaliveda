@@ -12,6 +12,7 @@
 #include "KVFAZIA.h"
 #include "KVSignal.h"
 #include "KVPSAResult.h"
+#include "TSystem.h"
 
 ClassImp(KVFAZIARawDataReconstructor)
 
@@ -130,15 +131,17 @@ void KVFAZIARawDataReconstructor::ExtraProcessing()
                   //SI2-T3-Q1-B003.Q2.RawAmplitude=14
                   if (ii == 0) label = "FPGAEnergy";
                   if (ii == 1) label = "FPGAFastEnergy"; //only for CsI Q3
+                  TString ene = GetEvent()->GetFPGAEnergy(
+                                   det->GetBlockNumber(),
+                                   det->GetQuartetNumber(),
+                                   det->GetTelescopeNumber(),
+                                   sig->GetType(),
+                                   ii
+                                );
+
                   recnuc->GetParameters()->SetValue(
                      Form("%s.%s.%s", det->GetName(), sig->GetName(), label.Data()),
-                     GetEvent()->GetFPGAEnergy(
-                        det->GetBlockNumber(),
-                        det->GetQuartetNumber(),
-                        det->GetTelescopeNumber(),
-                        sig->GetType(),
-                        ii
-                     )
+                     ene.Data()
                   );
                }
             }
@@ -174,5 +177,12 @@ void KVFAZIARawDataReconstructor::EndRun()
          gDataSet->GetName());
    //add new file to repository
    OutputDataset->CommitRunfile(datatype.Data(), GetCurrentRunNumber(), file);
+
+   ProcInfo_t pid;
+   if (gSystem->GetProcInfo(&pid) == 0) {
+      cout << "     ------------- Process infos -------------" << endl;
+      printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+             pid.fCpuSys, pid.fCpuUser, pid.fMemResident / 1024., pid.fMemVirtual / 1024.);
+   }
 
 }
