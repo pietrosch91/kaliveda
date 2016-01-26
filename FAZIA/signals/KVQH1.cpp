@@ -19,6 +19,7 @@ void KVQH1::init()
    SetDefaultValues();
    fChannel = kQH1;
    SetType("QH1");
+   fFPGAOutputNumbers = 1;
    LoadPSAParameters();
 }
 

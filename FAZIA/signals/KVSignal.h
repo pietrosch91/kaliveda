@@ -26,6 +26,7 @@ public:
 
 
 protected:
+   Int_t fIndex;        //!index deduced from block, quartet and telescope numbering
    Int_t fBlock;
    Int_t fQuartet;
    TString fQuartetName;
@@ -35,6 +36,7 @@ protected:
    TString fDetName;
    TString fType;
    TString fDet;
+   Int_t fFPGAOutputNumbers;  //!ASsociated FPGA energy outputs
 
    TArrayF fAdc;                    //! needed to use the psa methods copied from FClasses of Firenze
    //results of signal treatement
@@ -45,6 +47,8 @@ protected:
    Double_t fYmin, fYmax;           // raw min/max of the signal
    Double_t fBaseLine;              // base line mean value
    Double_t fSigmaBase;             // base line rms
+   Double_t fEndLine;              // !mean value of the signal line at the end
+   Double_t fSigmaEnd;             // !rms value of the signal line at the end
 
    //parameters for signal treatment
    //which can be changed in the LoadPSAParameters() method
@@ -99,6 +103,10 @@ public:
    }
    //
    void DeduceFromName();
+   Int_t GetIndex()           const
+   {
+      return fIndex;
+   }
    Int_t GetBlockNumber()           const
    {
       return fBlock;
@@ -139,6 +147,16 @@ public:
       return &fAdc;
    }
 
+   Int_t GetNFPGAValues() const
+   {
+      return fFPGAOutputNumbers;
+   }
+
+   Bool_t HasFPGA() const
+   {
+      return (GetNFPGAValues() > 0);
+   }
+
    //
    //routines to read/change PSA parameters from configuration file or database
    //
@@ -146,6 +164,7 @@ public:
    virtual void LoadPSAParameters();
    virtual void SetDefaultValues();
    virtual void UpdatePSAParameter(KVDBParameterList* par);
+   KVSignal* ConvertTo(const Char_t* type);
 
    //
    //routines to launch and control PSA
@@ -204,7 +223,10 @@ public:
    }
 
    virtual Double_t ComputeBaseLine();
+   virtual Double_t ComputeEndLine();
    virtual void RemoveBaseLine();
+
+   Bool_t IsFired();
 
    Double_t GetBaseLine() const
    {
@@ -213,6 +235,15 @@ public:
    Double_t GetSigmaBaseLine()const
    {
       return fSigmaBase;
+   }
+
+   Double_t GetEndLine() const
+   {
+      return fEndLine;
+   }
+   Double_t GetSigmaEndLine()const
+   {
+      return fSigmaEnd;
    }
 
    //

@@ -79,6 +79,7 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
+   GetDetectorEvent()->Clear();
    fReadEntries += 1;
 
    GetEntry(entry);
@@ -88,7 +89,6 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
 
    if (fReadEntries % 10000 == 0)
       Info("Process", "%d read entries", fReadEntries);
-
    return Analysis();
 }
 

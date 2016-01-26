@@ -11,6 +11,7 @@
 
 #include "TMatrixD.h"
 #include "TMatrixF.h"
+#include "TClass.h"
 
 #define LOG2 (double)6.93147180559945286e-01
 # define M_PI     3.14159265358979323846  /* pi */
@@ -58,8 +59,10 @@ void KVSignal::init()
 
 void KVSignal::ResetIndexes()
 {
+   fIndex = -1;
    fBlock = fQuartet = fTelescope = -1;
    fType = fDet = fTelName = fQuartetName = "";
+   fFPGAOutputNumbers = 0;
 }
 
 KVSignal::KVSignal()
@@ -91,6 +94,20 @@ KVSignal::~KVSignal()
    // Destructor
 }
 
+KVSignal* KVSignal::ConvertTo(const Char_t* type)
+{
+   KVSignal* sig = 0;
+   TClass* cl = new TClass(Form("KV%s", type));
+   if (cl) {
+      sig = (KVSignal*)cl->New();
+      sig->SetData(this->GetN(), this->GetX(), this->GetY());
+      sig->LoadPSAParameters();
+      delete cl;
+   }
+   return sig;
+}
+
+
 //________________________________________________________________
 
 void KVSignal::Copy(TObject&) const
@@ -118,8 +135,10 @@ void KVSignal::Set(Int_t n)
 void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
 {
    Set(nn);
-   if (nn == 0) return;
-
+   if (nn == 0) {
+      Info("SetData", "called with points number=%d", nn);
+      return;
+   }
    Int_t np = 0;
    fYmin = fYmax = yy[np];
    SetPoint(np, xx[np], yy[np]);
@@ -170,6 +189,9 @@ void KVSignal::DeduceFromName()
       fDetName.Form("%s-T%d-Q%d-B%03d", fDet.Data(), fTelescope, fQuartet, fBlock);
       fTelName.Form("B%03d-Q%d-T%d", fBlock, fQuartet, fTelescope);
       fQuartetName.Form("B%03d-Q%d", fBlock, fQuartet);
+
+      fIndex = 100 * fBlock + 10 * fQuartet + fTelescope;
+
    } else if (tmp.BeginsWith("RUTH")) {
       //Info("DeduceFromName","Rutherford signal : %s",GetName());
       tmp.Begin("-");
@@ -329,11 +351,33 @@ void KVSignal::ChangeChannelWidth(Double_t newwidth)
 
 Double_t KVSignal::ComputeBaseLine()
 {
+   //compute mean value of the signal and the rms between
+   // limits defined by fFirstBL and fLastBL
+
    fBaseLine  = FindMedia(fFirstBL, fLastBL);
    fSigmaBase = TMath::Sqrt(FindSigma2(fFirstBL, fLastBL));
    return fBaseLine;
 }
 
+Double_t KVSignal::ComputeEndLine()
+{
+   //same as ComputeBaseLine method but made on the end of the signal
+   //in the same length as for the base line
+
+   fEndLine  = FindMedia(GetN() - (fLastBL - fFirstBL), GetN() - 1);
+   fSigmaEnd = TMath::Sqrt(FindSigma2(GetN() - (fLastBL - fFirstBL), GetN() - 1));
+   return fEndLine;
+}
+
+//________________________________________________________________
+Bool_t KVSignal::IsFired()
+{
+   //ComputeBaseLine and ComputeEndLine methods have to be called before
+
+   if (Int_t(fEndLine - fBaseLine) - 1 > TMath::Nint(TMath::Max(fSigmaBase, fSigmaEnd)))
+      return kTRUE;
+   return kFALSE;
+}
 //________________________________________________________________
 
 void KVSignal::RemoveBaseLine()

@@ -147,8 +147,7 @@ Double_t KVNamedParameter::GetDouble() const
    // returns double if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
-      Warning("GetDouble", "Parameter %s is a string : %s", GetName(), GetTitle());
-      return 0.0;
+      return TString(fTitle).Atof();
    }
    return fNumber;
 }
@@ -158,8 +157,11 @@ Int_t KVNamedParameter::GetInt() const
    // returns integer if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
+      /*
       Warning("GetInt", "Parameter %s is a string : %s", GetName(), GetTitle());
       return 0;
+      */
+      return TString(fTitle).Atoi();
    }
    return (Int_t)fNumber;
 }

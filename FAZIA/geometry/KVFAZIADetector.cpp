@@ -189,7 +189,6 @@ void KVFAZIADetector::Copy(TObject& obj) const
 void  KVFAZIADetector::Clear(Option_t*)
 {
 
-   //Info("Clear","Call %s",GetName());
    KVDetector::Clear("");
    if (fSignals) {
       fSignals->Execute("Set", "0");
@@ -274,16 +273,15 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
 {
    // Returns kTRUE if detector was hit (fired) in an event
    //
-   // The actual meaning of hit/fired depends on the context and the option string opt.
+   // The test is made on charge signals of the detectors
+   // if one of them return kTRUE to KVSignal::IsFired() method KVDetector::Fired() return kTRUE
+   // if not return kFALSE and the detector will not be considered in following analysis
+   // except if one detector after it has been fired
    //
    // If the detector is in "simulation mode", i.e. if SetSimMode(kTRUE) has been called,
    // this method returns kTRUE if the calculated energy loss in the active layer is > 0.
    //
-   // In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
-   //
-   //Info("Fired","Appel - %s",GetName());
 
-   Int_t nempty = 0;
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer
    KVSignal* sig;
@@ -292,36 +290,41 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
       while ((sig = (KVSignal*)next())) {
          if (sig->GetN() > 0) {
             if (sig->IsCharge()) {
-               if (!sig->PSAHasBeenComputed()) {
-                  sig->TreateSignal();
-               }
-               if (sig->GetAmplitude() >= sig->GetAmplitudeTriggerValue()) {
+
+               //pre process to use the test method KVSignal::IsFired()
+               sig->ComputeEndLine();
+               sig->TreateSignal();
+
+               if (sig->IsFired()) {
                   return kTRUE;
+               } else {
+
                }
             }
          } else {
-//          Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
-            nempty += 1;
+            //Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
          }
       }
    } else {
       Warning("Fired", "%s : No signal attached to this detector ...", GetName());
-      //return kFALSE;
    }
+
    return kFALSE;
 }
 
 //_________________________________________________________________________________
 void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
 {
-   if (!fSignals)
+   if (!fSignals) {
+      Error("SetSignal", "%s List of signals not defined", GetName());
       return;
-
+   }
    KVSignal* sig = GetSignal(type);
-   if (sig)
+   if (sig) {
       sig->SetData(signal->GetN(), signal->GetX(), signal->GetY());
-   else
+   } else {
       Warning("SetSignal", "%s : No signal of type #%s# is available", GetName(), type);
+   }
 }
 
 //_________________________________________________________________________________

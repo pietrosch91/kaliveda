@@ -57,7 +57,10 @@ void KVFAZIARawEvent::Copy(TObject& obj) const
 //________________________________________________________________
 void KVFAZIARawEvent::Clear(Option_t*)
 {
+   //Info("Clear","IsCalled");
    fSignals->Clear();
+   //fSignals->ls();
+   //TObject* obj = fSignals->At(0); if (obj) obj->Print();
    fValues->Clear();
 }
 
@@ -67,5 +70,18 @@ KVSignal* KVFAZIARawEvent::AddNewSignal(KVString name, KVString title)
    KVSignal* sig = (KVSignal*)fSignals->ConstructedAt(fSignals->GetEntries());
    sig->SetNameTitle(name.Data(), title.Data());
    return sig;
+
+}
+//________________________________________________________________
+const Char_t* KVFAZIARawEvent::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signaltype, Int_t idx)
+{
+
+   TString sene = "";
+   sene.Form("ENER%d-B%03d-Q%d-T%d-%s", idx, blk, qua, tel, signaltype.Data());
+   //rustines for RUTHERFORD Telescope
+   if (blk == 0 && qua == 0 && tel == 0)
+      sene.Form("ENER%d-RUTH-%s", idx, signaltype.Data());
+
+   return fValues->GetStringValue(sene.Data());
 
 }

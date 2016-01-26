@@ -44,7 +44,7 @@ KVFAZIARawDataReconstructor::~KVFAZIARawDataReconstructor()
 
 void KVFAZIARawDataReconstructor::InitRun()
 {
-   // Creates new ROOT file with TTree for reconstructed/calibrated events.
+   // Creates new ROOT file with TTree for reconstructed events.
    // By default this file will be written in the same data repository as the raw data file we are reading.
    // This can be changed by setting the environment variable(s):
    //
@@ -55,16 +55,10 @@ void KVFAZIARawDataReconstructor::InitRun()
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
    // the raw file (if possible, i.e. if repository is not remote).
 
-   // Create new KVINDRAReconEvent used to reconstruct & store events
-   // The condition used to seed new reconstructed particles (see KVReconstructedEvent::AnalyseTelescopes)
-   // is set by reading the value of the environment variables:
-   //     Reconstruction.DataAnalysisTask.ParticleSeedCond:        [all/any]
-   //     [name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     [all/any]
-   // If no value is set for the current dataset (second variable), the value of the
-   // first variable will be used.
+   // Create new KVReconstructedEvent filled with KVFAZIAReconNuc object
+   // used to reconstruct & store events
 
    if (!recev) recev = new KVReconstructedEvent(50, "KVFAZIAReconNuc");
-   //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
@@ -113,7 +107,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    tree->Fill();
 
    recev->Clear();
-   GetDetectorEvent()->GetGroups()->Clear();
+   //GetDetectorEvent()->GetGroups()->Clear();
 
    return kTRUE;
 }
@@ -122,6 +116,8 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 void KVFAZIARawDataReconstructor::ExtraProcessing()
 {
+   KVString label = "";
+
    KVFAZIADetector* det = 0;
    KVSignal* sig = 0;
    KVReconstructedNucleus* recnuc = 0;
@@ -130,9 +126,27 @@ void KVFAZIARawDataReconstructor::ExtraProcessing()
       while ((det = (KVFAZIADetector*)next_d())) {
          TIter next_s(det->GetListOfSignals());
          while ((sig = (KVSignal*)next_s())) {
+            if (sig->HasFPGA()) {
+               for (Int_t ii = 0; ii < sig->GetNFPGAValues(); ii += 1) {
+                  //SI2-T3-Q1-B003.Q2.RawAmplitude=14
+                  if (ii == 0) label = "FPGAEnergy";
+                  if (ii == 1) label = "FPGAFastEnergy"; //only for CsI Q3
+                  recnuc->GetParameters()->SetValue(
+                     Form("%s.%s.%s", det->GetName(), sig->GetName(), label.Data()),
+                     GetEvent()->GetFPGAEnergy(
+                        det->GetBlockNumber(),
+                        det->GetQuartetNumber(),
+                        det->GetTelescopeNumber(),
+                        sig->GetType(),
+                        ii
+                     )
+                  );
+               }
+            }
             if (!sig->PSAHasBeenComputed()) {
                sig->TreateSignal();
             }
+
             KVNameValueList* psa = sig->GetPSAResult();
             if (psa) *(recnuc->GetParameters()) += *psa;
             delete psa;
