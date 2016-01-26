@@ -32,25 +32,14 @@
 
 ClassImp(KVFAZIAReader)
 
-void KVFAZIAReader::Begin(TTree* /*tree*/)
-{
-   // The Begin() function is called at the start of the query.
-   // When running with PROOF Begin() is only called on the client.
-   // The tree argument is deprecated (on PROOF 0 is passed).
-   Info("Begin", "Start");
-   TString option = GetOption();
-
-}
-
 void KVFAZIAReader::SlaveBegin(TTree* /*tree*/)
 {
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
-   Info("SlaveBegin", "Start");
-   TString option = GetOption();
-
+   Info("KVFAZIAReader::SlaveBegin", "called");
+   gDataAnalyser->preInitAnalysis();
 }
 
 Int_t KVFAZIAReader::GetEntry(Long64_t entry, Int_t getall)
@@ -79,36 +68,29 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
+
    GetDetectorEvent()->Clear();
-   fReadEntries += 1;
+   fEventsRead += 1;
 
    GetEntry(entry);
-   fEventNumber = RawEvent->GetNumber();
-
    gFazia->GetDetectorEvent(GetDetectorEvent(), RawEvent->GetSignals());
 
-   if (fReadEntries % 10000 == 0)
-      Info("Process", "%d read entries", fReadEntries);
+   if (GetNumberOfReadEntries() % 10000 == 0)
+      Info("KVFAZIAReader::Process", "%d read entries", GetNumberOfReadEntries());
+
    return Analysis();
 }
 
-void KVFAZIAReader::SlaveTerminate()
-{
-   // The SlaveTerminate() function is called after all entries or objects
-   // have been processed. When running with PROOF SlaveTerminate() is called
-   // on each slave server.
-   Info("SlaveTerminate", "Start");
-
-}
 
 void KVFAZIAReader::Terminate()
 {
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
-   Info("Terminate", "%d events read", GetNumberOfReadEntries());
+   Info("KVFAZIAReader::Terminate", "%d events read", GetNumberOfReadEntries());
    EndRun();
    EndAnalysis();
+
 }
 
 void KVFAZIAReader::Init(TTree* tree)
@@ -122,12 +104,16 @@ void KVFAZIAReader::Init(TTree* tree)
    // (once per file to be processed).
 
    // Set branch addresses and branch pointers
+   Info("KVFAZIAReader::Init", "called");
+   RawEvent = 0;
 
-   Info("Init", "Start");
-   if (!tree) return;
+   if (!tree)
+      return;
    fChain = tree;
    fChain->SetMakeClass(1);
-   InitAnalysis();
+   fChain->SetBranchAddress("rawevent", &RawEvent);
+   fEventsRead = 0;
+   fNotifyCalled = kFALSE;
 
 }
 
@@ -138,14 +124,14 @@ Bool_t KVFAZIAReader::Notify()
    // is started when using PROOF. It is normally not necessary to make changes
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
-   if (fCurrentRun != -1)
-      EndRun();
+   if (fNotifyCalled) return kTRUE; // avoid multiple calls at beginning of analysis
+   fNotifyCalled = kTRUE;
 
-   fReadEntries = 0;
-   fCurrentRun = gDataAnalyser->GetRunNumberFromFileName(fChain->GetCurrentFile()->GetName());
-   Info("Notify", "Traitement du run %d", fCurrentRun);
-   fChain->SetBranchAddress("rawevent", &RawEvent);
-   InitRun();
+   Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
+   gDataAnalyser->preInitRun();
+   fCurrentRun = gDataAnalyser->GetCurrentRunNumber();
+   InitRun();  //user initialisations for run
+
    return kTRUE;
 }
 
@@ -153,7 +139,7 @@ void KVFAZIAReader::Make(const Char_t* kvsname)
 {
    // Automatic generation of KVFAZIAReader-derived class for KaliVeda analysis
 
-   KVClassFactory cf(kvsname, "User analysis class", "KVFAZIAReader", kTRUE);
+   KVClassFactory cf(kvsname, "User analysis class", Class_Name(), kTRUE);
    cf.AddImplIncludeFile("KVReconstructedNucleus.h");
    cf.AddImplIncludeFile("KVBatchSystem.h");
    cf.AddImplIncludeFile("KVFAZIA.h");

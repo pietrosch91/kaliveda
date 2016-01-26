@@ -54,6 +54,8 @@ void KVRawDataAnalyser::ProcessRun()
    }
    //warning! real number of run may be different from that deduced from file name
    //we get the real run number from gMultiDetArray and use it to name any new files
+   if (!gMultiDetArray)
+      Error("ProcessRun", "invalid gMultiDetArray pointer ... Go to crash");
    Int_t newrun = gMultiDetArray->GetCurrentRunNumber();
    if (newrun != fRunNumber) {
       cout << " *** WARNING *** run number read from file = " << newrun << endl;

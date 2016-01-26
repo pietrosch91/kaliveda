@@ -98,7 +98,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    //    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 
 
-   recev->SetNumber(GetEventNumber());
+   recev->SetNumber(GetEvent()->Number());
    gFazia->ReconstructEvent(recev, GetDetectorEvent());
 
    ExtraProcessing();
@@ -107,9 +107,8 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    tree->Fill();
 
    recev->Clear();
-   //GetDetectorEvent()->GetGroups()->Clear();
-
-   return kTRUE;
+   
+	return kTRUE;
 }
 
 //______________________________________________________________________________________//
