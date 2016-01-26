@@ -25,6 +25,7 @@
 
 #include "KVFAZIAReader.h"
 #include "KVDataAnalyser.h"
+#include "KVFAZIARawDataAnalyser.h"
 
 #include "KVFAZIA.h"
 
@@ -129,7 +130,7 @@ Bool_t KVFAZIAReader::Notify()
 
    Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
    gDataAnalyser->preInitRun();
-   fCurrentRun = gDataAnalyser->GetCurrentRunNumber();
+   fCurrentRun = ((KVFAZIARawDataAnalyser*)gDataAnalyser)->GetCurrentRunNumber();
    InitRun();  //user initialisations for run
 
    return kTRUE;

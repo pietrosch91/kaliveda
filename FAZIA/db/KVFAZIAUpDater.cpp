@@ -81,7 +81,6 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
 void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
 {
 
-   printf("KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)\n");
    //Loop on calibrations stores in the database
    //and update parameters for each concerned calibrators
    KVFAZIADetector* det = 0;
