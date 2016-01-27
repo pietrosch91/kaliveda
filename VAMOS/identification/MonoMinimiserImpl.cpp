@@ -1,44 +1,8 @@
-//Author: Peter C. Wigg
-//Created Sun 17 Jan 20:43:44  2016
+// Author: Peter C. Wigg
+// Created Sun 17 Jan 20:43:44  2016
 
-
-///
-/// @file MonoMinimiserImpl.cpp
-///
-/// @section Description
-///
-/// Standard implementation of the silicon energy minimiser. This class
-/// implements the minimisation by using two while loops operating in different
-/// directions (in terms of A value), both starting from the same initial ansatz
-/// that A is most likely to be around to 2Z. It is essentially the single
-/// threaded version of the ThreadedMassEstimator, operating to reduce the
-/// difference between the observed and simulated silicon detector energies in
-/// order to determine the most likely value for A.
-///
-/// The bisection method previously used has been replaced by this "brute force"
-/// method. The reasoning behind this decision is that the bisection method
-/// relies upon the function being well behaved and passing through delta = 0
-/// with positive values on one side of the minimum and negative ones on the
-/// other. However due to the large A range being used, this does not seem to be
-/// guaranteed.  For example if one takes a value in A which is too large, the
-/// energy calculation can result in something quite extreme and using the
-/// bisection method you will lose 1/2 of the available solution space from this
-/// single error.
-///
-/// On my desktop this algorithm processes at about 85 events/s compared with
-/// 220 events/s for the threaded version (ThreadedMassEstimator).
-///
-/// @note: It is important that you keep the public interface (public member
-/// functions) of the implementation classes in agreement with those in this
-/// class, as all functions are simple passed off to the implementation class.
-/// For example SiliconEnergyMinimiser::SetIDTelescope() simply calls
-/// MonoMinimiserImpl::SetIDTelescope().
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Sun 17 Jan 20:43:44  2016
-///
-
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // MonoMinimiserImpl.cpp
 //
 // Description
@@ -61,8 +25,8 @@
 // bisection method you will lose 1/2 of the available solution space from this
 // single error.
 //
-// On my desktop this algorithm processes at about 85 events/s compared with
-// 220 events/s for the threaded version (ThreadedMassEstimator).
+// On my desktop this algorithm processes at about 85 events/s compared with 220
+// events/s for the threaded version (ThreadedMassEstimator).
 //
 // Note: It is important that you keep the public interface (public member
 // functions) of the implementation classes in agreement with those in this
@@ -72,7 +36,8 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Sun 17 Jan 20:43:44  2016
-//////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "MonoMinimiserImpl.h"
 

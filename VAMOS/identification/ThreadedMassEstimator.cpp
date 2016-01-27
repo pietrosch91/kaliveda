@@ -1,32 +1,15 @@
-//Author: Peter C. Wigg
-//Created Wed 20 Jan 15:19:33  2016
+// Author: Peter C. Wigg
+// Created Wed 20 Jan 15:19:33  2016
 
-///
-/// @file ThreadedMassEstimator.cpp
-///
-/// @section Description
-///
-/// This class estimates the A value of a fragment detected in the
-/// Si:Isobutane:CsI detector stack, given the experimentally measured data
-/// (Z, Silicon Energy, CsI Light).
-///
-/// It achieves this by minimising the absolute magnitude of the difference
-/// between the experimentally measured silicon energy and the silicon energy
-/// simulated in a set of test nuclei (with fixed Z) to determine which nucleus
-/// (A value) provides the closest match.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed 20 Jan 15:19:33  2016
-///
-
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // ThreadedMassEstimator.cpp
 //
 // Description
 //
 // This class estimates the A value of a fragment detected in the
-// Si:Isobutane:CsI detector stack, given the experimentally measured data
-// (Z, Silicon Energy, CsI Light).
+// Si:Isobutane:CsI detector stack, given the experimentally measured data (Z,
+// Silicon Energy, CsI Light).
 //
 // It achieves this by minimising the absolute magnitude of the difference
 // between the experimentally measured silicon energy and the silicon energy
@@ -35,7 +18,8 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Wed 20 Jan 15:19:33  2016
-//////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ThreadedMassEstimator.h"
 
@@ -432,9 +416,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
    pthread_t thr[2];
    Int_t status(0);
 
-   //////////////////
+   //----------------
    // Create Thread 0
-   //////////////////
+   //----------------
 
 #if __cplusplus < 201103L
    status = pthread_create(
@@ -457,9 +441,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   //////////////////
+   //----------------
    // Create Thread 1
-   //////////////////
+   //----------------
 
 #if __cplusplus < 201103L
    status = pthread_create(
@@ -482,9 +466,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   ////////////////
+   //--------------
    // Join Thread 0
-   ////////////////
+   //--------------
 
    Int_t thread_return(0);
 
@@ -501,9 +485,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   ////////////////
+   //--------------
    // Join Thread 1
-   ////////////////
+   //--------------
 
    status = pthread_join(
                thr[1],

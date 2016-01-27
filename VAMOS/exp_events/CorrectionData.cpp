@@ -1,21 +1,8 @@
-//Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
-//Created Wed 20 Jan 14:03:01  2016
+// Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Created Wed 20 Jan 14:03:01  2016
 
-///
-/// @file CorrectionData.cpp
-///
-/// @section Description
-///
-/// Basic class acting as a container for any identification date which need to
-/// be passed into the idc::ApplyCorrections function. We prefer to pass in this
-/// data manually as the relevant getters in KVVAMOSReconNuc are liable to
-/// recalculate values we don't want it to!
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed 20 Jan 14:03:01  2016
-///
-
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // CorrectionData.cpp
 //
 // Description
@@ -27,7 +14,8 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Wed 20 Jan 14:03:01  2016
-//////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "CorrectionData.h"
 

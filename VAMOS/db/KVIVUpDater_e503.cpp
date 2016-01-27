@@ -1,20 +1,8 @@
-//Author: Peter C. Wigg
-//Created Wed Jun 11 15:09:35 CEST 2014
+// Author: Peter C. Wigg
+// Created Wed Jun 11 15:09:35 CEST 2014
 
-///
-/// @file KVIVUpDater_e503.cpp
-///
-/// @section Description
-///
-/// KVIVUpDater class for the E503 experiment. This class inherits from that of
-/// our sister experiment (E494s) and adds the functionality required to
-/// implement the VAMOS identification corrections.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed Jun 11 15:09:35 CEST 2014
-///
-
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // KVIVUpDater_e503.cpp
 //
 // Description
@@ -25,7 +13,8 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Wed Jun 11 15:09:35 CEST 2014
-//////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "KVIVUpDater_e503.h"
 
@@ -43,22 +32,22 @@ KVIVUpDater_e503::~KVIVUpDater_e503()
 
 void KVIVUpDater_e503::SetParameters(UInt_t run)
 {
-   /// IMPORTANT!
-   ///
-   /// An exception can be thrown here (intentionally, as one can't pass a
-   /// return code back up the stack). The reason for this is that the function
-   /// signature must match that of KVINDRAUpDater::SetParameters (which has a
-   /// void return type).
-   ///
-   /// The advantage of throwing an exception is that the error can be handled
-   /// properly further up the stack in KVIVSelector::Notify.
-   /// KVIVSelector::Notify will automatically end the current run if it
-   /// catches this exception.
-   ///
-   /// The alternative is the unexpected termination of the parent process,
-   /// which if you happen to be in an interactive ROOT session is bad news (it
-   /// will kill that too).
-   ///
+   // IMPORTANT!
+   //
+   // An exception can be thrown here (intentionally, as one can't pass a
+   // return code back up the stack). The reason for this is that the function
+   // signature must match that of KVINDRAUpDater::SetParameters (which has a
+   // void return type).
+   //
+   // The advantage of throwing an exception is that the error can be handled
+   // properly further up the stack in KVIVSelector::Notify.
+   // KVIVSelector::Notify will automatically end the current run if it
+   // catches this exception.
+   //
+   // The alternative is the unexpected termination of the parent process,
+   // which if you happen to be in an interactive ROOT session is bad news (it
+   // will kill that too).
+   //
 
    KVIVUpDater::SetParameters(run);
 

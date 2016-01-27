@@ -1,31 +1,20 @@
-//Author: Peter C. Wigg
-//Created Wed Jun 11 15:00:35 CEST 2014
+// Author: Peter C. Wigg
+// Created Wed Jun 11 15:00:35 CEST 2014
 
-///
-/// @file KVIVDB_e503.cpp
-///
-/// @section Description
-///
-/// Database class for the E503 experiment. This class inherits from that of our
-/// sister experiment (E494s) and adds the functionality required to implement
-/// the VAMOS identification corrections.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed Jun 11 15:00:35 CEST 2014
-///
-
-/////////////////////////////////////////////////////////////////////////////////
-/// KVIVDB_e503.cpp
-///
-/// Description
-///
-/// Database class for the E503 experiment. This class inherits from that of our
-/// sister experiment (E494s) and adds the functionality required to implement
-/// the VAMOS identification corrections.
-///
-/// Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// Wed Jun 11 15:00:35 CEST 2014
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// KVIVDB_e503.cpp
+//
+// Description
+//
+// Database class for the E503 experiment. This class inherits from that of our
+// sister experiment (E494s) and adds the functionality required to implement
+// the VAMOS identification corrections.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed Jun 11 15:00:35 CEST 2014
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "KVIVDB_e503.h"
 

@@ -1,31 +1,27 @@
-//Author: Peter C. Wigg
-//Created Sun 17 Jan 20:35:37  2016
+// Author: Peter C. Wigg
+// Created Sun 17 Jan 20:35:37  2016
 
-///
-/// @file SiliconEnergyMinimiser.cpp
-///
-/// @section Description
-///
-/// Wrapper class for the silicon energy minimisation routines. This class
-/// allows the underlying implementation to be changed easily and without
-/// affecting any existing code.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Sun 17 Jan 20:35:37  2016
-///
-
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // SiliconEnergyMinimiser.cpp
 //
 // Description
 //
-// Wrapper class for the silicon energy minimisation routines. This class
-// allows the underlying implementation to be changed easily and without
-// affecting any existing code.
+// Wrapper class for the silicon energy minimisation routines. This class allows
+// the underlying implementation to be changed easily and without affecting any
+// existing code.
+//
+// To change the implementation, for example to use the multi-threaded minimiser
+// instead of the single threaded one, simply ensure that the appropriate
+// implementation class header is included and then change any occurrences of
+// MonoMinimiserImpl in the code to use your chosen implementation (e.g.
+// ThreadedMinimiserImpl). Then when you recompile KaliVeda the new
+// implementation will be used instead.
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Sun 17 Jan 20:35:37  2016
-//////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "SiliconEnergyMinimiser.h"
 

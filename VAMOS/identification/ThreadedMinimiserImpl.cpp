@@ -1,27 +1,8 @@
-//Author: Peter C. Wigg
-//Created Sun 17 Jan 20:40:12  2016
+// Author: Peter C. Wigg
+// Created Sun 17 Jan 20:40:12  2016
 
-///
-/// @file ThreadedMinimiserImpl.cpp
-///
-/// @section Description
-///
-/// Threaded implementation of the silicon energy minimiser. This class
-/// implements the minimisation using the ThreadedMassEstimator.
-///
-/// @warning This implementation does not include a tolerance or a consistent
-/// maximisation check (maximisation is declared as soon as delta increases,
-/// i.e. we do not wait to see if delta is maximising consistently). It is
-/// recommended that you use the standard implementation (MonoMinimiserImpl) if
-/// you can as it does not require pthreads, is less complex and probably does
-/// the job well enough. If not then you are free to implement the
-/// aforementioned changes :)
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Sun 17 Jan 20:40:12  2016
-///
-
-/////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//
 // ThreadedMinimiserImpl.cpp
 //
 // Description
@@ -30,16 +11,16 @@
 // implements the minimisation using the ThreadedMassEstimator.
 //
 // Warning: This implementation does not include a tolerance or a consistent
-// maximisation check (maximisation is declared as soon as delta increases,
-// i.e. we do not wait to see if delta is maximising consistently). It is
-// recommended that you use the standard implementation (MonoMinimiserImpl) if
-// you can as it does not require pthreads, is less complex and probably does
-// the job well enough. If not then you are free to implement the
-// aforementioned changes :)
+// maximisation check (maximisation is declared as soon as delta increases, i.e.
+// we do not wait to see if delta is maximising consistently). It is recommended
+// that you use the standard implementation (MonoMinimiserImpl) if you can as it
+// does not require pthreads, is less complex and probably does the job well
+// enough. If not then you are free to implement the aforementioned changes :)
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Sun 17 Jan 20:40:12  2016
-/////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ThreadedMinimiserImpl.h"
 
