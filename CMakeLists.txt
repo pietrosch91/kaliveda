@@ -33,6 +33,11 @@ if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 endif()
 link_directories(${ROOT_LIBRARY_DIRS})
 
+#--check for g++ -fopenmp flag - for parallel builds
+if(CMAKE_COMPILER_IS_GNUCXX)
+   CHECK_CXX_COMPILER_FLAG("-fopenmp" CXX_HAS_OPENMP)
+endif()
+
 #--check for BOOST - minimum version corresponds progress_display
 set(WITH_BOOST)
 find_package(Boost 1.9)
@@ -81,6 +86,19 @@ if(gnuinstall)
 else(gnuinstall)
    set(WITH_GNU_INSTALL)
 endif(gnuinstall)
+
+#--- Enable parallelisation of code using OpenMP
+option(USE_PARALLEL_MODE "Enable parallelisation of code using OpenMP" OFF)
+if(USE_PARALLEL_MODE)
+   #---check if g++ -fopenmp option is available
+   if(NOT CXX_HAS_OPENMP)
+      message(STATUS "g++ with OpenMP support required to use this option")
+      set(USE_PARALLEL_MODE OFF CACHE BOOL "" FORCE)
+   else()
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+   endif()
+endif()
+add_feature_info(parallel USE_PARALLEL_MODE "Enable parallelisation of code using OpenMP")
 
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
