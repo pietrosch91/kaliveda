@@ -11,6 +11,14 @@
    KVIonRangeTableMaterial* M = GetMaterial(mat); \
    if(M) return M->method; \
    return defval
+#define CHECK_ION_FIND_MAT_AND_EXEC(method,defval) \
+   if(!CheckIon(Z,A)){ \
+      Warning(#method , "Ion Z=%d out of range table limits", Z); \
+      return defval; \
+   } \
+   KVIonRangeTableMaterial* M = GetMaterial(mat); \
+   if(M) return M->method; \
+   return defval
 
 ClassImp(KVIonRangeTable)
 
@@ -153,8 +161,6 @@ void KVIonRangeTable::SetTemperatureAndPressure(const Char_t* material, Double_t
 
 //________________________________________________________________________________//
 
-//________________________________________________________________________________//
-
 Double_t KVIonRangeTable::GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
                                         Double_t Amat, Double_t , Double_t)
 {
@@ -162,7 +168,7 @@ Double_t KVIonRangeTable::GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Dou
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetRangeOfIon(Z, A, E, Amat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetRangeOfIon(Z, A, E, Amat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -173,7 +179,7 @@ Double_t KVIonRangeTable::GetLinearRangeOfIon(const Char_t* mat, Int_t Z, Int_t 
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetLinearRangeOfIon(Z, A, E, Amat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearRangeOfIon(Z, A, E, Amat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -184,7 +190,7 @@ Double_t KVIonRangeTable::GetDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Do
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetDeltaEOfIon(Z, A, E, r, Amat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetDeltaEOfIon(Z, A, E, r, Amat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -195,7 +201,7 @@ Double_t KVIonRangeTable::GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -206,7 +212,7 @@ Double_t KVIonRangeTable::GetEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Doub
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetEResOfIon(Z, A, E, r, Amat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetEResOfIon(Z, A, E, r, Amat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -217,7 +223,7 @@ Double_t KVIonRangeTable::GetLinearEResOfIon(const Char_t* mat, Int_t Z, Int_t A
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetLinearEResOfIon(Z, A, E, d, Amat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearEResOfIon(Z, A, E, d, Amat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -225,7 +231,7 @@ Double_t KVIonRangeTable::GetEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material,
-   FIND_MAT_AND_EXEC(GetEIncFromEResOfIon(Z, A, Eres, e, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetEIncFromEResOfIon(Z, A, Eres, e, isoAmat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -235,7 +241,7 @@ Double_t KVIonRangeTable::GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z,
    // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in cm).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetLinearEIncFromEResOfIon(Z, A, Eres, e, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearEIncFromEResOfIon(Z, A, Eres, e, isoAmat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -243,7 +249,7 @@ Double_t KVIonRangeTable::GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material,
-   FIND_MAT_AND_EXEC(GetEIncFromDeltaEOfIon(Z, A, DeltaE, e, type, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetEIncFromDeltaEOfIon(Z, A, DeltaE, e, type, isoAmat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -253,7 +259,7 @@ Double_t KVIonRangeTable::GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t 
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetLinearEIncFromDeltaEOfIon(Z, A, deltaE, e, type, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearEIncFromDeltaEOfIon(Z, A, deltaE, e, type, isoAmat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -261,7 +267,7 @@ Double_t KVIonRangeTable::GetDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material,
-   FIND_MAT_AND_EXEC(GetDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -270,7 +276,7 @@ Double_t KVIonRangeTable::GetLinearDeltaEFromEResOfIon(const Char_t* mat, Int_t 
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetLinearDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -281,7 +287,7 @@ Double_t KVIonRangeTable::GetPunchThroughEnergy(const Char_t* mat, Int_t Z, Int_
    // for all energies above this energy the residual energy is > 0.
    // Give Amat to change default (isotopic) mass of material.
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetPunchThroughEnergy(Z, A, e, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetPunchThroughEnergy(Z, A, e, isoAmat), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -292,7 +298,7 @@ Double_t KVIonRangeTable::GetLinearPunchThroughEnergy(const Char_t* mat, Int_t Z
    // for all energies above this energy the residual energy is > 0.
    // Give Amat to change default (isotopic) mass of material.
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetLinearPunchThroughEnergy(Z, A, e, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearPunchThroughEnergy(Z, A, e, isoAmat, T, P), 0.0);
 }
 //________________________________________________________________________________//
 
@@ -300,7 +306,7 @@ Double_t KVIonRangeTable::GetMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A,
 {
    // Calculate maximum energy loss (in MeV) of ion (Z,A) in given thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material.
-   FIND_MAT_AND_EXEC(GetMaxDeltaEOfIon(Z, A, e, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetMaxDeltaEOfIon(Z, A, e, isoAmat), 0.0);
 }
 
 Double_t KVIonRangeTable::GetEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t , Double_t)
@@ -309,7 +315,7 @@ Double_t KVIonRangeTable::GetEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, In
    // in given thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material.
 
-   FIND_MAT_AND_EXEC(GetEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat), 0.0);
 }
 
 Double_t KVIonRangeTable::GetLinearMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
@@ -318,7 +324,7 @@ Double_t KVIonRangeTable::GetLinearMaxDeltaEOfIon(const Char_t* mat, Int_t Z, In
    // Give Amat to change default (isotopic) mass of material.
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetLinearMaxDeltaEOfIon(Z, A, e, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearMaxDeltaEOfIon(Z, A, e, isoAmat, T, P), 0.0);
 }
 
 Double_t KVIonRangeTable::GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
@@ -328,7 +334,7 @@ Double_t KVIonRangeTable::GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t
    // Give Amat to change default (isotopic) mass of material.
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
 
-   FIND_MAT_AND_EXEC(GetLinearEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat, T, P), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetLinearEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat, T, P), 0.0);
 }
 
 Double_t KVIonRangeTable::GetEmaxValid(const Char_t* mat, Int_t Z, Int_t A)
@@ -336,7 +342,7 @@ Double_t KVIonRangeTable::GetEmaxValid(const Char_t* mat, Int_t Z, Int_t A)
    // Returns maximum energy (in MeV) for which range table is valid
    // for given material and incident ion (Z,A)
 
-   FIND_MAT_AND_EXEC(GetEmaxValid(Z, A), 0.0);
+   CHECK_ION_FIND_MAT_AND_EXEC(GetEmaxValid(Z, A), 0.0);
 }
 
 //______________________________________________________________________________________//

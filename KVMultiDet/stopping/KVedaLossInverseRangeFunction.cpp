@@ -3,6 +3,7 @@
 
 #include "KVedaLossInverseRangeFunction.h"
 #include "TF1.h"
+#include "TSpline.h"
 #include "TMath.h"
 
 #define LOG(x) TMath::Log(x)
@@ -22,14 +23,13 @@ ClassImp(KVedaLossInverseRangeFunction)
 KVedaLossInverseRangeFunction::KVedaLossInverseRangeFunction()
    : fInterpol(nullptr)
 {
-   // Default constructor
+
 }
 
 KVedaLossInverseRangeFunction::KVedaLossInverseRangeFunction(TF1* range_func,
       Int_t A,
       Double_t riso,
       Int_t ninter)
-   : fInterpol(nullptr)
 {
    // Initialise from VEDALOSS range function object
    // A is mass of ion used in call to KVedaLossMaterial::GetRangeFunction
@@ -67,7 +67,7 @@ KVedaLossInverseRangeFunction::~KVedaLossInverseRangeFunction()
    SafeDelete(fInterpol);
 }
 
-Double_t KVedaLossInverseRangeFunction::GetEnergy(Double_t range, Double_t riso)
+Double_t KVedaLossInverseRangeFunction::GetEnergyPerNucleon(Double_t range, Double_t riso)
 {
    // Given range in g/cm**2 and current value returned by KVedaLossMaterial::get_riso
    // (which takes into account any change in ion mass and/or material mass)

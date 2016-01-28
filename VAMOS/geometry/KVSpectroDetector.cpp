@@ -23,7 +23,7 @@ void KVSpectroDetector::init()
 {
    //default initialisations
 
-   SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.
+   SetActiveLayer(nullptr); // Necessary to remove some warning with GetPressure and GetTemperature.
    fActiveVolumes    = NULL;
    fFocalToTarget    = NULL;
    fNabsorbers    = 0;
@@ -192,7 +192,7 @@ void KVSpectroDetector::AddAbsorberLayer(TGeoVolume* vol, Bool_t active)
    KVDetector::AddAbsorber(absorber);
    absorber->SetAbsGeoVolume(vol);
    ClearHits();
-   if (active) SetActiveLayer(GetListOfAbsorbers()->GetEntries() - 1);
+   if (active) SetActiveLayer(absorber);
 }
 //________________________________________________________________
 

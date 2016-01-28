@@ -103,7 +103,7 @@ void KVDetector::init()
    fGain = 1.;
    fCalWarning = 0;
    fAbsorbers = new KVList;
-   fActiveLayer = 0;
+   fActiveLayer = nullptr;
    fIDTelescopes = new KVList(kFALSE);
    fIDTelescopes->SetCleanup(kTRUE);
    fIDTelAlign = new KVList(kFALSE);
@@ -121,6 +121,7 @@ void KVDetector::init()
    fPresent = kTRUE;
    fDetecting = kTRUE;
    fParentStrucList.SetCleanup();
+   fSingleLayer = kTRUE;
 }
 
 KVDetector::KVDetector()
@@ -175,7 +176,8 @@ void KVDetector::Copy(TObject& obj)
       ((KVDetector&) obj).AddAbsorber((KVMaterial*) mat->Clone());
    }
    //set active layer
-   ((KVDetector&) obj).SetActiveLayer(fActiveLayer);
+   Int_t in_actif = fAbsorbers->IndexOf(fActiveLayer);
+   ((KVDetector&) obj).SetActiveLayer(((KVDetector&)obj).GetAbsorber(in_actif));
 }
 
 
@@ -191,7 +193,6 @@ KVDetector::~KVDetector()
    SafeDelete(fELossF);
    SafeDelete(fEResF);
    SafeDelete(fRangeF);
-   fActiveLayer = -1;
    fIDTelAlign->Clear();
    SafeDelete(fIDTelAlign);
    SafeDelete(fIDTele4Ident);
@@ -557,18 +558,9 @@ void KVDetector::AddAbsorber(KVMaterial* mat)
    // Call SetActiveLayer to change this.
    fAbsorbers->Add(mat);
    if (!TestBit(kActiveSet))
-      SetActiveLayer((Short_t)(fAbsorbers->GetSize() - 1));
+      SetActiveLayer(mat);
+   if (fAbsorbers->GetSize() > 1) fSingleLayer = kFALSE;
 }
-
-void KVDetector::SetActiveLayer(KVMaterial* mat)
-{
-   //Set reference to the "active" layer in the detector,
-   //i.e. the one in which energy losses are measured
-   //By default the active layer is the first layer added
-
-   if (fAbsorbers->IndexOf(mat) > -1) SetActiveLayer((Short_t)(fAbsorbers->IndexOf(mat)));
-}
-
 
 KVMaterial* KVDetector::GetAbsorber(Int_t i) const
 {
@@ -797,18 +789,14 @@ Double_t KVDetector::ELossActive(Double_t* x, Double_t* par)
    Double_t e = x[0];
    TIter next(fAbsorbers);
    KVMaterial* mat;
-   if (fActiveLayer > 0) {
-      // calculate energy losses in absorbers before active layer
-      for (Int_t layer = 0; layer < fActiveLayer; layer++) {
-
-         mat = (KVMaterial*)next();
-         e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
-         if (e <= 0.)
-            return 0.;          // return 0 if particle stops in layers before active layer
-
-      }
-   }
    mat = (KVMaterial*)next();
+   while (fActiveLayer != mat) {
+      // calculate energy losses in absorbers before active layer
+      e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
+      if (e <= 0.)
+         return 0.;          // return 0 if particle stops in layers before active layer
+      mat = (KVMaterial*)next();
+   }
    //calculate energy loss in active layer
    return mat->GetDeltaE(par[0], par[1], e);
 }
@@ -1260,6 +1248,10 @@ Double_t KVDetector::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    // Overrides KVMaterial::GetDeltaE
    // Returns energy loss of given nucleus in the active layer of the detector.
 
+   // optimization for single-layer detectors
+   if (fSingleLayer) {
+      return fActiveLayer->GetDeltaE(Z, A, Einc);
+   }
    return GetELossFunction(Z, A)->Eval(Einc);
 }
 
@@ -1480,6 +1472,11 @@ Double_t KVDetector::GetPunchThroughEnergy(Int_t Z, Int_t A)
 {
    // Returns energy (in MeV) necessary for ion (Z,A) to punch through all
    // layers of this detector
+
+   if (fSingleLayer) {
+      // Optimize calculation time for single-layer detector
+      return fActiveLayer->GetPunchThroughEnergy(Z, A);
+   }
    return GetRangeFunction(Z, A)->GetX(GetTotalThicknessInCM());
 }
 

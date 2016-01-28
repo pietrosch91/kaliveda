@@ -72,9 +72,10 @@ void KVedaLossRangeFitter::SetInitialParameters(Int_t Z)
    // Set initial parameters for this Z by using closest known material in
    // VedaLoss range tables
 
-   Double_t* pars;
+   std::vector<Double_t> pars;
    fClosestVedaMat->GetParameters(Z, Aref, pars);
-   fRangeFunction->SetParameters(pars);
+   int npar = fRangeFunction->GetNpar();
+   for (int i = 0; i < npar; ++i) fRangeFunction->SetParameter(i, pars[i]);
 }
 
 TGraph* KVedaLossRangeFitter::GenerateRangeTable(Int_t Z)

@@ -6,6 +6,8 @@
 #include "KVIonRangeTable.h"
 #include <TEnv.h>
 #include <TF1.h>
+#include "KVedaLossInverseRangeFunction.h"
+#include "KVedaLoss.h"
 
 ClassImp(KVedaLossMaterial)
 
@@ -19,26 +21,32 @@ ClassImp(KVedaLossMaterial)
 ////////////////////////////////////////////////////////////////////////////////
 
 Bool_t KVedaLossMaterial::fNoLimits = kFALSE;
+KVedaLoss* KVedaLossMaterial::fgTable = nullptr;
 
 KVedaLossMaterial::KVedaLossMaterial()
-   : KVIonRangeTableMaterial()
+   : KVIonRangeTableMaterial(), fInvRange(ZMAX_VEDALOSS, 1),
+     fEmin(ZMAX_VEDALOSS), fEmax(ZMAX_VEDALOSS), fCoeff(ZMAX_VEDALOSS, std::vector<Double_t>(14))
 {
    // Default constructor
-   for (int i = 0; i < 100; i++) {
+   for (int i = 0; i < ZMAX_VEDALOSS; i++) {
       fEmin[i] = 0.0;
       fEmax[i] = 500.0;
    }
+   fInvRange.SetOwner();
 }
 
 KVedaLossMaterial::KVedaLossMaterial(const KVIonRangeTable* t, const Char_t* name, const Char_t* type, const Char_t* state,
                                      Double_t density, Double_t Z, Double_t A, Double_t)
-   : KVIonRangeTableMaterial(t, name, type, state, density, Z, A)
+   : KVIonRangeTableMaterial(t, name, type, state, density, Z, A), fInvRange(ZMAX_VEDALOSS, 1),
+     fEmin(ZMAX_VEDALOSS), fEmax(ZMAX_VEDALOSS), fCoeff(ZMAX_VEDALOSS, std::vector<Double_t>(14))
 {
    // create new material
-   for (int i = 0; i < 100; i++) {
+   fgTable = static_cast<KVedaLoss*>(const_cast<KVIonRangeTable*>(t));
+   for (int i = 0; i < ZMAX_VEDALOSS; i++) {
       fEmin[i] = 0.0;
       fEmax[i] = 500.0;
    }
+   fInvRange.SetOwner();
 }
 
 KVedaLossMaterial::~KVedaLossMaterial()
@@ -189,67 +197,7 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t*)
    // The incident energy E[0] is given in MeV.
    // The energy loss is calculated in MeV.
 
-   // if range < thickness, particle stops: dE = E0
-   Double_t R0 = RangeFunc(E, 0);
-   if (R0 < thickness) {
-      return E[0];
-   }
-
-   // calculate energy loss - invert range function to find E corresponding to (R0 - thickness)
-   R0 -= thickness;
-
-   // invert range function to get energy after absorber
-   return (E[0] - fRange->GetX(R0));
-
-   /*
-      // VEDALOSS inversion of R(E)
-      // range in mg/cm**2 for VEDALOSS
-      R0 /= (KVUnits::mg / pow(KVUnits::cm,2));
-      // get parameters for this Z
-      Int_t Z = (Int_t)Mypar[1];
-      Double_t A = Mypar[2];
-      Double_t *par = fCoeff[Z - 1];
-      Double_t ranx = TMath::Log(R0);
-      Double_t ranx1 = ranx - riso;
-      Double_t depsx;
-      if (ranx1 < arm)
-         depsx = (ranx1 - adn) / adm;
-      else {
-         depsx = 0.0;
-         for (register int j = 2; j < 7; j++)
-            depsx += par[j + 7] * TMath::Power(ranx1, (Double_t) (j - 1));
-         depsx += par[8];
-      }
-
-      const Double_t PERC = 0.02;
-
-      Double_t eps1 = depsx + TMath::Log(1 - PERC);
-      Double_t eps2 = depsx + TMath::Log(1 + PERC);
-      Double_t rap = TMath::Log((1 + PERC) / (1 - PERC));
-
-      Double_t rn1 = 0.0;
-      if (TMath::Exp(eps1) < 0.1)
-         rn1 = adm * eps1 + adn;
-      else {
-         for (register int j = 1; j < 7; j++)
-            rn1 += par[j + 1] * TMath::Power(eps1, (Double_t) (j - 1));
-      }
-      Double_t rn2 = 0.0;
-      if (TMath::Exp(eps2) < 0.1)
-         rn2 = adm * eps2 + adn;
-      else {
-         for (register int j = 1; j < 7; j++)
-            rn2 += par[j + 1] * TMath::Power(eps2, (Double_t) (j - 1));
-      }
-
-      Double_t epres = eps1 + (rap / (rn2 - rn1)) * (ranx1 - rn1);
-      epres = TMath::Exp(epres);
-      Double_t eres = A * epres;
-
-      // garde-fou - calculated energy after absorber > incident energy ?!!
-      //if(eres > E[0]) return 0.0;
-      return E[0] - eres;
-      */
+   return (E[0] - EResFunc(E, nullptr));
 }
 
 Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
@@ -259,7 +207,7 @@ Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
    // The residual energy is calculated in MeV.
 
    // if range < thickness, particle stops: Eres=0
-   Double_t R0 = RangeFunc(E, 0);
+   Double_t R0 = RangeFunc(E, nullptr);
    if (R0 < thickness) {
       return 0.0;
    }
@@ -268,6 +216,9 @@ Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
    R0 -= thickness;
 
    // invert range function to get energy after absorber
+   if (fgTable->IsUseNewRangeInversion()) {
+      return static_cast<KVedaLossInverseRangeFunction*>(fInvRange[RF_Z])->GetEnergyPerNucleon(R0, riso) * RF_A;
+   }
    return fRange->GetX(R0);
 }
 
@@ -278,30 +229,39 @@ TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
    // charged particles (Z,A) in this material.
    // If required, the isotopic mass of the material can be given.
 
-   //fRange->SetParameters(Z, A, isoAmat);
    RF_Z = Z;
    RF_A = A;
    // get parameters for this Z
-   par = fCoeff[Z - 1];
+   par = &fCoeff[Z - 1];
    // set up polynomial
    Double_t x1 = TMath::Log(0.1);
    Double_t x2 = TMath::Log(0.2);
    ran = 0.0;
    for (register int j = 2; j < 7; j++)
-      ran += par[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
-   ran += par[2];
+      ran += (*par)[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
+   ran += (*par)[2];
    Double_t y2 = ran;
    ran = 0.0;
    for (register int jj = 2; jj < 7; jj++)
-      ran += par[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
-   ran += par[2];
+      ran += (*par)[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
+   ran += (*par)[2];
    Double_t y1 = ran;
    adm = (y2 - y1) / (x2 - x1);
    adn = (y1 - adm * x1);
-   riso = RF_A / par[1];
+   riso = RF_A / (*par)[1];
    if (isoAmat > 0.0) riso *= (isoAmat / fAmat);
 
    fRange->SetRange(0., GetEmaxValid(Z, A));
+
+   /*
+    * New inversion of range-energy curve (if KVedaLoss::fgNewRangeInversion=kTRUE)
+    */
+   if (fgTable->IsUseNewRangeInversion()) {
+      if (!fInvRange[Z]) {
+         fInvRange[Z] = new KVedaLossInverseRangeFunction(fRange, A, riso);
+      }
+   }
+
    return fRange;
 }
 
@@ -314,23 +274,23 @@ TF1* KVedaLossMaterial::GetStoppingFunction(Int_t Z, Int_t A, Double_t isoAmat)
    RF_Z = Z;
    RF_A = A;
    // get parameters for this Z
-   par = fCoeff[Z - 1];
+   par = &fCoeff[Z - 1];
    // set up polynomial
    Double_t x1 = TMath::Log(0.1);
    Double_t x2 = TMath::Log(0.2);
    ran = 0.0;
    for (register int j = 2; j < 7; j++)
-      ran += par[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
-   ran += par[2];
+      ran += (*par)[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
+   ran += (*par)[2];
    Double_t y2 = ran;
    ran = 0.0;
    for (register int jj = 2; jj < 7; jj++)
-      ran += par[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
-   ran += par[2];
+      ran += (*par)[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
+   ran += (*par)[2];
    Double_t y1 = ran;
    adm = (y2 - y1) / (x2 - x1);
    adn = (y1 - adm * x1);
-   riso = RF_A / par[1];
+   riso = RF_A / (*par)[1];
    if (isoAmat > 0.0) riso *= (isoAmat / fAmat);
    fStopping->SetRange(0., GetEmaxValid(Z, A));
    return fStopping;
@@ -348,11 +308,11 @@ Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t*)
       ran = adm * dleps + adn;
    else {
       DLEP = dleps;
-      ran = par[2] + par[3] * DLEP;
-      ran += par[4] * (DLEP *= dleps);
-      ran += par[5] * (DLEP *= dleps);
-      ran += par[6] * (DLEP *= dleps);
-      ran += par[7] * (DLEP *= dleps);
+      ran = (*par)[2] + (*par)[3] * DLEP;
+      ran += (*par)[4] * (DLEP *= dleps);
+      ran += (*par)[5] * (DLEP *= dleps);
+      ran += (*par)[6] * (DLEP *= dleps);
+      ran += (*par)[7] * (DLEP *= dleps);
    }
 
    // range in g/cm**2
@@ -373,11 +333,11 @@ Double_t KVedaLossMaterial::StoppingFunc(Double_t* E, Double_t*)
       return drande;
    }
    DLEP = dleps;
-   ran = par[2] + par[3] * DLEP;
-   drande = par[3];
+   ran = (*par)[2] + (*par)[3] * DLEP;
+   drande = (*par)[3];
    for (register int i = 4; i < 8; i++) {
-      drande += (i - 2) * par[i] * DLEP;
-      ran += par[i] * (DLEP *= dleps);
+      drande += (i - 2) * (*par)[i] * DLEP;
+      ran += (*par)[i] * (DLEP *= dleps);
    }
    // range in g/cm**2
    return E[0] / (riso * TMath::Exp(ran) * KVUnits::mg) / drande;
@@ -444,12 +404,39 @@ Double_t KVedaLossMaterial::GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t 
    return f->Eval(E);
 }
 
-void KVedaLossMaterial::GetParameters(Int_t Zion, Int_t& Aion, Double_t*& rangepar)
+Double_t KVedaLossMaterial::GetPunchThroughEnergy(Int_t Z, Int_t A, Double_t e, Double_t isoAmat)
+{
+   // Calculate incident energy (in MeV) for ion (Z,A) for which the range is equal to the
+   // given thickness e (in g/cm**2). At this energy the residual energy of the ion is (just) zero,
+   // for all energies above this energy the residual energy is > 0.
+   // Give Amat to change default (isotopic) mass of material.
+
+   GetRangeFunction(Z, A, isoAmat);
+   if (fgTable->IsUseNewRangeInversion()) {
+      return static_cast<KVedaLossInverseRangeFunction*>(fInvRange[Z])->GetEnergyPerNucleon(e, riso) * A;
+   }
+   return fRange->GetX(e);
+}
+
+Double_t KVedaLossMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat)
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in g/cm**2).
+   // Give Amat to change default (isotopic) mass of material.
+
+   GetRangeFunction(Z, A, isoAmat);
+   Double_t R0 = fRange->Eval(Eres) + e;
+   if (fgTable->IsUseNewRangeInversion()) {
+      return static_cast<KVedaLossInverseRangeFunction*>(fInvRange[Z])->GetEnergyPerNucleon(R0, riso) * A;
+   }
+   return fRange->GetX(R0);
+}
+
+void KVedaLossMaterial::GetParameters(Int_t Zion, Int_t& Aion, vector<Double_t> rangepar)
 {
    // For the given ion atomic number, give the reference mass used and the six
    // parameters for the range function fit
 
-   rangepar = &fCoeff[Zion - 1][2];
+   rangepar = vector<Double_t>(fCoeff[Zion - 1].begin() + 2, fCoeff[Zion - 1].end());
    Aion = fCoeff[Zion - 1][1];
 }
 

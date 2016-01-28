@@ -356,6 +356,6 @@ void KVGeoImport::AddLayer(KVDetector* det, TGeoVolume* vol)
    } else
       absorber = new KVMaterial(irmat->GetType(), width);
    det->AddAbsorber(absorber);
-   if (vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer(det->GetListOfAbsorbers()->GetEntries() - 1);
+   if (vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer(absorber);
 }
 

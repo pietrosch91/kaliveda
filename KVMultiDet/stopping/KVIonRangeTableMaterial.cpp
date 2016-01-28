@@ -214,11 +214,6 @@ void KVIonRangeTableMaterial::Initialize()
    }
 }
 
-const KVIonRangeTable* KVIonRangeTableMaterial::GetTable() const
-{
-   return fTable;
-}
-
 void KVIonRangeTableMaterial::ls(Option_t*) const
 {
    printf("Material : %s (%s)   State : %s\n",

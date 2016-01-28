@@ -4,12 +4,12 @@
 #ifndef __KVEDALOSSINVERSERANGEFUNCTION_H
 #define __KVEDALOSSINVERSERANGEFUNCTION_H
 
-#include "TNamed.h"
-#include "TSpline.h"
-
+#include "TObject.h"
 class TF1;
+class TSpline3;
 
-class KVedaLossInverseRangeFunction : public TNamed {
+class KVedaLossInverseRangeFunction : public TObject {
+
    TSpline3* fInterpol;//interpolation of inverse range-energy curve
 
 public:
@@ -20,9 +20,9 @@ public:
                                  Int_t ninter = 50);
    virtual ~KVedaLossInverseRangeFunction();
 
-   Double_t GetEnergy(Double_t range, Double_t riso);
+   Double_t GetEnergyPerNucleon(Double_t range, Double_t riso);
 
-   ClassDef(KVedaLossInverseRangeFunction, 1) //Dedicated optimised inversion of range-energy function
+   ClassDef(KVedaLossInverseRangeFunction, 0) //Dedicated optimised inversion of range-energy function
 };
 
 #endif
