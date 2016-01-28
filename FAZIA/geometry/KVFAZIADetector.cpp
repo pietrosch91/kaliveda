@@ -252,7 +252,7 @@ Bool_t KVFAZIADetector::SetProperties()
    while (!lsignals.End()) {
 
       KVString ssig = lsignals.Next();
-      cl = new TClass(Form("KV%s", ssig.Data()));
+      cl = TClass::GetClass(Form("KV%s", ssig.Data()));
       sig = (KVSignal*)cl->New();
       sig->SetName(ssig.Data());
       sig->SetType(ssig.Data());
@@ -261,7 +261,6 @@ Bool_t KVFAZIADetector::SetProperties()
       sig->SetDetectorName(GetName());
 
       fSignals->Add(sig);
-      delete cl;
    }
 
    SetCalibrators();

@@ -150,8 +150,10 @@ void KVFAZIARawDataReconstructor::ExtraProcessing()
             }
 
             KVNameValueList* psa = sig->GetPSAResult();
-            if (psa) *(recnuc->GetParameters()) += *psa;
-            delete psa;
+            if (psa) {
+               *(recnuc->GetParameters()) += *psa;
+               delete psa;
+            }
          }
       }
    }

@@ -97,7 +97,7 @@ KVSignal::~KVSignal()
 KVSignal* KVSignal::ConvertTo(const Char_t* type)
 {
    KVSignal* sig = 0;
-   TClass* cl = new TClass(Form("KV%s", type));
+   TClass* cl = TClass::GetClass(Form("KV%s", type));
    if (cl) {
       sig = (KVSignal*)cl->New();
       sig->SetData(this->GetN(), this->GetX(), this->GetY());

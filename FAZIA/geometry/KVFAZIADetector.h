@@ -336,6 +336,10 @@ public:
    {
       return fFastAmplitudeQ3;
    }
+   Double_t GetQ3SlowAmplitude() const
+   {
+      return GetQ3Amplitude() - 0.8 * GetQ3FastAmplitude();
+   }
    void SetQ3BaseLine(Double_t value)
    {
       fBaseLineQ3 = value;
