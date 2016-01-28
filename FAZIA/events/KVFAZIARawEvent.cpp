@@ -19,7 +19,6 @@ KVFAZIARawEvent::KVFAZIARawEvent(Int_t ntot)
    // Default constructor
    fSignals = new TClonesArray("KVSignal", ntot);
    fValues = new KVNameValueList();
-
    fNumber = -1;
 }
 
@@ -28,7 +27,6 @@ KVFAZIARawEvent::KVFAZIARawEvent()
    // Default constructor
    fSignals = new TClonesArray("KVSignal", 10);
    fValues = new KVNameValueList();
-
    fNumber = -1;
 }
 
@@ -59,8 +57,6 @@ void KVFAZIARawEvent::Clear(Option_t*)
 {
    //Info("Clear","IsCalled");
    fSignals->Clear();
-   //fSignals->ls();
-   //TObject* obj = fSignals->At(0); if (obj) obj->Print();
    fValues->Clear();
 }
 
@@ -87,4 +83,19 @@ const Char_t* KVFAZIARawEvent::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TS
    else
       return "0.0";
 
+}
+
+//________________________________________________________________
+void KVFAZIARawEvent::Streamer(TBuffer& R__b)
+{
+   // Customised Streamer for KVFAZIARawEvent.
+   // This is just the automatic Streamer with the addition of a call to the Clear()
+   // method before reading a new object (avoid memory leaks with lists of parameters).
+
+   if (R__b.IsReading()) {
+      Clear();
+      R__b.ReadClassBuffer(KVFAZIARawEvent::Class(), this);
+   } else {
+      R__b.WriteClassBuffer(KVFAZIARawEvent::Class(), this);
+   }
 }

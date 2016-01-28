@@ -147,7 +147,10 @@ void KVFAZIAReader::Make(const Char_t* kvsname)
    // Automatic generation of KVFAZIAReader-derived class for KaliVeda analysis
 
    KVClassFactory cf(kvsname, "User analysis class", Class_Name(), kTRUE);
-   cf.AddImplIncludeFile("KVReconstructedNucleus.h");
+   cf.AddImplIncludeFile("KVSignal.h");
+   cf.AddImplIncludeFile("KVPSAResult.h");
+   cf.AddImplIncludeFile("KVNameValueList.h");
+   cf.AddImplIncludeFile("TClonesArray.h");
    cf.AddImplIncludeFile("KVBatchSystem.h");
    cf.AddImplIncludeFile("KVFAZIA.h");
    cf.GenerateCode();

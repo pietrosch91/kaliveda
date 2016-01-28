@@ -49,14 +49,6 @@ void KVFAZIAReaderTemplate::InitRun(void)
    // Called at the beginning of each run
    //
 
-   //
-   // Enter your code here
-   //
-   //
-   // If you want the angles of particles to be calculated using the
-   // centre of each detector (instead of the randomised angles used by default):
-   //     GetEvent()->UseMeanAngles();
-   //
    //The run number of the currently analysed run is given by
    //   GetCurrentRunNumber();
 
@@ -65,12 +57,51 @@ void KVFAZIAReaderTemplate::InitRun(void)
 //_____________________________________
 Bool_t KVFAZIAReaderTemplate::Analysis(void)
 {
-   // Analysis method.
-   // The event pointer can be retrieved by a call to GetEvent().
-   // See KVFAZIARawEvent documentation for the available methods.
-
+   // // Analysis method.
+   // // The event pointer can be retrieved by a call to GetEvent().
+   // // See KVFAZIARawEvent documentation for the available methods.
+   // // You can uncomment the following to see
+   // // Put a small number of events in the KaliVedaGUI
+   // // Because printing is heavy
    //
-   // Enter your code here
+   // TClonesArray* cl = GetEvent()->GetSignals();
+   // TIter next_signal(cl);
+   // KVSignal* sig = 0;
+   // KVSignal* sigc = 0;
+   // while ( sig = (KVSignal* )next_signal() )
+   // {
+   //    //To link a signal to its detector
+   //    sig->DeduceFromName();
+   //    printf("%s\n",sig->GetDetectorName());
+   //
+   //    //to draw histogram (don't use in batch mode
+   //    sig->Draw("APL");
+   //    //duplicate signal to the corresponding daughter class
+   //    //This is mandatory to perform the right PSA with the correct parameters
+   //    //associated to the current dataset
+   //    sigc = sig->ConvertTo(sig->GetType());
+   //    //print parameter values for PSA
+   //    sigc->Print();
+   //    //perform PSA
+   //    sigc->TreateSignal();
+   //    //print PSA results
+   //    sigc->GetPSAResult()->Print();
+   //    //access to a given output of the PSA
+   //    Double_t val1 = sigc->GetBaseLine();
+   //    Double_t val2 = sigc->GetSigmaBaseLine();
+   //    Double_t val3 = sigc->GetAmplitude();
+   //    printf("BaseLine=%lf, SigmaBaseLine=%lf - Amplitude=%lf\n",val1,val2,val3);
+   //    if (sigc)
+   //       delete sigc;
+   // }
+   //
+   // // Additionnal values stored reading the acquisition file
+   // //    DETTAG
+   // //    GTTAG
+   // //    results of the FPGA PSA
+   //
+   // KVNameValueList* lval = GetEvent()->GetValues();
+   // lval->Print();
    //
 
    return kTRUE;
