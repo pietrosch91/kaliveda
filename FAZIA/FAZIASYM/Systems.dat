@@ -1,4 +1,4 @@
-+40Ca + 197Ca 35.0 MeV/A
++40Ca + 197Au 35.0 MeV/A
 40 20 197 79 35.00
 Target: 1 0
 Gold 0.196
@@ -22,11 +22,47 @@ Target: 1 0
 Calcium 0.500
 Runs: 5648-6109
 
++48Ca + 112Sn 35.0 MeV/A
+48 20 112 50 35.00
+Target: 1 0
+Calcium 0.561
+Runs: 7000-7140
+
++48Ca + 48Ca 35.0 MeV/A
+48 20 48 20 35.00
+Target: 1 0
+Calcium 0.500
+Runs: 7141-10103 10214-12691 14588-14905
+
++48Ca + 12C 35.0 MeV/A
+48 20 12 6 35.00
+Target: 1 0
+Calcium 0.308
+Runs: 10104-10207 14420-14490
+
++48Ca + 197Au 35.0 MeV/A
+48 20 197 79 35.00
+Target: 1 0
+Calcium 0.196
+Runs: 12692-12763
+
 +48Ca + 40Ca 35.0 MeV/A
 48 20 40 20 35.00
 Target: 1 0
 Calcium 0.500
-Runs: 7000-16000
+Runs: 12764-14411 14906-15115
+
++48Ca + 124Sn 35.0 MeV/A
+48 20 124 50 35.00
+Target: 1 0
+Calcium 2.500
+Runs: 14491-14587
+
++48Ca EmptyFrame#15
+Runs: 10208-10212 14412-14419
+
++48Ca TargetLoaderDown
+Runs: 10213-10213
 
 +Pulser
 Runs: 5022-5024 6474-6519 6563-6564
