@@ -941,11 +941,14 @@ void KVSignal::BuildCubicSignal(double taufinal)
    fChannelWidthInt = taufinal;
    TArrayF interpo;
    interpo.Set((int)(Nsa * tau / taufinal));
+   int nlast = interpo.GetSize() - (int)(3 * tau / taufinal);
+   if (nlast <= 0) return;
 
    for (int i = 0; i < interpo.GetSize(); i++) interpo.AddAt(GetDataInterCubic(i * taufinal), i);
    fAdc.Set(0);
    fAdc.Set(interpo.GetSize());
-   for (int i = 0; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(i), i);
+   for (int i = 0; i < nlast; i++) fAdc.AddAt(interpo.At(i), i);
+   for (int i = nlast; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(nlast), i);
 
 }
 /***********************************************/

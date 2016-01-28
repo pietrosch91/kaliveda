@@ -113,10 +113,9 @@ void KVI1::TreateSignal()
    Add(-1.*ComputeBaseLine());
    if (fWithInterpolation) {
       BuildCubicSignal();
-      SetNSamples(GetNSamples() - 5); // because we use a 3th order interpolation... - 3 is not enougth !
+//      SetNSamples(GetNSamples() - 5*(fChannelWidth /fInterpolatedChannelWidth)); // because we use a 3th order interpolation...
    }
-   fAmplitude = GetAmplitude();
-
+   fAmplitude = ComputeAmplitude();
    fPSAIsDone = kTRUE;
 }
 
