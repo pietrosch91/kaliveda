@@ -134,6 +134,9 @@ ISOFAZIA.ActiveIdentifications:        CsI Si-Si
 
 # file which gather all calibration files
 FAZIADB.CalibrationFiles:     CalibrationFiles.dat
+#comments associated with runs
+FAZIADB.Comments:				Comments.txt
+
 
 # definition of the calibration function for detectors
 FAZIADetector.Calib.Channel-Volt: pol2
@@ -244,9 +247,6 @@ ISOFAZIA.Q3.PZCorrection:  		  0
 
 #specific parameters for some signals for some run ranges
 ISOFAZIA.FAZIADB.Exceptions:				ISOFAZIA-PSA-Params.dat
-
-#comments associated with runs
-ISOFAZIA.FAZIADB.Comments:				Comments.txt
 
 ###
 #	FAZIASYM

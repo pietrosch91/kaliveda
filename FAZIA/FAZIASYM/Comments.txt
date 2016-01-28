@@ -1,0 +1,7 @@
+#Comments for FAZIASYM
+#
+run=1928-3959 | Comments=Quartz was in beam
+run=5647 | Comments=Mix of the two targets 40,48Ca
+run=4972 5648 6109 | Comments=B000 is lost
+run=6110 | Comments=Crash of fzstore machine
+run=6164-6343 | Comments=Shielding is in the beam
