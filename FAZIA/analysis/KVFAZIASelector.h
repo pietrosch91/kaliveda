@@ -32,6 +32,7 @@ public:
    virtual Bool_t  Notify();
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0)
    {
+      if (RawEvent) RawEvent->Clear();
       Int_t res = fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
       if (NeedToReadRawData())
          ConnectSignalsToDetectors();

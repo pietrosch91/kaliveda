@@ -73,6 +73,8 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
    GetDetectorEvent()->Clear();
    fEventsRead += 1;
 
+   RawEvent->Clear();
+
    GetEntry(entry);
    gFazia->GetDetectorEvent(GetDetectorEvent(), RawEvent->GetSignals());
 
