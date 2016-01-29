@@ -150,11 +150,23 @@ KVFAZIADetector* KVFAZIAReconNuc::GetSI2() const
    return Get("SI2");
 }
 
+Int_t KVFAZIAReconNuc::GetIndex() const
+{
+   KVFAZIADetector* det = 0;
+   if (!(det = (KVFAZIADetector*)GetStoppingDetector())) return -1;
+   return det->GetIndex();
+}
+
 
 Bool_t KVFAZIAReconNuc::StoppedIn(const Char_t* label) const
 {
    //Returns kTRUE if particle stopped in the labelled detector
    return (GetStoppingDetector() == Get(label));
+}
+
+Int_t KVFAZIAReconNuc::GetIdentifierOfStoppingDetector() const
+{
+   return ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
 }
 
 Bool_t KVFAZIAReconNuc::StoppedInSI2() const

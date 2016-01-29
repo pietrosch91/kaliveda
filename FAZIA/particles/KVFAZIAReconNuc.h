@@ -79,6 +79,10 @@ public:
    KVFAZIADetector* GetSI1() const;
    KVFAZIADetector* GetSI2() const;
    KVFAZIADetector* GetCSI() const;
+
+   Int_t GetIndex() const;
+   Int_t GetIdentifierOfStoppingDetector() const;
+
    Bool_t StoppedIn(const Char_t* dettype) const;
    Bool_t StoppedInSI1() const;
    Bool_t StoppedInSI2() const;

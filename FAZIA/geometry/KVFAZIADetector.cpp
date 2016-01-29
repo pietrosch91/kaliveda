@@ -24,6 +24,13 @@ ClassImp(KVFAZIADetector)
 void KVFAZIADetector::init()
 {
    //default initialisations
+   fBlock = -1;
+   fIdentifier = kOTHER;
+   fQuartet = -1;
+   fTelescope = -1;
+   fIndex = -1;
+   fIsRutherford = kFALSE;
+
    fSignals = 0;
    fChannelToEnergy = 0;
    fChannelToVolt = 0;
@@ -223,14 +230,24 @@ Bool_t KVFAZIADetector::SetProperties()
    gFazia->AddDetectorLabel(GetLabel());
 
    tmp = sname.Next();
-   tmp.ReplaceAll("T", "");
-   fTelescope = tmp.Atoi();
-   tmp = sname.Next();
-   tmp.ReplaceAll("Q", "");
-   fQuartet = tmp.Atoi();
-   tmp = sname.Next();
-   tmp.ReplaceAll("B", "");
-   fBlock = tmp.Atoi();
+   if (tmp == "RUTH") {
+      fIsRutherford = kTRUE;
+      fTelescope = fQuartet = fBlock = 0;
+   } else if (tmp.BeginsWith("T")) {
+      tmp.ReplaceAll("T", "");
+      fTelescope = tmp.Atoi();
+      tmp = sname.Next();
+      tmp.ReplaceAll("Q", "");
+      fQuartet = tmp.Atoi();
+      tmp = sname.Next();
+      tmp.ReplaceAll("B", "");
+      fBlock = tmp.Atoi();
+   } else {
+      Info("SetProperties", "Unkown format for the detector %s", GetName());
+   }
+
+   fIndex = 100 * fBlock + 10 * fQuartet + fTelescope;
+
    KVSignal* sig = 0;
    //"QH1", "I1", "QL1", "Q2", "I2", "Q3
    if (fSignals)

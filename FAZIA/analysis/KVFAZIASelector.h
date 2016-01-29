@@ -37,6 +37,10 @@ public:
          ConnectSignalsToDetectors();
       return res;
    }
+   Int_t GetCurrentRunNumber() const
+   {
+      return fCurrentRun;
+   }
 
    Bool_t NeedToReadRawData() const
    {

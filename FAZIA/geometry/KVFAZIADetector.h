@@ -16,6 +16,8 @@ protected:
    Int_t fQuartet;
    Int_t fTelescope;
    Int_t fIdentifier;   //to difference SI1 SI2 CSI detectors
+   Int_t fIndex;   //!100*block+10*quartet+telescope
+   Bool_t fIsRutherford;   //!
 
    Double_t fChannel;
    Double_t fVolt;
@@ -76,7 +78,8 @@ public:
    enum {                       //determine identification of the detector
       kSI1,
       kSI2,
-      kCSI
+      kCSI,
+      kOTHER
    };
    KVFAZIADetector();
    KVFAZIADetector(const Char_t* type, const Float_t thick = 0.0);
@@ -108,6 +111,16 @@ public:
    {
       return fBlock;
    }
+   Int_t GetIndex() const
+   {
+      return fIndex;
+   }
+
+   Bool_t IsRutherford() const
+   {
+      return fIsRutherford;
+   }
+
    Int_t GetQuartetNumber() const
    {
       return fQuartet;
