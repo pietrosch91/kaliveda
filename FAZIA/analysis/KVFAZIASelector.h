@@ -18,7 +18,7 @@ protected:
    TString rawdatabranchname;
 
 public:
-   KVFAZIASelector()
+   KVFAZIASelector() : fCurrentRun(0), fRawData(kFALSE), RawEvent(nullptr)
    {
       rawdatabranchname = "rawevent";
       SetBranchName("FAZIAReconEvent");
