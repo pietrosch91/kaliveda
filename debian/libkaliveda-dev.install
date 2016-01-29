@@ -59,6 +59,7 @@
 /usr/include/kaliveda/KVRecombination.h
 /usr/include/kaliveda/KVedaLoss.h
 /usr/include/kaliveda/KVMaterial.h
+/usr/include/kaliveda/KVedaLossInverseRangeFunction.h
 /usr/include/kaliveda/KVIonRangeTableMaterial.h
 /usr/include/kaliveda/KVIonRangeTable.h
 /usr/include/kaliveda/KVedaLossRangeFitter.h

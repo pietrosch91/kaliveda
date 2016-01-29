@@ -21,9 +21,14 @@
 /usr/lib/libFAZIAidentification.so.1.10.07
 /usr/lib/libFAZIAgeometry.so.1
 /usr/lib/libFAZIAdb.so.1.10.07
+/usr/share/kaliveda/FAZIASYM/CalibrationFiles.dat
+/usr/share/kaliveda/FAZIASYM/Q2_ChannelVolt.dat
 /usr/share/kaliveda/FAZIASYM/Runlist.csv
 /usr/share/kaliveda/FAZIASYM/Systems.dat
 /usr/share/kaliveda/FAZIASYM/Makefile
+/usr/share/kaliveda/FAZIASYM/QH1_ChannelVolt.dat
+/usr/share/kaliveda/FAZIASYM/Q3_ChannelVolt.dat
+/usr/share/kaliveda/FAZIASYM/Comments.txt
 /usr/share/kaliveda/LNS_2014/SI1_QH1toVolt.dat
 /usr/share/kaliveda/LNS_2014/Runlist.csv
 /usr/share/kaliveda/LNS_2014/Systems.dat
@@ -36,10 +41,6 @@
 /usr/share/kaliveda/LNS_2014/SI1_QL1toVolt.dat
 /usr/share/kaliveda/LNS_2014/ChVolt.dat
 /usr/share/kaliveda/LNS_2014/SiSiGrids.dat
-/usr/share/kaliveda/INDRAFAZIA/Runlist.csv
-/usr/share/kaliveda/INDRAFAZIA/Systems.dat
-/usr/share/kaliveda/INDRAFAZIA/Makefile
-/usr/share/kaliveda/INDRAFAZIA/ChIoPressures.dat
 /usr/share/kaliveda/ISOFAZIA/calibSI1_ISOFAZIA.dat
 /usr/share/kaliveda/ISOFAZIA/ISOFAZIA-PSA-Params.dat
 /usr/share/kaliveda/ISOFAZIA/CalibrationFiles.dat
