@@ -6,6 +6,7 @@
 
 #include "KVSimReader_HIPSE.h"
 #include "KVNameValueList.h"
+#include "TRotation.h"
 
 class KVNucleus;
 class TH1F;
@@ -14,6 +15,9 @@ class KVSimReader_HIPSE_asym : public KVSimReader_HIPSE {
 
 protected:
    TH1F* h1;
+   Double_t fPhiPlan;
+   TRotation rr;
+
 
 public:
 
@@ -28,6 +32,7 @@ public:
       tree_name = "HIPSE_asym";
       Info("init", "%s", branch_name.Data());
       h1 = 0;
+      fPhiPlan = 0.;
    }
 
    virtual Bool_t ReadEvent();
