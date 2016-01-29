@@ -215,8 +215,12 @@ endif()
 
 #--- Libraries for FAZIA data
 option(USE_FAZIA "Build libraries for analysis of FAZIA data" OFF)
-if(USE_FAZIA)
+
+#--- Libraries for IDNRAFAZIA data
+option(USE_INDRAFAZIA "Build libraries for analysis of INDRAFAZIA data" OFF)
+if(USE_INDRAFAZIA)
 	set(USE_INDRA ON)
+	set(USE_FAZIA ON)   
 endif()
 
 #--- Enable build of all libraries
@@ -229,6 +233,7 @@ add_feature_info(indra USE_INDRA "Build libraries for analysis of INDRA data")
 add_feature_info(indravamos USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data")
 add_feature_info(indravamosdep USE_DEPRECATED_VAMOS "Build libraries for deprecated INDRA-VAMOS analysis")
 add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
+add_feature_info(indrafazia USE_INDRAFAZIA "Build libraries for analysis of INDRAFAZIA data")
 
 #----------------------------------------------------------
 #------------------END BUILD OPTIONS-----------------------
@@ -280,6 +285,11 @@ if(USE_INDRAVAMOS)
 endif()
 if(USE_FAZIA)
 	add_subdirectory(FAZIA)
+	get_property(FAZIA_MOD_LIST GLOBAL PROPERTY FAZIA_MOD_LIST)
+	get_property(FAZIA_LIB_LIST GLOBAL PROPERTY FAZIA_LIB_LIST)
+endif()
+if(USE_INDRAFAZIA)
+	add_subdirectory(indrafazia)
 endif()
 
 add_subdirectory(execs)

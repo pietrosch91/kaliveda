@@ -1,19 +1,5 @@
 # fichier d initialisation pour la lecture des dataset FAZIA
 #
-+DataSet:	  INDRAFAZIA
-INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2017-)
-INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
-INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
-INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon
-INDRAFAZIA.KVDataSet.DataType.Subdir.root:  root
-+Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    FAZIAgeometry    "KVINDRAFAZIA()"
-+Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
-+Plugin.KVUpDater: INDRAFAZIA KVINDRAUpDater KVIndradb "KVINDRAUpDater()"
-
-# FAZIA Geometry used by KVINDRAFAZIA
-INDRAFAZIA.GeoType:  		 compact
-INDRAFAZIA.DistanceFAZIA:   80.0
-INDRAFAZIA.ThetaMinCompactGeo: 2.0
 # Geometries
 FAZIASYM.GeoType:        compact
 FAZIASYM.DistanceFAZIA:   80.0
@@ -93,10 +79,6 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVIDTelescope:    ^LNS_2014.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^LNS_2014.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^LNS_2014.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 ############
 LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
