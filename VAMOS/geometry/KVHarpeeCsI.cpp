@@ -232,3 +232,49 @@ void KVHarpeeCsI::Streamer(TBuffer& R__b)
       KVHarpeeCsI::Class()->WriteBuffer(R__b, this);
    }
 }
+
+Bool_t KVHarpeeCsI::IsECalibrated() const
+{
+   if (!fCal) return kFALSE;
+   return fCal->GetStatus();
+}
+
+Double_t KVHarpeeCsI::GetCorrectedEnergy(KVNucleus* nuc, Double_t light,
+      Bool_t transmission)
+{
+   UNUSED(transmission);
+
+   // Ensure the nucleus is not modified
+   const KVNucleus* const n(nuc);
+   assert(n);
+
+   Int_t Z(n->GetZ());
+   Int_t A(n->GetA());
+
+   assert((Z > 0) && (Z < 150));
+   assert((A > 0) && (A < 300));
+
+   Double_t eloss(0.);
+   assert(fCal);
+
+   fCal->SetZ(Z);
+   fCal->SetA(A);
+
+   if (IsSimMode()) {
+      // Calculate energy loss from the predicted light output of the detected
+      // energy.
+      eloss = fCal->Compute(fCal->Invert(GetEnergy()));
+   } else if (light < 0.) {
+      // Light has not been set so use the ACQ data
+      eloss = fCal->Compute(GetACQData(GetEBaseName()) -
+                            GetPedestal(GetEBaseName()));
+   } else {
+      // Light has been set manually
+      eloss = fCal->Compute(light);
+   }
+
+   if (eloss < 0.) eloss = 0.;
+   SetEnergy(eloss);
+
+   return eloss;
+}

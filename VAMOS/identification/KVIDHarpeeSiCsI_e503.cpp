@@ -14,11 +14,6 @@ KVIDHarpeeSiCsI_e503::KVIDHarpeeSiCsI_e503() :
 #endif
    kInitialised_(kFALSE)
 {
-   // Constructor (Public Interface Method)
-   //
-   // It is good practice to keep the constructor clear of initialisation code
-   // as there is no easy way for constructors to handle errors. Instead you
-   // should call Init() immediately after you construct this object.
 
    fIDCode = kIDCode3;
 }
@@ -54,13 +49,6 @@ void KVIDHarpeeSiCsI_e503::Copy(TObject& obj) const
 
 Bool_t KVIDHarpeeSiCsI_e503::Init()
 {
-   // Init (Public Interface Method)
-   //
-   // You should call this method immediately after you have constructed the
-   // KVIDHarpeeSiCsI_e503 object. If the telescope has already been
-   // initialised this method will do nothing.
-   //
-
    if (kInitialised_) return kTRUE;
 
 #if __cplusplus < 201103L
@@ -71,7 +59,10 @@ Bool_t KVIDHarpeeSiCsI_e503::Init()
    minimiser_.reset(new SiliconEnergyMinimiser());
 #endif
 
+   minimiser_->Init();
    kInitialised_ = kTRUE;
+
+   SetBit(kReadyForID);
 
    return kTRUE;
 }
@@ -79,20 +70,7 @@ Bool_t KVIDHarpeeSiCsI_e503::Init()
 Bool_t KVIDHarpeeSiCsI_e503::Identify(KVIdentificationResult* idr, Double_t x,
                                       Double_t y)
 {
-   // Identify : Public Interface Method
-   //
-   // This method relies on the base class identification routine
-   // (KVIDHarpeeSiCsI::Identify) to perform the Z identification, using a
-   // KVIDZAGrid. It then estimates the A value using the ThreadedMassEstimator
-   // class (by minimising the difference between simulated and real silicon
-   // energies).
-   //
-
    assert(idr);
-
-   // Check to make sure the KVIDHarpeeSiCsI_e503 object has been properly
-   // initialised. If not, we attempt to initialise it.
-
    if (!kInitialised_) Init();
 
    if (x < 0.) x = GetIDMapX();
@@ -134,11 +112,13 @@ Bool_t KVIDHarpeeSiCsI_e503::Identify(KVIdentificationResult* idr, Double_t x,
    idr->A = minimiser_->Minimise(idr->Z, y, x);
 
    if (idr->A > 0) {
+
       idr->Zident = kTRUE;
       idr->Aident = kTRUE;
 
       idr->IDOK = kTRUE;
       idr->IDquality = kIdentified;
+
       return kTRUE;
    }
 
@@ -150,12 +130,6 @@ Bool_t KVIDHarpeeSiCsI_e503::SetIDCorrectionParameters(
    const KVRList* const records
 )
 {
-   // SetIDCorrectionParameters (Public Interface Method)
-   //
-   // This method adds all the identification correction parameter records
-   // specified in 'records' to the private member KVRList 'records_';
-   //
-
    if (!records) {
       Error("SetIDCorrectionParameters",
             "Supplied record list is a null pointer");

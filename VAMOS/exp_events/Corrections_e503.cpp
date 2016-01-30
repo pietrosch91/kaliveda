@@ -21,20 +21,62 @@
 
 namespace idc {
 
+   void VAMOSIdentifyHack(KVVAMOSReconNuc* const n)
+   {
+      n->Identify(); // KVReconstructedNucleus::Identify()
+
+      KVIdentificationResult partID;
+      Bool_t ok(kFALSE);
+
+      UInt_t num_iterations(0);
+      UInt_t max_iterations(10);
+
+      // For all nuclei we take the first identification which gives IDOK==kTRUE
+      Int_t id_no(1);
+      KVIdentificationResult* pid(n->GetIdentificationResult(id_no));
+
+      while (pid->IDattempted && (num_iterations < max_iterations)) {
+
+         if (pid->IDOK) {
+            ok = kTRUE;
+            partID = *pid;
+            break;
+         }
+
+         ++id_no;
+         pid = n->GetIdentificationResult(id_no);
+         ++num_iterations;
+      }
+
+      if (ok) {
+         n->SetIsIdentified();
+         KVIDTelescope* idt(
+            static_cast<KVIDTelescope*>(
+               n->GetIDTelescopes()->FindObjectByType(partID.GetType())
+            )
+         );
+         if (!idt) {
+            Warning("Identify", "cannot find ID telescope with type %s",
+                    partID.GetType());
+            n->GetIDTelescopes()->ls();
+            partID.Print();
+         }
+         n->SetIdentifyingTelescope(idt);
+         n->SetIdentification(&partID);
+      } else {
+         /******* UNIDENTIFIED PARTICLES *******/
+         /*** general ID code for non-identified particles ***/
+         if (num_iterations == max_iterations) {
+            std::cerr << "\nVAMOSIdentifyHack: Exceeded max iterations!"
+                      << std::endl;
+         }
+         n->SetIDCode(kIDCode14);
+      }
+
+   };
+
    UChar_t Identify(KVVAMOSReconNuc* const n, AbsorberEnergies* const energy_data)
    {
-      // This is the identification method for the E503 experiment. The nucleus is
-      // first identified with the usual KVVAMOSReconNuc::Identify() routine -
-      // which calls the respective Identify() methods in each of the
-      // identification telescopes. This result is then used as the basis for the
-      // global VAMOS identification procedure which is used to calculate the
-      // mass, charge and mass-to-charge ratio. The E503 identification
-      // corrections are subsequently applied.
-      //
-      // The UChar_t return value is used to pass information about the
-      // identification status back to the user without resorting to expensive I/O
-      // calls.
-
       assert(n);
 
       KVVAMOSCodes codes(n->GetCodes());
@@ -43,7 +85,13 @@ namespace idc {
          return kBadTimeCal;
       }
 
-      n->Identify();
+      // KVVAMOSReconNuc::Identify() is no longer implemented! Instead we must
+      // call idc::VAMOSIdentifyHack() which re-implements this missing
+      // function.
+      //
+      // WARNING: This is not a long term solution, it is a hack!
+      VAMOSIdentifyHack(n);
+
       if (!n->IsIdentified()) return kNotIdentified;
 
       KVIDTelescope* idt(n->GetIdentifyingTelescope());
@@ -405,22 +453,23 @@ namespace idc {
          energy_data->strip_foil = absorber_eloss;
       }
 
-      KVTarget* target(gVamos->GetTarget());
+      // FIXME: Target is not being set
+      //KVTarget* target(gVamos->GetTarget());
 
-      if (!target) {
-         return kNoTarget;
-      }
+      //if (!target) {
+      //   return kNoTarget;
+      //}
 
-      absorber_eloss = target->GetDeltaEFromERes(
-                          sim_nucleus.GetZ(),
-                          sim_nucleus.GetA(),
-                          total_energy
-                       );
-      total_energy += absorber_eloss;
+      //absorber_eloss = target->GetDeltaEFromERes(
+      //                    sim_nucleus.GetZ(),
+      //                    sim_nucleus.GetA(),
+      //                    total_energy
+      //                 );
+      //total_energy += absorber_eloss;
 
-      if (energy_data) {
-         energy_data->target = absorber_eloss;
-      }
+      //if (energy_data) {
+      //   energy_data->target = absorber_eloss;
+      //}
 
       assert((total_energy >= 0.) && (total_energy < 3000.));
 
@@ -539,7 +588,7 @@ namespace idc {
          return kFALSE;
       }
 
-      Double_t uncorrected_a_over_q(n->GetRealAoverQ());
+      Double_t uncorrected_a_over_q(n->GetRealAoverQ("TSI_HF"));
       Double_t corrected_a_over_q(
          CorrectAoverQ(a_over_q_straight, uncorrected_a_over_q, data->pid)
       );
@@ -604,7 +653,7 @@ namespace idc {
          return kFALSE;
       }
 
-      Double_t uncorrected_a_over_q(n->GetRealAoverQ());
+      Double_t uncorrected_a_over_q(n->GetRealAoverQ("TSI_HF"));
       Double_t corrected_a_over_q(
          CorrectAoverQ(a_over_q_straight, uncorrected_a_over_q, data->pid)
       );
@@ -624,8 +673,7 @@ namespace idc {
       n->SetRealA(data->a_real);
 
       // NOTE: KVVAMOSReconNuc::Calibrate() is extremely slow (lots of TF1::Eval
-      // going on) and it reduces the event rate from ~27 events/s down to ~7
-      // events/s (3.8x slower) I don't think I need it anyway (I *think*) as I'm
+      // going on) I don't think I need it anyway (I *think*) as I'm
       // setting the energy manually in the code above. As a result the nucleus
       // will not appear calibrated, but the nucleus itself should be OK.
 

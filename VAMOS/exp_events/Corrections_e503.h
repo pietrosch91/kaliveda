@@ -57,8 +57,22 @@ namespace idc {
       kCorrectionsFailed
    };
 
+// 'Hack' identification function for E503.
+//
+// This function re-implements the old KVVAMOSReconNuc::Identify() function
+// which has been removed in the mainline. Here we set the identification result
+// and the identifying telescope for the nucleus. The algorithm has been
+// implemented exactly as it used to be in the old 1.9 source tree but with a
+// couple of improvements to prevent infinite loops. You should really have no
+// reason to call this yourself, it is called within idc::Identify().
+//
+// WARNING: This function is intended to be a temporary 'hack' and not a long
+// term solution. It is a stop-gap measure!
+//
+// Parameter: n - The nucleus to be identified.
+   void VAMOSIdentifyHack(KVVAMOSReconNuc* const n);
 
-// Identification function for E503.
+// Main identification function for E503.
 //
 // This function acts as a wrapper to the standard identification routines and
 // MODIFIES THE IDENTIFIED NUCLEUS by implementing the identification

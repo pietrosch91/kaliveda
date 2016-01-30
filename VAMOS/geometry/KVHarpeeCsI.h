@@ -44,6 +44,10 @@ public:
    virtual void        SetACQParams();
    virtual void        SetCalibrators();
 
+   virtual Bool_t IsECalibrated() const;
+   virtual Double_t GetCorrectedEnergy(KVNucleus* n, Double_t light,
+                                       Bool_t transmission);
+
    // -------- inline methods ---------------//
 
    virtual KVString& GetACQParamTypes();

@@ -46,7 +46,7 @@ ClassImp(MonoMinimiserImpl)
 MonoMinimiserImpl::MonoMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
-   max_iterations_(1000),
+   max_iterations_(200),
    tolerance_(0.05),
 #if __cplusplus < 201103L
    sim_parameters_(NULL),
@@ -157,7 +157,6 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       delta_last = sim_results_->delta;
    } else {
       delta_last = 100000.;
-      // TODO: Return failed?
    }
 
    best_forward_delta = delta_last;
