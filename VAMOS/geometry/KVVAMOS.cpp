@@ -1037,7 +1037,7 @@ KVVAMOS* KVVAMOS::MakeVAMOS(const Char_t* name)
    // These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
    //
    //Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     KVVamos    "KVVAMOS()"
-   //+Plugin.KVVAMOS:    INDRA_e503    KVVAMOS_e503     KVVamos_e503    "KVVAMOS_e503()"
+   //+Plugin.KVVAMOS:    INDRA_e503    KVVAMOS     KVVamos    "KVVAMOS()"
    //
    //The 'name' ("INDRA_e464s" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
    //The constructors/macros are always without arguments

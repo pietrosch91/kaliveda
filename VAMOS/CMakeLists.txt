@@ -16,9 +16,6 @@ set(CMAKE_C_FLAGS_RELEASE
 set(CMAKE_C_FLAGS_DEBUG
 	"${CMAKE_C_FLAGS_DEBUG} ${VAMOS_SPECIFIC_FLAGS}")
 
-#---list of datasets
-set(datasets VAMOS_e503)
-
 #---set paths to find all KVMultiDet headers
 KALIVEDA_SET_INCLUDE_DIRS(KVMultiDet MODULES ${KVMultiDet_MOD_LIST})
 #---set paths to find all KVIndra headers
