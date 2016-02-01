@@ -82,7 +82,7 @@ Bool_t KVFAZIAReader::Process(Long64_t entry)
       Info("KVFAZIAReader::Process", "%d read entries", GetNumberOfReadEntries());
       ProcInfo_t pid;
       if (gSystem->GetProcInfo(&pid) == 0) {
-         cout << "     ------------- Process infos -------------" << endl;
+         std::cout << "     ------------- Process infos -------------" << std::endl;
          printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
                 pid.fCpuSys, pid.fCpuUser, pid.fMemResident / 1024., pid.fMemVirtual / 1024.);
       }

@@ -92,14 +92,14 @@ void example(double E0 = 50, int nevents = 100000)
    gps.SetWeight(&decay, etot);
    gps.initGenerateEvent(&decay);
 
-   cout << "Edisp = " << etot << " MeV" << endl;
+   std::cout << "Edisp = " << etot << " MeV" << std::endl;
    KVHashList histos;
    TH1F* h;
 
    while ((n = decay.GetNextParticle())) {
       Double_t kappa = total_mass / (total_mass - n->GetMass());
-      cout << n->GetSymbol() << " : max KE = " << 1. / kappa << " * " << etot << " MeV" << endl;
-      cout << n->GetSymbol() << " : m/M = " << n->GetMass() / total_mass << " k = " << kappa << endl;
+      std::cout << n->GetSymbol() << " : max KE = " << 1. / kappa << " * " << etot << " MeV" << std::endl;
+      std::cout << n->GetSymbol() << " : m/M = " << n->GetMass() / total_mass << " k = " << kappa << std::endl;
       histos.Add(h = new TH1F(n->GetSymbol(), Form("Kinetic energy of %s", n->GetSymbol()), 200, 0, etot));
       h->Sumw2();
    }

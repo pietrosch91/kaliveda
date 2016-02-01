@@ -431,12 +431,12 @@ Double_t KVedaLossMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres
    return fRange->GetX(R0);
 }
 
-void KVedaLossMaterial::GetParameters(Int_t Zion, Int_t& Aion, vector<Double_t> rangepar)
+void KVedaLossMaterial::GetParameters(Int_t Zion, Int_t& Aion, std::vector<Double_t> rangepar)
 {
    // For the given ion atomic number, give the reference mass used and the six
    // parameters for the range function fit
 
-   rangepar = vector<Double_t>(fCoeff[Zion - 1].begin() + 2, fCoeff[Zion - 1].end());
+   rangepar = std::vector<Double_t>(fCoeff[Zion - 1].begin() + 2, fCoeff[Zion - 1].end());
    Aion = fCoeff[Zion - 1][1];
 }
 
