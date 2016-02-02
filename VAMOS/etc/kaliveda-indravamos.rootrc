@@ -15,6 +15,13 @@ INDRA_e503.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
 INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e503.ReconstructedEventClassName:   KVIVReconEvent
 
+# We must protect Mark Boisjoli's work from being overwritten. Therefore we make
+# the default recon and ident directories recon3/ident3 instead of the
+# recon2/ident2 Mark was working with:
+INDRA_e503.KVDataSet.DataType.Subdir.ident:  ident3
+INDRA_e503.KVDataSet.DataType.Subdir.recon:  recon3
+INDRA_e503.KVDataSet.DataType.Subdir.root:   root3
+
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
 INDRA_e494s.DataSet.RepositoryDir:   e494s
@@ -103,8 +110,8 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
-+Plugin.KVDataBase:  INDRA_e503   KVIVDB_e503  VAMOSdb  "KVIVDB_e503(const  Char_t*)"
 +Plugin.KVDataBase:  INDRA_e494s  KVIVDB  VAMOSdb  "KVIVDB(const  Char_t*)"
++Plugin.KVDataBase:  INDRA_e503   KVIVDB_e503  VAMOSdb  "KVIVDB_e503(const  Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
