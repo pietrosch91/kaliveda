@@ -46,7 +46,7 @@ ClassImp(MonoMinimiserImpl)
 MonoMinimiserImpl::MonoMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
-   max_iterations_(200),
+   max_iterations_(20),
    tolerance_(0.05),
 #if __cplusplus < 201103L
    sim_parameters_(NULL),
@@ -156,6 +156,7 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
 #endif
       delta_last = sim_results_->delta;
    } else {
+      Warning("MonoMinimiserImpl::Minimise", "Initial point is bad");
       delta_last = 100000.;
    }
 
@@ -221,8 +222,8 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
    }
 
    if (n >= max_iterations_) {
-      Error("MonoMinimiserImpl::Minimise",
-            "Forward loop exceeded the maximum number of iterations");
+      //Warning("MonoMinimiserImpl::Minimise",
+      //      "Forward loop exceeded the maximum number of iterations");
       return -1;
    }
 
@@ -282,8 +283,8 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
    }
 
    if (n >= max_iterations_) {
-      Error("MonoMinimiserImpl::Minimise",
-            "Backward loop exceeded the maximum number of iterations");
+      //Warning("MonoMinimiserImpl::Minimise",
+      //      "Backward loop exceeded the maximum number of iterations");
       return -1;
    }
 
