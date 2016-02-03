@@ -605,9 +605,11 @@ TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
    if (!CanWrite()) {
       //files cannot be created and written directly in the repository
       //store path info for subsequent CommitFile
+      /*
       fCommitDataSet = dataset;
       fCommitDataType = datatype;
       fCommitFileName = filename;
+      */
       //create local file
       return new TFile(filename, "recreate");
    }
@@ -622,7 +624,7 @@ TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-void KVDataRepository::CommitFile(TFile* file)
+void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset)
 {
    //Add this file (previously created by a call to CreateNewFile) to the repository.
    //Any objects should be written to the file before calling this method, either by
@@ -638,17 +640,22 @@ void KVDataRepository::CommitFile(TFile* file)
    //NB: after calling this method, the TFile pointer 'file' must not be used!!!
 
    //close ROOT file
+   //if (fCommitFileName == "") {
+   fCommitFileName = file->GetName();
+   /*
+      Info("KVDataRepository::CommitFile",
+            "Recover name of the file ==> %s",fCommitFileName.Data());
+   }
+   */
    delete file;
 
    if (CanWrite()) {           //all we have to do for repositories in which files can be written directly
       return;
    }
 
-   if (fCommitFileName == "") {
-      Error("KVDataRepository::CommitFile",
-            "Can only be called for files created with KVDataRepository::CreateNewFile");
-      return;
-   }
+   fCommitDataSet = dataset;
+   fCommitDataType = datatype;
+
    //create file in local repository - make sure subdirectory exists!
    if (!CheckSubdirExists(fCommitDataSet->GetDataPathSubdir(), fCommitDataSet->GetDataTypeSubdir(fCommitDataType))) {
       //does dataset directory exist ?
@@ -670,8 +677,10 @@ void KVDataRepository::CommitFile(TFile* file)
                         fCommitDataType.Data(), fCommitFileName.Data());
    //delete local file
    gSystem->Unlink(fCommitFileName.Data());
+   /*
    fCommitDataSet = 0;
    fCommitDataType = fCommitFileName = "";
+   */
 }
 
 //___________________________________________________________________________

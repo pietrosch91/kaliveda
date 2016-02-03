@@ -119,7 +119,7 @@ public:
    virtual TFile* CreateNewFile(KVDataSet* dataset,
                                 const Char_t* datatype,
                                 const Char_t* filename);
-   virtual void CommitFile(TFile* file);
+   virtual void CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset);
 
    virtual void MakeSubdirectory(KVDataSet* dataset,
                                  const Char_t* datatype = "");

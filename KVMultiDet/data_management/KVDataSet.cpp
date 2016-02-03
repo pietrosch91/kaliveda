@@ -1079,7 +1079,7 @@ void KVDataSet::CommitRunfile(const Char_t* type, Int_t run, TFile* file)
    //keep name of file for updating available runs list
    TString newfile = gSystem->BaseName(file->GetName());
 
-   fRepository->CommitFile(file);
+   fRepository->CommitFile(file, type, this);
    //update list of available datatypes of dataset,
    //in case this addition has created a new subdirectory
    CheckAvailable();
