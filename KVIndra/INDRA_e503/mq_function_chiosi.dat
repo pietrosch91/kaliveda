@@ -1,87 +1,319 @@
-#######################################################################################
-# Corrections faites d'abord sur les Brho qui n'ont pu etre corrigés 
-# avec l'identification Si-CsI : 
-# 40+48 : 501-509
-# 40+40 : 511-524
-# 48+40 : 357-360
-# 48+48 : 407-424
-# En un deuxième temps, comparer les corrections entre Si-CsI et Chio-Si.
-# Si les comparaisons sont différentes, appliquer de manière indépendante
-# les corrections en fonction de leur identification.
-########################################################################################
 
-#Brho	run1	run2	p0		p1		chi2
+# Correction parameters for the mass:charge ratio (Ionisation Chamber:Silicon).
+#
+# The correction function is linear in brho:
+#     M/Q(corrected) = a0 + a1(brho) * M/Q(measured)
+#
+# The format of this file is designed so that it can be easily read by the
+# KVIVDB_e503 parser in a generic way. By doing this we avoid having to define a
+# separate method to read each file as the format is now regulated. 
+#
+# Any field can be made a parameter by prefixing it like this: 
+#     +parameter: some_name = value. 
+#
+# Beware that the parameter will be converted to a Double_t and that 'some_name'
+# is optional and is not used in the program, it is used purely to convey to the
+# human reader what the value of that parameter is.  Parameters will be added in
+# the order they are specified. 
+#
+# Any line without a +something will be ignored by the parser. 
+#
+# WARNING: If you change the record_ids then you will also need to change the
+# hard-coded values in KVIVUpDater_e503.
+#
 
-#40Ca+48Ca		
-#1.656	455	465
-#1.800	466	474
-1.523	475	483	-0.121486	1.06453		0.0008         
-1.401	484	489	-0.205856	1.10676		0.0019
-1.289	490	492	-0.0492186	1.00432		0.0009
-1.186	493	495	-0.0460287	1.00418		0.004		        
-1.091	496	500	-0.0439033	0.996319	0.001
+[entry]
++record_id: = mq_choisi_brho_1P523
+brho = 1.523
++run_range: = 475-483
++parameter: a0 = -0.121486
++parameter: a1 = 1.06453
+chi_sq = 0.0008
 
-#1.186	493	495	-0.06482	1.01802		0.0235511 
-#1.091	496	500	-0.194709	1.07556		0.0141749
-#Correction du A/Q unique pour les runs 501-509
-1.004  501     501     	-0.0213961	0.982812	0.0053
-0.923  502     504     	-0.0213961	0.982812	0.0053     	
-0.849  505     506     	-0.0213961	0.982812	0.0053     	
-0.782  507     508     	-0.0213961	0.982812	0.0053     	
-0.719  509     509     	-0.0213961	0.982812	0.0053 
-    	
-#1.004  501     501     -0.15462        1.05746         0.00102813
-#0.923  502     504     -0.15462        1.05746         0.00102813
-#0.849  505     506     -0.15462        1.05746         0.00102813
-#0.782  507     508     -0.15462        1.05746         0.00102813
-#0.719  509     509     -0.15462        1.05746         0.00102813
+[entry]
++record_id: = mq_choisi_brho_1P401
+brho = 1.401
++run_range: = 484-489
++parameter: a0 = -0.205856
++parameter: a1 = 1.10676
+chi_sq = 0.0019
 
-#48Ca+40Ca
-#1.962	327	331
-#2.120	332	332
-#1.8051	333	338
-1.660	339	343	-0.157868	1.05363		0.0019
-1.523	344	347	-0.165538	1.07600		0.003
-1.405	348	350	-0.0631119	1.01000		0.0005
-1.293	353	354	-0.0796856	1.01616		0.0012
-#Correction du A/Q unique pour les runs 355-360
-1.1894	355	356	-0.162097	1.05517		0.00088
-1.094  357     357	-0.162097	1.05517		0.00088
-1.008  358     358	-0.162097	1.05517		0.00088
+[entry]
++record_id: = mq_choisi_brho_1P289
+brho = 1.289
++run_range: = 490-492
++parameter: a0 = -0.0492186
++parameter: a1 = 1.00432
+chi_sq = 0.0009
 
-#48Ca+48Ca	
-#1.962	379	382		     
-#2.120	383	383	
-#1.805	384	389	     
-#1.661	390	397	
-1.523	398	402	-0.0406447	1.00237		0.0001	     
-1.406	403	406	-0.0190926	0.990996	0.0006	
-1.293	407	409	-0.0794521	1.01786		0.0009
-#Correction du A/Q unique pour les runs 410-424	
-1.190	410	416	-0.0779936	1.02251		0.001	
-1.092	417	418	-0.0779936	1.02251		0.001	
-1.004	419	419	-0.0779936	1.02251		0.001	
-0.849	420	420	-0.0779936	1.02251		0.001	
-0.923	421	422	-0.0779936	1.02251		0.001	
-0.849	423	423	-0.0779936	1.02251		0.001	
-0.782	424	424	-0.0779936	1.02251		0.001	
+[entry]
++record_id: = mq_choisi_brho_1P186
+brho = 1.186
++run_range: = 493-495
++parameter: a0 = -0.0460287
++parameter: a1 = 1.00418
+chi_sq = 0.004
 
-#40Ca+40Ca
-#Correction du A/Q unique pour les runs 511-524	
-0.719   511     513	-0.0486966	1.00004		0.003   
-0.661  	514     514	-0.0486966	1.00004		0.003	
-0.782  	515     516	-0.0486966	1.00004		0.003		
-0.849  	517     517	-0.0486966	1.00004		0.003		
-0.923  	518     519	-0.0486966	1.00004		0.003		
-1.004  	520     520	-0.0486966	1.00004		0.003		
-1.091  	521     522	-0.0486966	1.00004		0.003		
-1.186	523	524	-0.0486966	1.00004		0.003		
-	
-1.289	525	527	-0.064539	1.00944		0.0008
-1.401	528	530	-0.0763382	1.01453		0.0003	     
-#1.523	531	536	     
-#1.656	537	542	
-#1.800	543	547	
-#1.957	548	548
-#2.120	549	549
-#2.220	550	550
+[entry]
++record_id: = mq_choisi_brho_1P091
+brho = 1.091
++run_range: = 496-500
++parameter: a0 = -0.0439033
++parameter: a1 = 0.996319
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_1P004
+brho = 1.004
++run_range: = 501-501
++parameter: a0 = -0.0213961
++parameter: a1 = 0.982812
+chi_sq = 0.0053
+
+[entry]
++record_id: = mq_choisi_brho_0P923
+brho = 0.923
++run_range: = 502-504
++parameter: a0 = -0.0213961
++parameter: a1 = 0.982812
+chi_sq = 0.0053
+
+[entry]
++record_id: = mq_choisi_brho_0P849
+brho = 0.849
++run_range: = 505-506
++parameter: a0 = -0.0213961
++parameter: a1 = 0.982812
+chi_sq = 0.0053
+
+[entry]
++record_id: = mq_choisi_brho_0P782
+brho = 0.782
++run_range: = 507-508
++parameter: a0 = -0.0213961
++parameter: a1 = 0.982812
+chi_sq = 0.0053
+
+[entry]
++record_id: = mq_choisi_brho_0P719
+brho = 0.719
++run_range: = 509-509
++parameter: a0 = -0.0213961
++parameter: a1 = 0.982812
+chi_sq = 0.0053
+
+[entry]
++record_id: = mq_choisi_brho_1P660
+brho = 1.660
++run_range: = 339-343
++parameter: a0 = -0.157868
++parameter: a1 = 1.05363
+chi_sq = 0.0019
+
+[entry]
++record_id: = mq_choisi_brho_1P523
+brho = 1.523
++run_range: = 344-347
++parameter: a0 = -0.165538
++parameter: a1 = 1.07600
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_1P405
+brho = 1.405
++run_range: = 348-350
++parameter: a0 = -0.0631119
++parameter: a1 = 1.01000
+chi_sq = 0.0005
+
+[entry]
++record_id: = mq_choisi_brho_1P293
+brho = 1.293
++run_range: = 353-354
++parameter: a0 = -0.0796856
++parameter: a1 = 1.01616
+chi_sq = 0.0012
+
+[entry]
++record_id: = mq_choisi_brho_1P1894
+brho = 1.1894
++run_range: = 355-356
++parameter: a0 = -0.162097
++parameter: a1 = 1.05517
+chi_sq = 0.00088
+
+[entry]
++record_id: = mq_choisi_brho_1P094
+brho = 1.094
++run_range: = 357-357
++parameter: a0 = -0.162097
++parameter: a1 = 1.05517
+chi_sq = 0.00088
+
+[entry]
++record_id: = mq_choisi_brho_1P008
+brho = 1.008
++run_range: = 358-358
++parameter: a0 = -0.162097
++parameter: a1 = 1.05517
+chi_sq = 0.00088
+
+[entry]
++record_id: = mq_choisi_brho_1P523
+brho = 1.523
++run_range: = 398-402
++parameter: a0 = -0.0406447
++parameter: a1 = 1.00237
+chi_sq = 0.0001
+
+[entry]
++record_id: = mq_choisi_brho_1P406
+brho = 1.406
++run_range: = 403-406
++parameter: a0 = -0.0190926
++parameter: a1 = 0.990996
+chi_sq = 0.0006
+
+[entry]
++record_id: = mq_choisi_brho_1P293
+brho = 1.293
++run_range: = 407-409
++parameter: a0 = -0.0794521
++parameter: a1 = 1.01786
+chi_sq = 0.0009
+
+[entry]
++record_id: = mq_choisi_brho_1P190
+brho = 1.190
++run_range: = 410-416
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_1P092
+brho = 1.092
++run_range: = 417-418
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_1P004
+brho = 1.004
++run_range: = 419-419
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_0P849
+brho = 0.849
++run_range: = 420-420
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_0P923
+brho = 0.923
++run_range: = 421-422
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_0P849
+brho = 0.849
++run_range: = 423-423
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_0P782
+brho = 0.782
++run_range: = 424-424
++parameter: a0 = -0.0779936
++parameter: a1 = 1.02251
+chi_sq = 0.001
+
+[entry]
++record_id: = mq_choisi_brho_0P719
+brho = 0.719
++run_range: = 511-513
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_0P661
+brho = 0.661
++run_range: = 514-514
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_0P782
+brho = 0.782
++run_range: = 515-516
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_0P849
+brho = 0.849
++run_range: = 517-517
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_0P923
+brho = 0.923
++run_range: = 518-519
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_1P004
+brho = 1.004
++run_range: = 520-520
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_1P091
+brho = 1.091
++run_range: = 521-522
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_1P186
+brho = 1.186
++run_range: = 523-524
++parameter: a0 = -0.0486966
++parameter: a1 = 1.00004
+chi_sq = 0.003
+
+[entry]
++record_id: = mq_choisi_brho_1P289
+brho = 1.289
++run_range: = 525-527
++parameter: a0 = -0.064539
++parameter: a1 = 1.00944
+chi_sq = 0.0008
+
+[entry]
++record_id: = mq_choisi_brho_1P401
+brho = 1.401
++run_range: = 528-530
++parameter: a0 = -0.0763382
++parameter: a1 = 1.01453
+chi_sq = 0.0003
