@@ -51,6 +51,7 @@
 #include "TMath.h"
 
 #include "MEDetectorStack.h"
+#include "MonoMinimiserData.h"
 #include "KVMacros.h"
 
 class MonoMinimiserImpl {
@@ -74,11 +75,17 @@ public:
    // Parameter: z_value - Measured Z value
    // Parameter: si_energy - Measured silicon energy (MeV)
    // Parameter: csi_light - Measured raw caesium iodide light (Channel)
+   // Parameter: data - Optional pointer for storing extra data
    //
    // See SiliconEnergyMinimiser::Minimise
    // See ThreadedMinimiserImpl.h
-   Int_t Minimise(UInt_t z_value, Double_t si_energy,
-                  Double_t csi_light);
+#if __cplusplus < 201103L
+   Int_t Minimise(UInt_t z_value, Double_t si_energy, Double_t csi_light,
+                  MinimiserData* const data = NULL);
+#else
+   Int_t Minimise(UInt_t z_value, Double_t si_energy, Double_t csi_light,
+                  MinimiserData* const data = nullptr);
+#endif
 
    // Set the identification telescope
    // Parameter: telescope_name - As returned by KVIDTelescope::GetName()

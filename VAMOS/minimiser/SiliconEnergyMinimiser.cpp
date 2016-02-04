@@ -76,10 +76,11 @@ Bool_t SiliconEnergyMinimiser::SetIDTelescope(const TString& telescope_name)
 }
 
 Int_t SiliconEnergyMinimiser::Minimise(
-   UInt_t z_value, Double_t si_energy, Double_t csi_light
+   UInt_t z_value, Double_t si_energy, Double_t csi_light,
+   MinimiserData* const data
 )
 {
-   return impl_->Minimise(z_value, si_energy, csi_light);
+   return impl_->Minimise(z_value, si_energy, csi_light, data);
 }
 
 void SiliconEnergyMinimiser::SetMaximumIterations(UInt_t max_iterations)

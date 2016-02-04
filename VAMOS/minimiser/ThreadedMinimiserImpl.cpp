@@ -102,13 +102,27 @@ Bool_t ThreadedMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 }
 
 Int_t ThreadedMinimiserImpl::Minimise(
-   UInt_t z_value, Double_t si_energy, Double_t csi_light
+   UInt_t z_value, Double_t si_energy, Double_t csi_light,
+   MinimiserData* const data
 )
 {
    if (!kInitialised_) {
       Error("ThreadedMinimiserImpl::ThreadedMinimiseImpl",
             "You need to call ThreadedMinimiserImpl::Init()");
       return kNotInitialised;
+   }
+
+#if __cplusplus < 201103L
+   ThreadedMinimiserData* threaded_data(NULL);
+#else
+   ThreadedMinimiserData* threaded_data(nullptr);
+#endif
+
+   if (data) {
+      threaded_data = static_cast<ThreadedMinimiserData*>(data);
+      assert(threaded_data);
+      threaded_data->SetZ(z_value);
+      threaded_data->SetStatusCode(0);
    }
 
    assert(estimator_input_);
@@ -144,21 +158,30 @@ Int_t ThreadedMinimiserImpl::Minimise(
 #if __cplusplus < 201103L
    if (!mass_estimator_->EstimateA(estimator_input_, possible_a_values_,
                                    estimator_result_)) {
+      if (threaded_data) threaded_data->SetStatusCode(kEstimateAFailed);
       return kEstimateAFailed;
    }
 #else
    if (!mass_estimator_->EstimateA(estimator_input_.get(),
                                    possible_a_values_.get(),
                                    estimator_result_.get())) {
+      if (threaded_data) threaded_data->SetStatusCode(kEstimateAFailed);
       return kEstimateAFailed;
    }
 #endif
 
    if (estimator_result_->status <= 0) {
       // Negative status values indicate problems in the estimator
+      if (threaded_data) threaded_data->SetStatusCode(kEstimateAErrors);
       return kEstimateAErrors;
    }
 
+   if (threaded_data) {
+      threaded_data->SetA(estimator_result_->a_value);
+      threaded_data->SetDelta(estimator_result_->delta);
+      threaded_data->SetForwardCounter(estimator_result_->forward_counter);
+      threaded_data->SetBackwardCounter(estimator_result_->backward_counter);
+   }
    return estimator_result_->a_value;
 }
 

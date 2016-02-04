@@ -39,28 +39,28 @@ struct pthread_mutex_t;
 // our generic naming conventions.
 namespace me {
 
-// Struct used for passing in the estimator inputs as a single argument.
+   // Struct used for passing in the estimator inputs as a single argument.
    struct EstimatorInput {
       Int_t z;            // Measured Z value
       Double_t si_energy; // Measured silicon energy
       Double_t csi_light; // Measured caesium iodide light
    };
 
-// Struct used to store the thread status codes
+   // Struct used to store the thread status codes
    struct ThreadStatus {
       static const Int_t kThreadStop;     // Stop processing this thread
       static const Int_t kThreadContinue; // Continue processing this thread
    };
 
-// Struct used to pass in data to each thread
-//
-// Having a local copy of the possible A values removes the need for high
-// frequency thread locking (mutexes) as we need to access this vector every
-// iteration of each thread. We also get a speed increase as the iterators can
-// simply increment/decrement without jumping around  (as we iterate in
-// different directions in each thread)
-//
-// Note: You must initialise the detector_stack pointer before thread execution!
+   // Struct used to pass in data to each thread
+   //
+   // Having a local copy of the possible A values removes the need for high
+   // frequency thread locking (mutexes) as we need to access this vector every
+   // iteration of each thread. We also get a speed increase as the iterators can
+   // simply increment/decrement without jumping around  (as we iterate in
+   // different directions in each thread)
+   //
+   // Note: You must initialise the detector_stack pointer before thread execution!
    struct ThreadData {
 
 #if __cplusplus < 201103L
@@ -96,7 +96,7 @@ namespace me {
       UInt_t max_iterations; // Maximum number of iterations allowed
    };
 
-// Struct used to store the results of the minimisation process.
+   // Struct used to store the results of the minimisation process.
    struct EstimatorResult {
       Int_t    z_value;           // Z value
       Int_t    a_value;           // Best value determined for A

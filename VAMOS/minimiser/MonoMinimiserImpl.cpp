@@ -46,7 +46,7 @@ ClassImp(MonoMinimiserImpl)
 MonoMinimiserImpl::MonoMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
-   max_iterations_(20),
+   max_iterations_(25),
    tolerance_(0.05),
 #if __cplusplus < 201103L
    sim_parameters_(NULL),
@@ -116,8 +116,9 @@ Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
    return status;
 }
 
-Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
-                                  Double_t csi_light)
+Int_t MonoMinimiserImpl::Minimise(
+   UInt_t z_value, Double_t si_energy, Double_t csi_light,
+   MinimiserData* const data)
 {
 
    if (!kTelescopeSet_) {
@@ -126,6 +127,19 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
             "and MonoMinimiserImpl::SetIDTelescope() before calling this "
             "function!");
       return -1;
+   }
+
+#if __cplusplus < 201103L
+   MonoMinimiserData* mono_data(NULL);
+#else
+   MonoMinimiserData* mono_data(nullptr);
+#endif
+
+   if (data) {
+      mono_data = static_cast<MonoMinimiserData*>(data);
+      assert(mono_data);
+      mono_data->SetZ(z_value);
+      mono_data->SetStatusCode(0);
    }
 
    sim_parameters_->z = z_value;
@@ -221,9 +235,12 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       ++a_value;
    }
 
+   if (mono_data) mono_data->SetForwardCounter(n);
+
    if (n >= max_iterations_) {
       //Warning("MonoMinimiserImpl::Minimise",
       //      "Forward loop exceeded the maximum number of iterations");
+      if (mono_data) mono_data->SetStatusCode(-1);
       return -1;
    }
 
@@ -282,10 +299,13 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
 
    }
 
+   if (mono_data) mono_data->SetBackwardCounter(n);
+
    if (n >= max_iterations_) {
       //Warning("MonoMinimiserImpl::Minimise",
       //      "Backward loop exceeded the maximum number of iterations");
-      return -1;
+      if (mono_data) mono_data->SetStatusCode(-2);
+      return -2;
    }
 
    // ----------------------------------
@@ -293,16 +313,41 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
    // ----------------------------------
 
    if (forward_status && !backward_status) {
+      if (mono_data) {
+         mono_data->SetA(best_forward_a_value);
+         mono_data->SetDelta(best_forward_delta);
+      }
       return best_forward_a_value;
+
    } else if (backward_status && !forward_status) {
-      return best_backward_delta;
+      if (mono_data) {
+         mono_data->SetA(best_backward_a_value);
+         mono_data->SetDelta(best_backward_delta);
+      }
+      return best_backward_a_value;
+
    } else if (!backward_status && !forward_status) {
+      if (mono_data) {
+         mono_data->SetA(-1);
+         mono_data->SetDelta(100000.);
+      }
       return -1;
+
    } else {
       if (best_backward_delta < best_forward_delta) {
+         if (mono_data) {
+            mono_data->SetA(best_backward_a_value);
+            mono_data->SetDelta(best_backward_delta);
+         }
          return best_backward_a_value;
+
       } else {
+         if (mono_data) {
+            mono_data->SetA(best_forward_a_value);
+            mono_data->SetDelta(best_forward_delta);
+         }
          return best_forward_a_value;
+
       }
    }
 }
