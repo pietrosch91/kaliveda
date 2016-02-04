@@ -5,7 +5,7 @@ KaliVeda is an object-oriented toolkit based on ROOT for the analysis of heavy-i
 
 ## Build & Install
 
-See INSTALL file for details. CMake (v2.8.8 or greater) is required.
+See INSTALL file for details. CMake (v2.8.11 or greater) is required.
 
 ## Ubuntu packages
 
