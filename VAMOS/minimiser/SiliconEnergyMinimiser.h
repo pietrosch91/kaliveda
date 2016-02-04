@@ -72,6 +72,7 @@ public:
    //
    // See MonoMinimiserImpl::Minimise
    // See ThreadedMinimiserImpl::Minimise
+   // See MinimiserData
 #if __cplusplus < 201103L
    Int_t Minimise(UInt_t z_value, Double_t si_energy, Double_t csi_light,
                   MinimiserData* const data = NULL);

@@ -1,3 +1,28 @@
+// Author: Peter C. Wigg
+// Created Thu  4 Feb 15:43:34  2016
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// MinimiserData.cpp
+//
+// Description
+//
+// Base class for handling data produced by the SiliconEnergyMinimiser. The
+// minimiser function usually just returns the A value it has determined to be
+// the most likely for a given Z (i.e. It returns an integer). Therefore to
+// obtain more interesting information about how well the algorithm is
+// performing, we need to pass in an (optional) pointer to a data class such as
+// this one for the minimiser implementation to populate.
+//
+// This class handles only the essential data produced by any hypothetical
+// minimiser implementation. For data specific to the implementation you must
+// create an inheriting class (See MonoMinimiserData and ThreadedMinimiserData).
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Thu  4 Feb 15:43:34  2016
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "MinimiserData.h"
 
 ClassImp(MinimiserData)
@@ -15,6 +40,10 @@ MinimiserData::~MinimiserData()
 {
 
 }
+
+// -----------------------------------------------------------------------------
+// ------------------------------ Accessors ------------------------------------
+// -----------------------------------------------------------------------------
 
 Int_t MinimiserData::GetZ() const
 {
@@ -35,6 +64,10 @@ Int_t MinimiserData::GetStatusCode() const
 {
    return status_code_;
 }
+
+// -----------------------------------------------------------------------------
+// ------------------------------ Mutators -------------------------------------
+// -----------------------------------------------------------------------------
 
 void MinimiserData::SetZ(Int_t value)
 {

@@ -119,6 +119,9 @@ Int_t ThreadedMinimiserImpl::Minimise(
 #endif
 
    if (data) {
+      // Optional data storage pointer provided, cast it to make sure we can
+      // provide the extra data. It is assumed that the true nature of the
+      // pointer being passed in is a ThreadedMinimiserData pointer.
       threaded_data = static_cast<ThreadedMinimiserData*>(data);
       assert(threaded_data);
       threaded_data->SetZ(z_value);

@@ -78,7 +78,7 @@ public:
    // Parameter: data - Optional pointer for storing extra data
    //
    // See SiliconEnergyMinimiser::Minimise
-   // See ThreadedMinimiserImpl.h
+   // See MonoMinimiserData
 #if __cplusplus < 201103L
    Int_t Minimise(UInt_t z_value, Double_t si_energy, Double_t csi_light,
                   MinimiserData* const data = NULL);

@@ -136,6 +136,9 @@ Int_t MonoMinimiserImpl::Minimise(
 #endif
 
    if (data) {
+      // Optional data storage pointer provided, cast it to make sure we can
+      // provide the extra data. It is assumed that the true nature of the
+      // pointer being passed in is a MonoMinimiserData pointer.
       mono_data = static_cast<MonoMinimiserData*>(data);
       assert(mono_data);
       mono_data->SetZ(z_value);
