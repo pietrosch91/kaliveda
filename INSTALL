@@ -4,7 +4,7 @@
 ### ROOT
 At least version 5.32, works with version 6 from 6.02 onwards.
 ### CMake
-At least version 3.0 of cmake is required.
+At least version 2.8.11 of cmake is required.
 
 ## 1. Build & Install
 
