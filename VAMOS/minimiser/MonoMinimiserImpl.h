@@ -102,6 +102,9 @@ public:
    // Print minimiser implementation information
    void Print() const;
 
+   UInt_t GetMaximumIterations() const;
+   Double_t GetTolerance() const;
+
 private:
 
    // Copy constructor (Declared private to prevent copying as it is not worth

@@ -26,9 +26,12 @@
 
 ClassImp(ThreadedMinimiserImpl)
 
+//______________________________________________________________________________
+
 ThreadedMinimiserImpl::ThreadedMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
+   tolerance_(0.05),
 #if __cplusplus < 201103L
    estimator_input_(NULL),
    possible_a_values_(NULL),
@@ -43,6 +46,8 @@ ThreadedMinimiserImpl::ThreadedMinimiserImpl() :
 {
 
 }
+
+//______________________________________________________________________________
 
 ThreadedMinimiserImpl::~ThreadedMinimiserImpl()
 {
@@ -70,6 +75,8 @@ ThreadedMinimiserImpl::~ThreadedMinimiserImpl()
 #endif
 }
 
+//______________________________________________________________________________
+
 Bool_t ThreadedMinimiserImpl::Init()
 {
    if (kInitialised_) return kTRUE;
@@ -92,6 +99,8 @@ Bool_t ThreadedMinimiserImpl::Init()
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t ThreadedMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 {
    kTelescopeSet_ = kFALSE;
@@ -109,12 +118,20 @@ Bool_t ThreadedMinimiserImpl::SetIDTelescope(const TString& telescope_name)
    return status;
 }
 
+//______________________________________________________________________________
+
 Int_t ThreadedMinimiserImpl::Minimise(
    UInt_t z_value, Double_t si_energy, Double_t csi_light,
    MinimiserData* const data
 )
 {
    assert(kInitialised_);
+
+   // These assertions are paired with the user input validation tests in
+   // SiliconEnergyMinimiser::Minimise so you should never encounter them.
+   assert((z_value != 0) && (z_value <= 120));
+   assert(si_energy > 0.);
+   assert(csi_light > 0.);
 
    if (!kTelescopeSet_) {
       Error("ThreadedMinimiserImpl::Minimise",
@@ -169,6 +186,8 @@ Int_t ThreadedMinimiserImpl::Minimise(
    // simulation errors and approximations. This however should not be a
    // problem as this is the first stage estimate.
 
+   // TODO: Pass tolerance value into the mass estimator and implement
+   // consistent maximisation condition
 #if __cplusplus < 201103L
    if (!mass_estimator_->EstimateA(estimator_input_, possible_a_values_,
                                    estimator_result_)) {
@@ -199,19 +218,48 @@ Int_t ThreadedMinimiserImpl::Minimise(
    return estimator_result_->a_value;
 }
 
+//______________________________________________________________________________
+
 void ThreadedMinimiserImpl::SetMaximumIterations(UInt_t max_iterations)
 {
-   mass_estimator_->set_max_iterations(max_iterations);
+   assert((max_iterations != 0) && (max_iterations <= 300));
+   mass_estimator_->SetMaximumIterations(max_iterations);
 }
+
+//______________________________________________________________________________
 
 void ThreadedMinimiserImpl::SetTolerance(Double_t tolerance)
 {
-   UNUSED(tolerance);
-   // Currently not implemented
+   // WARNING: The tolerance is UNUSED at the present time, ultimately the
+   // tolerance should be passed into the mass estimator and a consistent
+   // maximisation condition should be set in the same way as for the
+   // MonoMinimiserImpl.
+   assert(tolerance > 0.);
+   tolerance_ = tolerance;
 }
+
+//______________________________________________________________________________
 
 void ThreadedMinimiserImpl::Print() const
 {
    Info("ThreadedMinimiserImpl::Print", "Multi-threaded minimiser");
+}
+
+//______________________________________________________________________________
+
+UInt_t ThreadedMinimiserImpl::GetMaximumIterations() const
+{
+   return mass_estimator_->GetMaximumIterations();
+}
+
+//______________________________________________________________________________
+
+Double_t ThreadedMinimiserImpl::GetTolerance() const
+{
+   // WARNING: The tolerance is UNUSED at the present time, ultimately the
+   // tolerance should be passed into the mass estimator and a consistent
+   // maximisation condition should be set in the same way as for the
+   // MonoMinimiserImpl.
+   return tolerance_;
 }
 

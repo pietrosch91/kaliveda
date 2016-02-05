@@ -181,14 +181,11 @@ public:
       struct me::EstimatorResult* const result
    );
 
-   // Public accessor to retrieve the load balance value
-   Float_t get_load_balance() const;
+   void SetLoadBalance(Float_t load_balance);
+   void SetMaximumIterations(UInt_t iterations);
 
-   // Set the load balance value
-   void set_load_balance(Float_t load_balance);
-
-   // Set the maximum number of iterations per thread
-   void set_max_iterations(UInt_t iterations);
+   Float_t GetLoadBalance() const;
+   UInt_t GetMaximumIterations() const;
 
    // Enum containing the minimisation status codes.
    //

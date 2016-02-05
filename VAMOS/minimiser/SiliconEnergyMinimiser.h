@@ -82,15 +82,16 @@ public:
 #endif
 
    // Set the maximum number of iterations allowed
-   // Parameter: max_iterations - Maximum number of iterations
    void SetMaximumIterations(UInt_t max_iterations);
 
-   // Set the algorithm tolerance
-   // Parameter: tolerance - Algorithm tolerance (if applicable)
+   // Set the algorithm tolerance (if possible)
    void SetTolerance(Double_t tolerance = 0.05);
 
    // Print minimiser information
    void Print() const;
+
+   UInt_t GetMaximumIterations() const;
+   Double_t GetTolerance() const;
 
 private:
 

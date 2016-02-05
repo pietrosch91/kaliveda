@@ -260,7 +260,7 @@ Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
    return status;
 }
 
-void KVIVDB_e503::set_verbose(Bool_t status)
+void KVIVDB_e503::SetVerbose(Bool_t status)
 {
    verbose_ = status;
 }

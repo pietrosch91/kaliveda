@@ -30,10 +30,12 @@ const Int_t me::ThreadStatus::kThreadContinue(-1);
 
 pthread_mutex_t ThreadedMassEstimator::io_mutex_;
 
+//______________________________________________________________________________
+
 ThreadedMassEstimator::ThreadedMassEstimator() :
    kInitialised_(kFALSE),
    load_balance_(2.25),
-   max_iterations_(100),
+   max_iterations_(25),
 #if __cplusplus < 201103L
    thread_data_(NULL),
    detector_stack_(NULL)
@@ -45,6 +47,8 @@ ThreadedMassEstimator::ThreadedMassEstimator() :
 {
 
 }
+
+//______________________________________________________________________________
 
 ThreadedMassEstimator::~ThreadedMassEstimator()
 {
@@ -72,6 +76,8 @@ ThreadedMassEstimator::~ThreadedMassEstimator()
    }
 #endif
 }
+
+//______________________________________________________________________________
 
 Bool_t ThreadedMassEstimator::Init()
 {
@@ -110,10 +116,14 @@ Bool_t ThreadedMassEstimator::Init()
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t ThreadedMassEstimator::IsInitialised() const
 {
    return kInitialised_;
 }
+
+//______________________________________________________________________________
 
 Bool_t ThreadedMassEstimator::SetIDTelescope(const TString& name)
 {
@@ -126,6 +136,8 @@ Bool_t ThreadedMassEstimator::SetIDTelescope(const TString& name)
 
    return status;
 }
+
+//______________________________________________________________________________
 
 void ThreadedMassEstimator::GetPossibleAValues(
    const Int_t z_value,
@@ -144,6 +156,8 @@ void ThreadedMassEstimator::GetPossibleAValues(
       }
    }
 }
+
+//______________________________________________________________________________
 
 void* ThreadedMassEstimator::ThreadExec(void* thread_data)
 {
@@ -239,6 +253,8 @@ void* ThreadedMassEstimator::ThreadExec(void* thread_data)
 
 }
 
+//______________________________________________________________________________
+
 Int_t ThreadedMassEstimator::ThreadProcess(
    struct me::ThreadData* const data,
    const struct me::SimulationParameters* const parameters)
@@ -308,6 +324,8 @@ Int_t ThreadedMassEstimator::ThreadProcess(
    }
 
 }
+
+//______________________________________________________________________________
 
 Bool_t ThreadedMassEstimator::EstimateA(
    const struct me::EstimatorInput* const input,
@@ -578,18 +596,31 @@ Bool_t ThreadedMassEstimator::EstimateA(
    return kTRUE;
 }
 
-Float_t ThreadedMassEstimator::get_load_balance() const
-{
-   return load_balance_;
-}
+//______________________________________________________________________________
 
-void ThreadedMassEstimator::set_load_balance(Float_t load_balance)
+void ThreadedMassEstimator::SetLoadBalance(Float_t load_balance)
 {
    load_balance_ = load_balance;
 }
 
-void ThreadedMassEstimator::set_max_iterations(UInt_t iterations)
+//______________________________________________________________________________
+
+void ThreadedMassEstimator::SetMaximumIterations(UInt_t iterations)
 {
    max_iterations_ = iterations;
+}
+
+//______________________________________________________________________________
+
+Float_t ThreadedMassEstimator::GetLoadBalance() const
+{
+   return load_balance_;
+}
+
+//______________________________________________________________________________
+
+UInt_t ThreadedMassEstimator::GetMaximumIterations() const
+{
+   return max_iterations_;
 }
 

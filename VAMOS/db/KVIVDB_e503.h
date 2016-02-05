@@ -52,7 +52,7 @@ public:
 
    // Build database - Read calibration/correction parameters
    virtual void Build();
-   virtual void set_verbose(Bool_t status = kTRUE);
+   virtual void SetVerbose(Bool_t status = kTRUE);
 
    ClassDef(KVIVDB_e503, 1)
 

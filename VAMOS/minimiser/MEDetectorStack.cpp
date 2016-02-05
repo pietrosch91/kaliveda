@@ -22,6 +22,8 @@
 
 ClassImp(MEDetectorStack)
 
+//______________________________________________________________________________
+
 MEDetectorStack::MEDetectorStack() :
 #if __cplusplus < 201103L
    si_(NULL),
@@ -41,6 +43,8 @@ MEDetectorStack::MEDetectorStack() :
 {
 
 }
+
+//______________________________________________________________________________
 
 MEDetectorStack::~MEDetectorStack()
 {
@@ -67,6 +71,8 @@ MEDetectorStack::~MEDetectorStack()
 #endif
 }
 
+//______________________________________________________________________________
+
 Bool_t MEDetectorStack::Init()
 {
    if (kInitialised_) return kTRUE;
@@ -91,6 +97,8 @@ Bool_t MEDetectorStack::Init()
 
    return kTRUE;
 }
+
+//______________________________________________________________________________
 
 Bool_t MEDetectorStack::Simulate(
    const struct me::SimulationParameters* const parameters,
@@ -234,6 +242,8 @@ Bool_t MEDetectorStack::Simulate(
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
 {
    assert(kInitialised_);
@@ -286,10 +296,14 @@ Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 void MEDetectorStack::SetAbsoluteDelta(Bool_t status)
 {
    absolute_delta_ = status;
 }
+
+//______________________________________________________________________________
 
 Bool_t MEDetectorStack::IsInitialised() const
 {

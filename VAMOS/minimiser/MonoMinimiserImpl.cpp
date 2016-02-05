@@ -43,6 +43,8 @@
 
 ClassImp(MonoMinimiserImpl)
 
+//______________________________________________________________________________
+
 MonoMinimiserImpl::MonoMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
@@ -60,6 +62,8 @@ MonoMinimiserImpl::MonoMinimiserImpl() :
 {
 
 }
+
+//______________________________________________________________________________
 
 MonoMinimiserImpl::~MonoMinimiserImpl()
 {
@@ -81,6 +85,8 @@ MonoMinimiserImpl::~MonoMinimiserImpl()
 #endif
 }
 
+//______________________________________________________________________________
+
 Bool_t MonoMinimiserImpl::Init()
 {
    if (kInitialised_) return kTRUE;
@@ -101,6 +107,8 @@ Bool_t MonoMinimiserImpl::Init()
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 {
    kTelescopeSet_ = kFALSE;
@@ -117,11 +125,19 @@ Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
    return status;
 }
 
+//______________________________________________________________________________
+
 Int_t MonoMinimiserImpl::Minimise(
    UInt_t z_value, Double_t si_energy, Double_t csi_light,
    MinimiserData* const data)
 {
    assert(kInitialised_);
+
+   // These assertions are paired with the user input validation tests in
+   // SiliconEnergyMinimiser::Minimise so you should never encounter them.
+   assert((z_value != 0) && (z_value <= 120));
+   assert(si_energy > 0.);
+   assert(csi_light > 0.);
 
    if (!kTelescopeSet_) {
       Error("MonoMinimiserImpl::Minimise",
@@ -356,18 +372,40 @@ Int_t MonoMinimiserImpl::Minimise(
    }
 }
 
+//______________________________________________________________________________
+
 void MonoMinimiserImpl::SetMaximumIterations(UInt_t max_iterations)
 {
+   assert((max_iterations != 0) && (max_iterations <= 300));
    max_iterations_ = max_iterations;
 }
 
+//______________________________________________________________________________
+
 void MonoMinimiserImpl::SetTolerance(Double_t tolerance)
 {
+   assert(tolerance > 0.);
    tolerance_ = tolerance;
 }
+
+//______________________________________________________________________________
 
 void MonoMinimiserImpl::Print() const
 {
    Info("MonoMinimiserImpl::Print", "Single threaded minimiser");
+}
+
+//______________________________________________________________________________
+
+UInt_t MonoMinimiserImpl::GetMaximumIterations() const
+{
+   return max_iterations_;
+}
+
+//______________________________________________________________________________
+
+Double_t MonoMinimiserImpl::GetTolerance() const
+{
+   return tolerance_;
 }
 

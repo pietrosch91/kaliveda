@@ -81,12 +81,14 @@ public:
    // Set maximum number of iterations per thread
    void SetMaximumIterations(UInt_t max_iterations);
 
-   // Set the algorithm tolerance
-   // Parameter: tolerance - Algorithm tolerance (if applicable)
+   // Set the algorithm tolerance (Currently unused)
    void SetTolerance(Double_t tolerance = 0.05);
 
    // Print minimiser implementation information
    void Print() const;
+
+   UInt_t GetMaximumIterations() const;
+   Double_t GetTolerance() const;
 
 private:
 
@@ -108,6 +110,16 @@ private:
       kEstimateAFailed = -3,
       kEstimateAErrors = -4
    };
+
+   // The tolerance allowed between delta values before declaring a maximisation
+   // event (WARNING: tolerance is not used in this algorithm at the present
+   // time).
+   //
+   // By default this is set to 5% of the last delta value and two successive
+   // events above this tolerance results in the iterative loop being terminated
+   // - "consistent maximisation" implies that one is moving away from the
+   // minimum so further processing is a waste of time.
+   Double_t tolerance_;
 
 #if __cplusplus < 201103L
    // Struct to contain the ThreadedMassEstimator input data
