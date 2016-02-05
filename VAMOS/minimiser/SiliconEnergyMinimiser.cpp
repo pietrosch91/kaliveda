@@ -97,7 +97,7 @@ Bool_t SiliconEnergyMinimiser::SetIDTelescope(const TString& telescope_name)
 
    assert(id_telescopes);
    if (!id_telescopes->FindObject(telescope_name.Data())) {
-      Error("SiliconEnergyMinimiser::SetTolerance",
+      Error("SiliconEnergyMinimiser::SetIDTelescope",
             "Supplied telescope name is not recognised");
       return kFALSE;
    }
