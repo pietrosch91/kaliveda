@@ -42,7 +42,7 @@ public:
    virtual ~ThreadedMinimiserImpl();
 
    // Initialisation function (to be called post-construction)
-   void Init();
+   Bool_t Init();
 
    // Multi threaded minimisation implementation
    //
@@ -99,10 +99,11 @@ private:
 
    // Initialisation status
    Bool_t kInitialised_;
+   Bool_t kTelescopeSet_;
 
    // Minimisation routine error codes
-   enum ThreadErrorCodes {
-      kNotInitialised = -1,
+   enum MinimiserErrorCodes {
+      kTelescopeNotSet = -1,
       kGetPossibleAFailed = -2,
       kEstimateAFailed = -3,
       kEstimateAErrors = -4

@@ -69,9 +69,7 @@ MEDetectorStack::~MEDetectorStack()
 
 Bool_t MEDetectorStack::Init()
 {
-   if (kInitialised_) {
-      return kTRUE;
-   }
+   if (kInitialised_) return kTRUE;
 
    // The following silicon thickness is just a placeholder - this value is set
    // properly in the SetIDTelescope function.
@@ -241,9 +239,8 @@ Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
    assert(kInitialised_);
 
    KVIDTelescope* idt(gVamos->GetIDTelescope(name.Data()));
-
-   if (!idt) return kFALSE;
-   if (!idt->InheritsFrom("KVIDHarpeeSiCsI_e503")) return kFALSE;
+   assert(idt);
+   assert(idt->InheritsFrom("KVIDHarpeeSiCsI_e503"));
 
    // ----------------------------------
    // Set the silicon material thickness
@@ -274,8 +271,15 @@ Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
       )
    );
 
-   if (!cal) return kFALSE;
-   if (!cal->GetStatus()) return kFALSE;
+   assert(cal);
+
+   if (!cal->GetStatus()) {
+      Error("MEDetectorStack::SetIDTelescope",
+            "Light->MeV calibrator is NOT READY (%s)",
+            name.Data()
+           );
+      return kFALSE;
+   }
 
    calibrator_ = cal;
 

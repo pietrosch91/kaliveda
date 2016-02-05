@@ -53,7 +53,7 @@ public:
    virtual ~SiliconEnergyMinimiser();
 
    // Initialisation function (to be called post-construction)
-   void Init();
+   Bool_t Init();
 
    // Set the identification telescope
    // Parameter: telescope_name - Name as returned by KVIDTelescope::GetName()

@@ -48,9 +48,9 @@ SiliconEnergyMinimiser::~SiliconEnergyMinimiser()
 #endif
 }
 
-void SiliconEnergyMinimiser::Init()
+Bool_t SiliconEnergyMinimiser::Init()
 {
-   if (kInitialised_) return;
+   if (kInitialised_) return kTRUE;
 
 #if __cplusplus < 201103L
    impl_ = new MonoMinimiserImpl();
@@ -58,17 +58,39 @@ void SiliconEnergyMinimiser::Init()
    impl_.reset(new MonoMinimiserImpl());
 #endif
 
-   impl_->Init();
-   kInitialised_ = kTRUE;
+   if (!impl_->Init()) return kFALSE;
 
-   return;
+   kInitialised_ = kTRUE;
+   return kTRUE;
 }
 
 Bool_t SiliconEnergyMinimiser::SetIDTelescope(const TString& telescope_name)
 {
-   if (!kInitialised_) {
+   if (!gMultiDetArray) {
       Error("SiliconEnergyMinimiser::SetIDTelescope",
-            "You need to call SiliconEnergyMinimiser::Init()");
+            "You must build the multi-detector array before calling this "
+            "function"
+           );
+      return kFALSE;
+   }
+
+   assert(gMultiDetArray);
+
+   if (telescope_name.Length() == 0) {
+      Error("SiliconEnergyMinimiser::SetIDTelescope",
+            "Supplied telescope name has zero length");
+      return kFALSE;
+   }
+
+   if (!kInitialised_) Init();
+   assert(kInitialised_);
+
+   KVSeqCollection* id_telescopes(gMultiDetArray->GetListOfIDTelescopes());
+
+   assert(id_telescopes);
+   if (!id_telescopes->FindObject(telescope_name.Data())) {
+      Error("SiliconEnergyMinimiser::SetTolerance",
+            "Supplied telescope name is not recognised");
       return kFALSE;
    }
 

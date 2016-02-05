@@ -81,9 +81,9 @@ MonoMinimiserImpl::~MonoMinimiserImpl()
 #endif
 }
 
-void MonoMinimiserImpl::Init()
+Bool_t MonoMinimiserImpl::Init()
 {
-   if (kInitialised_) return;
+   if (kInitialised_) return kTRUE;
 
 #if __cplusplus < 201103L
    sim_parameters_ = new struct me::SimulationParameters();
@@ -95,18 +95,19 @@ void MonoMinimiserImpl::Init()
    stack_.reset(new MEDetectorStack());
 #endif
 
-   stack_->Init();
+   if (!stack_->Init()) return kFALSE;
+
    kInitialised_ = kTRUE;
+   return kTRUE;
 }
 
 Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 {
-   if (!kInitialised_) {
-      Init();
-      return kFALSE;
-   }
-
    kTelescopeSet_ = kFALSE;
+   assert(telescope_name.Length() > 0);
+
+   if (!kInitialised_) Init();
+   assert(kInitialised_);
 
    Bool_t status(stack_->SetIDTelescope(telescope_name));
    if (status) {
@@ -120,13 +121,13 @@ Int_t MonoMinimiserImpl::Minimise(
    UInt_t z_value, Double_t si_energy, Double_t csi_light,
    MinimiserData* const data)
 {
+   assert(kInitialised_);
 
    if (!kTelescopeSet_) {
       Error("MonoMinimiserImpl::Minimise",
-            "You must call MonoMinimiserImpl::Init() "
-            "and MonoMinimiserImpl::SetIDTelescope() before calling this "
-            "function!");
-      return -1;
+            "You must call MonoMinimiserImpl::SetIDTelescope() "
+            "before calling this function");
+      return kTelescopeNotSet;
    }
 
 #if __cplusplus < 201103L
@@ -243,8 +244,8 @@ Int_t MonoMinimiserImpl::Minimise(
    if (n >= max_iterations_) {
       //Warning("MonoMinimiserImpl::Minimise",
       //      "Forward loop exceeded the maximum number of iterations");
-      if (mono_data) mono_data->SetStatusCode(-1);
-      return -1;
+      if (mono_data) mono_data->SetStatusCode(kForwardExceeded);
+      return kForwardExceeded;
    }
 
    // --------------------------------------
@@ -307,8 +308,8 @@ Int_t MonoMinimiserImpl::Minimise(
    if (n >= max_iterations_) {
       //Warning("MonoMinimiserImpl::Minimise",
       //      "Backward loop exceeded the maximum number of iterations");
-      if (mono_data) mono_data->SetStatusCode(-2);
-      return -2;
+      if (mono_data) mono_data->SetStatusCode(kBackwardExceeded);
+      return kBackwardExceeded;
    }
 
    // ----------------------------------
@@ -334,7 +335,7 @@ Int_t MonoMinimiserImpl::Minimise(
          mono_data->SetA(-1);
          mono_data->SetDelta(100000.);
       }
-      return -1;
+      return kNoValidResult;
 
    } else {
       if (best_backward_delta < best_forward_delta) {

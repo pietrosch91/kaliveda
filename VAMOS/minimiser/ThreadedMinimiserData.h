@@ -48,6 +48,13 @@ public:
 
 private:
 
+   // Copy constructor (Declared private to prevent copying as it is not worth
+   // implementing yet).
+   ThreadedMinimiserData(const ThreadedMinimiserData& rhs);
+   // Assignment operator (Declared private to prevent copying as it is not
+   // worth implementing yet).
+   ThreadedMinimiserData& operator=(const ThreadedMinimiserData& rhs);
+
    // Additional data provided by the ThreadedMinimiserImpl
 
    Int_t forward_counter_;

@@ -28,6 +28,7 @@ ClassImp(ThreadedMinimiserImpl)
 
 ThreadedMinimiserImpl::ThreadedMinimiserImpl() :
    kInitialised_(kFALSE),
+   kTelescopeSet_(kFALSE),
 #if __cplusplus < 201103L
    estimator_input_(NULL),
    possible_a_values_(NULL),
@@ -69,9 +70,9 @@ ThreadedMinimiserImpl::~ThreadedMinimiserImpl()
 #endif
 }
 
-void ThreadedMinimiserImpl::Init()
+Bool_t ThreadedMinimiserImpl::Init()
 {
-   if (kInitialised_) return;
+   if (kInitialised_) return kTRUE;
 
 #if __cplusplus < 201103L
    estimator_input_ = new struct me::EstimatorInput();
@@ -85,20 +86,27 @@ void ThreadedMinimiserImpl::Init()
    mass_estimator_.reset(new ThreadedMassEstimator());
 #endif
 
-   mass_estimator_->Init();
+   if (!mass_estimator_->Init()) return kFALSE;
+
    kInitialised_ = kTRUE;
+   return kTRUE;
 }
 
 Bool_t ThreadedMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 {
-   if (!kInitialised_) {
-      Error("ThreadedMinimiserImpl::SetIDTelescope",
-            "You need to call ThreadedMinimiserImpl::Init()");
-      return kFALSE;
-   }
+   kTelescopeSet_ = kFALSE;
+   assert(telescope_name.Length() > 0);
+
+   if (!kInitialised_) Init();
+   assert(kInitialised_);
 
    assert(mass_estimator_);
-   return mass_estimator_->SetIDTelescope(telescope_name);
+   Bool_t status(mass_estimator_->SetIDTelescope(telescope_name));
+   if (status) {
+      kTelescopeSet_ = kTRUE;
+   }
+
+   return status;
 }
 
 Int_t ThreadedMinimiserImpl::Minimise(
@@ -106,10 +114,13 @@ Int_t ThreadedMinimiserImpl::Minimise(
    MinimiserData* const data
 )
 {
-   if (!kInitialised_) {
-      Error("ThreadedMinimiserImpl::ThreadedMinimiseImpl",
-            "You need to call ThreadedMinimiserImpl::Init()");
-      return kNotInitialised;
+   assert(kInitialised_);
+
+   if (!kTelescopeSet_) {
+      Error("ThreadedMinimiserImpl::Minimise",
+            "You must call ThreadedMinimiserImpl::SetIDTelescope() "
+            "before calling this function");
+      return kTelescopeNotSet;
    }
 
 #if __cplusplus < 201103L

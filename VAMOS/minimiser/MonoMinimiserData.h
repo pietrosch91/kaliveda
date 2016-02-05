@@ -48,6 +48,13 @@ public:
 
 private:
 
+   // Copy constructor (Declared private to prevent copying as it is not worth
+   // implementing yet).
+   MonoMinimiserData(const MonoMinimiserData& rhs);
+   // Assignment operator (Declared private to prevent copying as it is not
+   // worth implementing yet).
+   MonoMinimiserData& operator=(const MonoMinimiserData& rhs);
+
    // Additional data provided by the MonoMinimiserImpl
 
    Int_t forward_counter_;

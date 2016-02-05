@@ -53,7 +53,14 @@ public:
 
 private:
 
-   // All minimisers must provide at least these values
+   // Copy constructor (Declared private to prevent copying as it is not worth
+   // implementing yet).
+   MinimiserData(const MinimiserData& rhs);
+   // Assignment operator (Declared private to prevent copying as it is not
+   // worth implementing yet).
+   MinimiserData& operator=(const MinimiserData& rhs);
+
+   // All minimisers must provide at least the following values:
 
    Int_t z_value_;
    Int_t a_value_;

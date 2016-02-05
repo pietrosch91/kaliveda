@@ -64,7 +64,7 @@ public:
    virtual ~MonoMinimiserImpl();
 
    // Initialisation function (to be called post-construction)
-   void Init();
+   Bool_t Init();
 
    // Standard minimisation implementation
    //
@@ -110,6 +110,14 @@ private:
    // Assignment operator (Declared private to prevent copying as it is not
    // worth implementing yet).
    MonoMinimiserImpl& operator=(const MonoMinimiserImpl& rhs);
+
+   // Minimisation routine error codes
+   enum MinimiserErrorCodes {
+      kTelescopeNotSet = -1,
+      kForwardExceeded = -2,
+      kBackwardExceeded = -3,
+      kNoValidResult = -4
+   };
 
    Bool_t kInitialised_;  // Initialisation status
    Bool_t kTelescopeSet_; // Telescope setting status
