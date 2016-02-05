@@ -81,6 +81,17 @@ RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 RawAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
++DataAnalysisTask:     Reconstruction
+Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
+Reconstruction.DataAnalysisTask.Prereq:     raw
+Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
+
++DataAnalysisTask:     ReconAnalysis
+ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
+ReconAnalysis.DataAnalysisTask.Prereq:     recon
+ReconAnalysis.DataAnalysisTask.UserClass:     yes
+ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+
 # +DataAnalysisTask:     OnlineAnalysis
 # OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
 # OnlineAnalysis.DataAnalysisTask.Prereq:     online

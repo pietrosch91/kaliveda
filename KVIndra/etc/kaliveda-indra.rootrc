@@ -107,12 +107,8 @@ INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 # INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
 
-# Default task list used by KVDataSetManager::Init()
-+DataAnalysisTask:     Reconstruction
-Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
-Reconstruction.DataAnalysisTask.Prereq:     raw
+# INDRA analyser for Reconstruction DataAnalysisTask
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
-Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
 
 # The following variable controls the way that particles are reconstructed from raw data
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
@@ -257,13 +253,9 @@ ReconRoot.DataAnalysisTask.UserClass:     no
 ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
 ReconRoot.DataAnalysisTask.StatusUpdateInterval:     5000
 
-+DataAnalysisTask:     ReconAnalysis
-ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
-ReconAnalysis.DataAnalysisTask.Prereq:     recon
+# INDRA specification for recon analysis
 ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
-ReconAnalysis.DataAnalysisTask.UserClass:     yes
 ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
-ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     GeneAnalysis
 GeneAnalysis.DataAnalysisTask.Title:     Analysis of gene data (recon)

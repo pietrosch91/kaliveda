@@ -176,6 +176,8 @@ Bool_t KVDMS::DirectoryContains(const Char_t* name, const Char_t* directory)
    // contains a file or a container with given name.
 
    TList* list = GetListing(directory);
+   if (!list)
+      return kFALSE;
    Bool_t ok = list->FindObject(name);
    delete list;
    return ok;

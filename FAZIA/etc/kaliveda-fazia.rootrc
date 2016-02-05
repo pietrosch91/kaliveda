@@ -42,7 +42,9 @@ ISOFAZIA.KVDataSet.DataType.Subdir.root:  root
 +Plugin.KVDataBase:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 
 # Default name for file containing runlist for each dataset.
-FAZIADB.Runlist:     Runlist.csv
+FAZIADB.Runlist:     runlist.dat
+FAZIADB.DBLog:     database.log
+FAZIADB.Runsheets:     runsheets.dat
 # Default name for file containing system list for each dataset.
 FAZIADB.Systems:     Systems.dat
 

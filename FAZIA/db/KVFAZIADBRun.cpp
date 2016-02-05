@@ -2,6 +2,8 @@
 //Author: ,,,
 
 #include "KVFAZIADBRun.h"
+#include "KVFileReader.h"
+#include "KVDataSet.h"
 
 ClassImp(KVFAZIADBRun)
 
@@ -17,6 +19,17 @@ ClassImp(KVFAZIADBRun)
 KVFAZIADBRun::KVFAZIADBRun()
 {
    // Default constructor
+   SetTrigger(-1);
+   SetNumberOfTriggerBlocks(-1);
+   SetDeadTime(-1);
+   SetTriggerRate(-1);
+   SetGoodEvents(-1);
+   SetACQStatus("Unkown");
+   SetError_WrongNumberOfBlocks(-1);
+   SetError_InternalBlockError(-1);
+   SetNumberOfAcqFiles(-1);
+   SetDuration(-1.);
+   SetFrequency(-1.);
 }
 
 //________________________________________________________________
@@ -24,6 +37,17 @@ KVFAZIADBRun::KVFAZIADBRun()
 KVFAZIADBRun::KVFAZIADBRun(Int_t number, const Char_t* title) : KVDBRun(number, title)
 {
    // Write your code here
+   SetTrigger(-1);
+   SetNumberOfTriggerBlocks(-1);
+   SetDeadTime(-1);
+   SetTriggerRate(-1);
+   SetGoodEvents(-1);
+   SetACQStatus("Unkown");
+   SetError_WrongNumberOfBlocks(-1);
+   SetError_InternalBlockError(-1);
+   SetNumberOfAcqFiles(-1);
+   SetDuration(-1.);
+   SetFrequency(-1.);
 }
 
 KVFAZIADBRun::~KVFAZIADBRun()
