@@ -34,27 +34,29 @@ namespace idc {
 // See idc::Identify()
    enum IDReturnCodes {
       kAllOK = 0,
-      kBadTimeCal,           //  1
-      kBasicIdNotOk,         //  2
-      kBothInherited,        //  3
-      kICNotInherited,       //  4
-      kICSiNullParlist,      //  5
-      kInvalidIdCode,        //  6
-      kNoIdResult,           //  7
-      kNoIdTelescope,        //  8
-      kNoTarget,             //  9
-      kNotCalibrated,        //  10
-      kNotIdentified,        //  11
-      kNotInherited,         //  12
-      kNotStoppingDetector,  //  13
-      kNullParset,           //  14
-      kResidualEnergyFail,   //  15
-      kSegmentZero,          //  16
-      kSiCsINullParlist,     //  17
-      kUnCharged,            //  18
-      kUnChargedResult,      //  19
-      kZIdNotOk,             //  20
-      kCorrectionsFailed
+      kNucleusNotDetected,   //  1
+      kNullNucleusSupplied,  //  2
+      kBadTimeCal,           //  3
+      kBasicIdNotOk,         //  4
+      kBothInherited,        //  5
+      kCorrectionsFailed,    //  6
+      kICNotInherited,       //  7
+      kICSiNullParlist,      //  8
+      kInvalidIdCode,        //  9
+      kNoIdResult,           //  10
+      kNoIdTelescope,        //  11
+      kNoTarget,             //  12
+      kNotCalibrated,        //  13
+      kNotIdentified,        //  14
+      kNotInherited,         //  15
+      kNotStoppingDetector,  //  16
+      kNullParset,           //  17
+      kResidualEnergyFail,   //  18
+      kSegmentZero,          //  19
+      kSiCsINullParlist,     //  20
+      kUnCharged,            //  21
+      kUnChargedResult,      //  22
+      kZIdNotOk              //  23
    };
 
 // 'Hack' identification function for E503.

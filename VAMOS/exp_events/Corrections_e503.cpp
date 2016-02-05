@@ -21,8 +21,12 @@
 
 namespace idc {
 
+   //___________________________________________________________________________
+
    void VAMOSIdentifyHack(KVVAMOSReconNuc* const n)
    {
+      assert(n);
+
       n->Identify(); // KVReconstructedNucleus::Identify()
 
       KVIdentificationResult partID;
@@ -75,9 +79,24 @@ namespace idc {
 
    };
 
-   UChar_t Identify(KVVAMOSReconNuc* const n, AbsorberEnergies* const energy_data)
+   //___________________________________________________________________________
+
+   UChar_t Identify(
+      KVVAMOSReconNuc* const n,
+      AbsorberEnergies* const energy_data
+   )
    {
-      assert(n);
+      if (!n) {
+         Error("idc::Identify", "Supplied nucleus is a null pointer");
+         return kNullNucleusSupplied;
+      }
+
+      // Test to make sure the nucleus has been initialised properly, if it
+      // hasn't been detected anywhere then we're not really interested in it.
+      if (!n->IsDetected()) {
+         Error("Idc::Identify", "Supplied nucleus has not been detected");
+         return kNucleusNotDetected;
+      }
 
       KVVAMOSCodes codes(n->GetCodes());
       if (codes.GetTCode() == kTCode0) {
@@ -136,8 +155,8 @@ namespace idc {
 
       assert(residual_detector);
 
-      // We need the stopping detector to be sure we have the complete energy loss
-      // information, otherwise the simulation will give bad results.
+      // We need the stopping detector to be sure we have the complete energy
+      // loss information, otherwise the simulation will give bad results.
 
       if (stopping_detector != residual_detector) return kNotStoppingDetector;
 
@@ -159,11 +178,12 @@ namespace idc {
          residual_detector->GetAlignedDetectors(KVGroup::kBackwards)
       );
 
-      // Iterate over the list of aligned detectors (the list is in reverse order)
-      // and add up the energies of all the absorbers, making our way back towards
-      // the target. We must do this explicitly as the VAMOS definition of
-      // "calibrated detector" may differ from the standard KaliVeda definition.
-      // All we care about here is that the detector is calibrated in energy.
+      // Iterate over the list of aligned detectors (the list is in reverse
+      // order) and add up the energies of all the absorbers, making our way
+      // back towards the target. We must do this explicitly as the VAMOS
+      // definition of "calibrated detector" may differ from the standard
+      // KaliVeda definition.  All we care about here is that the detector is
+      // calibrated in energy.
 
       Double_t detector_eloss(0.);
       Double_t absorber_eloss(0.);
@@ -189,8 +209,9 @@ namespace idc {
          KVList* absorbers(detector->GetListOfAbsorbers());
 
          // For each detector we iterate IN REVERSE over the absorbers (making
-         // our way towards the target) and sum either the calculated energy loss
-         // in the dead layers or the calibrated energy in the active layer.
+         // our way towards the target) and sum either the calculated energy
+         // loss in the dead layers or the calibrated energy in the active
+         // layer.
 
          detector_eloss = 0.;
 
@@ -221,7 +242,9 @@ namespace idc {
                   // the nucleus is not used in GetCorrectedEnergy(), should
                   // this change then we will need to rethink.
 
-                  absorber_eloss = csi->GetCorrectedEnergy(&sim_nucleus, -1., 0);
+                  absorber_eloss = csi->GetCorrectedEnergy(
+                                      &sim_nucleus, -1., 0
+                                   );
 
                } else if (kDetectorIsDC) {
 
@@ -490,13 +513,13 @@ namespace idc {
       Int_t a_value(sim_nucleus.GetA());
 
       // TODO: Just occasionally (1/20,000) something weird happens with the
-      // energy calculation and we end up with A = 0. Set a flag for now and come
-      // back and analyse what is going on another time - I couldn't find anything
-      // immediately obvious. I think it's something to do with the nucleus
-      // stating that it has stopped in the silicon but there's still some energy
-      // detected in the CsI behind it. So essentially we have some missing energy
-      // still to account for, I'm not sure why the CsI does not register as being
-      // hit...
+      // energy calculation and we end up with A = 0. Set a flag for now and
+      // come back and analyse what is going on another time - I couldn't find
+      // anything immediately obvious. I think it's something to do with the
+      // nucleus stating that it has stopped in the silicon but there's still
+      // some energy detected in the CsI behind it. So essentially we have some
+      // missing energy still to account for, I'm not sure why the CsI does not
+      // register as being hit...
 
       if (a_value < 1) {
          return kUnChargedResult;
@@ -517,6 +540,8 @@ namespace idc {
 
       return kAllOK;
    }
+
+   //___________________________________________________________________________
 
    Bool_t ApplyCorrections(
       KVVAMOSReconNuc* const n,
@@ -552,14 +577,16 @@ namespace idc {
       return status;
    }
 
+   //___________________________________________________________________________
+
    Bool_t ApplyIcSiCorrections(
       KVVAMOSReconNuc* const n,
       const KVIDHarpeeICSi_e503* const idt,
       const CorrectionData* const data
    )
    {
-      // Apply corrections for the Ionisation Chamber:Silicon Telescopes
-      // TODO: Can any of this code be consoldiated? There is a lot of duplication
+      // Apply corrections for the Ionisation Chamber:Silicon Telescopes TODO:
+      // Can any of this code be consoldiated? There is a lot of duplication
       // between ICSi and SiCsI functions
 
       assert(n);
@@ -608,16 +635,18 @@ namespace idc {
       n->SetRealA(data->a_real);
 
       // NOTE: KVVAMOSReconNuc::Calibrate() is extremely slow (lots of TF1::Eval
-      // going on) and it reduces the event rate from ~27 events/s down to ~7
-      // events/s (3.8x slower) I don't think I need it anyway (I *think*) as I'm
-      // setting the energy manually in the code above. As a result the nucleus
-      // will not appear calibrated, but the nucleus itself should be OK.
+      // going on) and it reduces the event rate. I don't think I need it anyway
+      // (I *think*) as I'm setting the energy manually in the code above. As a
+      // result the nucleus will not appear calibrated, but the nucleus itself
+      // should be OK.
 
-      //n->Calibrate();
-      //if (!n->IsCalibrated()) return kNotCalibrated;
+      // n->Calibrate();
+      // if (!n->IsCalibrated()) return kNotCalibrated;
 
       return kTRUE;
    }
+
+   //___________________________________________________________________________
 
    Bool_t ApplySiCsiCorrections(
       KVVAMOSReconNuc* const n,
@@ -682,6 +711,8 @@ namespace idc {
 
       return kTRUE;
    }
+
+   //___________________________________________________________________________
 
    Double_t CorrectAoverQ(
       KVDBParameterSet* const parameters,
