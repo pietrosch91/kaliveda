@@ -162,6 +162,7 @@ void KVEvent::Clear(Option_t*)
 
    fParticles->Clear("C");
    fParameters.Clear();
+   ResetGetNextParticle();
 }
 
 //________________________________________________________________________________
@@ -175,6 +176,7 @@ void KVEvent::Print(Option_t* t) const
    cout << "------------------------------------" << endl;
    fParameters.Print();
    KVNucleus* frag = 0;
+   const_cast<KVEvent*>(this)->ResetGetNextParticle();
    while ((frag = ((KVEvent*) this)->GetNextParticle(t))) {
       frag->Print();
    }
