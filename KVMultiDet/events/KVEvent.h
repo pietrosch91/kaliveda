@@ -33,6 +33,9 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "KVParticleCondition.h"
 #include "KVNameValueList.h"
 #include "TMethodCall.h"
+
+#include <iterator>
+
 class KVIntegerList;
 
 class KVEvent: public KVBase {
@@ -40,7 +43,6 @@ class KVEvent: public KVBase {
 protected:
 
    TClonesArray* fParticles;    //->array of particles in event
-   TIter* fOKIter;              //!used for iterating over particles
    KVNameValueList fParameters;//general-purpose list of parameters
 #ifdef __WITHOUT_TCA_CONSTRUCTED_AT
    TObject* ConstructedAt(Int_t idx);
@@ -48,6 +50,192 @@ protected:
 #endif
 public:
 
+   class Iterator : public std::iterator<std::input_iterator_tag, KVNucleus> {
+   public:
+      enum Type {    // type of iterator
+         Null,      // null value
+         All,       // include all particles
+         OK,        // include particles which are "OK"
+         Group      // include particles belonging to group
+      };
+
+   private:
+      TIter   fIter;//iterator over TClonesArray
+      Type    fType;//iterator type
+      mutable Bool_t  fIterating;//=kTRUE when iteration in progress
+      TString fGroup;//groupname for group iterations
+      Bool_t AcceptableIteration()
+      {
+         // Returns kTRUE if the current particle in the iteration
+         // corresponds to the selection criteria (if any)
+
+         switch (fType) {
+            case OK:
+               return current()->IsOK();
+               break;
+            case Group:
+               return current()->BelongsToGroup(fGroup);
+               break;
+            case All:
+            default:
+               return kTRUE;
+         }
+         return kTRUE;
+      }
+      KVNucleus* current() const
+      {
+         // Returns pointer to current particle in iteration
+         // Resets fIterating flag to kFALSE at end of list
+         return static_cast<KVNucleus*>(*fIter);
+      }
+   public:
+      Iterator()
+         : fIter(static_cast<TIterator*>(nullptr)),
+#ifdef WITH_CPP11
+           fType(Type::Null),
+#else
+           fType(Null),
+#endif
+           fIterating(kFALSE),
+           fGroup()
+      {}
+      Iterator(const Iterator& i)
+         : fIter(i.fIter),
+           fType(i.fType),
+           fIterating(i.fIterating),
+           fGroup(i.fGroup)
+      {}
+
+#ifdef WITH_CPP11
+      Iterator(const KVEvent* e, Type t = Type::All, TString grp = "")
+#else
+      Iterator(const KVEvent* e, Type t = All, TString grp = "")
+#endif
+         : fIter(e->fParticles), fType(t), fIterating(kTRUE), fGroup(grp)
+      {
+         // Construct an iterator object to read in sequence the particles in event *e.
+         // By default, opt="" and all particles are included in the iteration.
+         // opt is a case-insensitive option controlling the iteration:
+         //   opt="ok"/"OK":  only particles whose KVParticle::IsOK() method returns kTRUE
+         //                   are iterated over
+         //   opt=any other non-empty string:  only particles belonging to the given group
+         //                                    i.e. KVParticle::BelongsToGroup(opt) returns
+         //                                    kTRUE
+
+         // set iterator to first particle of event corresponding to selection
+         fIter.Begin();
+         while ((current() != nullptr) && !AcceptableIteration()) ++fIter;
+      }
+
+#ifdef WITH_CPP11
+      Iterator(const KVEvent& e, Type t = Type::All, TString grp = "")
+#else
+      Iterator(const KVEvent& e, Type t = All, TString grp = "")
+#endif
+         : fIter(e.fParticles), fType(t), fIterating(kTRUE), fGroup(grp)
+      {
+         // Construct an iterator object to read in sequence the particles in event *e.
+         // By default, opt="" and all particles are included in the iteration.
+         // opt is a case-insensitive option controlling the iteration:
+         //   opt="ok"/"OK":  only particles whose KVParticle::IsOK() method returns kTRUE
+         //                   are iterated over
+         //   opt=any other non-empty string:  only particles belonging to the given group
+         //                                    i.e. KVParticle::BelongsToGroup(opt) returns
+         //                                    kTRUE
+
+         // set iterator to first particle of event corresponding to selection
+         fIter.Begin();
+         while ((current() != nullptr) && !AcceptableIteration()) ++fIter;
+      }
+
+      KVNucleus& operator* () const
+      {
+         // Returns pointer to current particle in iteration
+
+         return *(current());
+      }
+      Bool_t operator!= (const Iterator& it) const
+      {
+         // returns kTRUE if the 2 iterators are not pointing to the same particle
+         return current() != it.current();
+      }
+      Bool_t operator== (const Iterator& it) const
+      {
+         // returns kTRUE if the 2 iterators are pointing to the same particle
+         return current() == it.current();
+      }
+      const Iterator& operator++ ()
+      {
+         // Prefix ++ operator
+         // Advance iterator to next particle in event compatible with selection
+         if (current() == nullptr) fIterating = kFALSE;
+         ++fIter;
+         while (current() != nullptr && !AcceptableIteration()) ++fIter;
+         return *this;
+      }
+      Iterator operator++ (int)
+      {
+         // Postfix ++ operator
+         // Advance iterator to next particle in event compatible with selection
+         Iterator tmp(*this);
+         operator++();
+         return tmp;
+      }
+      Iterator& operator= (const Iterator& rhs)
+      {
+         // copy-assignment operator
+         if (this != &rhs) { // check self-assignment based on address of object
+            fIter = rhs.fIter;
+            fType = rhs.fType;
+            fGroup = rhs.fGroup;
+            fIterating = rhs.fIterating;
+         }
+         return *this;
+      }
+
+      static Iterator End()
+      {
+         return Iterator();
+      }
+      virtual ~Iterator() {}
+#ifdef WITH_CPP11
+      void Reset(Type t = Type::Null, TString grp = "")
+#else
+      void Reset(Type t = Null, TString grp = "")
+#endif
+      {
+         // Reuse iterator, start iteration again
+         // Reset() - use same selection criteria
+         // Reset(Type t[, TString gr]) - change selection criteria
+#ifdef WITH_CPP11
+         if (t != Type::Null) {
+#else
+         if (t != Null) {
+#endif
+            fType = t;
+            fGroup = grp;
+         }
+         fIter.Begin();
+         fIterating = kTRUE;
+         while ((current() != nullptr) && !AcceptableIteration()) ++fIter;
+      }
+      Bool_t IsIterating() const
+      {
+         // returns kTRUE if iteration is in progress
+         return fIterating;
+      }
+      void SetIsIterating(Bool_t on = kTRUE)
+      {
+         // set fIterating flag
+         fIterating = on;
+      }
+
+      ClassDef(Iterator, 0) //Iterator class for KVEvent
+   };
+protected:
+   Iterator fIter;//! internal iterator used by GetNextParticle()
+
+public:
    KVNameValueList* GetParameters() const
    {
       return (KVNameValueList*)&fParameters;
@@ -77,6 +265,18 @@ public:
    }
    KVNucleus* GetParticleWithName(const Char_t* name) const;
    KVNucleus* GetParticle(const Char_t* group_name) const;
+
+   Iterator begin() const
+   {
+      // return iterator to beginning of event
+      return Iterator(this);
+   }
+   Iterator end() const
+   {
+      // return iterator to end of event (a nullptr)
+      return Iterator::End();
+   }
+
    KVNucleus* GetNextParticle(Option_t* opt = "");
    void ResetGetNextParticle();
 
@@ -130,7 +330,27 @@ public:
       tree->Branch(branchname, classname, event, bufsize, 0)->SetAutoDelete(kFALSE);
    }
 
+
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
+};
+
+struct EventIterator {
+   KVEvent::Iterator it;
+#ifdef WITH_CPP11
+   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::Type::All, TString grp = "")
+#else
+   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::All, TString grp = "")
+#endif
+      : it(event, t, grp)
+   {}
+   KVEvent::Iterator begin() const
+   {
+      return it;
+   }
+   KVEvent::Iterator end() const
+   {
+      return KVEvent::Iterator::End();
+   }
 };
 
 #endif
