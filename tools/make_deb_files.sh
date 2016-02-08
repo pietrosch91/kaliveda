@@ -122,7 +122,7 @@ for etc in $etcfiles; do
    echo "/usr/share/kaliveda/etc/$etc" >> $install_file
 done
 for exmpl in $exmplfiles; do
-   echo "/usr/share/kaliveda/examples/$3/$exmpl" >> $dev_install_file
+   echo "/usr/share/doc/kaliveda/examples/$3/$exmpl" >> $dev_install_file
 done
 for lib in $devlibs; do
    echo "/$lib" >> $dev_install_file
@@ -137,7 +137,7 @@ for lib in $libs; do
    echo "/$lib" >> $install_file
 done
 if [ "x$3" = "xKVMultiDet" ]; then
-  extras="/usr/share/kaliveda/etc/config.files /usr/share/kaliveda/etc/KaliVeda.par /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
+  extras="/usr/share/doc/kaliveda/README.md /usr/share/doc/kaliveda/COPYING /usr/share/doc/kaliveda/INSTALL /usr/share/kaliveda/etc/config.files /usr/share/kaliveda/etc/KaliVeda.par /usr/lib/libfitltg.so /usr/lib/libgan_tape.so"
   tools="/usr/bin/kaliveda /usr/bin/kaliveda-sim /usr/bin/update_runlist /usr/bin/kvtreeanalyzer /usr/bin/kvdatanalyser /usr/bin/KaliVedaAnalysis"
   dev_extras="/usr/share/kaliveda/etc/kaliveda.m4 /usr/share/kaliveda/etc/nedit.cf /usr/bin/kaliveda-config"
   for e in $extras; do
@@ -186,7 +186,13 @@ if [ "x$reply" = "xy" ]; then
 fi
 cd $2
 cmake $1 -DCMAKE_INSTALL_PREFIX=/usr -Dgnuinstall=yes -DUSE_MICROSTAT=yes -DUSE_ALL=yes -DUSE_GEMINI=no
-make -j3 install DESTDIR=$2/tmp
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+make -j4 install DESTDIR=$2/tmp
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 makeDebFiles $1 $2 KVMultiDet kaliveda
 makeDebFiles $1 $2 KVIndra kaliveda-indra
 makeDebFiles $1 $2 VAMOS kaliveda-indravamos

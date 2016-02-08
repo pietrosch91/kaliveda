@@ -333,6 +333,9 @@ install(PROGRAMS tools/SetUpKaliVeda.sh tools/SetUpROOT.sh tools/WhichROOT
 install(FILES tools/.nedit DESTINATION ${CMAKE_INSTALL_SYSCONFDIR} RENAME nedit.cf)
 install(FILES tools/kaliveda.m4 DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
+#---install README, COPYING, etc. in ${CMAKE_INSTALL_DOCDIR}
+install(FILES COPYING INSTALL README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
+
 #---install exported targets file for use by other projects
 install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)
 

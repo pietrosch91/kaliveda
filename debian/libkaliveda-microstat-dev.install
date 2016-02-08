@@ -1,5 +1,5 @@
-/usr/share/kaliveda/examples/MicroStat/MicroStat_example2.C
-/usr/share/kaliveda/examples/MicroStat/MicroStat_example.C
+/usr/share/doc/kaliveda/examples/MicroStat/MicroStat_example2.C
+/usr/share/doc/kaliveda/examples/MicroStat/MicroStat_example.C
 /usr/lib/libMicroStatmontecarlo.so
 /usr/lib/libMicroStatweights.so
 /usr/lib/libMicroStatweights.rootmap

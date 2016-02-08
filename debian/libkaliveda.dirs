@@ -1,4 +1,5 @@
 /usr/lib
+/usr/share/doc/kaliveda
 /usr/share/kaliveda/data
 /usr/share/kaliveda/etc
 /usr/share/kaliveda/templates

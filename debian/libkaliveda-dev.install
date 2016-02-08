@@ -1,10 +1,10 @@
-/usr/share/kaliveda/examples/KVMultiDet/base_kvbase.C
-/usr/share/kaliveda/examples/KVMultiDet/base_kvnumberlist.C
-/usr/share/kaliveda/examples/KVMultiDet/ClassTraj.cpp
-/usr/share/kaliveda/examples/KVMultiDet/ClassTraj.h
-/usr/share/kaliveda/examples/KVMultiDet/KVEvent_iterator_example.C
-/usr/share/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example2.C
-/usr/share/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example.C
+/usr/share/doc/kaliveda/examples/KVMultiDet/base_kvbase.C
+/usr/share/doc/kaliveda/examples/KVMultiDet/base_kvnumberlist.C
+/usr/share/doc/kaliveda/examples/KVMultiDet/ClassTraj.cpp
+/usr/share/doc/kaliveda/examples/KVMultiDet/ClassTraj.h
+/usr/share/doc/kaliveda/examples/KVMultiDet/KVEvent_iterator_example.C
+/usr/share/doc/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example2.C
+/usr/share/doc/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example.C
 /usr/lib/libKVMultiDetanalysis.so
 /usr/lib/libKVMultiDetdata_management.so
 /usr/lib/libKVMultiDetparticles.so

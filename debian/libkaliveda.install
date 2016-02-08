@@ -45,6 +45,9 @@
 /usr/lib/libKVMultiDetparticles.so.1.10.07
 /usr/lib/libKVMultiDetevents.so.1
 /usr/lib/libKVMultiDetevents.so.1.10.07
+/usr/share/doc/kaliveda/README.md
+/usr/share/doc/kaliveda/COPYING
+/usr/share/doc/kaliveda/INSTALL
 /usr/share/kaliveda/etc/config.files
 /usr/share/kaliveda/etc/KaliVeda.par
 /usr/lib/libfitltg.so
