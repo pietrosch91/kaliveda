@@ -348,31 +348,6 @@ Bool_t ThreadedMassEstimator::EstimateA(
    // always be set to either a positive or a negative number below:
    result->status = 0;
 
-   Bool_t calibration_range_error(kFALSE);
-
-   if (input->si_energy > 1000.) {
-
-      // IMPORTANT:
-      //
-      // Currently the CsI light to energy calibration function is only valid
-      // up to around A=45 and we must warn the user that they are trying to
-      // analyse a point which is likely outside of that range. Unfortunately,
-      // there are only 3 variables available to us at this time: silicon
-      // energy, caesium iodide light output and Z. I have chosen the silicon
-      // energy and decided to specifiy the cut-off as 1000 MeV (48-Ca should
-      // be around 800-900 MeV). If the CsI is ever re-calibrated to extend
-      // this range, then this cut-off value should be increased accordingly.
-      //
-      // We process this event as normal but the results are extrememly
-      // unreliable outside of the CsI calibration range. The
-      // calibration_range_error flag is used to set the correct return status
-      // after the event has been processed. This way we let the mass
-      // estimator do its job but inform the user to be wary of the result.
-      //
-
-      calibration_range_error = kTRUE;
-   }
-
    static Long64_t event_number(0);
    ++event_number;
 
@@ -580,10 +555,6 @@ Bool_t ThreadedMassEstimator::EstimateA(
       result->status = result_status;
 
       return kFALSE;
-   }
-
-   if (calibration_range_error) {
-      result_status = kCalibrationRangeError;
    }
 
    result->z_value = input->z;

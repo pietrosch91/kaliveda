@@ -190,7 +190,6 @@ Int_t MonoMinimiserImpl::Minimise(
 #endif
       delta_last = sim_results_->delta;
    } else {
-      Warning("MonoMinimiserImpl::Minimise", "Initial point is bad");
       delta_last = 100000.;
    }
 

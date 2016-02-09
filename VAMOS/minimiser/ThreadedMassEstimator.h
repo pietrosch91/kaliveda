@@ -192,7 +192,6 @@ public:
    // Negative values indicate error states, positive values provide
    // information, and 0 should never occur (used as an initialisation value).
    enum ResultStatus {
-      kCalibrationRangeError  = -2,
       kNoResultFound          = -1,
       kEqualDeltas            =  1,
       kThreadOneResult        =  2,
