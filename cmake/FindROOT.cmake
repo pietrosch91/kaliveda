@@ -55,6 +55,17 @@ foreach(_cpt Core Cint ${ROOT_FIND_COMPONENTS})
 endforeach()
 list(REMOVE_DUPLICATES ROOT_LIBRARIES)
 
+execute_process(
+    COMMAND ${ROOT_CONFIG_EXECUTABLE} --libs
+    OUTPUT_VARIABLE ROOT_CORE_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REGEX MATCHALL [-]l[A-Z][0-9A-Za-z]* corelibs ${ROOT_CORE_LIBS})
+set(ROOT_CORE_LIBRARIES)
+foreach(lib ${corelibs})
+   string(REGEX REPLACE ^[-l] "" llib ${lib})
+   list(APPEND ROOT_CORE_LIBRARIES ${ROOT_${llib}_LIBRARY})
+endforeach()
+
 #----------------------------------------------------------------------------
 # Locate the tools
 set(ROOT_ALL_TOOLS genreflex genmap root rootcint)
