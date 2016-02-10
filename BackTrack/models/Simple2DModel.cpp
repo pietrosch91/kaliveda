@@ -38,9 +38,9 @@ namespace BackTrack {
 
       Double_t par1 = ((RooRealVar*)parameters.at(0))->getVal();
       Double_t par2 = ((RooRealVar*)parameters.at(1))->getVal();
-      Double_t obs1 = gRandom->Gaus(par1 + par2, abs(par1 + par2) / 5.);
+      Double_t obs1 = gRandom->Gaus(par1 + par2, std::abs(par1 + par2) / 5.);
       Double_t diff = (par1 - par2);
-      Double_t obs2 = gRandom->Gaus(diff, abs(diff) / 10.);
+      Double_t obs2 = gRandom->Gaus(diff, std::abs(diff) / 10.);
       GetObservable("obs1").setVal(obs1);
       GetObservable("obs2").setVal(obs2);
       data.add(GetObservables());
