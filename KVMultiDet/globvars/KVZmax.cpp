@@ -44,7 +44,7 @@ void KVZmax::init_KVZmax(void)
    heaviest = 0;
    fSorted = kFALSE;
    //set up list of indices
-   for (register int i = 1; i <= 50; i++)
+   for (int i = 1; i <= 50; i++)
       SetNameIndex(Form("Zmax%d", i), i - 1);
    fValueType = 'I'; // integer values
    SetMaxNumBranches(3);

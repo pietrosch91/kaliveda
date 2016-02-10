@@ -1008,7 +1008,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
       // do not include layers with zero thickness
       if (thick == 0.0) continue;
       GetVerticesInOwnFrame(coords, fDepthInTelescope + depth_in_det, thick);
-      for (register int i = 0; i < 8; i++) {
+      for (int i = 0; i < 8; i++) {
          vertices[2 * i] = coords[i].X();
          vertices[2 * i + 1] = coords[i].Y();
       }

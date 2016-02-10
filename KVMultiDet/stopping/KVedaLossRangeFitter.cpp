@@ -28,7 +28,7 @@ Double_t KVedaLossRangeFitter::range(Double_t* e, Double_t* a)
 {
    // express logR as a polynomial of log(E/A)
    Double_t lr = a[5];
-   for (register int i = 4; i >= 0; --i) lr = e[0] * lr + a[i];
+   for (int i = 4; i >= 0; --i) lr = e[0] * lr + a[i];
    return lr;
 }
 

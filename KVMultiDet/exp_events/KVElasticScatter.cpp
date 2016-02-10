@@ -334,7 +334,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    /* -------------------------------------------------------------------------------------------------------------------------- */
 
    Double_t xsec;
-   for (register int i = 0; i < N; i++) {
+   for (int i = 0; i < N; i++) {
       //calculate slowing of incoming projectile
       fTarget->SetIncoming();
       fTarget->DetectParticle(fProj);

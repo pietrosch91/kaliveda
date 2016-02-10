@@ -159,8 +159,8 @@ void KVTenseur3::Copy(TObject& a)
 //
    ((KVTenseur3&) a).Reset();
    KVBase::Copy(a);
-   for (register int i = 1; i <= 3; i++) {
-      for (register int j = 1; j <= 3; j++) {
+   for (int i = 1; i <= 3; i++) {
+      for (int j = 1; j <= 3; j++) {
          ((KVTenseur3&) a).SetElem(i, j, GetElem(i, j));
          ((KVTenseur3&) a).SetVep(i, j,
                                   ((KVTenseur3*) this)->GetVep(i, j));

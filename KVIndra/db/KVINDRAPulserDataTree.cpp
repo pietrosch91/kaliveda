@@ -341,7 +341,7 @@ void KVINDRAPulserDataTree::ReadData()
    while ((run = (KVINDRADBRun*)Nxt_r())) {
       Int_t run_num = run->GetNumber();
       //reset all array members to -1
-      for (register int i = 0; i < fTab_siz; i++) fVal[i] = -1.0;
+      for (int i = 0; i < fTab_siz; i++) fVal[i] = -1.0;
       Info("ReadData", "Reading data for run %d", run_num);
       UChar_t msg = ReadData(run_num);
       if (msg & 1) missing1.Add(run_num);

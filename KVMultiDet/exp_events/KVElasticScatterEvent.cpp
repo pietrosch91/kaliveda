@@ -902,7 +902,7 @@ void KVElasticScatterEvent::DefineHistos()
       Float_t thickness = GetTarget()->GetThickness();
       lhisto->Add(new TH1F("target_layer_depth", "target_layer_depth", TMath::Nint(thickness * 110), 0, thickness * 1.1));
       h1 = (TH1F*)lhisto->Last();
-      h1->SetXTitle("IP position (mg / cm²)");
+      h1->SetXTitle("IP position (mg / cm**2)");
    }
    Float_t totalE = GetNucleus(1)->GetKE();
    lhisto->Add(new TH2F("ek_theta", "ek_theta", 180, 0, 180, TMath::Nint(totalE * 11), 0, totalE * 1.1));

@@ -143,7 +143,7 @@ void KVINDRADB_e613::ReadChIoPressures()
                par_list->Add(parset);
                LinkListToRunRange(par_list, nl);
                par_list->Clear();
-               for (register int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
+               for (int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
                read_pressure = kFALSE;
             }
          }
@@ -166,7 +166,7 @@ void KVINDRADB_e613::ReadChIoPressures()
             par_list->Add(parset);
             LinkListToRunRange(par_list, nl);
             par_list->Clear();
-            for (register int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
+            for (int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
             read_pressure = kFALSE;
          }
       } else {

@@ -141,7 +141,7 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
                    0., 1.e+03, 0, "KVedaLossMaterial", "EResFunc");
    fEres->SetNpx(my_npx);
 
-   for (register int count = 0; count < ZMAX_VEDALOSS; count++) {
+   for (int count = 0; count < ZMAX_VEDALOSS; count++) {
 
       if (sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
                  &fCoeff[count][0], &fCoeff[count][1],
@@ -237,12 +237,12 @@ TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
    Double_t x1 = TMath::Log(0.1);
    Double_t x2 = TMath::Log(0.2);
    ran = 0.0;
-   for (register int j = 2; j < 7; j++)
+   for (int j = 2; j < 7; j++)
       ran += (*par)[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
    ran += (*par)[2];
    Double_t y2 = ran;
    ran = 0.0;
-   for (register int jj = 2; jj < 7; jj++)
+   for (int jj = 2; jj < 7; jj++)
       ran += (*par)[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
    ran += (*par)[2];
    Double_t y1 = ran;
@@ -279,12 +279,12 @@ TF1* KVedaLossMaterial::GetStoppingFunction(Int_t Z, Int_t A, Double_t isoAmat)
    Double_t x1 = TMath::Log(0.1);
    Double_t x2 = TMath::Log(0.2);
    ran = 0.0;
-   for (register int j = 2; j < 7; j++)
+   for (int j = 2; j < 7; j++)
       ran += (*par)[j + 1] * TMath::Power(x2, (Double_t)(j - 1));
    ran += (*par)[2];
    Double_t y2 = ran;
    ran = 0.0;
-   for (register int jj = 2; jj < 7; jj++)
+   for (int jj = 2; jj < 7; jj++)
       ran += (*par)[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
    ran += (*par)[2];
    Double_t y1 = ran;
@@ -335,7 +335,7 @@ Double_t KVedaLossMaterial::StoppingFunc(Double_t* E, Double_t*)
    DLEP = dleps;
    ran = (*par)[2] + (*par)[3] * DLEP;
    drande = (*par)[3];
-   for (register int i = 4; i < 8; i++) {
+   for (int i = 4; i < 8; i++) {
       drande += (i - 2) * (*par)[i] * DLEP;
       ran += (*par)[i] * (DLEP *= dleps);
    }

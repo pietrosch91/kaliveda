@@ -77,8 +77,8 @@ void KVINDRAReconRoot::InitRun(void)
    // print status of calibrations
    gIndra->PrintCalibStatusOfDetectors();
 
-   for (register int i = 0; i < 15; i++) Acodes[i] = 0;
-   for (register int i = 0; i < 4; i++) Astatus[i] = 0;
+   for (int i = 0; i < 15; i++) Acodes[i] = 0;
+   for (int i = 0; i < 4; i++) Astatus[i] = 0;
 }
 
 //_____________________________________
@@ -100,13 +100,13 @@ Bool_t KVINDRAReconRoot::Analysis(void)
 void KVINDRAReconRoot::CountCodes()
 {
    KVINDRAReconNuc* particle;
-   for (register int i = 0; i < 15; i++) codes[i] = 0;
+   for (int i = 0; i < 15; i++) codes[i] = 0;
    while ((particle = GetEvent()->GetNextParticle())) {
       int code = particle->GetCodes().GetVedaIDCode();
       if ((code == 0 && particle->IsIdentified()) || (code > 0 && code < 15)) codes[code] += 1;
    }
    int ntot = 0;
-   for (register int i = 0; i < 15; i++) {
+   for (int i = 0; i < 15; i++) {
       ntot += codes[i];
       Acodes[i] += codes[i];
    }
@@ -114,12 +114,12 @@ void KVINDRAReconRoot::CountCodes()
 void KVINDRAReconRoot::CountStatus()
 {
    KVINDRAReconNuc* particle;
-   for (register int i = 0; i < 4; i++) status[i] = 0;
+   for (int i = 0; i < 4; i++) status[i] = 0;
    while ((particle = GetEvent()->GetNextParticle())) {
       status[particle->GetStatus()] += 1;
    }
    int ntot = 0;
-   for (register int i = 0; i < 4; i++) {
+   for (int i = 0; i < 4; i++) {
       ntot += status[i];
       Astatus[i] += status[i];
    }
@@ -158,15 +158,15 @@ void KVINDRAReconRoot::EndRun(void)
    cout << endl << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
    cout << endl << "         BILAN  DES  COURSES " << endl << endl;;
    int ntot = 0;
-   for (register int i = 0; i < 4; i++)ntot += Astatus[i];
+   for (int i = 0; i < 4; i++)ntot += Astatus[i];
 
-   for (register int i = 0; i < 4; i++) {
+   for (int i = 0; i < 4; i++) {
       cout << "   Status" << i << "\t" << Astatus[i] << "\t" << setprecision(2) << 100.*Astatus[i] / (1.*ntot) << " %" << endl;
    }
    cout << endl << "  Total all status : " << ntot << endl << endl;
    ntot = 0;
-   for (register int i = 0; i < 15; i++)ntot += Acodes[i];
-   for (register int i = 0; i < 15; i++) {
+   for (int i = 0; i < 15; i++)ntot += Acodes[i];
+   for (int i = 0; i < 15; i++) {
       cout << "   Code" << i << "\t" << Acodes[i] << "\t" << setprecision(2) << 100.*Acodes[i] / (1.*ntot) << " %" << endl;
    }
    cout << endl << "  Total all codes : " << ntot << endl;

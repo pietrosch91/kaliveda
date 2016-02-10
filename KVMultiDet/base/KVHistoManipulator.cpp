@@ -287,7 +287,7 @@ TH1* KVHistoManipulator::ScaleHisto(TH1* hh, TF1* fx, TF1* fy, Int_t nx, Int_t n
             // histogram binning imposed by user. we need to randomise inside bins of original histogram
             // otherwise scaled histogram will be discontinuously filled.
             Int_t nmax = (Int_t)hh->GetBinContent(xx);
-            for (register int i = 0; i < nmax; i++) {
+            for (int i = 0; i < nmax; i++) {
                abs  = alea->Uniform(bmin, bmax);
                Double_t resx = fx->Eval(abs);
                gg->Fill(resx, Xbin_width_corr);
@@ -1313,7 +1313,7 @@ TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t
    // In each case we fit the npoints couples (X1,X2) with f_n
    //
 
-   register int i;
+   int i;
    // calculate comparison points
    npoints = TMath::Max(npoints, degree + 2);
    TString func_name = Form("pol%d", degree);
@@ -1464,7 +1464,7 @@ void KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t
       gPad->Modified();
       gPad->Update();
    }
-   register int i;
+   int i;
    npoints = TMath::Max(2, npoints);
    Info("RescaleX", "Calculating transformation of histo %s using reference histo %s, %d points of comparison",
         hist1->GetName(), hist2->GetName(), npoints);

@@ -452,7 +452,7 @@ void KVPosition::GetCornerCoordinates(TVector3* corners, Double_t depth)
    corners[0].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMax());
 
    // calculate intersection points
-   for (register int i = 0; i < 4; i++) {
+   for (int i = 0; i < 4; i++) {
       Double_t t = corners[i] * normal_to_plane;
       if (t <= 0.0) corners[i].SetXYZ(0, 0, 0);
       else corners[i] *= (fDistance + depth) / t;
@@ -471,7 +471,7 @@ void KVPosition::GetCornerCoordinatesInOwnFrame(TVector3* corners, Double_t dept
    TRotation rot_to_frame;
    rot_to_frame.SetYEulerAngles(-GetPhi()*TMath::DegToRad(), -GetTheta()*TMath::DegToRad(), 0.);
    TVector3 displZ(0, 0, fDistance + depth);
-   for (register int i = 0; i < 4; i++) {
+   for (int i = 0; i < 4; i++) {
       corners[i] = rot_to_frame * corners[i] - displZ;
    }
 }

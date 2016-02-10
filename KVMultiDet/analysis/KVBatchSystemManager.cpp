@@ -119,11 +119,11 @@ void KVBatchSystemManager::Print(Option_t* opt) const
    // Default is to show numbered list with title of each batch system
    //if opt="all", print detailed information on each batch system
    if (!strcmp(opt, "all")) {
-      for (register int i = 1; i <= fBatchSystems.GetSize(); i++) {
+      for (int i = 1; i <= fBatchSystems.GetSize(); i++) {
          fBatchSystems.At(i - 1)->Print("all");
       }
    } else {
-      for (register int i = 1; i <= fBatchSystems.GetSize(); i++) {
+      for (int i = 1; i <= fBatchSystems.GetSize(); i++) {
          cout << "\t" << i << ". " << ((KVBatchSystem*)fBatchSystems.At(i - 1))->GetTitle() << endl;
       }
    }

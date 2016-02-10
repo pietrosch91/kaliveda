@@ -223,7 +223,7 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
 
    Double_t phi = phi_0;
    UInt_t counter = num_first;
-   for (register int i = 0; i < ntel; i++) {
+   for (int i = 0; i < ntel; i++) {
       kvt->SetPolarMinMax(thmin, thmax);
       kvt->SetPhi(phi);
       phi = (phi + dphi > 360. ? (phi + dphi - 360.) : (phi + dphi));
