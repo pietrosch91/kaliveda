@@ -3,6 +3,12 @@
 ## 0. Prerequisites
 ### ROOT
 At least version 5.32, works with version 6 from 6.02 onwards.
+ROOT6: v6 of ROOT is (for the moment) incompatible with gcc v5, and can only be compiled with clang.
+If you have a clang-compiled ROOT6, you must compile KaliVeda with clang also, by modifying the
+'cmake' invocation below to:
+    
+    $ cmake S -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=I
+    
 ### CMake
 At least version 2.8.11 of cmake is required.
 
