@@ -20,6 +20,8 @@
 
 ClassImp(KVIVDB_e503)
 
+//______________________________________________________________________________
+
 KVIVDB_e503::KVIVDB_e503() :
 #if __cplusplus < 201103L
    id_correction_parameters_(NULL),
@@ -31,6 +33,8 @@ KVIVDB_e503::KVIVDB_e503() :
 {
    Init();
 }
+
+//______________________________________________________________________________
 
 KVIVDB_e503::KVIVDB_e503(const Char_t* name) :
    KVIVDB(name),
@@ -45,6 +49,8 @@ KVIVDB_e503::KVIVDB_e503(const Char_t* name) :
    Init();
 }
 
+//______________________________________________________________________________
+
 void KVIVDB_e503::Init()
 {
    id_correction_parameters_ =
@@ -54,10 +60,14 @@ void KVIVDB_e503::Init()
    assert(id_correction_parameters_);
 }
 
+//______________________________________________________________________________
+
 KVIVDB_e503::~KVIVDB_e503()
 {
 
 }
+
+//______________________________________________________________________________
 
 void KVIVDB_e503::Build()
 {
@@ -72,6 +82,8 @@ void KVIVDB_e503::Build()
    }
 
 }
+
+//______________________________________________________________________________
 
 Bool_t KVIVDB_e503::ReadIdCorrectionParameters()
 {
@@ -115,6 +127,8 @@ Bool_t KVIVDB_e503::ReadIdCorrectionParameters()
 
    return kTRUE;
 }
+
+//______________________________________________________________________________
 
 Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
 {
@@ -259,6 +273,8 @@ Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
    f.close();
    return status;
 }
+
+//______________________________________________________________________________
 
 void KVIVDB_e503::SetVerbose(Bool_t status)
 {
