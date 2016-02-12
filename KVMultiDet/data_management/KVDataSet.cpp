@@ -1617,3 +1617,31 @@ void KVDataSet::CopyRunfilesFromRepository(const Char_t* type, KVNumberList runs
       repo->CopyFileFromRepository(this, type, filename, destpath);
    }
 }
+
+//___________________________________________________________________________
+
+void KVDataSet::CopyRunfilesToRepository(const Char_t* type, KVNumberList runs, const Char_t* destrepo)
+{
+   // Copies the runfiles of given "type" from the data repository associated
+   // with this dataset into the local repository "destrepo".
+   // Run numbers given as a list of type "1-10".
+
+   KVDataRepository* repo = GetRepository();
+   KVDataRepository* dest_repo = gDataRepositoryManager->GetRepository(destrepo);
+
+   if (!dest_repo) {
+      Error("CopyRunfilesToRepository", "Unknown destination repository : %s", destrepo);
+      gDataRepositoryManager->Print();
+      return;
+   }
+
+   KVDataSet* dest_ds = dest_repo->GetDataSetManager()->GetDataSet(GetName());
+   dest_repo->CreateAllNeededSubdirectories(dest_ds, type);
+   runs.Begin();
+   while (!runs.End()) {
+      int run = runs.Next();
+      TString filename = GetRunfileName(type, run);
+      TString destpath = dest_repo->GetFullPathToTransferFile(dest_ds, type, filename);
+      repo->CopyFileFromRepository(this, type, filename, destpath);
+   }
+}

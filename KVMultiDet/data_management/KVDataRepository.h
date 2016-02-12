@@ -163,6 +163,7 @@ public:
    static KVDataRepository* NewRepository(const Char_t* type);
    virtual KVAvailableRunsFile* NewAvailableRunsFile(const Char_t*, KVDataSet*);
    virtual TObject* OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
+   void CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType);
 
    virtual void PrintAvailableDatasetsUpdateWarning() const
    {

@@ -660,15 +660,7 @@ void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, KVDataSet
    fCommitDataType = datatype;
 
    //create file in local repository - make sure subdirectory exists!
-   if (!CheckSubdirExists(fCommitDataSet->GetDataPathSubdir(), fCommitDataSet->GetDataTypeSubdir(fCommitDataType))) {
-      //does dataset directory exist ?
-      if (!CheckSubdirExists(fCommitDataSet->GetDataPathSubdir())) {
-         //create dataset directory
-         MakeSubdirectory(fCommitDataSet);
-      }
-      //create subdirectory
-      MakeSubdirectory(fCommitDataSet, fCommitDataType);
-   }
+   CreateAllNeededSubdirectories(fCommitDataSet, fCommitDataType);
 
    cout << endl << "Copying file " << fCommitFileName << " to repository"
         << endl;
@@ -1108,6 +1100,22 @@ TObject* KVDataRepository::OpenDataSetFile(KVDataSet* ds, const Char_t* type, co
    methcall->Execute(retval);
    delete methcall;
    return ((TObject*)(retval));
+}
+
+void KVDataRepository::CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType)
+{
+   // Ensure that all required subdirectories exist and any missing ones are created
+   // in order to store a runfile of given DataType for the given DataSet
+
+   if (!CheckSubdirExists(DataSet->GetDataPathSubdir(), DataSet->GetDataTypeSubdir(DataType))) {
+      //does dataset directory exist ?
+      if (!CheckSubdirExists(DataSet->GetDataPathSubdir())) {
+         //create dataset directory
+         MakeSubdirectory(DataSet);
+      }
+      //create subdirectory
+      MakeSubdirectory(DataSet, DataType);
+   }
 }
 
 //___________________________________________________________________________
