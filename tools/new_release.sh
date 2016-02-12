@@ -23,7 +23,7 @@ version=`echo $1 | sed 's/\//./' | sed 's/\./ /g'`
 maj_vers=`echo $version | awk '{ print $1 }'`
 min_vers=`echo $version | awk '{ print $2 }'`
 declare -i twk_vers
-twk_vers=`echo $version | awk '{ print $3 }'`
+twk_vers=$((10#`echo $version | awk '{ print $3 }'`))
 tag_twk_vers=`echo $version | awk '{ print $3 }'`
 echo "Making release $1 (major=$maj_vers minor=$min_vers tweak=$twk_vers)"
 read -p "OK to proceed ? ([y]/n): " reply
