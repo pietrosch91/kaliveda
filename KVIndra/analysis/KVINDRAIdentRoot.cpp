@@ -62,9 +62,7 @@ void KVINDRAIdentRoot::InitRun(void)
    }
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("IdentRoot.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("IdentRoot"), gDataSet->GetName());
 
    //create new ROOT file for identified events
    fRunNumber = gIndra->GetCurrentRunNumber();
@@ -135,9 +133,7 @@ void KVINDRAIdentRoot::EndRun(void)
    //add file to repository
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("IndraRoot.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("IndraRoot"), gDataSet->GetName());
 
    OutputDataset->CommitRunfile("root", gIndra->GetCurrentRunNumber(),
                                 fIdentFile);

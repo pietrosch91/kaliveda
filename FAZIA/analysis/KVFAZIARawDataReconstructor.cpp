@@ -63,10 +63,7 @@ void KVFAZIARawDataReconstructor::InitRun()
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
-                                 gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository(taskname), gDataSet->GetName());
 
    file = OutputDataset->NewRunfile(datatype.Data(), GetCurrentRunNumber());
 
@@ -173,10 +170,7 @@ void KVFAZIARawDataReconstructor::EndRun()
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
-                                 gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository(taskname), gDataSet->GetName());
    //add new file to repository
    OutputDataset->CommitRunfile(datatype.Data(), GetCurrentRunNumber(), file);
 

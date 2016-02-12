@@ -44,9 +44,7 @@ void KVINDRAReconRoot::InitRun(void)
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("ReconRoot.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("ReconRoot"), gDataSet->GetName());
 
    //create new ROOT file for identified events
    fRunNumber = gIndra->GetCurrentRunNumber();
@@ -146,9 +144,7 @@ void KVINDRAReconRoot::EndRun(void)
    //add file to repository
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("ReconRoot.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("ReconRoot"), gDataSet->GetName());
 
    OutputDataset->CommitRunfile("root", gIndra->GetCurrentRunNumber(),
                                 fIdentFile);

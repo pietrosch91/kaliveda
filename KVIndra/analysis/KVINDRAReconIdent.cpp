@@ -37,9 +37,7 @@ void KVINDRAReconIdent::InitRun(void)
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("ReconIdent"), gDataSet->GetName());
 
    //create new ROOT file for identified events
    fRunNumber = gIndra->GetCurrentRunNumber();
@@ -107,9 +105,7 @@ void KVINDRAReconIdent::EndRun(void)
    //add file to repository
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("ReconIdent"), gDataSet->GetName());
 
    OutputDataset->CommitRunfile("ident", gIndra->GetCurrentRunNumber(),
                                 fIdentFile);
