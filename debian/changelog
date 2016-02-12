@@ -1,4 +1,10 @@
-kaliveda (1.10.7-0ubuntu5) UNRELEASED; urgency=medium
+kaliveda (1.10.8-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New release v1.10/08
+
+ -- John Frankland <frankland@ganil.fr>  Fri, 12 Feb 2016 15:31:07 +0100
+
+kaliveda (1.10.7-0ubuntu5) wily; urgency=medium
 
   * New release v1.10/07
   * removal of KVINDRAFAZIA from FAZIA subproject
@@ -7,7 +13,7 @@ kaliveda (1.10.7-0ubuntu5) UNRELEASED; urgency=medium
   * added GNU GPL v3 in COPYING file, installed in /usr/share/doc/kaliveda directory
   * corrected missing examples installation
 
- -- John Frankland <frankland@ganil.fr>  Mon, 08 Feb 2016 14:22:07 +0100
+ -- John Frankland <frankland@ganil.fr>  Fri, 12 Feb 2016 15:31:06 +0100
 
 kaliveda (1.10.6-0ubuntu1) wily; urgency=medium
 
