@@ -1,5 +1,5 @@
 #--- Top-level CMake file for KaliVeda
-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 
 project(KaliVeda)
 
@@ -24,6 +24,19 @@ if(ROOT_Html_LIBRARY)
    set(CAN_DO_HTMLDOC true)
 endif(ROOT_Html_LIBRARY)
 
+#--check we are using same compiler as root
+get_filename_component(_compiler_name ${CMAKE_CXX_COMPILER} NAME)
+if(NOT ${_compiler_name} STREQUAL ${ROOT_CXX_COMPILER})
+   message(FATAL_ERROR
+"
+            === COMPILER INCOMPATIBILITY ===
+You must use the same compiler as ROOT (=${ROOT_C_COMPILER})
+Re-run cmake TWICE with the following additional definitions:
+cmake -DCMAKE_C_COMPILER=${ROOT_C_COMPILER} -DCMAKE_CXX_COMPILER=${ROOT_CXX_COMPILER} ...
+(the first time cmake will fail; the second should be OK: if not, delete build directory and start again)
+"
+)
+endif()
 
 include(${ROOT_USE_FILE})
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
