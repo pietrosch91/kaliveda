@@ -262,6 +262,14 @@ set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
 include(CreateKaliVedaVersionHeader)
 create_kaliveda_version_header()
 
+#---are we building on CCIN2P3 machines?
+set(CCIN2P3_BUILD)
+if(DEFINED ENV{SITE})
+   if($ENV{SITE} STREQUAL "CCIN2P3")
+      set(CCIN2P3_BUILD yes)
+   endif()
+endif()
+
 #---configure the KVConfig.h file
 include(CreateConfigHeader)
 create_config_header()
@@ -299,15 +307,13 @@ add_subdirectory(etc/proof)
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
 #-at IN2P3 Computing Centre, we need to tack on some infos for access
 #-to the batch system & data repositories
-if(DEFINED ENV{SITE})
-   if($ENV{SITE} STREQUAL "CCIN2P3")
-	   if($ENV{GROUP} STREQUAL "indra")
-		   list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
-		   install(FILES etc/ccali.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
-	   elseif($ENV{GROUP} STREQUAL "fazia")
-		   list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
-		   install(FILES etc/ccali-fazia.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
-	   endif()
+if(CCIN2P3_BUILD)
+   if($ENV{GROUP} STREQUAL "indra")
+      list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
+      install(FILES etc/ccali.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
+   elseif($ENV{GROUP} STREQUAL "fazia")
+      list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
+      install(FILES etc/ccali-fazia.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
    endif()
 else()
     #-for standard install outside CCIN2P3, tack on the 'standard.rootrc' config
