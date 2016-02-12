@@ -24,7 +24,8 @@ if(ROOT_Html_LIBRARY)
    set(CAN_DO_HTMLDOC true)
 endif(ROOT_Html_LIBRARY)
 
-#--check we are using same compiler as root
+#--check we are using same compiler as ROOT for v6 (requires clang)
+if(${ROOT_VERSION} VERSION_GREATER 5)
 get_filename_component(_compiler_name ${CMAKE_CXX_COMPILER} NAME)
 if(NOT ${_compiler_name} STREQUAL ${ROOT_CXX_COMPILER})
    message(FATAL_ERROR
@@ -37,6 +38,7 @@ cmake -DCMAKE_C_COMPILER=${ROOT_C_COMPILER} -DCMAKE_CXX_COMPILER=${ROOT_CXX_COMP
 "
 )
 endif()
+endif(${ROOT_VERSION} VERSION_GREATER 5)
 
 include(${ROOT_USE_FILE})
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
