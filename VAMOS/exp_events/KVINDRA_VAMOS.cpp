@@ -76,8 +76,6 @@ void KVINDRA_VAMOS::Build(Int_t run)
    // couple INDRA+VAMOS. Set up the geometry of INDRA and VAMOS,
    // associate the acquistion parameters with detectors, etc...
 
-   UNUSED(run);
-
    SetName("INDRA_VAMOS");
    SetTitle("INDRA+VAMOS  experimental setup");
    Info("Build", "Building INDRA+VAMOS ...");
@@ -117,6 +115,8 @@ void KVINDRA_VAMOS::Build(Int_t run)
 
    // To be sure that gMultiDetArray points on this object.
    gMultiDetArray = this;
+
+   if (run > -1) SetParameters(run);
 }
 //________________________________________________________________
 
