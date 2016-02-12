@@ -197,9 +197,9 @@ void KVDatime::SetGanacqDate(const Char_t* GanacqDateString)
    KV__TOBJSTRING_TO_INT(toks, 2, year)
    // year may be written in shortened form: 97 instead of 1997
    if (year < 100) {
-      Warning("SetGanacqDate",
-              "Ambiguous value for year: %d. Assuming this means: %d",
-              year, (year < 82 ? year + 2000 : year + 1900));
+//      Warning("SetGanacqDate",
+//              "Ambiguous value for year: %d. Assuming this means: %d",
+//              year, (year < 82 ? year + 2000 : year + 1900));
       (year < 82 ? year += 2000 : year += 1900);
    }
    KV__TOBJSTRING_TO_INT(toks, 3, hour)
