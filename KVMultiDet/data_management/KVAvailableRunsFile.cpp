@@ -103,10 +103,12 @@ const Char_t* KVAvailableRunsFile::GetFileName() const
 const Char_t* KVAvailableRunsFile::GetFilePath() const
 {
    // Returns the full path to the directory where the available runs file is stored.
-   // This is by default
-   //    $KVROOT/KVFiles/[dataset]
+   // This is by default the same directory where the dataset files are stored.
+   // However, if KaliVeda was installed using a GNU-style directory layout
+   // (possibly in the system directories, e.g. Ubuntu packages)
+   // then the path will be the user's working directory + dataset name
    //
-   // However by setting the config variable
+   // Alternatively, by setting the config variable
    //   KVAvailableRunsFile.RunFileDirectory:   /some/path
    //
    // files will be stored/looked for in
@@ -120,8 +122,14 @@ const Char_t* KVAvailableRunsFile::GetFilePath() const
       filepath = "";
    } else {
       TString p = gEnv->GetValue("KVAvailableRunsFile.RunFileDirectory", "");
-      if (p == "") filepath = fDataSet->GetDataSetDir();
-      else {
+      if (p == "") {
+         // no user-defined run file directory
+         if (is_gnuinstall()) {
+            // GNU-style install: use working directory
+            filepath = GetWORKDIRFilePath(fDataSet->GetName());
+         } else
+            filepath = fDataSet->GetDataSetDir();
+      } else {
          gSystem->ExpandPathName(p);
          AssignAndDelete(filepath, gSystem->ConcatFileName(p.Data(), fDataSet->GetName()));
       }
@@ -151,7 +159,7 @@ Bool_t KVAvailableRunsFile::CheckDirectoryForAvailableRunsFile()
          return kFALSE;
       }
       // set access permissions on created directory
-      gSystem->Chmod(GetFilePath(), CHMODE(6, 6, 4));
+      gSystem->Chmod(GetFilePath(), CHMODE(7, 7, 5));
    }
    if (gSystem->AccessPathName(GetFilePath(), kWritePermission)) { // directory is not writable
       Error("CheckDirectoryForAvailableRunsFile", "directory %s is not writable - check access permissions", GetFilePath());
