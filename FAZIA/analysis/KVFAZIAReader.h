@@ -14,22 +14,24 @@
 #include <KVDetectorEvent.h>
 
 // Header file for the classes stored in the TTree if any.
-
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class KVFAZIAReader : public TSelector {
 
    TTree* fChain;   //!pointer to the analyzed TTree or TChain
-   Int_t fEventNumber;
+
    Int_t fCurrentRun;
-   Int_t fReadEntries;
+   Int_t fEventsRead;
+   Bool_t fNotifyCalled;
    KVFAZIARawEvent* RawEvent;
    KVDetectorEvent* fDetEv;
 
 public :
-   KVFAZIAReader() : fChain(0)
+
+   KVFAZIAReader()
    {
       fCurrentRun = -1;
+      fNotifyCalled = kFALSE;
       RawEvent = 0;
       fDetEv = new KVDetectorEvent();
    }
@@ -39,10 +41,9 @@ public :
    }
    virtual Int_t   Version() const
    {
-      return 2;
+      return 3;
    }
 
-   virtual void    Begin(TTree* tree);
    virtual void    SlaveBegin(TTree* tree);
    virtual void    Init(TTree* tree);
    virtual Bool_t  Notify();
@@ -50,50 +51,28 @@ public :
    virtual Bool_t  Process(Long64_t entry);
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0);
 
-   virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   virtual void    SetOption(const char* option)
-   {
-      fOption = option;
-   }
-   virtual void    SetObject(TObject* obj)
-   {
-      fObject = obj;
-   }
-   virtual void    SetInputList(TList* input)
-   {
-      fInput = input;
-   }
-   virtual TList*  GetOutputList() const
-   {
-      return fOutput;
-   }
 
    /* methods to be derived in child classes*/
    virtual void InitAnalysis() {}            //Called by Init()
    virtual void InitRun() {}                 //Called by Notify()
    virtual Bool_t Analysis()
    {
-      return kTRUE;  //Called by Process()
+      return kTRUE;   //Called by Process()
    }
    virtual void EndRun() {}                  //Called by Notify() and Terminate()
    virtual void EndAnalysis() {}             //Called by Terminate()
    //
 
-   Int_t GetEventNumber()
-   {
-      return fEventNumber;
-   }
-   Int_t GetCurrentRunNumber()
+   Int_t GetCurrentRunNumber() const
    {
       return fCurrentRun;
    }
-   Int_t GetNumberOfReadEntries()
+   Int_t GetNumberOfReadEntries() const
    {
-      return fReadEntries;
+      return fEventsRead;
    }
-
    KVFAZIARawEvent* GetEvent() const
    {
       return RawEvent;

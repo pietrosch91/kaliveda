@@ -1,7 +1,7 @@
 BUILD_KALIVEDA_MODULE(base
 	PARENT ${KVSUBPROJECT}
 	DICT_EXCLUDE KVError.h
-	EXTRA_LIBS ${GRU_LIB}
+	EXTRA_LIBS ${ROOT_Gui_LIBRARY} ${ROOT_Geom_LIBRARY} ${GRU_LIB}
 )
 
 #--- generation of KVBzrInfo.h or KVGitInfo.h

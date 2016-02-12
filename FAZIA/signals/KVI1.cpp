@@ -111,12 +111,11 @@ void KVI1::TreateSignal()
    FIR_ApplyMovingAverage(4);
 
    Add(-1.*ComputeBaseLine());
-   if (fWithInterpolation)
+   if (fWithInterpolation) {
       BuildCubicSignal();
-   SetNSamples(GetNSamples() - 3); // because we use a 3th order interpolation...
-   ComputeAmplitude();
-   fAmplitude = GetAmplitude();
-
+//      SetNSamples(GetNSamples() - 5*(fChannelWidth /fInterpolatedChannelWidth)); // because we use a 3th order interpolation...
+   }
+   fAmplitude = ComputeAmplitude();
    fPSAIsDone = kTRUE;
 }
 

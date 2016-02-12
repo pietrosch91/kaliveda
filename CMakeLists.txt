@@ -1,5 +1,5 @@
 #--- Top-level CMake file for KaliVeda
-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 
 project(KaliVeda)
 
@@ -24,6 +24,19 @@ if(ROOT_Html_LIBRARY)
    set(CAN_DO_HTMLDOC true)
 endif(ROOT_Html_LIBRARY)
 
+#--check we are using same compiler as root
+get_filename_component(_compiler_name ${CMAKE_CXX_COMPILER} NAME)
+if(NOT ${_compiler_name} STREQUAL ${ROOT_CXX_COMPILER})
+   message(FATAL_ERROR
+"
+            === COMPILER INCOMPATIBILITY ===
+You must use the same compiler as ROOT (=${ROOT_C_COMPILER})
+Re-run cmake TWICE with the following additional definitions:
+cmake -DCMAKE_C_COMPILER=${ROOT_C_COMPILER} -DCMAKE_CXX_COMPILER=${ROOT_CXX_COMPILER} ...
+(the first time cmake will fail; the second should be OK: if not, delete build directory and start again)
+"
+)
+endif()
 
 include(${ROOT_USE_FILE})
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -32,6 +45,11 @@ if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 link_directories(${ROOT_LIBRARY_DIRS})
+
+#--check for g++ -fopenmp flag - for parallel builds
+if(CMAKE_COMPILER_IS_GNUCXX)
+   CHECK_CXX_COMPILER_FLAG("-fopenmp" CXX_HAS_OPENMP)
+endif()
 
 #--check for BOOST - minimum version corresponds progress_display
 set(WITH_BOOST)
@@ -81,6 +99,19 @@ if(gnuinstall)
 else(gnuinstall)
    set(WITH_GNU_INSTALL)
 endif(gnuinstall)
+
+#--- Enable parallelisation of code using OpenMP
+option(USE_PARALLEL_MODE "Enable parallelisation of code using OpenMP" OFF)
+if(USE_PARALLEL_MODE)
+   #---check if g++ -fopenmp option is available
+   if(NOT CXX_HAS_OPENMP)
+      message(STATUS "g++ with OpenMP support required to use this option")
+      set(USE_PARALLEL_MODE OFF CACHE BOOL "" FORCE)
+   else()
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+   endif()
+endif()
+add_feature_info(parallel USE_PARALLEL_MODE "Enable parallelisation of code using OpenMP")
 
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
@@ -197,8 +228,12 @@ endif()
 
 #--- Libraries for FAZIA data
 option(USE_FAZIA "Build libraries for analysis of FAZIA data" OFF)
-if(USE_FAZIA)
+
+#--- Libraries for IDNRAFAZIA data
+option(USE_INDRAFAZIA "Build libraries for analysis of INDRAFAZIA data" OFF)
+if(USE_INDRAFAZIA)
 	set(USE_INDRA ON)
+	set(USE_FAZIA ON)   
 endif()
 
 #--- Enable build of all libraries
@@ -211,6 +246,7 @@ add_feature_info(indra USE_INDRA "Build libraries for analysis of INDRA data")
 add_feature_info(indravamos USE_INDRAVAMOS "Build libraries for analysis of INDRA-VAMOS data")
 add_feature_info(indravamosdep USE_DEPRECATED_VAMOS "Build libraries for deprecated INDRA-VAMOS analysis")
 add_feature_info(fazia USE_FAZIA "Build libraries for analysis of FAZIA data")
+add_feature_info(indrafazia USE_INDRAFAZIA "Build libraries for analysis of INDRAFAZIA data")
 
 #----------------------------------------------------------
 #------------------END BUILD OPTIONS-----------------------
@@ -239,6 +275,14 @@ set(ROOT_LIBRARY_PROPERTIES ${ROOT_LIBRARY_PROPERTIES}
 include(CreateKaliVedaVersionHeader)
 create_kaliveda_version_header()
 
+#---are we building on CCIN2P3 machines?
+set(CCIN2P3_BUILD)
+if(DEFINED ENV{SITE})
+   if($ENV{SITE} STREQUAL "CCIN2P3")
+      set(CCIN2P3_BUILD yes)
+   endif()
+endif()
+
 #---configure the KVConfig.h file
 include(CreateConfigHeader)
 create_config_header()
@@ -262,6 +306,11 @@ if(USE_INDRAVAMOS)
 endif()
 if(USE_FAZIA)
 	add_subdirectory(FAZIA)
+	get_property(FAZIA_MOD_LIST GLOBAL PROPERTY FAZIA_MOD_LIST)
+	get_property(FAZIA_LIB_LIST GLOBAL PROPERTY FAZIA_LIB_LIST)
+endif()
+if(USE_INDRAFAZIA)
+	add_subdirectory(indrafazia)
 endif()
 
 add_subdirectory(execs)
@@ -271,15 +320,13 @@ add_subdirectory(etc/proof)
 get_property(KALIVEDA_CONF_FILES GLOBAL PROPERTY KALIVEDA_CONF_FILES)
 #-at IN2P3 Computing Centre, we need to tack on some infos for access
 #-to the batch system & data repositories
-if(DEFINED ENV{SITE})
-   if($ENV{SITE} STREQUAL "CCIN2P3")
-	   if($ENV{GROUP} STREQUAL "indra")
-		   list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
-		   install(FILES etc/ccali.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
-	   elseif($ENV{GROUP} STREQUAL "fazia")
-		   list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
-		   install(FILES etc/ccali-fazia.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
-	   endif()
+if(CCIN2P3_BUILD)
+   if($ENV{GROUP} STREQUAL "indra")
+      list(APPEND KALIVEDA_CONF_FILES ccali.rootrc)
+      install(FILES etc/ccali.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
+   elseif($ENV{GROUP} STREQUAL "fazia")
+      list(APPEND KALIVEDA_CONF_FILES ccali-fazia.rootrc)
+      install(FILES etc/ccali-fazia.rootrc DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
    endif()
 else()
     #-for standard install outside CCIN2P3, tack on the 'standard.rootrc' config
@@ -304,6 +351,9 @@ install(PROGRAMS tools/SetUpKaliVeda.sh tools/SetUpROOT.sh tools/WhichROOT
 #---install other stuff from tools/ directory in ${CMAKE_INSTALL_SYSCONFDIR}
 install(FILES tools/.nedit DESTINATION ${CMAKE_INSTALL_SYSCONFDIR} RENAME nedit.cf)
 install(FILES tools/kaliveda.m4 DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
+
+#---install README, COPYING, etc. in ${CMAKE_INSTALL_DOCDIR}
+install(FILES COPYING INSTALL README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 #---install exported targets file for use by other projects
 install(EXPORT ${CMAKE_PROJECT_NAME}Exports DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR} FILE ${CMAKE_PROJECT_NAME}-targets.cmake)

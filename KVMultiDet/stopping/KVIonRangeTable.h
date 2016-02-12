@@ -144,6 +144,12 @@ public:
 
    virtual void Print(Option_t* = "") const;
 
+   virtual Bool_t CheckIon(Int_t, Int_t) const
+   {
+      AbstractMethod("CheckIon");
+      return kTRUE;
+   }
+
    ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };
 

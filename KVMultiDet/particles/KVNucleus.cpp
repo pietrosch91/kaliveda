@@ -243,7 +243,7 @@ Int_t KVNucleus::GetZFromSymbol(const Char_t* sym)
 {
    //Returns Z of nucleus with given symbol i.e. "C" => Z=6, "U" => Z=92
    //if unknown, returns -1
-   for (register int i = 0; i <= MAXZ_ELEMENT_SYMBOL; i++) {
+   for (int i = 0; i <= MAXZ_ELEMENT_SYMBOL; i++) {
       if (!strcmp(sym, fElements[i])) {
          return i;
       }

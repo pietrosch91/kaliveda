@@ -274,7 +274,7 @@ Bool_t KVNumberList::Contains(Int_t val) const
 {
    //returns kTRUE if the value 'val' is contained in the ranges defined by the number list
    if (!fIsParsed) ParseList();
-   for (register int i = 0; i < fNLimits; i++) {
+   for (int i = 0; i < fNLimits; i++) {
       if (val >= (*fLowerBounds)[i] && val <= (*fUpperBounds)[i])
          return kTRUE;
    }
@@ -414,7 +414,7 @@ void KVNumberList::Add(Int_t n, Int_t* arr)
    //Add n values from array arr to the list
 
    TString tmp = (fString != "" ? fString + " " : fString);
-   for (register int i = 0; i < n; i++) {
+   for (int i = 0; i < n; i++) {
       tmp += arr[i];
       tmp += " ";
    }
@@ -448,7 +448,7 @@ void KVNumberList::Remove(Int_t n, Int_t* arr)
 {
    //Remove n values from array arr to the list
    TString tmp = " ";
-   for (register int i = 0; i < n; i++) {
+   for (int i = 0; i < n; i++) {
       tmp += arr[i];
       tmp += " ";
    }
@@ -461,7 +461,7 @@ void KVNumberList::SetMinMax(Int_t min, Int_t max, Int_t pas)
 {
    //Set list with all values from 'min' to 'max'
    TString tmp;
-   for (register int i = min; i <= max; i += pas) {
+   for (int i = min; i <= max; i += pas) {
       tmp += i;
       tmp += " ";
    }

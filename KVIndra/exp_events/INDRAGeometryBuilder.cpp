@@ -223,7 +223,7 @@ void INDRAGeometryBuilder::MakeFrame(TString det_type, Int_t ring_num)
    TransformToOwnFrame(fFrameBack, fFrameBackCentre, &corners[4]);
 
    Double_t vertices[16];
-   for (register int i = 0; i < 8; i++) {
+   for (int i = 0; i < 8; i++) {
       vertices[2 * i] = corners[i].X();
       vertices[2 * i + 1] = corners[i].Y();
    }
@@ -253,7 +253,7 @@ void INDRAGeometryBuilder::TransformToOwnFrame(TVector3* orig, TVector3& centre,
    TRotation rot_to_frame;
    rot_to_frame.SetYEulerAngles(-centre.Phi(), -centre.Theta(), 0.);
    TVector3 displZ(0, 0, centre.Mag());
-   for (register int i = 0; i < 4; i++) {
+   for (int i = 0; i < 4; i++) {
       ownframe[i] = rot_to_frame * orig[i] - displZ;
    }
 }
@@ -546,7 +546,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, TVector3* som, TVecto
       // calculate corners of volume
       TransformToOwnFrame(frontPlane, fFrameCentre, corners);
       TransformToOwnFrame(backPlane, fFrameCentre, &corners[4]);
-      for (register int i = 0; i < 8; i++) {
+      for (int i = 0; i < 8; i++) {
          vertices[2 * i] = corners[i].X();
          vertices[2 * i + 1] = corners[i].Y();
       }

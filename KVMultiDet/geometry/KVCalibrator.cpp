@@ -246,7 +246,7 @@ TGraph* KVCalibrator::MakeGraph(Double_t xmin, Double_t xmax,
             if (dx) {
                Double_t* xval = new Double_t[npoints];
                Double_t* yval = new Double_t[npoints];
-               for (register int i = 0; i < npoints; i++) {
+               for (int i = 0; i < npoints; i++) {
                   xval[i] = xmin + dx * ((Double_t) i);
                   yval[i] = Compute(xval[i]);
                }

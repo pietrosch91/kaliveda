@@ -150,6 +150,17 @@ public:
    static const Char_t* GetWORKDIRFilePath(const Char_t* namefile = "");
    static const Char_t* GetTEMPLATEDIRFilePath(const Char_t* namefile = "");
    static const Char_t* GetExampleFilePath(const Char_t* library, const Char_t* namefile);
+   static bool is_gnuinstall()
+   {
+      // return true if built with option -Dgnuinstall=yes
+      // i.e. GNU-style installation directories, any generated files
+      // stored in user's working directory i.e. not in installation path
+#ifdef WITH_GNU_INSTALL
+      return true;
+#else
+      return false;
+#endif
+   }
 
    static Bool_t FindExecutable(TString& exec, const Char_t* path =
                                    "$(PATH)");

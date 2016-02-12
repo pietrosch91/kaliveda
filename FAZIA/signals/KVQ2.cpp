@@ -18,6 +18,7 @@ void KVQ2::init()
 {
    SetDefaultValues();
    fChannel = kQ2;
+   fFPGAOutputNumbers = 1;
    SetType("Q2");
    LoadPSAParameters();
 

@@ -672,7 +672,7 @@ void KVINDRADB::ReadChIoPressures()
                par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
-               for (register int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
+               for (int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
                read_pressure = kFALSE;
             }
             rr_number = 0;
@@ -702,7 +702,7 @@ void KVINDRADB::ReadChIoPressures()
             par_list->Add(parset);
             LinkListToRunRanges(par_list, rr_number, run_ranges);
             par_list->Clear();
-            for (register int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
+            for (int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
             read_pressure = kFALSE;
          }
       }
@@ -775,7 +775,7 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
       return 0;
    }
    Double_t sum_xsec = 0;
-   for (register int run = run1; run <= run2; run++) {
+   for (int run = run1; run <= run2; run++) {
 
       if (!GetRun(run))
          continue;              //skip non-existent runs
@@ -797,7 +797,7 @@ Double_t KVINDRADB::GetTotalCrossSection(Int_t run1, Int_t run2,
    //This is SUM (GetEventCrossSection(run1,run2) * SUM( events )
    //where SUM(events) is the total number of events measured in all the runs
    Int_t sum = 0;
-   for (register int run = run1; run <= run2; run++) {
+   for (int run = run1; run <= run2; run++) {
 
       if (!GetRun(run))
          continue;              //skip non-existent runs

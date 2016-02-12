@@ -161,7 +161,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
       fArray->SetGeometry(GetGeometry());
       KVGeoNavigator* nav = fArray->GetNavigator();
       nav->SetDetectorNameFormat(fDetNameFmt);
-      for (register int i = 0; i < fStrucNameFmt.GetEntries(); i++) {
+      for (int i = 0; i < fStrucNameFmt.GetEntries(); i++) {
          KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
          nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
       }
@@ -240,7 +240,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
             if (nstruc) {
                // Build and add geometry structure elements
                KVGeoStrucElement* ELEM = fArray;
-               for (register int i = 0; i < nstruc; i++) {
+               for (int i = 0; i < nstruc; i++) {
                   KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
                   KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
                   if (!nextELEM) {
@@ -356,6 +356,6 @@ void KVGeoImport::AddLayer(KVDetector* det, TGeoVolume* vol)
    } else
       absorber = new KVMaterial(irmat->GetType(), width);
    det->AddAbsorber(absorber);
-   if (vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer(det->GetListOfAbsorbers()->GetEntries() - 1);
+   if (vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer(absorber);
 }
 

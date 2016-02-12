@@ -59,6 +59,7 @@ protected:
    virtual void PrepareXRDTunnel();
 
    TSeqCollection*  fHelpers;          //List of helper classes for alternative file/directory access
+   TObject* OpenDataSetFile(KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt = "");
 public:
    virtual int  CopyFile(const char* f, const char* t, Bool_t overwrite = kFALSE);
    TSystem*               FindHelper(const char* path, void* dirptr = 0);
@@ -119,7 +120,7 @@ public:
    virtual TFile* CreateNewFile(KVDataSet* dataset,
                                 const Char_t* datatype,
                                 const Char_t* filename);
-   virtual void CommitFile(TFile* file);
+   virtual void CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset);
 
    virtual void MakeSubdirectory(KVDataSet* dataset,
                                  const Char_t* datatype = "");
@@ -161,6 +162,8 @@ public:
    void cd();
    static KVDataRepository* NewRepository(const Char_t* type);
    virtual KVAvailableRunsFile* NewAvailableRunsFile(const Char_t*, KVDataSet*);
+   virtual TObject* OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
+   void CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType);
 
    virtual void PrintAvailableDatasetsUpdateWarning() const
    {

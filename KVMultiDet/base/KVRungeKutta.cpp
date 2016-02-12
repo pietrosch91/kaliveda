@@ -129,9 +129,9 @@ void KVRungeKutta::Integrate(Double_t* ystart, Double_t x1, Double_t x2, Double_
    nok = nbad = 0;
    fOK = kTRUE;
 
-   for (register int i = 0; i < nvar; i++) y[i] = ystart[i];
+   for (int i = 0; i < nvar; i++) y[i] = ystart[i];
 
-   for (register int nstp = 1; nstp <= MAXSTP; nstp++) { //Take at most MAXSTP steps.
+   for (int nstp = 1; nstp <= MAXSTP; nstp++) { //Take at most MAXSTP steps.
 
       // calculate derivatives before performing step
       fInitialDeriv = kTRUE;
@@ -152,7 +152,7 @@ void KVRungeKutta::Integrate(Double_t* ystart, Double_t x1, Double_t x2, Double_
       if (hdid == h) ++nok;
       else ++nbad;
       if ((x - x2) * (x2 - x1) >= 0.0) {
-         for (register int i = 0; i < nvar; i++) ystart[i] = y[i];
+         for (int i = 0; i < nvar; i++) ystart[i] = y[i];
          return;
       }
 
@@ -183,7 +183,7 @@ void KVRungeKutta::rkqs(Double_t htry)
    for (;;) {
       rkck(h);
       errmax = 0.0;
-      for (register int i = 0; i < nvar; i++) errmax = TMath::Max(errmax, TMath::Abs(yerr[i] / yscal[i]));
+      for (int i = 0; i < nvar; i++) errmax = TMath::Max(errmax, TMath::Abs(yerr[i] / yscal[i]));
       errmax /= eps;
       if (errmax <= 1.0) break;
       htemp = SAFETY * h * TMath::Power(errmax, PSHRNK);
@@ -198,7 +198,7 @@ void KVRungeKutta::rkqs(Double_t htry)
    if (errmax > ERRCON) hnext = SAFETY * h * TMath::Power(errmax, PGROW);
    else hnext = 5.0 * h;
    x += (hdid = h);
-   for (register int i = 0; i < nvar; i++) y[i] = yout[i];
+   for (int i = 0; i < nvar; i++) y[i] = yout[i];
 }
 
 void KVRungeKutta::rkck(Double_t h)
@@ -209,24 +209,24 @@ void KVRungeKutta::rkck(Double_t h)
    // truncation error in yout using the embedded fourth-order method. The user supplies the routine
    // derivs(x,y,dydx) , which returns derivatives dydx at x.
 
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       ytemp[i] = y[i] + b21 * h * dydx[i];
    CalcDerivs(x + a2 * h, ytemp, ak2);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       ytemp[i] = y[i] + h * (b31 * dydx[i] + b32 * ak2[i]);
    CalcDerivs(x + a3 * h, ytemp, ak3);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       ytemp[i] = y[i] + h * (b41 * dydx[i] + b42 * ak2[i] + b43 * ak3[i]);
    CalcDerivs(x + a4 * h, ytemp, ak4);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       ytemp[i] = y[i] + h * (b51 * dydx[i] + b52 * ak2[i] + b53 * ak3[i] + b54 * ak4[i]);
    CalcDerivs(x + a5 * h, ytemp, ak5);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       ytemp[i] = y[i] + h * (b61 * dydx[i] + b62 * ak2[i] + b63 * ak3[i] + b64 * ak4[i] + b65 * ak5[i]);
    CalcDerivs(x + a6 * h, ytemp, ak6);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       yout[i] = y[i] + h * (c1 * dydx[i] + c3 * ak3[i] + c4 * ak4[i] + c6 * ak6[i]);
-   for (register int i = 0; i < nvar; i++)
+   for (int i = 0; i < nvar; i++)
       yerr[i] = h * (dc1 * dydx[i] + dc3 * ak3[i] + dc4 * ak4[i] + dc5 * ak5[i] + dc6 * ak6[i]);
 }
 

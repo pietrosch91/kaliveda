@@ -6,6 +6,7 @@
 #include "TList.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "KVConfig.h"
 
 ClassImp(IRODS)
 
@@ -47,9 +48,12 @@ TString IRODS::longlist(const Char_t* directory)
 {
    // returns long-format listing of current directory (default) or given directory.
    // returns empty string if directory is unknown.
-
+#ifdef CCIN2P3_BUILD
    buildCommand("ils", directory, "-l");
    return pipeCommand();
+#else
+   return list(directory);//outside of CCIN2P3, only short-format list works
+#endif
 }
 
 Int_t IRODS::cd(const Char_t* directory)
@@ -83,7 +87,7 @@ Int_t IRODS::get(const Char_t* source, const Char_t* target)
    // copy a file from IRODS space.
 
    TString args;
-   args.Form("%s %s", source, target);
+   args.Form("-P %s %s", source, target);
    buildCommand("iget", args.Data());
    return execCommand();
 }
@@ -125,13 +129,23 @@ void IRODS::ExtractFileInfos(TString& s, DMSFile_t* f) const
 {
    // extract info (name, size, modification date) from listing line
    // such as :
-   //  frankland         0 demoResc1                       0 2012-10-18.17:30 & CheckChIoSi_129Xe119Sn27_R8129.o5553080
-   //Info("ExtractFileInfos","%s",s.Data());
+   //   indramgr          0 diskcache2              208207872 2009-10-06.16:56 & run_0002.dat.15-Feb-07.18:00:58
+   //   indramgr          1 HPSS2                   208207872 2009-10-06.16:56 & run_0002.dat.15-Feb-07.18:00:58
+   //   indramgr          0 diskcache2              208224256 2009-10-06.16:56 & run_0003.dat.15-Feb-07.20:21:50
+   //   indramgr          1 HPSS2                   208224256 2009-10-06.16:56 & run_0003.dat.15-Feb-07.20:21:50
+   //
+   // note that when used outside of CCIN2P3, only 'ils' works, not 'ils -l', so the listing looks like:
+   //   run_0002.dat.15-Feb-07.18:00:58
+   //   run_0003.dat.15-Feb-07.20:21:50
+
+#ifdef CCIN2P3_BUILD
    TObjArray* fstats = s.Tokenize(" ");
-   //Info("ExtractFileInfos","%d",fstats->GetEntries());
    f->SetName(((TObjString*)(*fstats)[fstats->GetEntries() - 1])->String().Remove(TString::kBoth, ' ').Data());
    f->SetSize((UInt_t)((TObjString*)(*fstats)[3])->String().Remove(TString::kBoth, ' ').Atoi());
    KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth, ' ').Data(), KVDatime::kIRODS);
    f->SetModTime(mt);
    delete fstats;
+#else
+   f->SetName(s.Remove(TString::kBoth, ' '));
+#endif
 }

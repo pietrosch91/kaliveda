@@ -202,9 +202,13 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
       KVDetector* det = 0;
       KVGroup* grp = 0;
       while ((par = (KVSignal*)next_par())) {
+         if (!(par->GetN() > 0))
+            Info("GetDetectorEvent", "%s empty", par->GetName());
          par->DeduceFromName();
          if ((det = GetDetector(par->GetDetectorName()))) {
             ((KVFAZIADetector*)det)->SetSignal(par, par->GetType());
+            if ((!(((KVFAZIADetector*)det)->GetSignal(par->GetType())->GetN() > 0)))
+               Warning("Error", "%s %s empty signal is returned", det->GetName(), par->GetType());
             if ((grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp)) {
                detev->AddGroup(grp);
             }

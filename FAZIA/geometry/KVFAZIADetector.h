@@ -16,18 +16,22 @@ protected:
    Int_t fQuartet;
    Int_t fTelescope;
    Int_t fIdentifier;   //to difference SI1 SI2 CSI detectors
+   Int_t fIndex;   //!100*block+10*quartet+telescope
+   Bool_t fIsRutherford;   //!
 
    Double_t fChannel;
    Double_t fVolt;
 
 
    //values defined for SI1 detectors
+
    Double_t fAmplitudeQL1;
    Double_t fRawAmplitudeQL1;
    Double_t fBaseLineQL1;
    Double_t fSigmaBaseLineQL1;
    Double_t fRiseTimeQL1;
 
+   Double_t fFPGAEnergyQH1;   //from FPGA
    Double_t fAmplitudeQH1;
    Double_t fRawAmplitudeQH1;
    Double_t fBaseLineQH1;
@@ -40,6 +44,7 @@ protected:
    Double_t fSigmaBaseLineI1;
 
    //values defined for SI2 detectors
+   Double_t fFPGAEnergyQ2; //from FPGA
    Double_t fAmplitudeQ2;
    Double_t fRawAmplitudeQ2;
    Double_t fBaseLineQ2;
@@ -52,6 +57,8 @@ protected:
    Double_t fSigmaBaseLineI2;
 
    //values defined for CSI detectors
+   Double_t fFPGAEnergyQ3; //from FPGA
+   Double_t fFastFPGAEnergyQ3;   //from FPGA
    Double_t fAmplitudeQ3;
    Double_t fRawAmplitudeQ3;
    Double_t fFastAmplitudeQ3;
@@ -71,7 +78,8 @@ public:
    enum {                       //determine identification of the detector
       kSI1,
       kSI2,
-      kCSI
+      kCSI,
+      kOTHER
    };
    KVFAZIADetector();
    KVFAZIADetector(const Char_t* type, const Float_t thick = 0.0);
@@ -103,6 +111,16 @@ public:
    {
       return fBlock;
    }
+   Int_t GetIndex() const
+   {
+      return fIndex;
+   }
+
+   Bool_t IsRutherford() const
+   {
+      return fIsRutherford;
+   }
+
    Int_t GetQuartetNumber() const
    {
       return fQuartet;
@@ -331,6 +349,10 @@ public:
    {
       return fFastAmplitudeQ3;
    }
+   Double_t GetQ3SlowAmplitude() const
+   {
+      return GetQ3Amplitude() - 0.8 * GetQ3FastAmplitude();
+   }
    void SetQ3BaseLine(Double_t value)
    {
       fBaseLineQ3 = value;
@@ -354,6 +376,43 @@ public:
    Double_t GetQ3RiseTime() const
    {
       return fRiseTimeQ3;
+   }
+
+   //coming from FPGA
+   void SetQH1FPGAEnergy(Double_t value)
+   {
+      fFPGAEnergyQH1 = value;
+   }
+   Double_t GetQH1FPGAEnergy() const
+   {
+      return fFPGAEnergyQH1;
+   }
+
+   void SetQ2FPGAEnergy(Double_t value)
+   {
+      fFPGAEnergyQ2 = value;
+   }
+   Double_t GetQ2FPGAEnergy() const
+   {
+      return fFPGAEnergyQ2;
+   }
+
+   void SetQ3FPGAEnergy(Double_t value)
+   {
+      fFPGAEnergyQ3 = value;
+   }
+   Double_t GetQ3FPGAEnergy() const
+   {
+      return fFPGAEnergyQ3;
+   }
+
+   void SetQ3FastFPGAEnergy(Double_t value)
+   {
+      fFastFPGAEnergyQ3 = value;
+   }
+   Double_t GetQ3FastFPGAEnergy() const
+   {
+      return fFastFPGAEnergyQ3;
    }
 
 

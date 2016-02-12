@@ -40,7 +40,10 @@ public:
    virtual ~KVIonRangeTableMaterial();
 
    virtual void Initialize();
-   const KVIonRangeTable* GetTable() const;
+   const KVIonRangeTable* GetTable() const
+   {
+      return fTable;
+   }
 
    void ls(Option_t* = "") const;
    void Print(Option_t* = "") const;

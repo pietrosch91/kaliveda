@@ -23,6 +23,9 @@ $Date: 2009/01/16 14:55:20 $
 #include "TROOT.h"
 #include "KVConfig.h"
 
+#include <TClass.h>
+#include <TMethodCall.h>
+
 //macro converting octal filemode to decimal value
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
 #define CHMODE(u,g,o) ((u << 6) + (g << 3) + o)
@@ -605,9 +608,11 @@ TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
    if (!CanWrite()) {
       //files cannot be created and written directly in the repository
       //store path info for subsequent CommitFile
+      /*
       fCommitDataSet = dataset;
       fCommitDataType = datatype;
       fCommitFileName = filename;
+      */
       //create local file
       return new TFile(filename, "recreate");
    }
@@ -622,7 +627,7 @@ TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-void KVDataRepository::CommitFile(TFile* file)
+void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset)
 {
    //Add this file (previously created by a call to CreateNewFile) to the repository.
    //Any objects should be written to the file before calling this method, either by
@@ -638,27 +643,24 @@ void KVDataRepository::CommitFile(TFile* file)
    //NB: after calling this method, the TFile pointer 'file' must not be used!!!
 
    //close ROOT file
+   //if (fCommitFileName == "") {
+   fCommitFileName = file->GetName();
+   /*
+      Info("KVDataRepository::CommitFile",
+            "Recover name of the file ==> %s",fCommitFileName.Data());
+   }
+   */
    delete file;
 
    if (CanWrite()) {           //all we have to do for repositories in which files can be written directly
       return;
    }
 
-   if (fCommitFileName == "") {
-      Error("KVDataRepository::CommitFile",
-            "Can only be called for files created with KVDataRepository::CreateNewFile");
-      return;
-   }
+   fCommitDataSet = dataset;
+   fCommitDataType = datatype;
+
    //create file in local repository - make sure subdirectory exists!
-   if (!CheckSubdirExists(fCommitDataSet->GetDataPathSubdir(), fCommitDataSet->GetDataTypeSubdir(fCommitDataType))) {
-      //does dataset directory exist ?
-      if (!CheckSubdirExists(fCommitDataSet->GetDataPathSubdir())) {
-         //create dataset directory
-         MakeSubdirectory(fCommitDataSet);
-      }
-      //create subdirectory
-      MakeSubdirectory(fCommitDataSet, fCommitDataType);
-   }
+   CreateAllNeededSubdirectories(fCommitDataSet, fCommitDataType);
 
    cout << endl << "Copying file " << fCommitFileName << " to repository"
         << endl;
@@ -670,8 +672,10 @@ void KVDataRepository::CommitFile(TFile* file)
                         fCommitDataType.Data(), fCommitFileName.Data());
    //delete local file
    gSystem->Unlink(fCommitFileName.Data());
+   /*
    fCommitDataSet = 0;
    fCommitDataType = fCommitFileName = "";
+   */
 }
 
 //___________________________________________________________________________
@@ -877,7 +881,7 @@ int KVDataRepository::CopyFile(const char* f, const char* t, Bool_t overwrite)
 
    delete from;
    delete to;
-   delete [] buf;
+   delete[] buf;
 
    //reset working directory
    dir_sav->cd();
@@ -987,6 +991,134 @@ KVAvailableRunsFile* KVDataRepository::NewAvailableRunsFile(const Char_t* data_t
    //execute constructor/macro for plugin
    return ((KVAvailableRunsFile*) ph->ExecPlugin(2, data_type, ds));
 }
+
+//___________________________________________________________________________
+
+TObject* KVDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
+{
+   //Open a file using plugin defined in $KVROOT/KVFiles/.kvrootrc
+   //The default base classes for each type are defined as in this example:
+   //
+   // # Default base classes for reading runfiles of different types
+   // DataSet.RunFileClass.raw:    KVRawDataReader
+   // DataSet.RunFileClass.recon:    TFile
+   // DataSet.RunFileClass.ident:    TFile
+   // DataSet.RunFileClass.root:    TFile
+   //
+   //A different base class can be defined for a specific dataset/datatype
+   //by adding a line to your $HOME/.kvrootrc like this:
+   //
+   //name_of_dataset.DataSet.RunFileClass.data_type:     BaseClassName
+   //
+   //The actual class to be used is then defined by plugins in $KVROOT/KVFiles/.kvrootrc,
+   //for example
+   //
+   //Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
+   //
+   //which defines the plugin for raw data for all datasets whose name begins with "INDRA"
+   //If no plugin is found for the base class defined by DataSet.RunFileClass, the base class is used.
+   //
+   //To actually open the file, each base class & plugin must define a method
+   //    static BaseClass* Open(const Char_t* path, Option_t* opt="", ...)
+   //which takes the full path to the file as argument (any other arguments taking default options)
+   //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
+
+   TString fname = ds->GetFullPathToRunfile(type, run);
+   if (fname == "") return nullptr; //file not found
+
+   return OpenDataSetFile(ds, type, fname, opt);
+}
+
+//___________________________________________________________________________
+
+TObject* KVDataRepository::OpenDataSetFile(KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt)
+{
+   //Open a file using plugin defined in $KVROOT/KVFiles/.kvrootrc
+   //fname is the full path required to open the file
+   //The default base classes for each type are defined as in this example:
+   //
+   // # Default base classes for reading runfiles of different types
+   // DataSet.RunFileClass.raw:    KVRawDataReader
+   // DataSet.RunFileClass.recon:    TFile
+   // DataSet.RunFileClass.ident:    TFile
+   // DataSet.RunFileClass.root:    TFile
+   //
+   //A different base class can be defined for a specific dataset/datatype
+   //by adding a line to your $HOME/.kvrootrc like this:
+   //
+   //name_of_dataset.DataSet.RunFileClass.data_type:     BaseClassName
+   //
+   //The actual class to be used is then defined by plugins in $KVROOT/KVFiles/.kvrootrc,
+   //for example
+   //
+   //Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
+   //
+   //which defines the plugin for raw data for all datasets whose name begins with "INDRA"
+   //If no plugin is found for the base class defined by DataSet.RunFileClass, the base class is used.
+   //
+   //To actually open the file, each base class & plugin must define a method
+   //    static BaseClass* Open(const Char_t* path, Option_t* opt="", ...)
+   //which takes the full path to the file as argument (any other arguments taking default options)
+   //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
+
+   // check connection to repository (e.g. SSH tunnel) in case of remote repository
+   if (!IsConnected()) return nullptr;
+
+   //get base class for dataset & type
+   KVString base_class = ds->GetDataSetEnv(Form("DataSet.RunFileClass.%s", type));
+
+   //look for plugin specific to dataset & type
+   TPluginHandler* ph = LoadPlugin(base_class.Data(), Form("%s.%s", type, ds->GetName()));
+
+   TClass* cl;
+   if (!ph) {
+      //no plugin - use base class
+      cl = TClass::GetClass(base_class.Data());
+   } else {
+      cl = TClass::GetClass(ph->GetClass());
+   }
+
+   //set up call to static Open method
+   TMethodCall* methcall;
+   if (strcmp(opt, "")) {
+      //Open with option
+      methcall = new  TMethodCall(cl, "Open", Form("\"%s\", \"%s\"", fname.Data(), opt));
+   } else {
+      //Open without option
+      methcall = new  TMethodCall(cl, "Open", Form("\"%s\"", fname.Data()));
+   }
+
+   if (!methcall->IsValid()) {
+      if (ph) Error("OpenDataSetFile", "Open method for class %s is not valid", ph->GetClass());
+      else Error("OpenDataSetFile", "Open method for class %s is not valid", base_class.Data());
+      delete methcall;
+      return nullptr;
+   }
+
+   //open the file
+   Long_t retval;
+   methcall->Execute(retval);
+   delete methcall;
+   return ((TObject*)(retval));
+}
+
+void KVDataRepository::CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType)
+{
+   // Ensure that all required subdirectories exist and any missing ones are created
+   // in order to store a runfile of given DataType for the given DataSet
+
+   if (!CheckSubdirExists(DataSet->GetDataPathSubdir(), DataSet->GetDataTypeSubdir(DataType))) {
+      //does dataset directory exist ?
+      if (!CheckSubdirExists(DataSet->GetDataPathSubdir())) {
+         //create dataset directory
+         MakeSubdirectory(DataSet);
+      }
+      //create subdirectory
+      MakeSubdirectory(DataSet, DataType);
+   }
+}
+
+//___________________________________________________________________________
 
 #ifdef __CCIN2P3_RFIO
 //______________________________________________________________________________________________//

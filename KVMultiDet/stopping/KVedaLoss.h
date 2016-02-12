@@ -20,6 +20,7 @@ class KVedaLoss : public KVIonRangeTable {
       return kTRUE;
    };
    KVIonRangeTableMaterial* GetMaterialWithNameOrType(const Char_t* material);
+   static Bool_t fgNewRangeInversion;// static flag for using new KVedaLossInverseRangeFunction
 
 public:
    KVedaLoss();
@@ -30,6 +31,17 @@ public:
    TObjArray* GetListOfMaterials();
 
    static void SetIgnoreEnergyLimits(Bool_t yes = kTRUE);
+
+   static void SetUseNewRangeInversion(Bool_t yes = kTRUE)
+   {
+      fgNewRangeInversion = yes;
+   }
+   static Bool_t IsUseNewRangeInversion()
+   {
+      return fgNewRangeInversion;
+   }
+
+   Bool_t CheckIon(Int_t Z, Int_t A) const;
 
    ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };

@@ -66,7 +66,8 @@ which should be used whenever it is required to stock KVEvent-derived objects in
 /////////////////////////////////////////////////////////////////////////////://
 
 
-KVEvent::KVEvent(Int_t mult, const char* classname) : fParameters("EventParameters", "Parameters associated with an event")
+KVEvent::KVEvent(Int_t mult, const char* classname)
+   : fParameters("EventParameters", "Parameters associated with an event")
 {
    //Initialise KVEvent to hold mult events of "classname" objects
    //(the class must inherit from KVNucleus).
@@ -77,11 +78,9 @@ KVEvent::KVEvent(Int_t mult, const char* classname) : fParameters("EventParamete
    //     classname = "KVNucleus"
    //
 
-   fOKIter = 0;
    fParticles = new TClonesArray(classname, mult);
    CustomStreamer();//force use of KVEvent::Streamer function for reading/writing
 }
-
 
 //_______________________________________________________________________________
 
@@ -91,12 +90,7 @@ KVEvent::~KVEvent()
    //allocated memory.
 
    fParticles->Delete();
-   delete fParticles;
-   fParticles = 0;
-   if (fOKIter) {
-      delete fOKIter;
-      fOKIter = 0;
-   }
+   SafeDelete(fParticles);
 }
 
 //_______________________________________________________________________________
@@ -176,17 +170,13 @@ void KVEvent::Clear(Option_t*)
 void KVEvent::Print(Option_t* t) const
 {
    //Print a list of all particles in the event with some characteristics.
-   //If t="ok" then only particles with IsOK()=kTRUE are shown
-   //
-   //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   //Optional argument t can be used to select particles (="ok", "groupname", ...)
 
-   cout << "\nKVEvent with " << ((KVEvent*) this)->
-        GetMult(t) << " particles :" << endl;
+   cout << "\nKVEvent with " << ((KVEvent*) this)->GetMult(t) << " particles :" << endl;
    cout << "------------------------------------" << endl;
    fParameters.Print();
    KVNucleus* frag = 0;
-   const_cast < KVEvent* >(this)->ResetGetNextParticle();
+   const_cast<KVEvent*>(this)->ResetGetNextParticle();
    while ((frag = ((KVEvent*) this)->GetNextParticle(t))) {
       frag->Print();
    }
@@ -198,7 +188,6 @@ KVNucleus* KVEvent::GetParticleWithName(const Char_t* name) const
 {
    //Find particle using its name (SetName()/GetName() methods)
    //In case more than one particle has the same name, the first one found is returned.
-   //
 
    KVNucleus* tmp = (KVNucleus*)fParticles->FindObject(name);
    return tmp;
@@ -375,67 +364,59 @@ void KVEvent::GetMultiplicities(Int_t mult[], const TString& species)
 
 KVNucleus* KVEvent::GetNextParticle(Option_t* opt)
 {
-   //Use this method to iterate over the list of particles in the event
-   //After the last particle GetNextParticle() returns a null pointer and
-   //resets itself ready for a new iteration over the particle list.
+   // Use this method to iterate over the list of particles in the event
+   // After the last particle GetNextParticle() returns a null pointer and
+   // resets itself ready for a new iteration over the particle list.
    //
-   //Call ResetGetNextParticle() first to make sure that the iterator begins
-   //at the start of the list of particles in the event.
+   // If opt="" all particles are included in the iteration.
+   // If opt="ok" or "OK" only particles whose IsOK() method returns kTRUE are included.
    //
-   //If opt="" all particles are included in the iteration.
-   //If opt="ok" or "OK" only particles whose IsOK() method returns kTRUE are included.
+   // Any other value of opt is interpreted as a (case-insensitive) particle group name: only
+   // particles with BelongsToGroup(opt) returning kTRUE are included.
    //
-   //Any other value of opt is interpreted as a particle group name: only
-   //particles with BelongsToGroup(opt) returning kTRUE are included.
+   // If you want to start from the beginning again before getting to the end
+   // of the list, especially if you want to change the selection criteria,
+   // call method ResetGetNextParticle() before continuing.
+   // If you interrupt an iteration before the end, then start another iteration
+   // without calling ResetGetNextParticle(), even if you change the argument of
+   // the call to GetNextParticle(), you will repeat exactly the same iteration
+   // as the previous one.
    //
-   //If you want to start from the beginning again before getting to the end
-   //of the list, use ResetGetNextParticle().
+   // WARNING: Only one iteration at a time over the event can be performed
+   //          using this method. If you want/need to perform several i.e. nested
+   //          iterations, use the KVEvent::Iterator class
 
    TString Opt(opt);
    Opt.ToUpper();
 
-   Bool_t only_ok = (Opt == "OK");
-   //Bool_t label = (Opt != "");
+   // continue iteration
+   if (fIter.IsIterating()) return &(*(fIter++));
 
-   if (!fOKIter) { //check if iterator exists i.e. if iteration is in progress
-      //fOKIter does not exist - begin new iteration
-      fOKIter = new TIter(fParticles);
-   }
-   //look for next particle in event
-   KVNucleus* tmp;
-   while ((tmp = (KVNucleus*) fOKIter->Next())) {
-      if (only_ok) {
-         if (tmp->IsOK())
-            return tmp;
-      } else {
-         //if (label){
-         if (tmp->BelongsToGroup(Opt.Data()))
-            return tmp;
-      }
-      /*
-      else
-         return tmp;
-      */
-   }
-   //we have reached the end of the list - reset iterator
+   // start new iteration
+   Bool_t ok_iter = (Opt == "OK");
+   Bool_t grp_iter = (!ok_iter && Opt.Length());
 
-   ResetGetNextParticle();
-
-   return 0;
+#ifdef WITH_CPP11
+   if (ok_iter) fIter = Iterator(this, Iterator::Type::OK);
+   else if (grp_iter) fIter = Iterator(this, Iterator::Type::Group, Opt);
+   else fIter = Iterator(this, Iterator::Type::All);
+#else
+   if (ok_iter) fIter = Iterator(this, Iterator::OK);
+   else if (grp_iter) fIter = Iterator(this, Iterator::Group, Opt);
+   else fIter = Iterator(this, Iterator::All);
+#endif
+   return &(*(fIter++));
 }
 
 //__________________________________________________________________________________________________
 
 void KVEvent::ResetGetNextParticle()
 {
-   //Reset iteration over event particles so that next time GetNextParticle will
-   //return the first particle in the list.
+   // Reset iteration over event particles so that next call
+   // to GetNextParticle will begin a new iteration (possibly with
+   // different criteria).
 
-   //reset (delete) iterator and set to 0
-   if (fOKIter) {
-      delete fOKIter;
-      fOKIter = 0;
-   }
+   fIter.SetIsIterating(kFALSE);
 }
 
 //__________________________________________________________________________________________________
@@ -956,3 +937,6 @@ const Char_t* KVEvent::GetPartitionName()
    }
    return partition.Data();
 }
+
+ClassImp(KVEvent::Iterator)
+

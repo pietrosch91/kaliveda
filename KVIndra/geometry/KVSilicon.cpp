@@ -382,6 +382,16 @@ void KVSilicon::DeduceACQParameters(Int_t , Int_t)
    GetACQParam("T")->SetData(110);
 }
 
+Double_t KVSilicon::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Overrides KVDetector::GetDeltaE
+   // If no PHD is set, we use the optimized KVMaterial::GetDeltaE
+
+   if (fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z, A)->Eval(Einc);
+
+   return KVDetector::GetDeltaE(Z, A, Einc);
+}
+
 
 //__________________________________________________________________________________________
 

@@ -12,6 +12,7 @@
 #include "KVFAZIA.h"
 #include "KVSignal.h"
 #include "KVPSAResult.h"
+#include "TSystem.h"
 
 ClassImp(KVFAZIARawDataReconstructor)
 
@@ -44,7 +45,7 @@ KVFAZIARawDataReconstructor::~KVFAZIARawDataReconstructor()
 
 void KVFAZIARawDataReconstructor::InitRun()
 {
-   // Creates new ROOT file with TTree for reconstructed/calibrated events.
+   // Creates new ROOT file with TTree for reconstructed events.
    // By default this file will be written in the same data repository as the raw data file we are reading.
    // This can be changed by setting the environment variable(s):
    //
@@ -55,23 +56,14 @@ void KVFAZIARawDataReconstructor::InitRun()
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
    // the raw file (if possible, i.e. if repository is not remote).
 
-   // Create new KVINDRAReconEvent used to reconstruct & store events
-   // The condition used to seed new reconstructed particles (see KVReconstructedEvent::AnalyseTelescopes)
-   // is set by reading the value of the environment variables:
-   //     Reconstruction.DataAnalysisTask.ParticleSeedCond:        [all/any]
-   //     [name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     [all/any]
-   // If no value is set for the current dataset (second variable), the value of the
-   // first variable will be used.
+   // Create new KVReconstructedEvent filled with KVFAZIAReconNuc object
+   // used to reconstruct & store events
 
    if (!recev) recev = new KVReconstructedEvent(50, "KVFAZIAReconNuc");
-   //recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
-                                 gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository(taskname), gDataSet->GetName());
 
    file = OutputDataset->NewRunfile(datatype.Data(), GetCurrentRunNumber());
 
@@ -104,7 +96,7 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    //    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 
 
-   recev->SetNumber(GetEventNumber());
+   recev->SetNumber(GetEvent()->GetNumber());
    gFazia->ReconstructEvent(recev, GetDetectorEvent());
 
    ExtraProcessing();
@@ -113,7 +105,6 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
    tree->Fill();
 
    recev->Clear();
-   GetDetectorEvent()->GetGroups()->Clear();
 
    return kTRUE;
 }
@@ -122,6 +113,8 @@ Bool_t KVFAZIARawDataReconstructor::Analysis()
 
 void KVFAZIARawDataReconstructor::ExtraProcessing()
 {
+   KVString label = "";
+
    KVFAZIADetector* det = 0;
    KVSignal* sig = 0;
    KVReconstructedNucleus* recnuc = 0;
@@ -130,12 +123,34 @@ void KVFAZIARawDataReconstructor::ExtraProcessing()
       while ((det = (KVFAZIADetector*)next_d())) {
          TIter next_s(det->GetListOfSignals());
          while ((sig = (KVSignal*)next_s())) {
+            if (sig->HasFPGA()) {
+               for (Int_t ii = 0; ii < sig->GetNFPGAValues(); ii += 1) {
+                  //SI2-T3-Q1-B003.Q2.RawAmplitude=14
+                  if (ii == 0) label = "FPGAEnergy";
+                  if (ii == 1) label = "FPGAFastEnergy"; //only for CsI Q3
+                  TString ene = GetEvent()->GetFPGAEnergy(
+                                   det->GetBlockNumber(),
+                                   det->GetQuartetNumber(),
+                                   det->GetTelescopeNumber(),
+                                   sig->GetType(),
+                                   ii
+                                );
+
+                  recnuc->GetParameters()->SetValue(
+                     Form("%s.%s.%s", det->GetName(), sig->GetName(), label.Data()),
+                     ene.Data()
+                  );
+               }
+            }
             if (!sig->PSAHasBeenComputed()) {
                sig->TreateSignal();
             }
+
             KVNameValueList* psa = sig->GetPSAResult();
-            if (psa) *(recnuc->GetParameters()) += *psa;
-            delete psa;
+            if (psa) {
+               *(recnuc->GetParameters()) += *psa;
+               delete psa;
+            }
          }
       }
    }
@@ -155,11 +170,15 @@ void KVFAZIARawDataReconstructor::EndRun()
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname.Data()),
-                                 gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository(taskname), gDataSet->GetName());
    //add new file to repository
    OutputDataset->CommitRunfile(datatype.Data(), GetCurrentRunNumber(), file);
+
+   ProcInfo_t pid;
+   if (gSystem->GetProcInfo(&pid) == 0) {
+      std::cout << "     ------------- Process infos -------------" << std::endl;
+      printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+             pid.fCpuSys, pid.fCpuUser, pid.fMemResident / 1024., pid.fMemVirtual / 1024.);
+   }
 
 }

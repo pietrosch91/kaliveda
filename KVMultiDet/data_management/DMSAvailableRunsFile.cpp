@@ -57,7 +57,7 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    //
    // When no_existing_file=kTRUE we are making an available runs file
    // for the first time. There is no pre-existing file.
-   //Info("Update","Update");
+
    TString runlist = GetFullPathToAvailableRunsFile();
 
    if (!no_existing_file) {
@@ -138,7 +138,11 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    }
 
    cout << " DONE" << endl;
-   Info("Update", "%d runs found those are not in db :\n\tlist:%s", lnewruns.GetNValues(), lnewruns.AsString());
+
+   // If runs not present in the database were found, emit an informational message
+   if (lnewruns.GetNValues())
+      Info("Update", "Found %d runs not in database :\n\tlist:%s", lnewruns.GetNValues(), lnewruns.AsString());
+
    delete dir_list;
    //close temp file
    tmp_file.close();

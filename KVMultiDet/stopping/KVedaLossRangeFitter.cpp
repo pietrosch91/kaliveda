@@ -28,7 +28,7 @@ Double_t KVedaLossRangeFitter::range(Double_t* e, Double_t* a)
 {
    // express logR as a polynomial of log(E/A)
    Double_t lr = a[5];
-   for (register int i = 4; i >= 0; --i) lr = e[0] * lr + a[i];
+   for (int i = 4; i >= 0; --i) lr = e[0] * lr + a[i];
    return lr;
 }
 
@@ -72,9 +72,10 @@ void KVedaLossRangeFitter::SetInitialParameters(Int_t Z)
    // Set initial parameters for this Z by using closest known material in
    // VedaLoss range tables
 
-   Double_t* pars;
+   std::vector<Double_t> pars;
    fClosestVedaMat->GetParameters(Z, Aref, pars);
-   fRangeFunction->SetParameters(pars);
+   int npar = fRangeFunction->GetNpar();
+   for (int i = 0; i < npar; ++i) fRangeFunction->SetParameter(i, pars[i]);
 }
 
 TGraph* KVedaLossRangeFitter::GenerateRangeTable(Int_t Z)

@@ -18,10 +18,12 @@ protected:
    TString rawdatabranchname;
 
 public:
-   KVFAZIASelector()
+   KVFAZIASelector() : fCurrentRun(0), fRawData(kFALSE), RawEvent(nullptr)
    {
       rawdatabranchname = "rawevent";
       SetBranchName("FAZIAReconEvent");
+      SetEventsReadInterval(10000);
+      RawEvent = 0;
    };
 
    virtual ~KVFAZIASelector() {};
@@ -31,10 +33,15 @@ public:
    virtual Bool_t  Notify();
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0)
    {
+      if (RawEvent) RawEvent->Clear();
       Int_t res = fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
       if (NeedToReadRawData())
          ConnectSignalsToDetectors();
       return res;
+   }
+   Int_t GetCurrentRunNumber() const
+   {
+      return fCurrentRun;
    }
 
    Bool_t NeedToReadRawData() const

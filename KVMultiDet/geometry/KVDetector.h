@@ -50,7 +50,7 @@ private:
    KVUniqueNameList fParentStrucList;//list of geometry structures which directly contain this detector
    KVGeoDetectorNode fNode;//positioning information relative to other detectors
    static Int_t fDetCounter;
-   Short_t fActiveLayer;        //The active absorber in the detector
+   KVMaterial* fActiveLayer;//! The active absorber in the detector
    KVList* fIDTelescopes;       //->list of ID telescopes to which detector belongs
    KVList* fIDTelAlign;         //->list of ID telescopes made of this detector and all aligned detectors placed in front of it
    TList* fIDTele4Ident;  //!list of ID telescopes used for particle ID
@@ -117,6 +117,8 @@ protected:
    Bool_t fSimMode;//! =kTRUE when using to simulate detector response, =kFALSE when analysing data
    Bool_t fPresent;//! =kTRUE if detector is present, =kFALSE if it has been removed
    Bool_t fDetecting;//! =kTRUE if detector is "detecting", =kFALSE if not
+
+   Bool_t fSingleLayer;//! =kTRUE if detector has a single absorber layer
 public:
    KVDetector();
    KVDetector(const Char_t* type, const Float_t thick = 0.0);
@@ -132,17 +134,16 @@ public:
 
    virtual void SetMaterial(const Char_t* type);
    void AddAbsorber(KVMaterial*);
-   void SetActiveLayer(KVMaterial*);
-   void SetActiveLayer(Short_t actif)
+   void SetActiveLayer(KVMaterial* actif)
    {
       fActiveLayer = actif;
       SetBit(kActiveSet);
-   };
+   }
    KVMaterial* GetActiveLayer() const
    {
       //Get pointer to the "active" layer in the detector, i.e. the one in which energy losses are measured
-      return GetAbsorber(fActiveLayer);
-   };
+      return fActiveLayer;
+   }
    KVMaterial* GetAbsorber(Int_t i) const;
    KVMaterial* GetAbsorber(const Char_t* name) const
    {
@@ -428,7 +429,7 @@ public:
       return (fPresent && fDetecting);
    }
 
-   virtual void DeduceACQParameters(Int_t /*zz*/ = -1, Int_t /*aa*/ = -1) {};
+   virtual void DeduceACQParameters(Int_t /*zz*/ = -1, Int_t /*aa*/ = -1) {}
 
    KVGroup* GetGroup() const;
    UInt_t GetGroupNumber();
@@ -454,7 +455,7 @@ public:
       return fEWPosition;
    }
 
-   ClassDef(KVDetector, 9)      //Base class for the description of detectors in multidetector arrays
+   ClassDef(KVDetector, 10)      //Base class for the description of detectors in multidetector arrays
 };
 
 inline KVCalibrator* KVDetector::GetCalibrator(const Char_t* name,

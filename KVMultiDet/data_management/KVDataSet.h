@@ -62,7 +62,6 @@ protected:
       fDBName = name;
    };
    const Char_t* GetDBName() const;
-   TObject* Open(const Char_t* type, Int_t run, Option_t* opt = "");
    const Char_t* GetFullPathToDB();
 
 public:
@@ -192,7 +191,10 @@ public:
       // The default value (if no variable defined) is KVReconstructedEvent.
 
       return GetDataSetEnv("ReconstructedEventClassName", "KVReconstructedEvent");
-   };
+   }
+
+   TString GetOutputRepository(const Char_t* taskname);
+   void CopyRunfilesToRepository(const Char_t* type, KVNumberList runs, const Char_t* destrepo);
 
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda
 };

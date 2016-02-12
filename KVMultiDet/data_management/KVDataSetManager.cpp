@@ -430,7 +430,7 @@ Bool_t KVDataSetManager::ReadAvailableDatasetsFile()
                //AVAILABLE DATASET
                dataset->SetAvailable();
                fNavailable++;
-               for (register int i = 1; i < toks->GetEntries(); i++) {
+               for (int i = 1; i < toks->GetEntries(); i++) {
                   //each following entry is a subdirectory name
                   dataset->AddAvailableDataType(((TObjString*) toks->At(i))->String().
                                                 Data());

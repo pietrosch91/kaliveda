@@ -62,8 +62,12 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent()
       Esa       = excitation per nucleon
       vcm       = center of mass energy
       Bparstore = impact parameter
+      PhiPlan   = angle of the reaction plane
    //---------------------------------------------
    */
+
+   fPhiPlan = gRandom->Rndm() * 2.*TMath::Pi();
+   rr.SetXEulerAngles(0., 0., fPhiPlan);
 
    res = ReadLineAndCheck(3, " ");
    switch (res) {
@@ -73,12 +77,13 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent()
          evt->GetParameters()->SetValue("Esa", GetDoubleReadPar(0));
          evt->GetParameters()->SetValue("vcm", GetDoubleReadPar(1));
          evt->GetParameters()->SetValue("Bparstore", GetDoubleReadPar(2));
-
+         evt->GetParameters()->SetValue("PhiPlan", fPhiPlan);
          break;
       default:
 
          return kFALSE;
    }
+
 
    res = ReadLineAndCheck(3, " ");
    switch (res) {
@@ -124,7 +129,6 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus()
          nuc->SetA(GetIntReadPar(0));
          nuc->GetParameters()->SetValue("proven", GetDoubleReadPar(2));
 
-
          break;
 
       default:
@@ -144,10 +148,12 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus()
          nuc->SetPx(GetDoubleReadPar(1));
          nuc->SetPy(GetDoubleReadPar(2));
          nuc->SetPz(GetDoubleReadPar(0));
-
-
-         return kTRUE;
-
+         {
+            TVector3 vv = nuc->GetVelocity();
+            vv *= rr;
+            nuc->SetVelocity(vv);
+            return kTRUE;
+         }
       default:
 
 

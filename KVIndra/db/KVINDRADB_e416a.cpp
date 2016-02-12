@@ -94,7 +94,7 @@ void KVINDRADB_e416a::ReadBICPressures()
                par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
-               for (register int zz = 0; zz < 3; zz++) pressure[zz] = 0.;
+               for (int zz = 0; zz < 3; zz++) pressure[zz] = 0.;
                read_pressure = kFALSE;
             }
             rr_number = 0;
@@ -124,7 +124,7 @@ void KVINDRADB_e416a::ReadBICPressures()
             par_list->Add(parset);
             LinkListToRunRanges(par_list, rr_number, run_ranges);
             par_list->Clear();
-            for (register int zz = 0; zz < 3; zz++) pressure[zz] = 0.;
+            for (int zz = 0; zz < 3; zz++) pressure[zz] = 0.;
             read_pressure = kFALSE;
          }
       }

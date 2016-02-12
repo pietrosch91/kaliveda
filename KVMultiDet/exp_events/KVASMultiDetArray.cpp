@@ -614,7 +614,7 @@ void KVASMultiDetArray::AnalyseTelescopes(KVReconstructedEvent* event, TList* kv
    //UInt_t ndet = ((KVTelescope *) (kvtl->First()))->GetSize();
    UInt_t ndet = max;
 
-   for (register UInt_t i = ndet; i > 0; i--) {
+   for (UInt_t i = ndet; i > 0; i--) {
 
       nxt_tel.Reset();
       TList detlist;

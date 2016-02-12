@@ -226,7 +226,7 @@ Double_t KVTarget::GetTotalThickness(Int_t lay1, Int_t lay2)
    // of layers lay1 to lay2 in target
 
    Double_t thick = 0.;
-   for (register int i = lay1; i <= lay2; i++) {
+   for (int i = lay1; i <= lay2; i++) {
       thick += GetThickness(i);
    }
    return thick;
@@ -457,7 +457,7 @@ void KVTarget::DetectParticle(KVNucleus* kvp, TVector3*)
 
    if (!IsIncoming() && !IsOutgoing()) {
       //calculate losses in all layers
-      for (register int i = 1;
+      for (int i = 1;
             i <= NumberOfLayers() && kvp->GetKE() > 0.;
             i++) {
          GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
@@ -513,11 +513,11 @@ void KVTarget::DetectParticle(KVNucleus* kvp, TVector3*)
              : (backwards ? 1 : NumberOfLayers()));
 
          if (backwards) {
-            for (register int i = ilay1;
+            for (int i = ilay1;
                   i >= ilay2 && kvp->GetKE() > 0.; i--)
                GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
          } else {
-            for (register int i = ilay1;
+            for (int i = ilay1;
                   i <= ilay2 && kvp->GetKE() > 0.; i++)
                GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
          }
@@ -557,7 +557,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus* kvp, TVector3*)
 
    if (!IsIncoming() && !IsOutgoing()) {
       //calculate losses in all layers
-      for (register int i = 1;
+      for (int i = 1;
             i <= NumberOfLayers() && clone_part->GetKE() > 0.;
             i++) {
          Eloss +=
@@ -615,7 +615,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus* kvp, TVector3*)
              : (backwards ? 1 : NumberOfLayers()));
 
          if (backwards) {
-            for (register int i = ilay1;
+            for (int i = ilay1;
                   i >= ilay2 && clone_part->GetKE() > 0.; i--) {
                Eloss +=
                   GetLayerByIndex(i)->GetELostByParticle(clone_part,
@@ -623,7 +623,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus* kvp, TVector3*)
                clone_part->SetKE(E0 - Eloss);
             }
          } else {
-            for (register int i = ilay1;
+            for (int i = ilay1;
                   i <= ilay2 && clone_part->GetKE() > 0.; i++) {
                Eloss +=
                   GetLayerByIndex(i)->GetELostByParticle(clone_part,
@@ -804,7 +804,7 @@ Double_t KVTarget::GetAtomsPerCM2() const
    //Calculates total number of atoms per square centimetre of the target.
    //For a multilayer target, the area densities for each layer are summed up.
    Double_t atom_cib = 0;
-   for (register int i = 1; i <= NumberOfLayers(); i++) {
+   for (int i = 1; i <= NumberOfLayers(); i++) {
       //N_atoms = N_Avogadro * target_thickness (mg/cm**2) * 1.e-3 / atomic_mass_of_target
       atom_cib +=
          TMath::Na() * GetThickness(i) * 1.e-3 /
@@ -839,7 +839,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus* kvp, TVector3*)
    if (!IsIncoming() && !IsOutgoing()) {
 
       //correct for losses in all layers
-      for (register int i = NumberOfLayers(); i > 0; i--) {
+      for (int i = NumberOfLayers(); i > 0; i--) {
          ERes = GetLayerByIndex(i)->GetParticleEIncFromERes(clone_part, &fNormal);
          clone_part->SetKE(ERes);
       }
@@ -887,7 +887,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus* kvp, TVector3*)
          //correct for losses in different layers
          if (backwards) {
 
-            for (register int i = ilay2;
+            for (int i = ilay2;
                   i <= ilay1; i++) {
                ERes =
                   GetLayerByIndex(i)->GetParticleEIncFromERes(clone_part,
@@ -897,7 +897,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus* kvp, TVector3*)
 
          } else {
 
-            for (register int i = ilay2;
+            for (int i = ilay2;
                   i >= ilay1 ; i--) {
                ERes =
                   GetLayerByIndex(i)->GetParticleEIncFromERes(clone_part,

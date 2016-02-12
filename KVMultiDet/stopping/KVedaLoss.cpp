@@ -32,6 +32,7 @@ See documentation <a href="KVedaLossDoc/KVedaLoss.html">here</a>.
 ////////////////////////////////////////////////////////////////////////////////
 
 KVHashList* KVedaLoss::fMaterials = 0x0;
+Bool_t KVedaLoss::fgNewRangeInversion = kTRUE;
 
 void KVedaLoss::SetIgnoreEnergyLimits(Bool_t yes)
 {
@@ -48,7 +49,12 @@ void KVedaLoss::SetIgnoreEnergyLimits(Bool_t yes)
    // at the most, the new limit will be 1 GeV/nucleon.
    // at the least, it will remain at the nominal (400 or 250 MeV/nucleon) level.
    KVedaLossMaterial::SetNoLimits(yes);
-};
+}
+
+Bool_t KVedaLoss::CheckIon(Int_t Z, Int_t) const
+{
+   return KVedaLossMaterial::CheckIon(Z);
+}
 
 KVedaLoss::KVedaLoss()
    : KVIonRangeTable("VEDALOSS",

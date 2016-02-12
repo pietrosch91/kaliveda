@@ -174,9 +174,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("DSTtoROOT.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName());
+      gDataRepositoryManager->GetDataSet(gDataSet->GetOutputRepository("DSTtoROOT"), gDataSet->GetName());
 
    TFile* fi = OutputDataset->NewRunfile("root", fRunNumber);
 

@@ -6,8 +6,11 @@
 
 #include "KVIonRangeTableMaterial.h"
 #include <Riostream.h>
+#include "TObjArray.h"
+#include <vector>
 
 class TGeoMaterial;
+class KVedaLoss;
 
 // maximum atomic number included in range tables
 #define ZMAX_VEDALOSS 100
@@ -16,17 +19,19 @@ class TGeoMaterial;
 class KVedaLossMaterial : public KVIonRangeTableMaterial {
 
 private:
+   static KVedaLoss* fgTable;
    // internal variables used by RangeFunc/DeltaEFunc
    Double_t RF_Z;
    Double_t RF_A;
-   Double_t* par;
+   std::vector<Double_t>* par;
    Double_t ran, adm, dleps, adn, riso, eps, DLEP, drande;
    Double_t thickness; // in g/cm**2
+   TObjArray fInvRange; //KVedaLossInverseRangeFunction objects
 
 protected:
-   Double_t fEmax[ZMAX_VEDALOSS];        //[ZMAX_VEDALOSS] Z-dependent maximum energy/nucleon for calculation to be valid
-   Double_t fEmin[ZMAX_VEDALOSS];        //[ZMAX_VEDALOSS] Z-dependent minimum energy/nucleon for calculation to be valid
-   Double_t fCoeff[ZMAX_VEDALOSS][14];  //[ZMAX_VEDALOSS][14] parameters for range tables
+   std::vector<Double_t> fEmin;        //Z-dependent minimum energy/nucleon for calculation to be valid
+   std::vector<Double_t> fEmax;        //Z-dependent maximum energy/nucleon for calculation to be valid
+   std::vector< std::vector<Double_t> > fCoeff;   //parameters for range tables
 
    static Bool_t fNoLimits;// if kTRUE, ignore max E limit for validity of calculation
 
@@ -44,11 +49,11 @@ public:
    Bool_t ReadRangeTable(FILE* fp);
    Float_t GetEmaxValid(Int_t Z, Int_t A) const
    {
-      return ((Z <= ZMAX_VEDALOSS && Z > 0) ? A * fEmax[Z - 1] : 0.0);
+      return (CheckIon(Z) ? A * fEmax[Z - 1] : 0.0);
    };
    Float_t GetEminValid(Int_t Z, Int_t A) const
    {
-      return ((Z <= ZMAX_VEDALOSS && Z > 0) ? A * fEmin[Z - 1] : 0.0);
+      return (CheckIon(Z) ? A * fEmin[Z - 1] : 0.0);
    };
 
    virtual TF1* GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
@@ -59,6 +64,8 @@ public:
    virtual Double_t GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat = 0.);
    virtual Double_t GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat = 0.);
    virtual Double_t GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat = 0.);
+   virtual Double_t GetPunchThroughEnergy(Int_t Z, Int_t A, Double_t e, Double_t isoAmat = 0.);
+   virtual Double_t GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0.);
 
    static void SetNoLimits(Bool_t on = kTRUE)
    {
@@ -74,9 +81,13 @@ public:
       fNoLimits = on;
    };
 
-   void GetParameters(Int_t Zion, Int_t& Aion, Double_t*& rangepar);
+   void GetParameters(Int_t Zion, Int_t& Aion, std::vector<Double_t> rangepar);
+   static Bool_t CheckIon(Int_t Z)
+   {
+      return (Z > 0 && Z <= ZMAX_VEDALOSS);
+   }
 
-   ClassDef(KVedaLossMaterial, 3) //Description of material properties used by KVedaLoss range calculation
+   ClassDef(KVedaLossMaterial, 4) //Description of material properties used by KVedaLoss range calculation
 };
 
 #endif

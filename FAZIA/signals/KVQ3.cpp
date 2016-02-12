@@ -20,6 +20,7 @@ void KVQ3::init()
    SetDefaultValues();
    fChannel = kQ3;
    SetType("Q3");
+   fFPGAOutputNumbers = 2;
    LoadPSAParameters();
 
 }

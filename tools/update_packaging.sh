@@ -18,6 +18,9 @@ fi
 
 # UPDATE PACKAGING
 $1/tools/make_deb_files.sh $1 $2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 cd $1
 
 # UPDATE debian/changelog

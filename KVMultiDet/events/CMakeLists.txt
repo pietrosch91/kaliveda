@@ -1,6 +1,6 @@
 #---Need ROOT with OpenGL support for KVEventViewer
 if(ROOT_opengl_FOUND)
-	set(extra_lib ${ROOT_OPENGL_LIBRARY})
+	set(extra_lib ${ROOT_RGL_LIBRARY})
 else()
 	#---No OpenGL support : no KVEventViewer
 	set(exclude_class KVEventViewer)

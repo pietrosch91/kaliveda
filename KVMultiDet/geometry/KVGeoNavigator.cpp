@@ -137,7 +137,7 @@ void KVGeoNavigator::FormatDetectorName(const Char_t* basename, KVString& name)
       name = basename;
    } else {
       if (fDetNameFmt == "") {
-         for (register int i = 0; i < fCurStrucNumber; i++) {
+         for (int i = 0; i < fCurStrucNumber; i++) {
             KVGeoStrucElement* el = (KVGeoStrucElement*)fCurrentStructures[i];
             name += Form("%s_", el->GetName());
          }
@@ -166,7 +166,7 @@ void KVGeoNavigator::FormatDetectorName(const Char_t* basename, KVString& name)
                } else if (itbit == "struc") {
                   KVString struc_typ = bit.Next();
                   KVGeoStrucElement* el = 0;
-                  for (register int i = 0; i < fCurStrucNumber; i++) {
+                  for (int i = 0; i < fCurStrucNumber; i++) {
                      el = (KVGeoStrucElement*)fCurrentStructures[i];
                      if (el->IsType(struc_typ)) break;
                   }

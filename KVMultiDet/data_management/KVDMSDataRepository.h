@@ -41,6 +41,8 @@ public:
                               const Char_t* datatype,
                               const Char_t* runfile, FileStat_t& fs);
 
+   TObject* OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
+
    ClassDef(KVDMSDataRepository, 1) //Remote data repository using Data Management Systems
 };
 

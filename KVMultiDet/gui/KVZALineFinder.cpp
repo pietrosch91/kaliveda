@@ -386,7 +386,7 @@ void KVZALineFinder::MakeGrid()
                y = fConvertHisto->GetBinContent(ibin + di);
                di++;
             }
-            if ((i > spline->GetN() - 3) && (abs(y - TheLine->GetY()[TheLine->GetN() - 1]) > 20)) continue;
+            if ((i > spline->GetN() - 3) && (std::abs(y - TheLine->GetY()[TheLine->GetN() - 1]) > 20)) continue;
             TheLine->SetPoint(i, spline->GetX(i), y);//spline->GetY(i));
          }
 

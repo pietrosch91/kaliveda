@@ -2,6 +2,7 @@
 //Author: bonnet,,,
 
 #include "KVFAZIACalibrator.h"
+using namespace std;
 
 ClassImp(KVFAZIACalibrator)
 

@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "TBuffer.h"
 
 ClassImp(KVIntegerList)
 
@@ -563,11 +564,11 @@ void KVIntegerList::Streamer(TBuffer& R__b)
 //la lecture utilise aussi le streamer de TNamed, puis il y a un appel a la routine
 // protected DeducePartitionFromTNamed() qui permet de recréer complètement l'objet KVIntegerList
    if (R__b.IsReading()) {
-      TNamed::Class()->ReadBuffer(R__b, this);
+      R__b.ReadClassBuffer(TNamed::Class(), this);
       DeducePartitionFromTNamed();
    } else {
       SetTitle(Form("%d", GetPopulation()));
-      TNamed::Class()->WriteBuffer(R__b, this);
+      R__b.WriteClassBuffer(TNamed::Class(), this);
    }
 }
 

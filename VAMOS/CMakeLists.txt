@@ -1,5 +1,5 @@
 #---set VAMOS specific compiler flags
-set(VAMOS_SPECIFIC_FLAGS "-Wextra -Wdeprecated")
+set(VAMOS_SPECIFIC_FLAGS "-Wextra")
 message(STATUS "VAMOS specific flags: ${VAMOS_SPECIFIC_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO

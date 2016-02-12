@@ -44,6 +44,16 @@ execute_process(
     OUTPUT_VARIABLE ROOT_BINARY_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(
+    COMMAND ${ROOT_CONFIG_EXECUTABLE} --cc
+    OUTPUT_VARIABLE ROOT_C_COMPILER
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+    COMMAND ${ROOT_CONFIG_EXECUTABLE} --cxx
+    OUTPUT_VARIABLE ROOT_CXX_COMPILER
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(ROOT_LIBRARIES)
 foreach(_cpt Core Cint ${ROOT_FIND_COMPONENTS})
   find_library(ROOT_${_cpt}_LIBRARY ${_cpt} HINTS ${ROOT_LIBRARY_DIR})
@@ -54,6 +64,17 @@ foreach(_cpt Core Cint ${ROOT_FIND_COMPONENTS})
   endif()
 endforeach()
 list(REMOVE_DUPLICATES ROOT_LIBRARIES)
+
+execute_process(
+    COMMAND ${ROOT_CONFIG_EXECUTABLE} --libs
+    OUTPUT_VARIABLE ROOT_CORE_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REGEX MATCHALL [-]l[A-Z][0-9A-Za-z]* corelibs ${ROOT_CORE_LIBS})
+set(ROOT_CORE_LIBRARIES)
+foreach(lib ${corelibs})
+   string(REGEX REPLACE ^[-l] "" llib ${lib})
+   list(APPEND ROOT_CORE_LIBRARIES ${ROOT_${llib}_LIBRARY})
+endforeach()
 
 #----------------------------------------------------------------------------
 # Locate the tools

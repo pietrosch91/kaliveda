@@ -1,0 +1,4 @@
+BUILD_KALIVEDA_MODULE(geometry
+	PARENT ${KVSUBPROJECT}
+	EXTRA_LIBS FAZIAgeometry KVIndraexp_events   
+)

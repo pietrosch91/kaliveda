@@ -76,6 +76,7 @@ public:
       return GetActiveLayer()->GetThickness() / KVUnits::um;
    };
    void DeduceACQParameters(Int_t zz = -1, Int_t aa = -1);
+   Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
 
    ClassDef(KVSilicon, 9)       //INDRA forward-rings silicon detector
 };

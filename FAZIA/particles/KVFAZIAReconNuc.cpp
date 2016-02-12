@@ -150,11 +150,23 @@ KVFAZIADetector* KVFAZIAReconNuc::GetSI2() const
    return Get("SI2");
 }
 
+Int_t KVFAZIAReconNuc::GetIndex() const
+{
+   KVFAZIADetector* det = 0;
+   if (!(det = (KVFAZIADetector*)GetStoppingDetector())) return -1;
+   return det->GetIndex();
+}
+
 
 Bool_t KVFAZIAReconNuc::StoppedIn(const Char_t* label) const
 {
    //Returns kTRUE if particle stopped in the labelled detector
    return (GetStoppingDetector() == Get(label));
+}
+
+Int_t KVFAZIAReconNuc::GetIdentifierOfStoppingDetector() const
+{
+   return ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
 }
 
 Bool_t KVFAZIAReconNuc::StoppedInSI2() const
@@ -312,6 +324,8 @@ void KVFAZIAReconNuc::MakeDetectorList()
                val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime", det->GetName()));
                det->SetQL1RiseTime(val);
 
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.FPGAEnergy", det->GetName()));
+               det->SetQH1FPGAEnergy(val);
                val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude", det->GetName()));
                det->SetQH1Amplitude(val);
                val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude", det->GetName()));
@@ -334,6 +348,8 @@ void KVFAZIAReconNuc::MakeDetectorList()
 
             } else if (!strcmp(det->GetLabel(), "SI2")) {
 
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.FPGAEnergy", det->GetName()));
+               det->SetQ2FPGAEnergy(val);
                val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude", det->GetName()));
                det->SetQ2Amplitude(val);
                val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude", det->GetName()));
@@ -354,6 +370,10 @@ void KVFAZIAReconNuc::MakeDetectorList()
                val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", det->GetName()));
                det->SetI2SigmaBaseLine(val);
             } else if (!strcmp(det->GetLabel(), "CSI")) {
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAEnergy", det->GetName()));
+               det->SetQ3FPGAEnergy(val);
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAFastEnergy", det->GetName()));
+               det->SetQ3FastFPGAEnergy(val);
                val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude", det->GetName()));
                det->SetQ3Amplitude(val);
                val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude", det->GetName()));

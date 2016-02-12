@@ -59,6 +59,11 @@ else()
   set(CMAKE_INSTALL_DATAROOTDIR "KVFiles")
 endif()
 if(gnuinstall)
+  set(CMAKE_INSTALL_DOCDIR "share/doc/kaliveda")
+else()
+  set(CMAKE_INSTALL_DOCDIR ".")
+endif()
+if(gnuinstall)
   set(CMAKE_INSTALL_SYSCONFDIR "share/kaliveda/etc")
 else()
   set(CMAKE_INSTALL_SYSCONFDIR "etc")
@@ -84,11 +89,7 @@ if(gnuinstall)
 else()
   set(CMAKE_INSTALL_TMPLDIR "${CMAKE_INSTALL_DATAROOTDIR}")
 endif()
-if(gnuinstall)
-  set(CMAKE_INSTALL_TUTDIR "share/kaliveda/examples")
-else()
-  set(CMAKE_INSTALL_TUTDIR "examples")
-endif()
+set(CMAKE_INSTALL_TUTDIR "${CMAKE_INSTALL_DOCDIR}/examples")
 set(CMAKE_INSTALL_DATASETDIR "${CMAKE_INSTALL_DATAROOTDIR}")
 set(CMAKE_INSTALL_CMAKEPKGDIR "${CMAKE_INSTALL_LIBDIR}/kaliveda")
 
@@ -104,6 +105,7 @@ mark_as_advanced(
   CMAKE_INSTALL_DATAROOTDIR
   CMAKE_INSTALL_DATASETDIR
   CMAKE_INSTALL_DATADIR
+  CMAKE_INSTALL_DOCDIR
   CMAKE_INSTALL_CMAKEDIR
   CMAKE_INSTALL_CMAKEPKGDIR
   CMAKE_INSTALL_TMPLDIR
@@ -120,6 +122,7 @@ foreach(dir BINDIR
             DATAROOTDIR
             DATASETDIR
             DATADIR
+            DOCDIR
             CMAKEDIR 
             TMPLDIR 
             TUTDIR
