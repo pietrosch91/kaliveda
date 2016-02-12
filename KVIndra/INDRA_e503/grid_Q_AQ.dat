@@ -159,13 +159,13 @@ ID:Z=22 A=46
 2.08794   22.4038
 2.45226   20.6731
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43467   5.57212
 2.72236   2.71635
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8147   23.3125
@@ -329,13 +329,13 @@ ID:Z=22 A=46
 2.05339   22.9912
 2.41771   21.2739
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.53832   7.68031
 2.91709   5.30209
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.88693   23.6957
@@ -527,21 +527,21 @@ ID:Z=22 A=46
 2.23578   22.6215
 2.36454   22.736
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.20226   7.69231
 2.21671   5.34309
 2.99874   5.67089
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.48807   21.6237
 2.00314   22.2793
 2.81658   21.9515
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31743   23.5089
@@ -732,21 +732,21 @@ ID:Z=22 A=46
 2.36432   22.8698
 2.54962   22.1379
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.24342   7.11406
 2.25694   4.80913
 3.03959   5.09725
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.52889   22.0949
 2.04397   22.7406
 2.78518   20.4159
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.36363   23.5803
@@ -937,21 +937,21 @@ ID:Z=22 A=46
 2.24497   22.6302
 2.49623   21.4266
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21717   7.22264
 2.23161   4.93641
 3.01365   5.22477
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51553   22.2353
 2.03061   22.8832
 2.77575   20.3121
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39887   23.7448
@@ -1144,21 +1144,21 @@ ID:Z=22 A=46
 2.27952   23.4692
 2.53078   22.3014
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21297   7.16804
 2.22741   4.88181
 3.00945   5.17017
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51133   22.1807
 2.02641   22.8286
 2.83985   22.5046
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39701   23.6531
@@ -1349,21 +1349,21 @@ ID:Z=22 A=46
 2.2701   23.4772
 2.5245   22.2812
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21194   6.71981
 2.22325   4.42752
 3.00843   4.71861
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51973   22.2059
 2.03481   22.8538
 2.84825   22.5298
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.40541   23.6783
@@ -1554,21 +1554,21 @@ ID:Z=22 A=46
 2.28894   22.3105
 2.54334   21.1386
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.23181   7.62491
 2.24312   5.3152
 3.03143   5.62546
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51133   22.4579
 2.02641   23.1058
 2.83985   22.7818
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.42085   24.0989
@@ -2360,13 +2360,13 @@ ID:Z=22 A=46
 2.08279   22.7384
 2.54448   22.1273
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46093   4.0321
 2.74862   1.13656
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.97601   21.206
@@ -2530,13 +2530,13 @@ ID:Z=22 A=46
 2.21299   23.066
 2.67468   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.57601   6.15247
 2.86369   3.26086
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.13191   21.8756
@@ -2700,13 +2700,13 @@ ID:Z=22 A=46
 2.21719   23.066
 2.67888   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.61732   6.975
 2.90501   4.06875
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.15704   20.5184
@@ -2870,13 +2870,13 @@ ID:Z=22 A=46
 2.18359   23.066
 2.64528   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.63083   7.82091
 2.91852   4.91827
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   20.9394
@@ -3040,13 +3040,13 @@ ID:Z=22 A=46
 2.21985   23.1371
 2.70352   20.8062
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.67911   7.25524
 2.9668   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04343   22.7648
@@ -3210,13 +3210,13 @@ ID:Z=22 A=46
 2.08166   23.5298
 2.53392   23.3058
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8995   23.8882
@@ -3390,13 +3390,13 @@ ID:Z=21 A=43
 2.18216   23.0441
 2.40829   22.0608
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.78329   23.6997
@@ -3535,7 +3535,7 @@ ID:Z=21 A=43
 2.24497   22.5492
 2.41771   21.3971
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.54926   4.50259
@@ -3674,7 +3674,7 @@ ID:Z=21 A=43
 2.27638   21.4319
 2.50251   19.851
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.77073   12.0272
@@ -4101,7 +4101,7 @@ ID:Z=21 A=43
 2.32035   22.9349
 2.48995   21.7876
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.6941   5.61626
@@ -4275,13 +4275,13 @@ ID:Z=21 A=43
 2.19472   23.4266
 2.40829   22.771
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.68279   16.4336
 2.97676   16.2697
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.79899   24.2461
@@ -4445,13 +4445,13 @@ ID:Z=22 A=46
 2.15704   23.6451
 2.6407   21.2959
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.64611   7.37204
 2.9338   4.4765
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04083   22.2247
@@ -4615,13 +4615,13 @@ ID:Z=22 A=46
 2.15704   23.6451
 2.6407   21.2959
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.64611   7.37204
 2.9338   4.4765
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04083   22.2247
@@ -4785,13 +4785,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.58543   8.94886
 2.8794   8.23864
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.98744   24.1011
@@ -4833,7 +4833,7 @@ ID:Z=19 A=39
 2.32663   17.6355
 2.72236   18.3457
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 2.22927   13.8112
@@ -5054,13 +5054,13 @@ ID:Z=22 A=46
 2.09899   23.0748
 2.56068   22.4637
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59799   6.72212
 2.96106   4.01451
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.0157   22.1417
@@ -5224,13 +5224,13 @@ ID:Z=22 A=46
 2.26382   23.1418
 2.62814   21.4255
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.57672   7.70191
 2.95549   5.32369
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.01884   22.1202
@@ -5422,21 +5422,21 @@ ID:Z=22 A=46
 2.40282   22.7504
 2.53158   22.8649
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.36426   7.17154
 2.37778   4.86661
 3.16043   5.15473
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67103   22.9508
 2.18611   23.6092
 2.99955   23.2657
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.48447   23.6378
@@ -5627,21 +5627,21 @@ ID:Z=22 A=46
 2.44284   24.0822
 2.62814   23.3173
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.39384   6.43575
 2.40829   4.14117
 3.19033   4.41434
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67337   21.2413
 2.18844   21.8969
 3.00188   21.5144
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.50879   23.4812
@@ -5832,21 +5832,21 @@ ID:Z=22 A=46
 2.41327   23.9729
 2.66494   22.8256
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.38661   7.13864
 2.40105   4.85241
 3.18309   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.65262   20.8588
 2.16723   21.5144
 2.98047   21.1866
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.57065   23.6237
@@ -6037,21 +6037,21 @@ ID:Z=22 A=46
 2.36746   24.2448
 2.61872   23.0712
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.34701   7.13864
 2.36145   4.85241
 3.14349   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.58543   20.5708
 2.1005   21.2342
 2.87312   18.938
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.53105   23.6237
@@ -6242,21 +6242,21 @@ ID:Z=22 A=46
 2.44284   23.7544
 2.69724   22.6071
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.40886   6.66521
 2.42017   4.37292
 3.20535   4.66401
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.64196   20.2579
 2.15704   20.9135
 2.94535   19.2198
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.60233   23.6237
@@ -6447,21 +6447,21 @@ ID:Z=22 A=46
 2.38157   22.1539
 2.63597   20.9694
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.39225   7.58495
 2.40356   5.27524
 3.19187   5.5855
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.59485   20.2367
 2.10992   20.8888
 2.85741   19.1363
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.57944   23.906
@@ -7045,7 +7045,7 @@ ID:Z=21 A=43
 2.14204   21.0794
 2.31196   19.9274
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.50102   4.39615
@@ -7220,13 +7220,13 @@ ID:Z=21 A=43
 2.11658   21.0855
 2.32922   20.4194
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
@@ -7390,13 +7390,13 @@ ID:Z=22 A=46
 1.94347   22.5211
 2.39573   22.3496
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8304   24.3066
@@ -7560,13 +7560,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.87123   22.7648
@@ -7730,13 +7730,13 @@ ID:Z=22 A=46
 2.0035   22.8397
 2.4973   21.7394
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8896   24.4343
@@ -7901,13 +7901,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50063   7.82091
 2.78832   4.91827
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.98744   24.1011
@@ -8071,13 +8071,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.45352   6.975
 2.74121   4.06875
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.99686   20.7577
@@ -8241,13 +8241,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2   22.6006
@@ -8411,13 +8411,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -8585,13 +8585,13 @@ ID:Z=22 A=46
 2.03026   21.0675
 2.39262   19.3428
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.79835   22.3488
@@ -8755,13 +8755,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.53832   7.46191
 2.91709   5.08369
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.7299   22.9714
@@ -8953,21 +8953,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12162   7.03426
 2.13514   4.72933
 2.91779   5.01745
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -9158,21 +9158,21 @@ ID:Z=22 A=46
 2.16018   22.6131
 2.28894   22.7276
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12162   7.03426
 2.13514   4.72933
 2.91779   5.01745
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -9364,21 +9364,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   7.13864
 2.14761   4.85241
 2.92965   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -9569,21 +9569,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   7.13864
 2.14761   4.85241
 2.92965   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -9774,21 +9774,21 @@ ID:Z=22 A=46
 2.14133   21.8873
 2.39573   20.7028
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12374   6.66521
 2.13505   4.37292
 2.92023   4.66401
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -9979,21 +9979,21 @@ ID:Z=22 A=46
 2.15399   22.1
 2.40906   20.9119
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15201   7.31831
 2.16332   5.0086
 2.95163   5.31886
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -10784,7 +10784,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.75188   20.1836
@@ -11079,14 +11079,14 @@ ID:Z=21 A=43
 2.14204   21.0794
 2.31196   19.9274
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.46168   4.57823
 2.43028   10.424
 2.22927   22.4432
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.86809   20.094
@@ -11259,20 +11259,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.5446   5.18702
 2.83857   5.10103
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.67965   19.5907
@@ -11441,13 +11441,13 @@ ID:Z=22 A=46
 1.94661   22.5512
 2.39887   22.3562
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.75188   21.872
@@ -11620,13 +11620,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.49121   6.94124
 2.77889   4.02024
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.80842   22.113
@@ -11790,13 +11790,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46294   5.88618
 2.75063   2.96988
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   23.0529
@@ -11960,13 +11960,13 @@ ID:Z=22 A=46
 1.94347   20.445
 2.40829   19.8423
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4598   5.89384
 2.74749   2.96639
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.9309   21.6073
@@ -12136,13 +12136,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2   22.6006
@@ -12306,13 +12306,13 @@ ID:Z=22 A=46
 1.96231   20.7188
 2.45226   19.4667
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -12476,13 +12476,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.85239   18.1421
@@ -12646,13 +12646,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.52575   6.96866
 2.90452   4.57585
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.71734   20.8548
@@ -12829,21 +12829,21 @@ ID:Z=20 A=41
 1.95603   21.654
 2.21671   21.7651
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.68075
 2.14133   4.35459
 2.92337   4.65966
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41269   19.675
 1.92776   20.3198
 2.74121   19.9863
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   22.2393
@@ -13042,21 +13042,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   6.25374
 2.14761   3.91884
 2.92965   4.19353
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -13247,21 +13247,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   7.01639
 2.14761   4.7406
 2.93279   5.01814
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.33103   20.0917
 1.84925   20.7444
 2.61872   17.9855
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -13452,21 +13452,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.50153
 2.13819   3.21536
 2.92337   3.4953
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   20.0583
 1.9152   20.7115
 2.7098   18.8453
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -13657,21 +13657,21 @@ ID:Z=22 A=46
 2.1005   21.1035
 2.35804   19.9149
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.16115
 2.14761   3.86886
 2.93593   4.16601
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -13862,21 +13862,21 @@ ID:Z=22 A=46
 2.13819   21.1144
 2.39573   19.952
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15201   7.31831
 2.16332   5.0086
 2.95163   5.31886
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -14687,21 +14687,21 @@ ID:Z=19 A=39
 2.00942   19.5693
 2.30779   18.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40327   20.2448
 1.91834   20.3574
 2.74749   19.0438
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.28894   18.7811
@@ -14864,7 +14864,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.71106   21.0705
@@ -15194,20 +15194,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.5446   5.18702
 2.83857   5.10103
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.63882   15.9244
@@ -15376,13 +15376,13 @@ ID:Z=22 A=46
 1.94661   22.5512
 2.39887   22.3562
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.48807   5.81785
 2.77575   2.94143
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67337   16.2615
@@ -15555,13 +15555,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4441   4.79653
 2.72864   1.91224
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.72048   18.3023
@@ -15725,13 +15725,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46294   5.88618
 2.75063   2.96988
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.64824   19.7063
@@ -15895,13 +15895,13 @@ ID:Z=22 A=46
 1.94347   20.445
 2.40829   19.8423
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4598   5.89384
 2.74749   2.96639
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   18.5066
@@ -16071,13 +16071,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.9152   20.65
@@ -16249,13 +16249,13 @@ ID:Z=22 A=46
 1.96231   20.7188
 2.45226   19.4667
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.47236   3.4268
 2.8794   3.01034
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -16419,13 +16419,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.72362   15.0723
@@ -16589,13 +16589,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   5.6531
 2.88568   3.26772
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.71734   15.9479
@@ -16772,21 +16772,21 @@ ID:Z=20 A=41
 1.95603   21.654
 2.21671   21.7651
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.68075
 2.14133   4.35459
 2.92337   4.65966
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   13.9319
 1.90578   14.584
 2.72236   14.258
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   22.2393
@@ -16985,21 +16985,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.14259   5.50865
 2.15389   3.17933
 2.93907   3.45337
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.29334   14.7803
 1.81156   15.4654
 2.64384   14.2322
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -17190,21 +17190,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.14887   5.85306
 2.15704   3.55487
 2.94535   3.85279
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.0035
 1.91206   17.6419
 2.68153   14.9181
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -17395,21 +17395,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.50153
 2.13819   3.21536
 2.92337   3.4953
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   16.5467
 1.91206   17.1851
 2.7098   15.355
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -17600,21 +17600,21 @@ ID:Z=22 A=46
 2.1005   21.1035
 2.35804   19.9149
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.16115
 2.14761   3.86886
 2.93593   4.16601
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3593   19.493
 1.87751   20.1691
 2.66583   17.5549
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -17805,21 +17805,21 @@ ID:Z=22 A=46
 2.13819   21.1144
 2.39573   19.952
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.05578
 2.14761   3.72339
 2.93279   4.03737
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.32789   19.9155
 1.84611   20.5883
 2.69724   17.4486
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -17982,13 +17982,13 @@ ID:Z=22 A=46
 1.87751   22.8589
 2.47425   21.7864
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.67023   5.85577
 2.90138   3.77885
 +KVIDCutLine
-OK:LeftLine
+OK: RightLine
 right
 2
 1.69535   5.14773
@@ -18642,21 +18642,21 @@ ID:Z=19 A=39
 2.00942   19.5693
 2.30779   18.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   17.6192
 1.90892   17.739
 2.74121   16.4211
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.33291   18.8972
@@ -18819,7 +18819,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.6608   16.7882
@@ -19042,7 +19042,7 @@ ID:Z=12 A=24
 1.70791   12.1722
 2.41143   12.1176
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
@@ -19113,13 +19113,13 @@ ID:Z=11 A=22
 1.70791   10.7649
 2.37374   9.66959
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59485   12.0206
@@ -19190,13 +19190,13 @@ ID:Z=12 A=24
 1.7142   11.7534
 2.37374   10.7382
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59485   12.0206
@@ -19276,13 +19276,13 @@ ID:Z=13 A=26
 1.69221   12.6047
 2.37688   12.4865
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.56972   4.97916
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.62312   13.5505
@@ -19383,19 +19383,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -19496,19 +19496,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -19609,19 +19609,19 @@ ID:Z=17 A=34
 1.65766   16.4336
 2.69095   16.3243
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -19722,19 +19722,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -19835,19 +19835,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -19949,19 +19949,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -20063,19 +20063,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -20179,19 +20179,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -20295,19 +20295,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -20411,19 +20411,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -20527,19 +20527,19 @@ ID:Z=17 A=34
 1.64824   16.6792
 2.68153   16.6118
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.55716   5.62281
 2.67525   3.09468
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -20643,19 +20643,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.54774   5.37273
 2.68153   3.1535
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -20759,19 +20759,19 @@ ID:Z=17 A=34
 1.65452   16.4788
 2.68781   16.3635
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.5446   4.63269
 2.67525   2.40192
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -20876,19 +20876,19 @@ ID:Z=17 A=34
 1.6451   16.9457
 2.67839   16.863
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.52575   4.37315
 2.65641   2.13987
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.61683   17.8969
 2.71294   18.021
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.61872   18.1451
@@ -20992,19 +20992,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.55716   4.66818
 2.68781   2.46648
 +KVIDCutLine
-OK:
+OK: BelowLine
 below
 2
 1.59485   14.2563
 2.69095   14.3983
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -21177,20 +21177,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51319   3.75874
 2.80716   3.64948
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.63254   9.54983
@@ -21231,7 +21231,7 @@ ID:Z=8 A=16
 1.77387   7.63767
 2.46168   7.52841
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.59485   3.43094
@@ -21278,7 +21278,7 @@ ID:Z=8 A=16
 1.77387   7.74694
 2.46168   7.52841
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21332,7 +21332,7 @@ ID:Z=9 A=18
 2.01884   8.6757
 2.39259   8.6757
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21386,7 +21386,7 @@ ID:Z=9 A=18
 2.01884   8.6757
 2.39259   8.6757
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21453,7 +21453,7 @@ ID:Z=11 A=22
 1.67651   10.7517
 2.40201   10.6971
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21532,7 +21532,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21611,7 +21611,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21690,7 +21690,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21769,7 +21769,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21848,7 +21848,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -21927,7 +21927,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22006,7 +22006,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22085,7 +22085,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22170,7 +22170,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22249,7 +22249,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22328,7 +22328,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22407,7 +22407,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22486,7 +22486,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22565,7 +22565,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22644,7 +22644,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -22696,7 +22696,7 @@ ID:Z=6 A=12
 1.59485   5.83479
 2.36432   5.78016
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51005   2.99388
@@ -22743,7 +22743,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -22790,7 +22790,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -22843,7 +22843,7 @@ ID:Z=8 A=16
 1.58543   7.80157
 2.40201   7.74694
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -22902,7 +22902,7 @@ ID:Z=9 A=18
 1.59485   8.78741
 2.52764   8.75955
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -22949,7 +22949,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -22996,7 +22996,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23043,7 +23043,7 @@ ID:Z=7 A=14
 1.59799   6.83993
 2.44284   6.89713
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23090,7 +23090,7 @@ ID:Z=7 A=14
 1.59171   6.7448
 2.43656   6.79774
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23137,7 +23137,7 @@ ID:Z=7 A=14
 1.59485   6.8792
 2.4397   6.93836
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23184,7 +23184,7 @@ ID:Z=7 A=14
 1.55716   7.0064
 2.41771   6.43472
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23231,7 +23231,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43342   6.72225
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23284,7 +23284,7 @@ ID:Z=8 A=16
 1.59171   7.88139
 2.42714   7.86222
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23337,7 +23337,7 @@ ID:Z=8 A=16
 1.60113   7.79355
 2.71294   7.74875
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23390,7 +23390,7 @@ ID:Z=8 A=16
 1.58857   7.89379
 2.49309   7.81053
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -23560,13 +23560,13 @@ ID:Z=22 A=46
 2.07138   22.2409
 2.56581   20.0719
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.97563   23.3707
@@ -23743,13 +23743,13 @@ ID:Z=22 A=46
 2.00174   22.5918
 2.43872   20.7172
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.39415   4.91183
 2.95926   4.13155
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42026   23.3263
@@ -23920,13 +23920,13 @@ ID:Z=22 A=46
 2.29422   24.5357
 2.78865   22.39
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.13301   5.06788
 2.97667   3.93649
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.54039   23.2203
@@ -24106,13 +24106,13 @@ ID:Z=22 A=46
 2.1532   24.8478
 2.59192   22.9752
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.39415   4.91183
 2.95926   4.13155
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42026   23.3263
@@ -24288,13 +24288,13 @@ ID:Z=22 A=46
 2.01101   20.8763
 2.4199   19.8023
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -24470,13 +24470,13 @@ ID:Z=22 A=46
 1.9617   21.1817
 2.40042   19.312
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -24619,14 +24619,14 @@ ID:Z=17 A=34
 2.26288   15.1971
 2.42131   14.7583
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.06093   4.5236
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.21482   19.4384
@@ -24771,13 +24771,13 @@ ID:Z=18 A=37
 2.38301   15.6024
 2.81128   14.7726
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.28795   4.5604
 2.96274   4.14553
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.24309   21.3505
@@ -24895,14 +24895,14 @@ ID:Z=14 A=28
 2.21936   13.2131
 2.72075   12.3355
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.27577   4.03013
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   14.9585
@@ -25021,13 +25021,13 @@ ID:Z=14 A=28
 2.25126   12.9425
 2.71608   12.2132
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.28392   3.66521
 2.95791   3.25677
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36244   14.7946
@@ -25147,14 +25147,14 @@ ID:Z=14 A=28
 2.21936   13.2131
 2.72075   12.3355
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.27577   4.03013
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   14.9585
@@ -25273,13 +25273,13 @@ ID:Z=14 A=28
 2.25126   12.9425
 2.71608   12.2132
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.25879   3.33392
 2.93279   2.93619
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36244   14.7946
@@ -25342,7 +25342,7 @@ ID:Z=10 A=20
 2.01884   9.65909
 2.37688   9.87762
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -25423,7 +25423,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -30291,7 +30291,7 @@ ID:Z=21 A=43
 2.14204   21.0794
 2.31196   19.9274
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.50102   4.39615
@@ -30465,13 +30465,13 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
@@ -30635,13 +30635,13 @@ ID:Z=22 A=46
 1.94661   22.5512
 2.39887   22.3562
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8304   24.3066
@@ -30805,13 +30805,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.87123   22.7648
@@ -30975,13 +30975,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.87123   22.7648
@@ -31145,13 +31145,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50063   7.82091
 2.78832   4.91827
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.98744   24.1011
@@ -31315,13 +31315,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.45352   6.975
 2.74121   4.06875
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.99686   20.7577
@@ -31485,13 +31485,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2   22.6006
@@ -31655,13 +31655,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -31837,13 +31837,13 @@ ID:Z=22 A=46
 2.01101   20.8763
 2.4199   19.8023
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -32007,13 +32007,13 @@ ID:Z=22 A=46
 2.03026   21.0675
 2.39262   19.3428
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.79835   22.3488
@@ -32177,13 +32177,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.53832   7.46191
 2.91709   5.08369
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.7299   22.9714
@@ -32375,21 +32375,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12162   7.03426
 2.13514   4.72933
 2.91779   5.01745
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -32580,21 +32580,21 @@ ID:Z=22 A=46
 2.16018   22.6131
 2.28894   22.7276
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12162   7.03426
 2.13514   4.72933
 2.91779   5.01745
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -32785,21 +32785,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   7.13864
 2.14761   4.85241
 2.92965   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -32990,21 +32990,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   7.13864
 2.14761   4.85241
 2.92965   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -33195,21 +33195,21 @@ ID:Z=22 A=46
 2.14133   21.8873
 2.39573   20.7028
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12374   6.66521
 2.13505   4.37292
 2.92023   4.66401
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -33400,21 +33400,21 @@ ID:Z=22 A=46
 2.14133   21.8873
 2.39573   20.7028
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15201   7.31831
 2.16332   5.0086
 2.95163   5.31886
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -34205,7 +34205,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.75188   20.1836
@@ -34500,14 +34500,14 @@ ID:Z=21 A=43
 2.14204   21.0794
 2.31196   19.9274
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.46168   4.57823
 2.43028   10.424
 2.22927   22.4432
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.86809   20.094
@@ -34680,20 +34680,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.5446   5.18702
 2.83857   5.10103
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.67965   19.5907
@@ -34862,13 +34862,13 @@ ID:Z=22 A=46
 1.94661   22.5512
 2.39887   22.3562
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.75188   21.872
@@ -35041,13 +35041,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.49121   6.94124
 2.77889   4.02024
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.80842   22.113
@@ -35211,13 +35211,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46294   5.88618
 2.75063   2.96988
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   23.0529
@@ -35381,13 +35381,13 @@ ID:Z=22 A=46
 1.94347   20.445
 2.40829   19.8423
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4598   5.89384
 2.74749   2.96639
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.9309   21.6073
@@ -35557,13 +35557,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2   22.6006
@@ -35727,13 +35727,13 @@ ID:Z=22 A=46
 1.96231   20.7188
 2.45226   19.4667
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -35897,13 +35897,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.85239   18.1421
@@ -36067,13 +36067,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.52575   6.96866
 2.90452   4.57585
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.71734   20.8548
@@ -36250,21 +36250,21 @@ ID:Z=20 A=41
 1.95603   21.654
 2.21671   21.7651
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.68075
 2.14133   4.35459
 2.92337   4.65966
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41269   19.675
 1.92776   20.3198
 2.74121   19.9863
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   22.2393
@@ -36463,21 +36463,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13317   6.25374
 2.14761   3.91884
 2.92965   4.19353
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   22.8135
 1.94347   23.4719
 2.75691   23.1284
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -36668,21 +36668,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   7.01639
 2.14761   4.7406
 2.93279   5.01814
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.33103   20.0917
 1.84925   20.7444
 2.61872   17.9855
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -36873,21 +36873,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.50153
 2.13819   3.21536
 2.92337   3.4953
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   20.0583
 1.9152   20.7115
 2.7098   18.8453
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -37078,21 +37078,21 @@ ID:Z=22 A=46
 2.1005   21.1035
 2.35804   19.9149
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.16115
 2.14761   3.86886
 2.93593   4.16601
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -37283,21 +37283,21 @@ ID:Z=22 A=46
 2.13819   21.1144
 2.39573   19.952
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15201   7.31831
 2.16332   5.0086
 2.95163   5.31886
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43153   22.1513
 1.94661   22.7992
 2.76005   22.4752
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -38108,21 +38108,21 @@ ID:Z=19 A=39
 2.00942   19.5693
 2.30779   18.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40327   20.2448
 1.91834   20.3574
 2.74749   19.0438
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.28894   18.7811
@@ -38285,7 +38285,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.71106   21.0705
@@ -38615,20 +38615,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.5446   5.18702
 2.83857   5.10103
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.63882   15.9244
@@ -38797,13 +38797,13 @@ ID:Z=22 A=46
 1.94661   22.5512
 2.39887   22.3562
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.48807   5.81785
 2.77575   2.94143
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67337   16.2615
@@ -38976,13 +38976,13 @@ ID:Z=22 A=46
 1.99686   21.8458
 2.48053   19.5265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4441   4.79653
 2.72864   1.91224
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.72048   18.3023
@@ -39146,13 +39146,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46294   5.88618
 2.75063   2.96988
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.64824   19.7063
@@ -39316,13 +39316,13 @@ ID:Z=22 A=46
 1.94347   20.445
 2.40829   19.8423
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.4598   5.89384
 2.74749   2.96639
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   18.5066
@@ -39492,13 +39492,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.9152   20.65
@@ -39670,13 +39670,13 @@ ID:Z=22 A=46
 1.96231   20.7188
 2.45226   19.4667
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.47236   3.4268
 2.8794   3.01034
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -39840,13 +39840,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.72362   15.0723
@@ -40010,13 +40010,13 @@ ID:Z=22 A=46
 2.01256   21.9133
 2.37688   20.1791
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   5.6531
 2.88568   3.26772
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.71734   15.9479
@@ -40193,21 +40193,21 @@ ID:Z=20 A=41
 1.95603   21.654
 2.21671   21.7651
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.68075
 2.14133   4.35459
 2.92337   4.65966
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   13.9319
 1.90578   14.584
 2.72236   14.258
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   22.2393
@@ -40406,21 +40406,21 @@ ID:Z=22 A=46
 2.19472   20.7571
 2.38003   20.0239
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.14259   5.50865
 2.15389   3.17933
 2.93907   3.45337
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.29334   14.7803
 1.81156   15.4654
 2.64384   14.2322
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   23.5005
@@ -40611,21 +40611,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.14887   5.85306
 2.15704   3.55487
 2.94535   3.85279
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.0035
 1.91206   17.6419
 2.68153   14.9181
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -40816,21 +40816,21 @@ ID:Z=22 A=46
 2.13819   21.7096
 2.38945   20.5317
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.50153
 2.13819   3.21536
 2.92337   3.4953
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   16.5467
 1.91206   17.1851
 2.7098   15.355
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -41021,21 +41021,21 @@ ID:Z=22 A=46
 2.1005   21.1035
 2.35804   19.9149
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.16115
 2.14761   3.86886
 2.93593   4.16601
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3593   19.493
 1.87751   20.1691
 2.66583   17.5549
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31721   23.6237
@@ -41226,21 +41226,21 @@ ID:Z=22 A=46
 2.13819   21.1144
 2.39573   19.952
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.13631   6.05578
 2.14761   3.72339
 2.93279   4.03737
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.32789   19.9155
 1.84611   20.5883
 2.69724   17.4486
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.3392   23.6394
@@ -41403,13 +41403,13 @@ ID:Z=22 A=46
 1.87751   22.8589
 2.47425   21.7864
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.67023   5.85577
 2.90138   3.77885
 +KVIDCutLine
-OK:LeftLine
+OK: RightLine
 right
 2
 1.69535   5.14773
@@ -42063,21 +42063,21 @@ ID:Z=19 A=39
 2.00942   19.5693
 2.30779   18.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   17.6192
 1.90892   17.739
 2.74121   16.4211
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.33291   18.8972
@@ -42240,7 +42240,7 @@ ID:Z=22 A=46
 1.97173   22.7513
 2.56533   21.6912
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.6608   16.7882
@@ -42570,20 +42570,20 @@ ID:Z=21 A=43
 2.10134   20.8904
 2.31523   20.2077
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51319   3.75874
 2.80716   3.64948
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77387   23.5358
 2.01884   22.771
 2.43028   21.6783
 +KVIDCutLine
-OK:QboveLine
+OK: BelowLine
 below
 2
 1.63254   9.54983
@@ -42624,7 +42624,7 @@ ID:Z=8 A=16
 1.77387   7.63767
 2.46168   7.52841
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
@@ -42671,7 +42671,7 @@ ID:Z=8 A=16
 1.77387   7.74694
 2.46168   7.52841
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -42725,7 +42725,7 @@ ID:Z=9 A=18
 2.01884   8.6757
 2.39259   8.6757
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -42779,7 +42779,7 @@ ID:Z=9 A=18
 2.01884   8.6757
 2.39259   8.6757
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -42846,7 +42846,7 @@ ID:Z=11 A=22
 1.67651   10.7517
 2.40201   10.6971
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -42925,7 +42925,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -42986,7 +42986,7 @@ ID:Z=10 A=20
 2.01884   9.65909
 2.37688   9.87762
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43065,7 +43065,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43144,7 +43144,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43223,7 +43223,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43302,7 +43302,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43381,7 +43381,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43460,7 +43460,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43539,7 +43539,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43618,7 +43618,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43703,7 +43703,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43782,7 +43782,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelwoLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43861,7 +43861,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -43940,7 +43940,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -44019,7 +44019,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -44098,7 +44098,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -44177,7 +44177,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -44243,7 +44243,7 @@ ID:Z=12 A=24
 1.70791   12.1722
 2.41143   12.1176
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
@@ -44314,13 +44314,13 @@ ID:Z=11 A=22
 1.70791   10.7649
 2.37374   9.66959
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59485   12.0206
@@ -44391,13 +44391,13 @@ ID:Z=12 A=24
 1.7142   11.7534
 2.37374   10.7382
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.43094
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59485   12.0206
@@ -44477,13 +44477,13 @@ ID:Z=13 A=26
 1.69221   12.6047
 2.37688   12.4865
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.56972   4.97916
 2.68467   3.37631
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.62312   13.5505
@@ -44584,19 +44584,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -44697,19 +44697,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -44810,19 +44810,19 @@ ID:Z=17 A=34
 1.65766   16.4336
 2.69095   16.3243
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -44923,19 +44923,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45036,19 +45036,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45150,19 +45150,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45264,19 +45264,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45380,19 +45380,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45496,19 +45496,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:aboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45612,19 +45612,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59485   3.19371
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.59045   17.4716
@@ -45728,19 +45728,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54774   5.37273
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -45844,19 +45844,19 @@ ID:Z=17 A=34
 1.64824   16.6792
 2.68153   16.6118
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.55716   5.62281
 2.67525   3.09468
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -45960,19 +45960,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54774   5.37273
 2.68153   3.1535
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -46076,19 +46076,19 @@ ID:Z=17 A=34
 1.65452   16.4788
 2.68781   16.3635
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.5446   4.63269
 2.67525   2.40192
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.66394   16.9052
 2.75691   17.0345
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -46193,19 +46193,19 @@ ID:Z=17 A=34
 1.6451   16.9457
 2.67839   16.863
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.52575   4.37315
 2.65641   2.13987
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.61683   17.8969
 2.71294   18.021
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.61872   18.1451
@@ -46309,19 +46309,19 @@ ID:Z=17 A=34
 1.65766   16.0206
 2.69095   15.9402
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.55716   4.66818
 2.68781   2.46648
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59485   14.2563
 2.69095   14.3983
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.62186   17.4565
@@ -46459,7 +46459,7 @@ ID:Z=21 A=43
 2.27638   21.4319
 2.50251   19.851
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.77073   12.0272
@@ -46597,7 +46597,7 @@ ID:Z=21 A=43
 2.24497   22.5492
 2.41771   21.3971
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.54926   4.50259
@@ -46771,13 +46771,13 @@ ID:Z=21 A=43
 2.18216   23.0441
 2.40829   22.0608
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.78329   23.6997
@@ -46941,13 +46941,13 @@ ID:Z=22 A=46
 2.08166   23.5298
 2.53392   23.3058
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.50691   7.25524
 2.7946   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8995   23.8882
@@ -47111,13 +47111,13 @@ ID:Z=22 A=46
 2.21985   23.1371
 2.70352   20.8062
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.67911   7.25524
 2.9668   4.3597
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04343   22.7648
@@ -47281,13 +47281,13 @@ ID:Z=22 A=46
 2.18359   23.066
 2.64528   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.63083   7.82091
 2.91852   4.91827
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89008   20.9394
@@ -47451,13 +47451,13 @@ ID:Z=22 A=46
 2.21719   23.066
 2.67888   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.61732   6.975
 2.90501   4.06875
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.15704   20.5184
@@ -47621,13 +47621,13 @@ ID:Z=22 A=46
 2.21299   23.066
 2.67468   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.57601   6.15247
 2.86369   3.26086
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.13191   21.8756
@@ -47791,13 +47791,13 @@ ID:Z=22 A=46
 2.08279   22.7384
 2.54448   22.1273
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.46093   4.0321
 2.74862   1.13656
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.97601   21.206
@@ -47968,13 +47968,13 @@ ID:Z=22 A=46
 2.0766   22.147
 2.56929   19.9876
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.97563   23.3707
@@ -48142,13 +48142,13 @@ ID:Z=22 A=46
 2.08794   22.4038
 2.45226   20.6731
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43467   5.57212
 2.72236   2.71635
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.8147   23.3125
@@ -48312,13 +48312,13 @@ ID:Z=22 A=46
 2.05339   22.9912
 2.41771   21.2739
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.53832   7.68031
 2.91709   5.30209
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.88693   23.6957
@@ -48510,21 +48510,21 @@ ID:Z=23 A=48
 2.23578   22.6215
 2.36454   22.736
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.20226   7.69231
 2.21671   5.34309
 2.99874   5.67089
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.48807   21.6237
 2.00314   22.2793
 2.81658   21.9515
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.31743   23.5089
@@ -48715,21 +48715,21 @@ ID:Z=23 A=48
 2.36432   22.8698
 2.54962   22.1379
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.24342   7.11406
 2.25694   4.80913
 3.03959   5.09725
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.52889   22.0949
 2.04397   22.7406
 2.78518   20.4159
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.36363   23.5803
@@ -48920,21 +48920,21 @@ ID:Z=23 A=48
 2.24497   22.6302
 2.49623   21.4266
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21717   7.22264
 2.23161   4.93641
 3.01365   5.22477
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51553   22.2353
 2.03061   22.8832
 2.77575   20.3121
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39887   23.7448
@@ -49125,21 +49125,21 @@ ID:Z=23 A=48
 2.27952   23.4692
 2.53078   22.3014
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21297   7.16804
 2.22741   4.88181
 3.00945   5.17017
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51133   22.1807
 2.02641   22.8286
 2.83985   22.5046
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39701   23.6531
@@ -49330,21 +49330,21 @@ ID:Z=23 A=48
 2.2701   23.4772
 2.5245   22.2812
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.21194   6.71981
 2.22325   4.42752
 3.00843   4.71861
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51973   22.2059
 2.03481   22.8538
 2.84825   22.5298
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.40541   23.6783
@@ -49535,21 +49535,21 @@ ID:Z=23 A=48
 2.26382   22.0324
 2.51822   20.8701
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.23181   7.62491
 2.24312   5.3152
 3.03143   5.62546
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.51133   22.4579
 2.02641   23.1058
 2.83985   22.7818
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.42085   24.0989
@@ -50604,7 +50604,7 @@ ID:Z=21 A=43
 2.32035   22.9349
 2.48995   21.7876
 +KVIDCutLine
-OK:LeftLine
+OK: LeftLine
 left
 3
 2.6941   5.61626
@@ -50778,13 +50778,13 @@ ID:Z=21 A=43
 2.19472   23.4266
 2.40829   22.771
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.68279   16.4336
 2.97676   16.2697
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.79899   24.2461
@@ -50948,13 +50948,13 @@ ID:Z=22 A=46
 2.15704   23.6451
 2.6407   21.2959
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.64611   7.37204
 2.9338   4.4765
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04083   22.2247
@@ -51118,13 +51118,13 @@ ID:Z=22 A=46
 2.15704   23.6451
 2.6407   21.2959
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.64611   7.37204
 2.9338   4.4765
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.04083   22.2247
@@ -51288,13 +51288,13 @@ ID:Z=22 A=46
 2.05339   23.066
 2.51508   22.4549
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.58543   8.94886
 2.8794   8.23864
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.98744   24.1011
@@ -51336,7 +51336,7 @@ ID:Z=19 A=39
 2.32977   17.5809
 2.7255   18.3457
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 2.22927   13.8112
@@ -51557,13 +51557,13 @@ ID:Z=22 A=46
 2.09899   23.0748
 2.56068   22.4637
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.59799   6.72212
 2.96106   4.01451
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.0157   22.1417
@@ -51727,13 +51727,13 @@ ID:Z=22 A=46
 2.26382   23.1418
 2.62814   21.4255
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.57672   7.70191
 2.95549   5.32369
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 2.01884   22.1202
@@ -51925,21 +51925,21 @@ ID:Z=23 A=48
 2.40282   22.7504
 2.53158   22.8649
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.36426   7.17154
 2.37778   4.86661
 3.16043   5.15473
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67103   22.9508
 2.18611   23.6092
 2.99955   23.2657
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.48447   23.6378
@@ -52130,21 +52130,21 @@ ID:Z=23 A=48
 2.44284   24.0822
 2.62814   23.3173
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.39384   6.43575
 2.40829   4.14117
 3.19033   4.41434
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67337   21.2413
 2.18844   21.8969
 3.00188   21.5144
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.50879   23.4812
@@ -52335,21 +52335,21 @@ ID:Z=23 A=48
 2.41327   23.9729
 2.66494   22.8256
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.38661   7.13864
 2.40105   4.85241
 3.18309   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.65262   20.8588
 2.16723   21.5144
 2.98047   21.1866
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.57065   23.6237
@@ -52540,21 +52540,21 @@ ID:Z=23 A=48
 2.36746   24.2448
 2.61872   23.0712
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.34701   7.13864
 2.36145   4.85241
 3.14349   5.14077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.58543   20.5708
 2.1005   21.2342
 2.87312   18.938
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.53105   23.6237
@@ -52745,21 +52745,21 @@ ID:Z=23 A=48
 2.44284   23.7544
 2.69724   22.6071
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.40886   6.66521
 2.42017   4.37292
 3.20535   4.66401
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.64196   20.2579
 2.15704   20.9135
 2.94535   19.2198
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.60233   23.6237
@@ -52950,21 +52950,21 @@ ID:Z=23 A=48
 2.38157   22.1539
 2.63597   20.9694
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.39225   7.58495
 2.40356   5.27524
 3.19187   5.5855
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.59485   20.2367
 2.10992   20.8888
 2.85741   19.1363
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.57944   23.906
@@ -53330,7 +53330,7 @@ ID:Z=6 A=12
 1.59485   5.83479
 2.36432   5.78016
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51005   2.99388
@@ -53377,7 +53377,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53424,7 +53424,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53477,7 +53477,7 @@ ID:Z=8 A=16
 1.58543   7.80157
 2.40201   7.74694
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53536,7 +53536,7 @@ ID:Z=9 A=18
 1.59485   8.78741
 2.52764   8.75955
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53583,7 +53583,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53630,7 +53630,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43656   6.98208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53677,7 +53677,7 @@ ID:Z=7 A=14
 1.59799   6.83993
 2.44284   6.89713
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53724,7 +53724,7 @@ ID:Z=7 A=14
 1.59171   6.7448
 2.43656   6.79774
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53771,7 +53771,7 @@ ID:Z=7 A=14
 1.59485   6.8792
 2.4397   6.93836
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53818,7 +53818,7 @@ ID:Z=7 A=14
 1.55716   7.0064
 2.41771   6.43472
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53865,7 +53865,7 @@ ID:Z=7 A=14
 1.59171   6.92745
 2.43342   6.72225
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53918,7 +53918,7 @@ ID:Z=8 A=16
 1.59171   7.88139
 2.42714   7.86222
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -53971,7 +53971,7 @@ ID:Z=8 A=16
 1.60113   7.79355
 2.71294   7.74875
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -54024,7 +54024,7 @@ ID:Z=8 A=16
 1.58857   7.89379
 2.49309   7.81053
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.51947   2.11976
@@ -54199,13 +54199,13 @@ ID:Z=22 A=46
 1.9617   21.1817
 2.40042   19.312
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.43153   4.3597
 2.71922   1.46416
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.94661   21.5336
@@ -54348,14 +54348,14 @@ ID:Z=17 A=34
 2.26288   15.1971
 2.42131   14.7583
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.27577   4.03013
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.67096   18.364
@@ -54500,13 +54500,13 @@ ID:Z=18 A=37
 2.38301   15.6024
 2.81128   14.7726
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.28795   4.5604
 2.96274   4.14553
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77019   19.9711
@@ -54624,14 +54624,14 @@ ID:Z=14 A=28
 2.21936   13.2131
 2.72075   12.3355
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.27577   4.03013
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   14.9585
@@ -54750,13 +54750,13 @@ ID:Z=14 A=28
 2.25126   12.9425
 2.71608   12.2132
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.28392   3.66521
 2.95791   3.25677
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36244   14.7946
@@ -54876,14 +54876,14 @@ ID:Z=14 A=28
 2.21936   13.2131
 2.72075   12.3355
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.27577   4.03013
 2.04004   3.03334
 2.97493   3.15233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   14.9585
@@ -55002,13 +55002,13 @@ ID:Z=14 A=28
 2.25126   12.9425
 2.71608   12.2132
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.25879   3.33392
 2.93279   2.93619
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36244   14.7946
@@ -55184,13 +55184,13 @@ ID:Z=22 A=46
 1.9913   22.507
 2.43001   20.6344
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.39415   4.91183
 2.95926   4.13155
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42026   23.3263
@@ -55361,13 +55361,13 @@ ID:Z=22 A=46
 2.29422   24.5357
 2.78865   22.39
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.13301   5.06788
 2.97667   3.93649
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.54039   23.2203
@@ -55547,13 +55547,13 @@ ID:Z=22 A=46
 2.1532   24.8478
 2.59192   22.9752
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.39415   4.91183
 2.95926   4.13155
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42026   23.3263
@@ -55633,7 +55633,7 @@ ID:Z=13 A=26
 1.65138   12.7732
 2.41771   12.6093
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.60113   2.44755
@@ -61141,7 +61141,7 @@ ID:Z=20 A=41
 1.98259   19.4249
 2.19499   18.9958
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.50731   21.0349
@@ -61335,7 +61335,7 @@ ID:Z=21 A=43
 1.82416   21.4492
 2.04701   21.4229
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.51428   22.6631
@@ -62272,7 +62272,7 @@ ID:Z=20 A=41
 2.08008   19.3099
 2.16017   19.0478
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.35933   8.14781
@@ -62463,7 +62463,7 @@ ID:Z=20 A=41
 2.0774   20.3135
 2.16971   20.2075
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.3454   7.98188
@@ -62654,7 +62654,7 @@ ID:Z=20 A=41
 2.10446   19.542
 2.21027   19.0339
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -62845,7 +62845,7 @@ ID:Z=20 A=41
 2.09944   19.4012
 2.20483   18.8862
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -63036,7 +63036,7 @@ ID:Z=20 A=41
 2.11142   19.1709
 2.21588   18.6657
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -63227,7 +63227,7 @@ ID:Z=20 A=41
 2.12187   19.7761
 2.22806   19.2689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -63408,7 +63408,7 @@ ID:Z=19 A=39
 2.163   19.0216
 2.29556   18.7923
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -63589,7 +63589,7 @@ ID:Z=19 A=39
 2.15328   18.2
 2.29685   18.0006
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -63770,7 +63770,7 @@ ID:Z=19 A=39
 2.1532   18.6837
 2.29596   18.4886
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -63951,7 +63951,7 @@ ID:Z=20 A=41
 2.1532   18.4114
 2.29944   18.1874
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33148   6.97956
@@ -64132,7 +64132,7 @@ ID:Z=20 A=41
 2.15146   20.5953
 2.26811   21.0245
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.3454   7.84716
@@ -64322,7 +64322,7 @@ ID:Z=20 A=41
 2.12079   20.0718
 2.24721   20.4003
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.3454   7.84716
@@ -64512,7 +64512,7 @@ ID:Z=20 A=41
 2.15146   20.1879
 2.27333   20.1879
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   7.08416
@@ -64702,7 +64702,7 @@ ID:Z=20 A=41
 2.17061   18.263
 2.28377   17.8321
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   7.08416
@@ -64892,7 +64892,7 @@ ID:Z=20 A=41
 2.17932   20.1406
 2.32556   20.1859
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -65082,7 +65082,7 @@ ID:Z=20 A=41
 2.17932   20.1406
 2.32556   20.1859
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -65272,7 +65272,7 @@ ID:Z=20 A=41
 2.17584   19.9321
 2.32208   19.9711
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -65462,7 +65462,7 @@ ID:Z=20 A=41
 2.17584   19.9321
 2.32208   19.9711
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -65652,7 +65652,7 @@ ID:Z=20 A=41
 2.17584   19.9321
 2.32208   19.9711
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -65842,7 +65842,7 @@ ID:Z=20 A=41
 2.16539   19.0348
 2.336   19.1518
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -66041,7 +66041,7 @@ ID:Z=20 A=41
 2.18802   20.1383
 2.31859   20.4619
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -66240,7 +66240,7 @@ ID:Z=20 A=41
 2.1879   20.3458
 2.31859   20.4619
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -66439,7 +66439,7 @@ ID:Z=20 A=41
 2.08696   18.7864
 2.1798   18.2987
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -66638,7 +66638,7 @@ ID:Z=20 A=41
 2.08696   18.7864
 2.1798   18.2987
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -66993,7 +66993,7 @@ ID:Z=20 A=41
 2.02611   19.7761
 2.24025   19.3859
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.52124   21.9998
@@ -67181,7 +67181,7 @@ ID:Z=20 A=41
 2.07486   19.8931
 2.26114   20.1282
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.57347   21.4341
@@ -68104,7 +68104,7 @@ ID:Z=20 A=41
 2.14276   19.3859
 2.22458   19.1128
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.35933   8.14781
@@ -68295,7 +68295,7 @@ ID:Z=20 A=41
 2.20891   20.0882
 2.30118   20.0101
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.3454   7.98188
@@ -68476,7 +68476,7 @@ ID:Z=19 A=39
 2.22806   18.5113
 2.33774   18.0584
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -68657,7 +68657,7 @@ ID:Z=19 A=39
 2.23677   18.3009
 2.34645   17.8372
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -68838,7 +68838,7 @@ ID:Z=19 A=39
 2.13753   18.2923
 2.24721   17.853
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -69019,7 +69019,7 @@ ID:Z=19 A=39
 2.26785   17.6426
 2.41506   17.4309
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -69200,7 +69200,7 @@ ID:Z=19 A=39
 2.29944   17.8715
 2.43175   17.6427
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -69381,7 +69381,7 @@ ID:Z=19 A=39
 2.25766   17.7473
 2.40042   17.5523
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -69562,7 +69562,7 @@ ID:Z=19 A=39
 2.22458   18.4106
 2.36734   18.1765
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -69732,7 +69732,7 @@ ID:Z=19 A=39
 2.2124   17.4622
 2.4126   17.1438
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33148   6.97956
@@ -69913,7 +69913,7 @@ ID:Z=20 A=41
 2.24896   19.1128
 2.36734   19.542
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34889   7.13561
@@ -70103,7 +70103,7 @@ ID:Z=20 A=41
 2.1862   18.5057
 2.3122   18.8559
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34889   7.13561
@@ -70293,7 +70293,7 @@ ID:Z=20 A=41
 2.15146   20.1879
 2.27333   20.1879
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   7.08416
@@ -70483,7 +70483,7 @@ ID:Z=20 A=41
 2.17061   18.263
 2.28377   17.8321
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.27403   6.08224
@@ -70673,7 +70673,7 @@ ID:Z=20 A=41
 2.18802   20.3613
 2.33426   20.4003
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -70844,7 +70844,7 @@ ID:Z=20 A=41
 2.18802   20.4003
 2.33426   20.4393
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -71034,7 +71034,7 @@ ID:Z=20 A=41
 2.18802   20.2442
 2.33426   20.2832
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -71202,7 +71202,7 @@ ID:Z=18 A=37
 2.18628   17.9424
 2.32904   17.9814
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -71381,7 +71381,7 @@ ID:Z=19 A=39
 2.23503   18.8007
 2.34297   18.8007
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -71571,7 +71571,7 @@ ID:Z=20 A=41
 2.22632   18.9568
 2.39519   19.0738
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -71761,7 +71761,7 @@ ID:Z=19 A=39
 2.28726   19.0348
 2.45613   19.1518
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -71951,7 +71951,7 @@ ID:Z=19 A=39
 2.16887   19.2299
 2.33774   19.3469
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -72150,7 +72150,7 @@ ID:Z=20 A=41
 2.08696   18.7864
 2.18106   18.1926
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -72349,7 +72349,7 @@ ID:Z=20 A=41
 2.08696   18.7864
 2.1798   18.2987
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -72671,13 +72671,13 @@ ID:Z=18 A=37
 2.14036   17.5851
 2.29031   17.3383
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.54387   19.3911
 2.60933   17.3166
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24095   7.10363
@@ -72843,13 +72843,13 @@ ID:Z=17 A=34
 2.27681   16.8087
 2.40564   17.2058
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.56972   19.6023
 2.64698   18.4003
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.2688   7.33068
@@ -73019,7 +73019,7 @@ ID:Z=17 A=34
 2.20717   15.7317
 2.35864   15.2671
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.55258   18.2026
@@ -73187,7 +73187,7 @@ ID:Z=18 A=37
 2.18454   17.0061
 2.29944   16.9281
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.60655   19.3859
@@ -73195,7 +73195,7 @@ below
 2.30815   17.7864
 2.90877   16.85
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.34018   5.95175
@@ -73366,7 +73366,7 @@ ID:Z=18 A=37
 2.17584   16.5374
 2.2977   16.1494
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.70404   18.5124
@@ -73375,7 +73375,7 @@ below
 2.75731   16.3257
 2.92792   16.1847
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.41504   5.85103
@@ -73565,7 +73565,7 @@ ID:Z=19 A=39
 2.17932   17.747
 2.26288   17.6204
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.45857   5.19677
@@ -73755,7 +73755,7 @@ ID:Z=19 A=39
 2.16887   17.5559
 2.27159   17.3068
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.36281   7.18441
@@ -73764,7 +73764,7 @@ above
 2.62674   4.37261
 2.94882   4.13525
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.65355   20.6058
@@ -73955,7 +73955,7 @@ ID:Z=20 A=41
 2.13405   20.2832
 2.22632   20.2052
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33844   7.17463
@@ -74145,7 +74145,7 @@ ID:Z=20 A=41
 2.12187   19.1559
 2.27507   18.7529
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -74335,7 +74335,7 @@ ID:Z=20 A=41
 2.01918   19.364
 2.1928   18.9509
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -74534,7 +74534,7 @@ ID:Z=20 A=41
 2.0197   19.2689
 2.12298   18.9178
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32561   6.24315
@@ -74724,7 +74724,7 @@ ID:Z=20 A=41
 2.1062   19.3754
 2.41783   18.6508
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -74733,7 +74733,7 @@ above
 2.60724   3.91934
 2.93087   3.66887
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.59784   21.754
@@ -74923,7 +74923,7 @@ ID:Z=20 A=41
 2.06093   19.9892
 2.24199   19.7226
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34655   6.74128
@@ -75113,7 +75113,7 @@ ID:Z=20 A=41
 2.05487   18.5927
 2.24722   18.0934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -75304,7 +75304,7 @@ ID:Z=20 A=41
 2.09383   19.2249
 2.24072   18.9751
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34366   5.53605
@@ -75474,7 +75474,7 @@ ID:Z=19 A=39
 2.17409   17.3961
 2.37256   17.0831
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24269   6.24588
@@ -75633,7 +75633,7 @@ ID:Z=18 A=37
 2.28377   18.7502
 2.52054   19.1201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34889   7.13561
@@ -75642,7 +75642,7 @@ above
 2.62326   5.06788
 2.94882   5.26295
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.4899   19.342
@@ -75819,7 +75819,7 @@ ID:Z=18 A=37
 2.26462   18.0204
 2.40216   18.0948
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.29492   6.49132
@@ -75998,7 +75998,7 @@ ID:Z=19 A=39
 2.18106   18.5947
 2.29596   18.693
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   6.17995
@@ -76155,7 +76155,7 @@ ID:Z=17 A=34
 2.19499   15.9626
 2.38649   15.5395
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.27403   6.08224
@@ -76164,7 +76164,7 @@ above
 2.5484   4.01451
 2.87396   4.20958
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.2218   18.713
@@ -76332,7 +76332,7 @@ ID:Z=18 A=37
 2.23677   16.9952
 2.36908   16.5822
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28621   6.60973
@@ -76474,7 +76474,7 @@ ID:Z=16 A=32
 2.15669   15.1105
 2.31163   15.0876
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -76590,7 +76590,7 @@ ID:Z=15 A=30
 2.23677   13.924
 2.41783   13.6899
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -76599,7 +76599,7 @@ above
 2.53273   4.71676
 2.85655   4.91183
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.44464   17.2792
@@ -76733,7 +76733,7 @@ ID:Z=15 A=30
 2.18628   14.0801
 2.39519   13.924
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -76742,7 +76742,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.4812   17.3962
@@ -76867,7 +76867,7 @@ ID:Z=14 A=28
 2.22981   13.924
 2.38823   13.7679
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -76992,7 +76992,7 @@ ID:Z=14 A=28
 2.24497   13.2649
 2.44912   12.9917
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -77160,7 +77160,7 @@ ID:Z=18 A=37
 2.21588   16.694
 2.34819   16.4209
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -77169,7 +77169,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.35759   22.2339
@@ -77348,7 +77348,7 @@ ID:Z=18 A=37
 2.24199   16.733
 2.38301   16.4989
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -77538,7 +77538,7 @@ ID:Z=19 A=39
 2.16365   18.7633
 2.33252   18.8872
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -77673,7 +77673,7 @@ ID:Z=14 A=28
 2.16018   13.101
 2.43656   12.6639
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -77819,7 +77819,7 @@ ID:Z=15 A=30
 2.16017   14.5243
 2.35864   14.0168
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -77922,7 +77922,7 @@ ID:Z=11 A=22
 2.28029   10.0616
 2.47876   9.90559
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.5578   12.1684
@@ -77930,7 +77930,7 @@ below
 2.72075   10.4518
 2.92096   10.3347
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.44638   5.61408
@@ -78045,13 +78045,13 @@ ID:Z=12 A=24
 2.289   11.193
 2.40738   11.115
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.5665   13.7289
 2.63196   11.6222
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24269   6.70646
@@ -78175,13 +78175,13 @@ ID:Z=12 A=24
 2.33948   11.193
 2.47528   11.076
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.59436   12.8706
 2.67201   11.6612
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.23367   6.43575
@@ -78296,7 +78296,7 @@ ID:Z=12 A=24
 2.39694   10.7003
 2.48224   10.682
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.46553   13.404
@@ -78419,7 +78419,7 @@ ID:Z=13 A=26
 2.28552   11.9646
 2.40216   11.9261
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.59784   14.1336
@@ -78427,7 +78427,7 @@ below
 2.29944   12.5411
 2.89833   11.5987
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.26532   4.56804
@@ -78553,7 +78553,7 @@ ID:Z=13 A=26
 2.26462   11.7751
 2.43001   11.5788
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.63266   13.8217
@@ -78562,7 +78562,7 @@ below
 2.68419   11.6373
 2.85481   11.4876
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.40634   5.03852
@@ -78708,7 +78708,7 @@ ID:Z=15 A=30
 2.17235   14.041
 2.52054   13.6119
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.45508   4.67775
@@ -78854,7 +78854,7 @@ ID:Z=15 A=30
 2.16539   13.7594
 2.43001   13.1722
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.36107   6.28789
@@ -78863,7 +78863,7 @@ above
 2.625   3.4734
 2.94882   3.23042
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.64485   16.5453
@@ -78989,7 +78989,7 @@ ID:Z=14 A=28
 2.23329   14.0328
 2.4126   14.4768
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   6.58942
@@ -78998,7 +78998,7 @@ above
 2.58496   3.78043
 2.90877   3.46832
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.42549   15.0801
@@ -79146,7 +79146,7 @@ ID:Z=16 A=32
 2.14967   15.7269
 2.43175   15.5129
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28969   6.61502
@@ -79294,7 +79294,7 @@ ID:Z=16 A=32
 2.20195   15.2895
 2.43175   15.0164
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33496   6.08224
@@ -79451,7 +79451,7 @@ ID:Z=16 A=32
 2.20369   15.3284
 2.43872   14.8735
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   5.73221
@@ -79610,7 +79610,7 @@ ID:Z=17 A=34
 2.1445   16.7067
 2.35167   16.3533
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33844   6.27731
@@ -79619,7 +79619,7 @@ above
 2.59889   3.46832
 2.9227   3.23424
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.51253   18.7617
@@ -79789,7 +79789,7 @@ ID:Z=18 A=37
 2.16365   17.8785
 2.38301   17.803
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32799   6.31632
@@ -79798,7 +79798,7 @@ above
 2.58844   3.50733
 2.91226   3.27325
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.47946   19.6516
@@ -79967,7 +79967,7 @@ ID:Z=18 A=37
 2.16345   16.9653
 2.38682   16.5955
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   4.87282
@@ -80137,7 +80137,7 @@ ID:Z=18 A=37
 2.14417   17.4631
 2.36532   17.1739
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32799   5.1069
@@ -80263,7 +80263,7 @@ ID:Z=15 A=30
 2.17061   13.9775
 2.44568   13.5821
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.23921   6.4566
@@ -80272,7 +80272,7 @@ above
 2.60063   5.08507
 2.92792   5.32812
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.10864   16.2615
@@ -80385,7 +80385,7 @@ ID:Z=13 A=26
 2.38301   13.3137
 2.59192   13.2455
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34714   6.57751
@@ -80394,7 +80394,7 @@ above
 2.62152   4.50807
 2.94708   4.69409
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.42549   13.8586
@@ -80528,7 +80528,7 @@ ID:Z=14 A=28
 2.32208   13.5612
 2.52228   13.5314
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.12604   7.24791
@@ -80653,7 +80653,7 @@ ID:Z=14 A=28
 2.27855   13.5774
 2.4126   13.4869
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   6.17995
@@ -80766,7 +80766,7 @@ ID:Z=13 A=26
 2.33426   11.4271
 2.52751   11.076
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.27403   6.08224
@@ -80775,7 +80775,7 @@ above
 2.5484   4.01451
 2.87396   4.20958
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.21657   14.1971
@@ -80888,7 +80888,7 @@ ID:Z=13 A=26
 2.37765   11.8475
 2.55362   11.3268
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28621   6.60973
@@ -80968,7 +80968,7 @@ ID:Z=10 A=20
 2.19847   9.80192
 2.62326   9.54537
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -80977,7 +80977,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3059   12.3361
@@ -81091,7 +81091,7 @@ ID:Z=15 A=30
 2.23677   13.924
 2.41783   13.6899
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -81100,7 +81100,7 @@ above
 2.53273   4.71676
 2.85655   4.91183
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.44464   17.2792
@@ -81234,7 +81234,7 @@ ID:Z=15 A=30
 2.18628   14.0801
 2.39519   13.924
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -81243,7 +81243,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.4812   17.3962
@@ -81368,7 +81368,7 @@ ID:Z=14 A=28
 2.22981   13.924
 2.38823   13.7679
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -81438,7 +81438,7 @@ ID:Z=9 A=18
 2.25754   8.6757
 2.49309   8.56643
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24937   5.61626
@@ -81609,21 +81609,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -81791,21 +81791,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -81973,21 +81973,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -82074,7 +82074,7 @@ ID:Z=10 A=20
 2.27638   9.22203
 2.55905   9.08221
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -82164,7 +82164,7 @@ ID:Z=10 A=20
 2.2701   9.38593
 2.58417   9.1674
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.2054   4.662
@@ -82242,7 +82242,7 @@ ID:Z=9 A=18
 2.62848   8.228
 2.74164   8.228
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.53169   10.4908
@@ -82250,7 +82250,7 @@ below
 2.6929   8.77419
 2.89311   8.61813
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.44638   5.61408
@@ -82328,13 +82328,13 @@ ID:Z=9 A=18
 2.60411   8.14997
 2.74164   8.14997
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.4441   11.3228
 2.92651   8.2356
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24269   6.70646
@@ -82409,13 +82409,13 @@ ID:Z=8 A=16
 2.56533   6.31602
 2.7255   6.09547
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.53832   9.27941
 2.86055   6.40185
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.19284   5.9614
@@ -82487,7 +82487,7 @@ ID:Z=8 A=16
 2.26985   7.27639
 2.56058   6.95694
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.46553   13.404
@@ -82565,7 +82565,7 @@ ID:Z=9 A=18
 2.22299   8.41943
 2.51193   8.11665
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52889   10.9032
@@ -82573,7 +82573,7 @@ below
 2.23241   9.28949
 2.83229   8.36308
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.26532   4.56804
@@ -82654,7 +82654,7 @@ ID:Z=9 A=18
 2.22613   8.30559
 2.51508   7.99594
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.54774   10.7517
@@ -82663,7 +82663,7 @@ below
 2.59673   8.56643
 2.76947   8.40253
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34673   4.61351
@@ -82753,7 +82753,7 @@ ID:Z=10 A=20
 2.21671   9.25976
 2.56847   8.77068
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.38756   4.77658
@@ -82843,7 +82843,7 @@ ID:Z=10 A=20
 2.20729   8.51193
 2.40515   8.11164
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34045   5.96888
@@ -82852,7 +82852,7 @@ above
 2.60616   3.16682
 2.92965   2.9078
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.56658   11.9969
@@ -82933,7 +82933,7 @@ ID:Z=10 A=20
 2.23155   9.52255
 2.46135   9.56929
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28706   6.69278
@@ -82942,7 +82942,7 @@ above
 2.55276   3.88274
 2.87626   3.57051
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.48492   11.0431
@@ -83023,7 +83023,7 @@ ID:Z=10 A=20
 2.26462   9.58709
 2.63196   9.35847
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28969   6.61502
@@ -83032,7 +83032,7 @@ above
 2.55014   3.80299
 2.87396   3.57437
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52472   11.5083
@@ -83123,7 +83123,7 @@ ID:Z=11 A=22
 2.28552   10.2052
 2.51706   9.94682
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   5.8686
@@ -83132,7 +83132,7 @@ above
 2.57974   3.06367
 2.90529   2.82377
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.57695   12.1428
@@ -83244,7 +83244,7 @@ ID:Z=12 A=24
 2.36908   11.2414
 2.48398   11.1624
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   5.73221
@@ -83253,7 +83253,7 @@ above
 2.58148   2.92411
 2.90529   2.65508
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.61525   13.3126
@@ -83369,7 +83369,7 @@ ID:Z=13 A=26
 2.289   12.5585
 2.60759   12.5975
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.29334   6.56299
@@ -83378,7 +83378,7 @@ above
 2.55276   3.74361
 2.87626   3.53365
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.51633   14.9585
@@ -83504,7 +83504,7 @@ ID:Z=14 A=28
 2.18454   13.9296
 2.45787   14.1332
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28392   6.66429
@@ -83513,7 +83513,7 @@ above
 2.54334   3.86971
 2.86683   3.6267
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.48807   15.778
@@ -83628,7 +83628,7 @@ ID:Z=13 A=26
 2.26114   12.4025
 2.49791   12.2464
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.18656   4.71297
@@ -83637,7 +83637,7 @@ above
 2.64763   3.69147
 2.95404   3.76185
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.36558   14.3622
@@ -83740,7 +83740,7 @@ ID:Z=12 A=24
 2.38649   11.4661
 2.56581   11.3491
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32799   5.1069
@@ -83749,7 +83749,7 @@ above
 2.6337   3.66339
 2.93837   3.62438
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.47236   13.8658
@@ -83838,7 +83838,7 @@ ID:Z=11 A=22
 2.24413   9.90766
 2.58186   9.50976
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24009   5.66332
@@ -83847,7 +83847,7 @@ above
 2.60206   4.29907
 2.92878   4.54539
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.13913   12.4467
@@ -83927,7 +83927,7 @@ ID:Z=10 A=20
 2.29001   9.15457
 2.67181   8.61625
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.17217   7.0472
@@ -83936,7 +83936,7 @@ above
 2.6149   4.33674
 2.95264   4.17309
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.45301   10.9703
@@ -84005,7 +84005,7 @@ ID:Z=8 A=16
 2.28634   6.7676
 2.62408   6.30041
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.07489   6.44973
@@ -84085,7 +84085,7 @@ ID:Z=10 A=20
 2.26248   9.22236
 2.56718   8.97716
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25836   6.17995
@@ -84155,7 +84155,7 @@ ID:Z=9 A=18
 2.28084   7.88131
 2.53598   7.43094
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.21256   6.21538
@@ -84164,7 +84164,7 @@ above
 2.54883   3.48487
 2.90308   3.05249
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.19053   10.5192
@@ -84234,7 +84234,7 @@ ID:Z=9 A=18
 2.29369   7.56572
 2.53598   7.13586
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.27863   6.00464
@@ -84314,7 +84314,7 @@ ID:Z=10 A=20
 2.19847   9.80192
 2.62326   9.54537
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -84323,7 +84323,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3059   12.3361
@@ -84392,7 +84392,7 @@ ID:Z=11 A=22
 2.31511   10.3347
 2.52925   9.98361
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -84401,7 +84401,7 @@ above
 2.53273   4.71676
 2.85655   4.91183
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.41814   14.1803
@@ -84470,7 +84470,7 @@ ID:Z=9 A=18
 2.28029   8.57912
 2.5188   8.46208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -84479,7 +84479,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.34673   12.2815
@@ -84529,7 +84529,7 @@ ID:Z=7 A=14
 2.38997   6.74547
 2.61978   6.62843
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25251   6.42723
@@ -84599,7 +84599,7 @@ ID:Z=9 A=18
 2.25754   8.6757
 2.49309   8.56643
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24623   5.53352
@@ -84687,21 +84687,21 @@ ID:Z=10 A=20
 2.0848   9.51418
 2.55276   9.45889
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3593   10.7582
 1.87751   10.5647
 2.70352   9.54183
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -84786,21 +84786,21 @@ ID:Z=10 A=20
 2.10678   9.57111
 2.57475   9.52686
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.375   10.611
 1.88693   10.7217
 2.71922   9.41623
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -84885,21 +84885,21 @@ ID:Z=10 A=20
 2.10364   9.60747
 2.57161   9.5689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.09862   6.03967
 2.10678   4.16899
 2.8951   4.01471
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -84956,7 +84956,7 @@ ID:Z=7 A=14
 2.28634   6.6558
 2.68098   6.62016
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -85036,7 +85036,7 @@ ID:Z=9 A=18
 2.21357   8.33139
 2.58731   8.16274
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.2054   4.662
@@ -85114,7 +85114,7 @@ ID:Z=9 A=18
 2.62848   8.228
 2.74164   8.228
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.53169   10.4908
@@ -85122,7 +85122,7 @@ below
 2.6929   8.77419
 2.89311   8.61813
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32161   5.28846
@@ -85200,13 +85200,13 @@ ID:Z=9 A=18
 2.60411   8.14997
 2.74164   8.14997
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.4441   11.3228
 2.92651   8.2356
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.23995   5.72552
@@ -85281,13 +85281,13 @@ ID:Z=8 A=16
 2.56533   6.31602
 2.7255   6.09547
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.53832   9.27941
 2.86055   6.40185
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.18342   5.77269
@@ -85359,7 +85359,7 @@ ID:Z=8 A=16
 2.26985   7.27639
 2.56058   6.95694
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43467   9.86743
@@ -85437,7 +85437,7 @@ ID:Z=9 A=18
 2.22299   8.41943
 2.51193   8.11665
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52889   10.9032
@@ -85445,7 +85445,7 @@ below
 2.23241   9.28949
 2.83229   8.36308
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.26532   4.56804
@@ -85526,7 +85526,7 @@ ID:Z=9 A=18
 2.22613   8.30559
 2.51508   7.99594
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.54774   10.7517
@@ -85535,7 +85535,7 @@ below
 2.59673   8.56643
 2.76947   8.40253
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.33417   4.5333
@@ -85625,7 +85625,7 @@ ID:Z=10 A=20
 2.21671   9.25976
 2.56847   8.77068
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.38128   4.36862
@@ -85715,7 +85715,7 @@ ID:Z=10 A=20
 2.23555   8.11075
 2.43028   7.71193
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.34045   5.96888
@@ -85724,7 +85724,7 @@ above
 2.60616   3.16682
 2.92965   2.9078
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.56658   11.9969
@@ -85813,7 +85813,7 @@ ID:Z=10 A=20
 2.23155   9.52255
 2.46135   9.56929
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26822   6.04681
@@ -85822,7 +85822,7 @@ above
 2.53392   3.24474
 2.86055   2.91509
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.48492   11.0431
@@ -85903,7 +85903,7 @@ ID:Z=10 A=20
 2.26462   9.58709
 2.63196   9.35847
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28078   5.89276
@@ -85912,7 +85912,7 @@ above
 2.54334   3.05895
 2.86683   2.83523
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52472   11.5083
@@ -86003,7 +86003,7 @@ ID:Z=11 A=22
 2.28552   10.2052
 2.51706   9.94682
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32103   5.8686
@@ -86012,7 +86012,7 @@ above
 2.57974   3.06367
 2.90529   2.82377
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.57695   12.1428
@@ -86124,7 +86124,7 @@ ID:Z=12 A=24
 2.36908   11.2414
 2.48398   11.1624
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.31847   5.62217
@@ -86133,7 +86133,7 @@ above
 2.58103   2.80781
 2.90452   2.54601
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.61525   13.3126
@@ -86249,7 +86249,7 @@ ID:Z=13 A=26
 2.289   12.5585
 2.60759   12.5975
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26508   6.3767
@@ -86258,7 +86258,7 @@ above
 2.5245   3.54836
 2.85113   3.34764
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.51633   14.9585
@@ -86339,7 +86339,7 @@ ID:Z=10 A=20
 2.26636   9.56982
 2.60933   9.34919
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32799   6.31632
@@ -86348,7 +86348,7 @@ above
 2.58844   3.50733
 2.91226   3.27325
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.4598   11.7351
@@ -86463,7 +86463,7 @@ ID:Z=13 A=26
 2.26114   12.4025
 2.49791   12.2464
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.19053   4.32221
@@ -86472,7 +86472,7 @@ above
 2.65162   3.28526
 2.95815   3.37952
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.36558   14.3622
@@ -86575,7 +86575,7 @@ ID:Z=12 A=24
 2.38649   11.4661
 2.56581   11.3491
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.32799   5.1069
@@ -86584,7 +86584,7 @@ above
 2.6337   3.66339
 2.93837   3.62438
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.47236   13.8658
@@ -86673,7 +86673,7 @@ ID:Z=11 A=22
 2.24413   9.90766
 2.58186   9.50976
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24009   5.66332
@@ -86682,7 +86682,7 @@ above
 2.60206   4.29907
 2.92878   4.54539
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.13913   12.4467
@@ -86762,7 +86762,7 @@ ID:Z=10 A=20
 2.29001   9.15457
 2.67181   8.61625
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.14887   6.78806
@@ -86771,7 +86771,7 @@ above
 2.59045   4.07472
 2.92965   3.91027
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.42525   11.3587
@@ -86840,7 +86840,7 @@ ID:Z=8 A=16
 2.28634   6.7676
 2.62408   6.30041
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.06093   6.02724
@@ -86920,7 +86920,7 @@ ID:Z=10 A=20
 2.26248   9.22236
 2.56718   8.97716
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26267   5.6549
@@ -86990,7 +86990,7 @@ ID:Z=9 A=18
 2.28084   7.88131
 2.53598   7.43094
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.21256   6.21538
@@ -86999,7 +86999,7 @@ above
 2.54883   3.48487
 2.90308   3.05249
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.19053   10.5192
@@ -87069,7 +87069,7 @@ ID:Z=9 A=18
 2.27952   7.1774
 2.52136   6.76635
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28078   5.72788
@@ -87149,7 +87149,7 @@ ID:Z=10 A=20
 2.19847   9.80192
 2.62326   9.54537
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -87158,7 +87158,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3059   12.3361
@@ -87227,7 +87227,7 @@ ID:Z=11 A=22
 2.31511   10.3347
 2.52925   9.98361
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -87236,7 +87236,7 @@ above
 2.53273   4.71676
 2.85655   4.91183
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.41814   14.1803
@@ -87305,7 +87305,7 @@ ID:Z=9 A=18
 2.28029   8.57912
 2.5188   8.46208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -87314,7 +87314,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.34673   12.2815
@@ -87364,7 +87364,7 @@ ID:Z=7 A=14
 2.38997   6.74547
 2.61978   6.62843
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25251   6.42723
@@ -87434,7 +87434,7 @@ ID:Z=9 A=18
 2.25754   8.6757
 2.49309   8.56643
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24623   5.53352
@@ -87522,21 +87522,21 @@ ID:Z=10 A=20
 2.0848   9.51418
 2.55276   9.45889
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10176   5.41123
 2.10992   3.55546
 2.89824   3.38676
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3593   10.7582
 1.87751   10.5647
 2.70352   9.54183
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -87621,21 +87621,21 @@ ID:Z=10 A=20
 2.10678   9.57111
 2.57475   9.52686
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.08291   5.34091
 2.09108   3.47159
 2.8794   3.3125
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.375   10.611
 1.88693   10.7217
 2.71922   9.41623
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -87720,21 +87720,21 @@ ID:Z=10 A=20
 2.10364   9.60747
 2.57161   9.5689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10176   5.45291
 2.10678   3.58446
 2.8951   3.43695
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -87791,7 +87791,7 @@ ID:Z=7 A=14
 2.29523   6.14845
 2.68781   6.1125
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -87871,7 +87871,7 @@ ID:Z=9 A=18
 2.21357   8.33139
 2.58731   8.16274
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.2054   4.662
@@ -87956,7 +87956,7 @@ ID:Z=9 A=18
 2.62848   8.228
 2.74164   8.228
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.53169   10.4908
@@ -87964,7 +87964,7 @@ below
 2.6929   8.77419
 2.89311   8.61813
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28078   4.04843
@@ -88042,13 +88042,13 @@ ID:Z=9 A=18
 2.60411   8.14997
 2.74164   8.14997
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.4441   11.3228
 2.92651   8.2356
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.23681   5.56577
@@ -88130,13 +88130,13 @@ ID:Z=8 A=16
 2.56533   6.31602
 2.7255   6.09547
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 2
 1.53832   9.27941
 2.86055   6.40185
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.12374   5.36991
@@ -88208,7 +88208,7 @@ ID:Z=8 A=16
 2.26985   7.27639
 2.56058   6.95694
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43467   9.86743
@@ -88286,7 +88286,7 @@ ID:Z=9 A=18
 2.22299   8.41943
 2.51193   8.11665
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52889   10.9032
@@ -88294,7 +88294,7 @@ below
 2.23241   9.28949
 2.83229   8.36308
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 6
 1.22739   3.78866
@@ -88375,7 +88375,7 @@ ID:Z=9 A=18
 2.22613   8.30559
 2.51508   7.99594
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.54774   10.7517
@@ -88384,7 +88384,7 @@ below
 2.59673   8.56643
 2.76947   8.40253
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.3059   4.11136
@@ -88474,7 +88474,7 @@ ID:Z=10 A=20
 2.21671   9.25976
 2.56847   8.77068
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.30276   4.24595
@@ -88564,7 +88564,7 @@ ID:Z=10 A=20
 2.23555   8.11075
 2.43028   7.71193
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28078   4.86942
@@ -88573,7 +88573,7 @@ above
 2.54962   2.06522
 2.87312   1.80233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.56658   11.9969
@@ -88662,7 +88662,7 @@ ID:Z=10 A=20
 2.28266   8.86086
 2.51193   8.92331
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24623   5.48881
@@ -88671,7 +88671,7 @@ above
 2.51193   2.69958
 2.83543   2.36654
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.45038   10.2763
@@ -88752,7 +88752,7 @@ ID:Z=10 A=20
 2.26462   9.58709
 2.63196   9.35847
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28392   6.03796
@@ -88761,7 +88761,7 @@ above
 2.54334   3.19219
 2.86683   2.95748
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.52472   11.5083
@@ -88852,7 +88852,7 @@ ID:Z=11 A=22
 2.28552   10.2052
 2.51706   9.94682
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.27764   5.98161
@@ -88861,7 +88861,7 @@ above
 2.53706   3.19075
 2.86369   2.93233
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.57695   12.1428
@@ -88973,7 +88973,7 @@ ID:Z=12 A=24
 2.36908   11.2414
 2.48398   11.1624
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26193   4.78558
@@ -88982,7 +88982,7 @@ above
 2.5245   1.96292
 2.84485   1.70396
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.61525   13.3126
@@ -89107,7 +89107,7 @@ ID:Z=13 A=26
 2.289   12.5585
 2.60759   12.5975
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.20854   5.3077
@@ -89116,7 +89116,7 @@ above
 2.46796   2.48674
 2.79146   2.29049
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.51633   14.9585
@@ -89205,7 +89205,7 @@ ID:Z=10 A=20
 2.26636   9.56982
 2.60933   9.34919
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.2745   5.1483
@@ -89214,7 +89214,7 @@ above
 2.53392   2.32372
 2.85741   2.09077
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.4598   11.7351
@@ -89329,7 +89329,7 @@ ID:Z=13 A=26
 2.26114   12.4025
 2.49791   12.2464
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.19053   4.32221
@@ -89338,7 +89338,7 @@ above
 2.65162   3.28526
 2.95815   3.37952
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.36558   14.3622
@@ -89441,7 +89441,7 @@ ID:Z=12 A=24
 2.38649   11.4661
 2.56581   11.3491
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28392   5.20571
@@ -89450,7 +89450,7 @@ above
 2.58731   3.7639
 2.89196   3.71331
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.47236   13.8658
@@ -89539,7 +89539,7 @@ ID:Z=11 A=22
 2.24413   9.90766
 2.58186   9.50976
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.23367   5.38888
@@ -89548,7 +89548,7 @@ above
 2.59359   4.04234
 2.92023   4.28966
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.13913   12.4467
@@ -89636,7 +89636,7 @@ ID:Z=4 A=9
 2.19158   3.90498
 2.59045   3.49769
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.14573   5.88942
@@ -89645,7 +89645,7 @@ above
 2.58417   3.15778
 2.92651   2.99388
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.42525   11.3587
@@ -89714,7 +89714,7 @@ ID:Z=8 A=16
 2.28634   6.7676
 2.62408   6.30041
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.02952   4.84489
@@ -89802,7 +89802,7 @@ ID:Z=4 A=9
 2.16646   3.32998
 2.6093   2.91996
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25251   4.46897
@@ -89880,7 +89880,7 @@ ID:Z=9 A=18
 2.28084   7.88131
 2.53598   7.43094
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.17401   5.3359
@@ -89889,7 +89889,7 @@ above
 2.51028   2.60047
 2.8627   2.17037
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.19053   10.5192
@@ -89959,7 +89959,7 @@ ID:Z=9 A=18
 2.27952   7.1774
 2.52136   6.76635
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.28706   5.67515
@@ -90039,7 +90039,7 @@ ID:Z=10 A=20
 2.19847   9.80192
 2.62326   9.54537
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -90048,7 +90048,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3059   12.3361
@@ -90117,7 +90117,7 @@ ID:Z=11 A=22
 2.31511   10.3347
 2.52925   9.98361
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25662   6.78449
@@ -90126,7 +90126,7 @@ above
 2.53273   4.71676
 2.85655   4.91183
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 4
 1.41814   14.1803
@@ -90195,7 +90195,7 @@ ID:Z=9 A=18
 2.28029   8.57912
 2.5188   8.46208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25313   5.99861
@@ -90204,7 +90204,7 @@ above
 2.52751   3.92882
 2.85306   4.10251
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 5
 1.34673   12.2815
@@ -90254,7 +90254,7 @@ ID:Z=7 A=14
 2.38997   6.74547
 2.61978   6.62843
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.25251   6.42723
@@ -90324,7 +90324,7 @@ ID:Z=9 A=18
 2.25754   8.6757
 2.49309   8.56643
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24623   5.53352
@@ -90412,21 +90412,21 @@ ID:Z=10 A=20
 2.0848   9.51418
 2.55276   9.45889
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10176   5.41123
 2.10992   3.55546
 2.89824   3.38676
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3593   10.7582
 1.87751   10.5647
 2.70352   9.54183
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -90511,21 +90511,21 @@ ID:Z=10 A=20
 2.10678   9.57111
 2.57475   9.52686
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.08291   5.34091
 2.09108   3.47159
 2.8794   3.3125
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.375   10.611
 1.88693   10.7217
 2.71922   9.41623
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -90610,21 +90610,21 @@ ID:Z=10 A=20
 2.10364   9.60747
 2.57161   9.5689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10176   5.45291
 2.10678   3.58446
 2.8951   3.43695
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -90681,7 +90681,7 @@ ID:Z=7 A=14
 2.29523   6.14845
 2.68781   6.1125
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.24965   4.71676
@@ -90761,7 +90761,7 @@ ID:Z=9 A=18
 2.21357   8.33139
 2.58731   8.16274
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.2054   4.662
@@ -90951,7 +90951,7 @@ ID:Z=20 A=41
 2.15655   20.0398
 2.27676   20.0398
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26404   7.39979
@@ -91141,7 +91141,7 @@ ID:Z=20 A=41
 2.15655   20.0398
 2.27676   20.0398
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 5
 1.26404   7.39979
@@ -91249,7 +91249,7 @@ ID:Z=12 A=24
 2.02827   11.7898
 2.05653   11.7351
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
@@ -91361,14 +91361,14 @@ ID:Z=14 A=28
 1.9612   13.0614
 2.02517   12.9938
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.66828   5.70101
 2.18846   4.35048
 2.51672   4.1479
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.74067   13.2977
@@ -91481,14 +91481,14 @@ ID:Z=14 A=28
 1.87123   13.2393
 2.0848   13.0498
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17399   6.67113
 2.18846   4.35048
 2.97048   4.61858
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
@@ -91611,14 +91611,14 @@ ID:Z=14 A=28
 1.86809   13.5073
 2.08166   13.2962
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17085   6.08864
 2.1853   3.76652
 2.96734   4.03794
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
@@ -91741,21 +91741,21 @@ ID:Z=14 A=28
 1.83354   13.6094
 2.09736   13.2534
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -91877,21 +91877,21 @@ ID:Z=14 A=28
 1.83354   13.6094
 2.09736   13.2534
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -92014,21 +92014,21 @@ ID:Z=14 A=28
 1.78643   13.5606
 2.32977   12.9201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -92151,21 +92151,21 @@ ID:Z=14 A=28
 1.78643   13.5606
 2.32977   12.9201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -92288,21 +92288,21 @@ ID:Z=14 A=28
 1.78643   13.5606
 2.32977   12.9201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -92447,21 +92447,21 @@ ID:Z=16 A=32
 2.05967   15.6781
 2.24183   15.6054
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15515   6.69091
 2.1696   4.39862
 2.95163   4.65332
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -92614,21 +92614,21 @@ ID:Z=17 A=34
 2.21671   16.0722
 2.27952   16.0722
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -92781,21 +92781,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -92948,21 +92948,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93115,21 +93115,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11432   5.56163
 2.12877   3.26705
 2.91394   3.54021
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93282,21 +93282,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93456,21 +93456,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.09548   5.67089
 2.10992   3.37631
 2.8951   3.64948
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93631,21 +93631,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93806,21 +93806,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -93981,21 +93981,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -94156,21 +94156,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -94331,21 +94331,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -94506,21 +94506,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   17.2978
@@ -94681,21 +94681,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   17.2978
@@ -94856,21 +94856,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   17.2978
@@ -95031,21 +95031,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   17.2978
@@ -95206,21 +95206,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   17.2978
@@ -95388,21 +95388,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -95570,21 +95570,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -95752,21 +95752,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -95934,21 +95934,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -96071,13 +96071,13 @@ ID:Z=14 A=28
 2.11621   13.3237
 2.26068   12.9265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.64824   15.4544
@@ -96212,14 +96212,14 @@ ID:Z=16 A=32
 2.07734   15.5571
 2.20511   15.521
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.64969   6.60123
 2.16962   5.22897
 2.4979   5.0484
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.73309   16.4599
@@ -96358,14 +96358,14 @@ ID:Z=17 A=34
 1.97586   16.179
 2.16262   15.9914
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17399   6.67113
 2.18846   4.35048
 2.97048   4.61858
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40323   16.0289
@@ -96509,14 +96509,14 @@ ID:Z=17 A=34
 1.9843   17.0547
 2.19158   16.7992
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.16457   6.4347
 2.17902   4.09904
 2.9642   4.391
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   16.5438
@@ -96671,21 +96671,21 @@ ID:Z=18 A=37
 1.89008   17.5856
 2.10364   18.0934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1897   7.0292
 2.20101   4.70752
 2.98618   4.96145
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.45352   17.0052
 1.96231   18.8552
 2.77889   17.3316
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.14447   18.7464
@@ -96843,21 +96843,21 @@ ID:Z=18 A=37
 2.14761   18.8191
 2.22613   19.0861
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.7448
 1.90264   19.6023
 2.71922   18.0726
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.19158   19.5437
@@ -97020,21 +97020,21 @@ ID:Z=19 A=39
 2.04711   17.7688
 2.21357   17.8059
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.064
 1.90264   18.9187
 2.71922   17.3607
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.13505   19.5865
@@ -97157,21 +97157,21 @@ ID:Z=14 A=28
 1.78643   13.5606
 2.32977   12.9201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -97294,21 +97294,21 @@ ID:Z=14 A=28
 1.78643   13.5606
 2.32977   12.9201
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   12.513
 1.90264   14.3819
 2.72236   12.8604
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.24183   14.262
@@ -97471,21 +97471,21 @@ ID:Z=19 A=39
 2.1569   18.5716
 2.24942   18.4581
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15515   6.69091
 2.1696   4.39862
 2.95163   4.65332
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39048   18.0179
 1.89166   19.8754
 2.71051   18.3457
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -97646,21 +97646,21 @@ ID:Z=19 A=39
 2.07852   18.0428
 2.22613   17.9677
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.35302   17.142
 1.85553   19.0187
 2.67525   17.4798
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.19786   18.5307
@@ -97813,21 +97813,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -97980,21 +97980,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -98147,21 +98147,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11432   5.56163
 2.12877   3.26705
 2.91394   3.54021
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -98314,21 +98314,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -98488,21 +98488,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.09862   6.17106
 2.10992   3.88008
 2.8951   4.15658
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -98663,21 +98663,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.19786   17.2605
@@ -98838,21 +98838,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -99013,21 +99013,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   15.8601
 1.9152   17.7157
 2.73492   16.1875
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -99188,21 +99188,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41583   16.1667
 1.91834   18.0433
 2.73807   16.5045
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -99363,21 +99363,21 @@ ID:Z=18 A=37
 2.20101   17.1896
 2.32349   17.1607
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10804   6.34062
 2.11621   4.45776
 2.9108   4.30085
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40327   16.2937
 1.90578   18.1723
 2.7255   16.6405
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.2544   17.2848
@@ -99538,21 +99538,21 @@ ID:Z=18 A=37
 2.1853   18.2392
 2.30779   18.2014
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11118   6.40594
 2.11935   4.55345
 2.90766   4.40223
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   17.3319
 1.91206   19.1844
 2.73178   17.6343
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21357   18.6929
@@ -99721,21 +99721,21 @@ ID:Z=19 A=39
 2.06281   18.5258
 2.19786   18.5258
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41897   17.5857
 1.92148   19.466
 2.74121   17.9383
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.17902   19.1134
@@ -99910,21 +99910,21 @@ ID:Z=20 A=41
 2.13505   19.2459
 2.17274   19.2459
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38442   18.236
 1.88693   20.1005
 2.70666   18.5856
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.15389   19.8674
@@ -100101,21 +100101,21 @@ ID:Z=20 A=41
 2.04711   19.1877
 2.26068   19.2274
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.3945
 1.90892   20.219
 2.72864   18.7118
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.23869   19.7034
@@ -100291,21 +100291,21 @@ ID:Z=20 A=41
 2.01256   19.6588
 2.22613   19.7417
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.9124
 1.90892   20.7784
 2.72864   19.2441
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.17274   20.7369
@@ -100487,21 +100487,21 @@ ID:Z=21 A=43
 1.95289   21.2959
 2.14447   21.2413
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41897   22.17
 1.9309   22.2793
 2.76319   20.9681
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -100669,21 +100669,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -100851,21 +100851,21 @@ ID:Z=19 A=39
 1.99372   18.1764
 2.30151   18.0167
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -101033,21 +101033,21 @@ ID:Z=19 A=39
 1.99686   18.9351
 2.30465   18.7869
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   19.2314
 1.90892   19.3425
 2.74121   18.009
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -101170,13 +101170,13 @@ ID:Z=14 A=28
 2.19472   14.9038
 2.3392   14.4668
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.70791   17.1438
@@ -101311,14 +101311,14 @@ ID:Z=16 A=32
 2.30151   14.6307
 2.43028   14.6307
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.64969   6.60123
 2.16962   5.22897
 2.4979   5.0484
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.89322   15.6141
@@ -101457,14 +101457,14 @@ ID:Z=17 A=34
 2.17902   16.0511
 2.36432   15.8326
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17399   6.67113
 2.18846   4.35048
 2.97048   4.61858
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40323   16.0289
@@ -101608,14 +101608,14 @@ ID:Z=17 A=34
 2.18844   16.7614
 2.39573   16.4882
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.16457   6.4347
 2.17902   4.09904
 2.9642   4.391
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   16.5438
@@ -101770,21 +101770,21 @@ ID:Z=18 A=37
 2.04711   17.1438
 2.26068   17.6355
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1897   7.0292
 2.20101   4.70752
 2.98618   4.96145
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.45352   17.0052
 1.96231   18.8552
 2.77889   17.3316
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22299   19.0013
@@ -101942,21 +101942,21 @@ ID:Z=18 A=37
 2.14761   18.8191
 2.22613   19.0861
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.7994
 1.90264   19.6569
 2.71922   18.1272
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   19.9847
@@ -102119,21 +102119,21 @@ ID:Z=19 A=39
 2.04711   17.7688
 2.21357   17.8059
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39384   17.064
 1.90264   18.9187
 2.71922   17.3607
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.13505   19.5865
@@ -102296,21 +102296,21 @@ ID:Z=19 A=39
 2.1569   18.5716
 2.24942   18.4581
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15515   6.69091
 2.1696   4.39862
 2.95163   4.65332
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39048   18.0179
 1.89166   19.8754
 2.71051   18.3457
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -102471,21 +102471,21 @@ ID:Z=19 A=39
 2.07852   18.0428
 2.22613   17.9677
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.35302   17.142
 1.85553   19.0187
 2.67525   17.4798
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.19786   18.5307
@@ -102639,21 +102639,21 @@ ID:Z=18 A=37
 2.28726   17.8887
 2.55884   16.7933
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39937   17.7435
 1.90599   19.6077
 2.72597   18.0542
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.41435   19.3818
@@ -102806,21 +102806,21 @@ ID:Z=18 A=37
 2.32663   18.0445
 2.5867   17.9104
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.4441   17.417
 1.94661   19.2745
 2.76633   17.7448
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.51822   19.1235
@@ -102973,21 +102973,21 @@ ID:Z=18 A=37
 2.23555   17.854
 2.35804   17.7994
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11432   5.56163
 2.12877   3.26705
 2.91394   3.54021
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.4598   18.5642
 1.96231   20.4218
 2.78204   18.892
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39573   18.6189
@@ -103140,21 +103140,21 @@ ID:Z=18 A=37
 2.27324   17.8702
 2.39573   17.8265
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.46608   17.3451
 1.96859   19.1831
 2.78832   17.6514
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   18.6142
@@ -103314,21 +103314,21 @@ ID:Z=18 A=37
 2.34862   17.9633
 2.47111   17.9087
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.09862   6.17106
 2.10992   3.88008
 2.8951   4.15658
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42525   17.5262
 1.92776   19.3837
 2.74749   17.854
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.42085   18.455
@@ -103489,21 +103489,21 @@ ID:Z=18 A=37
 2.35804   17.2531
 2.48053   17.1984
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41269   17.1438
 1.9152   19.0013
 2.73492   17.4716
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.41771   17.4716
@@ -103664,21 +103664,21 @@ ID:Z=18 A=37
 2.33606   18.1818
 2.45854   18.1272
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.44095   17.5809
 1.94347   19.4384
 2.76319   17.9087
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.46168   17.7994
@@ -103839,21 +103839,21 @@ ID:Z=18 A=37
 2.35176   17.9633
 2.47425   17.9087
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.46294   17.5262
 1.96545   19.3837
 2.78518   17.854
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.4397   18.6735
@@ -104014,21 +104014,21 @@ ID:Z=18 A=37
 2.36118   18.0726
 2.48367   18.0179
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.3907   17.0892
 1.89322   18.9467
 2.71294   17.417
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.5402   17.6355
@@ -104189,21 +104189,21 @@ ID:Z=18 A=37
 2.3392   16.1058
 2.46168   16.1058
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10804   6.34062
 2.11621   4.45776
 2.9108   4.30085
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40327   16.2937
 1.90578   18.1723
 2.7255   16.6405
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.44912   17.7994
@@ -104364,21 +104364,21 @@ ID:Z=18 A=37
 2.1853   18.2392
 2.30779   18.2014
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11118   6.40594
 2.11935   4.55345
 2.90766   4.40223
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40955   17.3319
 1.91206   19.1844
 2.73178   17.6343
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.44284   19.6023
@@ -104547,21 +104547,21 @@ ID:Z=19 A=39
 2.18216   18.0726
 2.31721   18.0726
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41897   17.5857
 1.92148   19.466
 2.74121   17.9383
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.37688   19.3291
@@ -104736,21 +104736,21 @@ ID:Z=20 A=41
 2.13505   19.2459
 2.17274   19.2459
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38442   18.236
 1.88693   20.1005
 2.70666   18.5856
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.2701   20.4218
@@ -104927,21 +104927,21 @@ ID:Z=20 A=41
 2.04711   19.1877
 2.26068   19.2274
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.3945
 1.90892   20.219
 2.72864   18.7118
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.26696   19.8208
@@ -105117,21 +105117,21 @@ ID:Z=20 A=41
 2.01256   19.6588
 2.22613   19.7417
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.9124
 1.90892   20.7784
 2.72864   19.2441
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22299   21.0227
@@ -105313,21 +105313,21 @@ ID:Z=21 A=43
 1.95289   21.2959
 2.14447   21.2413
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41897   22.17
 1.9309   22.2793
 2.76319   20.9681
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -105495,21 +105495,21 @@ ID:Z=19 A=39
 1.99372   18.1997
 2.30151   18.0481
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -105677,21 +105677,21 @@ ID:Z=19 A=39
 1.99372   18.1764
 2.30151   18.0167
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40013   18.8822
 1.9152   18.996
 2.74435   17.6689
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -105859,21 +105859,21 @@ ID:Z=19 A=39
 1.99686   18.9351
 2.30465   18.7869
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   19.2314
 1.90892   19.3425
 2.74121   18.009
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -106024,13 +106024,13 @@ ID:Z=18 A=37
 2.2858   16.9799
 2.34862   16.7067
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.72676   19.9301
@@ -106200,14 +106200,14 @@ ID:Z=20 A=41
 2.17593   19.9998
 2.21561   20.0318
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.66799   7.09754
 2.18651   5.72088
 2.51455   5.52878
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.83995   20.8002
@@ -106370,14 +106370,14 @@ ID:Z=20 A=41
 2.17902   18.9696
 2.27952   18.8171
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17399   6.67113
 2.18846   4.35048
 2.97048   4.61858
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.33103   19.9301
@@ -106555,14 +106555,14 @@ ID:Z=20 A=41
 2.04083   20.0032
 2.22613   20.0447
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.16457   6.4347
 2.17902   4.09904
 2.9642   4.391
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38442   19.63
@@ -106734,21 +106734,21 @@ ID:Z=20 A=41
 2.04711   19.8075
 2.13505   20.1379
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1897   7.0292
 2.20101   4.70752
 2.98618   4.96145
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.45038   18.6327
 1.95603   20.5051
 2.77261   18.9631
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.38317   18.9631
@@ -106924,21 +106924,21 @@ ID:Z=20 A=41
 2.04083   20.1486
 2.2544   20.6403
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42839   20.8042
 1.94033   22.6071
 2.75377   21.132
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   19.9847
@@ -107109,21 +107109,21 @@ ID:Z=20 A=41
 2.04397   18.435
 2.26696   18.3969
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36558   18.2448
 1.87751   20.07
 2.69095   18.511
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.13505   19.5865
@@ -107286,21 +107286,21 @@ ID:Z=19 A=39
 2.18216   18.5642
 2.27638   18.455
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15515   6.69091
 2.1696   4.39862
 2.95163   4.65332
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39048   18.0179
 1.89166   19.8754
 2.71051   18.3457
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.28266   19.2219
@@ -107461,21 +107461,21 @@ ID:Z=19 A=39
 2.07538   18.1385
 2.21985   18.0642
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.37186   17.6555
 1.87437   19.513
 2.69095   17.9899
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.23555   18.7329
@@ -107628,21 +107628,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38545   16.0263
 1.89206   17.8772
 2.71205   16.3614
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.21985   17.3155
@@ -107795,21 +107795,21 @@ ID:Z=18 A=37
 2.20101   17.0096
 2.32663   16.9689
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42201   16.3819
 1.92862   18.2545
 2.74861   16.733
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.20891   18.3326
@@ -107971,21 +107971,21 @@ ID:Z=19 A=38
 2.11307   17.6067
 2.44598   17.4073
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11432   5.56163
 2.12877   3.26705
 2.91394   3.54021
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.4598   18.5642
 1.96231   20.4218
 2.78204   18.892
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39573   18.6189
@@ -108154,21 +108154,21 @@ ID:Z=20 A=41
 2.07852   19.0008
 2.26068   18.774
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.47864   18.774
 1.98116   20.5886
 2.80402   19.0764
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   18.6142
@@ -108344,21 +108344,21 @@ ID:Z=20 A=41
 1.94661   20.2579
 2.20729   20.3671
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.09862   6.17106
 2.10992   3.88008
 2.8951   4.15658
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42211   20.4764
 1.93405   21.132
 2.74749   20.8042
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   21.8969
@@ -108536,21 +108536,21 @@ ID:Z=20 A=41
 2.07852   18.892
 2.32035   18.3457
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   19.6023
 1.89636   21.4052
 2.71608   19.9301
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.41771   17.4716
@@ -108728,21 +108728,21 @@ ID:Z=20 A=41
 2.02198   19.8208
 2.19472   19.4384
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42211   20.8588
 1.9309   22.7163
 2.74749   21.1866
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.46168   17.7994
@@ -108919,21 +108919,21 @@ ID:Z=20 A=41
 2.11546   19.4814
 2.18087   19.2623
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.45666   19.8208
 1.95603   21.6783
 2.77889   20.1486
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.4397   18.6735
@@ -109115,21 +109115,21 @@ ID:Z=20 A=41
 2.04964   19.259
 2.24138   18.7664
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   19.2745
 1.8995   21.1866
 2.71922   19.6023
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.33606   19.2198
@@ -109310,21 +109310,21 @@ ID:Z=20 A=41
 2.09361   19.1945
 2.38298   18.8552
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10804   6.34062
 2.11621   4.45776
 2.9108   4.30085
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36799   19.1266
 1.87001   20.9926
 2.68989   19.4659
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34234   20.3125
@@ -109504,21 +109504,21 @@ ID:Z=20 A=41
 2.04397   20.0203
 2.22299   20.0618
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11118   6.40594
 2.11935   4.55345
 2.90766   4.40223
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.4139   19.2141
 1.91701   21.0603
 2.73651   19.5218
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.44284   19.6023
@@ -109695,21 +109695,21 @@ ID:Z=20 A=41
 2.04599   19.5589
 2.25502   19.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40496   18.9728
 1.90663   20.8691
 2.72603   19.3176
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.37688   19.3291
@@ -109884,21 +109884,21 @@ ID:Z=20 A=41
 2.16583   19.4768
 2.20485   19.4768
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41611   19.4525
 1.91778   21.322
 2.73997   19.8167
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.2701   20.4218
@@ -110075,21 +110075,21 @@ ID:Z=20 A=41
 2.0432   19.3961
 2.2578   19.465
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.3945
 1.90892   20.219
 2.72864   18.7118
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.26696   19.8208
@@ -110265,21 +110265,21 @@ ID:Z=20 A=41
 2.01256   19.6588
 2.22613   19.7417
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40641   18.9124
 1.90892   20.7784
 2.72864   19.2441
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.29404   20.8035
@@ -110461,21 +110461,21 @@ ID:Z=21 A=43
 1.95289   21.2959
 2.14447   21.2413
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41897   22.17
 1.9309   22.2793
 2.76319   20.9681
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -110643,21 +110643,21 @@ ID:Z=19 A=39
 1.99025   18.5576
 2.29682   18.4292
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39939   19.2957
 1.91499   19.392
 2.74275   18.0762
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -110832,21 +110832,21 @@ ID:Z=20 A=41
 2.00314   20.5857
 2.24497   19.8208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42211   22.4432
 1.94033   22.5524
 2.76633   21.2413
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22613   20.5857
@@ -111021,21 +111021,21 @@ ID:Z=20 A=41
 1.99686   20.5994
 2.29523   20.5552
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39698   21.6601
 1.91206   21.7485
 2.74435   20.4226
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   21.3949
@@ -111200,13 +111200,13 @@ ID:Z=18 A=37
 2.29523   17.1447
 2.36118   16.8657
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.77073   21.515
@@ -111365,13 +111365,13 @@ ID:Z=18 A=37
 2.29303   17.5461
 2.38699   17.356
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 2
 1.54146   1.95586
 2.83543   1.84659
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.76137   21.4676
@@ -111541,14 +111541,14 @@ ID:Z=20 A=41
 2.20729   21.1817
 2.24497   21.1817
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.66799   7.09754
 2.18651   5.72088
 2.51455   5.52878
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.84925   21.5773
@@ -111718,14 +111718,14 @@ ID:Z=20 A=41
 2.23869   19.9673
 2.27638   20.0053
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.66799   7.09754
 2.18651   5.72088
 2.51455   5.52878
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.83995   20.8002
@@ -111888,14 +111888,14 @@ ID:Z=20 A=41
 2.20336   19.3897
 2.3029   19.2446
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.17399   6.67113
 2.18846   4.35048
 2.97048   4.61858
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.33103   19.9301
@@ -112073,14 +112073,14 @@ ID:Z=20 A=41
 2.04083   20.0032
 2.22613   20.0447
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.16457   6.4347
 2.17902   4.09904
 2.9642   4.391
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38442   19.63
@@ -112252,21 +112252,21 @@ ID:Z=20 A=41
 2.12088   19.3936
 2.2062   19.7443
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1897   7.0292
 2.20101   4.70752
 2.98618   4.96145
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.52076   18.887
 2.02702   20.7575
 2.84329   19.1988
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.38317   18.9631
@@ -112442,21 +112442,21 @@ ID:Z=20 A=41
 2.0583   19.8106
 2.27162   20.2883
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.4525   19.5902
 1.96445   21.3905
 2.77787   19.8841
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   19.9847
@@ -112627,21 +112627,21 @@ ID:Z=20 A=41
 2.11519   18.4869
 2.33987   18.4523
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.18342   6.45993
 2.19786   4.14601
 2.9799   4.413
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36558   18.2448
 1.87751   20.07
 2.69095   18.511
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.33134   19.804
@@ -112804,21 +112804,21 @@ ID:Z=19 A=39
 2.27446   18.5885
 2.36832   18.487
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.15515   6.69091
 2.1696   4.39862
 2.95163   4.65332
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39048   18.0179
 1.89166   19.8754
 2.71051   18.3457
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.35125   19.2318
@@ -112979,21 +112979,21 @@ ID:Z=19 A=39
 2.15216   18.2719
 2.29437   18.1688
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.37186   17.6555
 1.87437   19.513
 2.69095   17.9899
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27446   18.8219
@@ -113166,21 +113166,21 @@ ID:Z=20 A=41
 2.1149   18.6039
 2.34471   17.7671
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43767   18.8397
 1.94429   20.7124
 2.76428   19.1909
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.11316   21.6877
@@ -113354,21 +113354,21 @@ ID:Z=20 A=41
 2.11838   18.6889
 2.29074   17.9881
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42897   18.6837
 1.93558   20.5563
 2.75557   19.0348
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.17235   20.8522
@@ -113539,21 +113539,21 @@ ID:Z=19 A=39
 2.11519   18.0281
 2.44795   17.8219
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11432   5.56163
 2.12877   3.26705
 2.91394   3.54021
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.46608   19.5188
 1.96545   21.3735
 2.78832   19.8414
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.39573   18.6189
@@ -113722,21 +113722,21 @@ ID:Z=20 A=41
 2.08446   19.4003
 2.26745   19.1828
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   6.087
 2.14133   3.80465
 2.92337   4.04919
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.47864   18.774
 1.98116   20.5886
 2.80402   19.0764
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34862   18.6142
@@ -113912,21 +113912,21 @@ ID:Z=20 A=41
 1.98311   19.7114
 2.24212   19.8194
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12162   7.03426
 2.13514   4.72933
 2.91779   5.01745
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.42211   20.4764
 1.93405   21.132
 2.74749   20.8042
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   21.8969
@@ -114104,21 +114104,21 @@ ID:Z=20 A=41
 2.09854   19.994
 2.34065   19.4503
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36374   18.9065
 1.86486   20.6827
 2.68412   19.2328
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.32658   20.0665
@@ -114296,21 +114296,21 @@ ID:Z=20 A=41
 2.08446   22.4729
 2.25901   22.0992
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41441   19.1097
 1.92399   20.9781
 2.74043   19.4367
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.41104   21.1183
@@ -114487,21 +114487,21 @@ ID:Z=20 A=41
 2.19426   20.0277
 2.25901   19.7887
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.36655   18.2862
 1.86486   20.1643
 2.68694   18.6277
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.43356   19.2423
@@ -114683,21 +114683,21 @@ ID:Z=20 A=41
 2.1295   20.3731
 2.32095   19.8504
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12688   5.44537
 2.13505   3.56774
 2.92651   3.41128
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.38345   18.2823
 1.88739   20.1989
 2.70664   18.5959
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.33606   19.2198
@@ -114878,21 +114878,21 @@ ID:Z=20 A=41
 2.09854   19.7552
 2.38851   19.429
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.10804   6.34062
 2.11621   4.45776
 2.9108   4.30085
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.35529   17.9066
 1.85642   19.7915
 2.67849   18.2691
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34234   20.3125
@@ -115072,21 +115072,21 @@ ID:Z=20 A=41
 2.12106   20.2879
 2.30124   20.3224
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.11118   6.40594
 2.11935   4.55345
 2.90766   4.40223
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.45946   18.0502
 1.9634   19.9093
 2.78266   18.3601
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.34347   19.5994
@@ -115263,21 +115263,21 @@ ID:Z=20 A=41
 2.04599   19.5589
 2.25502   19.5934
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40496   18.9728
 1.90663   20.8691
 2.72603   19.3176
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.37688   19.3291
@@ -115452,21 +115452,21 @@ ID:Z=20 A=41
 2.15484   20.7125
 2.19426   20.7125
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41723   17.4164
 1.91836   19.3152
 2.74043   17.7746
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.28435   20.4617
@@ -115643,21 +115643,21 @@ ID:Z=20 A=41
 2.0432   19.3961
 2.2578   19.465
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.43131   17.1246
 1.93243   18.93
 2.75169   17.4135
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.37725   19.9049
@@ -115833,21 +115833,21 @@ ID:Z=20 A=41
 2.01256   19.6588
 2.22613   19.7417
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.12725   6.13571
 2.13514   4.27752
 2.92624   4.13178
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.41441   17.0298
 1.91554   18.8879
 2.7348   17.3577
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.29404   20.8035
@@ -116029,21 +116029,21 @@ ID:Z=21 A=43
 1.95289   21.2959
 2.14447   21.2413
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40878   18.9194
 1.92117   19.0278
 2.7545   17.7263
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -116211,21 +116211,21 @@ ID:Z=19 A=39
 2.00282   18.4875
 2.30968   18.3764
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.39939   19.2957
 1.91499   19.392
 2.74275   18.0762
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.27324   18.8064
@@ -116400,21 +116400,21 @@ ID:Z=20 A=41
 2.00314   20.5857
 2.24497   19.8208
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.40878   19.3413
 1.9268   19.4563
 2.7545   18.1524
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.25056   20.6068
@@ -116589,21 +116589,21 @@ ID:Z=20 A=41
 1.99686   20.5994
 2.29523   20.5552
 +KVIDCutLine
-OK:BelowLine
+OK: AboveLine
 above
 3
 1.1049   6.09917
 2.11307   4.23947
 2.90452   4.07775
 +KVIDCutLine
-OK:AboveLine
+OK: BelowLine
 below
 3
 1.35529   19.3652
 1.8705   19.4769
 2.70383   18.1367
 +KVIDCutLine
-OK:RightLine
+OK: LeftLine
 left
 2
 2.22927   21.3949

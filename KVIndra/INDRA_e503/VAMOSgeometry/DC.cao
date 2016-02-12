@@ -12,9 +12,9 @@ DC.NABS: 3
 DC.ABS.1.MATERIAL: Myl
 DC.ABS.1.THICK: 0.00009
 
-# gaz 
+# gaz
 DC.ABS.2.MATERIAL: C4H10
-DC.ABS.2.THICK: 24.76
+DC.ABS.2.THICK: 13.00
 
 # second mylar windows 0.9 um
 DC.ABS.3.MATERIAL: Myl

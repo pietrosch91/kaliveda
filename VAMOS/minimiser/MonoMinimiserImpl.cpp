@@ -1,44 +1,8 @@
-//Author: Peter C. Wigg
-//Created Sun 17 Jan 20:43:44  2016
+// Author: Peter C. Wigg
+// Created Sun 17 Jan 20:43:44  2016
 
-
-///
-/// @file MonoMinimiserImpl.cpp
-///
-/// @section Description
-///
-/// Standard implementation of the silicon energy minimiser. This class
-/// implements the minimisation by using two while loops operating in different
-/// directions (in terms of A value), both starting from the same initial ansatz
-/// that A is most likely to be around to 2Z. It is essentially the single
-/// threaded version of the ThreadedMassEstimator, operating to reduce the
-/// difference between the observed and simulated silicon detector energies in
-/// order to determine the most likely value for A.
-///
-/// The bisection method previously used has been replaced by this "brute force"
-/// method. The reasoning behind this decision is that the bisection method
-/// relies upon the function being well behaved and passing through delta = 0
-/// with positive values on one side of the minimum and negative ones on the
-/// other. However due to the large A range being used, this does not seem to be
-/// guaranteed.  For example if one takes a value in A which is too large, the
-/// energy calculation can result in something quite extreme and using the
-/// bisection method you will lose 1/2 of the available solution space from this
-/// single error.
-///
-/// On my desktop this algorithm processes at about 85 events/s compared with
-/// 120 events/s for the threaded version (ThreadedMassEstimator).
-///
-/// @note: It is important that you keep the public interface (public member
-/// functions) of the implementation classes in agreement with those in this
-/// class, as all functions are simple passed off to the implementation class.
-/// For example SiliconEnergyMinimiser::SetIDTelescope() simply calls
-/// MonoMinimiserImpl::SetIDTelescope().
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Sun 17 Jan 20:43:44  2016
-///
-
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // MonoMinimiserImpl.cpp
 //
 // Description
@@ -61,8 +25,8 @@
 // bisection method you will lose 1/2 of the available solution space from this
 // single error.
 //
-// On my desktop this algorithm processes at about 85 events/s compared with
-// 120 events/s for the threaded version (ThreadedMassEstimator).
+// On my desktop this algorithm processes at about 85 events/s compared with 220
+// events/s for the threaded version (ThreadedMassEstimator).
 //
 // Note: It is important that you keep the public interface (public member
 // functions) of the implementation classes in agreement with those in this
@@ -72,16 +36,19 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Sun 17 Jan 20:43:44  2016
-//////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "MonoMinimiserImpl.h"
 
 ClassImp(MonoMinimiserImpl)
 
+//______________________________________________________________________________
+
 MonoMinimiserImpl::MonoMinimiserImpl() :
    kInitialised_(kFALSE),
    kTelescopeSet_(kFALSE),
-   max_iterations_(1000),
+   max_iterations_(25),
    tolerance_(0.05),
 #if __cplusplus < 201103L
    sim_parameters_(NULL),
@@ -95,6 +62,8 @@ MonoMinimiserImpl::MonoMinimiserImpl() :
 {
 
 }
+
+//______________________________________________________________________________
 
 MonoMinimiserImpl::~MonoMinimiserImpl()
 {
@@ -116,9 +85,11 @@ MonoMinimiserImpl::~MonoMinimiserImpl()
 #endif
 }
 
-void MonoMinimiserImpl::Init()
+//______________________________________________________________________________
+
+Bool_t MonoMinimiserImpl::Init()
 {
-   if (kInitialised_) return;
+   if (kInitialised_) return kTRUE;
 
 #if __cplusplus < 201103L
    sim_parameters_ = new struct me::SimulationParameters();
@@ -130,18 +101,21 @@ void MonoMinimiserImpl::Init()
    stack_.reset(new MEDetectorStack());
 #endif
 
-   stack_->Init();
+   if (!stack_->Init()) return kFALSE;
+
    kInitialised_ = kTRUE;
+   return kTRUE;
 }
+
+//______________________________________________________________________________
 
 Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
 {
-   if (!kInitialised_) {
-      Init();
-      return kFALSE;
-   }
-
    kTelescopeSet_ = kFALSE;
+   assert(telescope_name.Length() > 0);
+
+   if (!kInitialised_) Init();
+   assert(kInitialised_);
 
    Bool_t status(stack_->SetIDTelescope(telescope_name));
    if (status) {
@@ -151,16 +125,41 @@ Bool_t MonoMinimiserImpl::SetIDTelescope(const TString& telescope_name)
    return status;
 }
 
-Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
-                                  Double_t csi_light)
+//______________________________________________________________________________
+
+Int_t MonoMinimiserImpl::Minimise(
+   UInt_t z_value, Double_t si_energy, Double_t csi_light,
+   MinimiserData* const data)
 {
+   assert(kInitialised_);
+
+   // These assertions are paired with the user input validation tests in
+   // SiliconEnergyMinimiser::Minimise so you should never encounter them.
+   assert((z_value != 0) && (z_value <= 120));
+   assert(si_energy > 0.);
+   assert(csi_light > 0.);
 
    if (!kTelescopeSet_) {
       Error("MonoMinimiserImpl::Minimise",
-            "You must call MonoMinimiserImpl::Init() "
-            "and MonoMinimiserImpl::SetIDTelescope() before calling this "
-            "function!");
-      return -1;
+            "You must call MonoMinimiserImpl::SetIDTelescope() "
+            "before calling this function");
+      return kTelescopeNotSet;
+   }
+
+#if __cplusplus < 201103L
+   MonoMinimiserData* mono_data(NULL);
+#else
+   MonoMinimiserData* mono_data(nullptr);
+#endif
+
+   if (data) {
+      // Optional data storage pointer provided, cast it to make sure we can
+      // provide the extra data. It is assumed that the true nature of the
+      // pointer being passed in is a MonoMinimiserData pointer.
+      mono_data = static_cast<MonoMinimiserData*>(data);
+      assert(mono_data);
+      mono_data->SetZ(z_value);
+      mono_data->SetStatusCode(0);
    }
 
    sim_parameters_->z = z_value;
@@ -192,7 +191,6 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       delta_last = sim_results_->delta;
    } else {
       delta_last = 100000.;
-      // TODO: Return failed?
    }
 
    best_forward_delta = delta_last;
@@ -256,10 +254,13 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
       ++a_value;
    }
 
+   if (mono_data) mono_data->SetForwardCounter(n);
+
    if (n >= max_iterations_) {
-      Error("MonoMinimiserImpl::Minimise",
-            "Forward loop exceeded the maximum number of iterations");
-      return -1;
+      //Warning("MonoMinimiserImpl::Minimise",
+      //      "Forward loop exceeded the maximum number of iterations");
+      if (mono_data) mono_data->SetStatusCode(kForwardExceeded);
+      return kForwardExceeded;
    }
 
    // --------------------------------------
@@ -317,10 +318,13 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
 
    }
 
+   if (mono_data) mono_data->SetBackwardCounter(n);
+
    if (n >= max_iterations_) {
-      Error("MonoMinimiserImpl::Minimise",
-            "Backward loop exceeded the maximum number of iterations");
-      return -1;
+      //Warning("MonoMinimiserImpl::Minimise",
+      //      "Backward loop exceeded the maximum number of iterations");
+      if (mono_data) mono_data->SetStatusCode(kBackwardExceeded);
+      return kBackwardExceeded;
    }
 
    // ----------------------------------
@@ -328,32 +332,79 @@ Int_t MonoMinimiserImpl::Minimise(UInt_t z_value, Double_t si_energy,
    // ----------------------------------
 
    if (forward_status && !backward_status) {
+      if (mono_data) {
+         mono_data->SetA(best_forward_a_value);
+         mono_data->SetDelta(best_forward_delta);
+      }
       return best_forward_a_value;
+
    } else if (backward_status && !forward_status) {
-      return best_backward_delta;
+      if (mono_data) {
+         mono_data->SetA(best_backward_a_value);
+         mono_data->SetDelta(best_backward_delta);
+      }
+      return best_backward_a_value;
+
    } else if (!backward_status && !forward_status) {
-      return -1;
+      if (mono_data) {
+         mono_data->SetA(-1);
+         mono_data->SetDelta(100000.);
+      }
+      return kNoValidResult;
+
    } else {
       if (best_backward_delta < best_forward_delta) {
+         if (mono_data) {
+            mono_data->SetA(best_backward_a_value);
+            mono_data->SetDelta(best_backward_delta);
+         }
          return best_backward_a_value;
+
       } else {
+         if (mono_data) {
+            mono_data->SetA(best_forward_a_value);
+            mono_data->SetDelta(best_forward_delta);
+         }
          return best_forward_a_value;
+
       }
    }
 }
 
+//______________________________________________________________________________
+
 void MonoMinimiserImpl::SetMaximumIterations(UInt_t max_iterations)
 {
+   assert((max_iterations != 0) && (max_iterations <= 300));
    max_iterations_ = max_iterations;
 }
 
+//______________________________________________________________________________
+
 void MonoMinimiserImpl::SetTolerance(Double_t tolerance)
 {
+   assert(tolerance > 0.);
    tolerance_ = tolerance;
 }
 
+//______________________________________________________________________________
+
 void MonoMinimiserImpl::Print() const
 {
-   Info("MonoMinimiserImpl::Print", "Bisection minimiser");
+   Info("MonoMinimiserImpl::Print", "Single threaded minimiser");
+}
+
+//______________________________________________________________________________
+
+UInt_t MonoMinimiserImpl::GetMaximumIterations() const
+{
+   return max_iterations_;
+}
+
+//______________________________________________________________________________
+
+Double_t MonoMinimiserImpl::GetTolerance() const
+{
+   return tolerance_;
 }
 

@@ -30,10 +30,10 @@ CHI: "ECHI_A_6" 160
 CHI: "ECHI_A_7" 160
 
 # Pressure of the gaz C4H10 in mbar:
+RUNS: 2-613
 TYPE: Pressure
 FUNCTION:
 
-RUNS: 2-613
 CHI: 40
 
 

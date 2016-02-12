@@ -707,7 +707,7 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
             if ((d->GetPosition(xyzf, 'X') & 5) == 5) {
                d->GetDeltaXYZf(dxyzf, 'X');
                graphX.SetPoint(NptX, xyzf[2], xyzf [0]);
-               graphX.SetPointError(NptX,      0 , dxyzf[0] > 0.01 ? dxyzf[0] : 0.01);
+               graphX.SetPointError(NptX,      0, dxyzf[0] > 0.01 ? dxyzf[0] : 0.01);
                NptX++;
                res |= 5;
             }
@@ -717,7 +717,7 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
                if ((d->GetPosition(xyzf, 'X', j) & 5) == 5) {
                   d->GetDeltaXYZf(dxyzf, 'X', j);
                   graphX.SetPoint(NptX, xyzf[2], xyzf [0]);
-                  graphX.SetPointError(NptX,      0 , dxyzf[0] > 0.01 ? dxyzf[0] : 0.01);
+                  graphX.SetPointError(NptX,      0, dxyzf[0] > 0.01 ? dxyzf[0] : 0.01);
                   NptX++;
                   res |= 5;
                }
@@ -729,7 +729,7 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
             if ((d->GetPosition(xyzf, 'Y') & 6) == 6) {
                d->GetDeltaXYZf(dxyzf, 'Y');
                graphY.SetPoint(NptY, xyzf[2], xyzf [1]);
-               graphY.SetPointError(NptY,      0 , dxyzf[1] > 0.01 ? dxyzf[1] : 0.01);
+               graphY.SetPointError(NptY,      0, dxyzf[1] > 0.01 ? dxyzf[1] : 0.01);
                NptY++;
                res |= 6;
             }
@@ -739,7 +739,7 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
                if ((d->GetPosition(xyzf, 'Y', j) & 6) == 6) {
                   d->GetDeltaXYZf(dxyzf, 'Y', j);
                   graphY.SetPoint(NptY, xyzf[2], xyzf [1]);
-                  graphY.SetPointError(NptY,      0 , dxyzf[1] > 0.01 ? dxyzf[1] : 0.01);
+                  graphY.SetPointError(NptY,      0, dxyzf[1] > 0.01 ? dxyzf[1] : 0.01);
                   NptY++;
                   res |= 6;
                }

@@ -1,35 +1,26 @@
-//Author: Peter C. Wigg
-//Created Wed Jun 11 15:00:35 CEST 2014
+// Author: Peter C. Wigg
+// Created Wed Jun 11 15:00:35 CEST 2014
 
-///
-/// @file KVIVDB_e503.cpp
-///
-/// @section Description
-///
-/// Database class for the E503 experiment. This class inherits from that of our
-/// sister experiment (E494s) and adds the functionality required to implement
-/// the VAMOS identification corrections.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed Jun 11 15:00:35 CEST 2014
-///
-
-/////////////////////////////////////////////////////////////////////////////////
-/// KVIVDB_e503.cpp
-///
-/// Description
-///
-/// Database class for the E503 experiment. This class inherits from that of our
-/// sister experiment (E494s) and adds the functionality required to implement
-/// the VAMOS identification corrections.
-///
-/// Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// Wed Jun 11 15:00:35 CEST 2014
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// KVIVDB_e503.cpp
+//
+// Description
+//
+// Database class for the E503 experiment. This class inherits from that of our
+// sister experiment (E494s) and adds the functionality required to implement
+// the VAMOS identification corrections.
+//
+// Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Wed Jun 11 15:00:35 CEST 2014
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "KVIVDB_e503.h"
 
 ClassImp(KVIVDB_e503)
+
+//______________________________________________________________________________
 
 KVIVDB_e503::KVIVDB_e503() :
 #if __cplusplus < 201103L
@@ -42,6 +33,8 @@ KVIVDB_e503::KVIVDB_e503() :
 {
    Init();
 }
+
+//______________________________________________________________________________
 
 KVIVDB_e503::KVIVDB_e503(const Char_t* name) :
    KVIVDB(name),
@@ -56,6 +49,8 @@ KVIVDB_e503::KVIVDB_e503(const Char_t* name) :
    Init();
 }
 
+//______________________________________________________________________________
+
 void KVIVDB_e503::Init()
 {
    id_correction_parameters_ =
@@ -65,10 +60,14 @@ void KVIVDB_e503::Init()
    assert(id_correction_parameters_);
 }
 
+//______________________________________________________________________________
+
 KVIVDB_e503::~KVIVDB_e503()
 {
 
 }
+
+//______________________________________________________________________________
 
 void KVIVDB_e503::Build()
 {
@@ -83,6 +82,8 @@ void KVIVDB_e503::Build()
    }
 
 }
+
+//______________________________________________________________________________
 
 Bool_t KVIVDB_e503::ReadIdCorrectionParameters()
 {
@@ -126,6 +127,8 @@ Bool_t KVIVDB_e503::ReadIdCorrectionParameters()
 
    return kTRUE;
 }
+
+//______________________________________________________________________________
 
 Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
 {
@@ -271,7 +274,9 @@ Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
    return status;
 }
 
-void KVIVDB_e503::set_verbose(Bool_t status)
+//______________________________________________________________________________
+
+void KVIVDB_e503::SetVerbose(Bool_t status)
 {
    verbose_ = status;
 }

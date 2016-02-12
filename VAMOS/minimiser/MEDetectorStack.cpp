@@ -1,39 +1,28 @@
-//Author: Peter C. Wigg
-//Created Wed 20 Jan 14:12:39  2016
+// Author: Peter C. Wigg
+// Created Wed 20 Jan 14:12:39  2016
 
-///
-/// @file MEDetectorStack.cpp
-///
-/// @section Description
-///
-///   A simple Silicon-Isobutane-CsI detector stack, used in the A value
-///   estimation algorithms - see SiliconEnergyMinimiser. Allows one to calculate
-///   the "delta" between the measured and simulated silicon detector energies in
-///   order to determine the most likely candidate for the A value (ideally
-///   "delta" would be zero so we look for the minimum value of "delta").
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed 20 Jan 14:12:39  2016
-///
-
-///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // MEDetectorStack.cpp
 //
 // Description
 //
-//   A simple Silicon-Isobutane-CsI detector stack, used in the A value
-//   estimation algorithms - see SiliconEnergyMinimiser. Allows one to calculate
-//   the "delta" between the measured and simulated silicon detector energies in
-//   order to determine the most likely candidate for the A value (ideally
-//   "delta" would be zero so we look for the minimum value of "delta").
+// A simple Silicon-Isobutane-CsI detector stack, used in the A value estimation
+// algorithms - see SiliconEnergyMinimiser. Allows one to calculate the "delta"
+// between the measured and simulated silicon detector energies in order to
+// determine the most likely candidate for the A value (ideally "delta" would be
+// zero so we look for the minimum value of "delta").
 //
 // Peter C. Wigg
 // Wed 20 Jan 14:12:39  2016
-/////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "MEDetectorStack.h"
 
 ClassImp(MEDetectorStack)
+
+//______________________________________________________________________________
 
 MEDetectorStack::MEDetectorStack() :
 #if __cplusplus < 201103L
@@ -54,6 +43,8 @@ MEDetectorStack::MEDetectorStack() :
 {
 
 }
+
+//______________________________________________________________________________
 
 MEDetectorStack::~MEDetectorStack()
 {
@@ -80,11 +71,11 @@ MEDetectorStack::~MEDetectorStack()
 #endif
 }
 
+//______________________________________________________________________________
+
 Bool_t MEDetectorStack::Init()
 {
-   if (kInitialised_) {
-      return kTRUE;
-   }
+   if (kInitialised_) return kTRUE;
 
    // The following silicon thickness is just a placeholder - this value is set
    // properly in the SetIDTelescope function.
@@ -107,6 +98,8 @@ Bool_t MEDetectorStack::Init()
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t MEDetectorStack::Simulate(
    const struct me::SimulationParameters* const parameters,
    struct me::SimulationResult* const result
@@ -120,7 +113,7 @@ Bool_t MEDetectorStack::Simulate(
    // Check for sensible input parameters
    assert((parameters->z > 0) && (parameters->z < 120));
    assert((parameters->a > 0) && (parameters->a < 300));
-   assert((parameters->si_energy > 0.) && (parameters->si_energy < 3000.));
+   assert((parameters->si_energy > 0.) && (parameters->si_energy < 10000.));
 
    // We now need to calculate the incident energy of the nucleus (so that we
    // can simulate its passage through the idtelescope).
@@ -140,7 +133,7 @@ Bool_t MEDetectorStack::Simulate(
       )
    );
 
-   if ((csi_energy <= 0.) || (csi_energy > 3000.)) {
+   if ((csi_energy <= 0.) || (csi_energy > 10000.)) {
       // Out of bounds csi energy, discard this event. For some reason there
       // are occasionally energies of 0. MeV returned for non-zero csi light,
       // I'm not sure whether that is a fault in the code or if it is the
@@ -170,12 +163,10 @@ Bool_t MEDetectorStack::Simulate(
       return kFALSE;
    }
 
-   if (isobutane_incident_energy > 3000.) {
+   if (isobutane_incident_energy > 10000.) {
       // This generally happens when the silicon energy (from the silicon
       // calibration) is too low, this results in an over-estimation of the
-      // isobutane incident energy. This event is rejected as this energy loss
-      // is far greater than that of the available beam energy (realistically
-      // we expect less than 2000 MeV)
+      // isobutane incident energy.
 
       return kFALSE;
    }
@@ -188,7 +179,13 @@ Bool_t MEDetectorStack::Simulate(
       )
    );
 
-   assert((isobutane_energy > 0.) && (isobutane_energy < 3000.));
+   if (isobutane_energy <= 0.) {
+      // Problem finding the energy solution for this point, can not do
+      // anything with it.
+      return kFALSE;
+   }
+
+   assert((isobutane_energy > 0.) && (isobutane_energy < 10000.));
 
    // We now have all the data we need to calculate the incident energy of the
    // nucleus prior to entering the silicon layer
@@ -203,7 +200,7 @@ Bool_t MEDetectorStack::Simulate(
    // and calculate 'delta' (the absolute difference between the measured
    // silicon energy and that simulated for this nucleus)
 
-   assert((incident_energy > 0.) && (incident_energy < 3000.));
+   assert((incident_energy > 0.) && (incident_energy < 10000.));
 
    sim_nucleus_->Clear();
    sim_nucleus_->SetZAandE(parameters->z, parameters->a, incident_energy);
@@ -245,14 +242,15 @@ Bool_t MEDetectorStack::Simulate(
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
 {
    assert(kInitialised_);
 
    KVIDTelescope* idt(gVamos->GetIDTelescope(name.Data()));
-
-   if (!idt) return kFALSE;
-   if (!idt->InheritsFrom("KVIDHarpeeSiCsI_e503")) return kFALSE;
+   assert(idt);
+   assert(idt->InheritsFrom("KVIDHarpeeSiCsI_e503"));
 
    // ----------------------------------
    // Set the silicon material thickness
@@ -283,18 +281,29 @@ Bool_t MEDetectorStack::SetIDTelescope(const TString& name)
       )
    );
 
-   if (!cal) return kFALSE;
-   if (!cal->GetStatus()) return kFALSE;
+   assert(cal);
+
+   if (!cal->GetStatus()) {
+      Error("MEDetectorStack::SetIDTelescope",
+            "Light->MeV calibrator is NOT READY (%s)",
+            name.Data()
+           );
+      return kFALSE;
+   }
 
    calibrator_ = cal;
 
    return kTRUE;
 }
 
+//______________________________________________________________________________
+
 void MEDetectorStack::SetAbsoluteDelta(Bool_t status)
 {
    absolute_delta_ = status;
 }
+
+//______________________________________________________________________________
 
 Bool_t MEDetectorStack::IsInitialised() const
 {

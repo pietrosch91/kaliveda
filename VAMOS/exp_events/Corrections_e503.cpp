@@ -1,21 +1,8 @@
-//Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
-//Created Wed 20 Jan 13:58:10  2016
-
-///
-/// @file Corrections_e503.cpp
-///
-/// @section Description
-///
-/// A set of non-member, non-friend functions which together act as a wrapper
-/// for the standard KaliVeda identification functions and enable the
-/// identified nucleus to be modified in accordance with the implemented
-/// identification corrections.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed 20 Jan 13:58:10  2016
-///
+// Author: Peter C. Wigg <peter.wigg.314159@gmail.com>
+// Created Wed 20 Jan 13:58:10  2016
 
 ///////////////////////////////////////////////////////////////////////////////
+//
 // Corrections_e503.cpp
 //
 // Description
@@ -27,27 +14,89 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Wed 20 Jan 13:58:10  2016
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "Corrections_e503.h"
 
 namespace idc {
 
-   UChar_t Identify(KVVAMOSReconNuc* const n, AbsorberEnergies* const energy_data)
-   {
-      // This is the identification method for the E503 experiment. The nucleus is
-      // first identified with the usual KVVAMOSReconNuc::Identify() routine -
-      // which calls the respective Identify() methods in each of the
-      // identification telescopes. This result is then used as the basis for the
-      // global VAMOS identification procedure which is used to calculate the
-      // mass, charge and mass-to-charge ratio. The E503 identification
-      // corrections are subsequently applied.
-      //
-      // The UChar_t return value is used to pass information about the
-      // identification status back to the user without resorting to expensive I/O
-      // calls.
+   //___________________________________________________________________________
 
+   void VAMOSIdentifyHack(KVVAMOSReconNuc* const n)
+   {
       assert(n);
+
+      n->Identify(); // KVReconstructedNucleus::Identify()
+
+      KVIdentificationResult partID;
+      Bool_t ok(kFALSE);
+
+      UInt_t num_iterations(0);
+      UInt_t max_iterations(10);
+
+      // For all nuclei we take the first identification which gives IDOK==kTRUE
+      Int_t id_no(1);
+      KVIdentificationResult* pid(n->GetIdentificationResult(id_no));
+
+      while (pid->IDattempted && (num_iterations < max_iterations)) {
+
+         if (pid->IDOK) {
+            ok = kTRUE;
+            partID = *pid;
+            break;
+         }
+
+         ++id_no;
+         pid = n->GetIdentificationResult(id_no);
+         ++num_iterations;
+      }
+
+      if (ok) {
+         n->SetIsIdentified();
+         KVIDTelescope* idt(
+            static_cast<KVIDTelescope*>(
+               n->GetIDTelescopes()->FindObjectByType(partID.GetType())
+            )
+         );
+         if (!idt) {
+            Warning("Identify", "cannot find ID telescope with type %s",
+                    partID.GetType());
+            n->GetIDTelescopes()->ls();
+            partID.Print();
+         }
+         n->SetIdentifyingTelescope(idt);
+         n->SetIdentification(&partID);
+      } else {
+         /******* UNIDENTIFIED PARTICLES *******/
+         /*** general ID code for non-identified particles ***/
+         if (num_iterations == max_iterations) {
+            std::cerr << "\nVAMOSIdentifyHack: Exceeded max iterations!"
+                      << std::endl;
+         }
+         n->SetIDCode(kIDCode14);
+      }
+
+   };
+
+   //___________________________________________________________________________
+
+   UChar_t Identify(
+      KVVAMOSReconNuc* const n,
+      AbsorberEnergies* const energy_data
+   )
+   {
+      if (!n) {
+         Error("idc::Identify", "Supplied nucleus is a null pointer");
+         return kNullNucleusSupplied;
+      }
+
+      // Test to make sure the nucleus has been initialised properly, if it
+      // hasn't been detected anywhere then we're not really interested in it.
+      if (!n->IsDetected()) {
+         Error("Idc::Identify", "Supplied nucleus has not been detected");
+         return kNucleusNotDetected;
+      }
 
       KVVAMOSCodes codes(n->GetCodes());
       if (codes.GetTCode() == kTCode0) {
@@ -55,7 +104,13 @@ namespace idc {
          return kBadTimeCal;
       }
 
-      n->Identify();
+      // KVVAMOSReconNuc::Identify() is no longer implemented! Instead we must
+      // call idc::VAMOSIdentifyHack() which re-implements this missing
+      // function.
+      //
+      // WARNING: This is not a long term solution, it is a hack!
+      VAMOSIdentifyHack(n);
+
       if (!n->IsIdentified()) return kNotIdentified;
 
       KVIDTelescope* idt(n->GetIdentifyingTelescope());
@@ -100,8 +155,8 @@ namespace idc {
 
       assert(residual_detector);
 
-      // We need the stopping detector to be sure we have the complete energy loss
-      // information, otherwise the simulation will give bad results.
+      // We need the stopping detector to be sure we have the complete energy
+      // loss information, otherwise the simulation will give bad results.
 
       if (stopping_detector != residual_detector) return kNotStoppingDetector;
 
@@ -123,11 +178,12 @@ namespace idc {
          residual_detector->GetAlignedDetectors(KVGroup::kBackwards)
       );
 
-      // Iterate over the list of aligned detectors (the list is in reverse order)
-      // and add up the energies of all the absorbers, making our way back towards
-      // the target. We must do this explicitly as the VAMOS definition of
-      // "calibrated detector" may differ from the standard KaliVeda definition.
-      // All we care about here is that the detector is calibrated in energy.
+      // Iterate over the list of aligned detectors (the list is in reverse
+      // order) and add up the energies of all the absorbers, making our way
+      // back towards the target. We must do this explicitly as the VAMOS
+      // definition of "calibrated detector" may differ from the standard
+      // KaliVeda definition.  All we care about here is that the detector is
+      // calibrated in energy.
 
       Double_t detector_eloss(0.);
       Double_t absorber_eloss(0.);
@@ -153,8 +209,9 @@ namespace idc {
          KVList* absorbers(detector->GetListOfAbsorbers());
 
          // For each detector we iterate IN REVERSE over the absorbers (making
-         // our way towards the target) and sum either the calculated energy loss
-         // in the dead layers or the calibrated energy in the active layer.
+         // our way towards the target) and sum either the calculated energy
+         // loss in the dead layers or the calibrated energy in the active
+         // layer.
 
          detector_eloss = 0.;
 
@@ -185,7 +242,9 @@ namespace idc {
                   // the nucleus is not used in GetCorrectedEnergy(), should
                   // this change then we will need to rethink.
 
-                  absorber_eloss = csi->GetCorrectedEnergy(&sim_nucleus, -1., 0);
+                  absorber_eloss = csi->GetCorrectedEnergy(
+                                      &sim_nucleus, -1., 0
+                                   );
 
                } else if (kDetectorIsDC) {
 
@@ -417,22 +476,23 @@ namespace idc {
          energy_data->strip_foil = absorber_eloss;
       }
 
-      KVTarget* target(gVamos->GetTarget());
+      // FIXME: Target is not being set
+      //KVTarget* target(gVamos->GetTarget());
 
-      if (!target) {
-         return kNoTarget;
-      }
+      //if (!target) {
+      //   return kNoTarget;
+      //}
 
-      absorber_eloss = target->GetDeltaEFromERes(
-                          sim_nucleus.GetZ(),
-                          sim_nucleus.GetA(),
-                          total_energy
-                       );
-      total_energy += absorber_eloss;
+      //absorber_eloss = target->GetDeltaEFromERes(
+      //                    sim_nucleus.GetZ(),
+      //                    sim_nucleus.GetA(),
+      //                    total_energy
+      //                 );
+      //total_energy += absorber_eloss;
 
-      if (energy_data) {
-         energy_data->target = absorber_eloss;
-      }
+      //if (energy_data) {
+      //   energy_data->target = absorber_eloss;
+      //}
 
       assert((total_energy >= 0.) && (total_energy < 3000.));
 
@@ -453,13 +513,13 @@ namespace idc {
       Int_t a_value(sim_nucleus.GetA());
 
       // TODO: Just occasionally (1/20,000) something weird happens with the
-      // energy calculation and we end up with A = 0. Set a flag for now and come
-      // back and analyse what is going on another time - I couldn't find anything
-      // immediately obvious. I think it's something to do with the nucleus
-      // stating that it has stopped in the silicon but there's still some energy
-      // detected in the CsI behind it. So essentially we have some missing energy
-      // still to account for, I'm not sure why the CsI does not register as being
-      // hit...
+      // energy calculation and we end up with A = 0. Set a flag for now and
+      // come back and analyse what is going on another time - I couldn't find
+      // anything immediately obvious. I think it's something to do with the
+      // nucleus stating that it has stopped in the silicon but there's still
+      // some energy detected in the CsI behind it. So essentially we have some
+      // missing energy still to account for, I'm not sure why the CsI does not
+      // register as being hit...
 
       if (a_value < 1) {
          return kUnChargedResult;
@@ -480,6 +540,8 @@ namespace idc {
 
       return kAllOK;
    }
+
+   //___________________________________________________________________________
 
    Bool_t ApplyCorrections(
       KVVAMOSReconNuc* const n,
@@ -515,14 +577,16 @@ namespace idc {
       return status;
    }
 
+   //___________________________________________________________________________
+
    Bool_t ApplyIcSiCorrections(
       KVVAMOSReconNuc* const n,
       const KVIDHarpeeICSi_e503* const idt,
       const CorrectionData* const data
    )
    {
-      // Apply corrections for the Ionisation Chamber:Silicon Telescopes
-      // TODO: Can any of this code be consoldiated? There is a lot of duplication
+      // Apply corrections for the Ionisation Chamber:Silicon Telescopes TODO:
+      // Can any of this code be consoldiated? There is a lot of duplication
       // between ICSi and SiCsI functions
 
       assert(n);
@@ -551,7 +615,7 @@ namespace idc {
          return kFALSE;
       }
 
-      Double_t uncorrected_a_over_q(n->GetRealAoverQ());
+      Double_t uncorrected_a_over_q(n->GetRealAoverQ("TSI_HF"));
       Double_t corrected_a_over_q(
          CorrectAoverQ(a_over_q_straight, uncorrected_a_over_q, data->pid)
       );
@@ -571,16 +635,18 @@ namespace idc {
       n->SetRealA(data->a_real);
 
       // NOTE: KVVAMOSReconNuc::Calibrate() is extremely slow (lots of TF1::Eval
-      // going on) and it reduces the event rate from ~27 events/s down to ~7
-      // events/s (3.8x slower) I don't think I need it anyway (I *think*) as I'm
-      // setting the energy manually in the code above. As a result the nucleus
-      // will not appear calibrated, but the nucleus itself should be OK.
+      // going on) and it reduces the event rate. I don't think I need it anyway
+      // (I *think*) as I'm setting the energy manually in the code above. As a
+      // result the nucleus will not appear calibrated, but the nucleus itself
+      // should be OK.
 
-      //n->Calibrate();
-      //if (!n->IsCalibrated()) return kNotCalibrated;
+      // n->Calibrate();
+      // if (!n->IsCalibrated()) return kNotCalibrated;
 
       return kTRUE;
    }
+
+   //___________________________________________________________________________
 
    Bool_t ApplySiCsiCorrections(
       KVVAMOSReconNuc* const n,
@@ -616,7 +682,7 @@ namespace idc {
          return kFALSE;
       }
 
-      Double_t uncorrected_a_over_q(n->GetRealAoverQ());
+      Double_t uncorrected_a_over_q(n->GetRealAoverQ("TSI_HF"));
       Double_t corrected_a_over_q(
          CorrectAoverQ(a_over_q_straight, uncorrected_a_over_q, data->pid)
       );
@@ -636,8 +702,7 @@ namespace idc {
       n->SetRealA(data->a_real);
 
       // NOTE: KVVAMOSReconNuc::Calibrate() is extremely slow (lots of TF1::Eval
-      // going on) and it reduces the event rate from ~27 events/s down to ~7
-      // events/s (3.8x slower) I don't think I need it anyway (I *think*) as I'm
+      // going on) I don't think I need it anyway (I *think*) as I'm
       // setting the energy manually in the code above. As a result the nucleus
       // will not appear calibrated, but the nucleus itself should be OK.
 
@@ -646,6 +711,8 @@ namespace idc {
 
       return kTRUE;
    }
+
+   //___________________________________________________________________________
 
    Double_t CorrectAoverQ(
       KVDBParameterSet* const parameters,

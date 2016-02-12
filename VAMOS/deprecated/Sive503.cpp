@@ -166,7 +166,7 @@ Sive503::Sive503(LogFile* Log)
          sline.ReadLine(in2);
          if (!in2.eof()) {
             if (!sline.BeginsWith("+") && !sline.BeginsWith("|")) {
-               sscanf(sline.Data(), "%d %f %f", &num , &ref, &propre);
+               sscanf(sline.Data(), "%d %f %f", &num, &ref, &propre);
                //L->Log << "SI_" << num << ": Ref : "<< ref << endl;
                TRef[num] = ref;
                Tpropre_el[num] = propre;

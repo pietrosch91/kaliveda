@@ -1,32 +1,15 @@
-//Author: Peter C. Wigg
-//Created Wed 20 Jan 15:19:33  2016
+// Author: Peter C. Wigg
+// Created Wed 20 Jan 15:19:33  2016
 
-///
-/// @file ThreadedMassEstimator.cpp
-///
-/// @section Description
-///
-/// This class estimates the A value of a fragment detected in the
-/// Si:Isobutane:CsI detector stack, given the experimentally measured data
-/// (Z, Silicon Energy, CsI Light).
-///
-/// It achieves this by minimising the absolute magnitude of the difference
-/// between the experimentally measured silicon energy and the silicon energy
-/// simulated in a set of test nuclei (with fixed Z) to determine which nucleus
-/// (A value) provides the closest match.
-///
-/// @author Peter C. Wigg <peter.wigg.314159@gmail.com>
-/// @date Wed 20 Jan 15:19:33  2016
-///
-
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
 // ThreadedMassEstimator.cpp
 //
 // Description
 //
 // This class estimates the A value of a fragment detected in the
-// Si:Isobutane:CsI detector stack, given the experimentally measured data
-// (Z, Silicon Energy, CsI Light).
+// Si:Isobutane:CsI detector stack, given the experimentally measured data (Z,
+// Silicon Energy, CsI Light).
 //
 // It achieves this by minimising the absolute magnitude of the difference
 // between the experimentally measured silicon energy and the silicon energy
@@ -35,7 +18,8 @@
 //
 // Peter C. Wigg <peter.wigg.314159@gmail.com>
 // Wed 20 Jan 15:19:33  2016
-//////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ThreadedMassEstimator.h"
 
@@ -44,40 +28,56 @@ ClassImp(ThreadedMassEstimator)
 const Int_t me::ThreadStatus::kThreadStop(0);
 const Int_t me::ThreadStatus::kThreadContinue(-1);
 
-#if __cplusplus < 201103L
-MEDetectorStack* ThreadedMassEstimator::medetector_stack_(
-   new MEDetectorStack()
-);
-#else
-std::unique_ptr<MEDetectorStack> ThreadedMassEstimator::medetector_stack_(
-   new MEDetectorStack()
-);
-#endif
-
 pthread_mutex_t ThreadedMassEstimator::io_mutex_;
-pthread_mutex_t ThreadedMassEstimator::medetector_mutex_;
+
+//______________________________________________________________________________
 
 ThreadedMassEstimator::ThreadedMassEstimator() :
    kInitialised_(kFALSE),
    load_balance_(2.25),
-   max_iterations_(100)
+   max_iterations_(25),
+#if __cplusplus < 201103L
+   thread_data_(NULL),
+   detector_stack_(NULL)
+#else
+   thread_data_(nullptr),
+   detector_stack_(nullptr)
+#endif
+
 {
 
 }
+
+//______________________________________________________________________________
 
 ThreadedMassEstimator::~ThreadedMassEstimator()
 {
    pthread_mutex_destroy(&io_mutex_);
-   pthread_mutex_destroy(&medetector_mutex_);
-
 #if __cplusplus < 201103L
-   if (medetector_stack_) {
-      delete medetector_stack_;
-      medetector_stack_ = NULL;
+   if (detector_stack_) {
+      delete detector_stack_;
+      detector_stack_ = NULL;
+   }
+
+
+   if (thread_data_) {
+      if (thread_data_[0].detector_stack) {
+         delete thread_data_[0].detector_stack;
+         thread_data_[0].detector_stack = NULL;
+      }
+
+      if (thread_data_[1].detector_stack) {
+         delete thread_data_[1].detector_stack;
+         thread_data_[1].detector_stack = NULL;
+      }
+
+      delete[] thread_data_;
+      thread_data_ = NULL;
    }
 #endif
-
 }
+
+//______________________________________________________________________________
 
 Bool_t ThreadedMassEstimator::Init()
 {
@@ -85,36 +85,59 @@ Bool_t ThreadedMassEstimator::Init()
       return kTRUE;
    }
 
-   if (!medetector_stack_->Init()) {
-      return kFALSE;
-   }
-
 #if __cplusplus < 201103L
    pthread_mutex_init(&io_mutex_, NULL);
-   pthread_mutex_init(&medetector_mutex_, NULL);
+
+   // We build the detector stacks for each thread here to save the malloc
+   // overheard from happening in each event.
+   thread_data_ = new struct me::ThreadData[2];
+   thread_data_[0].detector_stack = new MEDetectorStack();
+   thread_data_[1].detector_stack = new MEDetectorStack();
+
+   // This stack is used for the initial calculation only
+   detector_stack_ = new MEDetectorStack();
 #else
    pthread_mutex_init(&io_mutex_, nullptr);
-   pthread_mutex_init(&medetector_mutex_, nullptr);
+   // We build the detector stacks for each thread here to save the malloc
+   // overheard from happening in each event.
+   thread_data_.reset(new struct me::ThreadData[2]);
+   thread_data_[0].detector_stack.reset(new MEDetectorStack());
+   thread_data_[1].detector_stack.reset(new MEDetectorStack());
+
+   // This stack is used for the initial calculation only
+   detector_stack_.reset(new MEDetectorStack());
 #endif
 
-   kInitialised_ = kTRUE;
+   thread_data_[0].detector_stack->Init();
+   thread_data_[1].detector_stack->Init();
+   detector_stack_->Init();
 
+   kInitialised_ = kTRUE;
    return kTRUE;
 }
+
+//______________________________________________________________________________
 
 Bool_t ThreadedMassEstimator::IsInitialised() const
 {
    return kInitialised_;
 }
 
+//______________________________________________________________________________
+
 Bool_t ThreadedMassEstimator::SetIDTelescope(const TString& name)
 {
-   if (!medetector_stack_->SetIDTelescope(name)) {
-      return kFALSE;
-   }
+   assert(kInitialised_);
+   Bool_t status(kTRUE);
 
-   return kTRUE;
+   status &= thread_data_[0].detector_stack->SetIDTelescope(name);
+   status &= thread_data_[1].detector_stack->SetIDTelescope(name);
+   status &= detector_stack_->SetIDTelescope(name);
+
+   return status;
 }
+
+//______________________________________________________________________________
 
 void ThreadedMassEstimator::GetPossibleAValues(
    const Int_t z_value,
@@ -133,6 +156,8 @@ void ThreadedMassEstimator::GetPossibleAValues(
       }
    }
 }
+
+//______________________________________________________________________________
 
 void* ThreadedMassEstimator::ThreadExec(void* thread_data)
 {
@@ -228,6 +253,8 @@ void* ThreadedMassEstimator::ThreadExec(void* thread_data)
 
 }
 
+//______________________________________________________________________________
+
 Int_t ThreadedMassEstimator::ThreadProcess(
    struct me::ThreadData* const data,
    const struct me::SimulationParameters* const parameters)
@@ -241,19 +268,13 @@ Int_t ThreadedMassEstimator::ThreadProcess(
       return me::ThreadStatus::kThreadStop;
    }
 
-   // We have to lock the detector stack with a mutex when performing the
-   // calculation as the energy loss functions are not thread safe - there are
-   // several static pointers used.
-   pthread_mutex_lock(&medetector_mutex_);
-   if (!medetector_stack_->Simulate(parameters, &(data->sim_result))) {
+   if (!data->detector_stack->Simulate(parameters, &(data->sim_result))) {
       data->current_delta = -1.;
-      pthread_mutex_unlock(&medetector_mutex_);
       return me::ThreadStatus::kThreadStop;
 
    }
 
    data->current_delta = data->sim_result.delta;
-   pthread_mutex_unlock(&medetector_mutex_);
 
    if (data->current_delta < 0.) {
 
@@ -304,6 +325,8 @@ Int_t ThreadedMassEstimator::ThreadProcess(
 
 }
 
+//______________________________________________________________________________
+
 Bool_t ThreadedMassEstimator::EstimateA(
    const struct me::EstimatorInput* const input,
    const std::vector<Int_t>* const possible_a_values,
@@ -324,31 +347,6 @@ Bool_t ThreadedMassEstimator::EstimateA(
    // You should never see this initialisation value in the output, it should
    // always be set to either a positive or a negative number below:
    result->status = 0;
-
-   Bool_t calibration_range_error(kFALSE);
-
-   if (input->si_energy > 1000.) {
-
-      // IMPORTANT:
-      //
-      // Currently the CsI light to energy calibration function is only valid
-      // up to around A=45 and we must warn the user that they are trying to
-      // analyse a point which is likely outside of that range. Unfortunately,
-      // there are only 3 variables available to us at this time: silicon
-      // energy, caesium iodide light output and Z. I have chosen the silicon
-      // energy and decided to specifiy the cut-off as 1000 MeV (48-Ca should
-      // be around 800-900 MeV). If the CsI is ever re-calibrated to extend
-      // this range, then this cut-off value should be increased accordingly.
-      //
-      // We process this event as normal but the results are extrememly
-      // unreliable outside of the CsI calibration range. The
-      // calibration_range_error flag is used to set the correct return status
-      // after the event has been processed. This way we let the mass
-      // estimator do its job but inform the user to be wary of the result.
-      //
-
-      calibration_range_error = kTRUE;
-   }
 
    static Long64_t event_number(0);
    ++event_number;
@@ -377,58 +375,57 @@ Bool_t ThreadedMassEstimator::EstimateA(
    Double_t delta_init(-1.);
 
    struct me::SimulationResult res;
-   if (!medetector_stack_->Simulate(&parameters, &res)) {
+   if (!detector_stack_->Simulate(&parameters, &res)) {
       return kFALSE;
    }
 
    delta_init = res.delta;
 
    // Pack the input data into structs
-   struct me::ThreadData data[2];
 
    for (Int_t i = 0; i < 2; ++i) {
-      data[i].z_value_expt = input->z;
-      data[i].si_energy_expt = input->si_energy;
-      data[i].csi_light_expt = input->csi_light;
+      thread_data_[i].z_value_expt = input->z;
+      thread_data_[i].si_energy_expt = input->si_energy;
+      thread_data_[i].csi_light_expt = input->csi_light;
 
       // Give each thread a local copy of the possible A values
-      data[i].possible_a_values = *possible_a_values;
+      thread_data_[i].possible_a_values = *possible_a_values;
 
       // Set the (A, delta) as the starting point for both threads
-      data[i].minimum_a = parameters.a;
-      data[i].minimum_delta = delta_init;
-      data[i].max_iterations = max_iterations_;
+      thread_data_[i].minimum_a = parameters.a;
+      thread_data_[i].minimum_delta = delta_init;
+      thread_data_[i].max_iterations = max_iterations_;
 
    }
 
    // Iterating forwards (Increasing A from initial value)
-   data[0].kForwardIterator = kTRUE;
+   thread_data_[0].kForwardIterator = kTRUE;
 
    // Iterating backwards (Decreasing A from initial value)
-   data[1].kForwardIterator = kFALSE;
+   thread_data_[1].kForwardIterator = kFALSE;
 
    // Create the threads (one for each direction - increasing/decreasing A)
 
    pthread_t thr[2];
    Int_t status(0);
 
-   //////////////////
+   //----------------
    // Create Thread 0
-   //////////////////
+   //----------------
 
 #if __cplusplus < 201103L
    status = pthread_create(
                &thr[0],
                NULL,
                ThreadExec,
-               static_cast<void*>(&data[0])
+               static_cast<void*>(&thread_data_[0])
             );
 #else
    status = pthread_create(
                &thr[0],
                nullptr,
                ThreadExec,
-               static_cast<void*>(&data[0])
+               static_cast<void*>(&thread_data_[0])
             );
 #endif
 
@@ -437,23 +434,23 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   //////////////////
+   //----------------
    // Create Thread 1
-   //////////////////
+   //----------------
 
 #if __cplusplus < 201103L
    status = pthread_create(
                &thr[1],
                NULL,
                ThreadExec,
-               static_cast<void*>(&data[1])
+               static_cast<void*>(&thread_data_[1])
             );
 #else
    status = pthread_create(
                &thr[1],
                nullptr,
                ThreadExec,
-               static_cast<void*>(&data[1])
+               static_cast<void*>(&thread_data_[1])
             );
 #endif
 
@@ -462,9 +459,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   ////////////////
+   //--------------
    // Join Thread 0
-   ////////////////
+   //--------------
 
    Int_t thread_return(0);
 
@@ -481,9 +478,9 @@ Bool_t ThreadedMassEstimator::EstimateA(
       return kFALSE;
    }
 
-   ////////////////
+   //--------------
    // Join Thread 1
-   ////////////////
+   //--------------
 
    status = pthread_join(
                thr[1],
@@ -508,19 +505,19 @@ Bool_t ThreadedMassEstimator::EstimateA(
    Bool_t thread_ok[2];
    for (Int_t i = 0; i < 2; ++i) thread_ok[i] = kTRUE;
 
-   if (data[0].minimum_delta < 0.) thread_ok[0] = kFALSE;
-   if (data[1].minimum_delta < 0.) thread_ok[1] = kFALSE;
+   if (thread_data_[0].minimum_delta < 0.) thread_ok[0] = kFALSE;
+   if (thread_data_[1].minimum_delta < 0.) thread_ok[1] = kFALSE;
 
    if (thread_ok[0] && thread_ok[1]) {
 
-      if (data[0].minimum_delta < data[1].minimum_delta) {
-         a_min = data[0].minimum_a;
-         delta = data[0].minimum_delta;
+      if (thread_data_[0].minimum_delta < thread_data_[1].minimum_delta) {
+         a_min = thread_data_[0].minimum_a;
+         delta = thread_data_[0].minimum_delta;
          result_status = kThreadZeroResult;
 
-      } else if (data[1].minimum_delta < data[0].minimum_delta) {
-         a_min = data[1].minimum_a;
-         delta = data[1].minimum_delta;
+      } else if (thread_data_[1].minimum_delta < thread_data_[0].minimum_delta) {
+         a_min = thread_data_[1].minimum_a;
+         delta = thread_data_[1].minimum_delta;
          result_status = kThreadOneResult;
 
       } else {
@@ -528,19 +525,19 @@ Bool_t ThreadedMassEstimator::EstimateA(
          // provided the minimum delta. This is because both threads store
          // this point as their initial minimum reference)
 
-         a_min = data[0].minimum_a;
-         delta = data[0].minimum_delta;
+         a_min = thread_data_[0].minimum_a;
+         delta = thread_data_[0].minimum_delta;
          result_status = kEqualDeltas;
       }
 
    } else if (thread_ok[0] && !thread_ok[1]) {
-      a_min = data[0].minimum_a;
-      delta = data[0].minimum_delta;
+      a_min = thread_data_[0].minimum_a;
+      delta = thread_data_[0].minimum_delta;
       result_status = kThreadZeroResult;
 
    } else if (!thread_ok[0] && thread_ok[1]) {
-      a_min = data[1].minimum_a;
-      delta = data[1].minimum_delta;
+      a_min = thread_data_[1].minimum_a;
+      delta = thread_data_[1].minimum_delta;
       result_status = kThreadOneResult;
 
    } else {
@@ -553,39 +550,48 @@ Bool_t ThreadedMassEstimator::EstimateA(
       result->z_value = input->z;
       result->a_value = -1;
       result->delta = -1.;
-      result->forward_counter = data[0].counter;
-      result->backward_counter = data[1].counter;
+      result->forward_counter = thread_data_[0].counter;
+      result->backward_counter = thread_data_[1].counter;
       result->status = result_status;
 
       return kFALSE;
    }
 
-   if (calibration_range_error) {
-      result_status = kCalibrationRangeError;
-   }
-
    result->z_value = input->z;
    result->a_value = a_min;
    result->delta = delta;
-   result->forward_counter = data[0].counter;
-   result->backward_counter = data[1].counter;
+   result->forward_counter = thread_data_[0].counter;
+   result->backward_counter = thread_data_[1].counter;
    result->status = result_status;
 
    return kTRUE;
 }
 
-Float_t ThreadedMassEstimator::get_load_balance() const
-{
-   return load_balance_;
-}
+//______________________________________________________________________________
 
-void ThreadedMassEstimator::set_load_balance(Float_t load_balance)
+void ThreadedMassEstimator::SetLoadBalance(Float_t load_balance)
 {
    load_balance_ = load_balance;
 }
 
-void ThreadedMassEstimator::set_max_iterations(UInt_t iterations)
+//______________________________________________________________________________
+
+void ThreadedMassEstimator::SetMaximumIterations(UInt_t iterations)
 {
    max_iterations_ = iterations;
+}
+
+//______________________________________________________________________________
+
+Float_t ThreadedMassEstimator::GetLoadBalance() const
+{
+   return load_balance_;
+}
+
+//______________________________________________________________________________
+
+UInt_t ThreadedMassEstimator::GetMaximumIterations() const
+{
+   return max_iterations_;
 }
 

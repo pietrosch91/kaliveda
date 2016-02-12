@@ -111,18 +111,18 @@ Double_t KVFAZIACalibrator::Invert(Double_t energy)
 void KVFAZIACalibrator::Print(Option_t*) const
 {
    //Print a description of the calibration object, including a list of its parameters
-   cout << "_________________________________________________" << endl
-        << "KVCalibrator :" << endl
-        << "  Name : " << GetName() << endl
-        << "  Type : " << GetType() << endl
-        << "  Formula : " << GetFunction()->GetExpFormula() << endl
-        << "  Number of Parameters : " << GetFunction()->GetNpar() << endl
-        << "  Parameters :" << endl;
+   std::cout << "_________________________________________________" << std::endl
+             << "KVCalibrator :" << std::endl
+             << "  Name : " << GetName() << std::endl
+             << "  Type : " << GetType() << std::endl
+             << "  Formula : " << GetFunction()->GetExpFormula() << std::endl
+             << "  Number of Parameters : " << GetFunction()->GetNpar() << std::endl
+             << "  Parameters :" << std::endl;
    for (UShort_t i = 0; i < GetFunction()->GetNpar(); i++) {
-      cout << "    " << GetFunction()->GetParName(i) << ": " << GetFunction()->GetParameter(i) << endl;
+      std::cout << "    " << GetFunction()->GetParName(i) << ": " << GetFunction()->GetParameter(i) << std::endl;
    }
    if (GetStatus())
-      cout << "  Status : ready" << endl;
+      std::cout << "  Status : ready" << std::endl;
    else
-      cout << "  Status : not ready" << endl;
+      std::cout << "  Status : not ready" << std::endl;
 }
