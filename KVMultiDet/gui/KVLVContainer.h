@@ -179,7 +179,7 @@ public:
    TGLVEntry* GetLastSelectedItem() const
    {
       // Returns last clicked item in list
-      return fLastActive;
+      return (TGLVEntry*)GetLastActive();
    };
    TObject* GetFirstInList();
    TObject* GetLastInList();
