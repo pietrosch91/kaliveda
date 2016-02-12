@@ -222,3 +222,38 @@ Bool_t KVDMSDataRepository::GetFileInfo(KVDataSet* ds,
    return kFALSE;
 }
 
+TObject* KVDMSDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
+{
+   // Overrides KVDataRepository method
+   //
+   // If ReadProtocol == "root" we use KVDataRepository method to open file via xrootd server
+   //
+   // If ReadProtocol != "root" (default if user does not specify [name].DataRepository.ReadProtocol:root):
+   //
+   //    1) we look for a copy of the file in the user's temporary directory (gSystem->TempDirectory());
+   //    2) if no copy exists, we download the file to the user's temporary directory
+   //    3) we open the file in the user's temporary directory
+
+   // get read protocol for dataset and datatype
+   TString RP = GetReadProtocol(ds->GetName(), type);
+   if (RP == "root") return KVDataRepository::OpenDataSetRunFile(ds, type, run, opt);
+
+   // get name of file
+   TString filename = ds->GetRunfileName(type, run);
+   if (filename == "") {
+      Error("OpenDataSetRunFile", "No file found for run %d of data-type %s", run, type);
+      return nullptr;
+   }
+
+   // look for file in temp dir
+   TString tmpdir_filepath;
+   AssignAndDelete(tmpdir_filepath, gSystem->ConcatFileName(gSystem->TempDirectory(), filename.Data()));
+
+   if (gSystem->AccessPathName(tmpdir_filepath)) {
+      // copy file to temp dir
+      CopyFileFromRepository(ds, type, filename, tmpdir_filepath);
+   }
+
+   return OpenDataSetFile(ds, type, tmpdir_filepath, opt);
+}
+

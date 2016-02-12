@@ -5,7 +5,6 @@ $Date: 2009/03/11 14:22:41 $
 $Author: franklan $
 */
 
-#include "TROOT.h"
 #include "TMethodCall.h"
 #include "KVDataSet.h"
 #include "KVDataRepository.h"
@@ -728,12 +727,12 @@ Bool_t KVDataSet::GetDataSetEnv(const Char_t* type, Bool_t defval) const
 
 TObject* KVDataSet::OpenRunfile(const Char_t* type, Int_t run)
 {
-   //Open file containing data of given datatype for given run number of this dataset.
-   //Returns a pointer to the opened file; if the file is not available, we return 0.
-   //The user must cast the returned pointer to the correct class, which will
-   //depend on the data type and the dataset (see $KVROOT/KVFiles/.kvrootrc)
+   // Open file containing data of given datatype for given run number of this dataset.
+   // Returns a pointer to the opened file; if the file is not available, we return nullptr.
+   // The user must cast the returned pointer to the correct class, which will
+   // depend on the data type and the dataset (see $KVROOT/KVFiles/.kvrootrc)
 
-   return Open(type, run);
+   return GetRepository()->OpenDataSetRunFile(this, type, run);
 }
 
 //__________________________________________________________________________________________________________________
@@ -1432,81 +1431,6 @@ KVDataAnalysisTask* KVDataSet::GetAnalysisTask(const Char_t* keywords) const
 
 //___________________________________________________________________________
 
-TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t* opt)
-{
-   //Open a file using plugin defined in $KVROOT/KVFiles/.kvrootrc
-   //The default base classes for each type are defined as in this example:
-   //
-   // # Default base classes for reading runfiles of different types
-   // DataSet.RunFileClass.raw:    KVRawDataReader
-   // DataSet.RunFileClass.recon:    TFile
-   // DataSet.RunFileClass.ident:    TFile
-   // DataSet.RunFileClass.root:    TFile
-   //
-   //A different base class can be defined for a specific dataset/datatype
-   //by adding a line to your $HOME/.kvrootrc like this:
-   //
-   //name_of_dataset.DataSet.RunFileClass.data_type:     BaseClassName
-   //
-   //The actual class to be used is then defined by plugins in $KVROOT/KVFiles/.kvrootrc,
-   //for example
-   //
-   //Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
-   //
-   //which defines the plugin for raw data for all datasets whose name begins with "INDRA"
-   //If no plugin is found for the base class defined by DataSet.RunFileClass, the base class is used.
-   //
-   //To actually open the file, each base class & plugin must define a method
-   //    static BaseClass* Open(const Char_t* path, Option_t* opt="", ...)
-   //which takes the full path to the file as argument (any other arguments taking default options)
-   //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
-
-   TString fname = GetFullPathToRunfile(type, run);
-   if (fname == "") return 0; //file not found
-
-   // check connection to repository (e.g. SSH tunnel) in case of remote repository
-   if (!fRepository->IsConnected()) return 0;
-
-   //get base class for dataset & type
-   KVString base_class = GetDataSetEnv(Form("DataSet.RunFileClass.%s", type));
-
-   //look for plugin specific to dataset & type
-   TPluginHandler* ph = LoadPlugin(base_class.Data(), Form("%s.%s", type, GetName()));
-
-   TClass* cl;
-   if (!ph) {
-      //no plugin - use base class
-      cl = gROOT->GetClass(base_class.Data());
-   } else {
-      cl = gROOT->GetClass(ph->GetClass());
-   }
-
-   //set up call to static Open method
-   TMethodCall* methcall;
-   if (strcmp(opt, "")) {
-      //Open with option
-      methcall = new  TMethodCall(cl, "Open", Form("\"%s\", \"%s\"", fname.Data(), opt));
-   } else {
-      //Open without option
-      methcall = new  TMethodCall(cl, "Open", Form("\"%s\"", fname.Data()));
-   }
-
-   if (!methcall->IsValid()) {
-      if (ph) Error("Open", "Open method for class %s is not valid", ph->GetClass());
-      else Error("Open", "Open method for class %s is not valid", base_class.Data());
-      delete methcall;
-      return 0;
-   }
-
-   //open the file
-   Long_t retval;
-   methcall->Execute(retval);
-   delete methcall;
-   return ((TObject*)retval);
-}
-
-//___________________________________________________________________________
-
 void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
 {
    //Create a skeleton analysis class to be used for analysis of the data belonging to this dataset.
@@ -1543,7 +1467,7 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
 
    TClass* cl = 0x0;
    //has the user base class for the task been compiled and loaded ?
-   if (dat->CheckUserBaseClassIsLoaded()) cl = gROOT->GetClass(dat->GetUserBaseClass());
+   if (dat->CheckUserBaseClassIsLoaded()) cl = TClass::GetClass(dat->GetUserBaseClass());
    else {
       delete dat;
       return;
@@ -1650,6 +1574,30 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
    Int_t ret = gSystem->Exec(cmd.Data());
    gSystem->cd(pwd.Data());
    return (ret != 0);
+}
+
+TString KVDataSet::GetOutputRepository(const Char_t* taskname)
+{
+   // Returns name of output repository for given task.
+   // By default it is the name of the repository associated with this dataset,
+   // but can be changed by the following environment variables:
+   //
+   // [repository].DefaultOutputRepository: [other repository]
+   //    - this means that all tasks carried out on data in [repository]
+   //      will have their output files placed in [other repository]
+   //
+   // [taskname].DataAnalysisTask.OutputRepository: [other repository]
+   //    - this means that for [taskname], any output files will
+   //      be placed in [other repository]
+   //
+   // [dataset].[taskname].DataAnalysisTask.OutputRepository: [other repository]
+   //    - this means that for given [dataset] & [taskname],
+   //      any output files will be placed in [other repository]
+
+   if (gEnv->Defined(Form("%s.DataRepository.DefaultOutputRepository", GetRepository()->GetName())))
+      return TString(gEnv->GetValue(Form("%s.DataRepository.DefaultOutputRepository", GetRepository()->GetName()), ""));
+   TString orep = GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository", taskname), GetRepository()->GetName());
+   return orep;
 }
 
 //___________________________________________________________________________
