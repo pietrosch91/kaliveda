@@ -1105,6 +1105,7 @@ void KVDataAnalysisLauncher::SetRunsList()
       lvRuns->RemoveAll();
       entryMax = -1;
    }
+
    KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(cbTask->GetSelected() + 1);
    KVDBSystem* system = 0;
    if (!noSystems) {
@@ -1430,6 +1431,7 @@ void KVDataAnalysisLauncher::SetSystem(const Char_t* r)
       DisableUserClassList();
       //Info("SetSystem","SetRuns()");
       SetRuns();
+      lvRuns->RemoveAll();
    } else {
       lvSystems->ActivateItemWithColumnData("Name", r);
       SystemSelectionChanged();
