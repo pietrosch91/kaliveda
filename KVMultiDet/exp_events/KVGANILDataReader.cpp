@@ -257,8 +257,9 @@ void KVGANILDataReader::OpenFile(const Char_t* file)
    //The full pathname of the file can be obtained using GetTitle()
    //
    //If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
-   //to the correct dataset, this will allow to build the necessary multidetector object if it has not already
-   //been done, and to set the calibration parameters etc. as a function of the run number.
+   //to the correct dataset, the associated multidetector object with the calibration parameters etc.
+   //for the run will be built (any previously existing object pointed to by gMultiDetArray will
+   //be deleted beforehand)
    //
    //If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
    //then a list of KVACQParam objects will be generated and connected ready for reading the data.
@@ -310,10 +311,10 @@ void KVGANILDataReader::OpenFile(const Char_t* file)
       }
    }
    // if this data belongs to a known (and currently active dataset), we
-   // build the corresponding multidetector array, if defined
-   if (gDataSet && !gMultiDetArray) {
+   // build the corresponding multidetector array corresponding to the run
+   if (gDataSet)
       KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), fGanilData->GetRunNumber());
-   }
+
    ConnectRawDataParameters();
 }
 
