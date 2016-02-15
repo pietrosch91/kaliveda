@@ -1,8 +1,9 @@
-kaliveda (1.10.8-0ubuntu1) UNRELEASED; urgency=medium
+kaliveda (1.10.8-0ubuntu2) UNRELEASED; urgency=medium
 
   * New release v1.10/08
+  * CMake compiler incompatibility check: just a warning
 
- -- John Frankland <frankland@ganil.fr>  Fri, 12 Feb 2016 15:31:07 +0100
+ -- John Frankland <frankland@ganil.fr>  Mon, 15 Feb 2016 09:52:59 +0100
 
 kaliveda (1.10.7-0ubuntu5) wily; urgency=medium
 
