@@ -271,19 +271,16 @@ void KVParticle::Copy(TObject& obj) const
 void KVParticle::Copy(TObject& obj)
 #endif
 {
-   //Copy this to obj
-   //l'operateur d assignation est celui du TLorentzVector
-   //avec un rajout pour le champs fE0
-   //La KVList des KVParticle deduite de la methode SetFrame
-   //n est pas copiee
-   //Info("Copy","je rentre");
-   TLorentzVector::Copy(obj);
+   // Copy this to obj
+   // Particle kinematics are copied using operator=(const KVParticle&)
+   // List of particle's groups is copied
+   // The particle's name is copied
+   // The list of parameters associated with the particle is copied
+
    ((KVParticle&) obj) = *this;
    ((KVParticle&) obj).SetGroups(this->GetGroups());
    ((KVParticle&) obj).SetName(this->GetName());
    fParameters.Copy(((KVParticle&) obj).fParameters);
-   //((KVParticle &) obj).SetFrameName(GetFrameName());
-   //Info("Copy","je sort");
 }
 
 
