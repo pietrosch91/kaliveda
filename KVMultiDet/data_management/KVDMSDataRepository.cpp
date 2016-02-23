@@ -222,6 +222,24 @@ Bool_t KVDMSDataRepository::GetFileInfo(KVDataSet* ds,
    return kFALSE;
 }
 
+const Char_t* KVDMSDataRepository::GetFullPathToOpenFile(KVDataSet* dataset, const Char_t* datatype, const Char_t* runfile)
+{
+   // Redefinition of KVDataRepository::GetFullPathToOpenFile
+   //
+   // If ReadProtocol != "root" then we use the DMS to download copies of data repository
+   // files to the user's temporary directory for analysis - see OpenDataSetRunFile.
+   // In this case, the full path to open the given file is that of the temporary directory copy
+
+   // get read protocol for dataset and datatype
+   TString RP = GetReadProtocol(dataset->GetName(), datatype);
+   if (RP == "root") return KVDataRepository::GetFullPathToOpenFile(dataset, datatype, runfile);
+
+   // look for file in temp dir
+   static TString tmpdir_filepath;
+   AssignAndDelete(tmpdir_filepath, gSystem->ConcatFileName(gSystem->TempDirectory(), runfile));
+   return tmpdir_filepath.Data();
+}
+
 TObject* KVDMSDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
 {
    // Overrides KVDataRepository method
