@@ -98,10 +98,9 @@ void KVQL1::TreateSignal()
       PoleZeroSuppression(fTauRC);
    FIR_ApplyTrapezoidal(fTrapRiseTime, fTrapFlatTop);
    ComputeAmplitude();
-   fAmplitude = GetAmplitude();
+
    SetADCData();
    ComputeRiseTime();
-   fRiseTime = GetRiseTime();
 
    fPSAIsDone = kTRUE;
 

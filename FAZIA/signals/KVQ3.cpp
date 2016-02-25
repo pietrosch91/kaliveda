@@ -139,7 +139,6 @@ void KVQ3::TreateSignal()
    fAmplitude = GetAmplitude();// - (sQ3fast[fMtot-1])*0.5;
 
    ComputeRiseTime();
-   fRiseTime = GetRiseTime();
 
    fPSAIsDone = kTRUE;
 

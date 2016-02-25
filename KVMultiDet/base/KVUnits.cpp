@@ -16,6 +16,12 @@ quantity is as follows:<br>
 (KVUnits::g)<br>
 standard length unit : centimetres (KVUnits::cm)<br>
 standard pressure unit : torr (KVUnits::torr)<br>
+standard mass unit : grammes (KVUnits::gr)<br>
+standard volume unit : cc/ml (KVUnits::cc)<br>
+standard energy unit : MeV (KVUnits::MeV)<br>
+standard time unit : fm/c (KVUnits::fmpc)<br>
+standard density unit : nuc/fm3 (KVUnits::nucpfm3)<br>
+standard temperature unit : MeV/kb (KVUnits::MeVpkb)<br>
 </div>
 <br>
 The value of the corresponding numerical constant for each of the

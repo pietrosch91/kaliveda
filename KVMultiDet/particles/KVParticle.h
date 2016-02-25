@@ -160,6 +160,13 @@ public:
    {
       return GetKE();
    };
+   Double_t GetWaveLength() const
+   {
+      if (GetMomentum().Mag() == 0)
+         return 0;
+      Double_t hbar = TMath::Hbar() * TMath::C() / TMath::Qe() * 1e9; //in MeV/fm
+      return TMath::TwoPi() * hbar / GetMomentum().Mag();
+   };
    TVector3 GetVelocity() const;
    TVector3 GetV() const
    {
