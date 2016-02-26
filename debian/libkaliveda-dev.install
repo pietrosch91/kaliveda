@@ -113,6 +113,7 @@
 /usr/include/kaliveda/KVRTGIDManager.h
 /usr/include/kaliveda/KVDetectorEvent.h
 /usr/include/kaliveda/KVElasticScatterEvent.h
+/usr/include/kaliveda/KVExpSetUp.h
 /usr/include/kaliveda/KVMultiDetArray.h
 /usr/include/kaliveda/KVUpDater.h
 /usr/include/kaliveda/KVGeoImport.h
