@@ -116,6 +116,8 @@ void KVINDRA_VAMOS::Build(Int_t run)
    // To be sure that gMultiDetArray points on this object.
    gMultiDetArray = this;
 
+
+
    if (run > -1) SetParameters(run);
 }
 //________________________________________________________________
@@ -292,7 +294,6 @@ void KVINDRA_VAMOS::SetParameters(UShort_t n)
    fCurrentRun = n;
 }
 //________________________________________________________________
-
 
 void KVINDRA_VAMOS::SetROOTGeometry(Bool_t on)
 {

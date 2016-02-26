@@ -6,16 +6,10 @@ INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.KVDataSet.DataType.Subdir.root:  root
-+Plugin.KVMultiDetArray:    INDRAFAZIA    KVINDRAFAZIA    indrafaziageometry    "KVINDRAFAZIA()"
-+Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
-+Plugin.KVUpDater: INDRAFAZIA KVINDRAUpDater KVIndradb "KVINDRAUpDater()"
+INDRAFAZIA.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
 
-# FAZIA Geometry used by KVINDRAFAZIA
-INDRAFAZIA.GeoType:  		 compact
-INDRAFAZIA.DistanceFAZIA:   80.0
-INDRAFAZIA.ThetaMinCompactGeo: 2.0
-
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
++Plugin.KVMultiDetArray:    INDRAFAZIA    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
++Plugin.KVDataBase:   INDRAFAZIA    KVDataBase     KVMultiDetdb   "KVDataBase(const Char_t*)"
++Plugin.KVUpDater: INDRAFAZIA KVUpDater KVMultiDetdb "KVUpDater()"
++Plugin.KVFAZIA:    INDRAFAZIA    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
++Plugin.KVINDRA:    INDRAFAZIA    KVINDRA    KVIndraexp_events    "KVINDRA()"

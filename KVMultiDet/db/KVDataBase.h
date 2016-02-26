@@ -35,6 +35,7 @@ protected:
 
 public:
    KVDataBase();
+   KVDataBase(const Char_t* name);
    KVDataBase(const Char_t* name, const Char_t* title);
    virtual ~ KVDataBase();
 

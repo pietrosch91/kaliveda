@@ -65,7 +65,7 @@ public:
    void ReflectPad(TVector3* orig, Double_t phicentre, TVector3* newpad);
    void CloseAndDraw();
 
-   TGeoManager* Build(Bool_t withTarget = kTRUE, Bool_t closeGeometry = kTRUE);
+   void Build(Bool_t withTarget = kTRUE, Bool_t closeGeometry = kTRUE);
    void BuildTarget();
    void Build(KVNumberList& rings, KVNameValueList& detectors);
    void TransformToOwnFrame(TVector3* orig, TVector3& centre, TVector3* ownframe);

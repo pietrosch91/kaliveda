@@ -31,6 +31,9 @@ class KVMultiDetArray : public KVGeoStrucElement {
 
 protected:
 
+   static Bool_t fCloseGeometryNow;
+   static Bool_t fBuildTarget;
+
    KVTarget* fTarget;          //target used in experiment
    enum {
       kIsRemoving = BIT(14),     //flag set during call to RemoveLayer etc.
@@ -58,7 +61,7 @@ protected:
 
    Int_t fFilterType;//! type of filtering (used by DetectEvent)
 
-   TGeoManager* fGeoManager;//! array geometry
+   //TGeoManager* fGeoManager;//! array geometry
 
    KVRangeTableGeoNavigator* fNavigator;//! for propagating particles through array geometry
 
@@ -83,10 +86,23 @@ protected:
 
    virtual void SetCalibrators();
    virtual void SetDetectorThicknesses();
-   virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500,
-                                         Bool_t /*closegeo*/ = kTRUE)
+   void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {
-      return 0;
+      if (!gGeoManager) {
+
+         new TGeoManager(GetName(), Form("%s geometry for dataset %s", GetName(), fDataSet.Data()));
+
+         TGeoMaterial* matVacuum = gGeoManager->GetMaterial("Vacuum");
+         if (!matVacuum) {
+            matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+            matVacuum->SetTitle("Vacuum");
+         }
+         TGeoMedium* Vacuum = gGeoManager->GetMedium("Vacuum");
+         if (!Vacuum) Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+         TGeoVolume* top = gGeoManager->MakeBox("WORLD", Vacuum,  dx, dy, dz);
+         gGeoManager->SetTopVolume(top);
+      }
+
    }
 
    virtual void GetAlignedIDTelescopesForDetector(KVDetector* det, TCollection* list);
@@ -98,6 +114,7 @@ public:
    void SetGeometry(TGeoManager*);
    TGeoManager* GetGeometry() const;
    KVGeoNavigator* GetNavigator() const;
+   void SetNavigator(KVGeoNavigator* geo);
 
    // filter types. values of fFilterType
    enum EFilterType {
@@ -182,7 +199,7 @@ public:
    {
       return TestBit(kIsBuilt);
    }
-   static KVMultiDetArray* MakeMultiDetector(const Char_t* dataset_name, Int_t run = -1);
+   static KVMultiDetArray* MakeMultiDetector(const Char_t* dataset_name, Int_t run = -1, TString classname = "KVMultiDetArray");
 
    Bool_t IsBeingDeleted()
    {
@@ -250,7 +267,7 @@ public:
    virtual void SetROOTGeometry(Bool_t on = kTRUE);
    Bool_t IsROOTGeometry() const
    {
-      return (fROOTGeometry && fGeoManager);
+      return (fROOTGeometry && gGeoManager);
    };
    void CalculateDetectorSegmentationIndex();
 

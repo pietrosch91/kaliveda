@@ -100,11 +100,13 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVUpDater:    ISOFAZIA    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 +Plugin.KVUpDater:    FAZIASYM    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 +Plugin.KVUpDater:    LNS_2014    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
++Plugin.KVUpDater:    INDRAFAZIA    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 
 ############
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      INDRAFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 
 #gerer automatiquement par KVMultiDetArray::GetIDTelescopes
 +Plugin.KVIDTelescope:    ^ISOFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
@@ -119,6 +121,10 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVIDTelescope:    ^LNS_2014.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^LNS_2014.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^LNS_2014.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 ############
 LNS_2014.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2014.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector

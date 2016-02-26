@@ -128,23 +128,15 @@ void KVFAZIA::Build(Int_t)
    GetGeometryParameters();
    GenerateCorrespondanceFile();
 
-   if (!gGeoManager) {
-      new TGeoManager("FAZIA", Form("FAZIA geometry for dataset %s", gDataSet->GetName()));
-
-      TGeoMaterial* matVacuum = gGeoManager->GetMaterial("Vacuum");
-      if (!matVacuum) {
-         matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-         matVacuum->SetTitle("Vacuum");
-      }
-      TGeoMedium* Vacuum = gGeoManager->GetMedium("Vacuum");
-      if (!Vacuum) Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-      TGeoVolume* top = gGeoManager->MakeBox("WORLD", Vacuum,  500, 500, 500);
-      gGeoManager->SetTopVolume(top);
-   }
+   CreateGeoManager();
 
    BuildFAZIA();
+
    if (fBuildTarget)
       BuildTarget();
+
+   if (fCloseGeometryNow)
+      gGeoManager->CloseGeometry();
 
    KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
    imp.SetDetectorPlugin(ClassName());
@@ -156,20 +148,6 @@ void KVFAZIA::Build(Int_t)
    // geometry placed at 80cm with rings 1-5 of INDRA removed.
    // make sure that the expected number of detectors get imported!
    imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
-
-   /*
-   KVFAZIADetector* det=0;
-   TIter next_d(GetDetectors());
-   while ( det = (KVFAZIADetector* )next_d() ){
-      printf("%s %s %d %d %d\n",det->GetName(),det->GetFAZIAType(),det->GetBlockNumber(),det->GetQuartetNumber(),det->GetTelescopeNumber());
-   }
-   */
-   SetIdentifications();
-   SortIDTelescopes();
-   KVDetector* det = GetDetector("SI2-T1-Q1-B001");
-   det->GetIDTelescopes()->ls();
-
-
 
    SetDetectorThicknesses();
    SetBit(kIsBuilt);

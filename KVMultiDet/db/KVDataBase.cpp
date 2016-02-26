@@ -147,6 +147,15 @@ KVDataBase::KVDataBase(const Char_t* name, const Char_t* title)
 }
 
 //_______________________________________________________________________
+KVDataBase::KVDataBase(const Char_t* name)
+   : TFolder(name, "database")
+{
+   gROOT->GetRootFolder()->Add(this);
+   SetOwner(kTRUE);
+   fDataSet = name;
+}
+
+//_______________________________________________________________________
 KVDataBase::~KVDataBase()
 {
    //reset global database pointer if it was pointing to this DB

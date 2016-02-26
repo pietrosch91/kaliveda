@@ -96,7 +96,4 @@ void KVFAZIA_2B::BuildFAZIA()
 
    }
 
-   gGeoManager->CloseGeometry();
-   gGeoManager->DefaultColors();
-
 }

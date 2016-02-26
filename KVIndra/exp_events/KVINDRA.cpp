@@ -789,7 +789,7 @@ void KVINDRA::SetGGtoPGConversionFactors()
 
 //_________________________________________________________________________________
 
-TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t closegeo)
+void KVINDRA::CreateROOTGeometry()
 {
    // Overrides KVASMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
    // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
@@ -801,21 +801,17 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t clos
    //
    // If closegeo=kFALSE we leave the geometry open for other structures to be added.
 
-   if (!IsBuilt()) return NULL;
+   if (!IsBuilt()) {
+      Error("CreateROOTGeometry", "gIndra has to be build first");
+      return;
+   }
+   //if (!GetNavigator()) { Error("CreateROOTGeometry","No existing navigator"); return; }
 
-   if (!gGeoManager) {
-      INDRAGeometryBuilder igb;
-      // build multidetector, but not the target. energy losses in target are handled
-      // by KVASMultiDetArray::DetectEvent
-      SetGeometry(igb.Build(kFALSE, closegeo));
-   } else
-      SetGeometry(gGeoManager);
-
-   GetNavigator()->SetNameCorrespondanceList("INDRA.names");
+   //GetNavigator()->SetNameCorrespondanceList("INDRA.names");
 
    // set up shape & matrix pointers in detectors
-   Info("CreateGeoManager", "Scanning geometry shapes and matrices...");
-   KVGeoImport gimp(fGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
+   Info("CreateROOTGeometry", "Scanning geometry shapes and matrices...");
+   KVGeoImport gimp(gGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
    gimp.SetNameCorrespondanceList("INDRA.names");
    KVEvent* evt = new KVEvent();
    KVNucleus* nuc = evt->AddParticle();
@@ -829,7 +825,7 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t clos
       gimp.SetLastDetector(0);
       gimp.PropagateEvent(evt);
       if (!(det->GetActiveLayerShape() && det->GetActiveLayerMatrix())) {
-         Info("CreateGeoManager", "Volume checking for %s", det->GetName());
+         Info("CreateROOTGeometry", "Volume checking for %s", det->GetName());
          Double_t theta0 = det->GetTheta();
          Double_t phi0 = det->GetPhi();
          for (Double_t TH = theta0 - 0.5; TH <= theta0 + 0.5; TH += 0.1) {
@@ -844,7 +840,7 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t clos
          }
       }
       if (!(det->GetActiveLayerShape() && det->GetActiveLayerMatrix())) {
-         Info("CreateGeoManager", "Volume checking failed for : %s", det->GetName());
+         Info("CreateROOTGeometry", "Volume checking failed for : %s", det->GetName());
       }
       // check etalon trajectories
       if (det->GetActiveLayerShape() && det->GetActiveLayerMatrix()
@@ -853,7 +849,7 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t clos
                 || det->IsCalled("CSI_1403") || det->IsCalled("CSI_1503")
                 || det->IsCalled("CSI_1602") || det->IsCalled("CSI_1702"))
             && det->GetNode()->GetNDetsInFront() < 2) {
-         Info("CreateGeoManager", "Trajectory checking for %s", det->GetName());
+         Info("CreateROOTGeometry", "Trajectory checking for %s", det->GetName());
          Double_t theta0 = det->GetTheta();
          Double_t phi0 = det->GetPhi();
          for (Double_t TH = theta0 - 0.5; TH <= theta0 + 0.5; TH += 0.1) {
@@ -870,11 +866,9 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t, Double_t, Double_t, Bool_t clos
       nrootgeo += (det->GetActiveLayerShape() && det->GetActiveLayerMatrix());
    }
    delete evt;
-   // calculate detector node trajectories
-   //CalculateGeoNodeTrajectories();
-   // check etalon module trajectories
-   Info("CreateGeoManager", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
-   return fGeoManager;
+
+   Info("CreateROOTGeometry", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
+
 }
 
 void KVINDRA::SetROOTGeometry(Bool_t on)
@@ -883,15 +877,14 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
    // If ROOT geometry is requested but has not been built, we create it
 
    if (on) {
-      if (!GetGeometry()) CreateGeoManager();
-      else {
-         // ROOT geometry already exists, we need to set up the navigator
-         KVASMultiDetArray::SetROOTGeometry(on);
-         GetNavigator()->SetNameCorrespondanceList("INDRA.names");
-      }
-   } else
-      KVASMultiDetArray::SetROOTGeometry(on);
-
+      CreateGeoManager();
+      INDRAGeometryBuilder igb;
+      igb.Build(kFALSE, fCloseGeometryNow);
+      //GetNavigator()->SetNameCorrespondanceList("INDRA.names");
+      CreateROOTGeometry();
+   } else {
+      KVMultiDetArray::SetROOTGeometry(on);
+   }
 }
 
 

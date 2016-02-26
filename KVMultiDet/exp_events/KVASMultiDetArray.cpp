@@ -244,46 +244,6 @@ KVRing* KVASMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
 
 
 //_________________________________________________________________________________
-
-TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bool_t closegeo)
-{
-   // This will create an instance of TGeoManager (any previous existing geometry gGeoManager
-   // will be automatically deleted) and initialise it with the full geometry of the current multidetector
-   // array. Every detector of the array will be represented in the resulting geometry.
-   //
-   // In order to build and view the geometry of a multidetector array, do:
-   //
-   //   TGeoManager* gm = gMultiDetArray->CreateGeoManager()
-   //   gm->GetTopVolume()->Draw()
-   //
-   // For information on using the ROOT geometry package, see TGeoManager and related classes,
-   // as well as the chapter "The Geometry Package" in the ROOT Users' Guide.
-   //
-   // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
-   // into which all the detectors of the array are placed. This should be big enough so that all detectors
-   // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
-   // going from -500cm to +500cm on each axis).
-   //
-   // If closegeo=kFALSE we leave the geometry open for other structures to be added.
-
-   if (!IsBuilt()) return NULL;
-   SafeDelete(fGeoManager);
-   fGeoManager = new TGeoManager(GetName(), GetTitle());
-   TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   TGeoMedium* Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   TGeoVolume* top = fGeoManager->MakeBox("WORLD", Vacuum,  dx, dy, dz);
-   fGeoManager->SetTopVolume(top);
-   KVSeqCollection* fLayers = GetStructureTypeList("LAYER");
-   TIter nxt_lay(fLayers);
-   KVLayer* L;
-   while ((L = (KVLayer*)nxt_lay())) {
-      L->AddToGeometry();
-   }
-   delete fLayers;
-   if (closegeo) fGeoManager->CloseGeometry();
-   return fGeoManager;
-}
-
 void KVASMultiDetArray::CalculateGroupsFromGeometry()
 {
    ClearStructures("GROUP");          // clear out (delete) old groups

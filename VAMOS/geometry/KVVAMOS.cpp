@@ -233,20 +233,7 @@ void KVVAMOS::BuildVAMOSGeometry()
       return;
    }
 
-
-   if (gGeoManager) {
-      Warning("BuildVAMOSGeometry", "The existing geometry gGeoManager (%s, %s) is going to be deleted!!!", gGeoManager->GetName(), gGeoManager->GetTitle());
-      delete gGeoManager;
-   }
-
-   fGeoManager = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
-   SetROOTGeometry();
-   TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   matVacuum->SetTitle("Vacuum");
-   TGeoMedium* Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   TGeoVolume* top = fGeoManager->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
-   fGeoManager->SetTopVolume(top);
-
+   CreateGeoManager();
 
    BuildFocalPlaneGeometry(&infos);
    BuildGeoVolume(&infos);

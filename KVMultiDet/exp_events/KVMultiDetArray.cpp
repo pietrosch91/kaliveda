@@ -43,6 +43,9 @@ using namespace std;
 
 KVMultiDetArray* gMultiDetArray = 0x0;
 
+Bool_t KVMultiDetArray::fCloseGeometryNow = kTRUE;
+Bool_t KVMultiDetArray::fBuildTarget = kFALSE;
+
 ClassImp(KVMultiDetArray)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -95,7 +98,7 @@ void KVMultiDetArray::init()
    fROOTGeometry = gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", kTRUE);
    fFilterType = kFilterType_Full;
 
-   fGeoManager = 0;
+//   fGeoManager = 0;
    fNavigator = 0;
    fUpDater = 0;
 
@@ -140,7 +143,7 @@ KVMultiDetArray::~KVMultiDetArray()
       fCalibStatusDets = 0;
    }
 
-   SafeDelete(fGeoManager);
+//   SafeDelete(fGeoManager);
    SafeDelete(fNavigator);
    SafeDelete(fUpDater);
 
@@ -589,12 +592,12 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
    }
 
    if (IsROOTGeometry()) {
-      if (!fGeoManager) {
-         Error("DetectEvent", "ROOT geometry is requested, but has not been set: fGeoManager=0x0");
+      if (!gGeoManager) {
+         Error("DetectEvent", "ROOT geometry is requested, but has not been set: gGeoManager=0x0");
          return;
       }
       // set up geometry navigator
-      if (!fNavigator) fNavigator = new KVRangeTableGeoNavigator(fGeoManager, KVMaterial::GetRangeTable());
+      if (!fNavigator) fNavigator = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
    }
 
    //Clear the KVReconstructed pointer before a new filter process
@@ -1087,7 +1090,10 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus* part)
 
    // list of energy losses in active layers of detectors
    KVNameValueList* NVL = 0;
-
+   if (!fNavigator) {
+      Error("DetectParticle_TGEO", "No existing navigator ...");
+      return 0;
+   }
    fNavigator->PropagateParticle(part);
 
    // particle missed all detectors
@@ -1564,7 +1570,7 @@ void KVMultiDetArray::SetPedestals(const Char_t* filename)
 
 //_________________________________________________________________________________
 
-KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, Int_t run)
+KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, Int_t run, TString classname)
 {
    //Static function which will create and 'Build' the multidetector object corresponding to
    //a given run of dataset 'dataset_name'
@@ -1590,15 +1596,13 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
       }
    }
    TPluginHandler* ph;
-   if (!(ph = LoadPlugin("KVMultiDetArray", dataset_name)))
+   if (!(ph = LoadPlugin(classname.Data(), dataset_name)))
       return 0;
 
    //execute constructor/macro for multidetector - assumed without arguments
    KVMultiDetArray* mda = (KVMultiDetArray*) ph->ExecPlugin(0);
 
    mda->fDataSet = dataset_name;
-   //call Build() method
-   //printf("isbuild %d\n",mda->IsBuilt());
    mda->Build(run);
    return mda;
 }
@@ -2023,7 +2027,7 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
 TGeoManager* KVMultiDetArray::GetGeometry() const
 {
    // Return pointer to the (ROOT) geometry of the array.
-   return fGeoManager;
+   return gGeoManager;
 }
 
 KVGeoNavigator* KVMultiDetArray::GetNavigator() const
@@ -2106,7 +2110,7 @@ void KVMultiDetArray::SetGeometry(TGeoManager* g)
    // Define the geometry of the array with a valid ROOT geometry (TGeoManager instance)
    // The name and title of the TGeoManager object will be used for the array.
    // ROOT geometry will be used by default from now on.
-   fGeoManager = g;
+   //fGeoManager = g;
    SetNameTitle(g->GetName(), g->GetTitle());
    SetROOTGeometry();
 }
@@ -2175,13 +2179,13 @@ void KVMultiDetArray::SetROOTGeometry(Bool_t on)
    // Call SetGeometry(TGeoManager*) first with a valid geometry.
 
    fROOTGeometry = on;
-   if (on && !fGeoManager) {
-      Error("SetROOTGeometry", "ROOT geometry is requested, but has not been set: fGeoManager=0x0");
+   if (on && !gGeoManager) {
+      Error("SetROOTGeometry", "ROOT geometry is requested, but has not been set: gGeoManager=0x0,\n Call CreateGeoManager() method first");
       return;
    }
 
    // set up geometry navigator
-   if (on && !fNavigator) fNavigator = new KVRangeTableGeoNavigator(fGeoManager, KVMaterial::GetRangeTable());
+   if (on && !fNavigator) fNavigator = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
    else if (!on) SafeDelete(fNavigator);
 }
 
@@ -2492,3 +2496,7 @@ void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
    }
 }
 
+void KVMultiDetArray::SetNavigator(KVGeoNavigator* geo)
+{
+   fNavigator = (KVRangeTableGeoNavigator*)geo;
+}

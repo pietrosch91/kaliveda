@@ -32,7 +32,7 @@ KVFAZIASYM::~KVFAZIASYM()
 
 void KVFAZIASYM::GetGeometryParameters()
 {
-
+   //Defined number of blocks, the distance from the target and the minimum polar angle
    fNblocks = 4;
    fFDist = 80.0;
    fFThetaMin = 2.1;
@@ -76,6 +76,10 @@ void KVFAZIASYM::RutherfordTelescope()
 
 void KVFAZIASYM::BuildFAZIA()
 {
+   //Build geometry of FAZIASYM
+   //All telescopes are : Si(300µm)-Si(500µm)-CsI(10cm)
+   //No attempt has been made to implement real thicknesses
+   //
    Info("BuildFAZIA", "Compact geometry, %f cm from target",
         fFDist);
 
@@ -98,20 +102,6 @@ void KVFAZIASYM::BuildFAZIA()
    Double_t centre_hole = 2.*tan(theta_min * TMath::DegToRad()) * distance_block_cible;
    Double_t dx = (block->GetTotalSideWithBlindage()) / 2.;
 
-   /*
-   Double_t arc = block->GetTotalSideWithBlindage() / (distance_block_cible + thick_si1 / 2.);
-   arc /= 2;
-   arc *= TMath::RadToDeg();
-   */
-   fNblocks = 4;
-   //theta theorique 5.2
-   //dphi trouve par tatonnement ...
-   /*
-   Double_t dphi = 20;
-   dphi -= 5;
-
-   phi = -1 * (dphi + 90);
-   */
    TVector3 centre;
    for (Int_t bb = 0; bb < fNblocks; bb += 1) {
 
@@ -126,11 +116,6 @@ void KVFAZIASYM::BuildFAZIA()
       phi = centre.Phi() * TMath::RadToDeg();
       printf("BLK #%d => theta=%1.2lf - phi=%1.2lf\n", bb, theta, phi);
 
-      /*
-            phi += 90;
-            theta = 5.2;
-            printf("BLK #%d => theta=%1.2lf - phi=%1.2lf\n", bb, theta, phi);
-      */
       rot2.SetAngles(phi + 90., theta, 0.);
       rot1.SetAngles(-1.*phi, 0., 0.);
       h = rot2 * trans * rot1;
@@ -140,10 +125,6 @@ void KVFAZIASYM::BuildFAZIA()
 
    // add telescope for elastic scattering monitoring
    RutherfordTelescope();
-
-   gGeoManager->CloseGeometry();
-   gGeoManager->DefaultColors();
-
    // Change default geometry import angular range for rutherford telescope
    SetGeometryImportParameters(.25, 1., 1.84);
 }

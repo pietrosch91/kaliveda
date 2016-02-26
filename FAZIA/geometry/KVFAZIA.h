@@ -22,7 +22,7 @@ protected:
    Double_t fFThetaMin;//minimum polar angle for compact geometry (in degrees)
    Int_t fNblocks;   //number of blocks
    Int_t fStartingBlockNumber;   //starting number of block incrementation
-   Bool_t fBuildTarget; //kTRUE to include target frame in the geometry
+   //Bool_t fBuildTarget; //kTRUE to include target frame in the geometry
    TString fCorrespondanceFile; //name of the file where are listed links between geometry and detector names
    KVString fDetectorLabels;
    KVString fSignalTypes;

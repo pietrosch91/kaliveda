@@ -149,7 +149,10 @@ public:
    {
       return fSelecteur;
    };
-   virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500, Bool_t /*closegeo*/ = kTRUE);
+
+   void CreateROOTGeometry();
+
+
 
    const KVSeqCollection* GetListOfDetectors() const
    {

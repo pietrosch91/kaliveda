@@ -84,7 +84,4 @@ void KVISOFAZIA::BuildFAZIA()
 
    }
 
-   gGeoManager->CloseGeometry();
-   gGeoManager->DefaultColors();
-
 }

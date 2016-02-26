@@ -448,6 +448,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndradb    "KVINDRADB1(con
 +Plugin.KVDataBase:    INDRA_e613    KVINDRADB_e613     KVIndradb    "KVINDRADB_e613(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_camp5    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    INDRAFAZIA   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -459,6 +460,7 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndradb    "KVIND
 +Plugin.KVUpDater:    INDRA_e613    KVINDRAUpDater_e613     KVIndradb    "KVINDRAUpDater_e613()"
 +Plugin.KVUpDater:    INDRA_camp*    KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
++Plugin.KVUpDater:    INDRAFAZIA   KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
@@ -499,6 +501,8 @@ Plugin.KVIDTelescope:      ^PHOS$                  KVIDPhoswich         KVIndrai
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$     KVIDSiCsI_e475s      KVIndraidentification      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$      KVIDSiCsI_e613       KVIndraidentification      "KVIDSiCsI_e613()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.CI-SI$       KVIDChIoSi_e613      KVIndraidentification      "KVIDChIoSi_e613()"
+
+
 #======================= Identification parameter files for different datasets
 # Format is
 #

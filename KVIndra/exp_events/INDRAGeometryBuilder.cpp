@@ -664,20 +664,17 @@ void INDRAGeometryBuilder::BuildTarget()
    }
 }
 
-TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry)
+void INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry)
 {
    if (!gIndra) {
       Error("Build", "You must build the geometry with gDataSet->BuildMultiDetector() before calling this method");
-      return 0x0;
+      return;
    }
-   if (gGeoManager) delete gGeoManager;
 
-   TGeoManager* geom = new TGeoManager("INDRA", Form("INDRA geometry for dataset %s", gDataSet->GetName()));
-   TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   matVacuum->SetTitle("Vacuum");
-   TGeoMedium* Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   TGeoVolume* top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
-   geom->SetTopVolume(top);
+   if (!gGeoManager) {
+      Error("Build", "You must defined gGeoManager with KVMultiDetArray::CreateGeoManager before calling this method");
+      return;
+   }
 
    if (gIndra->GetDetector("PHOS_01")) MakeRing("PHOS", 1);
    else {
@@ -697,9 +694,11 @@ TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry
       if (gIndra->GetDetector(Form("SI75_%d", ring))) MakeEtalon(ring);
    }
    if (withTarget) BuildTarget();
-   if (closeGeometry) gGeoManager->CloseGeometry();
-   gGeoManager->DefaultColors();
-   return gGeoManager;
+   if (closeGeometry) {
+      gGeoManager->DefaultColors();
+      gGeoManager->CloseGeometry();
+   }
+
 }
 void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors)
 {
@@ -726,19 +725,12 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
       Error("Build", "You must build the geometry with gDataSet->BuildMultiDetector() before calling this method");
       return;
    }
-   if (!gGeoManager) {
-      new TGeoManager("INDRA", Form("INDRA geometry for dataset %s", gDataSet->GetName()));
 
-      TGeoMaterial* matVacuum = gGeoManager->GetMaterial("Vacuum");
-      if (!matVacuum) {
-         matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-         matVacuum->SetTitle("Vacuum");
-      }
-      TGeoMedium* Vacuum = gGeoManager->GetMedium("Vacuum");
-      if (!Vacuum) Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-      TGeoVolume* top = gGeoManager->MakeBox("WORLD", Vacuum,  500, 500, 500);
-      gGeoManager->SetTopVolume(top);
+   if (!gGeoManager) {
+      Error("Build", "You must defined gGeoManager with KVMultiDetArray::CreateGeoManager before calling this method");
+      return;
    }
+
    if (rings.Contains(1)) {
       if (detectors.HasParameter("PHOS")) MakeRing("PHOS", 1);
       if (detectors.HasParameter("SI"))MakeRing("SI", 1);
@@ -759,7 +751,8 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
       if (rings.Contains(ring + 100)) MakeEtalon(ring);
    }
 
-   if (detectors.HasParameter("TARGET"))BuildTarget();
+   if (detectors.HasParameter("TARGET"))
+      BuildTarget();
 }
 
 void INDRAGeometryBuilder::BuildEtalonVolumes()
