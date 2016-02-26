@@ -37,7 +37,6 @@ KVFAZIA::KVFAZIA()
    SetTitle(ClassName());
    fStartingBlockNumber = 0;
    gFazia = this;
-   IncludeTargetInGeometry();
    fDetectorLabels = "";
    fSignalTypes = "QL1,I1,QH1,Q2,I2,Q3";
    SetGeometryImportParameters();

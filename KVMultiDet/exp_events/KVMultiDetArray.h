@@ -267,8 +267,14 @@ public:
    virtual void SetROOTGeometry(Bool_t on = kTRUE);
    Bool_t IsROOTGeometry() const
    {
-      return (fROOTGeometry && gGeoManager);
-   };
+      // Return kTRUE if the geometry of this multidetector is described by ROOT geometry
+      // i.e. if the detectors have ROOT geometry volume & shape informations
+      // (we only test the first detector)
+
+      if (!GetDetectors()->GetEntries()) return kFALSE;
+      KVDetector* d = (KVDetector*)GetDetectors()->First();
+      return d->ROOTGeo();
+   }
    void CalculateDetectorSegmentationIndex();
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
@@ -281,6 +287,12 @@ public:
       // Use OpenGL viewer to view multidetector geometry (only for ROOT geometries)
       if (IsROOTGeometry()) GetGeometry()->GetTopVolume()->Draw("ogl");
       else Error("Draw", "Only ROOT geometries can be viewed");
+   }
+
+   void CheckROOTGeometry()
+   {
+      // Turns on ROOT geometry if not already in use
+      if (!IsROOTGeometry()) SetROOTGeometry();
    }
 };
 

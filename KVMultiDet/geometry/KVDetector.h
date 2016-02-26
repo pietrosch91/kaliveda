@@ -66,10 +66,6 @@ private:
    Int_t fUnidentP;             //! temporary counters, determine state of identified/unidentified particle flags
 
    /* make KVPosition methods private to avoid misuse */
-   Bool_t ROOTGeo() const
-   {
-      return KVPosition::ROOTGeo();
-   }
    void SetMatrix(const TGeoHMatrix* m)
    {
       KVPosition::SetMatrix(m);

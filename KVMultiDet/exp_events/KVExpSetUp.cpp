@@ -49,12 +49,13 @@ KVExpSetUp::~KVExpSetUp()
 
 void KVExpSetUp::Build(Int_t)
 {
-   // Build the combined INDRA & FAZIA arrays
+   // Build the combined arrays
    CreateGeoManager();
 
    KVGeoNavigator* nav = 0;
    KVMultiDetArray* tmp = 0;
-   lmultidetarrayclasses = gDataSetManager->GetDataSet(fDataSet)->GetDataSetEnv("DataSet.ExpSetUp.ClassList", IsA()->GetName());
+   lmultidetarrayclasses =
+      gDataSetManager->GetDataSet(fDataSet)->GetDataSetEnv("DataSet.ExpSetUp.ClassList", IsA()->GetName());
    lmultidetarrayclasses.Begin(" ");
    while (!lmultidetarrayclasses.End()) {
       KVString sname = lmultidetarrayclasses.Next();
@@ -65,9 +66,8 @@ void KVExpSetUp::Build(Int_t)
             Info("Build", "KVGeoNavigator already set ...");
             tmp->SetNavigator(nav);
          }
-
-         if (sname == "KVINDRA")
-            tmp->SetROOTGeometry();
+         // make sure array is using ROOT geometry
+         tmp->CheckROOTGeometry();
 
          fMDAList.Add(tmp);
          fDetectors.AddAll((KVUniqueNameList*)tmp->GetDetectors());
