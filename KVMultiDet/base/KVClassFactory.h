@@ -19,12 +19,16 @@ class KVClassMember : public KVBase {
 
 protected:
    KVString fComment;//informative comment for member variable, like this one :)
+   KVString fRealName;//the name of the member without the leading 'f'
 
 public:
-   KVClassMember() {};
+   KVClassMember()
+   {
+      SetAccess();
+   }
    KVClassMember(const Char_t*, const Char_t*, const Char_t*, const Char_t* = "protected");
    KVClassMember(const KVClassMember&);
-   virtual ~KVClassMember() {};
+   virtual ~KVClassMember() {}
    void Copy(TObject& obj) const;
 
    void Print(Option_t* = "") const;
@@ -42,6 +46,21 @@ public:
    {
       return GetLabel();
    }
+   Bool_t IsPublic() const
+   {
+      // return kTRUE for public member/method
+      return !strcmp(GetAccess(), "public");
+   }
+   Bool_t IsProtected() const
+   {
+      // return kTRUE for protected member/method
+      return !strcmp(GetAccess(), "protected");
+   }
+   Bool_t IsPrivate() const
+   {
+      // return kTRUE for private member/method
+      return !strcmp(GetAccess(), "private");
+   }
 
    // set comment for variable
    void SetComment(const Char_t* c)
@@ -55,6 +74,12 @@ public:
       return fComment;
    }
 
+   // get short name without leading 'f'
+   const Char_t* GetRealName() const
+   {
+      return fRealName;
+   }
+
    ClassDef(KVClassMember, 1) //KVClassFactory helper class - description of class member variable
 };
 
@@ -62,48 +87,47 @@ public:
 
 class KVClassMethod : public KVClassMember {
 
+protected:
+   virtual void write_method_body(KVString& decl);
    KVNameValueList fFields;//fields of method declaration
    Bool_t fVirtual;//kTRUE if method is 'virtual'
    Bool_t fConst;//kTRUE if method is 'const'
-   Bool_t fConstructor;//kTRUE if method is a constructor
-   Bool_t fCopyCtor;//kTRUE if method is the copy constructor
    int fNargs;//counts arguments
+   Bool_t fInline;//kTRUE if method body is to be written in header file
 
 public:
 
    Int_t GetNargs() const
    {
       return fNargs;
-   };
+   }
    void SetNargs(Int_t n)
    {
       fNargs = n;
-   };
+   }
 
-   KVClassMethod()
-   {
-      fNargs = 0;
-      fVirtual = fConst = fConstructor = fCopyCtor = kFALSE;
-   };
+   KVClassMethod(Bool_t Virtual = kFALSE, Bool_t Const = kFALSE, Bool_t Inline = kFALSE)
+      : KVClassMember(), fVirtual(Virtual), fConst(Const), fNargs(0), fInline(Inline)
+   {}
    KVClassMethod(const KVClassMethod&);
-   virtual ~KVClassMethod() {};
+   virtual ~KVClassMethod() {}
    void Copy(TObject& obj) const;
 
    void SetReturnType(const Char_t* type)
    {
       KVString s(type);
       fFields.SetValue("ReturnType", s);
-   };
+   }
    void SetClassName(const Char_t* name)
    {
       KVString s(name);
       fFields.SetValue("ClassName", s);
-   };
+   }
    void SetBaseClass(const Char_t* name)
    {
       KVString s(name);
       fFields.SetValue("BaseClass", s);
-   };
+   }
    void AddArgument(const Char_t* type, const Char_t* argname = "", const Char_t* defaultvalue = "")
    {
       KVString _type(type);
@@ -116,56 +140,44 @@ public:
          KVString _s(argname);
          fFields.SetValue(Form("Arg_%d_name", fNargs), _s);
       }
-   };
-
+   }
+   void AddArgument(Int_t i, const Char_t* type, const Char_t* argname = "", const Char_t* defaultvalue = "");
    void SetMethodBody(const KVString& body)
    {
       fFields.SetValue("Body", body);
-   };
+   }
 
    const Char_t* GetReturnType()
    {
       if (fFields.HasParameter("ReturnType"))
          return fFields.GetStringValue("ReturnType");
       return "";
-   };
+   }
    const Char_t* GetClassName()
    {
       return fFields.GetStringValue("ClassName");
-   };
+   }
 
    void SetConst(Bool_t c = kTRUE)
    {
       fConst = c;
-   };
+   }
    void SetVirtual(Bool_t c = kTRUE)
    {
       fVirtual = c;
-   };
-   void SetConstructor(Bool_t c = kTRUE)
-   {
-      fConstructor = c;
-   };
-   void SetCopyCtor(Bool_t c = kTRUE)
-   {
-      fCopyCtor = c;
    }
 
    Bool_t IsConst() const
    {
       return fConst;
-   };
+   }
    Bool_t IsVirtual() const
    {
       return fVirtual;
-   };
-   Bool_t IsConstructor() const
+   }
+   virtual Bool_t IsConstructor() const
    {
-      return fConstructor;
-   };
-   Bool_t IsCopyCtor() const
-   {
-      return fCopyCtor;
+      return kFALSE;
    }
 
    void Print(Option_t* = "") const;
@@ -173,11 +185,89 @@ public:
    void WriteDeclaration(KVString&);
    void WriteImplementation(KVString& decl);
 
+   void SetInline(Bool_t yes = kTRUE)
+   {
+      fInline = yes;
+   }
+   Bool_t IsInline() const
+   {
+      return fInline;
+   }
+   virtual Bool_t IsDestructor() const
+   {
+      return kFALSE;
+   }
+   Bool_t IsNormalMethod() const
+   {
+      // return kTRUE if method is neither constructor nor destructor
+      return (!IsConstructor() && !IsDestructor());
+   }
+
    ClassDef(KVClassMethod, 2) //KVClassFactory helper class - description of class method
 };
 
 //_____________________________________________________________________________
+class KVClassFactory;
+class KVClassConstructor : public KVClassMethod {
+   Bool_t fCopyCtor;//kTRUE if method is the copy constructor
+   virtual void write_method_body(KVString& decl);
+   KVClassFactory* fParentClass;
 
+public:
+   KVClassConstructor(KVClassFactory* ParentClass)
+      : KVClassMethod(), fCopyCtor(kFALSE), fParentClass(ParentClass) {};
+   virtual ~KVClassConstructor() {};
+
+   virtual Bool_t IsConstructor() const
+   {
+      return kTRUE;
+   }
+   Bool_t IsDefaultCtor() const
+   {
+      // return kTRUE if this is the default constructor
+      return IsCalled("default_ctor");
+   }
+   Bool_t IsCopyCtor() const
+   {
+      return fCopyCtor;
+   }
+   void SetCopyCtor(Bool_t c = kTRUE)
+   {
+      fCopyCtor = c;
+   }
+   void SetBaseClassArgument(Int_t i)
+   {
+      // Declare that i-th argument of ctor should be passed to base class ctor
+      fFields.SetValue(Form("Arg_%d_baseclass", i), 1);
+   }
+   void SetMemberVariableNameForArgument(Int_t i, const Char_t* memvar)
+   {
+      // Store name of member variable corresponding to argument i
+      fFields.SetValue(Form("Arg_%d_memvar", i), memvar);
+   }
+
+   ClassDef(KVClassConstructor, 1) //KVClassFactory helper class - description of constructor
+};
+
+class KVClassDestructor : public KVClassMethod {
+
+public:
+   KVClassDestructor()
+      : KVClassMethod(kTRUE)
+   {
+      SetName("destructor");
+      SetMethodBody("   // Destructor");
+   }
+   virtual ~KVClassDestructor() {}
+   virtual Bool_t IsDestructor() const
+   {
+      return kTRUE;
+   }
+
+   ClassDef(KVClassDestructor, 1) //KVClassFactory helper class - description of destructor
+};
+
+//_____________________________________________________________________________
 class KVClassFactory : public TObject {
 
 private:
@@ -199,6 +289,8 @@ private:
    KVList fMethods;//list of methods added to class
    KVList fHeadInc;//list of 'includes' to be added to header file
    KVList fImpInc;//list of 'includes' to be added to implementation file
+   Bool_t fInlineAllMethods;//kTRUE if all (non-ctor) method implementations written in header
+   Bool_t fInlineAllCtors;//kTRUE if all ctor implementations written in header
 
 protected:
 
@@ -216,8 +308,11 @@ protected:
 
    Ssiz_t FindNextUncommentedLine(TString&, Ssiz_t beg = 0);
    void AddTObjectCopyMethod();
-   void AddCopyConstructor(Bool_t withTObjectCopy = kFALSE);
+   void AddCopyConstructor();
+   void AddMemberInitialiserConstructor(KVClassConstructor* = nullptr);
 
+   void GenerateGettersAndSetters();
+   void AddAssignmentOperator();
 public:
 
    KVClassFactory();
@@ -244,9 +339,11 @@ public:
    KVClassMember* AddMember(const Char_t* name, const Char_t* type, const Char_t* comment, const Char_t* access = "protected");
    KVClassMethod* AddMethod(const Char_t* name, const Char_t* return_type, const Char_t* access = "public",
                             Bool_t isVirtual = kFALSE, Bool_t isConst = kFALSE);
-   KVClassMethod* AddConstructor(const Char_t* argument_type,
-                                 const Char_t* argument_name = "", const Char_t* default_value = "", const Char_t* access = "public");
+   KVClassConstructor* AddConstructor(const Char_t* argument_type = "",
+                                      const Char_t* argument_name = "", const Char_t* default_value = "", const Char_t* access = "public");
    void AddAllBaseConstructors();
+   void AddDefaultConstructor();
+   void AddDestructor(const TString& access = "public");
    void AddMethod(const KVClassMethod& kvcm);
    void AddMethodArgument(const Char_t* method_name, const Char_t* argument_type,
                           const Char_t* argument_name = "", const Char_t* default_value = "");
@@ -255,35 +352,51 @@ public:
    void AddHeaderIncludeFile(const Char_t* filename);
    void AddImplIncludeFile(const Char_t* filename);
 
-   const KVList* GetListOfMethods()
+   const KVList* GetListOfMethods() const
    {
       return &fMethods;
-   };
+   }
+   const KVList* GetListOfMembers() const
+   {
+      return &fMembers;
+   }
+   KVClassMethod* GetMethod(const Char_t* name) const
+   {
+      return (KVClassMethod*)fMethods.FindObject(name);
+   }
+   KVClassConstructor* GetDefaultCtor() const
+   {
+      return (KVClassConstructor*)GetMethod("default_ctor");
+   }
+   KVClassDestructor* GetDestructor() const
+   {
+      return (KVClassDestructor*)GetMethod("destructor");
+   }
 
    const Char_t* GetClassName() const
    {
       return fClassName.Data();
-   };
+   }
    void SetClassName(const Char_t* n)
    {
       fClassName = n;
-   };
+   }
    const Char_t* GetHeaderFileName() const
    {
       return Form("%s.h", fClassName.Data());
-   };
+   }
    const Char_t* GetImpFileName() const
    {
       return Form("%s.cpp", fClassName.Data());
-   };
+   }
    void SetClassDesc(const Char_t* d)
    {
       fClassDesc = d;
-   };
+   }
    const Char_t* GetClassDesc() const
    {
       return fClassDesc.Data();
-   };
+   }
    void SetBaseClass(const Char_t* b)
    {
       fBaseClassName = b;
@@ -293,28 +406,39 @@ public:
          fBaseClass = TClass::GetClass(fBaseClassName);
          fBaseClassTObject = (fBaseClass && fBaseClass->InheritsFrom("TObject"));
       }
-   };
+   }
    const Char_t* GetBaseClass() const
    {
       return fBaseClassName.Data();
-   };
+   }
    Bool_t WithMultipleBaseClasses() const
    {
       return fBaseClassName.Contains(",");
-   };
+   }
    Bool_t WithTemplate() const
    {
       return fWithTemplate;
-   };
+   }
+   Bool_t IsBaseClassTObject() const
+   {
+      return fBaseClassTObject;
+   }
    void SetTemplate(Bool_t temp, const Char_t* temp_file);
    const Char_t* GetTemplateBase() const
    {
       return fTemplateBase;
-   };
+   }
+   Int_t GetNumberOfMemberVariables() const
+   {
+      return fMembers.GetEntries();
+   }
 
    void Print(Option_t* opt = "") const;
 
    void AddGetSetMethods(const KVNameValueList&);
+
+   void InlineAllMethods();
+   void InlineAllConstructors();
 
    ClassDef(KVClassFactory, 4) //Factory for generating KaliVeda skeleton classes
 };

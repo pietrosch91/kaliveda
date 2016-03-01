@@ -29,6 +29,12 @@
 #endif
 #endif
 
+// allow use of unique_ptr with C++98
+#include <memory>
+#ifndef WITH_CPP11
+#define unique_ptr auto_ptr
+#endif
+
 //-----------------------------------ROOT-version dependent compiler flags
 //-----------------------------------to handle backwards compatibility
 //

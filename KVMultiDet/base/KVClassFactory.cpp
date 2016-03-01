@@ -72,11 +72,23 @@ ClassImp(KVClassFactory)
 //
 //For another example of this kind of approach, see the method KVParticleCondition::Optimize.
 
-KVClassFactory::KVClassFactory()
+KVString __add_indented_line(const KVString& line, const KVString& indent, Bool_t newline = kTRUE)
 {
-   fHasBaseClass = kFALSE;
-   fBaseClassTObject = kFALSE;
-   fBaseClass = NULL;
+   KVString output;
+   line.Begin("\n");
+   while (!line.End()) {
+      KVString _line = line.Next();
+      output += (indent + _line);
+      output += "\n";
+   }
+   if (!newline) output.Remove(output.Length() - 1);
+   return output;
+}
+
+KVClassFactory::KVClassFactory()
+   : fBaseClass(nullptr), fHasBaseClass(kFALSE), fBaseClassTObject(kFALSE), fInlineAllMethods(kFALSE), fInlineAllCtors(kFALSE)
+{
+   // Default ctor
 }
 
 KVClassFactory::KVClassFactory(const Char_t* classname,
@@ -84,6 +96,7 @@ KVClassFactory::KVClassFactory(const Char_t* classname,
                                const Char_t* base_class,
                                Bool_t withTemplate,
                                const Char_t* templateFile)
+   : fBaseClass(nullptr), fHasBaseClass(kFALSE), fBaseClassTObject(kFALSE), fInlineAllMethods(kFALSE), fInlineAllCtors(kFALSE)
 {
    //Create a new class with the following characteristics:
    //
@@ -120,6 +133,12 @@ KVClassFactory::KVClassFactory(const Char_t* classname,
    SetBaseClass(base_class);
    SetTemplate(withTemplate, templateFile);
    SetWhoWhen();
+
+   if (!withTemplate) {
+      // for untemplated classes we add default ctor & dtor straight away
+      AddDefaultConstructor();
+      AddDestructor();
+   }
 }
 
 //___________________________________________________
@@ -236,7 +255,7 @@ void KVClassFactory::WritePreProc(ofstream& file)
 void KVClassFactory::WriteClassDec(ofstream& file)
 {
    // Write the class declaration in the header file
-   // This will include a default (public) constructor & destructor and
+   // This will include a default constructor & destructor and
    // any methods added using AddMethod, sorted according to
    // their access type.
 
@@ -252,81 +271,146 @@ void KVClassFactory::WriteClassDec(ofstream& file)
    }
    file << "\n{" << endl;
 
-   // protected members
-   KVList* prem = (KVList*)fMembers.GetSubListWithMethod("protected", "GetAccess");
+   // private members
+   unique_ptr<KVSeqCollection> prem(fMembers.GetSubListWithMethod("private", "GetAccess"));
    if (prem->GetEntries()) {
-      file << "\n   protected:" << endl;
+      file << "\n" << endl;
       KVString line;
-      TIter next(prem);
+      TIter next(prem.get());
       KVClassMember* meth;
       while ((meth = (KVClassMember*)next())) {
          meth->WriteDeclaration(line);
          file << "   " << line.Data() << endl;
       }
    }
-   delete prem;
 
-   // private methods
-   KVList* priv = (KVList*)fMethods.GetSubListWithMethod("private", "GetAccess");
-   if (priv->GetEntries()) {
-      file << "   private:" << endl;
-      KVString line;
-      TIter next(priv);
-      KVClassMethod* meth;
-      while ((meth = (KVClassMethod*)next())) {
-         meth->WriteDeclaration(line);
-         file << "   " << line.Data() << endl;
-      }
-   }
-   delete priv;
-
-   // protected methods
-   KVList* prot = (KVList*)fMethods.GetSubListWithMethod("protected", "GetAccess");
-   if (prot->GetEntries()) {
-      file << "\n   protected:" << endl;
-      KVString line;
-      TIter next(prot);
-      KVClassMethod* meth;
-      while ((meth = (KVClassMethod*)next())) {
-         meth->WriteDeclaration(line);
-         file << "   " << line.Data() << endl;
-      }
-   }
-   delete prot;
-
-   //public methods
-   file << "\n   public:" << endl;
-   //default ctor
-   file << "   " << fClassName.Data() << "();" << endl;
-   //any other ctors ?
-   KVList* ctor = (KVList*)fMethods.GetSubListWithMethod("1", "IsConstructor");
+   // private methods + constructors + destructor (if private)
+   unique_ptr<KVSeqCollection> priv(fMethods.GetSubListWithMethod("private", "GetAccess"));
+   unique_ptr<KVSeqCollection> ctor(priv->GetSubListWithMethod("1", "IsConstructor"));
    if (ctor->GetEntries()) {
+      file << endl;
       KVString line;
-      TIter next(ctor);
+      TIter next(ctor.get());
       KVClassMethod* meth;
       while ((meth = (KVClassMethod*)next())) {
          meth->WriteDeclaration(line);
          file << "   " << line.Data() << endl;
       }
    }
-   delete ctor;
-   // default dtor
-   file << "   virtual ~" << fClassName.Data() << "();" << endl;
-
-   // public methods
-   KVList* pub = (KVList*)fMethods.GetSubListWithMethod("public", "GetAccess");
-   if (pub->GetEntries()) {
+   if (priv->GetEntries()) {
+      file << endl;
       KVString line;
-      TIter next(pub);
+      TIter next(priv.get());
       KVClassMethod* meth;
       while ((meth = (KVClassMethod*)next())) {
-         if (!meth->IsConstructor()) {
+         if (meth->IsNormalMethod()) {
             meth->WriteDeclaration(line);
             file << "   " << line.Data() << endl;
          }
       }
    }
-   delete pub;
+   // private destructor
+   if (GetDestructor()->IsPrivate()) {
+      KVString line;
+      GetDestructor()->WriteDeclaration(line);
+      file << "   " << line.Data() << endl;
+   }
+
+   bool protected_written = kFALSE;
+
+   // protected members
+   prem.reset(fMembers.GetSubListWithMethod("protected", "GetAccess"));
+   if (prem->GetEntries()) {
+      file << "\n   protected:" << endl;
+      protected_written = kTRUE;
+      KVString line;
+      TIter next(prem.get());
+      KVClassMember* meth;
+      while ((meth = (KVClassMember*)next())) {
+         meth->WriteDeclaration(line);
+         file << "   " << line.Data() << endl;
+      }
+   }
+
+   // protected methods + ctors + dtor (if protected)
+   unique_ptr<KVSeqCollection> prot(fMethods.GetSubListWithMethod("protected", "GetAccess"));
+   ctor.reset(prot->GetSubListWithMethod("1", "IsConstructor"));
+   if (ctor->GetEntries()) {
+      if (!protected_written) {
+         file << "\n   protected:" << endl;
+         protected_written = kTRUE;
+      } else
+         file << endl;
+      KVString line;
+      TIter next(ctor.get());
+      KVClassMethod* meth;
+      while ((meth = (KVClassMethod*)next())) {
+         meth->WriteDeclaration(line);
+         file << "   " << line.Data() << endl;
+      }
+   }
+   if (prot->GetEntries()) {
+      if (!protected_written) {
+         file << "\n   protected:" << endl;
+         protected_written = kTRUE;
+      } else
+         file << endl;
+      KVString line;
+      TIter next(prot.get());
+      KVClassMethod* meth;
+      while ((meth = (KVClassMethod*)next())) {
+         if (meth->IsNormalMethod()) {
+            meth->WriteDeclaration(line);
+            file << "   " << line.Data() << endl;
+         }
+      }
+   }
+   // protected destructor
+   if (GetDestructor()->IsProtected()) {
+      if (!protected_written) {
+         file << "\n   protected:" << endl;
+         protected_written = kTRUE;
+      } else
+         file << endl;
+      KVString line;
+      GetDestructor()->WriteDeclaration(line);
+      file << "   " << line.Data() << endl;
+   }
+
+   //public methods
+   file << "   public:" << endl;
+   //list of public ctors
+   unique_ptr<KVSeqCollection> pub(fMethods.GetSubListWithMethod("public", "GetAccess"));
+   ctor.reset(pub->GetSubListWithMethod("1", "IsConstructor"));
+   unique_ptr<KVSeqCollection> pubnor(pub->GetSubListWithMethod("1", "IsNormalMethod"));
+   if (ctor->GetEntries()) {
+      KVString line;
+      TIter next(ctor.get());
+      KVClassMethod* meth;
+      while ((meth = (KVClassMethod*)next())) {
+         meth->WriteDeclaration(line);
+         file << "   " << line.Data() << endl;
+      }
+   }
+   // public destructor
+   if (GetDestructor()->IsPublic()) {
+      file << endl;
+      KVString line;
+      GetDestructor()->WriteDeclaration(line);
+      file << "   " << line.Data() << endl;
+      if (pubnor->GetEntries()) file << endl;
+   }
+
+   // public methods
+   if (pubnor->GetEntries()) {
+      KVString line;
+      TIter next(pubnor.get());
+      KVClassMethod* meth;
+      while ((meth = (KVClassMethod*)next())) {
+         meth->WriteDeclaration(line);
+         file << "   " << line.Data() << endl;
+      }
+   }
 
    file << "\n   ClassDef(" << fClassName.Data() << ",1)//";
    file << fClassDesc.Data() << endl;
@@ -366,37 +450,37 @@ void KVClassFactory::WriteClassImp()
    file_cpp <<
             "////////////////////////////////////////////////////////////////////////////////\n"
             << endl;
-   file_cpp << fClassName.Data() << "::" << fClassName.
-            Data() << "()" << endl;
-   file_cpp << "{\n   // Default constructor\n}\n" << endl;
-   // any other ctors ?
-   KVList* ctor = (KVList*)fMethods.GetSubListWithMethod("1", "IsConstructor");
+   // list of constructors
+   unique_ptr<KVSeqCollection> ctor(fMethods.GetSubListWithMethod("1", "IsConstructor"));
    if (ctor->GetEntries()) {
       KVString line;
-      TIter next(ctor);
+      TIter next(ctor.get());
       KVClassMethod* meth;
       while ((meth = (KVClassMethod*)next())) {
-         meth->WriteImplementation(line);
-         line.Prepend("//________________________________________________________________\n\n");
-         file_cpp << line.Data() << endl;
+         if (!meth->IsInline()) {
+            meth->WriteImplementation(line);
+            file_cpp << line.Data() << endl << endl;
+         }
       }
    }
-   delete ctor;
 
-   file_cpp << fClassName.Data() << "::~" << fClassName.
-            Data() << "()" << endl;
-   file_cpp << "{\n   // Destructor\n}\n" << endl;
+   // write destructor
+   if (!GetDestructor()->IsInline()) {
+      KVString line;
+      GetDestructor()->WriteImplementation(line);
+      file_cpp << line.Data() << endl << endl;
+   }
 
    //write implementations of added methods
-   if (fMethods.GetSize()) {
+   unique_ptr<KVSeqCollection> normeth(fMethods.GetSubListWithMethod("1", "IsNormalMethod"));
+   if (normeth->GetEntries()) {
       KVString line;
-      TIter next(&fMethods);
+      TIter next(normeth.get());
       KVClassMethod* meth;
       while ((meth = (KVClassMethod*)next())) {
-         if (!meth->IsConstructor()) {
+         if (!meth->IsInline()) {
             meth->WriteImplementation(line);
-            line.Prepend("//________________________________________________________________\n\n");
-            file_cpp << line.Data() << endl;
+            file_cpp << line.Data() << endl << endl;
          }
       }
    }
@@ -502,9 +586,17 @@ void KVClassFactory::MakeClass(const Char_t* classname,
    if (!cf.IsZombie()) cf.GenerateCode();
 }
 
+void KVClassFactory::AddDefaultConstructor()
+{
+   if (!GetDefaultCtor()) {
+      KVClassConstructor* ctor(AddConstructor());// add default ctor
+      ctor->SetMethodBody("   // Default constructor");
+   }
+}
+
 void KVClassFactory::GenerateCode()
 {
-   //Generate header and implementation file for currently-defined class
+   // Generate header and implementation file for currently-defined class
 
    if (IsZombie()) {
       Warning("GenerateCode", "Object is zombie. No code will be generated.");
@@ -515,16 +607,22 @@ void KVClassFactory::GenerateCode()
       WriteClassWithTemplateHeader();
       WriteClassWithTemplateImp();
    } else {
+      AddDefaultConstructor();
+      AddDestructor();
+      AddAllBaseConstructors();
+      AddCopyConstructor();
+      AddMemberInitialiserConstructor();
+      AddAssignmentOperator();
       if (fBaseClassTObject) {
          // check for base class which inherits from TObject
          // if so, we add a skeleton Copy(const TObject&) method
          // and use it in the copy ctor
          AddTObjectCopyMethod();
-         //AddCopyConstructor(kTRUE);
       }
-//       else
-//          AddCopyConstructor(kFALSE);
-      AddAllBaseConstructors();
+      GenerateGettersAndSetters();
+      if (fInlineAllMethods) InlineAllMethods();
+      if (fInlineAllCtors) InlineAllConstructors();
+
       WriteClassHeader();
       WriteClassImp();
    }
@@ -538,6 +636,31 @@ KVClassMember* KVClassFactory::AddMember(const Char_t* name, const Char_t* type,
    KVClassMember* m = new KVClassMember(name, type, comment, access);
    fMembers.Add(m);
    return m;
+}
+
+void KVClassFactory::GenerateGettersAndSetters()
+{
+   // for each member variable we generate inlined Get/Set methods
+
+   if (GetNumberOfMemberVariables()) {
+      TIter it(&fMembers);
+      KVClassMember* m;
+      while ((m = (KVClassMember*)it())) {
+         TString mem_name = m->GetRealName();
+         TString mem_type = m->GetType();
+         KVClassMethod* meth = AddMethod(Form("Set%s", mem_name.Data()), "void");
+         meth->SetInline();
+         meth->AddArgument(mem_type);
+         meth->SetMethodBody(
+            Form("   // Set value of %s\n   %s=arg1;", m->GetName(), m->GetName())
+         );
+         meth = AddMethod(Form("Get%s", mem_name.Data()), mem_type, "public", kFALSE, kTRUE);
+         meth->SetInline();
+         meth->SetMethodBody(
+            Form("   // Get value of %s\n   return %s;", m->GetName(), m->GetName())
+         );
+      }
+   }
 }
 
 //___________________________________________________
@@ -845,28 +968,33 @@ KVClassMethod* KVClassFactory::AddMethod(const Char_t* name, const Char_t* retur
 
 //______________________________________________________
 
-KVClassMethod* KVClassFactory::AddConstructor(const Char_t* argument_type,
+KVClassConstructor* KVClassFactory::AddConstructor(const Char_t* argument_type,
       const Char_t* argument_name, const Char_t* default_value, const Char_t* access)
 {
-   // Add a constructor with arguments to the class (by default, a default constructor is always defined).
+   // Add a constructor with or without arguments to the class.
+   // If no arguments are given, adds a default constructor (no arguments).
    //
    // Optional argument 'access' determines access type (public, protected or private)    [default: "public"]
    //
    // If more than one argument is needed, user should keep the returned pointer
-   // to the new KVClassMethod object and use KVClassMethod::AddArgument() in order to add further arguments.
+   // to the new object and use KVClassMethod::AddArgument() in order to add further arguments.
    //
    // In order to define the implementation of the ctor method, user should keep the returned pointer
-   // to the new KVClassMethod object and use KVClassMethod::SetMethodBody(KVString&).
+   // to the new object and use KVClassMethod::SetMethodBody(KVString&).
 
-   KVClassMethod* meth = new KVClassMethod;
+   KVClassConstructor* meth = new KVClassConstructor(this);
    fMethods.Add(meth);
-   // use type of first argument as name of ctor method
-   meth->SetName(argument_type);
+   if (strcmp(argument_type, "")) {
+      // use type of first argument as name of ctor method
+      meth->SetName(argument_type);
+      meth->AddArgument(argument_type, argument_name, default_value);
+   } else {
+      // default constructor
+      meth->SetName("default_ctor");
+   }
    meth->SetClassName(fClassName);
    if (fHasBaseClass) meth->SetBaseClass(fBaseClassName);
-   meth->SetConstructor();
    meth->SetAccess(access);
-   meth->AddArgument(argument_type, argument_name, default_value);
    return meth;
 }
 
@@ -949,76 +1077,53 @@ void KVClassFactory::Print(Option_t*) const
 
 void KVClassFactory::AddGetSetMethods(const KVNameValueList& nvl)
 {
-   // For each named parameter in the list, we add protected member variables and
-   // public Get/Set methods with the name and type of the parameter.
-   // Example: given a list containing NAME="some string" NUMBER=3 [integer]
-   // PI=3.141592 [double], we generate the methods
-   //   void SetNAME(const TString&);
-   //   const TString& GetNAME() const;
-   //   void SetNUMBER(Int_t);
-   //   Int_t GetNUMBER() const;
-   //   void SetPI(Double_t);
-   //   Double_t GetPI() const;
+   // For each named parameter in the list, we add protected member variables with the name and type of the parameter.
 
    int npars = nvl.GetNpar();
    for (int i = 0; i < npars; i++) {
       KVNamedParameter* par = nvl.GetParameter(i);
       if (par->IsString()) {
-         KVClassMember* v = AddMember(par->GetName(), "TString", "member automatically generated by KVClassFactory::AddGetSetMethods");
-         KVClassMethod* m = AddMethod(Form("Set%s", par->GetName()), "void");
-         m->AddArgument("const TString&");
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    %s=arg1;", v->GetName())
-         );
-         m = AddMethod(Form("Get%s", par->GetName()), "const TString&", "public", kFALSE, kTRUE);
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    return %s;", v->GetName())
-         );
+         AddMember(par->GetName(), "TString", "member automatically generated by KVClassFactory::AddGetSetMethods");
          // make sure #include "TString.h" appears in header file
          if (! fHeadInc.FindObject("TString.h")) AddHeaderIncludeFile("TString.h");
       } else if (par->IsInt()) {
-         KVClassMember* v = AddMember(par->GetName(), "Int_t", "member automatically generated by KVClassFactory::AddGetSetMethods");
-         KVClassMethod* m = AddMethod(Form("Set%s", par->GetName()), "void");
-         m->AddArgument("Int_t");
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    %s=arg1;", v->GetName())
-         );
-         m = AddMethod(Form("Get%s", par->GetName()), "Int_t", "public", kFALSE, kTRUE);
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    return %s;", v->GetName())
-         );
+         AddMember(par->GetName(), "Int_t", "member automatically generated by KVClassFactory::AddGetSetMethods");
       } else if (par->IsDouble()) {
-         KVClassMember* v = AddMember(par->GetName(), "Double_t", "member automatically generated by KVClassFactory::AddGetSetMethods");
-         KVClassMethod* m = AddMethod(Form("Set%s", par->GetName()), "void");
-         m->AddArgument("Double_t");
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    %s=arg1;", v->GetName())
-         );
-         m = AddMethod(Form("Get%s", par->GetName()), "Double_t", "public", kFALSE, kTRUE);
-         m->SetMethodBody(
-            Form("    // Method automatically generated by KVClassFactory::AddGetSetMethods\n"
-                 "\n"
-                 "    return %s;", v->GetName())
-         );
+         AddMember(par->GetName(), "Double_t", "member automatically generated by KVClassFactory::AddGetSetMethods");
       }
    }
+}
+
+void KVClassFactory::InlineAllMethods()
+{
+   // Write implementation of all non-ctor methods in the header file of the class
+
+   TIter it(&fMethods);
+   KVClassMethod* m;
+   while ((m = (KVClassMethod*)it())) {
+      if (!m->IsConstructor()) m->SetInline(kTRUE);
+   }
+   fInlineAllMethods = kTRUE;
+}
+
+void KVClassFactory::InlineAllConstructors()
+{
+   // Write implementation of all constructors in the header file of the class
+
+   unique_ptr<KVSeqCollection> ctors(fMethods.GetSubListWithMethod("1", "IsConstructor"));
+   ctors->R__FOR_EACH(KVClassConstructor, SetInline)(kTRUE);
+   fInlineAllCtors = kTRUE;
 }
 
 //__________________________________________________________________________________
 
 void KVClassFactory::AddTObjectCopyMethod()
 {
-   // Adds skeleton standard ROOT Copy method
+   // Adds skeleton standard ROOT Copy method if class has
+   // member variables
+
+   if (!GetNumberOfMemberVariables()) return;
+
    AddMethod("Copy", "void", "public", kFALSE, kTRUE);
    AddMethodArgument("Copy", "TObject&", "obj");
    KVString body("   // This method copies the current state of 'this' object into 'obj'\n");
@@ -1031,30 +1136,121 @@ void KVClassFactory::AddTObjectCopyMethod()
    body += "   //    CastedObj.SetToto( GetToto() );\n\n   ";
    // call Copy method for base class
    body += fBaseClassName;
-   body += "::Copy(obj);\n   //";
+   body += "::Copy(obj);\n";
+   if (!fMembers.GetEntries()) body += "   //";
+   else body += "   ";
    body += fClassName;
    body += "& CastedObj = (";
    body += fClassName;
-   body += "&)obj;";
+   body += "&)obj;\n";
+   if (fMembers.GetEntries()) {
+      TIter it(&fMembers);
+      KVClassMember* m;
+      while ((m = (KVClassMember*)it())) {
+         body += "   CastedObj.Set";
+         body += m->GetRealName();
+         body += "( Get";
+         body += m->GetRealName();
+         body += "() );\n";
+      }
+   }
    AddMethodBody("Copy", body);
 }
 
-void KVClassFactory::AddCopyConstructor(Bool_t withTObjectCopy)
+void KVClassFactory::AddCopyConstructor()
 {
-   // Adds copy constructor
+   // Adds copy constructor if class has member variables
    // If class inherits from TObject, this just calls the Copy method
 
-   KVClassMethod* ctor = AddConstructor(Form("const %s&", fClassName.Data()), "obj");
+   if (!GetNumberOfMemberVariables()) return;
+
+   KVClassConstructor* ctor = AddConstructor(Form("const %s&", fClassName.Data()), "obj");
    ctor->SetCopyCtor();
    KVString body = "   // Copy constructor\n";
-   body += "   // This ctor is used to make a copy of an existing object (for example\n";
-   body += "   // when a method returns an object), and it is always a good idea to\n";
-   body += "   // implement it.\n";
-   body += "   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)\n";
-   if (withTObjectCopy) {
+   if (fBaseClassTObject) {
       body += "\n   obj.Copy(*this);";
    }
    ctor->SetMethodBody(body);
+}
+
+void KVClassFactory::AddMemberInitialiserConstructor(KVClassConstructor* base_ctor)
+{
+   // For classes with member variables, add a constructor which initialises
+   // the values of all member variables
+   // If base_ctor is non-null, it is assumed to point to a constructor which has
+   // been deduced from the base class' list of constructors; in this case we
+   // add our class' members to the beginning of the list of arguments
+   // so that if any of the base class ctor arguments have default values, they
+   // will be at the end of the list
+
+   if (!GetNumberOfMemberVariables()) return;
+
+   TIter next(&fMembers);
+   KVClassMember* memb = (KVClassMember*)next();
+   KVClassConstructor* ctor;
+   Bool_t adding_to_base = kFALSE;
+   Int_t add_to_base(1);
+   if (base_ctor) {
+      ctor = base_ctor;
+      adding_to_base = kTRUE;
+      ctor->AddArgument(add_to_base, memb->GetType(), memb->GetRealName());
+      ctor->SetMemberVariableNameForArgument(add_to_base, memb->GetName());
+   } else {
+      ctor = AddConstructor(memb->GetType(), memb->GetRealName());
+      ctor->SetMemberVariableNameForArgument(1, memb->GetName());
+   }
+   int arg_num = 2;
+   while ((memb = (KVClassMember*)next())) {
+      if (adding_to_base) {
+         ctor->AddArgument(++add_to_base, memb->GetType(), memb->GetRealName());
+         ctor->SetMemberVariableNameForArgument(add_to_base, memb->GetName());
+      } else {
+         ctor->AddArgument(memb->GetType(), memb->GetRealName());
+         ctor->SetMemberVariableNameForArgument(arg_num++, memb->GetName());
+      }
+   }
+   KVString body = "   // Constructor with initial values for all member variables";
+//   next.Reset();
+//   KVClassMember* m;
+//   while ((m = (KVClassMember*)next())) {
+//      body += "   Set";
+//      body += m->GetRealName();
+//      body += "( ";
+//      body += m->GetRealName();
+//      body += " );\n";
+//   }
+   ctor->SetMethodBody(body);
+}
+
+void KVClassFactory::AddAssignmentOperator()
+{
+   // Add "ClassName& operator= (const ClassName&)" method if class
+   // has member variables
+
+   if (!GetNumberOfMemberVariables()) return;
+
+   KVClassMethod* oper = AddMethod("operator=", Form("%s&", fClassName.Data()));
+   oper->AddArgument(Form("const %s&", fClassName.Data()), "other");
+   KVString body = "   //  Assignment operator\n\n";
+   body += "   if(this != &other) { // check for self-assignment\n";
+   if (fBaseClassTObject) {
+      body += "      other.Copy(*this);\n";
+   } else {
+      if (fMembers.GetEntries()) {
+         TIter it(&fMembers);
+         KVClassMember* m;
+         while ((m = (KVClassMember*)it())) {
+            body += "      Set";
+            body += m->GetRealName();
+            body += "( other.Get";
+            body += m->GetRealName();
+            body += "() );\n";
+         }
+      }
+   }
+   body += "   }\n";
+   body += "   return (*this);";
+   oper->SetMethodBody(body);
 }
 
 //___________________________________________________________________________________
@@ -1068,15 +1264,18 @@ ClassImp(KVClassMember)
 void KVClassMethod::WriteDeclaration(KVString& decl)
 {
    //Write declaration in the KVString object
+   //If method is inline write method body directly after declaration
 
-   decl = GetAccess();
-   decl += ":\n   ";
+   decl = "";
    if (fVirtual) decl += "virtual ";
-   if (!IsConstructor()) {
+   if (IsNormalMethod()) {
       decl += GetReturnType();
       decl += " ";
       decl += GetName();
-   } else decl += GetClassName();
+   } else {
+      if (IsDestructor()) decl += "~";
+      decl += GetClassName();
+   }
    decl += "(";
    for (int i = 1; i <= fNargs; i++) {
       decl += fFields.GetStringValue(Form("Arg_%d", i));
@@ -1093,7 +1292,12 @@ void KVClassMethod::WriteDeclaration(KVString& decl)
    }
    decl += ")";
    if (fConst) decl += " const";
-   decl += ";";
+   if (!IsInline()) {
+      decl += ";";
+      return;
+   }
+   // write method body of inline function
+   write_method_body(decl);
 }
 
 void KVClassMember::WriteDeclaration(KVString& decl)
@@ -1101,27 +1305,131 @@ void KVClassMember::WriteDeclaration(KVString& decl)
    //Write declaration in the KVString object
 
    decl = GetType();
-   decl += "\t\t";
+   decl += " ";
    decl += GetName();
 
    decl += ";//";
    decl += GetComment();
 }
 
+void KVClassMethod::write_method_body(KVString& decl)
+{
+   KVString indentation = "";
+   if (IsInline()) indentation = "   ";
+   decl += "\n";
+   decl += __add_indented_line("{", indentation);
+   if (!strcmp(GetAccess(), "private")) decl += __add_indented_line("   // PRIVATE method", indentation);
+   else if (!strcmp(GetAccess(), "protected")) decl += __add_indented_line("   // PROTECTED method", indentation);
+   if (fFields.HasParameter("Body")) {
+      //write body of method
+      decl += __add_indented_line(fFields.GetStringValue("Body"), indentation);
+   } else {
+      decl += __add_indented_line("// Write your code here", indentation);
+      if (fFields.HasParameter("ReturnType") && strcmp(fFields.GetStringValue("ReturnType"), "void")) {
+         KVString return_dir = "return (";
+         return_dir += GetReturnType();
+         return_dir += ")0;";
+         __add_indented_line(return_dir, indentation);
+      }
+   }
+   decl += __add_indented_line("}", indentation, kFALSE);
+}
+
+void KVClassConstructor::write_method_body(KVString& decl)
+{
+   KVString indentation = "";
+   if (IsInline()) indentation = "   ";
+   if ((fNargs && !IsCopyCtor()) ||
+         ((IsCopyCtor() || IsDefaultCtor()) && fFields.HasParameter("BaseClass"))
+         || (IsCopyCtor() && !fParentClass->IsBaseClassTObject())) {
+      decl += "\n   : ";
+      if (fFields.HasParameter("BaseClass")) {
+         // initialise base class
+         decl += fFields.GetStringValue("BaseClass");
+         decl += "(";
+         if (!IsCopyCtor() && fNargs) {
+            Int_t base_args = 0;
+            for (int i = 1; i <= fNargs; i++) {
+               if (fFields.HasParameter(Form("Arg_%d_baseclass", i))) {
+                  ++base_args;
+                  if (fFields.HasParameter(Form("Arg_%d_name", i))) {
+                     if (base_args > 1) decl += ", ";
+                     decl += fFields.GetStringValue(Form("Arg_%d_name", i));
+                  } else {
+                     if (base_args > 1) decl += ", ";
+                     decl += Form("arg%d", i);
+                  }
+               }
+            }
+         } else if (IsCopyCtor() && !fParentClass->IsBaseClassTObject()) {
+            // for a derived object not inheriting TObject we call the copy ctor of the parent class
+            decl += fFields.GetStringValue("Arg_1_name");
+         }
+         decl += ")";
+         if ((fNargs && !IsCopyCtor() && fParentClass->GetNumberOfMemberVariables())
+               || (IsCopyCtor() && !fParentClass->IsBaseClassTObject() && fParentClass->GetNumberOfMemberVariables())) decl += ", ";
+      }
+      if (fParentClass->GetNumberOfMemberVariables()) {
+         // initialise member variables
+         if (!IsCopyCtor() && fNargs) {
+            Int_t mem_vars = 0;
+            for (int i = 1; i <= fNargs; i++) {
+               if (fFields.HasStringParameter(Form("Arg_%d_memvar", i))) {
+                  if (mem_vars) decl += ", ";
+                  decl += fFields.GetStringValue(Form("Arg_%d_memvar", i));
+                  decl += "(";
+                  decl += fFields.GetStringValue(Form("Arg_%d_name", i));
+                  decl += ")";
+                  ++mem_vars;
+               }
+            }
+         } else if ((IsCopyCtor() && !fParentClass->IsBaseClassTObject())) {
+            TIter it(fParentClass->GetListOfMembers());
+            KVClassMember* m;
+            Int_t imem = 0;
+            while ((m = (KVClassMember*)it())) {
+               if (imem) decl += ", ";
+               decl += m->GetName();
+               decl += "( ";
+               decl += fFields.GetStringValue("Arg_1_name");
+               decl += ".Get";
+               decl += m->GetRealName();
+               decl += "() )";
+               ++imem;
+            }
+         }
+      }
+   }
+   decl += "\n";
+   decl += __add_indented_line("{", indentation);
+   if (!strcmp(GetAccess(), "private")) decl += __add_indented_line("   // PRIVATE constructor", indentation);
+   else if (!strcmp(GetAccess(), "protected")) decl += __add_indented_line("   // PROTECTED constructor", indentation);
+   if (fFields.HasParameter("Body")) {
+      //write body of method
+      decl += __add_indented_line(fFields.GetStringValue("Body"), indentation);
+   } else {
+      decl += __add_indented_line("// Write your code here", indentation);
+   }
+   decl += __add_indented_line("}", indentation, kFALSE);
+}
+
 void KVClassMethod::WriteImplementation(KVString& decl)
 {
    //Write skeleton implementation in the KVString object
    //All constructors call the default ctor of the base class (if defined)
+
    decl = GetReturnType();
-   if (!IsConstructor()) {
+   if (IsNormalMethod()) {
       decl += " ";
    }
    decl += GetClassName();
    decl += "::";
-   if (!IsConstructor())
+   if (IsNormalMethod())
       decl += GetName();
-   else
+   else {
+      if (IsDestructor()) decl += "~";
       decl += GetClassName();
+   }
    decl += "(";
    for (int i = 1; i <= fNargs; i++) {
       decl += fFields.GetStringValue(Form("Arg_%d", i));
@@ -1134,36 +1442,9 @@ void KVClassMethod::WriteImplementation(KVString& decl)
    }
    decl += ")";
    if (fConst) decl += " const";
-   if (IsConstructor() && fFields.HasParameter("BaseClass")) {
-      decl += " : ";
-      decl += fFields.GetStringValue("BaseClass");
-      decl += "(";
-      if (!IsCopyCtor() && fNargs) {
-         for (int i = 1; i <= fNargs; i++) {
-            if (fFields.HasParameter(Form("Arg_%d_name", i))) {
-               decl += fFields.GetStringValue(Form("Arg_%d_name", i));
-            } else
-               decl += Form("arg%d", i);
-            if (i < fNargs) decl += ", ";
-         }
-      }
-      decl += ")";
-   }
-   decl += "\n{\n";
-   if (!strcmp(GetAccess(), "private")) decl += "   // PRIVATE method\n";
-   else if (!strcmp(GetAccess(), "protected")) decl += "   // PROTECTED method\n";
-   if (fFields.HasParameter("Body")) {
-      //write body of method
-      decl += fFields.GetStringValue("Body");
-   } else {
-      decl += "   // Write your code here";
-      if (fFields.HasParameter("ReturnType") && strcmp(fFields.GetStringValue("ReturnType"), "void")) {
-         decl += "\n   return (";
-         decl += GetReturnType();
-         decl += ")0;";
-      }
-   }
-   decl += "\n}\n";
+   write_method_body(decl);
+   decl += "\n\n//____________________________________________________________________________//";
+
 }
 
 //__________________________________________________________________________________
@@ -1189,6 +1470,7 @@ void KVClassMember::Copy(TObject& obj) const
    //copy this to obj
    KVBase::Copy(obj);
    ((KVClassMember&)obj).SetComment(GetComment());
+   ((KVClassMember&)obj).fRealName = GetRealName();
 }
 
 //__________________________________________________________________________________
@@ -1198,10 +1480,58 @@ void KVClassMethod::Copy(TObject& obj) const
    //copy this to obj
    KVClassMember::Copy(obj);
    ((KVClassMethod&)obj).SetVirtual(IsVirtual());
-   ((KVClassMethod&)obj).SetVirtual(IsVirtual());
-   ((KVClassMethod&)obj).SetConstructor(IsConstructor());
+   ((KVClassMethod&)obj).SetConst(IsConst());
    fFields.Copy(((KVClassMethod&)obj).fFields);
-   ((KVClassMethod&)obj).SetNargs(fNargs);
+   ((KVClassMethod&)obj).SetNargs(GetNargs());
+   ((KVClassMethod&)obj).SetInline(IsInline());
+}
+
+void KVClassMethod::AddArgument(Int_t i, const Char_t* type, const Char_t* argname, const Char_t* defaultvalue)
+{
+   // Add an argument to the method, which will be in i-th position in the argument list
+   // Any existing arguments with indices [i,fNargs] will first be moved to [i+1,fNargs+1]
+
+   if (!(i > 0 && i <= fNargs + 1)) {
+      Error("AddArgument(Int_t i, ...)", "Must be called with i>0 & i<=%d", fNargs + 1);
+      return;
+   }
+
+   if (i == fNargs + 1) { // this is just same as call to AddArgument(type,argname,...)
+      AddArgument(type, argname, defaultvalue);
+      return;
+   }
+
+   for (int j = fNargs; j >= i; --j) {
+      if (fFields.HasStringParameter(Form("Arg_%d", j))) {
+         fFields.SetValue(Form("Arg_%d", j + 1), fFields.GetStringValue(Form("Arg_%d", j)));
+         fFields.RemoveParameter(Form("Arg_%d", j));
+      }
+      if (fFields.HasStringParameter(Form("Arg_%d_name", j))) {
+         fFields.SetValue(Form("Arg_%d_name", j + 1), fFields.GetStringValue(Form("Arg_%d_name", j)));
+         fFields.RemoveParameter(Form("Arg_%d_name", j));
+      }
+      if (fFields.HasIntParameter(Form("Arg_%d_baseclass", j))) {
+         fFields.SetValue(Form("Arg_%d_baseclass", j + 1), fFields.GetIntValue(Form("Arg_%d_baseclass", j)));
+         fFields.RemoveParameter(Form("Arg_%d_baseclass", j));
+      }
+      if (fFields.HasStringParameter(Form("Arg_%d_default", j))) {
+         fFields.SetValue(Form("Arg_%d_default", j + 1), fFields.GetStringValue(Form("Arg_%d_default", j)));
+         fFields.RemoveParameter(Form("Arg_%d_default", j));
+      }
+   }
+
+   KVString _type(type);
+   fFields.SetValue(Form("Arg_%d", i), _type);
+   if (strcmp(defaultvalue, "")) {
+      KVString _s(defaultvalue);
+      fFields.SetValue(Form("Arg_%d_default", i), _s);
+   }
+   if (strcmp(argname, "")) {
+      KVString _s(argname);
+      fFields.SetValue(Form("Arg_%d_name", i), _s);
+   }
+
+   ++fNargs;
 }
 
 //__________________________________________________________________________________
@@ -1229,14 +1559,15 @@ void KVClassFactory::AddAllBaseConstructors()
 {
    // Add constructors with the same signature as all base class constructors
    // (apart from the default ctor or any copy constructors, which are a special case)
-   // By default, all constructors are 'public'.
+   // If this class has its own member variables, we add them to the argument list
+   // of each base class constructor.
 
    if (!fBaseClass) return;
 
    KVHashList clist;
    clist.AddAll(fBaseClass->GetListOfMethods());
-   KVSeqCollection* constructors = clist.GetSubListWithName(fBaseClassName);
-   TIter next_ctor(constructors);
+   unique_ptr<KVSeqCollection> constructors(clist.GetSubListWithName(fBaseClassName));
+   TIter next_ctor(constructors.get());
    TMethod* method;
    while ((method = (TMethod*)next_ctor())) {
       if (!method->GetNargs()) continue; // ignore default ctor
@@ -1244,24 +1575,36 @@ void KVClassFactory::AddAllBaseConstructors()
       TMethodArg* arg = (TMethodArg*)args->First();
       TString typenam = arg->GetFullTypeName();
       if (typenam.Contains(fBaseClassName)) continue; // ignore copy ctor
-      KVClassMethod* ctor;
+      KVClassConstructor* ctor;
       if (arg->GetDefault()) ctor = AddConstructor(typenam, arg->GetName(), arg->GetDefault());
       else ctor = AddConstructor(typenam, arg->GetName());
+      ctor->SetBaseClassArgument(1);
       for (int i = 1; i < method->GetNargs(); i++) {
          arg = (TMethodArg*)args->At(i);
          if (arg->GetDefault()) ctor->AddArgument(arg->GetFullTypeName(), arg->GetName(), arg->GetDefault());
          else ctor->AddArgument(arg->GetFullTypeName(), arg->GetName());
+         ctor->SetBaseClassArgument(i + 1);
       }
+      ctor->SetMethodBody(Form("   // Constructor inherited from %s", GetBaseClass()));
+      AddMemberInitialiserConstructor(ctor);
    }
-
-   delete constructors;
 }
 
+void KVClassFactory::AddDestructor(const TString& access)
+{
+   // Add default destructor to class
+
+   if (!GetDestructor()) {
+      KVClassDestructor* d = new KVClassDestructor;
+      d->SetClassName(fClassName);
+      d->SetAccess(access);
+      fMethods.Add(d);
+   }
+}
 
 KVClassMember::KVClassMember(const Char_t* name, const Char_t* type, const Char_t* comment, const Char_t* access)
-   : KVBase(Form("f%s", name), type)
+   : KVBase(Form("f%s", name), type), fComment(comment), fRealName(name)
 {
    // New class member variable
-   SetComment(comment);
    SetAccess(access);
 }

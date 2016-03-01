@@ -252,7 +252,7 @@ function(ADD_KALIVEDA_EXAMPLE_FUNCTION source)
     set_property(GLOBAL PROPERTY ${KVSUBPROJECT}_EXFUNC_${sourcename}_DESC ${desc})
 
     add_library(${KVSUBPROJECT}${sourcename} SHARED ${source})
-    target_link_libraries(${KVSUBPROJECT}${sourcename} ${KALIVEDA_LIB_LIST})
+    target_link_libraries(${KVSUBPROJECT}${sourcename} ${KALIVEDA_LIB_LIST} ${ROOT_LIBRARIES})
 
 endfunction()
 
