@@ -91,19 +91,15 @@ with the energy of the excited state of the target after scattering.
 <pre>ecr.CaclulateScattering(10000)</pre>
 <p>Make sure the number of sampled points (default=10000) is large enough for accurate determination of count rates.
 At the end of calculation, we print infos for all detectors hit by elastic particles, these are the count rates for
-a nominal beam intensity of 10**7 particles per second, and the mean energy loss in the detector:</p>
+a nominal beam intensity of 10**7 particles per second, the mean energy loss in the detector,
+the total integrated cross-section per detector in barn, the number of particles per second per unit area hitting
+each detector, and the total energy per second per unit area deposited in each detector:</p>
 <pre>
 kaliveda [3] esa.CalculateScattering(10000)
-SI_0112 : N=2.493e+00/sec.  <E>=1.659e+03 MeV
-SI_0101 : N=1.572e+01/sec.  <E>=1.659e+03 MeV
-SI_0102 : N=2.559e+00/sec.  <E>=1.659e+03 MeV
-SI_0223 : N=1.148e+00/sec.  <E>=1.457e+03 MeV
-CI_0223 : N=1.821e+00/sec.  <E>=8.248e+01 MeV
-SI_0201 : N=5.757e+00/sec.  <E>=1.457e+03 MeV
-CI_0201 : N=9.863e+00/sec.  <E>=8.247e+01 MeV
-CI_0203 : N=1.286e+00/sec.  <E>=8.248e+01 MeV
-SI_0203 : N=6.760e-01/sec.  <E>=1.456e+03 MeV
-SI_0324 : N=5.157e-01/sec.  <E>=1.449e+03 MeV
+SI_0101  :  N=  204.42/sec.    <E>=  890.3 MeV   Tot.Xsec=6.687E+01 barn    fluence=2.711E+01/sec./cm**2     dissip.=2.413E+04 MeV/sec./cm**2
+SI_0201  :  N=   61.37/sec.    <E>=  709.7 MeV   Tot.Xsec=2.008E+01 barn    fluence=1.413E+01/sec./cm**2     dissip.=1.002E+04 MeV/sec./cm**2
+SI_0301  :  N=   15.29/sec.    <E>=  706.4 MeV   Tot.Xsec=5.002E+00 barn    fluence=2.390E+00/sec./cm**2     dissip.=1.688E+03 MeV/sec./cm**2
+SI_0401  :  N=    6.33/sec.    <E>=  699.2 MeV   Tot.Xsec=2.070E+00 barn    fluence=1.582E+00/sec./cm**2     dissip.=1.106E+03 MeV/sec./cm**2
 </pre>
 <p>If you want to see the count rates for a different beam intensity, call</p>
 <pre>ecr.PrintResults(5.e+06)</pr>
@@ -115,13 +111,19 @@ SI_0324 : N=5.157e-01/sec.  <E>=1.449e+03 MeV
 </pre>
 <p>Each histogram can be obtained using</p>
 <pre>ecr.GetHistos().FindObject("SI_0223_map")</pre>
-<p>The count rate and mean energy loss in each detector can be obtained using</p>
+<p>The different informations for each detector can be obtained using</p>
 <pre>
 kaliveda [7] ecr.GetDetector("SI_0201").count_rate
-(double)5.75694360395366100e+00
+(double)6.13702995974404857e+01
 kaliveda [8] ecr.GetDetector("SI_0201").mean_energy
-(double)1.45679832635920388e+03
+(double)7.09659910827807721e+02
+kaliveda [9] ecr.GetDetector("SI_0201").intXsec
+(double)2.00758282694385635e+01
 </pre>
+<p>
+See <a href="KVElasticCountRate.html">KVElasticCountRate</a> for details.
+Warning: the values returned correspond to the last beam intensity value given to PrintResults().
+</p>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -408,7 +410,7 @@ struct count_rate {
       : detector(n), counts(c), energy(e), theta(t), phi(p), fluence(f), dissipation(d), intXsec(i) {}
    void print()
    {
-      printf("%s \t:  N=%8.2f/sec. \t <E>=%7.1f MeV \t Tot.Xsec=%g barn \t fluence=%9.3E/sec./cm**2 \t dissip.=%9.3E MeV/sec./cm**2\n",
+      printf("%s \t:  N=%8.2f/sec. \t <E>=%7.1f MeV \t Tot.Xsec=%9.3E barn \t fluence=%9.3E/sec./cm**2 \t dissip.=%9.3E MeV/sec./cm**2\n",
              detector.Data(), counts, energy, intXsec, fluence, dissipation);
    }
 };
