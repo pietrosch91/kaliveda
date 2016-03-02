@@ -10,4 +10,5 @@
 #pragma link C++ class KVISOFAZIA+;
 #pragma link C++ class KVFAZIETO+;
 #pragma link C++ class KVFAZIADetector+;
+#pragma link C++ class KVFAZIANFS+;
 #endif

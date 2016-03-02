@@ -1,7 +1,7 @@
 # fichier d initialisation pour la lecture des dataset INDRAFAZIA
 #
 +DataSet:	  INDRAFAZIA
-INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Camapaign (2017-)
+INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Campaign (2017-)
 INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon

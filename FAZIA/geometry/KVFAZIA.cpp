@@ -65,10 +65,11 @@ void KVFAZIA::GenerateCorrespondanceFile()
    KVEnv env;
 
    SetNameOfDetectors(env);
-
-   env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
-   env.AddCommentLine("Make link between geometric ROOT objects and detector names");
-   env.WriteFile(fCorrespondanceFile.Data());
+   if (env.GetTable() && env.GetTable()->GetEntries() > 0) {
+      env.AddCommentLine(Form("Automatic generated file by %s::GenerateCorrespondanceFile", ClassName()));
+      env.AddCommentLine("Make link between geometric ROOT objects and detector names");
+      env.WriteFile(fCorrespondanceFile.Data());
+   }
    fDetectorLabels = "";
 }
 
@@ -134,9 +135,10 @@ void KVFAZIA::Build(Int_t)
    if (fBuildTarget)
       BuildTarget();
 
-   if (fCloseGeometryNow)
+   if (fCloseGeometryNow) {
+      gGeoManager->DefaultColors();
       gGeoManager->CloseGeometry();
-
+   }
    KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
    imp.SetDetectorPlugin(ClassName());
    imp.SetNameCorrespondanceList(fCorrespondanceFile.Data());
