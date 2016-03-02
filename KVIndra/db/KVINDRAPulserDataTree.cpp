@@ -342,11 +342,12 @@ void KVINDRAPulserDataTree::ReadData()
       Int_t run_num = run->GetNumber();
       //reset all array members to -1
       for (int i = 0; i < fTab_siz; i++) fVal[i] = -1.0;
-      Info("ReadData", "Reading data for run %d", run_num);
+      std::cout << "\rInfo in <KVINDRAPulserDataTree::ReadData>: Reading data for run " << run_num << std::flush;
       UChar_t msg = ReadData(run_num);
       if (msg & 1) missing1.Add(run_num);
       if (msg & 2) missing2.Add(run_num);
    }
+   std::cout << std::endl;
    if (missing1.GetEntries())
       Warning("ReadData", "Missing file 'run[run_num].gene' for runs: %s", missing1.GetList());
    if (missing2.GetEntries())
