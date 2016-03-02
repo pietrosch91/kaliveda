@@ -403,12 +403,13 @@ struct count_rate {
    double phi;
    double fluence;
    double dissipation;
-   count_rate(TString n, double c, double e, double t, double p, double f, double d)
-      : detector(n), counts(c), energy(e), theta(t), phi(p), fluence(f), dissipation(d) {}
+   double intXsec;
+   count_rate(TString n, double c, double e, double t, double p, double f, double d, double i)
+      : detector(n), counts(c), energy(e), theta(t), phi(p), fluence(f), dissipation(d), intXsec(i) {}
    void print()
    {
-      printf("%s \t:  N=%8.2f/sec. \t <E>=%7.1f MeV \t fluence=%9.3E/sec./cm**2 \t dissip.=%9.3E MeV/sec./cm**2\n",
-             detector.Data(), counts, energy, fluence, dissipation);
+      printf("%s \t:  N=%8.2f/sec. \t <E>=%7.1f MeV \t Tot.Xsec=%g barn \t fluence=%9.3E/sec./cm**2 \t dissip.=%9.3E MeV/sec./cm**2\n",
+             detector.Data(), counts, energy, intXsec, fluence, dissipation);
    }
 };
 bool compare_count_rates(count_rate a, count_rate b)
@@ -431,15 +432,19 @@ void KVElasticCountRates::PrintResults(Double_t beam_intensity)
       TString name = h->GetName();
       if (!name.EndsWith("_dW") && !name.EndsWith("_map")) {
          TH2F* map = (TH2F*)fHistos.FindObject(name + "_map");
-         double rate = h->Integral() * fAtomicDensity * beam_intensity * fVolume / fNtirages;
+         // integrated cross-section
+         double intXsec = h->Integral() * fVolume / fNtirages;
+         // counting rate
+         double rate = fAtomicDensity * beam_intensity * intXsec;
+         // mean energy
          double emean = h->GetMean();
          KVDetector* det = gMultiDetArray->GetDetector(name);
          double fluence = rate / det->GetEntranceWindowSurfaceArea();
          double dissipation = emean * rate / det->GetEntranceWindowSurfaceArea();
          count_rates.push_back(
-            count_rate(name, rate, emean, map->GetMean(), map->GetMean(2), fluence, dissipation)
+            count_rate(name, rate, emean, map->GetMean(), map->GetMean(2), fluence, dissipation, intXsec)
          );
-         fRates[name.Data()] = KVElasticCountRate(rate, emean, fluence, dissipation);
+         fRates[name.Data()] = KVElasticCountRate(rate, emean, intXsec, fluence, dissipation);
       }
    }
    std::sort(count_rates.begin(), count_rates.end(), compare_count_rates);

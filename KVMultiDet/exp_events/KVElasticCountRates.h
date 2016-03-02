@@ -16,10 +16,11 @@
 struct KVElasticCountRate {
    double count_rate;
    double mean_energy;
+   double intXsec;      // integrated X-section (barn)
    double fluence;      // ions/sec./cm**2
    double dissipation;  // MeV/sec./cm**2
-   KVElasticCountRate(double c = 0, double e = 0, double f = 0, double d = 0)
-      : count_rate(c), mean_energy(e), fluence(f), dissipation(d) {}
+   KVElasticCountRate(double c = 0, double e = 0, double i = 0, double f = 0, double d = 0)
+      : count_rate(c), mean_energy(e), intXsec(i), fluence(f), dissipation(d) {}
    virtual ~KVElasticCountRate() {}
 
    ClassDef(KVElasticCountRate, 0) //Elastic scattering rate information for detector
