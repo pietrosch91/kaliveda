@@ -47,6 +47,7 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "TROOT.h"
 #include "KVGeoNavigator.h"
 #include <KVGeoImport.h>
+#include <KVRangeTableGeoNavigator.h>
 
 using namespace std;
 
@@ -805,9 +806,11 @@ void KVINDRA::CreateROOTGeometry()
       Error("CreateROOTGeometry", "gIndra has to be build first");
       return;
    }
-   //if (!GetNavigator()) { Error("CreateROOTGeometry","No existing navigator"); return; }
-
-   //GetNavigator()->SetNameCorrespondanceList("INDRA.names");
+   if (!GetNavigator()) {
+      //Error("CreateROOTGeometry","No existing navigator"); return;
+      SetNavigator(new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable()));
+      GetNavigator()->SetNameCorrespondanceList("INDRA.names");
+   }
 
    // set up shape & matrix pointers in detectors
    Info("CreateROOTGeometry", "Scanning geometry shapes and matrices...");
