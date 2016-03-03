@@ -103,6 +103,7 @@ public:
    };
 
    void PrintResults(Double_t beam_intensity = 1.e+07);
+   KVNameValueList PutResultsInList(Double_t beam_intensity = 1.e+07);
 
    KVElasticCountRate GetDetector(const std::string& name)
    {
