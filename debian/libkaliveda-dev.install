@@ -188,7 +188,6 @@
 /usr/include/kaliveda/KVRList.h
 /usr/include/kaliveda/KVDatedFileManager.h
 /usr/include/kaliveda/KVClassMonitor.h
-/usr/include/kaliveda/KVCVSUpdateChecker.h
 /usr/include/kaliveda/KVBase.h
 /usr/include/kaliveda/KVBQSLogReader.h
 /usr/include/kaliveda/KVTarArchive.h
@@ -209,7 +208,6 @@
 /usr/include/kaliveda/Binary_t.h
 /usr/include/kaliveda/KVColouredBase.h
 /usr/include/kaliveda/KVUniqueNameList.h
-/usr/include/kaliveda/KVUpdateChecker.h
 /usr/include/kaliveda/KVDataBranchHandler.h
 /usr/include/kaliveda/KVEnv.h
 /usr/include/kaliveda/KVNumberList.h

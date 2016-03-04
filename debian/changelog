@@ -1,11 +1,13 @@
-kaliveda (1.10.8-0ubuntu4) UNRELEASED; urgency=medium
+kaliveda (1.10.8-0ubuntu5) UNRELEASED; urgency=medium
 
   * New release v1.10/08
   * CMake compiler incompatibility check: just a warning
   * New KVExpSetup class
   * Examples for upgraded KVClassFactory added
+  * Added dependency on libroot-html-dev for KVClassFactory_examples.C
+  * Removed some obsolete classes
 
- -- John Frankland <frankland@ganil.fr>  Fri, 04 Mar 2016 11:13:49 +0100
+ -- John Frankland <frankland@ganil.fr>  Fri, 04 Mar 2016 17:20:47 +0100
 
 kaliveda (1.10.7-0ubuntu5) wily; urgency=medium
 
