@@ -7,8 +7,7 @@
 #include "KVConfig.h"
 #include "RVersion.h"
 
-#include <TCollection.h>
-class TObjArray;
+#include <TObjArray.h>
 
 /*
 The following macro can be used in cases where Tokenize is used
@@ -71,6 +70,7 @@ public:
       return (KVString&)(TString::Remove(pos, n));
    };                           // Remove n chars starting at pos
 #endif
+   inline KVString& operator=(const KVString& s);
    inline KVString& operator=(const char* s);
    inline KVString& operator=(const TString& s);
 
@@ -107,18 +107,23 @@ public:
    ClassDef(KVString, 1)//TString wrapper compatible with ROOT versions 3.10/02 onwards
 };
 
+inline KVString& KVString::operator=(const KVString& s)
+{
+   if (this != &s) {
+      Form("%s", s.Data());
+   }
+   return *this;
+}
+
 inline KVString& KVString::operator=(const TString& s)
 {
-   KVString a(s);
-   *this = a;
+   Form("%s", s.Data());
    return *this;
 }
 
 inline KVString& KVString::operator=(const char* s)
 {
-   TString a;
-   a = s;
-   *this = a;
+   Form("%s", s);
    return *this;
 }
 #endif
