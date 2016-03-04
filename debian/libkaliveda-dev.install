@@ -2,6 +2,7 @@
 /usr/share/doc/kaliveda/examples/KVMultiDet/base_kvnumberlist.C
 /usr/share/doc/kaliveda/examples/KVMultiDet/ClassTraj.cpp
 /usr/share/doc/kaliveda/examples/KVMultiDet/ClassTraj.h
+/usr/share/doc/kaliveda/examples/KVMultiDet/KVClassFactory_examples.C
 /usr/share/doc/kaliveda/examples/KVMultiDet/KVEvent_iterator_example.C
 /usr/share/doc/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example2.C
 /usr/share/doc/kaliveda/examples/KVMultiDet/KVGenPhaseSpace_example.C
