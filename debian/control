@@ -5,7 +5,7 @@ Maintainer: John Frankland <frankland@ganil.fr>
 Build-Depends: debhelper (>= 9), bzr, cmake (>= 2.8.11), root-system (>= 5.34.0),
  libroot-gui-dev (>= 5.34.0), libroot-io-dev (>= 5.34.0), libroot-net-dev (>= 5.34.0),
  libroot-graf3d-g3d-dev (>= 5.34.0), libroot-tree-dev (>= 5.34.0), gfortran,
- libroot-graf2d-postscript-dev (>= 5.34.0), libroot-math-physics-dev (>= 5.34.0),
+ libroot-graf2d-postscript-dev (>= 5.34.0), libroot-html-dev (>= 5.34.0), libroot-math-physics-dev (>= 5.34.0),
  libroot-proof-dev (>= 5.34.0), libroot-proof-proofplayer-dev (>= 5.34.0),
  libroot-geom-dev (>= 5.34.0), libroot-hist-spectrum-dev (>= 5.34.0),
  libroot-graf3d-gl-dev (>= 5.34.0)
