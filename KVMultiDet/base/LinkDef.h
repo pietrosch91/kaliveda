@@ -48,8 +48,6 @@
 #pragma link C++ class KVTarArchive+;
 #pragma link C++ class KVHistoManipulator;
 #pragma link C++ class KVEventListMaker;
-#pragma link C++ class KVUpdateChecker;
-#pragma link C++ class KVCVSUpdateChecker;
 #pragma link C++ class KVSystemFile+;
 #pragma link C++ class KVSystemDirectory+;
 #pragma link C++ class KVEnv+;
