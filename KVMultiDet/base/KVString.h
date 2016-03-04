@@ -27,36 +27,23 @@ class KVString: public TString {
 
 protected:
 
-   TObjArray*  kObjArr;//!used by Next() to iterate over list
-   Int_t       fIterIndex;//! used by Next() to iterate over list
-   Bool_t      fEndList;//! used by Next() & End() to iterate over list
-   void init()
-   {
-      kObjArr = 0;
-      fIterIndex = -1;
-      fEndList = kTRUE;
-   };
+   mutable unique_ptr<TObjArray>  kObjArr;//!used by Next() to iterate over list
+   mutable Int_t       fIterIndex;//! used by Next() to iterate over list
+   mutable Bool_t      fEndList;//! used by Next() & End() to iterate over list
+
 public:
 
-   KVString() : TString()
-   {
-      init();
-   }
-   KVString(const Char_t* s): TString(s)
-   {
-      init();
-   }
-   KVString(const TString& s): TString(s)
-   {
-      init();
-   }
-   KVString(const KVString& s): TString((const TString&)s)
-   {
-      init();
-   }
+   KVString() : TString(), kObjArr(nullptr), fIterIndex(-1), fEndList(kTRUE)
+   {}
+   KVString(const Char_t* s): TString(s), kObjArr(nullptr), fIterIndex(-1), fEndList(kTRUE)
+   {}
+   KVString(const TString& s): TString(s), kObjArr(nullptr), fIterIndex(-1), fEndList(kTRUE)
+   {}
+   KVString(const KVString& s): TString((const TString&)s), kObjArr(nullptr), fIterIndex(-1), fEndList(kTRUE)
+   {}
    KVString(Double_t value, Double_t error);
 
-   virtual ~ KVString();
+   virtual ~ KVString() {}
 
 #ifdef __WITHOUT_TSTRING_TOKENIZE
    TObjArray* Tokenize(const TString& delim) const;
@@ -117,7 +104,7 @@ public:
    KVString& FindCommonCharacters(const TCollection*, const char bug = '*');
    KVString& FindCommonTitleCharacters(const TCollection*, const char bug = '*');
 
-   ClassDef(KVString, 1)        //TString wrapper compatible with ROOT versions 3.10/02 onwards
+   ClassDef(KVString, 1)//TString wrapper compatible with ROOT versions 3.10/02 onwards
 };
 
 inline KVString& KVString::operator=(const TString& s)

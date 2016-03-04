@@ -70,11 +70,6 @@ ClassImp(KVString)
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-KVString::~KVString()
-{
-   if (kObjArr) delete kObjArr;
-}
-
 #ifdef __WITHOUT_TSTRING_TOKENIZE
 TObjArray* KVString::Tokenize(const TString& delim) const
 {
@@ -504,20 +499,15 @@ void KVString::Begin(TString delim) const
    //
    //      "par1|par2|par3" -> "par1" "par2" "par3"
    //      "par1"           -> "par1"
-   KVString* THIS = const_cast<KVString*>(this);
-   THIS->fEndList = kFALSE;
-   THIS->fIterIndex = 0;
+
+   fEndList = kFALSE;
+   fIterIndex = 0;
    if (IsNull()) {
-      THIS->fEndList = kTRUE;
+      fEndList = kTRUE;
    } else {
-      if (kObjArr) delete kObjArr;
-      THIS->kObjArr = Tokenize(delim);
-      if (!kObjArr) {
-         THIS->fEndList = kTRUE;
-      } else if (!kObjArr->GetEntries()) {
-         THIS->fEndList = kTRUE;
-         delete kObjArr;
-         THIS->kObjArr = 0;
+      kObjArr.reset(Tokenize(delim));
+      if (!kObjArr->GetEntries()) {
+         fEndList = kTRUE;
       }
    }
 }
@@ -571,16 +561,10 @@ KVString KVString::Next(Bool_t strip_whitespace) const
    //  Second
    //  Third
 
-   KVString* THIS = const_cast<KVString*>(this);
-   static KVString st;
-   st = "";
-   if (!kObjArr) return st;
-   st = ((TObjString*)kObjArr->At(THIS->fIterIndex++))->GetString();
-   THIS->fEndList = (fIterIndex == kObjArr->GetEntries());
-   if (fEndList) {
-      delete kObjArr;
-      THIS->kObjArr = 0;
-   };
+   KVString st;
+   if (!kObjArr.get()) return st;
+   st = ((TObjString*)kObjArr->At(fIterIndex++))->GetString();
+   fEndList = (fIterIndex == kObjArr->GetEntries());
    if (strip_whitespace) st.Remove(kBoth, ' ');
    return st;
 }
@@ -990,7 +974,7 @@ KVString& KVString::FindCommonTitleCharacters(const TCollection* list, const cha
 }
 
 
-KVString::KVString(Double_t value, Double_t error): TString("")
+KVString::KVString(Double_t value, Double_t error): TString(""), kObjArr(nullptr), fIterIndex(-1), fEndList(kTRUE)
 {
    Double_t y  = value;
    Double_t ey = error;
@@ -1003,11 +987,9 @@ KVString::KVString(Double_t value, Double_t error): TString("")
    Int_t y_exp, ey_exp;
 
    //Recup de la valeur y
-   TObjArray* loa_y;
+   unique_ptr<TObjArray> loa_y(sy.Tokenize("e"));
 
-   loa_y = sy.Tokenize("e");
-
-   TIter next_y(loa_y);
+   TIter next_y(loa_y.get());
    TObjString* os_y = 0;
    os_y = (TObjString*)next_y();
    sy_dec = os_y->GetString();
@@ -1018,11 +1000,9 @@ KVString::KVString(Double_t value, Double_t error): TString("")
    y_exp = sy_exp.Atoi();
 
    //Recup de la valeur ey
-   TObjArray* loa_ey;
+   unique_ptr<TObjArray> loa_ey(sey.Tokenize("e"));
 
-   loa_ey = sey.Tokenize("e");
-
-   TIter next_ey(loa_ey);
+   TIter next_ey(loa_ey.get());
    TObjString* os_ey = 0;
 
    os_ey = (TObjString*)next_ey();
@@ -1076,5 +1056,4 @@ KVString::KVString(Double_t value, Double_t error): TString("")
    s.ReplaceAll("0)", ")");
 
    Form("%s", s.Data());
-
 }
