@@ -26,18 +26,21 @@ ClassImp(KVIDCutContour)
 KVIDCutContour::KVIDCutContour()
 {
    // Default constructor
+   fExclusive = kFALSE;
 }
 
 KVIDCutContour::KVIDCutContour(const KVIDCutContour& g)
    : KVIDContour(g)
 {
    // Copy constructor
+   fExclusive = kFALSE;
 }
 
 KVIDCutContour::KVIDCutContour(const TCutG& g)
    : KVIDContour(g)
 {
    // Copy the TCutG contour
+   fExclusive = kFALSE;
 }
 
 KVIDCutContour::~KVIDCutContour()
