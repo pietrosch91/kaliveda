@@ -19,6 +19,7 @@ $Id: KVRing.cpp,v 1.22 2007/05/31 09:59:22 franklan Exp $
 #include "KVLayer.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "KVTelescope.h"
 
 using namespace std;
 
@@ -86,6 +87,18 @@ Int_t KVRing::Compare(const TObject* obj) const
       return 1;
    else
       return 0;
+}
+
+Double_t KVRing::GetSolidAngle()
+{
+   // redefinition of KVPosition::GetSolidAngle() to take into account
+   // only KVTelescope of the considered KVLayer which define the KVRing
+   Double_t sol_ang = 0;
+   KVTelescope* tel;
+   TIter nxttel(GetTelescopes());
+   while ((tel = (KVTelescope*) nxttel())) sol_ang += tel->GetSolidAngle();
+   return sol_ang;
+
 }
 
 

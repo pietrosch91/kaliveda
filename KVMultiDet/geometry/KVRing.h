@@ -27,7 +27,8 @@ $Id: KVRing.h,v 1.15 2007/10/23 14:09:02 ebonnet Exp $
 #include "KVPosition.h"
 #include "KVGeoStrucElement.h"
 #include "KVList.h"
-#include "KVTelescope.h"
+#include "TGeoVolume.h"
+class KVTelescope;
 
 class KVRing : public KVGeoStrucElement, public KVPosition {
 
@@ -53,16 +54,7 @@ public:
    };
    Int_t Compare(const TObject* obj) const;
 
-   Double_t GetSolidAngle(void)
-   {
-      // redefinition of KVPosition::GetSolidAngle() to take into account
-      // only KVTelescope of the considered KVLayer which define the KVRing
-      Double_t sol_ang = 0;
-      KVTelescope* tel;
-      TIter nxttel(GetTelescopes());
-      while ((tel = (KVTelescope*) nxttel())) sol_ang += tel->GetSolidAngle();
-      return sol_ang;
-   }
+   Double_t GetSolidAngle(void);
    virtual TGeoVolume* GetGeoVolume();
    virtual void AddToGeometry();
 

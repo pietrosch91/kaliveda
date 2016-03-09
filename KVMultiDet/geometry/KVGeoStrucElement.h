@@ -6,7 +6,7 @@
 
 #include "KVBase.h"
 #include "KVUniqueNameList.h"
-#include "KVDetector.h"
+class KVDetector;
 
 class KVGeoStrucElement : public KVBase {
    void init();
@@ -64,9 +64,9 @@ public:
       // Returns kTRUE if this structure contains the detector or structure
       // given as argument
 
-      KVDetector* det = (KVDetector*)GetDetectors()->FindObject(name);
-      if (det) return kTRUE;
-      return (GetStructures()->FindObject(name) != 0);
+      TObject* det = GetDetectors()->FindObject(name);
+      if (det != nullptr) return kTRUE;
+      return (GetStructures()->FindObject(name) != nullptr);
    }
 
    KVGeoStrucElement* GetStructure(const Char_t* name) const
@@ -77,34 +77,13 @@ public:
    KVGeoStrucElement* GetStructure(const Char_t* type, Int_t num) const;
    KVGeoStrucElement* GetStructure(const Char_t* type, const Char_t* name) const;
    KVSeqCollection* GetStructureTypeList(const Char_t* type) const;
-   KVDetector* GetDetector(const Char_t* name) const
-   {
-      // Return detector in this structure with given name
-      return (KVDetector*)fDetectors.FindObject(name);
-   }
-   KVDetector* GetDetectorByType(const Char_t* type) const
-   {
-      // Return detector in this structure with given type
-      return (KVDetector*)fDetectors.FindObjectByType(type);
-   }
-   KVSeqCollection* GetDetectorTypeList(const Char_t* type) const;
-   KVDetector* GetDetectorAny(const Char_t* name)
-   {
-      // Return detector in structure with given name.
-      // If not found in this structure, we look in all daughter structures
-      // for a detector with the name.
+   KVDetector* GetDetector(const Char_t* name) const;
 
-      KVDetector* det = (KVDetector*)GetDetectors()->FindObject(name);
-      if (!det) {
-         TIter next(GetStructures());
-         KVGeoStrucElement* elem;
-         while ((elem = (KVGeoStrucElement*)next())) {
-            det = elem->GetDetectorAny(name);
-            if (det) return det;
-         }
-      }
-      return 0x0;
-   }
+   KVDetector* GetDetectorByType(const Char_t* type) const;
+
+   KVSeqCollection* GetDetectorTypeList(const Char_t* type) const;
+   KVDetector* GetDetectorAny(const Char_t* name);
+
    const KVSeqCollection* GetDetectors() const
    {
       return &fDetectors;
@@ -117,19 +96,7 @@ public:
    {
       return &fParentStrucList;
    }
-   virtual Bool_t Fired(Option_t* opt = "any") const
-   {
-      // Returns kTRUE if any detector or structure element in this structure
-      // has 'Fired' with the given option
-
-      TIter nextd(GetDetectors());
-      KVDetector* det;
-      while ((det = (KVDetector*)nextd())) if (det->Fired(opt)) return kTRUE;
-      TIter nexts(GetStructures());
-      KVGeoStrucElement* elem;
-      while ((elem = (KVGeoStrucElement*)nexts())) if (elem->Fired(opt)) return kTRUE;
-      return kFALSE;
-   }
+   virtual Bool_t Fired(Option_t* opt = "any") const;
    KVGeoStrucElement* GetParentStructure(const Char_t* type, const Char_t* name = "") const;
 
    void Print(Option_t* option = "") const;

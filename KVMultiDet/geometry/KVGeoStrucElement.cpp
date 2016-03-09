@@ -2,6 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVGeoStrucElement.h"
+#include "KVDetector.h"
 #include "Riostream.h"
 #include <TROOT.h>
 using namespace std;
@@ -157,12 +158,57 @@ KVSeqCollection* KVGeoStrucElement::GetStructureTypeList(const Char_t* type) con
    return fStructures.GetSubListWithType(type);
 }
 
+KVDetector* KVGeoStrucElement::GetDetector(const Char_t* name) const
+{
+   // Return detector in this structure with given name
+   return (KVDetector*)fDetectors.FindObject(name);
+}
+
+KVDetector* KVGeoStrucElement::GetDetectorByType(const Char_t* type) const
+{
+   // Return detector in this structure with given type
+   return (KVDetector*)fDetectors.FindObjectByType(type);
+}
+
 KVSeqCollection* KVGeoStrucElement::GetDetectorTypeList(const Char_t* type) const
 {
    // Create and fill a list with all detectors of given type in this structure.
    // DELETE LIST AFTER USE
 
    return fDetectors.GetSubListWithType(type);
+}
+
+KVDetector* KVGeoStrucElement::GetDetectorAny(const Char_t* name)
+{
+   // Return detector in structure with given name.
+   // If not found in this structure, we look in all daughter structures
+   // for a detector with the name.
+
+   KVDetector* det = (KVDetector*)GetDetectors()->FindObject(name);
+   if (!det) {
+      TIter next(GetStructures());
+      KVGeoStrucElement* elem;
+      while ((elem = (KVGeoStrucElement*)next())) {
+         det = elem->GetDetectorAny(name);
+         if (det) return det;
+      }
+   }
+   return (KVDetector*)nullptr;
+
+}
+
+Bool_t KVGeoStrucElement::Fired(Option_t* opt) const
+{
+   // Returns kTRUE if any detector or structure element in this structure
+   // has 'Fired' with the given option
+
+   TIter nextd(GetDetectors());
+   KVDetector* det;
+   while ((det = (KVDetector*)nextd())) if (det->Fired(opt)) return kTRUE;
+   TIter nexts(GetStructures());
+   KVGeoStrucElement* elem;
+   while ((elem = (KVGeoStrucElement*)nexts())) if (elem->Fired(opt)) return kTRUE;
+   return kFALSE;
 }
 
 KVGeoStrucElement* KVGeoStrucElement::GetParentStructure(const Char_t* type, const Char_t* name) const

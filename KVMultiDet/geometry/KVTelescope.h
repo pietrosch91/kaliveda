@@ -25,6 +25,7 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 #include "KVDetector.h"
 #include "KVList.h"
 #include "KVNameValueList.h"
+#include "KVGeoStrucElement.h"
 
 class KVNucleus;
 class TGraph;

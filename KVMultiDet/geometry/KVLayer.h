@@ -21,6 +21,8 @@ $Id: KVLayer.h,v 1.19 2009/03/03 14:27:15 franklan Exp $
 #define KVLAYER_H
 #include "KVGeoStrucElement.h"
 
+#include <TGeoVolume.h>
+
 class KVLayer : public KVGeoStrucElement {
 
 public:
