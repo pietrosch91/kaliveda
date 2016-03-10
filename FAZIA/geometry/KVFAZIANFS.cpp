@@ -81,9 +81,9 @@ void KVFAZIANFS::BuildFAZIA()
 
    // front entrance of first detector at 2 metres from target
    const double distance = 0.25 * KVUnits::m + 0.5 * total_thickness;
-   Double_t tmin = 15;
-   Double_t tmax = 75;
-   Double_t dt = 30;
+   Double_t tmin = 25;
+   Double_t tmax = 65;
+   Double_t dt = 20;
 
    Double_t pmin = -90;
 
@@ -92,7 +92,7 @@ void KVFAZIANFS::BuildFAZIA()
    TGeoHMatrix h;
 
    //Six premiers telescopes
-   //15 45 75°
+   //25 45 65°
    Int_t nt = 1;
    Double_t ph = pmin;
    Double_t th =  0;
@@ -115,6 +115,7 @@ void KVFAZIANFS::BuildFAZIA()
 
    //Si 8 telescopes
    //on le met a 30-60
+   /*
    th = 30;
    rot1.SetAngles(ph, 0., 0.);
    rot2.SetAngles(ph + 90, th, 0);
@@ -130,9 +131,9 @@ void KVFAZIANFS::BuildFAZIA()
 
    h = rot2 * trans * rot1;
    gGeoManager->GetTopVolume()->AddNode(tel, nt++, new TGeoHMatrix(h));
+   */
 
-
-   SetGeometryImportParameters(dt / 2, TMath::Abs(2 * pmin), tmin, pmin, tmax + 30, -1 * pmin);
+   SetGeometryImportParameters(dt / 2, TMath::Abs(2 * pmin), tmin, pmin, tmax + dt, -1 * pmin);
 
 }
 
