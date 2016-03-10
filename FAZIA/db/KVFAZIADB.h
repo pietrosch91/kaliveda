@@ -97,6 +97,8 @@ public:
    void ReadNewRunList();
    void WriteSystemsFile() const;
    void ReadExceptions();
+   void ReadRutherfordCounting();
+   void ReadRutherfordCrossSection();
    void ReadComments();
    void ReadCalibrationFiles();
 

@@ -122,9 +122,9 @@ void KVFAZIA::BuildTarget()
    }
 }
 
-void KVFAZIA::Build(Int_t)
+void KVFAZIA::Build(Int_t run)
 {
-   // Build the combined INDRA & FAZIA arrays
+   // Build the FAZIA array
    GetGeometryParameters();
    GenerateCorrespondanceFile();
 
@@ -150,8 +150,15 @@ void KVFAZIA::Build(Int_t)
    // make sure that the expected number of detectors get imported!
    imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
 
+   SetCalibrators();
+   SetIdentifications();
+
    SetDetectorThicknesses();
    SetBit(kIsBuilt);
+
+   if (run != -1) {
+      SetParameters(run);
+   }
 }
 
 void KVFAZIA::SortIDTelescopes()

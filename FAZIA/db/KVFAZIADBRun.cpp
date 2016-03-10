@@ -16,9 +16,10 @@ ClassImp(KVFAZIADBRun)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVFAZIADBRun::KVFAZIADBRun()
+void KVFAZIADBRun::init()
 {
-   // Default constructor
+   //initialize all fields
+
    SetTrigger(-1);
    SetNumberOfTriggerBlocks(-1);
    SetDeadTime(-1);
@@ -30,24 +31,25 @@ KVFAZIADBRun::KVFAZIADBRun()
    SetNumberOfAcqFiles(-1);
    SetDuration(-1.);
    SetFrequency(-1.);
+   SetRutherfordCount(-1);
+   SetRutherfordCrossSection(0.0);
+
+}
+
+//________________________________________________________________
+
+KVFAZIADBRun::KVFAZIADBRun()
+{
+   // Default constructor
+   init();
 }
 
 //________________________________________________________________
 
 KVFAZIADBRun::KVFAZIADBRun(Int_t number, const Char_t* title) : KVDBRun(number, title)
 {
-   // Write your code here
-   SetTrigger(-1);
-   SetNumberOfTriggerBlocks(-1);
-   SetDeadTime(-1);
-   SetTriggerRate(-1);
-   SetGoodEvents(-1);
-   SetACQStatus("Unkown");
-   SetError_WrongNumberOfBlocks(-1);
-   SetError_InternalBlockError(-1);
-   SetNumberOfAcqFiles(-1);
-   SetDuration(-1.);
-   SetFrequency(-1.);
+   //constructor with run number
+   init();
 }
 
 KVFAZIADBRun::~KVFAZIADBRun()
@@ -173,3 +175,22 @@ Double_t KVFAZIADBRun::GetNumberOfTriggerBlocks() const
    return Get("number of trigger blocks");
 }
 
+void KVFAZIADBRun::SetRutherfordCount(Int_t number)
+{
+   SetScaler("Rutherford Count", number);
+}
+
+Int_t KVFAZIADBRun::GetRutherfordCount() const
+{
+   return GetScaler("Rutherford Count");
+}
+
+void KVFAZIADBRun::SetRutherfordCrossSection(Double_t number)
+{
+   Set("Rutherford Cross Section (mb)", number);
+}
+
+Double_t KVFAZIADBRun::GetRutherfordCrossSection() const
+{
+   return Get("Rutherford Cross Section (mb)");
+}

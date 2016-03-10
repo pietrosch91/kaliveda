@@ -363,6 +363,8 @@ void KVFAZIADB::Build()
    ReadNewRunList();
    ReadSystemList();
    ReadExceptions();
+   ReadRutherfordCounting();
+   ReadRutherfordCrossSection();
    ReadComments();
    ReadCalibrationFiles();
 }
@@ -797,6 +799,76 @@ void KVFAZIADB::ReadComments()
    }
 
 }
+
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadRutherfordCounting()
+{
+
+   if (!strcmp(GetCalibFileName("RutherfordCounting"), "")) {
+      Info("ReadRutherfordCounting()", "No file foud for RutherfordCounting");
+      return;
+   }
+   TString fp;
+   gDataSet->SearchKVFile(GetCalibFileName("RutherfordCounting"), fp, gDataSet->GetName());
+
+   Info("ReadRutherfordCounting()", "Reading rutherford countings ...");
+
+   TEnv env;
+   env.ReadFile(fp.Data(), kEnvAll);
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVFAZIADBRun* dbrun = 0;
+   while ((rec = (TEnvRec*)next())) {
+      TString sname(rec->GetName());
+      dbrun = GetRun(sname.Atoi());
+      dbrun->SetRutherfordCount(TString(rec->GetValue()).Atoi());
+   }
+
+}
+
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadRutherfordCrossSection()
+{
+
+   if (!strcmp(GetCalibFileName("RutherfordCrossSection"), "")) {
+      Info("ReadRutherfordCrossSection()", "No file foud for RutherfordCounting");
+      return;
+   }
+   TString fp;
+   gDataSet->SearchKVFile(GetCalibFileName("RutherfordCrossSection"), fp, gDataSet->GetName());
+
+   KVFileReader fr;
+   if (!fr.OpenFileToRead(fp.Data())) {
+      Error("RutherfordCrossSection()", "Error in opening file %s\n", fp.Data());
+      return;
+   }
+
+   Info("RutherfordCrossSection()", "Reading rutherford cross sections ...");
+   KVFAZIADBRun* dbrun = 0;
+   KVDBSystem* dbsys = 0;
+   while (fr.IsOK()) {
+      fr.ReadLine(":");
+      if (fr.GetCurrentLine().BeginsWith("#")) {
+
+      } else if (fr.GetCurrentLine() == "") {
+
+      } else {
+         if (fr.GetNparRead() == 2) {
+            dbsys = GetSystem(fr.GetReadPar(0));
+            if (dbsys) {
+               Double_t val = fr.GetDoubleReadPar(1);
+               TIter next(dbsys->GetRuns());
+               while ((dbrun = (KVFAZIADBRun*)next())) {
+                  dbrun->SetRutherfordCrossSection(val);
+               }
+            }
+         }
+      }
+   }
+   fr.CloseFile();
+
+}
+
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadCalibrationFiles()
 {

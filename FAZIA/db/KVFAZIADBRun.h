@@ -8,6 +8,10 @@
 
 class KVFAZIADBRun : public KVDBRun {
 
+protected:
+
+   void init();
+
 public:
    KVFAZIADBRun();
    KVFAZIADBRun(Int_t number, const Char_t* title);
@@ -46,6 +50,12 @@ public:
 
    void SetNumberOfTriggerBlocks(Double_t);
    Double_t GetNumberOfTriggerBlocks() const;
+
+   void SetRutherfordCount(Int_t);
+   Int_t GetRutherfordCount() const;
+
+   void SetRutherfordCrossSection(Double_t);
+   Double_t GetRutherfordCrossSection() const;
 
    ClassDef(KVFAZIADBRun, 1) //run description for FAZIA experiment
 };
