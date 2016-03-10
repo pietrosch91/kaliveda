@@ -36,9 +36,16 @@ Warning in <KVClassMonitor::Check>: TEnvRec increase from 3032 --> 3038
 Warning in <KVClassMonitor::Check>: TClass increase from 70 --> 71
 Warning in <KVClassMonitor::Check>: TObjArray increase from 90 --> 92
 </pre>
+<p>
+This is a singleton class: only one instance can exist at a time. A pointer to
+the current instance can be retrieved by static method KVClassMonitor::GetInstance()
+</p>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+
+KVClassMonitor* KVClassMonitor::fgClassMonitor = nullptr;
+Bool_t KVClassMonitor::fDisableCheck = kFALSE;
 
 KVClassMonitor::KVClassMonitor()
 {
@@ -46,6 +53,12 @@ KVClassMonitor::KVClassMonitor()
    // fill fClassStats with all current instance counts
    // Store current class instance statistics as 'initial' values
    // used for global comparison by CompareToInit()
+
+   if (fgClassMonitor) {
+      Error("KVClassMonitor", "Singleton class. Instance already exists, use KVClassMonitor::GetInstance()");
+      return;
+   }
+   fgClassMonitor = this;
    SetInitStatistics();
    TIter next(gROOT->GetListOfClasses());
    TClass* cl;

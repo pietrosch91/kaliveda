@@ -8,8 +8,11 @@
 #include "TEnv.h"
 
 class KVClassMonitor : public KVBase {
+
+   static KVClassMonitor* fgClassMonitor;//singleton
    TEnv fClassStats;//store class instance statistics
    TEnv fClassStatsInit;//intitial class instance statistics
+   static Bool_t fDisableCheck;//disable static DoCheck() method
 
 public:
    KVClassMonitor();
@@ -18,6 +21,32 @@ public:
    virtual void Check();
    virtual void CompareToInit();
    virtual void SetInitStatistics();
+
+   // Return pointer to unique instance of class monitor class
+   static KVClassMonitor* GetInstance()
+   {
+      return fgClassMonitor;
+   }
+
+   // Print statistics of global singleton if it exists
+   static void DoCheck(const TString& method, const TString& message)
+   {
+      if (!fDisableCheck && fgClassMonitor) {
+         printf("<%s> : %s\n", method.Data(), message.Data());
+         fgClassMonitor->Check();
+      }
+   }
+
+   // Disable static DoCheck method
+   static void DisableChecking()
+   {
+      fDisableCheck = kTRUE;
+   }
+   // Re-enable static DoCheck method
+   static void EnableChecking()
+   {
+      fDisableCheck = kFALSE;
+   }
 
    ClassDef(KVClassMonitor, 1) //Track potential memory leaks
 };
