@@ -274,7 +274,7 @@ public:
    KVNameValueList* GetParameters() const
    {
       return (KVNameValueList*)&fParameters;
-   };
+   }
 
    ClassDef(KVParticle, 8)      //General base class for all massive particles
 };

@@ -48,6 +48,9 @@ public:
    {
       return angmom;
    }
+   Double_t GetEnergyLoss(const TString& detname) const;
+   TVector3 GetEntrancePosition(const TString& detname) const;
+   TVector3 GetExitPosition(const TString& detname) const;
 
    ClassDef(KVSimNucleus, 3) //Nuclear particle in a simulated event
 
