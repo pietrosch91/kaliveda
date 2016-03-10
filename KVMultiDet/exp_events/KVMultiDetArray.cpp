@@ -1213,9 +1213,9 @@ void KVMultiDetArray::Clear(Option_t*)
    //and detectors in groups (energy losses, ACQparams etc. etc.)
    //and the target if there is one
 
-   KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+   unique_ptr<KVSeqCollection> fGroups(GetStructures()->GetSubListWithType("GROUP"));
 
-   TIter next(fGroups);
+   TIter next(fGroups.get());
    KVGroup* grp;
    while ((grp = (KVGroup*) next())) {
       grp->Reset();
