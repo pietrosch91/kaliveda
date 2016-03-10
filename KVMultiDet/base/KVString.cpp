@@ -504,10 +504,12 @@ void KVString::Begin(TString delim) const
    fIterIndex = 0;
    if (IsNull()) {
       fEndList = kTRUE;
+      kObjArr.reset(nullptr);
    } else {
       kObjArr.reset(Tokenize(delim));
       if (!kObjArr->GetEntries()) {
          fEndList = kTRUE;
+         kObjArr.reset(nullptr);
       }
    }
 }
@@ -565,6 +567,7 @@ KVString KVString::Next(Bool_t strip_whitespace) const
    if (!kObjArr.get()) return st;
    st = ((TObjString*)kObjArr->At(fIterIndex++))->GetString();
    fEndList = (fIterIndex == kObjArr->GetEntries());
+   if (fEndList) kObjArr.reset(nullptr);
    if (strip_whitespace) st.Remove(kBoth, ' ');
    return st;
 }
