@@ -17,7 +17,8 @@ $Id: KVDBRecord.cpp,v 1.23 2007/05/31 09:59:22 franklan Exp $
  ***************************************************************************/
 #include "Riostream.h"
 #include "KVDBRecord.h"
-#include "KVDataBase.h"
+#include "KVDBTable.h"
+#include "KVDBKey.h"
 #include "TROOT.h"
 
 using namespace std;
@@ -221,6 +222,20 @@ KVDBTable* KVDBRecord::GetTable() const
 void KVDBRecord::SetTable(const KVDBTable* table)
 {
    fFullPathTable = table->GetFullPath();
+}
+
+//_____________________________________________________________________________//
+
+KVDBKey* KVDBRecord::GetKey(const Char_t* key) const
+{
+   TString knom(key);
+   knom.Prepend("Key:");
+   return (KVDBKey*) FindObject(knom.Data());
+}
+
+TList* KVDBRecord::GetKeys() const
+{
+   return (TList*) GetListOfFolders();
 }
 
 

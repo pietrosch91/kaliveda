@@ -14,6 +14,7 @@ $Author: franklan $
 #include "KVIDGridManager.h"
 #include "KVDetector.h"
 #include "KVCalibrator.h"
+#include "KVDataBase.h"
 
 using namespace std;
 

@@ -18,7 +18,7 @@ $Id: KVDBSystem.h,v 1.12 2008/03/07 15:01:34 ebonnet Exp $
 #ifndef KV_DB_SYSTEM_H
 #define KV_DB_SYSTEM_H
 
-#include "KVDataBase.h"
+#include "KVDBRecord.h"
 #include "Riostream.h"
 #include "KVTarget.h"
 #include "KVList.h"
@@ -94,7 +94,7 @@ public:
    KVList* GetRuns() const
    {
       return const_cast <KVDBSystem* >(this)->_GetRuns();
-   };
+   }
 
    virtual void GetRunList(KVNumberList&) const;
    virtual void Save(std::ostream&) const;
@@ -110,14 +110,14 @@ public:
    void SetNumberRuns(Int_t n)
    {
       fRuns = n;
-   };
+   }
    //get number of runs previously set by SetNumberRuns.
    //WARNING: for total number of runs associated to this system in database,
    //use GetRuns()->GetEntries()
    Int_t GetNumberRuns()
    {
       return fRuns;
-   };
+   }
 
    void SetRuns(KVNumberList&);
    void RemoveRun(KVDBRecord*);

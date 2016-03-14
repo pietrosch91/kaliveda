@@ -18,7 +18,7 @@ $Id: KVDBKey.cpp,v 1.23 2007/04/19 12:41:54 franklan Exp $
 #include "KVDBKey.h"
 #include "KVDBRecord.h"
 #include "Riostream.h"
-#include "KVDataBase.h"
+#include "KVDBTable.h"
 #include "TObjString.h"
 #include "TROOT.h"
 
@@ -168,4 +168,30 @@ void KVDBKey::RemoveLink(KVDBRecord* rec)
    //Remove a link from the list of links
 
    fLinks->Remove(rec);
+}
+
+KVDBRecord* KVDBKey::GetLink(const Char_t* link) const
+{
+   return (KVDBRecord*) fLinks->FindObjectByName(link);
+}
+
+KVDBRecord* KVDBKey::GetParent()
+{
+   return (KVDBRecord*) fRecord.GetObject();
+}
+
+void KVDBKey::SetParent(KVDBRecord* parent)
+{
+   fRecord = (TObject*) parent;
+}
+
+void KVDBKey::SetRecord(KVDBRecord* parent)
+{
+   SetParent(parent);
+}
+
+
+KVDBRecord* KVDBKey::GetRecord()
+{
+   return GetParent();
 }

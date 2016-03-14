@@ -12,6 +12,8 @@
 #include "KVNumberList.h"
 #include "KVUnits.h"
 #include "TROOT.h"
+#include "KVDBKey.h"
+#include "KVDBTable.h"
 
 using namespace std;
 

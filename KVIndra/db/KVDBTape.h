@@ -10,7 +10,8 @@ $Id: KVDBTape.h,v 1.13 2006/10/19 14:32:43 franklan Exp $
 #ifndef KV_DB_TAPE_H
 #define KV_DB_TAPE_H
 
-#include "KVDataBase.h"
+#include "KVDBRecord.h"
+#include "KVDBKey.h"
 
 class KVDBRun;
 
@@ -21,17 +22,16 @@ public:
    KVDBTape(Int_t tape_number);
    virtual ~ KVDBTape();
 
-   virtual KVRList* GetRuns();
+   virtual KVRList* GetRuns()
+   {
+      if (GetKey("Runs")) {
+         return GetKey("Runs")->GetLinks();
+      }
+      return 0;
+   }
    void AddRun(KVDBRun* run);
 
    ClassDef(KVDBTape, 3)       // Class describing a DLT tape
 };
 
-inline KVRList* KVDBTape::GetRuns()
-{
-   if (GetKey("Runs")) {
-      return GetKey("Runs")->GetLinks();
-   }
-   return 0;
-}
 #endif

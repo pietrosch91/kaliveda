@@ -22,8 +22,10 @@ $Id: KVDBRecord.h,v 1.19 2007/05/31 09:59:22 franklan Exp $
 #include "TFolder.h"
 #include "TList.h"
 #include "TRef.h"
-#include "KVDBTable.h"
-#include "KVDBKey.h"
+#include "KVRList.h"
+
+class KVDBKey;
+class KVDBTable;
 
 class KVDBRecord: public TFolder {
 
@@ -38,8 +40,8 @@ public:
    KVDBRecord(const Char_t* name, const Char_t* title = "");
    virtual ~ KVDBRecord();
 
-   inline virtual KVDBKey* GetKey(const Char_t* key) const;
-   inline virtual TList* GetKeys() const;
+   virtual KVDBKey* GetKey(const Char_t* key) const;
+   virtual TList* GetKeys() const;
    virtual Bool_t AddLink(const Char_t* key_name, KVDBRecord* rec,
                           Bool_t linkback = kTRUE);
    virtual void RemoveLink(const Char_t* key_name, KVDBRecord* rec,
@@ -65,21 +67,7 @@ public:
    };
    virtual Int_t Compare(const TObject* obj) const;
 
-   ClassDef(KVDBRecord, 3)      //Base Class for a record
+   ClassDef(KVDBRecord, 3)//Base Class for a record
 };
-
-//_____________________________________________________________________________//
-
-KVDBKey* KVDBRecord::GetKey(const Char_t* key) const
-{
-   TString knom(key);
-   knom.Prepend("Key:");
-   return (KVDBKey*) FindObject(knom.Data());
-}
-
-TList* KVDBRecord::GetKeys() const
-{
-   return (TList*) GetListOfFolders();
-}
 
 #endif

@@ -21,6 +21,8 @@ $Id: KVDBParameterSet.h,v 1.13 2007/04/18 14:28:49 ebonnet Exp $
 #include <cassert>
 #include "KVDBRecord.h"
 #include "TString.h"
+#include "KVDBKey.h"
+
 class KVDBParameterSet: public KVDBRecord {
 protected:
    Int_t fParamNumber;          //number of parameters

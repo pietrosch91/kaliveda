@@ -20,6 +20,7 @@ $Id: KVDBRun.cpp,v 1.14 2009/03/12 14:01:02 franklan Exp $
 #include "TEnv.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "KVDBKey.h"
 
 using namespace std;
 

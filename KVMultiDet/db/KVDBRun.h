@@ -18,6 +18,7 @@ $Id: KVDBRun.h,v 1.15 2009/03/12 14:01:02 franklan Exp $
 #ifndef KV_DB_RUN_H
 #define KV_DB_RUN_H
 
+#include "KVDBRecord.h"
 #include "KVDBSystem.h"
 #include "KVTarget.h"
 #include "KVString.h"
