@@ -10,11 +10,16 @@
 #include "KVACQParam.h"
 #include "TPluginManager.h"
 #include "TObjString.h"
+#include "TClass.h"
 /*** geometry ***/
 #include "TGeoVolume.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
+#include "TGeoArb8.h"
+#include "TGeoTube.h"
+
+#include <TGeoPhysicalNode.h>
 //#include <KVGeoDNTrajectory.h>
 
 using namespace std;
@@ -1635,4 +1640,57 @@ TVector3 KVDetector::GetCentreOfEntranceWindow() const
    // Return vector position of centre of entrance window.
    // Use GetCentre() if you want the centre of the active layer.
    return fEWPosition.GetCentre();
+}
+
+void KVDetector::SetThickness(Double_t thick)
+{
+   // Overrides KVMaterial::SetThickness
+   //
+   // If ROOT geometry is defined, we modify the DZ thickness of the volume representing
+   // this detector in accordance with the new thickness.
+   //
+   // This is only implemented for single-layer detectors with a simple shape.
+
+   if (ROOTGeo() && fSingleLayer) {
+      TGeoPhysicalNode* pn = (TGeoPhysicalNode*)gGeoManager->GetListOfPhysicalNodes()->FindObject(GetNode()->GetFullPathToNode());
+      if (!pn) pn = gGeoManager->MakePhysicalNode(GetNode()->GetFullPathToNode());
+      TGeoBBox* shape = (TGeoBBox*)pn->GetShape();
+      TGeoShape* newshape = nullptr;
+      // bad kludge - is there no better way to clone a shape and change its dZ?
+      if (shape->IsA() == TGeoBBox::Class()) {
+         newshape = new TGeoBBox(shape->GetDX(), shape->GetDY(), 0.5 * thick);
+      } else if (shape->IsA() == TGeoTube::Class()) {
+         TGeoTube* oldtube = static_cast<TGeoTube*>(shape);
+         newshape = new TGeoTube(oldtube->GetRmin(), oldtube->GetRmax(), 0.5 * thick);
+      } else {
+         Error("SetThickness", "No implementation for %s (%s)", shape->IsA()->GetName(), GetName());
+      }
+      if (newshape) {
+         pn->Align(nullptr, newshape);
+         Info("SetThickness", "Modified ROOT geometry for %s: new thickness=%g cm", GetName(), thick);
+         gGeoManager->RefreshPhysicalNodes(kFALSE);
+      }
+   }
+   KVMaterial::SetThickness(thick);
+}
+
+Bool_t KVDetector::HasSameStructureAs(const KVDetector* other) const
+{
+   // Return kTRUE if the two detectors have the same internal structure, i.e.
+   //  - the same number of absorber layers
+   //  - in the same order
+   //  - with the same material & thickness
+
+   int nabs = GetNumberOfAbsorberLayers();
+   if (other->GetNumberOfAbsorberLayers() != nabs) return kFALSE;
+   bool same = true;
+   for (int iabs = 0; iabs < nabs; ++iabs) {
+      KVMaterial* this_abs = GetAbsorber(iabs);
+      KVMaterial* other_abs = other->GetAbsorber(iabs);
+      if (!this_abs->IsType(other_abs->GetType())
+            || this_abs->GetMass() != other_abs->GetMass()
+            || this_abs->GetThickness() != other_abs->GetThickness())
+         same = false;
+   }
+   return same;
 }

@@ -57,7 +57,7 @@ void KVMaterial::init()
    fTemp = 19.0;
    // create default range table singleton if not already done
    GetRangeTable();
-   fAbsorberVolume = 0;
+   fAbsorberVolume = nullptr;
 }
 
 //

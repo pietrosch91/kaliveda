@@ -115,6 +115,7 @@ protected:
    Bool_t fDetecting;//! =kTRUE if detector is "detecting", =kFALSE if not
 
    Bool_t fSingleLayer;//! =kTRUE if detector has a single absorber layer
+
 public:
    KVDetector();
    KVDetector(const Char_t* type, const Float_t thick = 0.0);
@@ -145,16 +146,20 @@ public:
    {
       // Return absorber with given name
       return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
-   };
+   }
    KVList* GetListOfAbsorbers() const
    {
       return fAbsorbers;
-   };
+   }
+   Int_t GetNumberOfAbsorberLayers() const
+   {
+      return fAbsorbers->GetEntries();
+   }
    virtual const Char_t* GetArrayName();
    virtual Double_t GetDepthInTelescope() const
    {
       return fDepthInTelescope;
-   };
+   }
 
    Double_t GetTotalThicknessInCM()
    {
@@ -229,14 +234,14 @@ public:
    KVList* GetListOfCalibrators() const
    {
       return fCalibrators;
-   };
+   }
    virtual Bool_t IsCalibrated() const;
 
    virtual void Clear(Option_t* opt = "");
    virtual void Reset()
    {
       Clear();
-   };
+   }
    virtual void Print(Option_t* option = "") const;
 
    void AddHit(KVNucleus* part)
@@ -248,34 +253,34 @@ public:
          fParticles->SetCleanup();
       }
       fParticles->Add(part);
-   };
+   }
 
    // Return the list of particles hitting this detector in an event
    KVList* GetHits() const
    {
       return fParticles;
-   };
+   }
    void ClearHits()
    {
       // clear the list of particles hitting this detector in an event
       if (fParticles) fParticles->Clear();
-   };
+   }
    // Return the number of particles hitting this detector in an event
    Int_t GetNHits() const
    {
       return (fParticles ? fParticles->GetEntries() : 0);
-   };
+   }
 
    inline UShort_t GetSegment() const;
    inline virtual void SetSegment(UShort_t s);
    Bool_t IsAnalysed()
    {
       return TestBit(kIsAnalysed);
-   };
+   }
    void SetAnalysed(Bool_t b = kTRUE)
    {
       SetBit(kIsAnalysed, b);
-   };
+   }
    inline virtual Bool_t Fired(Option_t* opt = "any");
    inline virtual Bool_t FiredP(Option_t* opt = "any");
 
@@ -288,13 +293,13 @@ public:
    {
       //Return list of IDTelescopes to which detector belongs
       return fIDTelescopes;
-   };
+   }
    KVList* GetAlignedIDTelescopes()
    {
       //return list of ID telescopes made of this detector
       //and all aligned detectors placed in front of it
       return fIDTelAlign;
-   };
+   }
    TList* GetTelescopesForIdentification();
 
    inline void IncrementUnidentifiedParticles(Int_t n = 1)
@@ -302,21 +307,21 @@ public:
       fUnidentP += n;
       fUnidentP = (fUnidentP > 0) * fUnidentP;
       SetBit(kUnidentifiedParticle, (Bool_t)(fUnidentP > 0));
-   };
+   }
    inline void IncrementIdentifiedParticles(Int_t n = 1)
    {
       fIdentP += n;
       fIdentP = (fIdentP > 0) * fIdentP;
       SetBit(kIdentifiedParticle, (Bool_t)(fIdentP > 0));
-   };
+   }
    Bool_t BelongsToUnidentifiedParticle() const
    {
       return TestBit(kUnidentifiedParticle);
-   };
+   }
    Bool_t BelongsToIdentifiedParticle() const
    {
       return TestBit(kIdentifiedParticle);
-   };
+   }
 
    static KVDetector* MakeDetector(const Char_t* name, Float_t thick);
    const TVector3& GetNormal();
@@ -330,7 +335,7 @@ public:
    Binary8_t GetFiredBitmask() const
    {
       return fFiredMask;
-   };
+   }
    virtual const Char_t* GetFiredACQParameterListFormatString() const
    {
       return fKVDetectorFiredACQParameterListFormatString.Data();
@@ -344,7 +349,7 @@ public:
       // This method should be redefined in child classes i.e. for specific
       // detector implementations: this version just returns -1.
       return -1;
-   };
+   }
    virtual Double_t GetMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
@@ -370,11 +375,11 @@ public:
    virtual void SetEResAfterDetector(Double_t e)
    {
       fEResforEinc = e;
-   };
+   }
    virtual Double_t GetEResAfterDetector() const
    {
       return fEResforEinc;
-   };
+   }
 
    virtual void ReadDefinitionFromFile(const Char_t*);
 
@@ -389,7 +394,7 @@ public:
       // Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
       // whenever the energy loss in the active layer is >0
       fSimMode = on;
-   };
+   }
    virtual Bool_t IsSimMode() const
    {
       // Returns simulation mode of detector:
@@ -450,6 +455,14 @@ public:
    {
       return fEWPosition;
    }
+
+   void SetThickness(Double_t thick);
+   Bool_t IsSingleLayer() const
+   {
+      // Returns kTRUE for detectors with a single absorber layer
+      return fSingleLayer;
+   }
+   Bool_t HasSameStructureAs(const KVDetector*) const;
 
    ClassDef(KVDetector, 10)      //Base class for the description of detectors in multidetector arrays
 };

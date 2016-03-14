@@ -85,7 +85,13 @@ protected:
    virtual void set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l);
 
    virtual void SetCalibrators();
-   virtual void SetDetectorThicknesses();
+
+   virtual void GetAlignedIDTelescopesForDetector(KVDetector* det, TCollection* list);
+   virtual void GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_list);
+   virtual void PrepareModifGroup(KVGroup* grp, KVDetector* dd);
+   virtual void SetPresent(KVDetector* det, Bool_t present = kTRUE);
+   virtual void SetDetecting(KVDetector* det, Bool_t detecting = kTRUE);
+public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {
       if (!gGeoManager) {
@@ -104,13 +110,6 @@ protected:
       }
 
    }
-
-   virtual void GetAlignedIDTelescopesForDetector(KVDetector* det, TCollection* list);
-   virtual void GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_list);
-   virtual void PrepareModifGroup(KVGroup* grp, KVDetector* dd);
-   virtual void SetPresent(KVDetector* det, Bool_t present = kTRUE);
-   virtual void SetDetecting(KVDetector* det, Bool_t detecting = kTRUE);
-public:
    void SetGeometry(TGeoManager*);
    TGeoManager* GetGeometry() const;
    KVGeoNavigator* GetNavigator() const;
@@ -176,6 +175,7 @@ public:
    };
    KVList* GetIDTelescopeTypes();
    KVSeqCollection* GetIDTelescopesWithType(const Char_t* type);
+   virtual void SetDetectorThicknesses();
 
    void SetTarget(const Char_t* material, const Float_t thickness);
    void SetTarget(KVTarget* target);

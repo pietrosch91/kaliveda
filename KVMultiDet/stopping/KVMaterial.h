@@ -119,7 +119,7 @@ public:
    {
       //to facilitate polymorphism with KVDetector class
       return 0;
-   };
+   }
 
    virtual void SetPressure(Double_t);
    virtual void SetTemperature(Double_t);
@@ -137,18 +137,18 @@ public:
       // Return vector normal to surface of absorber. For a KVMaterial, this is (0,0,1) as
       // a basic absorber has no orientation. Rederived in child classes KVTarget and KVDetector.
       return fNormToMat;
-   };
+   }
 
    virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/ = "");
    virtual void SetAbsGeoVolume(TGeoVolume* v)
    {
       fAbsorberVolume = v;
-   };
+   }
    virtual TGeoVolume* GetAbsGeoVolume() const
    {
       // Returns pointer to volume representing this absorber in the ROOT geometry.
       return fAbsorberVolume;
-   };
+   }
 
    ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets
 };
