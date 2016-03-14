@@ -19,15 +19,15 @@ protected:
    Int_t NumeroCodeur;     //Numero du codeur (QDC pour les ChIo/Si)
 
 public:
-   KVINDRADetector();
-   virtual ~KVINDRADetector();
+   KVINDRADetector()
+      : fGGtoPG_0(0), fGGtoPG_1(1. / 15.), fChIo(nullptr),
+        NumeroCodeur(0)
+   {}
+   virtual ~KVINDRADetector() {}
    KVINDRADetector(const Char_t* type, const Float_t thick = 0.0)
-      : KVDetector(type, thick), fChIo(0)
-   {
-      fGGtoPG_0 = 0;
-      fGGtoPG_1 = 1. / 15.;
-      NumeroCodeur = 0;
-   };
+      : KVDetector(type, thick), fGGtoPG_0(0), fGGtoPG_1(1. / 15.),
+        fChIo(nullptr), NumeroCodeur(0)
+   {}
 
    KVINDRATelescope* GetTelescope() const
    {
@@ -103,6 +103,8 @@ public:
 
    void SetNumeroCodeur(Int_t numero);
    Int_t GetNumeroCodeur();
+
+   void SetThickness(Double_t thick);
 
    ClassDef(KVINDRADetector, 2) //Detectors of INDRA array
 };

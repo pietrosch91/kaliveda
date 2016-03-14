@@ -6,7 +6,7 @@
 
 #include "KVBase.h"
 #include "TVector3.h"
-#include "KVMaterial.h"
+#include "KVDetector.h"
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
 #include "KVNumberList.h"
@@ -20,6 +20,7 @@ class INDRAGeometryBuilder : public KVBase {
    TVector3 fOuterFront[4];//!coords of outer front face
    TVector3 fFrameFront[4];//!coords of outer front face
    KVList* fLayers;//!list of materials making up layers of current detector
+   KVDetector* fProtoDetector;//!detector used for last fLayers look up
    Int_t fActiveLayer;//!index of active layer of current detector
    KVMaterial fFrameMat;//!material of outer frame
    Double_t fTotalThickness;//!sum of thicknesses of layers of current detector
@@ -67,7 +68,7 @@ public:
 
    void Build(Bool_t withTarget = kTRUE, Bool_t closeGeometry = kTRUE);
    void BuildTarget();
-   void Build(KVNumberList& rings, KVNameValueList& detectors);
+   void Build(const KVNumberList& rings, const KVNameValueList& detectors);
    void TransformToOwnFrame(TVector3* orig, TVector3& centre, TVector3* ownframe);
 
    ClassDef(INDRAGeometryBuilder, 0) //Build INDRA geometry from Huguet CAO infos

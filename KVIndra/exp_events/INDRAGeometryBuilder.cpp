@@ -215,7 +215,10 @@ void INDRAGeometryBuilder::MakeFrame(TString det_type, Int_t ring_num)
 
    TVector3 fFrameBack[4];
    TVector3 fFrameBackCentre;
-   CalculateBackPlaneCoordinates(fFrameFront, fFrameCentre, fTotalThickness, fFrameBack);
+   //CalculateBackPlaneCoordinates(fFrameFront, fFrameCentre, fTotalThickness, fFrameBack);
+   // make deadzone be 1um thick
+   Double_t dz = 5.e-5;
+   CalculateBackPlaneCoordinates(fFrameFront, fFrameCentre, 2 * dz, fFrameBack);
    CalculateCentre(fFrameBack, fFrameBackCentre);
 
    TVector3 corners[8]; // 8 vertices of the volume
@@ -228,7 +231,7 @@ void INDRAGeometryBuilder::MakeFrame(TString det_type, Int_t ring_num)
       vertices[2 * i + 1] = corners[i].Y();
    }
 
-   Double_t dz = 0.99 * fTotalThickness / 2.;
+   //Double_t dz = 0.99 * fTotalThickness / 2.;
    TString vol_name;
    vol_name.Form("STRUCT_%s_%02d", det_type.Data(), ring_num);
    fFrameVolume = gGeoManager->MakeVolumeAssembly(vol_name);
@@ -237,7 +240,8 @@ void INDRAGeometryBuilder::MakeFrame(TString det_type, Int_t ring_num)
    TGeoMedium* med = fFrameMat.GetGeoMedium();
    Double_t offX, offY;
    CorrectCoordinates(vertices, offX, offY);
-   TGeoTranslation* offset  = new TGeoTranslation(offX, offY, 0);
+   // place the deadzone 1um (=1.e-4 cm) behind the detector entrance window
+   TGeoTranslation* offset  = new TGeoTranslation(offX, offY, -(0.5 * fTotalThickness - (1.e-4 + dz)));
    TGeoVolume* frame = gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
    frame->SetLineColor(med->GetMaterial()->GetDefaultColor());
    fFrameVolume->AddNode(frame, 1, offset);
@@ -300,6 +304,14 @@ Bool_t INDRAGeometryBuilder::CheckDetectorPresent(TString detname)
    }
    if (!fLayers) {
       // get info on detector structure from first detector which is present on ring
+      fProtoDetector = thisdetector;
+      fLayers = thisdetector->GetListOfAbsorbers();
+      fActiveLayer = 1 + thisdetector->GetListOfAbsorbers()->IndexOf(thisdetector->GetActiveLayer());
+      fTotalThickness = thisdetector->GetTotalThicknessInCM();
+   }
+   if ((thisdetector != fProtoDetector) && !thisdetector->HasSameStructureAs(fProtoDetector)) {
+      // current detector does not have same structure as prototype
+      fProtoDetector = thisdetector;
       fLayers = thisdetector->GetListOfAbsorbers();
       fActiveLayer = 1 + thisdetector->GetListOfAbsorbers()->IndexOf(thisdetector->GetActiveLayer());
       fTotalThickness = thisdetector->GetTotalThicknessInCM();
@@ -331,7 +343,8 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
 // check presence of all detectors of ring
    Int_t npresent = 0;
    Int_t ntotal = 0;
-   fLayers = 0;//will force CheckDetectorPresent() to get infos from first detector present
+   fLayers = nullptr;//will force CheckDetectorPresent() to get infos from first detector present
+   fProtoDetector = nullptr;
    for (i = 1; i <= Ndets; i++) {
       if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
       else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
@@ -382,49 +395,16 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
    Info("MakeRing", "Detector type %s  ring number %d : %d/%d detectors present", det, ring, npresent, ntotal);
 
    i = 1;
-   /* build and add frame */
-   MakeFrame(det, ring);
-
-   // make pads in inner ring
-   MakeDetector("A1", fInnerFront, fInnerCentre);
-   PlaceDetector();
-   if (fInnerPads == 3) {
-      MakeDetector("A2", fOuterFront, fOuterCentre);
-      PlaceDetector();
-      TVector3 reflex[4];
-      ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
-      TVector3 refcent;
-      CalculateCentre(reflex, refcent);
-      MakeDetector("A3", reflex, refcent);
-      PlaceDetector();
-   } else {
-      if (fInnerPads == 2) {
-         TVector3 reflex[4];
-         ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
-         TVector3 refcent;
-         CalculateCentre(reflex, refcent);
-         MakeDetector("A2", reflex, refcent);
-         PlaceDetector();
-      }
-      if (fOuterPads) {
-         // make pads in outer ring
-         MakeDetector("B1", fOuterFront, fOuterCentre);
-         PlaceDetector();
-         if (fOuterPads == 2) {
-            TVector3 reflex[4];
-            ReflectPad(fOuterFront, fFrameCentre.Phi(), reflex);
-            TVector3 refcent;
-            CalculateCentre(reflex, refcent);
-            MakeDetector("B2", reflex, refcent);
-            PlaceDetector();
-         }
-      }
-   }
 
    innerMod = fInnerModmin;
    outerMod = fOuterModmin;
 
+   fLayers = nullptr;//will force CheckDetectorPresent() to get infos from first detector present
+   fProtoDetector = nullptr;
    for (i = 1; i <= Ndets; i++) {
+
+      // check if prototype information changes
+      KVDetector* oldProtoDet = fProtoDetector;
 
       // check absence of whole block
       ntotal = 0;
@@ -475,7 +455,57 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
          Info("MakeRing", "\tBlock %d: %d/%d detectors present", i, npresent, ntotal);
          Info("MakeRing", "\tCASE NOT TREATED. ALL DETECTORS PRESENT.");
       }
-      if (npresent) PlaceFrame(phi, i);
+      if (npresent) {
+
+         if (fProtoDetector != oldProtoDet) {
+            // Prototype information has changed since last group/block
+            // We must create a new prototype
+
+            Info("MakeRing", "DET:%s RING:%d  Making new prototype group for i=%d/%d",
+                 det, ring, i, Ndets);
+
+            /* build and add frame */
+            MakeFrame(det, ring);
+
+            // make pads in inner ring
+            MakeDetector("A1", fInnerFront, fInnerCentre);
+            PlaceDetector();
+            if (fInnerPads == 3) {
+               MakeDetector("A2", fOuterFront, fOuterCentre);
+               PlaceDetector();
+               TVector3 reflex[4];
+               ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
+               TVector3 refcent;
+               CalculateCentre(reflex, refcent);
+               MakeDetector("A3", reflex, refcent);
+               PlaceDetector();
+            } else {
+               if (fInnerPads == 2) {
+                  TVector3 reflex[4];
+                  ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
+                  TVector3 refcent;
+                  CalculateCentre(reflex, refcent);
+                  MakeDetector("A2", reflex, refcent);
+                  PlaceDetector();
+               }
+               if (fOuterPads) {
+                  // make pads in outer ring
+                  MakeDetector("B1", fOuterFront, fOuterCentre);
+                  PlaceDetector();
+                  if (fOuterPads == 2) {
+                     TVector3 reflex[4];
+                     ReflectPad(fOuterFront, fFrameCentre.Phi(), reflex);
+                     TVector3 refcent;
+                     CalculateCentre(reflex, refcent);
+                     MakeDetector("B2", reflex, refcent);
+                     PlaceDetector();
+                  }
+               }
+            }
+         }
+
+         PlaceFrame(phi, i);
+      }
 
       if (((ring > 9 && ring < 13) && i == 1) || (ring > 12 && i == 2)) {
          fEtalonTheta[ring - 10] = fFrameCentre.Theta() * TMath::RadToDeg();
@@ -700,7 +730,7 @@ void INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry)
    }
 
 }
-void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors)
+void INDRAGeometryBuilder::Build(const KVNumberList& rings, const KVNameValueList& detectors)
 {
    // Build geometry, using only the ring numbers in the KVNumberList, and
    // only the detectors which are in the KVNameValueList:

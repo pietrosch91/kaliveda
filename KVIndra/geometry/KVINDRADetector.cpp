@@ -16,20 +16,6 @@ ClassImp(KVINDRADetector)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVINDRADetector::KVINDRADetector()
-   : fChIo(0)
-{
-   // Default constructor
-   fGGtoPG_0 = 0;
-   fGGtoPG_1 = 1. / 15.;
-   NumeroCodeur = 0;
-}
-
-KVINDRADetector::~KVINDRADetector()
-{
-   // Destructor
-}
-
 const Char_t* KVINDRADetector::GetArrayName()
 {
    // Name of detector given in the form
@@ -175,4 +161,17 @@ Int_t KVINDRADetector::GetNumeroCodeur()
    //Get the number of the electronic module of type QDC
    //this field are initialized in KVINDRA::Build()
    return NumeroCodeur;
+}
+
+void KVINDRADetector::SetThickness(Double_t thick)
+{
+   // Overrides KVDetector::SetThickness
+   // If using ROOT geometry, print warning that any change in detector thickness will not
+   // be taken into account in the geometry.
+   // All thicknesses have to be set before the ROOT geometry is generated.
+
+   if (ROOTGeo()) {
+      Warning("SetThickness", "Using ROOT geometry. Changes to detector thickness will not be taken into account in geometry.");
+   }
+   KVMaterial::SetThickness(thick);
 }

@@ -65,16 +65,17 @@ public:
    virtual Short_t GetCalcACQParam(KVACQParam*, Double_t) const;
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 
-   virtual void SetThickness(Double_t thick /* um */)
+   void SetThickness(Double_t thick /* um */)
    {
       // Sets thickness of active layer in microns
-      GetActiveLayer()->SetThickness(thick * KVUnits::um);
-   };
+
+      KVINDRADetector::SetThickness(thick * KVUnits::um);
+   }
    virtual Double_t GetThickness() const /* um */
    {
       // Returns thickness of active layer in microns
       return GetActiveLayer()->GetThickness() / KVUnits::um;
-   };
+   }
    void DeduceACQParameters(Int_t zz = -1, Int_t aa = -1);
    Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
 

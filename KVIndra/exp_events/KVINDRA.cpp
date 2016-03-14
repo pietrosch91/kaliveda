@@ -883,7 +883,6 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
       CreateGeoManager();
       INDRAGeometryBuilder igb;
       igb.Build(kFALSE, fCloseGeometryNow);
-      //GetNavigator()->SetNameCorrespondanceList("INDRA.names");
       CreateROOTGeometry();
    } else {
       KVMultiDetArray::SetROOTGeometry(on);
