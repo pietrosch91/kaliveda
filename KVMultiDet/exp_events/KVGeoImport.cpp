@@ -210,6 +210,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
             // set matrix & shape for active layer
             det->SetActiveLayerMatrix(GetCurrentMatrix());
             det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            det->GetNode()->SetTitle(GetCurrentPath());
          }
       }
    } else {
@@ -234,6 +235,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 //                    GetCurrentMatrix()->Print();
                det->SetActiveLayerMatrix(GetCurrentMatrix());
                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+               det->GetNode()->SetTitle(GetCurrentPath());
             }
             fArray->Add(det);
             Int_t nstruc = CurrentStructures().GetEntries();
@@ -263,6 +265,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 //                GetCurrentMatrix()->Print();
             det->SetActiveLayerMatrix(GetCurrentMatrix());
             det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            det->GetNode()->SetTitle(GetCurrentPath());
          }
       }
    }

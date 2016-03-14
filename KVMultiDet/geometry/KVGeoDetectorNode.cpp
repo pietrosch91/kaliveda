@@ -30,7 +30,7 @@ KVGeoDetectorNode::KVGeoDetectorNode()
 
 //________________________________________________________________
 
-KVGeoDetectorNode::KVGeoDetectorNode(const Char_t* name) : KVBase(name, "Detector node")
+KVGeoDetectorNode::KVGeoDetectorNode(const Char_t* name) : KVBase(name, "/FULL/PATH/TO/NODE")
 {
    // Write your code here
    init();

@@ -38,6 +38,13 @@ public:
 
    void ls(Option_t* option = "") const;
 
+   const Char_t* GetFullPathToNode() const
+   {
+      // Return full path to this node in ROOT geometry, i.e. "/TOP/A_1/B_2/MY_DETECTOR"
+      // This information is set by KVGeoImport on creation
+      return GetTitle();
+   }
+
    ClassDef(KVGeoDetectorNode, 1) //Stores lists of detectors in front and behind this node
 };
 
