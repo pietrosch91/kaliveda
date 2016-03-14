@@ -34,7 +34,15 @@ protected:
    virtual KVNumberList PrintAvailableRuns(KVString& datatype);
 
    Int_t mt;
-   Double_t de1, de2, de3, de4, de5;
+   // de1: energie Phoswich pour couronne1 campagne 1,2,3
+   //      energie ChIo pour couronne > 1
+   // de2: energie Si
+   // de3: energie CsI
+   // de4: energie Si75 pour etalons
+   // de5: energie SiLi pour etalons
+   // de_mylar: contribution mylar pour la ChIo
+
+   Double_t de1, de2, de3, de4, de5, de_mylar;
    Double_t canal[16];
    Int_t code_idf[4];
    KVIDTelescope* identifying_telescope;

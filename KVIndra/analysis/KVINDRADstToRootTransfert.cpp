@@ -808,7 +808,7 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream& f_in, KVINDRAReconEvent* evt)
       for (Int_t i = 0; i < mul; i++) {
 
          Int_t z, a, code, icou, imod, ecode, ncans;
-         Double_t z_indra, a_indra, ener, de_mylar;
+         Double_t z_indra, a_indra, ener;
          for (Int_t gj = 0; gj < 16; gj++) canal[gj] = 0.0;
          f_in >> a;
          f_in >> z;
@@ -967,6 +967,14 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream& f_in, KVINDRAReconEvent* evt)
                   tmp->SetZMeasured(kFALSE);
                }
                tmp->SetEnergy(ener);
+
+               tmp->SetEnergyChIo(de1 + de_mylar);
+               tmp->SetEnergySi(de2);
+               tmp->SetEnergyCsI(de3);
+               tmp->SetEnergySi75(de4);
+               tmp->SetEnergySiLi(de5);
+
+
             }//if(det_stop)
          }//if code<11
       }//for(int i=0;

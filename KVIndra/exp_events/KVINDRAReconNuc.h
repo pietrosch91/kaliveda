@@ -209,6 +209,41 @@ public:
       return fECsI;
    };
 
+   void SetEnergyChIo(Float_t val)
+   {
+      // Set the calculated ChIo contribution to the particle's energy
+      // (including correction for losses in Mylar windows).
+      // in veda6 de1+de_mylar
+
+      fEChIo = val;
+   };
+   void SetEnergySi(Float_t val)
+   {
+      // Set the calculated Si contribution to the particle's energy
+      // (including correction for pulse height defect).
+      // This may be negative, in case the Si contribution was calculated
+      // because either (1) the Si was not calibrated, or (2) coherency check
+      // indicates pileup in Si, or (3) coherency check indicates measured
+      // Si energy is too small for particle identified in CsI-RL
+
+      fESi = val;
+   };
+   void SetEnergySi75(Float_t val)
+   {
+      // Set the calculated Si75 contribution to the particle's energy
+      fESi75 = val;
+   };
+   void SetEnergySiLi(Float_t val)
+   {
+      // Set the calculated SiLi contribution to the particle's energy
+      fESiLi = val;
+   };
+   void SetEnergyCsI(Float_t val)
+   {
+      // Set the calculated CsI contribution to the particle's energy
+      fECsI = val;
+   };
+
    KVChIo* GetChIo();
    KVSilicon* GetSi();
    KVSi75* GetSi75();
