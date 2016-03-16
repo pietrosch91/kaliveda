@@ -283,7 +283,7 @@ ID:Z=5 A=11
 672.753   1237.77
 765.315   1396.15
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 12
 1.7069   5.27666
@@ -299,7 +299,7 @@ above
 211.049   236.067
 338.135   374.382
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 6
 357.089   696.844
@@ -606,7 +606,7 @@ ID:Z=5 A=11
 611.815   1126.72
 704.037   1283.79
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 20
 0.441477   8.01254
@@ -630,7 +630,7 @@ above
 367.621   405.494
 444.355   483.614
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 5
 379.97   733.37
@@ -923,7 +923,7 @@ ID:Z=5 A=11
 639.713   1144.5
 700.371   1244.3
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 19
 1.09602   6.28122
@@ -946,7 +946,7 @@ above
 248.276   271.084
 308.27   336.461
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 8
 321.845   623.87
@@ -1240,7 +1240,7 @@ ID:Z=5 A=11
 705.84   1277.72
 773.815   1396.1
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 19
 0.809718   5.82497
@@ -1263,7 +1263,7 @@ above
 293.221   323.091
 457.985   496.475
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 9
 396.701   758.107
@@ -1569,7 +1569,7 @@ ID:Z=5 A=11
 717.654   1327.12
 899.704   1633.97
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 0.295297   5.22631
@@ -1596,7 +1596,7 @@ above
 305.2   342.946
 420.106   468.5
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 6
 438.059   853.309
@@ -1931,7 +1931,7 @@ ID:Z=5 A=11
 798.547   1438.5
 958.26   1720.9
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 22
 0.556739   6.30729
@@ -1957,7 +1957,7 @@ above
 445.852   488.681
 494.419   541.13
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 7
 428.197   817.623
@@ -2277,7 +2277,7 @@ ID:Z=5 A=11
 809.806   1480.47
 851.769   1551.83
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 above
 20
 0.298706   5.4212
@@ -2301,7 +2301,7 @@ above
 403.863   449.498
 437.401   485.95
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 12
 371.6   726.425
@@ -2636,7 +2636,7 @@ ID:Z=5 A=11
 715.806   1279
 780.071   1376.87
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 0.517476   7.05161
@@ -2663,7 +2663,7 @@ above
 349.755   379.277
 398.112   428.464
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 9
 354.496   679.137
@@ -3049,7 +3049,7 @@ ID:Z=5 A=11
 701.905   1262.89
 845.823   1513.84
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 22
 0.645846   7.19535
@@ -3075,7 +3075,7 @@ above
 343.835   376.225
 375.06   410.474
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 351.137   676.256
@@ -3435,7 +3435,7 @@ ID:Z=5 A=11
 719.804   1276.07
 767.15   1354.46
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 0.452292   6.75337
@@ -3464,7 +3464,7 @@ above
 468.692   500.686
 585.795   623.565
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 6
 395.963   746.693
@@ -3797,7 +3797,7 @@ ID:Z=5 A=11
 747.369   1358.52
 845.03   1525.99
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 1.18425   6.44852
@@ -3826,7 +3826,7 @@ above
 359.933   396.615
 436.204   477.607
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 8
 381.009   731.651
@@ -4208,7 +4208,7 @@ ID:Z=5 A=11
 647.708   1184.2
 731.313   1322.3
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 0.345611   6.90622
@@ -4235,7 +4235,7 @@ above
 350.478   384.414
 378.324   412.867
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 329.256   641.211
@@ -4650,7 +4650,7 @@ ID:Z=5 A=11
 759.654   1396.76
 811.619   1481.01
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 28
 0.626156   6.25178
@@ -4682,7 +4682,7 @@ above
 473.621   528.009
 515.266   573.435
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 7
 433.808   840.235
@@ -5079,7 +5079,7 @@ ID:Z=5 A=11
 670.255   1205.92
 721.909   1293.12
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 31
 1.13699   6.48733
@@ -5114,7 +5114,7 @@ above
 337.384   368.249
 376.113   409.131
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 331.946   640.351
@@ -5533,7 +5533,7 @@ ID:Z=5 A=11
 804.776   1443.03
 908.228   1617.67
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 0.551567   6.59147
@@ -5562,7 +5562,7 @@ above
 386.856   424.279
 410.439   449.971
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 12
 317.422   622.996
@@ -5984,7 +5984,7 @@ ID:Z=5 A=11
 921.428   1660.22
 994.599   1771.43
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 33
 0.506896   5.87091
@@ -6021,7 +6021,7 @@ above
 468.747   523.646
 517.95   577.459
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 414.862   805.069
@@ -6304,7 +6304,7 @@ ID:Z=5 A=11
 993.27   1809.27
 1068.24   1928.59
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 26
 0.147884   7.14467
@@ -6334,7 +6334,7 @@ above
 492.594   551.083
 604.28   673.607
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 8
 514.368   1003.83
@@ -6748,7 +6748,7 @@ ID:Z=5 A=11
 931.821   1705.97
 1009.73   1835.99
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 35
 0.15047   6.30973
@@ -6787,7 +6787,7 @@ above
 430.189   486.476
 520.082   585.726
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 15
 343.268   685.669
@@ -7186,7 +7186,7 @@ ID:Z=5 A=11
 841.43   1541.51
 934.307   1697.13
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 0.112852   6.59484
@@ -7213,7 +7213,7 @@ above
 329.498   371.639
 446.465   498.206
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 353.933   706.425
@@ -7596,7 +7596,7 @@ ID:Z=5 A=11
 914.561   1662.72
 1011.55   1830.01
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 27
 0.429545   6.55207
@@ -7627,7 +7627,7 @@ above
 369.853   414.045
 472.683   521.395
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 15
 329.354   653.261
@@ -8089,7 +8089,7 @@ ID:Z=5 A=11
 886.591   1605.03
 934.236   1683.61
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 34
 0.285893   5.91367
@@ -8127,7 +8127,7 @@ above
 444.422   497.855
 482.176   539.599
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 310.809   623.05
@@ -8545,7 +8545,7 @@ ID:Z=5 A=11
 1061.99   1904.17
 1111.36   1991.29
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 27
 0.399921   5.46971
@@ -8576,7 +8576,7 @@ above
 383.682   428.02
 414.079   462.804
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 346.732   686.204
@@ -8939,7 +8939,7 @@ ID:Z=5 A=11
 953.897   1733.68
 1016.72   1834.25
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 0.31969   5.93004
@@ -8968,7 +8968,7 @@ above
 401.439   447.142
 484.983   535.871
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 369.017   732.827
@@ -9364,7 +9364,7 @@ ID:Z=5 A=11
 996.434   1771.79
 1078.52   1902.42
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 24
 0.0781736   6.10527
@@ -9392,7 +9392,7 @@ above
 452.767   501.262
 485.432   536.414
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 15
 351.804   690.345
@@ -9830,7 +9830,7 @@ ID:Z=5 A=11
 890.32   1600.99
 906.257   1628.65
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 30
 0.354428   6.81521
@@ -9864,7 +9864,7 @@ above
 464.546   515.039
 519.051   574.159
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 14
 305.426   610.647
@@ -10410,7 +10410,7 @@ ID:Z=5 A=11
 966.683   1733.11
 1034.84   1842.64
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 26
 0.432014   6.28016
@@ -10440,7 +10440,7 @@ above
 422.668   473.195
 452.264   505.638
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 14
 367.257   717.461
@@ -10877,7 +10877,7 @@ ID:Z=5 A=11
 946.3   1717.48
 977.491   1768.13
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 29
 0.464576   5.87078
@@ -10910,7 +10910,7 @@ above
 431.619   479.76
 492.442   543.472
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 14
 336.979   672.686
@@ -11283,7 +11283,7 @@ ID:Z=5 A=11
 979.58   1770.98
 1037.84   1867.82
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 27
 0.679937   6.42443
@@ -11314,7 +11314,7 @@ above
 440.782   495.246
 477.873   535.507
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 388.815   766.769
@@ -11703,7 +11703,7 @@ ID:Z=5 A=11
 937.193   1683.6
 1029.45   1833.15
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 0.220062   6.23561
@@ -11732,7 +11732,7 @@ above
 384.092   424.565
 434.902   479.426
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 394.56   769.09
@@ -12120,7 +12120,7 @@ ID:Z=5 A=11
 842.913   1512.44
 892.23   1586.25
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 26
 0.255094   5.36748
@@ -12150,7 +12150,7 @@ above
 351.723   389.989
 383.925   424.249
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 12
 341.328   669.763
@@ -12520,7 +12520,7 @@ ID:Z=5 A=11
 654.477   1154.76
 704.318   1238.18
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 21
 0.269671   4.92298
@@ -12545,7 +12545,7 @@ above
 269.535   290.831
 312.649   336.013
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 303.718   575.483
@@ -12988,7 +12988,7 @@ ID:Z=5 A=11
 1022.49   1827.72
 1092.2   1946.46
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 32
 0.782856   6.48033
@@ -13024,7 +13024,7 @@ above
 398.278   443.465
 467.895   520.128
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 357.122   706.811
@@ -13438,7 +13438,7 @@ ID:Z=5 A=11
 1073.04   1866.96
 1108.23   1921.58
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 26
 0.114968   6.53755
@@ -13468,7 +13468,7 @@ above
 439.234   476.713
 469.509   509.136
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 15
 319.051   622.858
@@ -13862,7 +13862,7 @@ ID:Z=5 A=11
 835.096   1510.31
 923.443   1656.31
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 19
 0.148119   6.62837
@@ -13885,7 +13885,7 @@ above
 317.886   351.717
 402.378   443.049
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 16
 275.083   548.532
@@ -14261,7 +14261,7 @@ ID:Z=5 A=11
 719.193   1300.16
 813.883   1458.33
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 24
 0.160109   5.04811
@@ -14289,7 +14289,7 @@ above
 354.176   387.062
 399.141   432.912
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 324.226   632.012
@@ -14664,7 +14664,7 @@ ID:Z=5 A=11
 1012.7   1811.26
 1100.83   1962.81
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 29
 0.0724134   6.88807
@@ -14697,7 +14697,7 @@ above
 443.458   488.28
 487.325   534.676
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 above
 15
 302.38   599.201
@@ -15041,7 +15041,7 @@ ID:Z=5 A=11
 680.493   1192.31
 726.78   1265.7
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 24
 0.244396   6.46159
@@ -15069,7 +15069,7 @@ above
 305.997   329.132
 329.338   353.778
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 8
 278.84   535.734
@@ -15449,7 +15449,7 @@ ID:Z=5 A=11
 803.093   1485.58
 883.181   1620.45
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 20
 0.180858   6.42159
@@ -15473,7 +15473,7 @@ above
 407.506   455.883
 446.76   499.521
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 15
 321.643   639.847
@@ -15844,7 +15844,7 @@ ID:Z=5 A=11
 727.516   1309.8
 781.281   1396.68
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 30
 0.214773   6.22452
@@ -15878,7 +15878,7 @@ above
 371.53   407.387
 432.924   470.603
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 315.612   614.067
@@ -16235,7 +16235,7 @@ ID:Z=5 A=11
 583.335   1027.09
 667.182   1165.55
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 22
 0.341438   6.11345
@@ -16261,7 +16261,7 @@ above
 338.591   360.793
 384.239   408.862
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 9
 291.524   548.979
@@ -16666,7 +16666,7 @@ ID:Z=5 A=11
 849.972   1513.66
 915.415   1616.39
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 22
 0.0707676   6.71931
@@ -16692,7 +16692,7 @@ above
 377.516   414.881
 436.934   479.111
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 above
 16
 1.1907e-321   1.11165e-321
@@ -17044,7 +17044,7 @@ ID:Z=5 A=11
 669.315   1220.06
 780.306   1400.23
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 1.1907e-321   1.1907e-321
@@ -17071,7 +17071,7 @@ above
 342.039   374.734
 376.077   410.168
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 9
 332.406   647.963
@@ -17366,7 +17366,7 @@ ID:Z=5 A=11
 494.982   890.753
 562.282   1004.69
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 13
 0.334737   7.85896
@@ -17383,7 +17383,7 @@ above
 246.016   266.225
 309.703   333.527
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 8
 250.068   476.632
@@ -17776,7 +17776,7 @@ ID:Z=5 A=11
 834.883   1475.78
 883.462   1560.4
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 16
 0.212656   5.47914
@@ -17796,7 +17796,7 @@ above
 353.416   381.689
 399.974   431.37
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 13
 223.938   439.718
@@ -18184,7 +18184,7 @@ ID:Z=5 A=11
 731.241   1305.69
 857.248   1493.6
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 23
 0.303879   6.61992
@@ -18211,7 +18211,7 @@ above
 378.348   411.221
 412.5   445.609
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 304.97   591.199
@@ -18528,7 +18528,7 @@ ID:Z=5 A=11
 631.593   1153.19
 723.797   1311.25
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 25
 0.334267   6.97532
@@ -18557,7 +18557,7 @@ above
 340.287   373.066
 413.839   451.243
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 6
 392.521   748.981
@@ -18932,7 +18932,7 @@ ID:Z=5 A=11
 756.936   1363.23
 793.646   1422.37
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 19
 0.204722   7.59999
@@ -18955,7 +18955,7 @@ above
 390.387   424.518
 446.015   484.192
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 14
 276.66   543.703
@@ -19384,7 +19384,7 @@ ID:Z=5 A=11
 842.182   1506.42
 942.241   1671.41
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 28
 0.276489   7.50297
@@ -19416,7 +19416,7 @@ above
 374.487   407.3
 397.422   428.87
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 353.867   691.394
@@ -19825,7 +19825,7 @@ ID:Z=5 A=11
 746.909   1344.37
 784.291   1401.87
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 28
 0.130133   6.09939
@@ -19857,7 +19857,7 @@ above
 336.619   370.214
 380.182   417.666
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 10
 354.8   684.684
@@ -20298,7 +20298,7 @@ ID:Z=5 A=11
 838.162   1500.05
 871.807   1556.11
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 28
 0.0684167   6.21601
@@ -20330,7 +20330,7 @@ above
 475.273   519.877
 494.102   539.479
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 11
 416.53   796.899
@@ -20765,7 +20765,7 @@ ID:Z=5 A=11
 869.745   1570.12
 903.517   1628.73
 +KVIDCutLine
-OK:Gamma line
+OK:gamma_line
 above
 22
 0.234874   6.06316
@@ -20791,7 +20791,7 @@ above
 358.207   399.603
 451.766   500.561
 +KVIDCutLine
-OK:IMF line
+OK:IMF_line
 below
 12
 343.766   677.284
