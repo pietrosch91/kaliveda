@@ -2,7 +2,6 @@
 //Author: John Frankland,,,
 
 #include "KVMultiDetArray.h"
-
 #include "Riostream.h"
 #include "TROOT.h"
 #include "KVDetector.h"
@@ -38,7 +37,10 @@
 #include "KVIonRangeTable.h"
 #include "KVRangeTableGeoNavigator.h"
 #include <KVNamedParameter.h>
-
+#ifdef WITH_OPENGL
+#include <TGLViewer.h>
+#include <TVirtualPad.h>
+#endif
 using namespace std;
 
 KVMultiDetArray* gMultiDetArray = 0x0;
@@ -532,7 +534,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
    //   - DETECTED : cross at least one active layer of one detector
    //   - UNDETECTED : go through dead zone or stopped in target
    //We add also different sub group :
-   //   - For UNDETECTED particles : "DEAD ZONE", "STOPPED IN TARGET" and "THRESHOLD", the last one concerned particle
+   //   - For UNDETECTED particles : "NO HIT", "NEUTRON", "DEAD ZONE", "STOPPED IN TARGET" and "THRESHOLD", the last one concerned particle
    //go through the first detection stage of the multidetector array but stopped in an absorber (ie an inactive layer)
    //   - For DETECTED particles :
    //         "PUNCH THROUGH" corrresponds to particle which cross all the materials in front of it
@@ -580,7 +582,16 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
    // we copy the list of parameters associated to each input particle into the output particle.
    // Note that this list contains full informations on the detection of each particle
    // (see Users Guide chapter on Filtering)
-
+   //
+   // TRACKING (only with ROOT geometries)
+   // ====================================
+   // You can visualise the trajectories of particles for individual events in the 3D OpenGL viewer.
+   // To enable this:
+   //     gMultiDetArray->GetNavigator()->SetTracking(kTRUE)
+   // Then you can do:
+   //     gMultiDetArray->DetectEvent(...)
+   //     gMultiDetArray->Draw("tracks")
+   // The geometry of the array with the tracks overlaid will be displayed.
 
    if (!event) {
       Error("DetectEvent", "the KVEvent object pointer has to be valid");
@@ -598,6 +609,11 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       }
       // set up geometry navigator
       if (!fNavigator) fNavigator = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
+      if (fNavigator->IsTracking()) {
+         // clear any tracks created by last event
+         gGeoManager->ClearTracks();
+         fNavigator->ResetTrackID();
+      }
    }
 
    //Clear the KVReconstructed pointer before a new filter process
@@ -636,7 +652,9 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       Double_t eLostInTarget = 0;
       KVDetector* last_det = 0;
 
-      if (part->GetZ() == 0) {
+      if (!fNavigator->IsTracking() && (part->GetZ() == 0)) {
+         // when tracking is activated, we follow neutron trajectories
+         // if not, we don't even bother trying
          det_stat->SetValue("UNDETECTED", "NEUTRON");
 
          part->AddGroup("UNDETECTED");
@@ -649,7 +667,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       } else {
 
          //Double_t eLostInTarget=0;
-         if (fTarget) {
+         if (fTarget && part->GetZ()) {
             fTarget->SetOutgoing(kTRUE);
             //simulate passage through target material
             Double_t ebef = _part->GetKE();
@@ -669,17 +687,33 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
             // do not have the energy to leave the target are not detected
          } else {
             if (!(nvl = DetectParticle(_part))) {
-               det_stat->SetValue("UNDETECTED", "DEAD ZONE");
+               if (part->GetZ() == 0) {
+                  // tracking
+                  det_stat->SetValue("UNDETECTED", "NEUTRON");
 
-               part->AddGroup("UNDETECTED");
-               part->AddGroup("DEAD ZONE");
+                  part->AddGroup("UNDETECTED");
+                  part->AddGroup("NEUTRON");
+               } else {
+                  det_stat->SetValue("UNDETECTED", "NO HIT");
+
+                  part->AddGroup("UNDETECTED");
+                  part->AddGroup("NO HIT");
+               }
 
             } else if (nvl->GetNpar() == 0) {
 
-               part->AddGroup("UNDETECTED");
-               part->AddGroup("DEAD ZONE");
+               if (part->GetZ() == 0) {
+                  // tracking
+                  det_stat->SetValue("UNDETECTED", "NEUTRON");
 
-               det_stat->SetValue("UNDETECTED", "DEAD ZONE");
+                  part->AddGroup("UNDETECTED");
+                  part->AddGroup("NEUTRON");
+               } else {
+                  part->AddGroup("UNDETECTED");
+                  part->AddGroup("DEAD ZONE");
+
+                  det_stat->SetValue("UNDETECTED", "DEAD ZONE");
+               }
                delete nvl;
                nvl = 0;
             } else {
@@ -884,7 +918,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
    // EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER
    /*
       We keep all particles EXCEPT those belonging to groups
-      "DEAD ZONE" or "GEOMETRY INCOHERENCY"
+      "NO HIT" "DEAD ZONE" or "GEOMETRY INCOHERENCY"
    */
    if (fFilterType == kFilterType_Geo) {
 
@@ -896,6 +930,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       while ((part = event->GetNextParticle())) {
          if (part->BelongsToGroup("DETECTED") ||
                (part->BelongsToGroup("UNDETECTED") &&
+                !part->BelongsToGroup("NO HIT") &&
                 !part->BelongsToGroup("DEAD ZONE") &&
                 !part->BelongsToGroup("GEOMETRY INCOHERENCY") &&
                 !part->BelongsToGroup("NEUTRON") &&
@@ -2496,7 +2531,25 @@ void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
    }
 }
 
+void KVMultiDetArray::Draw(Option_t* option)
+{
+   // Use OpenGL viewer to view multidetector geometry (only for ROOT geometries)
+   // If option="tracks" we draw any tracks corresponding to the last simulated
+   // event whose detection was simulated with DetectEvent
+   if (IsROOTGeometry()) {
+      GetGeometry()->GetTopVolume()->Draw("ogl");
+      if (!strcmp(option, "tracks")) GetNavigator()->DrawTracks();
+#ifdef WITH_OPENGL
+      TGLViewer* view = (TGLViewer*)gPad->GetViewer3D();
+      view->SetCurrentCamera(TGLViewer::kCameraPerspYOZ);
+      view->SetStyle(TGLRnrCtx::kOutline);
+#endif
+   } else Error("Draw", "Only ROOT geometries can be viewed");
+
+}
+
 void KVMultiDetArray::SetNavigator(KVGeoNavigator* geo)
 {
    fNavigator = (KVRangeTableGeoNavigator*)geo;
 }
+

@@ -3,6 +3,7 @@
 
 #include "KVRangeTableGeoNavigator.h"
 #include <TGeoMaterial.h>
+#include <TGeoManager.h>
 #include <TGeoVolume.h>
 #include <TGeoNode.h>
 #include "KVNucleus.h"
@@ -92,17 +93,6 @@ ClassImp(KVRangeTableGeoNavigator)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-KVRangeTableGeoNavigator::KVRangeTableGeoNavigator(TGeoManager* g, KVIonRangeTable* r) : KVGeoNavigator(g)
-{
-   fRangeTable = r;
-   fCutOffEnergy = 1.e-3;
-}
-
-KVRangeTableGeoNavigator::~KVRangeTableGeoNavigator()
-{
-   // Destructor
-}
-
 void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
 {
    // Overrides method in KVGeoNavigator base class.
@@ -118,10 +108,25 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
    if (e <= fCutOffEnergy) {
       e = 0.;
       SetStopPropagation();//propagation will stop after this step
+      if (IsTracking()) {
+         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+         AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
+      }
       return;
    }
 
-   // calculate energy losses in known materials
+   // no neutron detection - just tracking
+   if (part->GetZ() == 0) {
+      if (IsTracking()) {
+         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+         AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
+      }
+      return;
+   }
+
+   TVector3 midVol = 0.5 * (GetEntryPoint() + GetExitPoint());
+
+   // calculate energy losses in known materials for charged particles
    TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
    KVIonRangeTableMaterial* irmat = 0;
    if ((irmat = fRangeTable->GetMaterial(material))) {
@@ -153,22 +158,56 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
       part->GetParameters()->SetValue(Form("Xin:%s", absorber_name.Data()), GetEntryPoint().X());
       part->GetParameters()->SetValue(Form("Yin:%s", absorber_name.Data()), GetEntryPoint().Y());
       part->GetParameters()->SetValue(Form("Zin:%s", absorber_name.Data()), GetEntryPoint().Z());
-      part->GetParameters()->SetValue(Form("Xout:%s", absorber_name.Data()), GetExitPoint().X());
-      part->GetParameters()->SetValue(Form("Yout:%s", absorber_name.Data()), GetExitPoint().Y());
-      part->GetParameters()->SetValue(Form("Zout:%s", absorber_name.Data()), GetExitPoint().Z());
+      if (StopPropagation()) {
+         part->GetParameters()->SetValue(Form("Xout:%s", absorber_name.Data()), midVol.X());
+         part->GetParameters()->SetValue(Form("Yout:%s", absorber_name.Data()), midVol.Y());
+         part->GetParameters()->SetValue(Form("Zout:%s", absorber_name.Data()), midVol.Z());
+         if (IsTracking()) {
+            AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+            AddPointToCurrentTrack(midVol.X(), midVol.Y(), midVol.Z());
+         }
+      } else {
+         part->GetParameters()->SetValue(Form("Xout:%s", absorber_name.Data()), GetExitPoint().X());
+         part->GetParameters()->SetValue(Form("Yout:%s", absorber_name.Data()), GetExitPoint().Y());
+         part->GetParameters()->SetValue(Form("Zout:%s", absorber_name.Data()), GetExitPoint().Z());
+         if (IsTracking()) {
+            AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+            AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
+         }
+      }
       part->SetEnergy(e);
    }
+}
+
+void KVRangeTableGeoNavigator::InitialiseTrack(KVNucleus* part, TVector3* TheOrigin)
+{
+   // Start a new track to visualise trajectory of nucleus through the array
+
+   fTrackTime = 0.;
+   Int_t pdg = part->GetN() * 100 + part->GetZ();
+   gGeoManager->SetPdgName(pdg, part->GetSymbol());
+   Int_t itrack = gGeoManager->AddTrack(GetTrackID(), pdg, part);
+   IncrementTrackID();
+   fCurrentTrack = static_cast<TGeoTrack*>(gGeoManager->GetTrack(itrack));
+   if (TheOrigin) AddPointToCurrentTrack(TheOrigin->x(), TheOrigin->y(), TheOrigin->z());
+   else AddPointToCurrentTrack(0, 0, 0);
 }
 
 void KVRangeTableGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
 {
    // Slight modification of KVGeoNavigator::PropagateParticle:
    //   if particle hits a DEADZONE, set its energy to zero
+   // We start a new track to represent the particle's trajectory through the array
+
+   if (IsTracking()) InitialiseTrack(part, TheOrigin);
 
    KVGeoNavigator::PropagateParticle(part, TheOrigin);
+
    if (part->GetParameters()->HasParameter("DEADZONE")) {
       //Info("PropagateParticle","stopped in DEADZONE:%s",part->GetParameters()->GetStringValue("DEADZONE"));
       part->SetEnergy(0);
+      if (IsTracking()) {
+         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+      }
    }
 }
-

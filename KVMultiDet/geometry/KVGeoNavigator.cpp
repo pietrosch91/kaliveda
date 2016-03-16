@@ -3,9 +3,11 @@
 
 #include "KVGeoNavigator.h"
 #include "KVEvent.h"
+#include "KV3DGeoTrack.h"
 #include <TGeoManager.h>
 #include <TGeoMatrix.h>
 #include "KVGeoStrucElement.h"
+#include <TVirtualPad.h>
 
 ClassImp(KVGeoNavigator)
 
@@ -212,6 +214,7 @@ KVGeoNavigator::KVGeoNavigator(TGeoManager* g)
    // Constructor. Call with pointer to geometry.
    fGeometry = g;
    fDetStrucNameCorrespList = 0;
+   SetTracking(kFALSE);
 }
 
 KVGeoNavigator::~KVGeoNavigator()
@@ -304,6 +307,8 @@ void KVGeoNavigator::PropagateEvent(KVEvent* TheEvent, TVector3* TheOrigin)
    // Propagate a set of particles through the geometry
    // By default, propagates particles from (0,0,0) (world coordinates),
    // unless a different origin is given.
+
+   ResetTrackID();
    KVNucleus* part;
    while ((part = TheEvent->GetNextParticle())) {
       PropagateParticle(part, TheOrigin);
@@ -514,9 +519,13 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
    // reset user flag for stopping propagation of particle
    SetStopPropagation(kFALSE);
 
-//    Info("PropagateParticle","Beginning: i am in %s on node %s with path %s, and matrix:",
+//    if(IsTracking()) Info("PropagateParticle","Beginning: i am in %s on node %s with path %s",
 //         fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
-//    fCurrentMatrix.Print();
+
+   if (IsTracking() && fGeometry->IsOutside()) {
+      const Double_t* posi = fGeometry->GetCurrentPoint();
+      AddPointToCurrentTrack(posi[0], posi[1], posi[2]);
+   }
 
    // track particle until we leave the geometry or until fStopPropagation
    // becomes kTRUE
@@ -535,9 +544,8 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
          break;
       }
 
-//        Info("PropagateParticle","just before ParticleEntersNewVolume\nnow i am in %s on node %s with path %s and matrix:",
+//        if(IsTracking()) Info("PropagateParticle","just before ParticleEntersNewVolume\nnow i am in %s on node %s with path %s",
 //             fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
-//        fCurrentMatrix.Print();
 
       ParticleEntersNewVolume(part);
 
@@ -549,9 +557,8 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
       fCurrentMatrix = *newMatx;
       fCurrentPath = newPath;
 
-//        Info("PropagateParticle","after ParticleEntersNewVolume\nnow i am in %s on node %s with path %s and matrix:",
+//       if(IsTracking()) Info("PropagateParticle","after ParticleEntersNewVolume\nnow i am in %s on node %s with path %s",
 //             fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
-//        fCurrentMatrix.Print();
 
       // move on to next volume crossed by trajectory
       fGeometry->FindNextBoundaryAndStep();
@@ -564,3 +571,21 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
    }
 }
 
+void KVGeoNavigator::DrawTracks()
+{
+   // When using ROOT geometry, after calling DetectEvent to simulate detection of some particles,
+   // you can call this method to overlay the tracks of the corresponding particles on the 3D
+   // geometry of the array
+
+   TIter next_track(fGeometry->GetListOfTracks());
+   TGeoTrack* track;
+   bool first = true;
+   while ((track = (TGeoTrack*)next_track())) {
+      KV3DGeoTrack* gtrack = new KV3DGeoTrack(track);
+      if (first) {
+         if (gPad) gtrack->Draw("same");
+         else gtrack->Draw("ogl");
+         first = false;
+      } else gtrack->Draw("same");
+   }
+}

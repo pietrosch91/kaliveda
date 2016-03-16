@@ -31,6 +31,8 @@ private:
    TVector3 fEntryPoint;//position of particle on entering volume
    TVector3 fExitPoint;//position of particle on exiting volume
    Bool_t fStopPropagation;//flag set by user when particle propagation should stop
+   Int_t fTrackID;//! track counter
+   Bool_t fTracking;//! set to true when tracking particles
 protected:
    KVNameValueList fStrucNameFmt;//list of user-defined formats for structure names
    KVString fDetNameFmt;//user-defined format for detector names
@@ -41,6 +43,27 @@ protected:
 public:
    KVGeoNavigator(TGeoManager*);
    virtual ~KVGeoNavigator();
+
+   void ResetTrackID(Int_t id = 0)
+   {
+      fTrackID = id;
+   }
+   Int_t GetTrackID() const
+   {
+      return fTrackID;
+   }
+   void IncrementTrackID()
+   {
+      ++fTrackID;
+   }
+   void SetTracking(Bool_t on = kTRUE)
+   {
+      fTracking = on;
+   }
+   Bool_t IsTracking() const
+   {
+      return fTracking;
+   }
 
    void SetStructureNameFormat(const Char_t* type, const Char_t* fmt);
    void SetDetectorNameFormat(const Char_t* fmt)
@@ -105,6 +128,8 @@ public:
    {
       return fCurrentStructures;
    }
+   virtual void AddPointToCurrentTrack(Double_t, Double_t, Double_t) {}
+   void DrawTracks();
 
    ClassDef(KVGeoNavigator, 0) //Propagate particles of an event through a TGeo geometry
 };

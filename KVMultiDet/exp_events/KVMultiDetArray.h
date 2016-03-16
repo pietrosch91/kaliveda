@@ -61,8 +61,6 @@ protected:
 
    Int_t fFilterType;//! type of filtering (used by DetectEvent)
 
-   //TGeoManager* fGeoManager;//! array geometry
-
    KVRangeTableGeoNavigator* fNavigator;//! for propagating particles through array geometry
 
    virtual void RenumberGroups();
@@ -276,24 +274,19 @@ public:
       return d->ROOTGeo();
    }
    void CalculateDetectorSegmentationIndex();
-
-   ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
    virtual void AnalyseGroupAndReconstructEvent(KVReconstructedEvent* recev, KVGroup* grp);
    virtual void SetGridsInTelescopes(UInt_t run);
    void FillListOfIDTelescopes(KVIDGraph* gr) const;
 
-   void Draw(Option_t* = "")
-   {
-      // Use OpenGL viewer to view multidetector geometry (only for ROOT geometries)
-      if (IsROOTGeometry()) GetGeometry()->GetTopVolume()->Draw("ogl");
-      else Error("Draw", "Only ROOT geometries can be viewed");
-   }
+   void Draw(Option_t* option = "");
 
    void CheckROOTGeometry()
    {
       // Turns on ROOT geometry if not already in use
       if (!IsROOTGeometry()) SetROOTGeometry();
    }
+
+   ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };
 
 //................  global variable
