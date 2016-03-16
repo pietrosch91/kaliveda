@@ -69,6 +69,7 @@ public:
    static void CheckListOfWellEndedRuns(const Char_t* kvsname, const Char_t* dsname);
    static void MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* dsname);
    static void GetMissingRunsListing(const Char_t* kvsname, const Char_t* dsname);
+   static void CheckBatchOutputFiles(const Char_t* kvsname, Bool_t eraseafter = kFALSE);
 
    virtual void CheckEndOfRun();
 
