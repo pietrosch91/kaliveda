@@ -54,6 +54,7 @@
 /usr/include/kaliveda/KVRing.h
 /usr/include/kaliveda/KVDetector.h
 /usr/include/kaliveda/KVGeoNavigator.h
+/usr/include/kaliveda/KV3DGeoTrack.h
 /usr/include/kaliveda/KVACQParam.h
 /usr/include/kaliveda/KVGeoStrucElement.h
 /usr/include/kaliveda/KVPulseHeightDefect.h
