@@ -13,9 +13,17 @@ protected:
 
    Int_t fCurrentRun;
 
+   Bool_t fAutomatic;
+   TFile* fOutputFile;
+   TString fOutputPath;
+
    Bool_t fRawData;
    KVFAZIARawEvent* RawEvent;
    TString rawdatabranchname;
+
+   void SetAutomaticManagementOfOutputs(Bool_t automatic = kTRUE);
+   Bool_t CreateOutputFile();
+   Bool_t SaveAndCloseOutputFile();
 
 public:
    KVFAZIASelector() : fCurrentRun(0), fRawData(kFALSE), RawEvent(nullptr)
@@ -58,6 +66,11 @@ public:
    virtual void ParseOptions();
 
    static void Make(const Char_t* kvsname = "MyOwnFAZIASelector");
+   static void CheckListOfWellEndedRuns(const Char_t* kvsname, const Char_t* dsname);
+   static void MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* dsname);
+   static void GetMissingRunsListing(const Char_t* kvsname, const Char_t* dsname);
+
+   virtual void CheckEndOfRun();
 
    ClassDef(KVFAZIASelector, 1) //selector to analyze FAZIA reconstructed data
 };

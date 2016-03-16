@@ -111,6 +111,7 @@ public:
    virtual void    Init(TTree* tree);
    virtual Bool_t  Notify();
    virtual Bool_t  Process(Long64_t entry);
+   virtual void   CheckEndOfRun();
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0)
    {
       return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;

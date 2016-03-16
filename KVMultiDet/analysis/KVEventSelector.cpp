@@ -211,6 +211,13 @@ Bool_t KVEventSelector::Process(Long64_t entry)
    Bool_t ok_anal = kTRUE;
    ok_anal = Analysis();     //user analysis
 
+   CheckEndOfRun();
+
+   return ok_anal;
+}
+
+void KVEventSelector::CheckEndOfRun()
+{
    // Testing whether EndRun() should be called
    if (AtEndOfRun()) {
       Info("Process", "End of file reached after %lld events", fEventsRead);
@@ -219,7 +226,6 @@ Bool_t KVEventSelector::Process(Long64_t entry)
       fNotifyCalled = kFALSE;//Notify will be called when next file is opened (in TChain)
    }
 
-   return ok_anal;
 }
 
 void KVEventSelector::SlaveTerminate()
