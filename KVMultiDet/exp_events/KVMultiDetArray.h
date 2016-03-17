@@ -285,6 +285,8 @@ public:
       // Turns on ROOT geometry if not already in use
       if (!IsROOTGeometry()) SetROOTGeometry();
    }
+   void MakeHistogramsForAllIDTelescopes(KVSeqCollection* list);
+   void FillHistogramsForAllIDTelescopes(KVSeqCollection* list);
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };

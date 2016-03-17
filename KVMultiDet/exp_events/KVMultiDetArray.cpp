@@ -829,7 +829,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                            part->AddGroup("UNDETECTED");
                            part->AddGroup("GEOMETRY INCOHERENCY");
                            //Warning("DetectEvent","Fuite ......");
-                        } else {
+                        } else if (nbre_nvl) {
                            //----
                            // Punch Through,
                            // La particule est trop energetique, elle a traversee
@@ -2543,6 +2543,8 @@ void KVMultiDetArray::Draw(Option_t* option)
       TGLViewer* view = (TGLViewer*)gPad->GetViewer3D();
       view->SetCurrentCamera(TGLViewer::kCameraPerspYOZ);
       view->SetStyle(TGLRnrCtx::kOutline);
+      view->SetSmoothLines(kTRUE);
+      view->SetSmoothPoints(kTRUE);
 #endif
    } else Error("Draw", "Only ROOT geometries can be viewed");
 
@@ -2553,3 +2555,30 @@ void KVMultiDetArray::SetNavigator(KVGeoNavigator* geo)
    fNavigator = (KVRangeTableGeoNavigator*)geo;
 }
 
+void KVMultiDetArray::MakeHistogramsForAllIDTelescopes(KVSeqCollection* list)
+{
+   // Create TH2F histograms for all IDTelescopes of the array
+   // They will be added to the list
+
+   TIter it(GetListOfIDTelescopes());
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*)it())) {
+      TString name(idt->GetName());
+      name.ReplaceAll("-", "_");
+      list->Add(new TH2F(name, Form("Hits in %s", idt->GetName()), 500, 0., 0., 500, 0., 0.));
+   }
+}
+
+void KVMultiDetArray::FillHistogramsForAllIDTelescopes(KVSeqCollection* list)
+{
+   // Fill TH2F histograms for all IDTelescopes of the array
+
+   TIter it(GetListOfIDTelescopes());
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*)it())) {
+      TString name(idt->GetName());
+      name.ReplaceAll("-", "_");
+      TH2F* h = (TH2F*)list->FindObject(name);
+      if (h) h->Fill(idt->GetIDMapX(), idt->GetIDMapY());
+   }
+}
