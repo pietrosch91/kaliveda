@@ -32,7 +32,7 @@ Presentation de l'editeur : <a href="http://indra.in2p3.fr/KaliVedaDoc/images/Jo
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDGridEditor* gIDGridEditor = 0x0;
+KVIDGridEditor* gIDGridEditor = nullptr;
 
 KVIDGridEditor::KVIDGridEditor()
 {
@@ -101,7 +101,6 @@ KVIDGridEditor::KVIDGridEditor()
 
    ResetScalingRecap();
 
-   return;
 }
 
 //________________________________________________________________
@@ -123,8 +122,6 @@ void KVIDGridEditor::StartViewer()
       if (TheGrid)  TheGrid->Draw();
       DrawAtt(false);
    }
-
-   return;
 }
 
 void KVIDGridEditor::CanvasWasClosed()
@@ -459,17 +456,29 @@ void KVIDGridEditor::AddGridOption(TString label, KVHashList* thelist)
 //________________________________________________________________
 TString KVIDGridEditor::ListOfHistogramInMemory()
 {
-//  if(!gFile) return "";
-   Info("ListOfHistogramInMemory", "Appel");
+   // Fill a TString with the names of all histograms in
+   //   - ROOT memory (gROOT)
+   //   - all open files
+   //   - all canvases
+   //   - any instance of KVTreeAnalyzer
+
    TString HistosNames = "";
 
+   // histos in memory
+   TIter nextmem(gROOT->GetList());
+   TObject* obj;
+   while ((obj = nextmem())) {
+      if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
+   }
+
+   // histos in files
    TFile* f;
    TIter next(gROOT->GetListOfFiles());
    while ((f = (TFile*)next())) {
       TIter nextobj(f->GetList());
       TObject* obj = 0;
       while ((obj = nextobj())) {
-         if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", ((TH2*)obj)->GetName());
+         if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
       }
       TIter nextkey(f->GetListOfKeys());
       TKey* key = 0;
@@ -481,6 +490,7 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
       }
    }
 
+   // histos in canvases
    TIter nextc(gROOT->GetListOfCanvases());
    TCanvas* canv = 0;
    while ((canv = (TCanvas*)nextc())) {
@@ -496,7 +506,7 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
                while ((obj2 = next_step2())) {
                   printf("%s\n", obj2->GetName());
                   if (obj2->InheritsFrom("TH2")) {
-                     HistosNames += Form(" %s", ((TH2*)obj2)->GetName());
+                     HistosNames += Form(" %s", obj2->GetName());
                   }
                }
             } else if (obj1->InheritsFrom("TH2")) {
@@ -506,6 +516,7 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
       }
    }
 
+   // KVTreeAnalyzer
    if (gTreeAnalyzer) {
       // Get all 2-D histograms from current KVTreeAnalyzer instance
       TIter nexthist(gTreeAnalyzer->GetHistoList());
@@ -522,6 +533,9 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
 //________________________________________________________________
 TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t)
 {
+   // Look in list of histogram names for one containing the name of
+   // the current grid. If found, return it.
+
    if (!TheGrid) return "";
    TString result = "";
    TString Iter;
@@ -529,8 +543,11 @@ TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t)
    KVString str(ListOfName.Data());
    str.Begin(" ");
    while (!str.End()) {
-      Iter = str.Next();
-      if (Iter.Contains(TheGrid->GetName())) result = Iter.Data();
+      Iter = str.Next(kTRUE);
+      if (Iter.Contains(TheGrid->GetName())) {
+         result = Iter.Data();
+         break;
+      }
    }
 
    return result;
@@ -539,178 +556,6 @@ TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t)
 //________________________________________________________________
 void KVIDGridEditor::SetHisto(TH2* hh)
 {
-//    if(!hh)
-//    {
-//        TString Listo   = ListOfHistogramInMemory();
-//        TString Select  = PreselectHistogram(Listo);
-//
-//        TString Choices;
-//        TString Default;
-//        Choices = "Dummy ";
-//        if(TheHisto)
-//        {
-//            Default = "Current";
-//            Choices += "Current ";
-//        }
-//        else Default = "Dummy";
-//
-//        if(!strcmp(Listo.Data(),""))
-//        {
-//        }
-//        else if(!strcmp(Select.Data(),""))
-//        {
-//            Choices += Listo;
-//        }
-//        else
-//        {
-//            Default = Select;
-//            Choices += Select.Data();
-//            Choices += " ";
-//            Choices += Listo.ReplaceAll(Select.Data(),"");
-//        }
-//
-//        TString Answer;
-//        Bool_t okpressed;
-//
-//        if(Choices.Contains(" "))
-//        {
-//            new KVDropDownDialog(gClient->GetDefaultRoot(), "Choose an histogram :", Choices.Data(), Default.Data(), &Answer, &okpressed);
-//            if(!okpressed)
-//            {
-//                Answer = "Current";
-//                return;
-//            }
-//        }
-//        else Answer = Default;
-//
-//        if(!Answer.Contains("Current")&&ownhisto)
-//        {
-//            delete TheHisto;
-//            TheHisto = 0;
-//            ownhisto = false;
-//        }
-//
-////        if((!Answer.Contains("Current"))&&(!Answer.Contains("Dummy")))
-////        {
-////            TheHistoChoice = 0;
-////            if((TheHistoChoice=(TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
-////            else if((TheHistoChoice=(TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
-////            else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistoList()->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
-////            else Answer = "Dummy";
-////        }
-////
-////        if(Answer.Contains("Dummy"))
-////        {
-////            TString hname = Form("%sDefaultHistogram",GetName());
-////            Double_t Xmax = 4096.;
-////            Double_t Ymax = 4096;
-////            if(TheGrid)
-////            {
-////                TheGrid->Initialize();
-////                // pour pouvoir utiliser un pointeur KVIDGraph* au lieu de KVIDZAGrid*
-////                //           Xmax = TheGrid->GetZmaxLine()->GetXaxis()->GetXmax();
-////                //             Ymax = TheGrid->GetZmaxLine()->GetYaxis()->GetXmax();
-////                TheGrid->FindAxisLimits();
-////                Xmax = TheGrid->GetXmax();
-////                Ymax = TheGrid->GetYmax();
-////            }
-////            TH2* TmpH = 0;
-////            if((TmpH=(TH2*)gROOT->FindObject(hname.Data()))) delete TmpH;
-////            TheHisto = new TH2F(hname.Data(),hname.Data(),2048,0,Xmax,2048,0,Ymax);
-////            ownhisto = true;
-////        }
-////    }
-////    else if(!hh->InheritsFrom("TH2"))
-////    {
-////        cout << "ERROR: KVIDGridEditor::SetHisto(): '" << hh->GetName() << "' must be a 2D histogram !" << endl;
-////        return;
-////    }
-////    else
-////    {
-////        if((ownhisto)&&(TheHisto))
-////        {
-////            delete TheHisto;
-////            TheHisto = 0;
-////        }
-////        TheHisto = hh;
-////        ownhisto = false;
-////    }
-//
-//<<<<<<< TREE
-//    if(!IsClosed()&&(TheHisto))
-//    {
-//        fPad = fCanvas->cd();//au cas ou il y a plusieurs canvas ouverts
-//        TheHisto->Draw("col");
-//        fPad->SetLogz(true);
-//        TheHisto->SetMinimum(1);
-//=======
-//    if(Choices.Contains(" "))
-//      {
-//      new KVDropDownDialog(gClient->GetDefaultRoot(), "Choose an histogram :", Choices.Data(), Default.Data(), &Answer, &okpressed);
-//      if(!okpressed)
-//        {
-// Answer = "Current";
-//        return;
-//        }
-//      }
-//    else Answer = Default;
-//
-//    if(!Answer.Contains("Current")&&ownhisto)
-//      {
-//      delete TheHisto;
-//      TheHisto = 0;
-//      ownhisto = false;
-//      }
-//
-//    if((!Answer.Contains("Current"))&&(!Answer.Contains("Dummy")))
-//      {
-//      TheHistoChoice = 0;
-//      if((TheHistoChoice=(TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
-//      else if((TheHistoChoice=(TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
-//      else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
-//      else Answer = "Dummy";
-//      }
-//
-//    if(Answer.Contains("Dummy"))
-//      {
-//      TString hname = Form("%sDefaultHistogram",GetName());
-//      Double_t Xmax = 4096.;
-//      Double_t Ymax = 4096;
-//      if(TheGrid)
-//        {
-//          TheGrid->Initialize();
-//            // pour pouvoir utiliser un pointeur KVIDGraph* au lieu de KVIDZAGrid*
-////           Xmax = TheGrid->GetZmaxLine()->GetXaxis()->GetXmax();
-////             Ymax = TheGrid->GetZmaxLine()->GetYaxis()->GetXmax();
-//            TheGrid->FindAxisLimits();
-//            Xmax = TheGrid->GetXmax();
-//            Ymax = TheGrid->GetYmax();
-//       }
-//      TH2* TmpH = 0;
-//      if((TmpH=(TH2*)gROOT->FindObject(hname.Data()))) delete TmpH;
-//      TheHisto = new TH2F(hname.Data(),hname.Data(),2048,0,Xmax,2048,0,Ymax);
-//      ownhisto = true;
-//      }
-//>>>>>>> MERGE-SOURCE
-//    }
-//    DrawAtt(true);
-//    return;
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
 
    if (!hh) {
       TString Listo   = ListOfHistogramInMemory();
@@ -724,8 +569,8 @@ void KVIDGridEditor::SetHisto(TH2* hh)
          Choices += "Current ";
       } else Default = "Dummy";
 
-      if (!strcmp(Listo.Data(), "")) {
-      } else if (!strcmp(Select.Data(), "")) {
+      if (Listo == "") {
+      } else if (Select == "") {
          Choices += Listo;
       } else {
          Default = Select;
@@ -738,7 +583,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
       Bool_t okpressed;
 
       if (Choices.Contains(" ")) {
-         new KVDropDownDialog(gClient->GetDefaultRoot(), "Choose an histogram :", Choices.Data(), Default.Data(), &Answer, &okpressed);
+         new KVDropDownDialog(gClient->GetDefaultRoot(), "Choose a histogram :", Choices.Data(), Default.Data(), &Answer, &okpressed);
          if (!okpressed) {
             Answer = "Current";
             return;
@@ -753,7 +598,8 @@ void KVIDGridEditor::SetHisto(TH2* hh)
 
       if ((!Answer.Contains("Current")) && (!Answer.Contains("Dummy"))) {
          TheHistoChoice = 0;
-         if ((TheHistoChoice = (TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
+         if ((TheHistoChoice = (TH2*)gROOT->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
+         else if ((TheHistoChoice = (TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = (TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
          else if (gTreeAnalyzer && (TheHistoChoice = (TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = FindInCanvases(Answer.Data()))) TheHisto = TheHistoChoice;
