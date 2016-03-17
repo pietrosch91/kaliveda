@@ -27,6 +27,8 @@ protected:
    Double_t fAmat;              // effective mass number of material
    Double_t fMoleWt;            // mass of one mole of substance in grammes
 
+   Double_t fRangeOfLastDE;  //! range corresponding to last calculated DE
+
    TF1* fDeltaE; // function parameterising energy loss in material
    TF1* fEres; // function parameterising residual energy after crossing material
    TF1* fRange; // function parameterising range of charged particles in material
@@ -173,6 +175,13 @@ public:
    virtual Double_t GetEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat = 0.);
    virtual Double_t GetLinearMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+
+   Double_t GetRangeOfLastDE() const
+   {
+      // Returns range (in g/cm) of particle of last calculated dE
+      // Divide by density of material to get range in cm.
+      return fRangeOfLastDE;
+   }
 
    ClassDef(KVIonRangeTableMaterial, 1) //Material for use in energy loss & range calculations
 };

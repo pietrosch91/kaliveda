@@ -209,8 +209,10 @@ Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
    // if range < thickness, particle stops: Eres=0
    Double_t R0 = RangeFunc(E, nullptr);
    if (R0 < thickness) {
+      fRangeOfLastDE = R0;
       return 0.0;
-   }
+   } else
+      fRangeOfLastDE = thickness;
 
    // calculate energy after absorber - invert range function to find Eres corresponding to (R0 - thickness)
    R0 -= thickness;
@@ -375,6 +377,7 @@ Double_t KVedaLossMaterial::GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t
    /*if(E>GetEmaxValid(Z,A))
       Warning("GetRangeOfIon", "Incident energy of (%d,%d) > limit of validity of KVedaLoss (Emax=%f)",
             Z,A,GetEmaxValid(Z,A));*/
+   if (Z == 0) return 0.0; //only charged particles
    TF1* f = GetRangeFunction(Z, A, isoAmat);
    return f->Eval(E);
 }
@@ -387,6 +390,7 @@ Double_t KVedaLossMaterial::GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_
    /* if(E>GetEmaxValid(Z,A))
       Warning("GetDeltaEOfIon", "Incident energy of (%d,%d) > limit of validity of KVedaLoss (Emax=%f)",
             Z,A,GetEmaxValid(Z,A)); */
+   if (Z == 0) return 0.0; //only charged particles
    TF1* f = GetDeltaEFunction(e, Z, A, isoAmat);
    return f->Eval(E);
 }
@@ -400,6 +404,7 @@ Double_t KVedaLossMaterial::GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t 
    /* if(E>(GetEmaxValid(Z,A)+0.1))
       Warning("GetEResOfIon", "Incident energy of (%d,%d) %f MeV/A > limit of validity of KVedaLoss (Emax=%f MeV/A)",
             Z,A,E/A,GetEmaxValid(Z,A)/A); */
+   if (Z == 0) return 0.0; //only charged particles
    TF1* f = GetEResFunction(e, Z, A, isoAmat);
    return f->Eval(E);
 }
@@ -411,6 +416,7 @@ Double_t KVedaLossMaterial::GetPunchThroughEnergy(Int_t Z, Int_t A, Double_t e, 
    // for all energies above this energy the residual energy is > 0.
    // Give Amat to change default (isotopic) mass of material.
 
+   if (Z == 0) return 0.0; //only charged particles
    GetRangeFunction(Z, A, isoAmat);
    if (fgTable->IsUseNewRangeInversion()) {
       return static_cast<KVedaLossInverseRangeFunction*>(fInvRange[Z])->GetEnergyPerNucleon(e, riso) * A;
@@ -423,6 +429,7 @@ Double_t KVedaLossMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres
    // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material.
 
+   if (Z == 0) return 0.0; //only charged particles
    GetRangeFunction(Z, A, isoAmat);
    Double_t R0 = fRange->Eval(Eres) + e;
    if (fgTable->IsUseNewRangeInversion()) {

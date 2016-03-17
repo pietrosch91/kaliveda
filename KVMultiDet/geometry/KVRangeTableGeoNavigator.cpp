@@ -116,15 +116,13 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
    }
 
    // no neutron detection - just tracking
-   if (part->GetZ() == 0) {
-      if (IsTracking()) {
-         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
-         AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
-      }
-      return;
-   }
-
-   TVector3 midVol = 0.5 * (GetEntryPoint() + GetExitPoint());
+//   if (part->GetZ() == 0) {
+//      if (IsTracking()) {
+//         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
+//         AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
+//      }
+//      return;
+//   }
 
    // calculate energy losses in known materials for charged particles
    TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
@@ -154,11 +152,16 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
       } else
          absorber_name = irmat->GetName();
 
-      part->GetParameters()->SetValue(Form("DE:%s", absorber_name.Data()), de);
+      if (part->GetZ()) part->GetParameters()->SetValue(Form("DE:%s", absorber_name.Data()), de);
       part->GetParameters()->SetValue(Form("Xin:%s", absorber_name.Data()), GetEntryPoint().X());
       part->GetParameters()->SetValue(Form("Yin:%s", absorber_name.Data()), GetEntryPoint().Y());
       part->GetParameters()->SetValue(Form("Zin:%s", absorber_name.Data()), GetEntryPoint().Z());
       if (StopPropagation()) {
+         // If particle stops in this volume, we use as 'exit point' the point corresponding to
+         // the calculated range of the particle
+         Double_t r = irmat->GetRangeOfLastDE() / irmat->GetDensity();
+         TVector3 path = GetExitPoint() - GetEntryPoint();
+         TVector3 midVol = GetEntryPoint() + (r / path.Mag()) * path;
          part->GetParameters()->SetValue(Form("Xout:%s", absorber_name.Data()), midVol.X());
          part->GetParameters()->SetValue(Form("Yout:%s", absorber_name.Data()), midVol.Y());
          part->GetParameters()->SetValue(Form("Zout:%s", absorber_name.Data()), midVol.Z());
@@ -205,7 +208,7 @@ void KVRangeTableGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheO
 
    if (part->GetParameters()->HasParameter("DEADZONE")) {
       //Info("PropagateParticle","stopped in DEADZONE:%s",part->GetParameters()->GetStringValue("DEADZONE"));
-      part->SetEnergy(0);
+      //part->SetEnergy(0);
       if (IsTracking()) {
          AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
       }

@@ -2,7 +2,7 @@
 #define KV3DGeoTrack_H
 
 #include "TPolyLine3D.h"
-#include "TGeoTrack.h"
+class TVirtualGeoTrack;
 
 class KV3DGeoTrack : public TPolyLine3D {
 
@@ -10,11 +10,11 @@ protected:
 
    Int_t Color(TObject*);
    Int_t          fIndex;
-   TGeoTrack* fTrack;
+   TVirtualGeoTrack* fTrack;
 
 public:
    KV3DGeoTrack();
-   KV3DGeoTrack(TGeoTrack*);
+   KV3DGeoTrack(TVirtualGeoTrack*);
    virtual ~KV3DGeoTrack();
    virtual Int_t         DistancetoPrimitive(Int_t px, Int_t py);
    virtual void          ExecuteEvent(Int_t event, Int_t px, Int_t py);

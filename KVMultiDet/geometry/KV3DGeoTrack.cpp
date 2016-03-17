@@ -2,8 +2,8 @@
 
 #include "TPad.h"
 #include "TView.h"
-#include "TGeoTrack.h"
-#include <KVNucleus.h>
+#include "TVirtualGeoTrack.h"
+#include "KVNucleus.h"
 #include "TPolyMarker3D.h"
 
 ClassImp(KV3DGeoTrack)
@@ -15,7 +15,7 @@ KV3DGeoTrack::KV3DGeoTrack():
 {
 }
 
-KV3DGeoTrack::KV3DGeoTrack(TGeoTrack* tr):
+KV3DGeoTrack::KV3DGeoTrack(TVirtualGeoTrack* tr):
    TPolyLine3D(tr->GetNpoints()),
    fIndex(0),
    fTrack(tr)
@@ -60,6 +60,7 @@ void KV3DGeoTrack::Draw(Option_t* option)
    Float_t* coords = &(GetP()[3 * GetLastPoint()]);
    pm->SetPoint(0, coords[0], coords[1], coords[2]);
    pm->SetMarkerColor(GetLineColor());
+   pm->SetMarkerSize(0.5);
    pm->Draw(option);
    pm->SetName(GetName());
    TPolyLine3D::Draw(option);

@@ -525,6 +525,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
    if (IsTracking() && fGeometry->IsOutside()) {
       const Double_t* posi = fGeometry->GetCurrentPoint();
       AddPointToCurrentTrack(posi[0], posi[1], posi[2]);
+      return;
    }
 
    // track particle until we leave the geometry or until fStopPropagation
@@ -569,6 +570,10 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
       newMatx = fGeometry->GetCurrentMatrix();
       newPath = fGeometry->GetPath();
    }
+   if (IsTracking() && fGeometry->IsOutside()) {
+      const Double_t* posi = fGeometry->GetCurrentPoint();
+      AddPointToCurrentTrack(posi[0], posi[1], posi[2]);
+   }
 }
 
 void KVGeoNavigator::DrawTracks()
@@ -578,9 +583,9 @@ void KVGeoNavigator::DrawTracks()
    // geometry of the array
 
    TIter next_track(fGeometry->GetListOfTracks());
-   TGeoTrack* track;
+   TVirtualGeoTrack* track;
    bool first = true;
-   while ((track = (TGeoTrack*)next_track())) {
+   while ((track = (TVirtualGeoTrack*)next_track())) {
       KV3DGeoTrack* gtrack = new KV3DGeoTrack(track);
       if (first) {
          if (gPad) gtrack->Draw("same");
