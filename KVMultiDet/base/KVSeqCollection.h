@@ -51,7 +51,7 @@ public:
    virtual void Modified()
    {
       Emit("Modified()");
-   };  // *SIGNAL*
+   }  // *SIGNAL*
    virtual void SendModifiedSignals(Bool_t yes = kTRUE)
    {
       // yes=kTRUE: turns on signals-and-slots mechanism, list will
@@ -61,18 +61,18 @@ public:
       //
       // By default, the 'Modified()' signal is NOT enabled.
       SetBit(kSignals, yes);
-   };
+   }
    virtual Bool_t IsSendingModifiedSignals() const
    {
       // returns kTRUE if 'Modified()' signal is active
       // (see SendModifiedSignals).
       return TestBit(kSignals);
-   };
+   }
 
    virtual TObject* At(Int_t idx) const
    {
       return fCollection->At(idx);
-   };
+   }
    virtual void      AddFirst(TObject* obj)
    {
       // Add an object to the list.
@@ -82,7 +82,7 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->AddFirst(obj);
       Changed();
-   };
+   }
    virtual void      AddLast(TObject* obj)
    {
       // Add an object to the list.
@@ -92,7 +92,7 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->AddLast(obj);
       Changed();
-   };
+   }
    virtual void      AddAt(TObject* obj, Int_t idx)
    {
       // Add an object to the list.
@@ -102,7 +102,7 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->AddAt(obj, idx);
       Changed();
-   };
+   }
    virtual void      AddAfter(const TObject* after, TObject* obj)
    {
       // Add an object to the list.
@@ -112,7 +112,7 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->AddAfter(after, obj);
       Changed();
-   };
+   }
    virtual void      AddBefore(const TObject* before, TObject* obj)
    {
       // Add an object to the list.
@@ -122,23 +122,23 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->AddBefore(before, obj);
       Changed();
-   };
+   }
    virtual TObject*  Before(const TObject* obj) const
    {
       return fCollection->Before(obj);
-   };
+   }
    virtual TObject*  After(const TObject* obj) const
    {
       return fCollection->After(obj);
-   };
+   }
    virtual TObject*  First() const
    {
       return fCollection->First();
-   };
+   }
    virtual TObject*  Last() const
    {
       return fCollection->Last();
-   };
+   }
    virtual void       Add(TObject* obj)
    {
       // Add an object to the list.
@@ -148,7 +148,7 @@ public:
       if (IsCleanup()) obj->SetBit(kMustCleanup);
       fCollection->Add(obj);
       Changed();
-   };
+   }
    virtual void       Clear(Option_t* option = "");
    virtual void       Delete(Option_t* option = "");
    virtual TObject**  GetObjectRef(const TObject* obj) const;
@@ -158,37 +158,37 @@ public:
    virtual Int_t GetSize() const
    {
       return fCollection->GetSize();
-   };
+   }
    virtual void SetOwner(Bool_t enable = kTRUE)
    {
       TSeqCollection::SetOwner(enable);
       fCollection->SetOwner(enable);
-   };
+   }
    const Char_t* CollectionClassName() const
    {
       // Return classname of embedded collection object
       return fCollection->ClassName();
-   };
+   }
    virtual void SetCleanup(Bool_t enable = kTRUE);
    virtual Bool_t IsCleanup() const
    {
       // Returns kTRUE if the ROOT cleanup mechanism is used to ensure that any objects in the list
       // which get deleted elsewhere are removed from this list
       return TestBit(kCleanup);
-   };
+   }
 
    virtual TObject* FindObject(const char* name) const
    {
       return fCollection->FindObject(name);
-   };
+   }
    virtual TObject* FindObject(const TObject* obj) const
    {
       return fCollection->FindObject(obj);
-   };
+   }
    virtual TObject* FindObjectByName(const Char_t* name) const
    {
       return fCollection->FindObject(name);
-   };
+   }
    virtual TObject* FindObjectByType(const Char_t*) const;
    virtual TObject* FindObjectByTitle(const Char_t*) const;
    TObject* FindObjectByClass(const Char_t*) const;
@@ -210,14 +210,14 @@ public:
                         Int_t* error = 0);
    virtual void Execute(TMethod* method, TObjArray* params,
                         Int_t* error = 0);
-   virtual KVSeqCollection* GetSubListWithMethod(const Char_t* retvalue, const Char_t* method) const;
+   KVSeqCollection* GetSubListWithMethod(const Char_t* retvalue, const Char_t* method) const;
 
    KVSeqCollection* GetSubListWithClass(const TClass* _class) const;
    KVSeqCollection* GetSubListWithClass(const Char_t* class_name) const;
 
-   virtual KVSeqCollection* GetSubListWithName(const Char_t* retvalue) const;
-   virtual KVSeqCollection* GetSubListWithLabel(const Char_t* retvalue) const;
-   virtual KVSeqCollection* GetSubListWithType(const Char_t* retvalue) const;
+   KVSeqCollection* GetSubListWithName(const Char_t* retvalue) const;
+   KVSeqCollection* GetSubListWithLabel(const Char_t* retvalue) const;
+   KVSeqCollection* GetSubListWithType(const Char_t* retvalue) const;
 
    static KVSeqCollection* MakeListFromFile(TFile* file);
    static KVSeqCollection* MakeListFromFileWithMethod(TFile* file, const Char_t* retvalue, const Char_t* method);
@@ -227,16 +227,16 @@ public:
    virtual Bool_t IsSortable() const
    {
       return fCollection->IsSortable();
-   };
+   }
    virtual Bool_t IsSorted() const
    {
       return fCollection->IsSorted();
-   };
+   }
 
    TSeqCollection* GetCollection() const
    {
       return fCollection;
-   };
+   }
 
    ClassDef(KVSeqCollection, 2) //KaliVeda extensions to ROOT collections
 };

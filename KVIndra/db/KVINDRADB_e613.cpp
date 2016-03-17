@@ -232,16 +232,14 @@ void KVINDRADB_e613::ReadGainList()
    //Add table for gains
    fGains = AddTable("Gains", "Gains of detectors during runs");
 
-   TObjArray* toks = 0;
    while (flist.IsOK()) {
 
       flist.ReadLine(".");
       if (! flist.GetCurrentLine().IsNull()) {
-         toks = flist.GetReadPar(0).Tokenize("_");
+         unique_ptr<TObjArray> toks(flist.GetReadPar(0).Tokenize("_"));
          Int_t nt = toks->GetEntries();
          Int_t ring = -1;
-         KVList* sl = 0;
-         KVList* ssl = 0;
+         unique_ptr<KVSeqCollection> sl;
          TString det_type = "";
          if (nt <= 1) {
             Warning("ReadGainList", "format non gere");
@@ -250,7 +248,7 @@ void KVINDRADB_e613::ReadGainList()
             //exemple  : Gain_SI_R07.dat
             det_type = ((TObjString*)toks->At(1))->GetString();
             //on recupere les detecteurs par type
-            sl = (KVList*)gIndra->GetDetectors()->GetSubListWithType(det_type.Data());
+            sl.reset(gIndra->GetDetectors()->GetSubListWithType(det_type.Data()));
             if (nt == 2) {
                ring = 0;
             } else if (nt == 3) {
@@ -258,19 +256,14 @@ void KVINDRADB_e613::ReadGainList()
             } else {
                Warning("ReadGainList", "format non gere");
             }
-            if (ring == 0) { }
-            else {
-               ssl = (KVList*)sl->GetSubListWithMethod(Form("%d", ring), "GetRingNumber");
-               delete sl;
-               sl = ssl;
-            }
+            if (ring != 0)
+               sl.reset(sl->GetSubListWithMethod(Form("%d", ring), "GetRingNumber"));
          }
-         delete toks;
 
-         if (sl) {
-            KVDBParameterSet* par = 0;
-            TIter it(sl);
-            TObject* obj = 0;
+         if (sl.get()) {
+            KVDBParameterSet* par(nullptr);
+            TIter it(sl.get());
+            TObject* obj(nullptr);
             KVNumberList nl;
             KVFileReader ffile;
             if (KVBase::SearchKVFile(flist.GetCurrentLine().Data(), fp, fDataSet.Data())) {
@@ -280,7 +273,7 @@ void KVINDRADB_e613::ReadGainList()
                   ffile.ReadLine(":");
                   if (! ffile.GetCurrentLine().IsNull()) {
 
-                     toks = ffile.GetReadPar(0).Tokenize(".");
+                     toks.reset(ffile.GetReadPar(0).Tokenize("."));
                      //liste des runs ...
                      nl.SetList(((TObjString*)toks->At(1))->GetString());
                      // ... associee a la valeur de gain
@@ -295,13 +288,10 @@ void KVINDRADB_e613::ReadGainList()
                         fGains->AddRecord(par);
                         LinkRecordToRunRange(par, nl);
                      }
-
-                     delete toks;
                   }
                }
             }
             ffile.CloseFile();
-            delete sl;
          }
       }
    }

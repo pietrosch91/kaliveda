@@ -233,7 +233,9 @@ void KVSeqCollection::Copy(TObject& obj) const
 
 KVSeqCollection& KVSeqCollection::operator=(const KVSeqCollection& c)
 {
-   c.Copy(*this);
+   if (&c != this) { // check for self-assignment
+      c.Copy(*this);
+   }
    return (*this);
 }
 
@@ -347,7 +349,7 @@ TObject* KVSeqCollection::FindObjectByType(const Char_t* type) const
             return obj;
       }
    }
-   return 0;
+   return nullptr;
 }
 
 TObject* KVSeqCollection::FindObjectByTitle(const Char_t* title) const
@@ -360,7 +362,7 @@ TObject* KVSeqCollection::FindObjectByTitle(const Char_t* title) const
       if (!strcmp(obj->GetTitle(), title))
          return obj;
    }
-   return 0;
+   return nullptr;
 }
 
 TObject* KVSeqCollection::FindObjectByClass(const TClass* cl) const
@@ -372,7 +374,7 @@ TObject* KVSeqCollection::FindObjectByClass(const TClass* cl) const
    while ((obj = next())) {
       if (obj->IsA() == cl) return obj;
    }
-   return 0;
+   return nullptr;
 }
 
 TObject* KVSeqCollection::FindObjectByClass(const Char_t* cl) const
@@ -395,7 +397,7 @@ TObject* KVSeqCollection::FindObjectByLabel(const Char_t* label) const
          if (!strcmp(((KVBase*)obj)->GetLabel(), label)) return obj;
       }
    }
-   return 0;
+   return nullptr;
 }
 
 
@@ -412,7 +414,7 @@ TObject* KVSeqCollection::FindObjectByNumber(UInt_t num) const
          if (((KVBase*)obj)->GetNumber() == num) return obj;
       }
    }
-   return 0;
+   return nullptr;
 }
 
 TObject* KVSeqCollection::FindObjectWithNameAndType(const Char_t* name, const Char_t* type) const
@@ -428,7 +430,7 @@ TObject* KVSeqCollection::FindObjectWithNameAndType(const Char_t* name, const Ch
          if (!strcmp(((KVBase*)obj)->GetType(), type)) return obj;
       }
    }
-   return 0;
+   return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -480,7 +482,7 @@ TObject* KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue, const Cha
          }
       }
    }
-   return 0;
+   return nullptr;
 
 }
 
@@ -537,26 +539,25 @@ TObject* KVSeqCollection::FindObjectAny(const Char_t* att, const Char_t* keys, B
    else if (!strcmp(att, "type")) char_test = kType;
    else if (!strcmp(att, "label")) char_test = kLabel;
    else if (!strcmp(att, "class")) char_test = kClass;
-   else return 0;
+   else return nullptr;
 
    TString::ECaseCompare casecmp;
    if (case_sensitive) casecmp = TString::kExact;
    else casecmp = TString::kIgnoreCase;
 
    TString _keys(keys);
-   TObjArray* keywords = _keys.Tokenize(' ');
-   if (!keywords) return 0;
+   unique_ptr<TObjArray> keywords(_keys.Tokenize(' '));
+   if (!keywords.get()) return nullptr;
    int nkeys;
    if (!(nkeys = keywords->GetEntries())) {
-      delete keywords;
-      return 0;
+      return nullptr;
    }
 
    int nmatches;
    TIter next(fCollection);
    TString _att;
-   TObject* obj = 0;
-   KVBase* kvobj = 0;
+   TObject* obj(nullptr);
+   KVBase* kvobj(nullptr);
    while ((obj = next())) {
 
       if (char_test > kClass && !obj->TestBit(KVBase::kIsKaliVedaObject)) {
@@ -584,12 +585,10 @@ TObject* KVSeqCollection::FindObjectAny(const Char_t* att, const Char_t* keys, B
          nmatches += (_att.Contains(((TObjString*)keywords->At(i))->String() , casecmp));
       }
       if ((nmatches && !contains_all) || ((nmatches == nkeys) && contains_all)) {
-         delete keywords;
          return obj;
       }
    }
-   delete keywords;
-   return 0;
+   return nullptr;
 }
 
 KVSeqCollection* KVSeqCollection::GetSubListWithClass(const TClass* _class) const
@@ -599,6 +598,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithClass(const TClass* _class) cons
    // The objects in the sublist do not belong to the sublist.
    //
    //  *** WARNING *** : DELETE the KVSeqCollection returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithClass(...));
 
    KVSeqCollection* sublist = NewCollectionLikeThisOne();
    sublist->SetOwner(kFALSE);
@@ -627,10 +628,12 @@ KVSeqCollection* KVSeqCollection::GetSubListWithClass(const Char_t* class_name) 
    // The objects in the sublist do not belong to the sublist.
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithClass(...));
 
    if (class_name) {
       return GetSubListWithClass(TClass::GetClass(class_name));
-   } else return NULL;
+   } else return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -644,6 +647,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue, c
    // This new list will be of the same kind as this one.
    // The objects in the sublist do not belong to the sublist.
    //  *** WARNING *** : DELETE the list returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithMethod(...));
    //
    // For each object of the list, the existence of the given method is checked using TMethodCall::IsValid()
    // if the method is valid and the return value is equal to the input one (retvalue) object is added to the subKVList
@@ -704,6 +709,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithName(const Char_t* retvalue) con
    // The objects in the sublist do not belong to the sublist.
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithName(...));
 
    return GetSubListWithMethod(retvalue, "GetName");
 }
@@ -717,6 +724,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithLabel(const Char_t* retvalue) co
    // The objects in the sublist do not belong to the sublist.
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithLabel(...));
 
    return GetSubListWithMethod(retvalue, "GetLabel");
 }
@@ -730,6 +739,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithType(const Char_t* retvalue) con
    // The objects in the sublist do not belong to the sublist.
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(GetSubListWithType(...));
 
    return GetSubListWithMethod(retvalue, "GetType");
 }
@@ -742,6 +753,8 @@ KVSeqCollection* KVSeqCollection::MakeListFromFile(TFile* file)
    //if file=NULL, the current directory is considered
    //
    //  *** WARNING *** : DELETE the KVSeqCollection returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(MakeListFromFile(...));
 
    KVSeqCollection* ll = new KVSeqCollection("TList");
    ll->SetOwner(kFALSE);
@@ -766,11 +779,12 @@ KVSeqCollection* KVSeqCollection::MakeListFromFileWithMethod(TFile* file, const 
    //if file=NULL, the current directory is considered
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(MakeListFromFileWithMethod(...));
 
-   KVSeqCollection* l1 = MakeListFromFile(file);
+   unique_ptr<KVSeqCollection> l1(MakeListFromFile(file));
    KVSeqCollection* l2 = l1->GetSubListWithMethod(retvalue, method);
    l1->Clear();
-   delete l1;
    return l2;
 }
 
@@ -782,11 +796,12 @@ KVSeqCollection* KVSeqCollection::MakeListFromFileWithClass(TFile* file, const T
    //if file=NULL, the current directory is considered
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(MakeListFromFileWithClass(...));
 
-   KVSeqCollection* l1 = MakeListFromFile(file);
+   unique_ptr<KVSeqCollection> l1(MakeListFromFile(file));
    KVSeqCollection* l2 = l1->GetSubListWithClass(_class);
    l1->Clear();
-   delete l1;
    return l2;
 }
 
@@ -798,11 +813,12 @@ KVSeqCollection* KVSeqCollection::MakeListFromFileWithClass(TFile* file, const C
    //if file=NULL, the current directory is considered
    //
    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+   //  *** RECOMMENDED *** : store the returned value in a std::unique_ptr
+   //      unique_ptr<KVSeqCollection> ptr(MakeListFromFileWithClass(...));
 
-   KVSeqCollection* l1 = MakeListFromFile(file);
+   unique_ptr<KVSeqCollection> l1(MakeListFromFile(file));
    KVSeqCollection* l2 = l1->GetSubListWithClass(class_name);
    l1->Clear();
-   delete l1;
    return l2;
 }
 
