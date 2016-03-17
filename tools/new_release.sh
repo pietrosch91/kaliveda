@@ -59,7 +59,14 @@ if [ "x$reply" != "xy" ]; then
    fi
    exit 0
 fi
-git commit -a -m "Release v$1"
+# make template file for commit message
+t=$(tempfile)
+echo "Release v$1" > $t
+echo "" >> $t
+echo "[give description of release]" >> $t
+git commit -a -t $t
+# in case of any new commits on github
+git pull
 git tag -a release-${maj_vers}.${min_vers}.${tag_twk_vers} -m "Release v$1"
 read -p "Push to github ? ([y]/n): " reply
 reply=${reply:-y}
