@@ -9,11 +9,13 @@
 #include "KVIdentificationResult.h"
 #include "KVGroup.h"
 #include "TClonesArray.h"
+#include "KVReconNucTrajectory.h"
 class KVTelescope;
 
 class KVReconstructedNucleus: public KVNucleus {
 
 protected:
+   const KVReconNucTrajectory* fReconTraj;//! trajectory used to reconstruct particle
    KVString fDetNames; // list of names of detectors through which particle passed
    KVHashList fDetList; //! non-persistent list of pointers to detectors
    KVString fIDTelName;   // name of identification telescope which identified this particle (if any)
@@ -378,6 +380,15 @@ public:
    inline static UInt_t GetNIdentifiedInGroup(KVGroup* grp);
    inline static UInt_t GetNUnidentifiedInGroup(KVGroup* grp);
    static void AnalyseParticlesInGroup(KVGroup* grp);
+
+   const KVReconNucTrajectory* GetReconstructionTrajectory() const
+   {
+      return fReconTraj;
+   }
+   void SetReconstructionTrajectory(const KVReconNucTrajectory* t)
+   {
+      fReconTraj = t;
+   }
 
    ClassDef(KVReconstructedNucleus, 17)  //Nucleus detected by multidetector array
 };

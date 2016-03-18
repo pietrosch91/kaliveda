@@ -275,6 +275,10 @@ public:
    {
       return (KVNameValueList*)&fParameters;
    }
+   template<typename ValType> void SetParameter(const Char_t* name, ValType value) const
+   {
+      GetParameters()->SetValue(name, value);
+   }
 
    ClassDef(KVParticle, 8)      //General base class for all massive particles
 };

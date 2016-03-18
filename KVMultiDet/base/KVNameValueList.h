@@ -27,6 +27,7 @@ public:
    KVNameValueList(const Char_t* name, const Char_t* title = "");
    KVNameValueList(const KVNameValueList&);
    virtual ~KVNameValueList();
+   KVNameValueList& operator=(const KVNameValueList&);
 
    KVHashList* GetList() const;
 
@@ -73,6 +74,10 @@ public:
    Int_t GetEntries() const
    {
       return GetNpar();
+   }
+   Bool_t IsEmpty() const
+   {
+      return GetNpar() == 0;
    }
 
    Int_t GetIntValue(const Char_t* name) const;

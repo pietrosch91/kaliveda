@@ -938,5 +938,29 @@ const Char_t* KVEvent::GetPartitionName()
    return partition.Data();
 }
 
+void KVEvent::MergeEventFragments(TCollection* events)
+{
+   // Merge all events in the list into one event (this one)
+   // First we clear this event, then all particles in each event
+   // in the list are moved into this one.
+   // NOTE: the events in the list will be empty and useless after this!
+
+   Clear();
+   TIter it(events);
+   KVEvent* e;
+   while ((e = (KVEvent*)it())) fParticles->AbsorbObjects(e->fParticles);
+}
+
+KVEvent* KVEvent::Factory(const char* plugin)
+{
+   // Create and return pointer to new event of class given by plugin
+
+   TPluginHandler* ph = LoadPlugin("KVEvent", plugin);
+   if (ph) {
+      return (KVEvent*)ph->ExecPlugin(0);
+   }
+   return nullptr;
+}
+
 ClassImp(KVEvent::Iterator)
 

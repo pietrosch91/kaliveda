@@ -330,6 +330,8 @@ public:
       tree->Branch(branchname, classname, event, bufsize, 0)->SetAutoDelete(kFALSE);
    }
 
+   void MergeEventFragments(TCollection*);
+   static KVEvent* Factory(const char*);
 
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };

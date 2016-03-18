@@ -33,6 +33,10 @@ public:
    {
       fCutOffEnergy = e;
    }
+   Double_t GetCutOffKEForPropagation() const
+   {
+      return fCutOffEnergy;
+   }
 
    virtual void ParticleEntersNewVolume(KVNucleus*);
    virtual void PropagateParticle(KVNucleus*, TVector3* TheOrigin = 0);

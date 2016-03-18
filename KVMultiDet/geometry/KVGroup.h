@@ -5,10 +5,10 @@
 
 #include "KVGeoStrucElement.h"
 #include "KVList.h"
-
+#include "KVGeoDNTrajectory.h"
+#include "KVNameValueList.h"
 class KVDetector;
 class KVNucleus;
-class KVNameValueList;
 
 class KVGroup : public KVGeoStrucElement {
 
@@ -17,6 +17,9 @@ protected:
       kIsRemoving = BIT(14)     //flag set during call to RemoveTelescope
    };
    KVList* fReconstructedNuclei;        //!Particles reconstructed in this group
+   KVHashList fTrajectories;           //! Trajectories passing through group
+   KVHashList fReconTraj;              //! list of all possible trajectories for reconstructed particles
+   KVNameValueList fReconTrajMap;      //! map names of duplicate trajectories for reconstructed particles
 
 public:
    enum {
@@ -48,8 +51,6 @@ public:
          return 0;
    };
    void ClearHitDetectors();
-   //inline UInt_t GetNIdentified();
-   //inline UInt_t GetNUnidentified();
    KVList* GetParticles()
    {
       return fReconstructedNuclei;
@@ -63,29 +64,32 @@ public:
    }
    virtual void Sort() {};
    virtual void CountLayers() {};
+   const TCollection* GetTrajectories() const
+   {
+      return &fTrajectories;
+   }
+   void AddTrajectory(KVGeoDNTrajectory* t)
+   {
+      fTrajectories.Add(t);
+   }
+   void AddTrajectories(const TCollection* c)
+   {
+      fTrajectories.AddAll(c);
+   }
+
+   void CalculateReconstructionTrajectories();
+   const TSeqCollection* GetReconTrajectories() const
+   {
+      // Get list of all possible trajectories for particle reconstruction in array
+      return &fReconTraj;
+   }
+   const KVGeoDNTrajectory* GetTrajectoryForReconstruction(const KVGeoDNTrajectory* t, const KVGeoDetectorNode* n) const
+   {
+      TString mapped_name = fReconTrajMap.GetStringValue(Form("%s_%s", t->GetName(), n->GetName()));
+      const KVGeoDNTrajectory* tr = (const KVGeoDNTrajectory*)fReconTraj.FindObject(mapped_name);
+      return tr;
+   }
 
    ClassDef(KVGroup, 1)//Group of detectors having similar angular positions.
 };
-
-/*#ifndef KVRECONSTRUCTEDNUCLEUS_H
-#include "KVReconstructedNucleus.h"
-#endif
-inline UInt_t KVGroup::GetNIdentified()
-{
-   //number of identified particles reconstructed in group
-   UInt_t n = 0;
-   if (GetHits()) {
-      TIter next(fReconstructedNuclei);
-      KVReconstructedNucleus* nuc = 0;
-      while ((nuc = (KVReconstructedNucleus*) next()))
-         n += (UInt_t) nuc->IsIdentified();
-   }
-   return n;
-};
-inline UInt_t KVGroup::GetNUnidentified()
-{
-   //number of unidentified particles reconstructed in group
-   return (GetHits() - GetNIdentified());
-};
-*/
 #endif

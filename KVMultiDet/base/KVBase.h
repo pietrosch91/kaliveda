@@ -18,10 +18,9 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #include "TString.h"
 #include "KVLockfile.h"
 #include "Riostream.h"
-
+#include "TPluginManager.h"
 
 class KVString;
-class TPluginHandler;
 
 class KVBase: public TNamed {
 
