@@ -1,8 +1,10 @@
-kaliveda (1.10.9-0ubuntu1) UNRELEASED; urgency=medium
+kaliveda (1.10.9-0ubuntu2) UNRELEASED; urgency=medium
 
   * New release v1.10/09
+  * Remove dependency on libGeomPainter from find_package(ROOT), this
+    doesn't work on Ubuntu (the library is handled as a plugin at runtime)
 
- -- John Frankland <frankland@ganil.fr>  Wed, 16 Mar 2016 10:51:24 +0100
+ -- John Frankland <frankland@ganil.fr>  Fri, 18 Mar 2016 09:27:06 +0100
 
 kaliveda (1.10.8-0ubuntu5) wily; urgency=medium
 

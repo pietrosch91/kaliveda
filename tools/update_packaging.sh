@@ -40,7 +40,12 @@ if [ "x$reply" != "xy" ]; then
    fi
    exit 0
 fi
-git commit -a -m "Packaging update"
+# make template file for commit message
+t=$(tempfile)
+echo "Packaging update" > $t
+echo "" >> $t
+echo "[give details of update]" >> $t
+git commit -a -t $t
 read -p "Push to github ? ([y]/n): " reply
 reply=${reply:-y}
 if [ "x$reply" = "xy" ]; then
