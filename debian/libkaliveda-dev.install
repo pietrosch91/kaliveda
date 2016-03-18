@@ -56,7 +56,9 @@
 /usr/include/kaliveda/KVGeoNavigator.h
 /usr/include/kaliveda/KV3DGeoTrack.h
 /usr/include/kaliveda/KVACQParam.h
+/usr/include/kaliveda/KVGeoNodeIterator.h
 /usr/include/kaliveda/KVGeoStrucElement.h
+/usr/include/kaliveda/KVGeoDNTrajectory.h
 /usr/include/kaliveda/KVPulseHeightDefect.h
 /usr/include/kaliveda/KVLinCal.h
 /usr/include/kaliveda/KVRecombination.h
@@ -109,8 +111,10 @@
 /usr/include/kaliveda/GTScalers.h
 /usr/include/kaliveda/GTDataParameters.h
 /usr/include/kaliveda/KVGANILDataReader.h
+/usr/include/kaliveda/KVReconNucTrajectory.h
 /usr/include/kaliveda/KVIDTelescope.h
 /usr/include/kaliveda/KVASMultiDetArray.h
+/usr/include/kaliveda/KVEventReconstructor.h
 /usr/include/kaliveda/KVReconstructedEvent.h
 /usr/include/kaliveda/KVRTGIDManager.h
 /usr/include/kaliveda/KVDetectorEvent.h
@@ -123,7 +127,9 @@
 /usr/include/kaliveda/KVElasticCountRates.h
 /usr/include/kaliveda/KVEventFiltering.h
 /usr/include/kaliveda/KVRawDataAnalyser.h
+/usr/include/kaliveda/KVGroupReconstructor.h
 /usr/include/kaliveda/KVElasticScatter.h
+/usr/include/kaliveda/KVDetectionSimulator.h
 /usr/include/kaliveda/KVNuclData.h
 /usr/include/kaliveda/KVChargeRadius.h
 /usr/include/kaliveda/KVElementDensityTable.h
