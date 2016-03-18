@@ -4,7 +4,7 @@
 #ifndef __KVRANGETABLEGEONAVIGATOR_H
 #define __KVRANGETABLEGEONAVIGATOR_H
 
-#include "TGeoTrack.h"
+#include "TVirtualGeoTrack.h"
 #include "KVGeoNavigator.h"
 #include "KVIonRangeTable.h"
 
@@ -12,7 +12,7 @@ class KVRangeTableGeoNavigator : public KVGeoNavigator {
 
    KVIonRangeTable* fRangeTable;
    Double_t fCutOffEnergy;//cut-off KE in MeV below which we stop propagation
-   TGeoTrack* fCurrentTrack;//! current track of nucleus being propagated
+   TVirtualGeoTrack* fCurrentTrack;//! current track of nucleus being propagated
    Double_t fTrackTime;//! track "clock"
 
    void InitialiseTrack(KVNucleus* part, TVector3* TheOrigin);

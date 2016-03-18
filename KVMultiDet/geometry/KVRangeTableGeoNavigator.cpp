@@ -191,7 +191,7 @@ void KVRangeTableGeoNavigator::InitialiseTrack(KVNucleus* part, TVector3* TheOri
    gGeoManager->SetPdgName(pdg, part->GetSymbol());
    Int_t itrack = gGeoManager->AddTrack(GetTrackID(), pdg, part);
    IncrementTrackID();
-   fCurrentTrack = static_cast<TGeoTrack*>(gGeoManager->GetTrack(itrack));
+   fCurrentTrack = gGeoManager->GetTrack(itrack);
    if (TheOrigin) AddPointToCurrentTrack(TheOrigin->x(), TheOrigin->y(), TheOrigin->z());
    else AddPointToCurrentTrack(0, 0, 0);
 }
