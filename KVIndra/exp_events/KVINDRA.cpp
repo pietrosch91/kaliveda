@@ -872,6 +872,9 @@ void KVINDRA::CreateROOTGeometry()
 
    Info("CreateROOTGeometry", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
 
+   // Set up trajectories
+   CalculateTrajectories();
+   CalculateReconstructionTrajectories();
 }
 
 void KVINDRA::SetROOTGeometry(Bool_t on)
