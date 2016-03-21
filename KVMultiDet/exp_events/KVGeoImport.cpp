@@ -155,7 +155,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
    KVDetector* d;
    while ((d = (KVDetector*)next())) d->GetNode()->RehashLists();
    // set up all detector node trajectories
-   //fArray->CalculateGeoNodeTrajectories();
+   fArray->CalculateTrajectories();
 
    if (fCreateArray) {
       fArray->SetGeometry(GetGeometry());
@@ -167,6 +167,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
       }
       nav->SetNameCorrespondanceList(fDetStrucNameCorrespList);
       fArray->CalculateDetectorSegmentationIndex();
+      fArray->CalculateReconstructionTrajectories();
    }
    Info("ImportGeometry",
         "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]", count, ThetaMin, ThetaMax, dTheta, PhiMin, PhiMax, dPhi);

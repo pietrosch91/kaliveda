@@ -5,7 +5,7 @@
 #define __KVMultiDetArray_H
 
 #include "KVGeoStrucElement.h"
-#include "KVSeqCollection.h"
+#include "KVHashList.h"
 #include "TGraph.h"
 #include "TGeoManager.h"
 #include "KVNucleus.h"
@@ -28,6 +28,8 @@ class KVRangeTableGeoNavigator;
 class KVUpDater;
 
 class KVMultiDetArray : public KVGeoStrucElement {
+
+   friend class KVGeoImport;
 
 protected:
 
@@ -63,6 +65,8 @@ protected:
 
    KVRangeTableGeoNavigator* fNavigator;//! for propagating particles through array geometry
 
+   KVHashList fTrajectories;//! list of all possible trajectories through detectors of array
+
    virtual void RenumberGroups();
    virtual void BuildGeometry()
    {
@@ -89,6 +93,10 @@ protected:
    virtual void PrepareModifGroup(KVGroup* grp, KVDetector* dd);
    virtual void SetPresent(KVDetector* det, Bool_t present = kTRUE);
    virtual void SetDetecting(KVDetector* det, Bool_t detecting = kTRUE);
+
+   void CalculateTrajectories();
+   void CalculateReconstructionTrajectories();
+
 public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {
@@ -279,6 +287,11 @@ public:
    void FillListOfIDTelescopes(KVIDGraph* gr) const;
 
    void Draw(Option_t* option = "");
+   const TSeqCollection* GetTrajectories() const
+   {
+      // Get list of all possible trajectories for particles traversing array
+      return &fTrajectories;
+   }
 
    void CheckROOTGeometry()
    {

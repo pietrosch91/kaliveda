@@ -105,6 +105,9 @@ void KVMultiDetArray::init()
    fUpDater = 0;
 
    if (!gIDGridManager) new KVIDGridManager;
+
+   // all trajectories belong to us
+   fTrajectories.SetOwner();
 }
 
 //___________________________________________________________________________________
@@ -2581,4 +2584,59 @@ void KVMultiDetArray::FillHistogramsForAllIDTelescopes(KVSeqCollection* list)
       TH2F* h = (TH2F*)list->FindObject(name);
       if (h) h->Fill(idt->GetIDMapX(), idt->GetIDMapY());
    }
+}
+
+void KVMultiDetArray::CalculateTrajectories()
+{
+   // Loop over all detectors of array
+   // For each detector with no detectors behind it (i.e. furthest from target)
+   // we call KVGeoDetectorNode::BuildTrajectoriesForwards
+   // in order to create all possible particle trajectories through detectors
+   // used in particle reconstruction
+   // Detectors for which trajectories are already defined are skipped
+   // Then we calculate all trajectories for reconstructed particles
+   // i.e. for each trajectory we calculate (sub-)trajectories beginning
+   // from each node in the trajectory, corresponding to particles stopping in
+   // different detectors on the trajectory
+
+   fTrajectories.Clear();
+   TIter next(GetDetectors());
+   KVDetector* d;
+   Int_t count = 0;
+   Info("CalculateTrajectories", "Calculating all possible trajectories:");
+   std::cout << "\xd" << " -- calculated " << count << " trajectories" << std::flush;
+   while ((d = (KVDetector*)next())) {
+
+      if (!d->GetNode()->GetNDetsBehind() && !d->GetNode()->GetTrajectories()) {
+         TList trajs;
+         d->GetNode()->BuildTrajectoriesForwards(&trajs);
+         Int_t nt;
+         if ((nt = trajs.GetEntries())) {
+            fTrajectories.AddAll(&trajs);
+            d->GetGroup()->AddTrajectories(&trajs);
+            count += nt;
+            std::cout << "\xd" << " -- calculated " << count << " trajectories" << std::flush;
+         }
+      }
+   }
+   std::cout << std::endl;
+
+}
+
+void KVMultiDetArray::CalculateReconstructionTrajectories()
+{
+   // Calculate all possible (sub-)trajectories
+   // for particle reconstruction (GetReconTrajectories())
+
+   unique_ptr<KVSeqCollection> groups(GetStructureTypeList("GROUP"));
+   TIter it(groups.get());
+   KVGroup* group;
+   Int_t ntr = 0;
+   Info("CalculateReconstructionTrajectories", "Calculating trajectories for particle reconstruction:");
+   std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
+   while ((group = (KVGroup*)it())) {
+      ntr += group->CalculateReconstructionTrajectories();
+      std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
+   }
+   std::cout << std::endl;
 }

@@ -62,8 +62,8 @@ public:
    {
       return TestBit(kIsRemoving);
    }
-   virtual void Sort() {};
-   virtual void CountLayers() {};
+   virtual void Sort() {}
+   virtual void CountLayers() {}
    const TCollection* GetTrajectories() const
    {
       return &fTrajectories;
@@ -77,7 +77,7 @@ public:
       fTrajectories.AddAll(c);
    }
 
-   void CalculateReconstructionTrajectories();
+   Int_t CalculateReconstructionTrajectories();
    const TSeqCollection* GetReconTrajectories() const
    {
       // Get list of all possible trajectories for particle reconstruction in array

@@ -161,10 +161,12 @@ void KVGroup::ClearHitDetectors()
    const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, ClearHits)();
 }
 
-void KVGroup::CalculateReconstructionTrajectories()
+Int_t KVGroup::CalculateReconstructionTrajectories()
 {
    // Calculate all possible (sub-)trajectories
    // for particle reconstruction (GetReconTrajectories())
+   //
+   // Returns number of (unique) trajectories in group
 
    fReconTraj.Clear();
    TIter next_traj(GetTrajectories());
@@ -210,5 +212,7 @@ void KVGroup::CalculateReconstructionTrajectories()
       fReconTraj.Remove(rnt);
       delete rnt;
    }
+
+   return fReconTraj.GetEntries();
 }
 
