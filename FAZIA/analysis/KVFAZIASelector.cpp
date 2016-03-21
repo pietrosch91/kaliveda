@@ -358,8 +358,6 @@ void KVFAZIASelector::MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* 
    while ((lpersyst = (KVNumberList*)next())) {
       TEnv fruns;
 
-      printf("%s: %s\n", lpersyst->GetName(), lpersyst->AsString());
-
       TString slist(lpersyst->GetExpandedList());
       slist.ReplaceAll(" ", ",");
       TString sname(lpersyst->GetName());
@@ -368,14 +366,14 @@ void KVFAZIASelector::MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* 
       sname.ReplaceAll(" ", "");
       TString inst = "";
       if (lpersyst->GetNValues() > 1) {
-         inst.Form(".! hadd -f %s/%s.root %s/R{%s}.root",
+         inst.Form("hadd -f -k -v 0 %s/%s.root %s/R{%s}.root",
                    op.Data(),
                    sname.Data(),
                    op.Data(),
                    slist.Data()
                   );
       } else if (lpersyst->GetNValues() == 1) {
-         inst.Form(".! hadd -f %s/%s.root %s/R%d.root",
+         inst.Form("hadd -f -k -v 0 %s/%s.root %s/R%d.root",
                    op.Data(),
                    sname.Data(),
                    op.Data(),
@@ -385,21 +383,21 @@ void KVFAZIASelector::MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* 
 
 
       if (inst != "") {
-         printf("%s\n", inst.Data());
+         std::cout << "Creation of output file " << sname.Data() << ".root from run list:" << std::endl;
+         std::cout << lpersyst->AsString() << " ..." << std::endl;
          KVString sroot;
          sroot.Form("%s/%s.root",
                     op.Data(),
                     sname.Data()
                    );
-         //if (!gSystem->IsFileInIncludePath(sroot.Data()) || (gSystem->IsFileInIncludePath(sroot.Data()) && erase_prev))
-         //{
+
          fruns.SetValue("System", lpersyst->GetName());
          fruns.SetValue("DataSet", dsname);
          fruns.SetValue("Selector", kvsname);
          fruns.SetValue("Number", lpersyst->GetNValues());
          fruns.SetValue("RunList", lpersyst->AsString());
-         gROOT->ProcessLine(inst.Data());
-         //}
+         gSystem->Exec(inst.Data());
+         std::cout << " ... done" << std::endl;
          fruns.WriteFile(
             Form("%s/listruns_%s.env",
                  op.Data(),

@@ -43,7 +43,7 @@ public:
    {
       if (RawEvent) RawEvent->Clear();
       Int_t res = fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
-      if (NeedToReadRawData())
+      if (NeedToReadRawData() && RawEvent)
          ConnectSignalsToDetectors();
       return res;
    }
