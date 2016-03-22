@@ -7,6 +7,7 @@
 #include "KVBase.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
+#include "KVDetector.h"
 #include <KVNameValueList.h>
 #include <TGeoMatrix.h>
 class KVNucleus;
@@ -39,6 +40,30 @@ protected:
    TEnv* fDetStrucNameCorrespList;//list(s) of correspondance for renaming structures/detectors
    void FormatStructureName(const Char_t* type, Int_t number, KVString& name);
    void FormatDetectorName(const Char_t* basename, KVString& name);
+
+public:
+   class KVGeoDetectorPath : public TNamed {
+      KVDetector* fDetector;
+   public:
+      KVGeoDetectorPath() : TNamed(), fDetector(nullptr) {}
+      KVGeoDetectorPath(const Char_t* path, KVDetector* det) :
+         TNamed(path, ""), fDetector(det) {}
+      virtual ~KVGeoDetectorPath() {}
+      KVDetector* GetDetector() const
+      {
+         return fDetector;
+      }
+      ClassDef(KVGeoDetectorPath, 1) //Link physical path to node in geometry with detector
+   };
+protected:
+   KVUniqueNameList fDetectorPaths;//correspondance between physical node and detector objects
+   KVDetector* GetDetectorFromPath(const Char_t* p)
+   {
+      // Fast look-up of detector from full path to physical node
+      // This can only be used AFTER a KVGeoImport of the geometry
+      KVGeoDetectorPath* gdp = (KVGeoDetectorPath*)fDetectorPaths.FindObject(p);
+      return (KVDetector*)(gdp ? gdp->GetDetector() : nullptr);
+   }
 
 public:
    KVGeoNavigator(TGeoManager*);
@@ -129,7 +154,24 @@ public:
       return fCurrentStructures;
    }
    virtual void AddPointToCurrentTrack(Double_t, Double_t, Double_t) {}
-   void DrawTracks();
+   void DrawTracks(KVNumberList* = nullptr);
+
+   void AbsorbDetectorPaths(KVGeoNavigator* GN)
+   {
+      // Add all contents of GN->fDetectorPaths to our list
+      // Remove ownership of these paths from GN - our dtor will delete them
+
+      fDetectorPaths.AddAll(&GN->fDetectorPaths);
+      GN->fDetectorPaths.SetOwner(kFALSE);
+   }
+   void PrintDetectorPaths()
+   {
+      TIter it(&fDetectorPaths);
+      KVGeoDetectorPath* gdp;
+      while ((gdp = (KVGeoDetectorPath*)it())) {
+         std::cout << gdp->GetDetector()->GetName() << " : " << gdp->GetName() << std::endl;
+      }
+   }
 
    ClassDef(KVGeoNavigator, 0) //Propagate particles of an event through a TGeo geometry
 };

@@ -2537,11 +2537,24 @@ void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
 void KVMultiDetArray::Draw(Option_t* option)
 {
    // Use OpenGL viewer to view multidetector geometry (only for ROOT geometries)
+   //
    // If option="tracks" we draw any tracks corresponding to the last simulated
    // event whose detection was simulated with DetectEvent
+   // If option="tracks:[numberlist]" with a list of numbers,
+   // it will be interpreted as a KVNumberList containing the Z of tracks to be drawn
+   //    e.g. option="tracks:1-92" draw only tracks with 1<=Z<=92 (no neutrons)
+   //         option="tracks:2"    draw only helium isotopes
    if (IsROOTGeometry()) {
       GetGeometry()->GetTopVolume()->Draw("ogl");
-      if (!strcmp(option, "tracks")) GetNavigator()->DrawTracks();
+      KVString opt(option);
+      opt.Begin(":");
+      if (opt.Next() == "tracks") {
+         if (!opt.End()) {
+            KVNumberList zlist(opt.Next());
+            GetNavigator()->DrawTracks(&zlist);
+         } else
+            GetNavigator()->DrawTracks();
+      }
 #ifdef WITH_OPENGL
       TGLViewer* view = (TGLViewer*)gPad->GetViewer3D();
       view->SetCurrentCamera(TGLViewer::kCameraPerspYOZ);
@@ -2584,6 +2597,15 @@ void KVMultiDetArray::FillHistogramsForAllIDTelescopes(KVSeqCollection* list)
       TH2F* h = (TH2F*)list->FindObject(name);
       if (h) h->Fill(idt->GetIDMapX(), idt->GetIDMapY());
    }
+}
+
+void KVMultiDetArray::SetDetectorTransparency(Char_t t)
+{
+   // Modify the transparency of detector volumes in OpenGL view
+
+   TIter itV(GetGeometry()->GetListOfVolumes());
+   TGeoVolume* vol;
+   while ((vol = (TGeoVolume*)itV())) vol->SetTransparency(t);
 }
 
 void KVMultiDetArray::CalculateTrajectories()

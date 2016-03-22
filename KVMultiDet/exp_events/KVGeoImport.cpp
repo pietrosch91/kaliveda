@@ -159,6 +159,8 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
 
    if (fCreateArray) {
       fArray->SetGeometry(GetGeometry());
+      // Set up internal navigator of array with all informations on detector/
+      // structure name formatting, correspondance lists, etc.
       KVGeoNavigator* nav = fArray->GetNavigator();
       nav->SetDetectorNameFormat(fDetNameFmt);
       for (int i = 0; i < fStrucNameFmt.GetEntries(); i++) {
@@ -166,6 +168,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
          nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
       }
       nav->SetNameCorrespondanceList(fDetStrucNameCorrespList);
+      nav->AbsorbDetectorPaths(this);
       fArray->CalculateDetectorSegmentationIndex();
       fArray->CalculateReconstructionTrajectories();
    }
@@ -211,8 +214,11 @@ KVDetector* KVGeoImport::GetCurrentDetector()
             // set matrix & shape for active layer
             det->SetActiveLayerMatrix(GetCurrentMatrix());
             det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            // set full path to physical node as title of detector's node (KVGeoDetectorNode)
             det->GetNode()->SetTitle(GetCurrentPath());
          }
+         // add entry to correspondance list between physical nodes and detectors (all layers)
+         fDetectorPaths.Add(new KVGeoDetectorPath(GetCurrentPath(), det));
       }
    } else {
       if (!det) {
@@ -236,8 +242,11 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 //                    GetCurrentMatrix()->Print();
                det->SetActiveLayerMatrix(GetCurrentMatrix());
                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+               // set full path to physical node as title of detector's node (KVGeoDetectorNode)
                det->GetNode()->SetTitle(GetCurrentPath());
             }
+            // add entry to correspondance list between physical nodes and detectors (all layers)
+            fDetectorPaths.Add(new KVGeoDetectorPath(GetCurrentPath(), det));
             fArray->Add(det);
             Int_t nstruc = CurrentStructures().GetEntries();
             if (nstruc) {
@@ -266,8 +275,11 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 //                GetCurrentMatrix()->Print();
             det->SetActiveLayerMatrix(GetCurrentMatrix());
             det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            // set full path to physical node as title of detector's node (KVGeoDetectorNode)
             det->GetNode()->SetTitle(GetCurrentPath());
          }
+         // add entry to correspondance list between physical nodes and detectors (all layers)
+         fDetectorPaths.Add(new KVGeoDetectorPath(GetCurrentPath(), det));
       }
    }
    return det;

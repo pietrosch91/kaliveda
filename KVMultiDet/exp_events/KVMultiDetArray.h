@@ -301,6 +301,8 @@ public:
    void MakeHistogramsForAllIDTelescopes(KVSeqCollection* list);
    void FillHistogramsForAllIDTelescopes(KVSeqCollection* list);
 
+   void SetDetectorTransparency(Char_t);
+
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };
 

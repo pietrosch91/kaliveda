@@ -2,15 +2,17 @@
 #define KV3DGeoTrack_H
 
 #include "TPolyLine3D.h"
-class TVirtualGeoTrack;
+#include "TVirtualGeoTrack.h"
+#include "KVNucleus.h"
 
 class KV3DGeoTrack : public TPolyLine3D {
 
 protected:
 
-   Int_t Color(TObject*);
+   Int_t Color();
    Int_t          fIndex;
    TVirtualGeoTrack* fTrack;
+   KVNucleus fNuc;
 
 public:
    KV3DGeoTrack();
@@ -21,6 +23,10 @@ public:
    virtual const Text_t* GetName() const;
    virtual Text_t*       GetObjectInfo(Int_t px, Int_t py) const;
    void Draw(Option_t* option = "");
+   Int_t GetZ() const
+   {
+      return fNuc.GetZ();
+   }
 
    ClassDef(KV3DGeoTrack, 1) //Class to visualize tracks in OpenGL viewer
 };

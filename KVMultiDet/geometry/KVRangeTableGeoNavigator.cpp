@@ -115,15 +115,6 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
       return;
    }
 
-   // no neutron detection - just tracking
-//   if (part->GetZ() == 0) {
-//      if (IsTracking()) {
-//         AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
-//         AddPointToCurrentTrack(GetExitPoint().X(), GetExitPoint().Y(), GetExitPoint().Z());
-//      }
-//      return;
-//   }
-
    // calculate energy losses in known materials for charged particles
    TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
    KVIonRangeTableMaterial* irmat = 0;
@@ -143,12 +134,11 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
       //initial energy
       if (!part->GetPInitial()) part->SetE0();
 
-      KVString dname;
-      Bool_t multi;
       TString absorber_name;
-      if (GetCurrentDetectorNameAndVolume(dname, multi)) {
-         if (multi) absorber_name.Form("%s/%s", dname.Data(), GetCurrentNode()->GetName());
-         else absorber_name = dname;
+      KVDetector* theDet = GetDetectorFromPath(GetCurrentPath());
+      if (theDet) {
+         if (!theDet->IsSingleLayer()) absorber_name.Form("%s/%s", theDet->GetName(), GetCurrentNode()->GetName());
+         else absorber_name = theDet->GetName();
       } else
          absorber_name = irmat->GetName();
 

@@ -873,8 +873,12 @@ void KVINDRA::CreateROOTGeometry()
    Info("CreateROOTGeometry", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
 
    // Set up trajectories
+   TIter it(GetDetectors());
+   KVDetector* d;
+   while ((d = (KVDetector*)it())) d->GetNode()->RehashLists();// make sure detector nodes are correct
    CalculateTrajectories();
    CalculateReconstructionTrajectories();
+   GetNavigator()->AbsorbDetectorPaths(&gimp);
 }
 
 void KVINDRA::SetROOTGeometry(Bool_t on)

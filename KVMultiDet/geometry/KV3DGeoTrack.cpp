@@ -2,7 +2,6 @@
 
 #include "TPad.h"
 #include "TView.h"
-#include "TVirtualGeoTrack.h"
 #include "KVNucleus.h"
 #include "TPolyMarker3D.h"
 
@@ -11,16 +10,18 @@ ClassImp(KV3DGeoTrack)
 KV3DGeoTrack::KV3DGeoTrack():
    TPolyLine3D(),
    fIndex(0),
-   fTrack(nullptr)
+   fTrack(nullptr),
+   fNuc()
 {
 }
 
 KV3DGeoTrack::KV3DGeoTrack(TVirtualGeoTrack* tr):
    TPolyLine3D(tr->GetNpoints()),
    fIndex(0),
-   fTrack(tr)
+   fTrack(tr),
+   fNuc(tr->GetName())
 {
-   SetLineColor(Color(tr->GetParticle()));
+   SetLineColor(Color());
    for (int n = 0; n < tr->GetNpoints(); n++) {
       const Double_t* point = tr->GetPoint(n);
       SetPoint(n, point[0], point[1], point[2]);
@@ -67,18 +68,18 @@ void KV3DGeoTrack::Draw(Option_t* option)
 }
 
 
-Int_t KV3DGeoTrack::Color(TObject* part)
+Int_t KV3DGeoTrack::Color()
 {
-   KVNucleus* fParticle = static_cast<KVNucleus*>(part);
    SetLineWidth(2);
-   if (fParticle->GetZ() == 0) return kBlue;
-   else if (fParticle->GetZ() == 1) return kRed;
-   if (fParticle->GetZ() == 2) return kGreen;
+   Int_t fZ = GetZ();
+   if (fZ == 0) return kBlue;
+   else if (fZ == 1) return kRed;
+   if (fZ == 2) return kGreen;
+   SetLineWidth(4);
+   if (fZ < 10) return kMagenta;
+   if (fZ < 20) return kCyan;
+   if (fZ < 30) return kOrange;
    SetLineWidth(6);
-   if (fParticle->GetZ() < 10) return kMagenta;
-   if (fParticle->GetZ() < 20) return kCyan;
-   if (fParticle->GetZ() < 30) return kOrange;
-   SetLineWidth(10);
    return kGray;
-
 }
+

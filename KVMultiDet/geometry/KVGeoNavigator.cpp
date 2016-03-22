@@ -209,12 +209,12 @@ void KVGeoNavigator::FormatDetectorName(const Char_t* basename, KVString& name)
 }
 
 KVGeoNavigator::KVGeoNavigator(TGeoManager* g)
-   : fCurrentStructures("KVGeoStrucElement", 50)
+   : fGeometry(g), fCurrentStructures("KVGeoStrucElement", 50), fDetStrucNameCorrespList(nullptr),
+     fDetectorPaths(kTRUE)
 {
    // Constructor. Call with pointer to geometry.
-   fGeometry = g;
-   fDetStrucNameCorrespList = 0;
    SetTracking(kFALSE);
+   fDetectorPaths.SetOwner();
 }
 
 KVGeoNavigator::~KVGeoNavigator()
@@ -576,21 +576,26 @@ void KVGeoNavigator::PropagateParticle(KVNucleus* part, TVector3* TheOrigin)
    }
 }
 
-void KVGeoNavigator::DrawTracks()
+void KVGeoNavigator::DrawTracks(KVNumberList* zlist)
 {
    // When using ROOT geometry, after calling DetectEvent to simulate detection of some particles,
    // you can call this method to overlay the tracks of the corresponding particles on the 3D
    // geometry of the array
+   //
+   // If KVNumberList pointer is given, use it to limit Z of drawn tracks
 
    TIter next_track(fGeometry->GetListOfTracks());
    TVirtualGeoTrack* track;
    bool first = true;
    while ((track = (TVirtualGeoTrack*)next_track())) {
-      KV3DGeoTrack* gtrack = new KV3DGeoTrack(track);
-      if (first) {
-         if (gPad) gtrack->Draw("same");
-         else gtrack->Draw("ogl");
-         first = false;
-      } else gtrack->Draw("same");
+      KVNucleus nuc(track->GetName());
+      if (!zlist || zlist->Contains(nuc.GetZ())) {
+         KV3DGeoTrack* gtrack = new KV3DGeoTrack(track);
+         if (first) {
+            if (gPad) gtrack->Draw("same");
+            else gtrack->Draw("ogl");
+            first = false;
+         } else gtrack->Draw("same");
+      }
    }
 }

@@ -5,6 +5,8 @@
 #include "KVDataSetManager.h"
 #include "TClass.h"
 
+#include <KVRangeTableGeoNavigator.h>
+
 ClassImp(KVExpSetUp)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,8 +20,6 @@ ClassImp(KVExpSetUp)
 
 void KVExpSetUp::init()
 {
-
-
    fCloseGeometryNow = kFALSE;
    fBuildTarget = kFALSE;
 
@@ -28,7 +28,6 @@ void KVExpSetUp::init()
    fIDTelescopes->SetOwner(kFALSE);
 
    gMultiDetArray = this;
-
 }
 
 
@@ -36,8 +35,6 @@ KVExpSetUp::KVExpSetUp()
 {
    // Default constructor
    init();
-
-
 }
 
 KVExpSetUp::~KVExpSetUp()
@@ -52,7 +49,12 @@ void KVExpSetUp::Build(Int_t)
    // Build the combined arrays
    CreateGeoManager();
 
-   KVGeoNavigator* nav = 0;
+   Info("Build", "navigator=%p", GetNavigator());
+
+   KVRangeTableGeoNavigator* gnl = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
+   SetNavigator(gnl);
+
+   //KVGeoNavigator* nav = 0;
    KVMultiDetArray* tmp = 0;
    lmultidetarrayclasses =
       gDataSetManager->GetDataSet(fDataSet)->GetDataSetEnv("DataSet.ExpSetUp.ClassList", IsA()->GetName());
@@ -62,10 +64,6 @@ void KVExpSetUp::Build(Int_t)
       Info("Build", "Build %s %s\n", gDataSet->GetName(), sname.Data());
       tmp = MakeMultiDetector(gDataSet->GetName(), -1, sname.Data());
       if (tmp) {
-         if (nav) {
-            Info("Build", "KVGeoNavigator already set ...");
-            tmp->SetNavigator(nav);
-         }
          // make sure array is using ROOT geometry
          tmp->CheckROOTGeometry();
 
@@ -74,7 +72,9 @@ void KVExpSetUp::Build(Int_t)
          fStructures.AddAll((KVUniqueNameList*)tmp->GetStructures());
          fIDTelescopes->AddAll(tmp->GetListOfIDTelescopes());
 
-         nav = tmp->GetNavigator();
+         // retrieve correspondance list node path<->detector
+         gnl->AbsorbDetectorPaths(tmp->GetNavigator());
+
       } else {
          Error("Build", "NULL pointer returned by MakeMultiDetector");
       }
@@ -82,7 +82,7 @@ void KVExpSetUp::Build(Int_t)
 
    gGeoManager->DefaultColors();
    gGeoManager->CloseGeometry();
-   SetNavigator(nav);
+
    SetGeometry(gGeoManager);
 
    gMultiDetArray = this;
