@@ -153,7 +153,7 @@ KVSeqCollection* KVGeoStrucElement::GetStructureTypeList(const Char_t* type) con
 {
    // Create and fill a list with all structures of given type which are daughters
    // of this structure.
-   // DELETE LIST AFTER USE
+   // DELETE LIST AFTER USE - or, better: unique_ptr<KVSeqCollection> list(toto->GetStructureTypeList(...))
 
    return fStructures.GetSubListWithType(type);
 }

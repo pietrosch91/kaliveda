@@ -38,6 +38,8 @@ protected:
    virtual void MergeGroups(KVASGroup* kg1, KVASGroup* kg2);
    KVNameValueList* DetectParticle_KV(KVNucleus* part);
    void GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_list);
+   virtual void set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* l);
+   virtual void set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l);
 public:
    KVASMultiDetArray();
    virtual ~ KVASMultiDetArray();

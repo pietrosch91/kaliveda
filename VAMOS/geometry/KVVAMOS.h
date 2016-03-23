@@ -70,6 +70,8 @@ protected:
    virtual void   SetArrayACQParams();
    virtual void   SetCalibrators();
    virtual void   SetGroupsAndIDTelescopes();
+   virtual void set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* l);
+   virtual void set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l);
 
 
 public:
@@ -90,7 +92,7 @@ public:
    void     FocalToTarget(const Double_t* focal, Double_t* target);
    void     FocalToTargetVect(const Double_t* focal, Double_t* target);
    virtual KVList*  GetFiredDetectors(Option_t* opt = "Pany");
-   virtual void    GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+   virtual Int_t    GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
    virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
    KVVAMOSReconGeoNavigator* GetReconNavigator();
    KVVAMOSTransferMatrix* GetTransferMatrix();

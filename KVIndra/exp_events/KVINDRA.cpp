@@ -274,6 +274,38 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
    return kvt;
 }
 
+void KVINDRA::FillTrajectoryIDTelescopeLists()
+{
+   // Kludge to make INDRA ROOT geometry work like any other
+   // Normally ID telescopes are deduced from successive detectors on the different trajectories
+   // Each trajectory then possesses its list of ID telescopes
+   // These lists are then used when reconstruction trajectories are calculated
+   //
+   // When INDRA ROOT geometry is used, trajectory lists need to be filled
+   // by hand before reconstruction trajectories are calculated
+
+   TIter it_traj(GetTrajectories());
+   KVGeoDNTrajectory* tr;
+   while ((tr = (KVGeoDNTrajectory*)it_traj())) {
+      // get first detector on trajectory
+      KVDetector* det = tr->GetNodeAt(0)->GetDetector();
+      // list of 'aligned' id telescopes
+      TIter it_idt(det->GetAlignedIDTelescopes());
+      KVIDTelescope* idt;
+      while ((idt = (KVIDTelescope*)it_idt())) {
+         if (tr->ContainsAll(idt->GetDetectors())) { // all detectors on trajectory
+            if (idt->GetDetectors()->GetEntries() > 1) {
+               // make sure dE and E detector are consecutive on trajectory
+               // i.e. dE has to be immediately in front of E on the trajectory
+               if (tr->GetNodeInFront(idt->GetDetector(2)->GetNode()) == idt->GetDetector(1)->GetNode())
+                  tr->AccessIDTelescopeList()->Add(idt);
+            } else
+               tr->AccessIDTelescopeList()->Add(idt);//single-detector telescope
+         }
+      }
+   }
+}
+
 //_________________________________________________________________________________________
 
 void KVINDRA::Build(Int_t run)
@@ -541,20 +573,20 @@ KVINDRADetector* KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type)
 
 //_______________________________________________________________________________________
 
-void KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* idtels)
+Int_t KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* idtels)
 {
    //Override KVASMultiDetArray method for special case of "etalon" modules:
    //we need to add ChIo-CsI identification telescope by hand
 
-   KVASMultiDetArray::GetIDTelescopes(de, e, idtels);
+   Int_t n = KVASMultiDetArray::GetIDTelescopes(de, e, idtels);
 
    if (de->InheritsFrom("KVSiLi") && e->InheritsFrom("KVCsI")) {
       KVChIo* chio = (KVChIo*)((KVINDRADetector*)e)->GetChIo();
       if (chio) {
-         KVASMultiDetArray::GetIDTelescopes(chio, e, idtels);
+         n += KVASMultiDetArray::GetIDTelescopes(chio, e, idtels);
       }
    }
-
+   return n;
 }
 
 //_______________________________________________________________________________________
@@ -877,6 +909,7 @@ void KVINDRA::CreateROOTGeometry()
    KVDetector* d;
    while ((d = (KVDetector*)it())) d->GetNode()->RehashLists();// make sure detector nodes are correct
    CalculateTrajectories();
+   FillTrajectoryIDTelescopeLists();
    CalculateReconstructionTrajectories();
    GetNavigator()->AbsorbDetectorPaths(&gimp);
 }

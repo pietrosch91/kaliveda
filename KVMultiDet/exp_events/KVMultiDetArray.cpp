@@ -168,7 +168,7 @@ void KVMultiDetArray::Build(Int_t)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* list)
+Int_t KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* list)
 {
    // Create one or more KVIDTelescope particle-identification objects from the two detectors
    //
@@ -193,7 +193,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection
 
    Int_t ntels = 0;
    // if both detectors are not OK then stop
-   if (!de->IsOK() && !e->IsOK()) return;
+   if (!de->IsOK() && !e->IsOK()) return ntels;
 
    if (fDataSet == "" && gDataSet) fDataSet = gDataSet->GetName();
 
@@ -203,6 +203,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection
 
    if (de != e && e->IsOK() && de->IsOK()) ntels += try_all_doubleID_telescopes(de, e, list);
 
+   return ntels;
 }
 
 Int_t KVMultiDetArray::try_all_singleID_telescopes(KVDetector* d, TCollection* l)
@@ -371,9 +372,9 @@ bool KVMultiDetArray::try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDet
    return false;
 }
 
-void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* idtels)
+void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* l)
 {
-   // Set up detectors in de-e identification telescope and add to idtels
+   // Set up detectors in de-e identification telescope and add to fIDTelescopes and to l
 
    idt->AddDetector(de);
    idt->AddDetector(e);
@@ -382,36 +383,29 @@ void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelesc
    } else {
       idt->SetGroup(e->GetGroup());
    }
-   if (idtels->FindObject(idt->GetName())) {
-      delete idt;
-   } else {
-      idtels->Add(idt);
-   }
+   fIDTelescopes->Add(idt);
+   l->Add(idt);
 }
 
-void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* idtels)
+void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l)
 {
-   // Set up detector in single-stage identification telescope and add to idtels
+   // Set up detector in single-stage identification telescope and add to fIDTelescopes and to l
 
    idt->AddDetector(det);
    idt->SetGroup(det->GetGroup());
-   if (idtels->FindObject(idt->GetName())) {
-      delete idt;
-   } else {
-      idtels->Add(idt);
-   }
+   fIDTelescopes->Add(idt);
+   l->Add(idt);
 }
 //______________________________________________________________________________________
 void KVMultiDetArray::CreateIDTelescopesInGroups()
 {
    fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
    KVGroup* grp;
-   KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
-   TIter ngrp(fGroups);
+   unique_ptr<KVSeqCollection> fGroups(GetStructures()->GetSubListWithType("GROUP"));
+   TIter ngrp(fGroups.get());
    while ((grp = (KVGroup*) ngrp())) {
       GetIDTelescopesForGroup(grp, fIDTelescopes);
    }
-   delete fGroups;
 }
 
 //_______________________________________________________________________________________
@@ -2244,27 +2238,6 @@ void KVMultiDetArray::CalculateDetectorSegmentationIndex()
    }
 }
 
-/* void KVMultiDetArray::CalculateGeoNodeTrajectories()
-{
-   // Loop over all detectors of array
-   // For each detector with no detectors behind it (i.e. furthest from target)
-   // we call KVGeoDetectorNode::BuildTrajectoriesForwards
-   // in order to create all possible particle trajectories through detectors
-   // used in particle reconstruction
-    // Detectors for which trajectories are already defined are skipped
-
-   TIter next(GetDetectors());
-   KVDetector* d;
-   while ( (d = (KVDetector*)next()) ){
-
-        if(!d->GetNode()->GetNDetsBehind() && !d->GetNode()->GetTrajectories()){
-         TList trajs;
-         d->GetNode()->BuildTrajectoriesForwards(&trajs);
-      }
-   }
-}
- */
-
 //___________________________________________________________________________//
 
 void KVMultiDetArray::GetAlignedIDTelescopesForDetector(KVDetector* det, TCollection* list)
@@ -2571,17 +2544,18 @@ void KVMultiDetArray::SetNavigator(KVGeoNavigator* geo)
    fNavigator = (KVRangeTableGeoNavigator*)geo;
 }
 
-void KVMultiDetArray::MakeHistogramsForAllIDTelescopes(KVSeqCollection* list)
+void KVMultiDetArray::MakeHistogramsForAllIDTelescopes(KVSeqCollection* list, Int_t dimension)
 {
    // Create TH2F histograms for all IDTelescopes of the array
    // They will be added to the list
+   // histograms will have resolution of dimension*dimension
 
    TIter it(GetListOfIDTelescopes());
    KVIDTelescope* idt;
    while ((idt = (KVIDTelescope*)it())) {
       TString name(idt->GetName());
       name.ReplaceAll("-", "_");
-      list->Add(new TH2F(name, Form("Hits in %s", idt->GetName()), 500, 0., 0., 500, 0., 0.));
+      list->Add(new TH2F(name, Form("Hits in %s", idt->GetName()), dimension, 0., 0., dimension, 0., 0.));
    }
 }
 
@@ -2659,6 +2633,37 @@ void KVMultiDetArray::CalculateReconstructionTrajectories()
    while ((group = (KVGroup*)it())) {
       ntr += group->CalculateReconstructionTrajectories();
       std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
+   }
+   std::cout << std::endl;
+}
+
+void KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry()
+{
+   // Track over all possible particle trajectories calling
+   //   GetIDTelescopes(KVDetector*,KVDetector*)
+   // for each pair of (present & functioning) detectors.
+   // This will create all possible KVIDTelescope identification
+   // objects and put them in list fIDTelescopes
+
+   fIDTelescopes->Delete();
+   TIter next_traj(GetTrajectories());
+   KVGeoDNTrajectory* traj;
+   Int_t count = 0;
+   Info("DeduceIdentificationTelescopesFromGeometry", "Calculating...");
+   std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
+   while ((traj = (KVGeoDNTrajectory*)next_traj())) {   // loop over all trajectories
+
+      traj->IterateFrom();   // from furthest-out to closest-in detector
+
+      KVGeoDetectorNode* N;
+      while ((N = traj->GetNextNode())) {
+         KVGeoDetectorNode* Nplus1 = traj->GetNodeInFront(N);
+
+         if (Nplus1) {
+            count += GetIDTelescopes(Nplus1->GetDetector(), N->GetDetector(), traj->AccessIDTelescopeList());
+            std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
+         }
+      }
    }
    std::cout << std::endl;
 }

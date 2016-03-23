@@ -75,7 +75,7 @@ protected:
    virtual void MakeListOfDetectors();
    virtual void SetACQParams();
 
-   virtual void GetIDTelescopes(KVDetector*, KVDetector*, TCollection* list);
+   virtual Int_t GetIDTelescopes(KVDetector*, KVDetector*, TCollection* list);
 
    int try_all_doubleID_telescopes(KVDetector* de, KVDetector* e, TCollection* l);
    bool try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDetector* e, TCollection* l);
@@ -96,6 +96,7 @@ protected:
 
    void CalculateTrajectories();
    void CalculateReconstructionTrajectories();
+   void DeduceIdentificationTelescopesFromGeometry();
 
 public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
@@ -298,7 +299,7 @@ public:
       // Turns on ROOT geometry if not already in use
       if (!IsROOTGeometry()) SetROOTGeometry();
    }
-   void MakeHistogramsForAllIDTelescopes(KVSeqCollection* list);
+   void MakeHistogramsForAllIDTelescopes(KVSeqCollection* list, Int_t dimension = 100);
    void FillHistogramsForAllIDTelescopes(KVSeqCollection* list);
 
    void SetDetectorTransparency(Char_t);

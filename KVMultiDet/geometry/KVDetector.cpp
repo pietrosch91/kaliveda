@@ -127,6 +127,7 @@ void KVDetector::init()
    fDetecting = kTRUE;
    fParentStrucList.SetCleanup();
    fSingleLayer = kTRUE;
+   fNode.SetDetector(this);
 }
 
 KVDetector::KVDetector()

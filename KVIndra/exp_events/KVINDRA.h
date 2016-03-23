@@ -92,6 +92,9 @@ protected:
    void BuildLayer(const Char_t* name);
    KVRing* BuildRing(Int_t number, const Char_t* prefix);
    KVINDRATelescope* BuildTelescope(const Char_t* prefix, Int_t mod);
+   void FillTrajectoryIDTelescopeLists();
+   Int_t GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+
 
 public:
    KVINDRA();
@@ -107,8 +110,6 @@ public:
       fPHDSet = yes;
    };
    virtual void UpdateArray();
-
-   void GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
    KVLayer* GetChIoLayer();
    inline KVHashList* GetListOfChIo() const

@@ -496,6 +496,37 @@ void KVASMultiDetArray::GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_l
    }
 }
 
+void KVASMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* idtels)
+{
+   // Set up detectors in de-e identification telescope and add to idtels
+
+   idt->AddDetector(de);
+   idt->AddDetector(e);
+   if (de->GetGroup()) {
+      idt->SetGroup(de->GetGroup());
+   } else {
+      idt->SetGroup(e->GetGroup());
+   }
+   if (idtels->FindObject(idt->GetName())) {
+      delete idt;
+   } else {
+      idtels->Add(idt);
+   }
+}
+
+void KVASMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* idtels)
+{
+   // Set up detector in single-stage identification telescope and add to idtels
+
+   idt->AddDetector(det);
+   idt->SetGroup(det->GetGroup());
+   if (idtels->FindObject(idt->GetName())) {
+      delete idt;
+   } else {
+      idtels->Add(idt);
+   }
+}
+
 void KVASMultiDetArray::AnalyseGroupAndReconstructEvent(KVReconstructedEvent* event, KVGroup* grp)
 {
 

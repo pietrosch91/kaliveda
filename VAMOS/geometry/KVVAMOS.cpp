@@ -850,8 +850,8 @@ KVList* KVVAMOS::GetFiredDetectors(Option_t* opt)
    return fFiredDets;
 }
 //________________________________________________________________
-void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
-                              TCollection* idtels)
+Int_t KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
+                               TCollection* idtels)
 {
    //Overwrite the same method of KVMultiDetArray in order to use another
    //format for the URI of the plugins associated to VAMOS.
@@ -872,14 +872,18 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
    //
    //This method is called by KVGroup in order to set up all ID telescopes
    //of the array.
+   //
+   // Returns number of ID telescopes created
 
-   if (!(de->IsOK() && e->IsOK())) return;
+   if (!(de->IsOK() && e->IsOK())) return 0;
 
-   if ((de->GetSegment() < 1) && (e->GetSegment() < 1)) return;
+   if ((de->GetSegment() < 1) && (e->GetSegment() < 1)) return 0;
 
    KVIDTelescope* idt = NULL;
 
    if (fDataSet == "" && gDataSet) fDataSet = gDataSet->GetName();
+
+   Int_t ntels(0);
 
    //first we look for ID telescopes specific to current dataset
    //these are ID telescopes formed from two distinct detectors
@@ -907,12 +911,14 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
                   TMath::Nint(det->GetThickness()));
          if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
             set_up_single_stage_telescope(det, idt, idtels);
+            ++ntels;
             break;
          }
 
          uri.Form("%s%s", prefix.Data(), det->GetType());
          if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
             set_up_single_stage_telescope(det, idt, idtels);
+            ++ntels;
             break;
          }
 
@@ -920,7 +926,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
    }
 
    //look for ID telescopes with the two detectors
-   if (de == e) return;
+   if (de == e) return ntels;
 
    Int_t de_thick = TMath::Nint(de->GetThickness());
    Int_t e_thick  = TMath::Nint(e->GetThickness());
@@ -931,6 +937,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
                de_thick, e->GetType(), e_thick);
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idt, idtels);
+         ++ntels;
          break;
       }
 
@@ -938,6 +945,7 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
                de_thick, e->GetType());
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idt, idtels);
+         ++ntels;
          break;
       }
 
@@ -945,12 +953,14 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
                e_thick);
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idt, idtels);
+         ++ntels;
          break;
       }
 
       uri.Form("%s%s-%s", prefix.Data(), de->GetType(), e->GetType());
       if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))) {
          set_up_telescope(de, e, idt, idtels);
+         ++ntels;
          break;
       }
    }
@@ -961,10 +971,42 @@ void KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
       idt = new KVIDTelescope;
       set_up_telescope(de, e, idt, idtels);
       idt->SetLabel(uri);
+      ++ntels;
    }
+
+   return ntels;
 }
 //________________________________________________________________
+void KVVAMOS::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* idtels)
+{
+   // Set up detectors in de-e identification telescope and add to idtels
 
+   idt->AddDetector(de);
+   idt->AddDetector(e);
+   if (de->GetGroup()) {
+      idt->SetGroup(de->GetGroup());
+   } else {
+      idt->SetGroup(e->GetGroup());
+   }
+   if (idtels->FindObject(idt->GetName())) {
+      delete idt;
+   } else {
+      idtels->Add(idt);
+   }
+}
+
+void KVVAMOS::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* idtels)
+{
+   // Set up detector in single-stage identification telescope and add to idtels
+
+   idt->AddDetector(det);
+   idt->SetGroup(det->GetGroup());
+   if (idtels->FindObject(idt->GetName())) {
+      delete idt;
+   } else {
+      idtels->Add(idt);
+   }
+}
 Double_t KVVAMOS::GetStripFoilEnergyLossCorrection(KVReconstructedNucleus* nuc)
 {
    // Calculate the energy loss in the stripping foil
