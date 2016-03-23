@@ -83,7 +83,9 @@ void KVGroup::Reset()
    if (fReconstructedNuclei && fReconstructedNuclei->GetSize()) {
       fReconstructedNuclei->Clear();
    }
-   ClearHitDetectors();
+   //reset energy loss and KVDetector::IsAnalysed() state
+   //plus ACQParams set to zero
+   const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, Clear)();
 }
 
 //_________________________________________________________________________________
