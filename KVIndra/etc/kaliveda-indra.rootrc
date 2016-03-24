@@ -550,15 +550,15 @@ INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 #================================ Plugins for detectors
 Plugin.KVDetector:      PHOS      KVPhoswich      KVIndrageometry      "KVPhoswich(Float_t)"
 +Plugin.KVDetector:      ^SI$      KVSilicon      KVIndrageometry      "KVSilicon(Float_t)"
-+Plugin.KVDetector:      INDRA_e475s.SI      KVSilicon_e475s      KVIndrageometry      "KVSilicon_e475s(Float_t)"
++Plugin.KVDetector:      ^INDRA_e475s.SI$      KVSilicon_e475s      KVIndrageometry      "KVSilicon_e475s(Float_t)"
 +Plugin.KVDetector:      ^SILI$      KVSiLi      KVIndrageometry      "KVSiLi(Float_t)"
 +Plugin.KVDetector:      ^SI75$      KVSi75      KVIndrageometry      "KVSi75(Float_t)"
 #+Plugin.KVDetector:      ^SIB$      KVSiB      KVIndrageometry      "KVSiB()"
 +Plugin.KVDetector:	CI             KVChIo      KVIndrageometry      "KVChIo(Float_t,Float_t)"
-+Plugin.KVDetector:	INDRA_e475s.CI   KVChIo_e475s    KVIndrageometry      "KVChIo_e475s(Float_t,Float_t)"
++Plugin.KVDetector:	^INDRA_e475s.CI$   KVChIo_e475s    KVIndrageometry      "KVChIo_e475s(Float_t,Float_t)"
 #+Plugin.KVDetector:   BIC                                      KVBIC                  KVIndrageometry          "KVBIC()"
 +Plugin.KVDetector: CSI             KVCsI       KVIndrageometry  "KVCsI(Float_t)"
-+Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndrageometry  "KVCsI_e475s(Float_t)"
++Plugin.KVDetector: ^INDRA_e475s.CSI$ KVCsI_e475s KVIndrageometry  "KVCsI_e475s(Float_t)"
 
 # Environment variables for the Data Selectors. They define the filename and
 # the directory of the file where the TEventList are stored. The default
