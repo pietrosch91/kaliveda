@@ -31,7 +31,7 @@ public:
       rawdatabranchname = "rawevent";
       SetBranchName("FAZIAReconEvent");
       SetEventsReadInterval(10000);
-      RawEvent = 0;
+      SetAutomaticManagementOfOutputs(kFALSE);
    };
 
    virtual ~KVFAZIASelector() {};
