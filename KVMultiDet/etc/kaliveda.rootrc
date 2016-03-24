@@ -230,6 +230,10 @@ Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDetidentification "KV
 KVIDTelescope.DefaultGrid:              KVIDZAGrid
 KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
 
+# ID telescope plugin classes
+Plugin.KVIDTelescope:  CSI    KVIDCsI     KVMultiDetexp_events "KVIDCsI()"
++Plugin.KVIDTelescope:  CsI    KVIDCsI     KVMultiDetexp_events "KVIDCsI()"
+
 # Default identification/cut classes for different ID graphs
 # Used by KVIDGridManagerGUI when creating new grids
 #
@@ -277,8 +281,8 @@ KaliVeda.GUI.MimeTypes.TEntryList.Icon:   rootdb_t.xpm
 # Displaying very long lists can be slow.
 KVListView.MaxListLength: 20000
 
-# Control whether to use ROOT geometry & algorithms for particle trajectory simulation
-KVMultiDetArray.FilterUsesROOTGeometry:    yes
+# Control whether to use by default ROOT geometry for detector arrays
+KVMultiDetArray.ROOTGeometry:    no
 
 # Controls which options are set at start up of KVTreeAnalyzer
 KVTreeAnalyzer.LogScale:         off

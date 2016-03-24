@@ -1,5 +1,5 @@
 /***************************************************************************
-                          KVIDCsI.cpp  -  description
+                          KVIDINDRACsI.cpp  -  description
                              -------------------
     begin                : Fri Feb 20 2004
     copyright            : (C) 2004 by J.D. Frankland
@@ -15,25 +15,23 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "KVIDCsI.h"
+#include "KVIDINDRACsI.h"
 #include "KVCsI.h"
-#include "KVIDGCsI.h"
 #include "KVReconstructedNucleus.h"
 #include "KVINDRACodeMask.h"
-#include "KVIDCsIRLLine.h"
 #include "TMath.h"
 #include "KVIdentificationResult.h"
 
-ClassImp(KVIDCsI)
+ClassImp(KVIDINDRACsI)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//KVIDCsI
+//KVIDINDRACsI
 //
 //Identification in CsI R-L matrices of INDRA
 //
 //Identification subcodes are written in bits 0-3 of KVIDSubCodeManager
 //(see KVINDRACodes). They correspond to the values of KVIDGCsI::GetQualityCode()
 //(see KVIDGCsI class description).
-KVIDCsI::KVIDCsI()
+KVIDINDRACsI::KVIDINDRACsI()
 {
    fIDCode = kIDCode_CsI;
    fZminCode = kIDCode_ZminCsI;
@@ -45,13 +43,13 @@ KVIDCsI::KVIDCsI()
    SetHasMassID(kTRUE);
 }
 
-KVIDCsI::~KVIDCsI()
+KVIDINDRACsI::~KVIDINDRACsI()
 {
 }
 
 //________________________________________________________________________________________//
 
-const Char_t* KVIDCsI::GetArrayName()
+const Char_t* KVIDINDRACsI::GetArrayName()
 {
    // Name of telescope given in the form CSI_R_L_Ring-numberTelescope-number
    //where ring and telescope numbers are those of the smallest (in angular terms)
@@ -74,7 +72,7 @@ const Char_t* KVIDCsI::GetArrayName()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
+Bool_t KVIDINDRACsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
    //Particle identification and code setting using identification grid KVIDGCsI* fGrid.
 
@@ -99,7 +97,7 @@ Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 
 //____________________________________________________________________________________
 
-Double_t KVIDCsI::GetIDMapX(Option_t*)
+Double_t KVIDINDRACsI::GetIDMapX(Option_t*)
 {
    //X-coordinate for CsI identification map is raw "L" coder value
    return (Double_t) fCsI->GetACQData("L");
@@ -107,7 +105,7 @@ Double_t KVIDCsI::GetIDMapX(Option_t*)
 
 //____________________________________________________________________________________
 
-Double_t KVIDCsI::GetIDMapY(Option_t*)
+Double_t KVIDINDRACsI::GetIDMapY(Option_t*)
 {
    //Y-coordinate for CsI identification map is raw "R" coder value
    return (Double_t) fCsI->GetACQData("R");
@@ -116,7 +114,7 @@ Double_t KVIDCsI::GetIDMapY(Option_t*)
 //____________________________________________________________________________________
 
 
-void KVIDCsI::Initialize()
+void KVIDINDRACsI::Initialize()
 {
    // Initialisation of telescope before identification.
    // This method MUST be called once before any identification is attempted.

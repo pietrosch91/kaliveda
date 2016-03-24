@@ -21,7 +21,7 @@
 #pragma link C++ class KVIDChIoSi_e475s+;
 #pragma link C++ class KVIDChIoCsI_e475s+;
 #pragma link C++ class KVIDCsI_e475s+;
-#pragma link C++ class KVIDCsI+;
+#pragma link C++ class KVIDINDRACsI+;
 #pragma link C++ class KVIDPhoswich+;
 #pragma link C++ class KVIDChIoCsI+;
 #pragma link C++ class KVIDSi150CsI_camp5+;

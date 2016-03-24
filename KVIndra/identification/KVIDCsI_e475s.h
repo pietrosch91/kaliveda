@@ -10,9 +10,9 @@ $Date: 2008/07/08 12:41:56 $
 #ifndef __KVIDCSI_E475S_H
 #define __KVIDCSI_E475S_H
 
-#include "KVIDCsI.h"
+#include "KVIDINDRACsI.h"
 
-class KVIDCsI_e475s : public KVIDCsI {
+class KVIDCsI_e475s : public KVIDINDRACsI {
 
 public:
    KVIDCsI_e475s();

@@ -22,6 +22,7 @@
 #pragma link C++ class KVElasticScatterEvent+;
 #pragma link C++ class KVReconstructedEvent-;//customised streamer
 #pragma link C++ class KVIDTelescope+;
+#pragma link C++ class KVIDCsI+;
 #ifdef WITH_FITLTG
 #pragma link C++ class KVRTGIDManager+;
 #endif

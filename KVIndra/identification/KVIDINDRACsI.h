@@ -1,5 +1,5 @@
 /***************************************************************************
-                          KVIDCsI.h  -  description
+                          KVIDINDRACsI.h  -  description
                              -------------------
     begin                : Fri Feb 20 2004
     copyright            : (C) 2004 by J.D. Frankland
@@ -15,21 +15,21 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef KVIDCsI_H
-#define KVIDCsI_H
+#ifndef KVIDINDRACsI_H
+#define KVIDINDRACsI_H
 
 #include "KVINDRAIDTelescope.h"
 #include "KVIDGCsI.h"
 
-class KVIDCsI: public KVINDRAIDTelescope {
+class KVIDINDRACsI: public KVINDRAIDTelescope {
 
    KVIDGCsI* CsIGrid;//! telescope's grid
    KVDetector* fCsI;//!
 
 public:
 
-   KVIDCsI();
-   virtual ~ KVIDCsI();
+   KVIDINDRACsI();
+   virtual ~ KVIDINDRACsI();
 
    const Char_t* GetArrayName();
 
@@ -48,7 +48,7 @@ public:
       return (Z < 5);
    }
 
-   ClassDef(KVIDCsI, 3)        //INDRA identification using CsI R-L matrices
+   ClassDef(KVIDINDRACsI, 3)        //INDRA identification using CsI R-L matrices
 };
 
 #endif

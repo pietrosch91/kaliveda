@@ -477,30 +477,50 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndradb    "KVIND
 # then we add also an instance of this 1-detector identification telescope.
 #
 # NOTE: the '^' and '$' around each URI are just for the ROOT RegExp interpreter
-#
-Plugin.KVIDTelescope:      ^PHOS$                  KVIDPhoswich         KVIndraidentification         "KVIDPhoswich()"
-+Plugin.KVIDTelescope:   ^CSI$                     KVIDCsI              KVIndraidentification         "KVIDCsI()"
+# NOTE2: any dataset-specific plugin must come before the general one (i.e. "^.*INDRA.*\....")
+
+# phoswich
++Plugin.KVIDTelescope:     ^.*INDRA.*\.PHOS$        KVIDPhoswich         KVIndraidentification         "KVIDPhoswich()"
+
+# csi
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CSI$        KVIDCsI_e475s        KVIndraidentification      "KVIDCsI_e475s()"
-+Plugin.KVIDTelescope:    ^SI-CSI$                 KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
+
+# si-csi
 +Plugin.KVIDTelescope:    ^INDRA_camp5.SI-CSI$     KVIDSiCsI5           KVIndraidentification      "KVIDSiCsI5()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$  KVIDSi150CsI_camp5   KVIndraidentification        "KVIDSi150CsI_camp5()"
-+Plugin.KVIDTelescope:    ^SILI-CSI$               KVIDSiLiCsI          KVIndraidentification         "KVIDSiLiCsI()"
-+Plugin.KVIDTelescope:    ^SI75-SILI$              KVIDSi75SiLi         KVIndraidentification         "KVIDSi75SiLi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$  KVIDSi75SiLi_camp5   KVIndraidentification         "KVIDSi75SiLi_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SILI-CSI$   KVIDSiLiCsI_camp5    KVIndraidentification         "KVIDSiLiCsI_camp5()"
-+Plugin.KVIDTelescope:     ^CI-SI$                 KVIDChIoSi           KVIndraidentification         "KVIDChIoSi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$      KVIDChIoSi5          KVIndraidentification      "KVIDChIoSi5()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$      KVIDChIoSi_e475s     KVIndraidentification      "KVIDChIoSi_e475s()"
-+Plugin.KVIDTelescope:     ^CI-SI75$               KVIDChIoSi75         KVIndraidentification         "KVIDChIoSi75()"
-+Plugin.KVIDTelescope:     ^CI-SILI$               KVIDChIoSiLi         KVIndraidentification         "KVIDChIoSiLi()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$    KVIDChIoSi75_camp5   KVIndraidentification      "KVIDChIoSi75_camp5()"
-+Plugin.KVIDTelescope:      ^CI-CSI$               KVIDChIoCsI          KVIndraidentification            "KVIDChIoCsI()"
-+Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$   KVIDChIoCsI_camp5    KVIndraidentification         "KVIDChIoCsI_camp5()"
-+Plugin.KVIDTelescope:      ^BIC-SIB$              KVIDBlocking         KVIndraidentification     "KVIDBlocking()"
-+Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$     KVIDChIoCsI_e475s    KVIndraidentification      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$     KVIDSiCsI_e475s      KVIndraidentification      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$      KVIDSiCsI_e613       KVIndraidentification      "KVIDSiCsI_e613()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$  KVIDSi150CsI_camp5   KVIndraidentification        "KVIDSi150CsI_camp5()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
+
+# sili-csi
++Plugin.KVIDTelescope:    ^INDRA_camp5.SILI-CSI$   KVIDSiLiCsI_camp5    KVIndraidentification         "KVIDSiLiCsI_camp5()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.SILI-CSI$     KVIDSiLiCsI          KVIndraidentification         "KVIDSiLiCsI()"
+
+# si75-sili
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$  KVIDSi75SiLi_camp5   KVIndraidentification         "KVIDSi75SiLi_camp5()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.SI75-SILI$    KVIDSi75SiLi         KVIndraidentification         "KVIDSi75SiLi()"
+
+# chio-si
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$      KVIDChIoSi5          KVIndraidentification      "KVIDChIoSi5()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$      KVIDChIoSi_e475s     KVIndraidentification      "KVIDChIoSi_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.CI-SI$       KVIDChIoSi_e613      KVIndraidentification      "KVIDChIoSi_e613()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.CI-SI$        KVIDChIoSi           KVIndraidentification         "KVIDChIoSi()"
+
+# chio-si75
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$    KVIDChIoSi75_camp5   KVIndraidentification      "KVIDChIoSi75_camp5()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.CI-SI75$      KVIDChIoSi75         KVIndraidentification         "KVIDChIoSi75()"
+
+# chio-sili (???)
++Plugin.KVIDTelescope:    ^.*INDRA.*\.CI-SILI$      KVIDChIoSiLi         KVIndraidentification         "KVIDChIoSiLi()"
+
+# chio-csi
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-CSI$     KVIDChIoCsI_camp5    KVIndraidentification         "KVIDChIoCsI_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$     KVIDChIoCsI_e475s    KVIndraidentification      "KVIDChIoCsI_e475s()"
++Plugin.KVIDTelescope:    ^.*INDRA.*\.CI-CSI$       KVIDChIoCsI          KVIndraidentification            "KVIDChIoCsI()"
+
+# blocking telescope
++Plugin.KVIDTelescope:      ^BIC-SIB$              KVIDBlocking         KVIndraidentification     "KVIDBlocking()"
 
 
 #======================= Identification parameter files for different datasets
