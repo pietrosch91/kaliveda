@@ -5,11 +5,13 @@
 #define __KVMultiDetArray_H
 
 #include "KVGeoStrucElement.h"
-#include "KVHashList.h"
+#include "KVUniqueNameList.h"
 #include "TGraph.h"
 #include "TGeoManager.h"
 #include "KVNucleus.h"
 #include "KVDetector.h"
+
+#include <KVGeoDNTrajectory.h>
 
 class KVIDGraph;
 class KVTarget;
@@ -59,13 +61,13 @@ protected:
 
    Bool_t fSimMode;             //!=kTRUE in "simulation mode" (use for calculating response to simulated events)
 
-   Bool_t fROOTGeometry;//!=kTRUE if ROOT TGeo geometry and algorithms used for tracking/filtering
+   Bool_t fROOTGeometry;//!=kTRUE use ROOT geometry
 
    Int_t fFilterType;//! type of filtering (used by DetectEvent)
 
    KVRangeTableGeoNavigator* fNavigator;//! for propagating particles through array geometry
 
-   KVHashList fTrajectories;//! list of all possible trajectories through detectors of array
+   KVUniqueNameList fTrajectories;//! list of all possible trajectories through detectors of array
 
    virtual void RenumberGroups();
    virtual void BuildGeometry()
@@ -94,9 +96,13 @@ protected:
    virtual void SetPresent(KVDetector* det, Bool_t present = kTRUE);
    virtual void SetDetecting(KVDetector* det, Bool_t detecting = kTRUE);
 
-   void CalculateTrajectories();
    void CalculateReconstructionTrajectories();
    void DeduceIdentificationTelescopesFromGeometry();
+   void AddTrajectory(KVGeoDNTrajectory* d)
+   {
+      fTrajectories.Add(d);
+   }
+   void AssociateTrajectoriesAndNodes();
 
 public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)

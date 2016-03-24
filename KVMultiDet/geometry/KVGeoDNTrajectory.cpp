@@ -22,7 +22,8 @@ ClassImp(KVGeoDNTrajectory)
 // detector in a stack and moves towards the target.
 //
 // NAME, NUMBER & TITLE
-// GetName()   - The name of each trajectory is "GDNTraj_x" where x is the unique number of the trajectory.
+// GetName()   - The name of each trajectory is "DET1/DET2/DET3/..." made up from the names of the
+//               detectors/nodes on the trajectory.
 // GetNumber() - The unique number of the trajectory.
 // GetTitle()  - The title of each trajectory is "DET1/DET2/DET3/..." made up from the names of the
 //               detectors/nodes on the trajectory.
@@ -60,22 +61,22 @@ ClassImp(KVGeoDNTrajectory)
 
 Int_t KVGeoDNTrajectory::fGDNTrajNumber = 0;
 
-KVGeoDNTrajectory::KVGeoDNTrajectory() : fNodes(3, 0), fIDTelescopes(kFALSE), fAddToNodes(kTRUE)
+KVGeoDNTrajectory::KVGeoDNTrajectory() : fNodes(3, 0), fIDTelescopes(kFALSE), fPathInTitle(kTRUE), fAddToNodes(kTRUE)
 {
    // Default constructor
    init();
 }
 //______________________
-KVGeoDNTrajectory::KVGeoDNTrajectory(KVGeoDetectorNode* node) : fNodes(3, 0), fIDTelescopes(kFALSE), fAddToNodes(kTRUE)
-
+KVGeoDNTrajectory::KVGeoDNTrajectory(KVGeoDetectorNode* node)
+   : fNodes(3, 0), fIDTelescopes(kFALSE), fPathInTitle(kTRUE), fAddToNodes(kTRUE)
 {
    // Create a new trajectory starting from node
-   AddFirst(node);
+   AddLast(node);
    init();
 }
 //______________________
 KVGeoDNTrajectory::KVGeoDNTrajectory(const KVGeoDNTrajectory& obj)
-   : KVBase(), fNodes(3, 0), fIDTelescopes(kFALSE), fAddToNodes(kTRUE)
+   : KVBase(), fNodes(3, 0), fIDTelescopes(kFALSE), fPathInTitle(kTRUE), fAddToNodes(kTRUE)
 {
    //copy ctor
    obj.Copy(*this);
@@ -103,7 +104,8 @@ void KVGeoDNTrajectory::init()
 {
    fIter_idx = fIter_idx_sav = -1;
    ++fGDNTrajNumber;
-   SetName(Form("GDNTraj_%d", fGDNTrajNumber));
+   if (fPathInTitle) SetName(Form("GDNTraj_%d", fGDNTrajNumber));
+   else SetTitle(Form("GDNTraj_%d", fGDNTrajNumber));
    SetNumber(fGDNTrajNumber);
 }
 
@@ -112,6 +114,7 @@ void KVGeoDNTrajectory::rebuild_title()
    // called every time a new node is added to the trajectory
    // to update the title with the new node name
    // Dynamically constructed title: DET1/DET2/DET3/...
+   // if fPathInTitle = kFALSE, we change the name not the title
 
    TString t;
    TIter next(&fNodes);
@@ -120,7 +123,8 @@ void KVGeoDNTrajectory::rebuild_title()
       t += n->GetName();
       t += "/";
    }
-   SetTitle(t);
+   if (fPathInTitle) SetTitle(t);
+   else SetName(t);
 }
 
 void KVGeoDNTrajectory::Copy(TObject& obj) const
@@ -129,14 +133,49 @@ void KVGeoDNTrajectory::Copy(TObject& obj) const
    KVGeoDNTrajectory& CastedObj = (KVGeoDNTrajectory&)obj;
    TIter next(&fNodes);
    KVGeoDetectorNode* node;
-   while ((node = (KVGeoDetectorNode*)next())) CastedObj.AddLast(node);
    CastedObj.fAddToNodes = fAddToNodes;
+   while ((node = (KVGeoDetectorNode*)next())) CastedObj.AddLast(node);
    fIDTelescopes.Copy(CastedObj.fIDTelescopes);
+   CastedObj.fPathInTitle = fPathInTitle;
 }
 
 KVGeoDNTrajectory& KVGeoDNTrajectory::operator=(const KVGeoDNTrajectory& t)
 {
-   t.Copy(*this);
+   if (&t != this) t.Copy(*this);
    return (*this);
+}
+
+void KVGeoDNTrajectory::Clear(Option_t*)
+{
+   // Clear list of nodes in trajectory
+
+   fNodes.Clear();
+   fIter_idx = fIter_idx_sav = -1;
+   if (fPathInTitle) SetTitle("");
+   else SetName("");
+}
+
+void KVGeoDNTrajectory::ReverseOrder()
+{
+   // Reverse the order of the nodes in the trajectory
+
+   int idx = fNodes.GetEntries();
+   TObjArray tmp(idx);
+   int N = idx;
+   TIter it(&fNodes);
+   KVGeoDetectorNode* node;
+   while ((node = (KVGeoDetectorNode*)it())) tmp.AddAt(node, --idx);
+   fNodes.Clear();
+   for (idx = 0; idx < N; ++idx) fNodes.AddAt(tmp[idx], idx);
+   rebuild_title();
+}
+
+void KVGeoDNTrajectory::AddToNodes()
+{
+   // Add reference to this trajectory to all nodes on it
+
+   IterateFrom();
+   KVGeoDetectorNode* node;
+   while ((node = GetNextNode())) node->AddTrajectory(this);
 }
 

@@ -26,8 +26,6 @@ void KVExpSetUp::init()
    //modification of the owner mode compare to Mother classes
    fStructures.SetOwner(kFALSE);
    fIDTelescopes->SetOwner(kFALSE);
-
-   gMultiDetArray = this;
 }
 
 
@@ -47,6 +45,10 @@ KVExpSetUp::~KVExpSetUp()
 void KVExpSetUp::Build(Int_t)
 {
    // Build the combined arrays
+
+   // default ROOT geometry for all arrays
+   gEnv->SetValue("KVMultiDetArray.ROOTGeometry", "yes");
+
    CreateGeoManager();
 
    Info("Build", "navigator=%p", GetNavigator());
@@ -54,18 +56,16 @@ void KVExpSetUp::Build(Int_t)
    KVRangeTableGeoNavigator* gnl = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
    SetNavigator(gnl);
 
-   //KVGeoNavigator* nav = 0;
-   KVMultiDetArray* tmp = 0;
+   KVMultiDetArray* tmp(nullptr);
    lmultidetarrayclasses =
       gDataSetManager->GetDataSet(fDataSet)->GetDataSetEnv("DataSet.ExpSetUp.ClassList", IsA()->GetName());
    lmultidetarrayclasses.Begin(" ");
    while (!lmultidetarrayclasses.End()) {
       KVString sname = lmultidetarrayclasses.Next();
       Info("Build", "Build %s %s\n", gDataSet->GetName(), sname.Data());
+      gMultiDetArray = nullptr; //otherwise MakeMultiDetector will delete any previously built array
       tmp = MakeMultiDetector(gDataSet->GetName(), -1, sname.Data());
       if (tmp) {
-         // make sure array is using ROOT geometry
-         tmp->CheckROOTGeometry();
 
          fMDAList.Add(tmp);
          fDetectors.AddAll((KVUniqueNameList*)tmp->GetDetectors());

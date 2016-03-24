@@ -59,6 +59,7 @@ ClassImp(KVMultiDetArray)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVMultiDetArray::KVMultiDetArray()
+   : KVGeoStrucElement(), fTrajectories(kTRUE)
 {
    // Default constructor
    init();
@@ -97,7 +98,7 @@ void KVMultiDetArray::init()
    fCalibStatusDets = 0;
    fSimMode = kFALSE;
 
-   fROOTGeometry = gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", kTRUE);
+   fROOTGeometry = gEnv->GetValue("KVMultiDetArray.ROOTGeometry", kTRUE);
    fFilterType = kFilterType_Full;
 
 //   fGeoManager = 0;
@@ -383,8 +384,16 @@ void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelesc
    } else {
       idt->SetGroup(e->GetGroup());
    }
-   fIDTelescopes->Add(idt);
-   l->Add(idt);
+   // if telescope already exists, we delete this new version and add a reference to
+   // the original into list l
+   KVIDTelescope* p = (KVIDTelescope*)fIDTelescopes->FindObject(idt->GetName());
+   if (p) {
+      l->Add(p);
+      delete idt;
+   } else {
+      fIDTelescopes->Add(idt);
+      l->Add(idt);
+   }
 }
 
 void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt, TCollection* l)
@@ -393,8 +402,16 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelesco
 
    idt->AddDetector(det);
    idt->SetGroup(det->GetGroup());
-   fIDTelescopes->Add(idt);
-   l->Add(idt);
+   // if telescope already exists, we delete this new version and add a reference to
+   // the original into list l
+   KVIDTelescope* p = (KVIDTelescope*)fIDTelescopes->FindObject(idt->GetName());
+   if (p) {
+      l->Add(p);
+      delete idt;
+   } else {
+      fIDTelescopes->Add(idt);
+      l->Add(idt);
+   }
 }
 //______________________________________________________________________________________
 void KVMultiDetArray::CreateIDTelescopesInGroups()
@@ -1605,8 +1622,11 @@ void KVMultiDetArray::SetPedestals(const Char_t* filename)
 KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, Int_t run, TString classname)
 {
    //Static function which will create and 'Build' the multidetector object corresponding to
-   //a given run of dataset 'dataset_name'
-   //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
+   //a given run of dataset 'dataset_name'. Any previously existing multidetector will be
+   //deleted.
+   //We first activate the given dataset if not already done
+   //
+   //Multidetector arrays are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
    //
    //Plugin.KVMultiDet:    [dataset_name]    [classname]     [library]    "[constructor]()"
    //
@@ -1614,28 +1634,38 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
    //
    //Dataset name is stored in fDataSet
 
-   //check and load plugin library
-
-   if (run != -1) {
-      if (gMultiDetArray) {
-         printf("MakeMultiDetector - gMultiDetArray existe deja on l efface\n");
-         delete gMultiDetArray;
-         gMultiDetArray = 0;
-         if (gIDGridManager) {
-            delete gIDGridManager;
-            gIDGridManager = 0;
-         }
+   if (gMultiDetArray) {
+      printf("Info in <KVMultiDetArray::MakeMultiDetector>: Deleting existing array %s\n", gMultiDetArray->GetName());
+      delete gMultiDetArray;
+      gMultiDetArray = nullptr;
+      if (gIDGridManager) {
+         delete gIDGridManager;
+         gIDGridManager = nullptr;
       }
    }
-   TPluginHandler* ph;
-   if (!(ph = LoadPlugin(classname.Data(), dataset_name)))
-      return 0;
+   if (!gDataSet || gDataSet != gDataSetManager->GetDataSet(dataset_name))
+      gDataSetManager->GetDataSet(dataset_name)->cd();
 
-   //execute constructor/macro for multidetector - assumed without arguments
-   KVMultiDetArray* mda = (KVMultiDetArray*) ph->ExecPlugin(0);
+   // Creation of database when dataset is selected for first time may
+   // include creation of multidetector array (by calling this method)
+   KVMultiDetArray* mda = nullptr;
+   if (!gMultiDetArray) {
+      TPluginHandler* ph;
+      if (!(ph = LoadPlugin(classname.Data(), dataset_name)))
+         return nullptr;
 
-   mda->fDataSet = dataset_name;
-   mda->Build(run);
+      //execute constructor/macro for multidetector - assumed without arguments
+      mda = (KVMultiDetArray*) ph->ExecPlugin(0);
+
+      mda->fDataSet = dataset_name;
+      mda->Build(run);
+      // if ROOT geometry is requested by default (KVMultiDetArray.ROOTGeometry: yes)
+      if (mda->fROOTGeometry) mda->CheckROOTGeometry();
+   } else {
+      mda = gMultiDetArray;
+      // database creation may not have set the right run
+      if (run > -1) mda->SetParameters(run);
+   }
    return mda;
 }
 
@@ -2582,43 +2612,6 @@ void KVMultiDetArray::SetDetectorTransparency(Char_t t)
    while ((vol = (TGeoVolume*)itV())) vol->SetTransparency(t);
 }
 
-void KVMultiDetArray::CalculateTrajectories()
-{
-   // Loop over all detectors of array
-   // For each detector with no detectors behind it (i.e. furthest from target)
-   // we call KVGeoDetectorNode::BuildTrajectoriesForwards
-   // in order to create all possible particle trajectories through detectors
-   // used in particle reconstruction
-   // Detectors for which trajectories are already defined are skipped
-   // Then we calculate all trajectories for reconstructed particles
-   // i.e. for each trajectory we calculate (sub-)trajectories beginning
-   // from each node in the trajectory, corresponding to particles stopping in
-   // different detectors on the trajectory
-
-   fTrajectories.Clear();
-   TIter next(GetDetectors());
-   KVDetector* d;
-   Int_t count = 0;
-   Info("CalculateTrajectories", "Calculating all possible trajectories:");
-   std::cout << "\xd" << " -- calculated " << count << " trajectories" << std::flush;
-   while ((d = (KVDetector*)next())) {
-
-      if (!d->GetNode()->GetNDetsBehind() && !d->GetNode()->GetTrajectories()) {
-         TList trajs;
-         d->GetNode()->BuildTrajectoriesForwards(&trajs);
-         Int_t nt;
-         if ((nt = trajs.GetEntries())) {
-            fTrajectories.AddAll(&trajs);
-            d->GetGroup()->AddTrajectories(&trajs);
-            count += nt;
-            std::cout << "\xd" << " -- calculated " << count << " trajectories" << std::flush;
-         }
-      }
-   }
-   std::cout << std::endl;
-
-}
-
 void KVMultiDetArray::CalculateReconstructionTrajectories()
 {
    // Calculate all possible (sub-)trajectories
@@ -2666,4 +2659,41 @@ void KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry()
       }
    }
    std::cout << std::endl;
+}
+
+void KVMultiDetArray::AssociateTrajectoriesAndNodes()
+{
+   // Eliminate any trajectories which are just sub-trajectories of others
+   // For each trajectory in list fTrajectories, we add a reference to the trajectory to each node on the trajectory
+   // We also fill the trajectory list of each group
+
+   TIter it(&fTrajectories);
+   KVGeoDNTrajectory* tr;
+   KVList duplicates;
+   // look for duplicate sub-trajectories
+   while ((tr = (KVGeoDNTrajectory*)it())) {
+      int len_tr = tr->GetN();
+      TIter it2(&fTrajectories);
+      KVGeoDNTrajectory* tr2;
+      while ((tr2 = (KVGeoDNTrajectory*)it2())) {
+         if ((tr2 != tr) && (len_tr < tr2->GetN()) && (tr2->ContainsPath(tr))) {
+            duplicates.Add(tr);
+            break;
+         }
+      }
+   }
+   // remove duplicates
+   if (duplicates.GetEntries()) {
+      TIter it_dup(&duplicates);
+      while ((tr = (KVGeoDNTrajectory*)it_dup())) {
+         fTrajectories.Remove(tr);
+      }
+      Info("AssociateTrajectoriesAndNodes", "Removed %d duplicated sub-trajectories", duplicates.GetEntries());
+   }
+   Info("AssociateTrajectoriesAndNodes", "Calculated %d particle trajectories", fTrajectories.GetEntries());
+   it.Reset();
+   while ((tr = (KVGeoDNTrajectory*)it())) {
+      tr->AddToNodes();
+      tr->GetNodeAt(0)->GetDetector()->GetGroup()->AddTrajectory(tr);
+   }
 }

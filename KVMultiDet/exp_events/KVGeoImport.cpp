@@ -71,6 +71,8 @@ KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray* m,
    // the required links between the geometry and the existing array detectors
    fArray = m;
    fRangeTable = r;
+   fCurrentTrajectory.SetAddToNodes(kFALSE);
+   fCurrentTrajectory.SetPathInTitle(kFALSE);
 }
 
 KVGeoImport::~KVGeoImport()
@@ -115,6 +117,7 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus*)
    if (fLastDetector && detector != fLastDetector && !group_inconsistency) {
       fLastDetector->GetNode()->AddBehind(detector);
       detector->GetNode()->AddInFront(fLastDetector);
+      fCurrentTrajectory.AddLast(fLastDetector->GetNode());
    }
    fLastDetector = detector;
 }
@@ -161,7 +164,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
    KVDetector* d;
    while ((d = (KVDetector*)next())) d->GetNode()->RehashLists();
    // set up all detector node trajectories
-   fArray->CalculateTrajectories();
+   fArray->AssociateTrajectoriesAndNodes();
 
    if (fCreateArray) {
       fArray->SetGeometry(GetGeometry());
@@ -184,6 +187,31 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
 void KVGeoImport::SetLastDetector(KVDetector* d)
 {
    fLastDetector = d;
+}
+
+void KVGeoImport::PropagateParticle(KVNucleus* nuc, TVector3* TheOrigin)
+{
+   // Override KVGeoNavigator method
+   // We build the list of all trajectories through the array
+
+   fCurrentTrajectory.Clear();
+
+   KVGeoNavigator::PropagateParticle(nuc, TheOrigin);
+
+   if (fLastDetector && fLastDetector->GetNode()) {
+      if (fCurrentTrajectory.GetN()) {
+         if (!fCurrentTrajectory.Contains(fLastDetector->GetNode())) {
+            fCurrentTrajectory.AddLast(fLastDetector->GetNode());
+         }
+         fCurrentTrajectory.ReverseOrder();
+      } else {
+         fCurrentTrajectory.AddLast(fLastDetector->GetNode());
+      }
+      if (!fArray->GetTrajectories()->FindObject(fCurrentTrajectory.GetName())) {
+         KVGeoDNTrajectory* tr = new KVGeoDNTrajectory(fCurrentTrajectory);
+         fArray->AddTrajectory(tr);
+      }
+   }
 }
 
 KVDetector* KVGeoImport::GetCurrentDetector()

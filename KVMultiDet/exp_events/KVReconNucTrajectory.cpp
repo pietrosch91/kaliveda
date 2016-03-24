@@ -49,7 +49,7 @@ KVReconNucTrajectory::KVReconNucTrajectory(const KVGeoDNTrajectory* tr, const KV
    }
 
    // unique name for fast look-up in hash table
-   SetName(Form("%s_%s", tr->GetName(), n->GetName()));
+   SetName(Form("%s_%s", tr->GetTitle(), n->GetName()));
    tr->RestoreIterationState();
 }
 

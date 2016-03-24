@@ -26,6 +26,7 @@ class KVGeoDNTrajectory : public KVBase {
    mutable Int_t fIter_limit_sav;//! last index for iteration
    mutable Int_t fIter_delta_sav;//! increment/decrement for each iteration
    KVUniqueNameList fIDTelescopes;// list of id telescopes on this trajectory
+   Bool_t fPathInTitle;// true if path is in title, false if path is in name
 
    void rebuild_title();
 
@@ -39,6 +40,13 @@ public:
    virtual ~KVGeoDNTrajectory();
    void Copy(TObject& obj) const;
    KVGeoDNTrajectory& operator=(const KVGeoDNTrajectory&);
+
+   void Clear(Option_t* = "");
+
+   void SetAddToNodes(Bool_t yes = kTRUE)
+   {
+      fAddToNodes = yes;
+   }
 
    KVGeoDetectorNode* GetNode(const Char_t* name) const
    {
@@ -79,13 +87,8 @@ public:
       rebuild_title();
    }
 
-   void AddFirst(KVGeoDetectorNode* n)
-   {
-      // add node to start of trajectory
-      fNodes.AddFirst(n);
-      if (fAddToNodes) n->AddTrajectory(this);
-      rebuild_title();
-   }
+   void ReverseOrder();
+   void AddToNodes();
 
    void ls(Option_t* = "") const
    {
@@ -225,6 +228,36 @@ public:
    Int_t GetNumberOfIdentifications() const
    {
       return fIDTelescopes.GetEntries();
+   }
+   Bool_t ContainsPath(KVGeoDNTrajectory* other)
+   {
+      // Returns kTRUE if this trajectory contains the other trajectory as a sub-trajectory
+      return GetPathString().Contains(other->GetPathString());
+   }
+   TString GetPathString() const
+   {
+      // Returns string containing path of trajectory
+      if (fPathInTitle) return GetTitle();
+      return GetName();
+   }
+   void SetPathInTitle(Bool_t intitle = kTRUE)
+   {
+      // intitle = kTRUE: path in title
+      // intitle = kFALSE: path in name
+      // Any call to this method which changes state of fPathInTitle
+      // will swap the name and title of the object
+
+      if (intitle != fPathInTitle) {
+         TString s = GetName();
+         SetName(GetTitle());
+         SetTitle(s);
+         fPathInTitle = intitle;
+      }
+   }
+   Bool_t IsPathInTitle() const
+   {
+      // returns kTRUE if path is contained in title, kFALSE if in name
+      return fPathInTitle;
    }
 
    ClassDef(KVGeoDNTrajectory, 1) //Path taken by particles through multidetector geometry

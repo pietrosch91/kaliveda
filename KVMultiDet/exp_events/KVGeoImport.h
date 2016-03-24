@@ -5,6 +5,7 @@
 #define __KVGEOIMPORT_H
 
 #include "KVGeoNavigator.h"
+#include "KVGeoDNTrajectory.h"
 class KVMultiDetArray;
 class KVIonRangeTable;
 class KVIonRangeTableMaterial;
@@ -19,6 +20,7 @@ class KVGeoImport : public KVGeoNavigator {
    KVDetector* fLastDetector;
    Bool_t fCreateArray;
    TString fDetectorPlugin;
+   KVGeoDNTrajectory fCurrentTrajectory;
 
    KVDetector* GetCurrentDetector();
    KVDetector* BuildDetector(TString det_name, TGeoVolume* det_vol);
@@ -40,6 +42,7 @@ public:
    {
       fDetectorPlugin = name;
    }
+   void PropagateParticle(KVNucleus*, TVector3* TheOrigin = nullptr);
 
    ClassDef(KVGeoImport, 0) //Import a ROOT geometry into a KVMultiDetArray object
 };
