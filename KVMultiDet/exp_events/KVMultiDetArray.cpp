@@ -36,6 +36,7 @@
 #include "KVUniqueNameList.h"
 #include "KVIonRangeTable.h"
 #include "KVRangeTableGeoNavigator.h"
+#include <KVDataAnalyser.h>
 #include <KVNamedParameter.h>
 #ifdef WITH_OPENGL
 #include <TGLViewer.h>
@@ -2622,12 +2623,17 @@ void KVMultiDetArray::CalculateReconstructionTrajectories()
    KVGroup* group;
    Int_t ntr = 0;
    Info("CalculateReconstructionTrajectories", "Calculating trajectories for particle reconstruction:");
-   std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
+   if (!KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
    while ((group = (KVGroup*)it())) {
       ntr += group->CalculateReconstructionTrajectories();
-      std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
+      if (!KVDataAnalyser::IsRunningBatchAnalysis())
+         std::cout << "\xd" << " -- calculated " << ntr << " reconstruction trajectories" << std::flush;
    }
-   std::cout << std::endl;
+   if (KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << " -- calculated " << ntr << " reconstruction trajectories" << std::endl;
+   else
+      std::cout << std::endl;
 }
 
 void KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry()
@@ -2643,7 +2649,8 @@ void KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry()
    KVGeoDNTrajectory* traj;
    Int_t count = 0;
    Info("DeduceIdentificationTelescopesFromGeometry", "Calculating...");
-   std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
+   if (!KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
    while ((traj = (KVGeoDNTrajectory*)next_traj())) {   // loop over all trajectories
 
       traj->IterateFrom();   // from furthest-out to closest-in detector
@@ -2654,11 +2661,15 @@ void KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry()
 
          if (Nplus1) {
             count += GetIDTelescopes(Nplus1->GetDetector(), N->GetDetector(), traj->AccessIDTelescopeList());
-            std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
+            if (!KVDataAnalyser::IsRunningBatchAnalysis())
+               std::cout << "\xd" << " -- created " << count << " telescopes" << std::flush;
          }
       }
    }
-   std::cout << std::endl;
+   if (KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << " -- created " << count << " telescopes" << std::endl;
+   else
+      std::cout << std::endl;
 }
 
 void KVMultiDetArray::AssociateTrajectoriesAndNodes()

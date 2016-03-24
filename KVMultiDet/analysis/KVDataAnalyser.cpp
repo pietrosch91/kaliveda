@@ -1638,3 +1638,13 @@ void KVDataAnalyser::RunAnalyser(const Char_t* uri)
    delete datan;
 }
 
+Bool_t KVDataAnalyser::IsRunningBatchAnalysis()
+{
+   // Static method KVDataAnalyser::IsRunningBatchAnalysis()
+   // Returns kTRUE if an analysis task is being performed in batch mode
+   // Returns kFALSE if no analysis task is in interactive mode, or no analysis task running
+
+   if (gDataAnalyser) return (gDataAnalyser->BatchMode() && gDataAnalyser->fBatchSystem);
+   return kFALSE;
+}
+

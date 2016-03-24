@@ -12,6 +12,7 @@
 #include <TGeoPhysicalNode.h>
 #include <KVRangeTableGeoNavigator.h>
 #include <KVNamedParameter.h>
+#include <KVDataAnalyser.h>
 
 ClassImp(KVGeoImport)
 
@@ -142,7 +143,8 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
    Info("ImportGeometry",
         "Importing geometry in angular ranges : Theta=[%f,%f:%f] Phi=[%f,%f:%f]", ThetaMin, ThetaMax, dTheta, PhiMin, PhiMax, dPhi);
    Int_t count = 0;
-   std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
+   if (!KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
    for (Double_t theta = ThetaMin; theta <= ThetaMax; theta += dTheta) {
       for (Double_t phi = PhiMin; phi <= PhiMax; phi += dPhi) {
          nuc->SetTheta(theta);
@@ -151,10 +153,14 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
          fLastDetector = nullptr;
          PropagateEvent(evt.get());
          count++;
-         std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
+         if (!KVDataAnalyser::IsRunningBatchAnalysis())
+            std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
       }
    }
-   std::cout << std::endl;
+   if (KVDataAnalyser::IsRunningBatchAnalysis())
+      std::cout << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::endl;
+   else
+      std::cout << std::endl;
 
    Info("ImportGeometry",
         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries() - ndets0);
