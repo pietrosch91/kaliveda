@@ -530,45 +530,42 @@ void KVParticle::ListGroups(void) const
 //___________________________________________________________________________//
 KVParticle* KVParticle::GetFrame(const Char_t* frame)
 {
-   //Return the momentum of the particle in the Lorentz-boosted frame corresponding to the name
-   //"frame" given as argument (see SetFrame() for definition of different frames).
+   // Return the momentum of the particle in the Lorentz-boosted frame corresponding to the name
+   // "frame" given as argument (see SetFrame() for definition of different frames).
    //
-   //The returned pointer corresponds to a "pseudoparticle" in the desired frame,
-   //therefore you can use any KVParticle method in order to access the kinematics of the
-   //particle in the boosted frame, e.g.
+   // WARNING: if "frame" does not correspond exactly to the name of a frame previously created with
+   //          SetFrame() - upper & lower case names are not considered the same - then we
+   //          return a pointer to the particle itself: in other words, you will be dealing with
+   //          the kinematics of the particle in its default (usually laboratory) frame.
+   //
+   // The returned pointer corresponds to a "pseudoparticle" in the desired frame,
+   // therefore you can use any KVParticle method in order to access the kinematics of the
+   // particle in the boosted frame, e.g.
    //
    //      (...supposing a valid pointer KVParticle* my_part...)
    //      my_part->GetFrame("cm_frame")->GetVpar();// //el velocity in "cm_frame"
    //      my_part->GetFrame("QP_frame")->GetTheta();// polar angle in "QP_frame"
    //      etc. etc.
-   //
-   //If frame="", or if the frame is unknown, this just returns a pointer to the particle
-   //i.e. you will access the particle's "default" frame, which usually corresponds to the
-   //'laboratory' or 'detector' frame.
 
-   if (!fBoosted.GetEntries() || !strcmp(frame, ""))
+   if (!fBoosted.GetEntries() || !strcmp(frame, "")) {
+      // no frames defined or no frame name given
       return this;
-
-   KVParticle* f = (KVParticle*) fBoosted.FindObjectWithMethod(frame, "GetFrameName");
-   if (!f) {
-      //Warning("GetFrame","Frame %s does not defined for this particle",frame);
-      return this;
-   } else {
-      return f;
    }
+   TIter it(&fBoosted);
+   KVParticle* f;
+   while ((f = (KVParticle*)it())) if (!strcmp(frame, f->GetFrameName())) break;
+   if (!f) {
+      return this;
+   }
+   return f;
 }
 
 //___________________________________________________________________________//
 Bool_t KVParticle::HasFrame(const Char_t* frame)
 {
-   //Check if a given frame has been defined
+   // Check if a given frame has been defined
 
-   if (!fBoosted.GetEntries() || !strcmp(frame, "")) {
-      return kFALSE;
-   }
-   KVParticle* f = (KVParticle*) fBoosted.FindObjectWithMethod(frame, "GetFrameName");
-
-   return (f ? kTRUE : kFALSE);
+   return (GetFrame(frame) != this);
 }
 
 //___________________________________________________________________________//
