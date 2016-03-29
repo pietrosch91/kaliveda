@@ -649,8 +649,10 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
          Error("DetectEvent", "ROOT geometry is requested, but has not been set: gGeoManager=0x0");
          return;
       }
-      // set up geometry navigator
-      if (!fNavigator) fNavigator = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
+      if (!fNavigator) {
+         Error("DetectEvent", "Using ROOT geometry, but no navigator exists");
+         return;
+      }
       if (fNavigator->IsTracking()) {
          // clear any tracks created by last event
          gGeoManager->ClearTracks();
@@ -907,7 +909,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                } //fin du cas ou la trajectoire est coherente avec la geometrie
             } //fin du cas ou la particule a touche un detecteur au sens large
          } //fin de la condition (FilterType == kFilterType_Geo) || _part->GetKE()>1.e-3
-      } // Fin du cas ou une particule avec une �nergie cin�tique est sortie d'une �ventuelle cible
+      } // Fin du cas ou une particule avec une energie cinetique est sortie d'une eventuelle cible
 
       //On enregistre l eventuelle perte dans la cible
       if (fTarget)
@@ -1472,9 +1474,9 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* f
    }
    else {
       //loop over groups
-      TSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+      unique_ptr<KVSeqCollection> fGroups(GetStructures()->GetSubListWithType("GROUP"));
 
-      TIter next_grp(fGroups);
+      TIter next_grp(fGroups.get());
       KVGroup* grp;
       while ((grp = (KVGroup*) next_grp())) {
          if (grp->Fired()) {
@@ -1484,7 +1486,6 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* f
             detev->AddGroup(grp);
          }
       }
-      delete fGroups;
    }
 }
 
@@ -2945,3 +2946,14 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    return ok;
 }
 #endif
+
+void KVMultiDetArray::CalculateIdentificationGrids()
+{
+   // For each IDtelescope in array, calculate an identification grid
+
+   TIter nxtid(GetListOfIDTelescopes());
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*) nxtid())) {
+      idt->CalculateDeltaE_EGrid("1-92", 0, 20);
+   }
+}
