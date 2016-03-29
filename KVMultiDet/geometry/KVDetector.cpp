@@ -625,6 +625,23 @@ void KVDetector::AddIDTelescope(TObject* idt)
    fIDTelescopes->Add(idt);
 }
 
+KVList* KVDetector::GetAlignedIDTelescopes()
+{
+   // Return list of all ID telescopes containing detectors placed in front of
+   // this one.
+
+   // temporary kludge during transition to trajectory-based reconstruction
+   // ROOT-geometry-based detectors will not have fIDTelAlign filled
+   if (!fIDTelAlign->GetEntries()) {
+      const KVGeoDNTrajectory* Rtr = GetGroup()->GetTrajectoryForReconstruction(
+                                        (KVGeoDNTrajectory*)GetNode()->GetTrajectories()->First(),
+                                        GetNode()
+                                     );
+      if (Rtr) fIDTelAlign->AddAll(Rtr->GetIDTelescopes());
+   }
+   return fIDTelAlign;
+}
+
 //___________________________________________________________________________//
 
 TList* KVDetector::GetTelescopesForIdentification()
@@ -635,7 +652,7 @@ TList* KVDetector::GetTelescopesForIdentification()
    if (fIDTele4Ident) return fIDTele4Ident;
    if (!fIDTelescopes || !fIDTelAlign) return 0;
    fIDTele4Ident = new TList;
-   TIter next(fIDTelAlign);
+   TIter next(GetAlignedIDTelescopes());
    TObject* idt;
    while ((idt = next())) {
       if (fIDTelescopes->FindObject(idt)) fIDTele4Ident->Add(idt);

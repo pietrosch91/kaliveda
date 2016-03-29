@@ -294,12 +294,7 @@ public:
       //Return list of IDTelescopes to which detector belongs
       return fIDTelescopes;
    }
-   KVList* GetAlignedIDTelescopes()
-   {
-      //return list of ID telescopes made of this detector
-      //and all aligned detectors placed in front of it
-      return fIDTelAlign;
-   }
+   KVList* GetAlignedIDTelescopes();
    TList* GetTelescopesForIdentification();
 
    inline void IncrementUnidentifiedParticles(Int_t n = 1)

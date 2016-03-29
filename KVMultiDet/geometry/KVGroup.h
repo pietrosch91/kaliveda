@@ -85,9 +85,12 @@ public:
    }
    const KVGeoDNTrajectory* GetTrajectoryForReconstruction(const KVGeoDNTrajectory* t, const KVGeoDetectorNode* n) const
    {
-      TString mapped_name = fReconTrajMap.GetStringValue(Form("%s_%s", t->GetName(), n->GetName()));
-      const KVGeoDNTrajectory* tr = (const KVGeoDNTrajectory*)fReconTraj.FindObject(mapped_name);
-      return tr;
+      if (t && n) {
+         TString mapped_name = fReconTrajMap.GetStringValue(Form("%s_%s", t->GetTitle(), n->GetName()));
+         const KVGeoDNTrajectory* tr = (const KVGeoDNTrajectory*)fReconTraj.FindObject(mapped_name);
+         return tr;
+      }
+      return nullptr;
    }
 
    ClassDef(KVGroup, 1)//Group of detectors having similar angular positions.
