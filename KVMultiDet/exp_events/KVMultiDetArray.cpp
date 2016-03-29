@@ -649,8 +649,10 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
          Error("DetectEvent", "ROOT geometry is requested, but has not been set: gGeoManager=0x0");
          return;
       }
-      // set up geometry navigator
-      if (!fNavigator) fNavigator = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
+      if (!fNavigator) {
+         Error("DetectEvent", "Using ROOT geometry, but no navigator exists");
+         return;
+      }
       if (fNavigator->IsTracking()) {
          // clear any tracks created by last event
          gGeoManager->ClearTracks();
@@ -1470,9 +1472,9 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* f
    }
    else {
       //loop over groups
-      TSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+      unique_ptr<KVSeqCollection> fGroups(GetStructures()->GetSubListWithType("GROUP"));
 
-      TIter next_grp(fGroups);
+      TIter next_grp(fGroups.get());
       KVGroup* grp;
       while ((grp = (KVGroup*) next_grp())) {
          if (grp->Fired()) {
@@ -1482,7 +1484,6 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* f
             detev->AddGroup(grp);
          }
       }
-      delete fGroups;
    }
 }
 
@@ -2619,10 +2620,7 @@ void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
       while (!tel_list.End()) {
          TString tel_name = tel_list.Next();
          KVIDTelescope* idt = GetIDTelescope(tel_name.Data()) ;
-         if (idt) {
-            gr->AddIDTelescope(idt);
-            cout << "Filled " << tel_name.Data() << endl;
-         }
+         if (idt) gr->AddIDTelescope(idt);
       }
    }
 }
@@ -2955,3 +2953,14 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    return ok;
 }
 #endif
+
+void KVMultiDetArray::CalculateIdentificationGrids()
+{
+   // For each IDtelescope in array, calculate an identification grid
+
+   TIter nxtid(GetListOfIDTelescopes());
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*) nxtid())) {
+      idt->CalculateDeltaE_EGrid("1-92", 0, 20);
+   }
+}
