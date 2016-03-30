@@ -82,7 +82,7 @@ private:
    {
       return KVPosition::GetShape();
    }
-   static TString fKVDetectorFiredACQParameterListFormatString;
+   TString fKVDetectorFiredACQParameterListFormatString;//!
 protected:
 
    TString fFName;              //!dynamically generated full name of detector
@@ -115,6 +115,8 @@ protected:
    Bool_t fDetecting;//! =kTRUE if detector is "detecting", =kFALSE if not
 
    Bool_t fSingleLayer;//! =kTRUE if detector has a single absorber layer
+
+   void SetKVDetectorFiredACQParameterListFormatString();
 
 public:
    KVDetector();
@@ -524,7 +526,10 @@ Bool_t KVDetector::Fired(Option_t* opt)
    //and have a value greater than their pedestal value
    //
    // *the actual parameters taken into account can be fine tuned using environment variables such as
-   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   //          [classname].Fired.ACQParameterList.[type]: PG,GG,T
+   //   where [classname]=KVDetector by default, or the name of some class
+   //   derived from KVDetector which calls the method KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+   //   in its constructor.
    // See KVDetector::SetFiredBitmask() for more details.
 
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
@@ -559,7 +564,10 @@ Bool_t KVDetector::FiredP(Option_t* opt)
    //and have a value greater than their pedestal value
    //
    // *the actual parameters taken into account can be fine tuned using environment variables such as
-   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   //          [classname].Fired.ACQParameterList.[type]: PG,GG,T
+   //   where [classname]=KVDetector by default, or the name of some class
+   //   derived from KVDetector which calls the method KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+   //   in its constructor.
    // See KVDetector::SetFiredBitmask() for more details.
 
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all

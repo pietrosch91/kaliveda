@@ -1317,7 +1317,10 @@ void KVMultiDetArray::SetACQParams()
    //       are set in a .kvrootrc file.
    //   3) set bitmask for each detector used to determine which acquisition parameters are
    //       taken into account by KVDetector::Fired based on the environment variables
-   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   //          [classname].Fired.ACQParameterList.[type]: PG,GG,T
+   //   where [classname]=KVDetector by default, or the name of some class
+   //   derived from KVDetector which calls the method KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+   //   in its constructor.
 
    if (fACQParams) {
       fACQParams->Clear();

@@ -22,12 +22,16 @@ public:
    KVINDRADetector()
       : fGGtoPG_0(0), fGGtoPG_1(1. / 15.), fChIo(nullptr),
         NumeroCodeur(0)
-   {}
+   {
+      SetKVDetectorFiredACQParameterListFormatString();
+   }
    virtual ~KVINDRADetector() {}
    KVINDRADetector(const Char_t* type, const Float_t thick = 0.0)
       : KVDetector(type, thick), fGGtoPG_0(0), fGGtoPG_1(1. / 15.),
         fChIo(nullptr), NumeroCodeur(0)
-   {}
+   {
+      SetKVDetectorFiredACQParameterListFormatString();
+   }
 
    KVINDRATelescope* GetTelescope() const
    {

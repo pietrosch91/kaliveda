@@ -96,7 +96,6 @@ end_html
 
 
 Int_t KVDetector::fDetCounter = 0;
-TString KVDetector::fKVDetectorFiredACQParameterListFormatString = "KVDetector.Fired.ACQParameterList.%s";
 
 void KVDetector::init()
 {
@@ -128,6 +127,19 @@ void KVDetector::init()
    fParentStrucList.SetCleanup();
    fSingleLayer = kTRUE;
    fNode.SetDetector(this);
+   SetKVDetectorFiredACQParameterListFormatString();
+}
+
+void KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+{
+   // Set the value of fKVDetectorFiredACQParameterListFormatString to be
+   //    [classname].Fired.ACQParameterList.%s
+   // where [classname] is the name of the class of whatever object
+   // is calling this method
+
+   fKVDetectorFiredACQParameterListFormatString.Form("%s.Fired.ACQParameterList.",
+         ClassName());
+   fKVDetectorFiredACQParameterListFormatString += "%s";
 }
 
 KVDetector::KVDetector()
@@ -632,7 +644,7 @@ KVList* KVDetector::GetAlignedIDTelescopes()
 
    // temporary kludge during transition to trajectory-based reconstruction
    // ROOT-geometry-based detectors will not have fIDTelAlign filled
-   if (!fIDTelAlign->GetEntries()) {
+   if (ROOTGeo() && !fIDTelAlign->GetEntries()) {
       const KVGeoDNTrajectory* Rtr = GetGroup()->GetTrajectoryForReconstruction(
                                         (KVGeoDNTrajectory*)GetNode()->GetTrajectories()->First(),
                                         GetNode()
@@ -1105,7 +1117,10 @@ void KVDetector::SetFiredBitmask(KVString& lpar)
    // Set bitmask used to determine which acquisition parameters are
    // taken into account by KVDetector::Fired based on the environment variables
    //          [dataset].KVACQParam.[par name].Working:    NO
-   //          [dataset].KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   //          [dataset].[classname].Fired.ACQParameterList.[type]: PG,GG,T
+   //   where [classname]=KVDetector by default, or the name of some class
+   //   derived from KVDetector which calls the method KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+   //   in its constructor.
    // The first allows to define certain acquisition parameters as not functioning;
    // they will not be taken into account.
    // The second allows to "fine-tune" what is meant by "all" or "any" acquisition parameters
@@ -1119,7 +1134,7 @@ void KVDetector::SetFiredBitmask(KVString& lpar)
    // the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
    // of the array.
    // Bits are set/reset in the order of the acquisition parameter list of the detector.
-   // If no variable [dataset].KVDetector.Fired.ACQParameterList.[type] exists,
+   // If no variable [dataset].[classname].Fired.ACQParameterList.[type] exists,
    // we set a bitmask authorizing all acquisition parameters of the detector, e.g.
    // if the detector has 3 acquisition parameters the bitmask will be "111"
 

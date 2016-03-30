@@ -78,6 +78,7 @@ void KVVAMOSDetector::init()
    fT0list    = NULL;
    fNmeasX = fNmeasY = 1; // from its volum a detector can be used
    // to measured at least one position X and Y
+   SetKVDetectorFiredACQParameterListFormatString();
 }
 //________________________________________________________________
 
@@ -436,7 +437,10 @@ void KVVAMOSDetector::SetFiredBitmask(KVString& lpar_dummy)
    // Set bitmask used to determine which acquisition parameters are
    // taken into account by KVVAMOSDetector::Fired based on the environment variables
    //          [dataset].KVACQParam.[par name].Working:    NO
-   //          [dataset].KVDetector.Fired.ACQParameterList.[type]: Q,T,T_HF,E,X,Y
+   //          [classname].Fired.ACQParameterList.[type]: PG,GG,T
+   //   where [classname]=KVDetector by default, or the name of some class
+   //   derived from KVDetector which calls the method KVDetector::SetKVDetectorFiredACQParameterListFormatString()
+   //   in its constructor.
    // The first allows to define certain acquisition parameters as not functioning;
    // they will not be taken into account.
    // The second allows to "fine-tune" what is meant by "all" or "any" acquisition parameters
@@ -455,7 +459,7 @@ void KVVAMOSDetector::SetFiredBitmask(KVString& lpar_dummy)
    // parameters. In the bitmask, the 3 first bits are kept for these coordinates.
    // If one of these 3 bits is 1 then the methode GetRawPosition(Double_t *)
    // is called and the returned values is compared to these 3 bits.
-   // If no variable [dataset].KVDetector.Fired.ACQParameterList.[type] exists,
+   // If no variable [dataset].[classname].Fired.ACQParameterList.[type] exists,
    // we set a bitmask authorizing all acquisition parameters of the detector, e.g.
    // if the detector has 3 types of acquisition parameters which are fired byt
    // no position type then the bitmask will be "111000"
@@ -465,7 +469,6 @@ void KVVAMOSDetector::SetFiredBitmask(KVString& lpar_dummy)
    fFiredMask.Set("");
 
    KVString inst;
-   //inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s", GetType());
    inst.Form(GetFiredACQParameterListFormatString(), GetType());
    KVString lpar = gDataSet->GetDataSetEnv(inst);
    TObjArray* toks = lpar.Tokenize(",");

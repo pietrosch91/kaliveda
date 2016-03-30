@@ -60,6 +60,7 @@ INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 # the method KVAMOS::SetACQParams uses them to define a mask for each detector
 # of the spectrometer.
 #
+KVVAMOSDetector.Fired.ACQParameterList.CSI: E
 KVVAMOSDetector.Fired.ACQParameterList.SI: E
 KVVAMOSDetector.Fired.ACQParameterList.CHI: E
 KVVAMOSDetector.Fired.ACQParameterList.SED: T_HF,X,Y
@@ -124,21 +125,9 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
 # create KVIDTelescope instances adapted to the specific array geometry and detector types.
-+Plugin.KVIDTelescope:  ^INDRA_e494s.CI-SI$         KVIDChIoSiCorr         KVIndraidentification  "KVIDChIoSiCorr()"
-+Plugin.KVIDTelescope:  ^INDRA_e494s.CI-CSI$        KVIDChIoCorrCsI_e494s  KVIndraidentification  "KVIDChIoCorrCsI_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e494s.SI-CSI$        KVIDSiCorrCsI          KVIndraidentification  "KVIDSiCorrCsI()"
-+Plugin.KVIDTelescope:  ^INDRA_e494s.CI-SI75$       KVIDChIoSi75_e494s     KVIndraidentification  "KVIDChIoSi75_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e494s.SI75-SILI$     KVIDSi75SiLi_e494s     KVIndraidentification  "KVIDSi75SiLi_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e494s.SILI-CSI$      KVIDSiLiCsI_e494s      KVIndraidentification  "KVIDSiLiCsI_e494s()"
 +Plugin.KVIDTelescope:  ^INDRA_e494s.VAMOS.CHI-SI$  KVIDHarpeeICSi         VAMOSidentification    "KVIDHarpeeICSi()"
 +Plugin.KVIDTelescope:  ^INDRA_e494s.VAMOS.QA.SI$   KVIDQA                 VAMOSidentification    "KVIDQA()"
 ################################################
-+Plugin.KVIDTelescope:  ^INDRA_e503.SI-CSI$        KVIDSiCorrCsI         KVIndraidentification  "KVIDSiCorrCsI()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.CI-SI$         KVIDChIoSiCorr        KVIndraidentification  "KVIDChIoSiCorr()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.CI-CSI$        KVIDChIoCorrCsI       KVIndraidentification  "KVIDChIoCorrCsI()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.CI-SI75$       KVIDChIoSi75_e494s    KVIndraidentification  "KVIDChIoSi75_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.SI75-SILI$     KVIDSi75SiLi_e494s    KVIndraidentification  "KVIDSi75SiLi_e494s()"
-+Plugin.KVIDTelescope:  ^INDRA_e503.SILI-CSI$      KVIDSiLiCsI_e494s     KVIndraidentification  "KVIDSiLiCsI_e494s()"
 +Plugin.KVIDTelescope:  ^INDRA_e503.VAMOS.SI-CSI$  KVIDHarpeeSiCsI_e503  VAMOSidentification    "KVIDHarpeeSiCsI_e503()"
 +Plugin.KVIDTelescope:  ^INDRA_e503.VAMOS.CHI-SI$  KVIDHarpeeICSi_e503   VAMOSidentification    "KVIDHarpeeICSi_e503()"
 ###############################################

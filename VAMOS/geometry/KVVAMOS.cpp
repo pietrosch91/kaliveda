@@ -921,7 +921,6 @@ Int_t KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
             ++ntels;
             break;
          }
-
       }
    }
 
@@ -980,7 +979,6 @@ Int_t KVVAMOS::GetIDTelescopes(KVDetector* de, KVDetector* e,
 void KVVAMOS::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt, TCollection* idtels)
 {
    // Set up detectors in de-e identification telescope and add to idtels
-
    idt->AddDetector(de);
    idt->AddDetector(e);
    if (de->GetGroup()) {

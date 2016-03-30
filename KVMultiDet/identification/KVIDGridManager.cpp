@@ -124,6 +124,10 @@ Bool_t KVIDGridManager::ReadAsciiFile(const Char_t* filename)
             onlyz = kTRUE;
          }
          TClass* clas = TClass::GetClass(s.Data());
+         if (!clas) {
+            Fatal("ReadAsciiFile",
+                  "Cannot load TClass information for %s", s.Data());
+         }
          grid = (KVIDGraph*) clas->New();
          //read grid
          grid->ReadFromAsciiFile(gridfile);
