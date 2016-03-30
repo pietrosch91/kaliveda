@@ -40,6 +40,8 @@
 #pragma link C++ class KVIDGrid+;
 #pragma link C++ class KVIDGridManager;
 #pragma link C++ class KVIDZAGrid-;
+#pragma link C++ class KVIDZAFromZGrid+;
+#pragma link C++ class KVIDZAFromZGrid::interval+;
 #pragma link C++ class KVIDZGrid-;
 #pragma link C++ class KVIDCsIRLLine+;
 #pragma link C++ class KVIDGCsI+;
