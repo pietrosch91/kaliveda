@@ -50,27 +50,33 @@ void KVVAMOSReconNuc::Streamer(TBuffer& R__b)
 
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
-      R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(), this);
-      if (IsCalibrated()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(), this, R__v, R__s, R__c);
+      if (R__v <= 3 && IsCalibrated()) {
          Int_t N = GetDetectorList()->GetEntries();
-         fDetE = new Double_t[N];
-         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
          if (R__v < 3) {
             // Before Version 3 of KVVAMOSReconNuc, fDetE was Float_t array
-            //Float_t tmp[N]; // Variable Length Arrays are a C99 extension!
             Float_t* tmp(new Float_t[N]);
             R__b.ReadFastArray(tmp, N);
+            fDetE.clear();
+            fDetE.resize(N);
+            for (Int_t i = 0; i < N; i++) fDetE[i] = (Double_t)tmp[i];
+            delete[] tmp;
+         } else if (R__v == 3) {
+            // In version 3, fDetE is Double_t array
+            Double_t* tmp(new Double_t[N]);
+            R__b.ReadFastArray(tmp, N);
+            fDetE.clear();
+            fDetE.resize(N);
             for (Int_t i = 0; i < N; i++) fDetE[i] = tmp[i];
             delete[] tmp;
          }
-         // From version 3, fDet E Float_t is Double_t array
-         else R__b.ReadFastArray(fDetE, N);
       }
    } else {
       R__b.WriteClassBuffer(KVVAMOSReconNuc::Class(), this);
-      if (IsCalibrated()) R__b.WriteFastArray(fDetE, GetDetectorList()->GetEntries());
    }
 }
+
 //________________________________________________________________
 
 void KVVAMOSReconNuc::Copy(TObject& obj) const
@@ -86,14 +92,7 @@ void KVVAMOSReconNuc::Copy(TObject& obj) const
    KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
    CastedObj.fCodes = fCodes;
    CastedObj.fRT    = fRT;
-
-   SafeDelete(CastedObj.fDetE);
-   if (fDetE) {
-      Int_t N = GetDetectorList()->GetEntries();
-      CastedObj.fDetE = new Double_t[ N ];
-      for (Int_t i = 0; i < N; i++) CastedObj.fDetE[i] = fDetE[i];
-   }
-
+   CastedObj.fDetE  = fDetE;
    CastedObj.fStripFoilEloss  = fStripFoilEloss;
    CastedObj.fRealQ     = fRealQ;
    CastedObj.fRealAoQ   = fRealAoQ;
@@ -109,7 +108,7 @@ void KVVAMOSReconNuc::init()
       SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula", Double_t(kEALMass))));
 
    fStripFoilEloss = 0;
-   fDetE = NULL;
+   fDetE.clear();
    fRealQ = fRealAoQ = 0.;
    fQ = 0;
    fQMeasured = kFALSE;
@@ -135,10 +134,9 @@ void KVVAMOSReconNuc::Calibrate()
    if (gVamos->Calibrate(this)) {
       // if the nucleus is calibrated by this way then the energy losses
       // in each detector are not calculated then they are set to -1
-      if (!fDetE) {
-         fDetE = new Double_t[ GetDetectorList()->GetEntries() ];
+      if (fDetE.empty()) {
          Int_t N = GetDetectorList()->GetEntries();
-         for (Int_t i = 0; i < N; i++) fDetE[i] = -1;
+         fDetE.resize(N, -1.);
       }
    } else CalibrateFromDetList();
 
@@ -209,7 +207,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList()
    KVVAMOSDetector* stopdet = (KVVAMOSDetector*)GetStoppingDetector();
    KVVAMOSDetector* det     = NULL;
    TIter next_det(GetDetectorList());
-   if (!fDetE) fDetE = new Double_t[ GetDetectorList()->GetEntries() ];
+   if (fDetE.empty()) fDetE.resize(GetDetectorList()->GetEntries(), 0.);
    Int_t idx = -1;
    while ((det = (KVVAMOSDetector*)next_det())) {
       fDetE[++idx] = 0.;
@@ -331,9 +329,6 @@ void KVVAMOSReconNuc::Clear(Option_t* t)
    //Reset nucleus' properties
 
    KVReconstructedNucleus::Clear(t);
-
-   if (fDetE) delete[] fDetE;
-
    init();
    fCodes.Clear();
    fRT.Reset();
@@ -1100,7 +1095,7 @@ Double_t KVVAMOSReconNuc::GetEnergy(const Char_t* det_label) const
    // Retruns -1 if no detector is found or if yet no contribution has
    // been determined ( done by methods Calibrate or InverseCalibration ).
 
-   if (!fDetE) return -1.;
+   if (fDetE.empty()) return -1.;
    Int_t idx = GetDetectorIndex(det_label);
    return idx < 0 ? -1. : fDetE[idx];
 }
@@ -1113,7 +1108,7 @@ Double_t KVVAMOSReconNuc::GetEnergyBefore(const Char_t* det_label) const
    // Retruns -1 if no detector is found or if yet no contribution has
    // been determined ( done by methods Calibrate or InverseCalibration ).
 
-   if (!fDetE) return -1.;
+   if (fDetE.empty()) return -1.;
    Int_t idx = GetDetectorIndex(det_label);
    if (idx < 0) return -1.;
    Double_t E = 0.;
@@ -1129,7 +1124,7 @@ Double_t KVVAMOSReconNuc::GetEnergyAfter(const Char_t* det_label) const
    // Retruns -1 if no detector is found or if yet no contribution has
    // been calculated ( done by methods Calibrate or InverseCalibration ).
 
-   if (!fDetE) return -1.;
+   if (fDetE.empty()) return -1.;
    Int_t idx = GetDetectorIndex(det_label);
    if (idx < 0) return -1.;
    idx--;

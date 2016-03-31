@@ -41,7 +41,7 @@ protected:
    KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
    Double_t               fStripFoilEloss; // calculated energy lost in the stripping foil
 
-   Double_t*              fDetE;           //!array with the corrected energy lost in each detector of fDetList
+   std::vector<Double_t>  fDetE;           //array with the corrected energy lost in each detector of fDetList
    Float_t                fRealQ;          //Q returned by identification routine
    Float_t                fRealAoQ;        //A/Q returned by identification routine
    UChar_t fQ;                             // charge state
@@ -58,6 +58,11 @@ public:
    virtual ~KVVAMOSReconNuc();
    virtual void Copy(TObject&) const;
    void init();
+
+   vector<Double_t> GetDetEVector() const
+   {
+      return fDetE;
+   }
 
    Bool_t   GetCorrFlightDistanceAndTime(Double_t& dist, Double_t& tof, const Char_t* tof_name) const;
    virtual Double_t  GetCorrectedT_HF(Double_t tof, Double_t dist)   const;
@@ -151,7 +156,7 @@ public:
    void SetIsQandAidentified();
    void SetIsQandAunidentified();
 
-   ClassDef(KVVAMOSReconNuc, 3) //Nucleus identified by VAMOS spectrometer
+   ClassDef(KVVAMOSReconNuc, 4) //Nucleus identified by VAMOS spectrometer
 };
 
 //____________________________________________________________________________________________//
@@ -330,7 +335,7 @@ inline Double_t  KVVAMOSReconNuc::GetEnergy(Int_t idx_det) const
    // Returns the calculated contribution of each detector to the
    // nucleus' energy from their index in fDetList. GetEnergy(0) returns
    // the contribution of the stopping detector.
-   return (fDetE && idx_det < GetDetectorList()->GetEntries() ? fDetE[idx_det] : -1);
+   return (!fDetE.empty() && idx_det < GetDetectorList()->GetEntries() ? fDetE[idx_det] : -1);
 }
 //____________________________________________________________________________________________//
 
