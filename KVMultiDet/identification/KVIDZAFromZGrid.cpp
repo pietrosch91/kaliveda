@@ -208,7 +208,7 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
 
       if (fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > 0) && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z))) {
          double pid = const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(Z);
-         idr->PID = abs(pid);
+         idr->PID = std::abs(pid);
          idr->A = TMath::Nint(pid);
          idr->Aident = kTRUE;
          if (pid > 0) {
