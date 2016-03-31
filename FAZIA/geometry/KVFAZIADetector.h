@@ -87,6 +87,9 @@ public:
    void Copy(TObject& obj) const;
    virtual void   Clear(Option_t* opt = "");
    virtual void   SetName(const char* name);
+
+   static const Char_t* GetNewName(KVString oldname);
+
    KVList* PrepareIDTelescopeList();
    void SortIDTelescopes();
 

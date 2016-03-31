@@ -36,6 +36,7 @@ void KVFAZIAUpDater::SetCalibParameters(KVDBRun* dbrun)
 {
    SetPSAParameters(dbrun);
    SetCalibrations(dbrun);
+   CheckStatusOfDetectors(dbrun);
 }
 
 void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
@@ -96,5 +97,37 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
          cal->SetStatus(1);
       }
    }
+
+}
+
+void KVFAZIAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
+{
+
+   KVRList* ooodet = kvrun->GetLinks("OoO Detectors");
+
+   TIter next(gFazia->GetDetectors());
+   KVDetector* det;
+
+   Int_t ndet_ooo = 0;
+
+   while ((det = (KVDetector*)next())) {
+      //Test de la presence ou non du detecteur
+      det->SetPresent();
+      if (det->IsPresent()) {
+         //Test du bon fonctionnement ou non du detecteur
+         if (!ooodet) {
+            det->SetDetecting();
+         } else {
+            if (ooodet->FindObject(det->GetName(), "OoO Detector")) {
+               det->SetDetecting(kFALSE);
+               ndet_ooo += 1;
+            } else {
+               det->SetDetecting();
+            }
+         }
+      }
+   }
+
+   Info("CheckStatusOfDetectors", "%d detectors does not work", ndet_ooo);
 
 }

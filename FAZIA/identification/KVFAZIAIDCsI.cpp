@@ -58,15 +58,19 @@ Bool_t KVFAZIAIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t 
 
 Double_t KVFAZIAIDCsI::GetIDMapX(Option_t*)
 {
-   //X-coordinate for CsI identification map is raw "L" coder value
-   return fCsI->GetQ3Amplitude() - 0.8 * fCsI->GetQ3FastAmplitude();
+   //X-coordinate for CsI identification map :
+   // computed slow componment
+   // of the charge signal
+   return fCsI->GetQ3SlowAmplitude();
 }
 
 //____________________________________________________________________________________
 
 Double_t KVFAZIAIDCsI::GetIDMapY(Option_t*)
 {
-   //Y-coordinate for CsI identification map is raw "R" coder value
+   //Y-coordinate for CsI identification map :
+   // computed fast componment
+   // of the charge signal
    return fCsI->GetQ3FastAmplitude();
 }
 //____________________________________________________________________________________

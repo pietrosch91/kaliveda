@@ -34,6 +34,7 @@ void KVFAZIADB::init()
    fSystems = AddTable("Systems", "List of available systems");
    fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
    fCalibrations = AddTable("Calibrations", "Available calibration for FAZIA detectors");
+   fOoODets = AddTable("Calibrations", "Available calibration for FAZIA detectors");
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t* name): KVDataBase(name,
@@ -367,6 +368,8 @@ void KVFAZIADB::Build()
    ReadRutherfordCrossSection();
    ReadComments();
    ReadCalibrationFiles();
+   ReadOoODetectors();
+
 }
 
 //____________________________________________________________________________
@@ -946,6 +949,48 @@ void KVFAZIADB::ReadCalibFile(const Char_t* filename)
 
    if (ssignal == "") Error("ReadCalibFile", "No signal defined");
    if (stype == "") Error("ReadCalibFile", "No calibration type defined");
+}
+
+//__________________________________________________________________________________________________________________
+void KVFAZIADB::ReadOoODetectors()
+{
+
+   //Lit le fichier ou sont listes les dedtecteurs ne marchant plus au cours
+   //de la manip
+   TString fp;
+   if (!KVBase::SearchKVFile(GetCalibFileName("OoODet"), fp, fDataSet.Data())) {
+      Warning("ReadOoODetectors", "No file  %s for this dataset", GetCalibFileName("OoODet"));
+      return;
+   }
+   Info("ReadOoODetectors()", "Read out of order detectors ...");
+   fOoODets = AddTable("OoO Detectors", "Name of out of order detectors");
+
+   KVDBRecord* dbrec = 0;
+   TEnv env;
+   TEnvRec* rec = 0;
+   env.ReadFile(fp.Data(), kEnvAll);
+   TIter it(env.GetTable());
+
+   while ((rec = (TEnvRec*)it.Next())) {
+      KVString srec(rec->GetName());
+      KVNumberList nl(rec->GetValue());
+
+      if (srec.Contains(",")) {
+         srec.Begin(",");
+         while (!srec.End()) {
+            dbrec = new KVDBRecord(srec.Next(), "OoO Detector");
+            dbrec->AddKey("Runs", "List of Runs");
+            fOoODets->AddRecord(dbrec);
+            LinkRecordToRunRange(dbrec, nl);
+         }
+      } else {
+         dbrec = new KVDBRecord(rec->GetName(), "OoO Detector");
+         dbrec->AddKey("Runs", "List of Runs");
+         fOoODets->AddRecord(dbrec);
+         LinkRecordToRunRange(dbrec, nl);
+      }
+   }
+
 }
 //__________________________________________________________________________________________________________________
 

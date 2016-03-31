@@ -14,6 +14,7 @@ public:
    virtual void SetCalibParameters(KVDBRun*);
    void SetPSAParameters(KVDBRun*);
    void SetCalibrations(KVDBRun*);
+   virtual void   CheckStatusOfDetectors(KVDBRun*);
 
    ClassDef(KVFAZIAUpDater, 1) //handle FAZIA detectors configuration for a given run
 };

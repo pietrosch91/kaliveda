@@ -20,6 +20,8 @@ public:
 
    KVFAZIAIDTelescope();
    virtual ~KVFAZIAIDTelescope();
+   virtual void AddDetector(KVDetector* d);
+   static const Char_t* GetNewName(KVString oldname);
 
    ClassDef(KVFAZIAIDTelescope, 1) //Identification for FAZIA array
 };

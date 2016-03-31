@@ -309,82 +309,87 @@ void KVFAZIAReconNuc::MakeDetectorList()
    if (gMultiDetArray) {
       fDetNames.Begin("/");
       while (!fDetNames.End()) {
-         det = (KVFAZIADetector*)gMultiDetArray->GetDetector(fDetNames.Next(kTRUE));
+         KVString sdet = fDetNames.Next(kTRUE);
+         det = (KVFAZIADetector*)gMultiDetArray->GetDetector(sdet.Data());
+         if (!det) {
+            det = (KVFAZIADetector*)gMultiDetArray->GetDetector(KVFAZIADetector::GetNewName(sdet.Data()));
+         }
+
          if (det) {
             fDetList.Add(det);
             if (!strcmp(det->GetLabel(), "SI1")) {
-               val = GetParameters()->GetDoubleValue(Form("%s.QL1.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.Amplitude", sdet.Data()));
                det->SetQL1Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RawAmplitude", sdet.Data()));
                det->SetQL1RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QL1.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.BaseLine", sdet.Data()));
                det->SetQL1BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QL1.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.SigmaBaseLine", sdet.Data()));
                det->SetQL1SigmaBaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QL1.RiseTime", sdet.Data()));
                det->SetQL1RiseTime(val);
 
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.FPGAEnergy", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.FPGAEnergy", sdet.Data()));
                det->SetQH1FPGAEnergy(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.Amplitude", sdet.Data()));
                det->SetQH1Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RawAmplitude", sdet.Data()));
                det->SetQH1RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.BaseLine", sdet.Data()));
                det->SetQH1BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.SigmaBaseLine", sdet.Data()));
                det->SetQH1SigmaBaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RiseTime", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.QH1.RiseTime", sdet.Data()));
                det->SetQH1RiseTime(val);
 
-               val = GetParameters()->GetDoubleValue(Form("%s.I1.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.Amplitude", sdet.Data()));
                det->SetI1Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I1.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.RawAmplitude", sdet.Data()));
                det->SetI1RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I1.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.BaseLine", sdet.Data()));
                det->SetI1BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine", sdet.Data()));
                det->SetI1SigmaBaseLine(val);
 
             } else if (!strcmp(det->GetLabel(), "SI2")) {
 
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.FPGAEnergy", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.FPGAEnergy", sdet.Data()));
                det->SetQ2FPGAEnergy(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.Amplitude", sdet.Data()));
                det->SetQ2Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RawAmplitude", sdet.Data()));
                det->SetQ2RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.BaseLine", sdet.Data()));
                det->SetQ2BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.SigmaBaseLine", sdet.Data()));
                det->SetQ2SigmaBaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RiseTime", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q2.RiseTime", sdet.Data()));
                det->SetQ2RiseTime(val);
 
-               val = GetParameters()->GetDoubleValue(Form("%s.I2.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.Amplitude", sdet.Data()));
                det->SetI2Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I2.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.RawAmplitude", sdet.Data()));
                det->SetI2RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I2.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.BaseLine", sdet.Data()));
                det->SetI2BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", sdet.Data()));
                det->SetI2SigmaBaseLine(val);
             } else if (!strcmp(det->GetLabel(), "CSI")) {
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAEnergy", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAEnergy", sdet.Data()));
                det->SetQ3FPGAEnergy(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAFastEnergy", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAFastEnergy", sdet.Data()));
                det->SetQ3FastFPGAEnergy(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.Amplitude", sdet.Data()));
                det->SetQ3Amplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RawAmplitude", sdet.Data()));
                det->SetQ3RawAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.FastAmplitude", sdet.Data()));
                det->SetQ3FastAmplitude(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.BaseLine", sdet.Data()));
                det->SetQ3BaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.SigmaBaseLine", sdet.Data()));
                det->SetQ3SigmaBaseLine(val);
-               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime", det->GetName()));
+               val = GetParameters()->GetDoubleValue(Form("%s.Q3.RiseTime", sdet.Data()));
                det->SetQ3RiseTime(val);
 
             }

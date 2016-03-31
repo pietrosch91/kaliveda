@@ -21,7 +21,9 @@ protected:
    KVDBTable* fSystems;         //-> table of systems
    KVDBTable* fExceptions;       //-> table of exceptions
    KVDBTable* fCalibrations;       //-> table for calibrations
+   KVDBTable* fOoODets; //(optional) Liste les detecteurs hors service
 
+   virtual void ReadOoODetectors();
    virtual void ReadSystemList();
    virtual void LinkListToRunRanges(TList* list, UInt_t rr_number,
                                     UInt_t run_ranges[][2]);

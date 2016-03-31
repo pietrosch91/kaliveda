@@ -214,13 +214,17 @@ void KVFAZIADetector::SetName(const char* name)
 Bool_t KVFAZIADetector::SetProperties()
 {
    // detector name are assumed to be defined as
-   // SI2-T2-Q2-B001
-   // CSI-T2-Q2-B001
-   // SI1-T1-Q1-B001
+   // label-xxx
+   // where xxx is computed as follow :
+   // 100*block number+10*quartet number+telescope number
+   // and label can be SI1, SI2 or CSI
+   // For example SI1-123 is the Silicon Si1 of the block 1, the quartet 2 and the telescope 3
+   //
    //
 
    KVString tmp;
    KVString sname(GetName());
+
    sname.Begin("-");
    SetLabel(sname.Next());
    if (!strcmp(GetLabel(), "SI1")) fIdentifier = kSI1;
@@ -232,21 +236,15 @@ Bool_t KVFAZIADetector::SetProperties()
    tmp = sname.Next();
    if (tmp == "RUTH") {
       fIsRutherford = kTRUE;
-      fTelescope = fQuartet = fBlock = 0;
-   } else if (tmp.BeginsWith("T")) {
-      tmp.ReplaceAll("T", "");
-      fTelescope = tmp.Atoi();
-      tmp = sname.Next();
-      tmp.ReplaceAll("Q", "");
-      fQuartet = tmp.Atoi();
-      tmp = sname.Next();
-      tmp.ReplaceAll("B", "");
-      fBlock = tmp.Atoi();
+      fIndex = fTelescope = fQuartet = fBlock = 0;
+   } else if (tmp.IsDigit()) {
+      fIndex = tmp.Atoi();
+      fBlock = fIndex / 100;
+      fQuartet = (fIndex - fBlock * 100) / 10;
+      fTelescope = fIndex - fBlock * 100 - fQuartet * 10;
    } else {
       Info("SetProperties", "Unkown format for the detector %s", GetName());
    }
-
-   fIndex = 100 * fBlock + 10 * fQuartet + fTelescope;
 
    KVSignal* sig = 0;
    //"QH1", "I1", "QL1", "Q2", "I2", "Q3
@@ -284,6 +282,39 @@ Bool_t KVFAZIADetector::SetProperties()
 
    return kTRUE;
 }
+//________________________________________________________________
+const Char_t* KVFAZIADetector::GetNewName(KVString oldname)
+{
+
+   Int_t tt = 0, qq = 0, bb = 0;
+   KVString tmp = "";
+   KVString lab = "";
+   oldname.Begin("-");
+
+   if (!oldname.End()) {
+      lab = oldname.Next();
+   }
+   if (!oldname.End()) {
+      tmp = oldname.Next();
+      tmp.ReplaceAll("T", "");
+      tt = tmp.Atoi();
+   }
+   if (!oldname.End()) {
+      tmp = oldname.Next();
+      tmp.ReplaceAll("Q", "");
+      qq = tmp.Atoi();
+   }
+   if (!oldname.End()) {
+      tmp = oldname.Next();
+      tmp.ReplaceAll("B", "");
+      bb = tmp.Atoi();
+   }
+   static KVString newname;
+   newname.Form("%s-%d", lab.Data(), bb * 100 + qq * 10 + tt);
+   return newname.Data();
+
+}
+
 //________________________________________________________________
 Bool_t KVFAZIADetector::Fired(Option_t*)
 {
