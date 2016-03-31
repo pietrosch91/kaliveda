@@ -2,7 +2,7 @@
 #include "KVSpiderIdentificator.h"
 #include <TCanvas.h>
 #include <TSystem.h>
-//#include "KVSpiderLineSiCsI.h"
+#include "KVSpiderLineSiCsI.h"
 
 #include <KVCanvas.h>
 
@@ -29,10 +29,11 @@ KVSpiderIdentificator::KVSpiderIdentificator()
    SetDefault();
 }
 
-KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_, Double_t Xm, Double_t Ym, Double_t pdx, Double_t pdy)
+KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_, Double_t Xm, Double_t Ym, Double_t pdx, Double_t pdy, Int_t type)
 {
    _is_initialized = false;
    SetDefault();
+   fType = type;
    Init(h_, Xm, Ym, pdx, pdy);
 }
 
@@ -408,7 +409,8 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
          if ((!(_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d", p))))) {
             if (create_ == 0) {
                if (valid) {
-                  _spline = new KVSpiderLine(p, GetY0());
+                  if (fType == kSiCsI) _spline = new KVSpiderLineSiCsI(p, GetY0());
+                  else              _spline = new KVSpiderLine(p, GetY0());
                   _llist.AddLast(_spline);
                }
             } else valid = false;

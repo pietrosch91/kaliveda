@@ -53,6 +53,8 @@ protected:
    TGraph*       _invalid;
    KVDroite*     _dtemp;
 
+   Int_t fType;
+
    TH2F* _htot;
    TH1F* _hfound;
    TH1F* _hvalid;
@@ -61,8 +63,16 @@ protected:
 
 public:
 
+   enum MatrixType {
+      kSiCsI,
+      kSiSi,
+      kChIoSi,
+      kOther
+   };
+
+
    KVSpiderIdentificator();
-   KVSpiderIdentificator(TH2F* h_, Double_t Xm = -1, Double_t Ym = -1, Double_t pdx = -1, Double_t pdy = -1);
+   KVSpiderIdentificator(TH2F* h_, Double_t Xm = -1, Double_t Ym = -1, Double_t pdx = -1, Double_t pdy = -1, Int_t type = kSiCsI);
    virtual ~KVSpiderIdentificator();
 
    void Init(TH2F* h_ = 0, Double_t Xm = -1, Double_t Ym = -1, Double_t X0 = -1, Double_t Y0 = -1);

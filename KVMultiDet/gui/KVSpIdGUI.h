@@ -26,12 +26,6 @@ class KVSpIdGUI {
    RQ_OBJECT("KVSpIdGUI")
 
 public:
-   enum MatrixType {
-      kSiCsI,
-      kSiSi,
-      kChIoSi,
-      kOther
-   };
    enum PiedestalType {
       kUser,
       kAuto,

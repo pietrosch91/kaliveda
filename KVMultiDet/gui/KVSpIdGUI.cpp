@@ -305,7 +305,7 @@ void KVSpIdGUI::SpiderIdentification()
    fScaledHisto = (TH2F*)hm.ScaleHisto(tmpHisto, &RtLt, &RtLty);
 
    if (fIdentificator) delete fIdentificator;
-   fIdentificator = new KVSpiderIdentificator(fScaledHisto, fXm * fSfx, fYm * fSfy);
+   fIdentificator = new KVSpiderIdentificator(fScaledHisto, fXm * fSfx, fYm * fSfy, -1, -1, fMatrixType);
 
    switch (fPiedType) {
       case kUser:
@@ -351,9 +351,9 @@ void KVSpIdGUI::SpiderIdentification()
 
 //       printf("#%s# z=%d\n",spline->GetName(),spline->GetZ());
 
-         if (type == kSiCsI) ff1 = spline->GetFunction(fPdx * fSfx, TMath::Max(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1)));
-         else if (type == kSiSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
-         else if (type == kChIoSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
+         if (type == KVSpiderIdentificator::kSiCsI) ff1 = spline->GetFunction(fPdx * fSfx, TMath::Max(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1)));
+         else if (type == KVSpiderIdentificator::kSiSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
+         else if (type == KVSpiderIdentificator::kChIoSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
          else ff1 = spline->GetFunction();
 
          /*
