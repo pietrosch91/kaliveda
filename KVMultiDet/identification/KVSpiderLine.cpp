@@ -181,17 +181,8 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
    } else max = max_;
 
    if (!_ff) {
-//       _ff = new TF1(GetName(), Form("[0]*TMath::Power(x,%lf)/(TMath::Power((x+[1]),[2]))", _pow), min, max);
-//       _ff->SetParameters(p0, 100., 0.4);
-
-      _ff = new TF1(GetName(), "[0]*(-1+[1]/(TMath::Power(x,[2])+[3]))", min, max);
-      _ff->SetParameters(0.01, 3e5, 1.0, 200);
-      _ff->FixParameter(2, 1.0);
-
-      _ff->SetParLimits(0, 0.0001, 0.1);
-      _ff->SetParLimits(1, 1e4, 1e11);
-      _ff->SetParLimits(3, 10, 500);
-
+      _ff = new TF1(GetName(), Form("[0]*TMath::Power(x,%lf)/(TMath::Power((x+[1]),[2]))", _pow), min, max);
+      _ff->SetParameters(p0, 100., 0.4);
    } else {
       double fmin, fmax;
       _ff->GetRange(fmin, fmax);
@@ -199,30 +190,8 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
          _ff->SetRange(min, max);
       }
    }
-   _ff->FixParameter(2, 1.0);
 
-   _fitStatus = _line->Fit(_ff, "WQN");
-   _fitStatus = _line->Fit(_ff, "WQN");
-
-   _ff->ReleaseParameter(2);
-   _ff->SetParLimits(2, 0.5, 1.0);
-
-   _fitStatus = _line->Fit(_ff, "WQN");
-   _fitStatus = _line->Fit(_ff, "WQN");
-
-
-//       printf("\tfit status = %d\n",_fitStatus);
-//       for (Int_t ii=0;ii<_ff->GetNpar();ii+=1)
-//       {
-//          printf("\t%d %lf\n",ii,_ff->GetParameter(ii));
-//       }
-//       if (_fitStatus==0){
-//          for (Int_t ii=0;ii<_ff->GetNpar();ii+=1)
-//          {
-//             printf("%lf ",_ff->GetParameter(ii));
-//          }
-//          printf("\n");
-//       }
+   _fitStatus = _line->Fit(_ff, "QN");
    return _ff;
 }
 

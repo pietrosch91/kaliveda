@@ -24,7 +24,7 @@
 #pragma link C++ class KVVirtualIDFitter+;
 #pragma link C++ class KVDroite+;
 #pragma link C++ class KVSpiderLine+;
-#pragma link C++ class KVSpiderPSALine+;
+#pragma link C++ class KVSpiderLineSiCsI+;
 #pragma link C++ class KVDP2toIDGridConvertor+;
 #pragma link C++ class KVDP2toCsIGridConvertor+;
 #pragma link C++ class KVIDentifier+;
