@@ -7,6 +7,7 @@
 #include "KVFAZIAIDTelescope.h"
 #include "KVIDZAGrid.h"
 #include "KVFAZIADetector.h"
+#include "KVIDCutLine.h"
 
 
 
@@ -17,6 +18,9 @@ protected:
    KVIDZAGrid* TheGrid;    //! telescope's grid
    KVFAZIADetector* fCsI;//!
    KVFAZIADetector* fSi2;//!
+   KVIDCutLine* fBelowProton; //;
+   KVIDCutLine* fSiThreshold; //;
+
 
 public:
 
@@ -32,6 +36,15 @@ public:
    Double_t GetIDMapX(Option_t* opt = "");
    Double_t GetIDMapY(Option_t* opt = "");
    virtual void Initialize();
+
+   KVIDCutLine* GetBelowProtonLine() const
+   {
+      return fBelowProton;
+   }
+   KVIDCutLine* GetSiThresholdLine() const
+   {
+      return fSiThreshold;
+   }
 
    ClassDef(KVFAZIAIDSiCsI, 1) //id telescope to manage FAZIA Si-CsI identification
 };

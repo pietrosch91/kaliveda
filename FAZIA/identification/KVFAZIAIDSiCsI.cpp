@@ -18,6 +18,9 @@ KVFAZIAIDSiCsI::KVFAZIAIDSiCsI()
 {
    // Default constructor
    SetType("Si-CsI");
+   fBelowProton = 0;
+   fSiThreshold = 0;
+
 }
 
 KVFAZIAIDSiCsI::~KVFAZIAIDSiCsI()
@@ -57,7 +60,19 @@ Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_
    //perform identification
    Double_t si2 = (y < 0. ? GetIDMapY() : y);
    Double_t csi = (x < 0. ? GetIDMapX() : x);
-   TheGrid->Identify(csi, si2, IDR);
+
+   //test if line below proton and si threshold are there
+   //if yes test the position of the point respect to
+   //these lines
+   //Bool_t OKproton = ((fBelowProton && fBelowProton->TestPoint(csi, si2)) || !fBelowProton);
+   //Bool_t OKthreshold = ((fSiThreshold && fSiThreshold->TestPoint(csi, si2)) || !fSiThreshold);
+   //if (OKproton && OKthreshold){
+   if (TheGrid->IsIdentifiable(csi, si2)) {
+      TheGrid->Identify(csi, si2, IDR);
+   } else {
+      IDR->IDOK = kFALSE;
+      IDR->IDquality = KVIDZAGrid::kICODE8;
+   }
 
    // set general ID code
    IDR->IDcode = GetIDCode();
@@ -81,6 +96,8 @@ void KVFAZIAIDSiCsI::Initialize()
    if (TheGrid) {
       SetHasMassID(TheGrid->IsOnlyZId());
       TheGrid->Initialize();
+      fBelowProton = (KVIDCutLine*)TheGrid->GetCut("below_proton");
+      fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
       SetBit(kReadyForID);
    } else {
       ResetBit(kReadyForID);

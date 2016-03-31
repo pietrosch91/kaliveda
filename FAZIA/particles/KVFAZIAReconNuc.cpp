@@ -218,9 +218,9 @@ void KVFAZIAReconNuc::Identify()
             } else {
                SetIdentification(IDR);
                SetIdentifyingTelescope(idt);
-               SetIDCode(0);
-               SetZandA(0, 0);
-               SetIsIdentified();
+               //SetIDCode(0);
+               //SetZandA(0, 0);
+               //SetIsIdentified();
             }
          } else {
             IDR->IDattempted = kFALSE;
