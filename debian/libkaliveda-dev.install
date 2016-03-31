@@ -117,6 +117,7 @@
 /usr/include/kaliveda/KVEventReconstructor.h
 /usr/include/kaliveda/KVReconstructedEvent.h
 /usr/include/kaliveda/KVRTGIDManager.h
+/usr/include/kaliveda/KVIDCsI.h
 /usr/include/kaliveda/KVDetectorEvent.h
 /usr/include/kaliveda/KVElasticScatterEvent.h
 /usr/include/kaliveda/KVExpSetUp.h
@@ -292,10 +293,11 @@
 /usr/include/kaliveda/KVSimDir.h
 /usr/include/kaliveda/KVSimFile.h
 /usr/include/kaliveda/KVAvailableRunsFile.h
+/usr/include/kaliveda/KVIDZAFromZGrid.h
 /usr/include/kaliveda/KVTGIDFunctions.h
 /usr/include/kaliveda/KVIDLine.h
-/usr/include/kaliveda/KVSpiderPSALine.h
 /usr/include/kaliveda/KVSpiderLine.h
+/usr/include/kaliveda/KVSpiderLineSiCsI.h
 /usr/include/kaliveda/KVIdentificationResult.h
 /usr/include/kaliveda/KVIDContour.h
 /usr/include/kaliveda/KVTGIDZA.h

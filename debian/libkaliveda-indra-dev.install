@@ -90,7 +90,6 @@
 /usr/include/kaliveda/KVIDGChIoSi_e494s.h
 /usr/include/kaliveda/KVIDSiLiCsI_e494s.h
 /usr/include/kaliveda/KVIDSi75SiLi_e494s.h
-/usr/include/kaliveda/KVIDCsI.h
 /usr/include/kaliveda/KVIDChIoSiLi.h
 /usr/include/kaliveda/KVIDSiLiCsI_camp5.h
 /usr/include/kaliveda/KVINDRAIDTelescope.h
@@ -105,6 +104,7 @@
 /usr/include/kaliveda/KVIDChIoSi75_e494s.h
 /usr/include/kaliveda/KVIDChIoCorrCsI_e494s.h
 /usr/include/kaliveda/KVIDChIoSi_e475s.h
+/usr/include/kaliveda/KVIDINDRACsI.h
 /usr/include/kaliveda/KVIDSi75SiLi.h
 /usr/include/kaliveda/KVINDRACodes.h
 /usr/include/kaliveda/KVIDChIoCsI_camp5.h

@@ -1,12 +1,13 @@
-kaliveda (1.10.9-0ubuntu4) UNRELEASED; urgency=medium
+kaliveda (1.10.9-0ubuntu5) UNRELEASED; urgency=medium
 
   * New release v1.10/09
   * Remove dependency on libGeomPainter from find_package(ROOT), this
     doesn't work on Ubuntu (the library is handled as a plugin at runtime)
   * Forgot to change TGeoTrack to TVirtualGeoTrack in KVRangeTableGeoNavigator
   * New classes added for particle/detector trajectories
-  
- -- John Frankland <frankland@ganil.fr>  Fri, 18 Mar 2016 16:27:29 +0100
+  * Update
+
+ -- John Frankland <frankland@ganil.fr>  Thu, 31 Mar 2016 18:03:43 +0200
 
 kaliveda (1.10.8-0ubuntu5) wily; urgency=medium
 
