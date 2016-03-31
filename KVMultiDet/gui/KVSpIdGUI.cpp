@@ -348,14 +348,20 @@ void KVSpIdGUI::SpiderIdentification()
    while ((spline = (KVSpiderLine*)next_line())) {
       if ((spline->GetN() > 10)) { //&&(spline->GetX(0)<=fIdentificator->GetX0()+200.))
          TF1* ff1 = 0;
+
+//       printf("#%s# z=%d\n",spline->GetName(),spline->GetZ());
+
          if (type == kSiCsI) ff1 = spline->GetFunction(fPdx * fSfx, TMath::Max(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1)));
          else if (type == kSiSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
          else if (type == kChIoSi)  ff1 = spline->GetFunction(fPdx * fSfx, TMath::Min(fScaledHisto->GetXaxis()->GetXmax() * 0.9, spline->GetX(spline->GetN() - 1) * 1.5));
          else ff1 = spline->GetFunction();
+
+         /*
          if ((type == kSiCsI) && (ff1->GetParameter(1) >= 3000. || (ff1->GetParameter(2) <= 0.35) || (ff1->GetParameter(2) >= 1.))) {
             Info("SpiderIdentification", "Z = %d has been rejected (fit parameters)", spline->GetZ());
             continue;
          }
+         */
          TheLine = (KVIDZALine*)((KVIDZAGrid*)fGrid)->NewLine("ID");
          TheLine->SetZ(spline->GetZ());
          double min, max;
