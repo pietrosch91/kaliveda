@@ -1170,9 +1170,6 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus* part)
                         det_name.Data(), pname.Data());
                } else {
                   Double_t de = param->GetDouble();
-                  curDet->AddHit(part);//add nucleus to list of particles hitting detector in the event
-                  Double_t eloss_old = curDet->GetEnergyLoss();
-                  curDet->SetEnergyLoss(eloss_old + de);
                   if (!NVL) NVL = new KVNameValueList;
                   NVL->SetValue(curDet->GetName(), de);
                }

@@ -36,6 +36,8 @@ ClassImp(KVRangeTableGeoNavigator)
 //   "Yout:[detector name]"
 //   "Zout:[detector name]"
 //
+// If the particle stops in the volume, the 'out' coordinates will correspond to
+// the calculated range of the particle in the volume.
 // In the case of multilayer detectors, "[detector name]" in the previous
 // examples is replaced by "[detector name]/[layer name]"
 //
@@ -102,6 +104,9 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
    // reduce the particle's energy accordingly, and, if the energy falls below
    // a certain cut-off (default 1.e-3 MeV; can be modified with
    // SetCutOffKEForPropagation(Double_t) ), we stop the propagation.
+   //
+   // The (cumulated) energy losses in the active layers of all hit detectors
+   // are updated with the energy lost by this particle
 
    Double_t de = 0;
    Double_t e = part->GetEnergy();
@@ -136,13 +141,27 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
 
       TString absorber_name;
       KVDetector* theDet = GetDetectorFromPath(GetCurrentPath());
+      Bool_t active_layer = kFALSE;
       if (theDet) {
-         if (!theDet->IsSingleLayer()) absorber_name.Form("%s/%s", theDet->GetName(), GetCurrentNode()->GetName());
-         else absorber_name = theDet->GetName();
+         if (!theDet->IsSingleLayer()) {
+            absorber_name.Form("%s/%s", theDet->GetName(), GetCurrentNode()->GetName());
+            if (strncmp(GetCurrentNode()->GetName(), "ACTIVE", 6) == 0) active_layer = kTRUE;
+         } else {
+            absorber_name = theDet->GetName();
+            active_layer = kTRUE;
+         }
       } else
          absorber_name = irmat->GetName();
 
-      if (part->GetZ()) part->GetParameters()->SetValue(Form("DE:%s", absorber_name.Data()), de);
+      if (part->GetZ()) {
+         part->GetParameters()->SetValue(Form("DE:%s", absorber_name.Data()), de);
+         if (active_layer) {
+            // update energy loss in active layer of detector
+            Double_t E = theDet->GetEnergyLoss() + de;
+            theDet->SetEnergyLoss(E);
+            theDet->AddHit(part);
+         }
+      }
       part->GetParameters()->SetValue(Form("Xin:%s", absorber_name.Data()), GetEntryPoint().X());
       part->GetParameters()->SetValue(Form("Yin:%s", absorber_name.Data()), GetEntryPoint().Y());
       part->GetParameters()->SetValue(Form("Zin:%s", absorber_name.Data()), GetEntryPoint().Z());
