@@ -70,12 +70,12 @@ TF1* KVSpiderLineSiCsI::GetFunction(double min_, double max_)
    double min;
    double max;
 
-   double xtest = GetX();
-   if (GetX(0) > GetX()) xtest = GetX(0);
-   double ytest = GetY();
-   if (GetY(0) > GetY()) ytest = GetY(0);
+//   double xtest = GetX();
+//   if (GetX(0) > GetX()) xtest = GetX(0);
+//   double ytest = GetY();
+//   if (GetY(0) > GetY()) ytest = GetY(0);
 
-   double p0 = TMath::Power(xtest, 0.4) * ytest;
+   //double p0 = TMath::Power(xtest, 0.4) * ytest;
 
    if (min_ == -1.) {
       if (GetX(0) < GetX()) min = GetX(0) - 10;
