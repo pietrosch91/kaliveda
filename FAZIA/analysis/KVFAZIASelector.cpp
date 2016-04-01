@@ -133,7 +133,12 @@ void KVFAZIASelector::ConnectSignalsToDetectors()
    while ((sig = (KVSignal*)next_s())) {
       sig->DeduceFromName();
       det = (KVFAZIADetector*)gFazia->GetDetector(sig->GetDetectorName());
-      det->SetSignal(sig, sig->GetType());
+      if (!det)
+         det = (KVFAZIADetector*)gFazia->GetDetector(KVFAZIADetector::GetNewName(sig->GetDetectorName()));
+      if (det)
+         det->SetSignal(sig, sig->GetType());
+      else
+         Warning("ConnectSignalsToDetectors", "Unknown detector %s", sig->GetDetectorName());
    }
 
 }
