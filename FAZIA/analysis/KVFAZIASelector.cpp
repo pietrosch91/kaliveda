@@ -609,5 +609,4 @@ void KVFAZIASelector::CheckBatchOutputFiles(const Char_t* kvsname, Bool_t erasea
       }
 
    }
-
 }
