@@ -18,6 +18,8 @@
 #include "KVFAZIADB.h"
 #include "KVFileReader.h"
 
+ClassImp(KVFAZIASelector)
+
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
