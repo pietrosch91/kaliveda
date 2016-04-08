@@ -73,6 +73,7 @@ Points with code kICODE8 are totally out of range.
 KVIDZAFromZGrid::KVIDZAFromZGrid()
 {
    // Default constructor
+//    Info("KVIDZAFromZGrid","called...");
    init();
 }
 
@@ -96,13 +97,21 @@ void KVIDZAFromZGrid::Copy(TObject& obj) const
    //KVIDZAFromZGrid& CastedObj = (KVIDZAFromZGrid&)obj;
 }
 
-void KVIDZAFromZGrid::ReadAsciiFile(const Char_t* filename)
+//void KVIDZAFromZGrid::ReadAsciiFile(const Char_t* filename)
+//{
+//   fPIDRange = kFALSE;
+//   KVIDGraph::ReadAsciiFile(filename);
+//}
+
+void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
 {
    fPIDRange = kFALSE;
-   KVIDGraph::ReadAsciiFile(filename);
+   KVIDGraph::ReadFromAsciiFile(gridfile);
+//    Info("ReadAsciiFile","called for %s", GetName());
    if (GetParameters()->HasParameter("PIDRANGE")) {
       fPIDRange = kTRUE;
       fZmaxInt = GetParameters()->GetIntValue("PIDRANGE");
+//       Info("ReadAsciiFile","ZAMXINT = %d", fZmaxInt);
       LoadPIDRanges();
    }
 }
@@ -134,6 +143,7 @@ void KVIDZAFromZGrid::LoadPIDRanges()
             pid = val.Next().Atof();
             pidmax = val.Next().Atof();
             itv->add(aa, pid, pidmin, pidmax);
+//            itv->add(aa, pid, pid-0.02, pid+0.02);
          }
       }
       fTables.Add(itv);
@@ -207,17 +217,24 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
       idr->Aident = kFALSE;
 
       if (fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > 0) && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z))) {
-         double pid = const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(Z);
-         idr->PID = std::abs(pid);
-         idr->A = TMath::Nint(pid);
-         idr->Aident = kTRUE;
-         if (pid > 0) {
-            idr->IDquality = kICODE0;
-            idr->SetComment("ok");
-         } else {
-            idr->IDquality = kICODE3;
-            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+//          Info("Identify","try to deduce the mass... (%d)",Zint);
+//         double pid = const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr);
+         const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr);
+         if (idr->IDquality < kICODE4) {
+            idr->Aident = kTRUE;
+            idr->IDOK = kTRUE;
          }
+//         pid = 0;
+//         idr->PID = std::abs(pid);
+//         idr->A = TMath::Nint(pid);
+//         idr->Aident = kTRUE;
+//         if (pid > 0) {
+//            idr->IDquality = kICODE0;
+//            idr->SetComment("ok");
+//         } else {
+//            idr->IDquality = kICODE3;
+//            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+//         }
       } else {
          switch (fICode) {
 
@@ -296,22 +313,59 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
 }
 
 
-double KVIDZAFromZGrid::DeduceAfromPID(double pid)
+double KVIDZAFromZGrid::DeduceAfromPID(KVIdentificationResult* idr)
 {
-   int zint = TMath::Nint(pid);
+   int zint = idr->Z;
    double res = 0.;
-   if (fTables.At(zint - 1)) res = ((interval*)fTables.At(zint - 1))->eval(pid);
+   if (fTables.At(zint - 1)) res = ((interval*)fTables.At(zint - 1))->eval(idr);
+//   Info("DeduceAfromPID","PIDA = %lf",res);
+//   Info("DeduceAfromPID","Z=%d  A=%d  code=%d",idr->Z,idr->A,idr->IDquality);
    return res;
 }
 
-double KVIDZAFromZGrid::interval::eval(double pid)
+double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
 {
+   double pid = idr->PID;
    if (pid < 0.5) return 0.;
    double res = fPIDs.Eval(pid);
+   int ares = 0;
+
    if (fType == KVIDZAFromZGrid::kIntType) {
-      res *= -1;
       for (int ii = 0; ii < fNPIDs; ii++) {
-         if (pid > fPIDmins.at(ii) && pid < fPIDmaxs.at(ii)) res *= -1;
+         if (pid > fPIDmins.at(ii) && pid < fPIDmaxs.at(ii)) {
+            ares = fAs.at(ii);
+            break;
+         }
+      }
+      if (ares != 0) {
+         idr->A = ares;
+         idr->PID = res;
+         idr->IDquality = kICODE0;
+         idr->SetComment("ok");
+//            Info("eval","A id ok -> code0");
+      } else {
+//            Info("eval","A id outside interval -> code3");
+         ares = TMath::Nint(res);
+         idr->A = ares;
+         idr->PID = res;
+         if (ares > fAs.at(0) && ares < fAs.at(fNPIDs - 1)) {
+            idr->IDquality = kICODE3;
+            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+         } else {
+            idr->IDquality = kICODE3;
+            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+         }
+      }
+   } else {
+      ares = TMath::Nint(res);
+      idr->A = ares;
+      idr->PID = res;
+      if (ares > fAs.at(0) && ares < fAs.at(fNPIDs - 1)) {
+         idr->IDquality = kICODE0;
+         idr->SetComment("ok");
+      } else {
+         idr->IDquality = kICODE3;
+         idr->SetComment("slight ambiguity of A, which could be larger or smaller");
       }
    }
    return res;
@@ -319,6 +373,7 @@ double KVIDZAFromZGrid::interval::eval(double pid)
 
 bool KVIDZAFromZGrid::interval::is_inside(double pid)
 {
+   if (fType != KVIDZAFromZGrid::kIntType) return kTRUE;
    if (pid > fPIDmins.at(0) && pid < fPIDmaxs.at(fNPIDs - 1)) return kTRUE;
    else return kFALSE;
 }

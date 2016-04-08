@@ -30,7 +30,7 @@ public:
 
       interval(int zz, int type);
       void   add(int aa, double pid, double pidmin = -1., double pidmax = -1.);
-      double eval(double pid);
+      double eval(KVIdentificationResult* idr);
       bool is_inside(double pid);
 
       ClassDef(interval, 1) //
@@ -48,9 +48,10 @@ public:
 public:
    void Copy(TObject& obj) const;
 
-   void ReadAsciiFile(const Char_t* filename);
+//   virtual void ReadAsciiFile(const Char_t* filename);
+   virtual void ReadFromAsciiFile(std::ifstream& gridfile);
    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
-   virtual double DeduceAfromPID(double pid);
+   virtual double DeduceAfromPID(KVIdentificationResult* idr);
    void LoadPIDRanges();
 
    void PrintPIDLimits();
