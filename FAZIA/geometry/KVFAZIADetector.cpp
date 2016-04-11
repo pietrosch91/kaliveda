@@ -141,6 +141,18 @@ void KVFAZIADetector::SetCalibrators()
    AddCalibrator(fVoltToEnergy);
 }
 
+Bool_t KVFAZIADetector::IsCalibrated() const
+{
+   //Returns true if the detector has been calibrated
+   //i.e. if
+   //  -  it has Channel-Energy calibrator ready
+
+   if (!GetCalibrator("Channel-Energy")) return kFALSE;
+   else if (!GetCalibrator("Channel-Energy")->GetStatus()) return kFALSE;
+
+   return kTRUE;
+}
+
 //________________________________________________________________
 Double_t KVFAZIADetector::GetCalibratedEnergy()
 {

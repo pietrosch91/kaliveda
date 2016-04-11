@@ -106,6 +106,9 @@ public:
    Int_t GetNumberOfSignals() const;
    KVList* GetListOfSignals() const;
    void SetCalibrators();
+   virtual Bool_t IsCalibrated() const;
+
+
    Int_t GetIdentifier() const
    {
       return fIdentifier;
