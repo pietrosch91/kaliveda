@@ -171,7 +171,8 @@ LNS_2014.ActiveIdentifications:        Si-Si
 
 ISOFAZIA.IdentificationParameterFile.CsI:       IDGrids_CSI.dat
 ISOFAZIA.IdentificationParameterFile.Si-Si:       IDGrids_SI1_SI2.dat
-ISOFAZIA.ActiveIdentifications:        CsI Si-Si
+ISOFAZIA.IdentificationParameterFile.Si-CsI:       IDGrids_SI2_CSI.dat
+ISOFAZIA.ActiveIdentifications:        CsI Si-Si Si-CsI
 
 FAZIASYM.IdentificationParameterFile.CsI:       IDGrids_CSI.dat
 FAZIASYM.IdentificationParameterFile.Si-CsI:       IDGrids_SI2_CSI.dat
