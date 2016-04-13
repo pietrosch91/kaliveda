@@ -38,6 +38,7 @@
 /usr/share/kaliveda/ISOFAZIA/CalibrationFiles.dat
 /usr/share/kaliveda/ISOFAZIA/Runlist.csv
 /usr/share/kaliveda/ISOFAZIA/Systems.dat
+/usr/share/kaliveda/ISOFAZIA/IDGrids_SI2_CSI.dat
 /usr/share/kaliveda/ISOFAZIA/Makefile
 /usr/share/kaliveda/ISOFAZIA/calibSI2_ISOFAZIA.dat
 /usr/share/kaliveda/ISOFAZIA/runsheets.dat
