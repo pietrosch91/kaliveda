@@ -35,7 +35,7 @@ Double_t KVFAZIAIDSiCsI::GetIDMapX(Option_t*)
    //X-coordinate for Si2-CsI identification map :
    // computed fast componment
    // of the charge signal of CsI detector
-   return fCsI->GetQ3FastAmplitude();
+   return fCsI->GetQ3Amplitude();
 }
 
 //____________________________________________________________________________________
