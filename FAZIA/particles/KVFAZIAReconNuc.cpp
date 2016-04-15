@@ -203,6 +203,7 @@ void KVFAZIAReconNuc::Identify()
       KVIDTelescope* idt;
       TIter next(idt_list);
       while ((idt = (KVIDTelescope*) next()) && !IsIdentified()) {
+         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue;
          IDR = GetIdentificationResult(idnumber);
          IDR->SetName(idt->GetName());
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
