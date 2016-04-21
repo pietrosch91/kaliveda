@@ -223,8 +223,11 @@ public:
    }
 
    virtual Double_t ComputeBaseLine();
+   virtual Double_t ComputeDuration(Double_t th = 0.2);
    virtual Double_t ComputeEndLine();
    virtual void RemoveBaseLine();
+
+   void BuildReverseTimeSignal();
 
    Bool_t IsFired();
 

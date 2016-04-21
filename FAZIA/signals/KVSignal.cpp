@@ -359,6 +359,27 @@ Double_t KVSignal::ComputeBaseLine()
    return fBaseLine;
 }
 
+Double_t KVSignal::ComputeDuration(Double_t th)
+{
+   // calculate the time during which the signal is higher than th*fAmplitude
+   if (fAmplitude <= 0) {
+      SetADCData();
+      ComputeAmplitude();
+   }
+
+   Multiply(-1);
+   fAmplitude *= -1;
+   Double_t qstart = FindTzeroCFDCubic(th, 3);
+   BuildReverseTimeSignal();
+   Double_t qend = FindTzeroCFDCubic(th, 3);
+   BuildReverseTimeSignal();
+   Multiply(-1);
+   fAmplitude *= -1;
+
+   Double_t deltat = GetN() * fChannelWidth - qstart - qend;
+   return deltat;
+}
+
 Double_t KVSignal::ComputeEndLine()
 {
    //same as ComputeBaseLine method but made on the end of the signal
@@ -386,6 +407,14 @@ void KVSignal::RemoveBaseLine()
    Add(-1.*ComputeBaseLine());
    ApplyModifications();
 
+}
+
+void KVSignal::BuildReverseTimeSignal()
+{
+   TArrayF copy(fAdc);
+   Int_t np = fAdc.GetSize();
+
+   for (int i = 0; i < np; i++) fAdc.AddAt(copy.GetAt(np - i - 1), i);
 }
 
 Double_t KVSignal::ComputeAmplitude()
