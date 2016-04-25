@@ -291,6 +291,7 @@ public:
    {
       return fTrapFlatTop;
    }
+   Double_t ComputeCFDThreshold(Double_t threshold = 0.5);
 
    //
    //parameters for semi gaussian filter
@@ -374,6 +375,8 @@ public:
    void Add(Double_t fact);
 
    // Interpolations
+   Double_t ARC_CFD(Double_t threshold = 0.3, Double_t tdelay = 10);
+   double FindTzeroLeadingEdgeCubic(double LEVEL, int Nrecurr);
    Double_t FindTzeroCFDCubic(double level, int Nrecurr);
    double FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr);
    Double_t CubicInterpolation(float* data, int x2, double fmax, int Nrecurr);

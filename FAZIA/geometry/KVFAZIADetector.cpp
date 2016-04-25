@@ -429,4 +429,13 @@ KVList* KVFAZIADetector::GetListOfSignals() const
 {
    return fSignals;
 }
+
 //_________________________________________________________________________________
+void KVFAZIADetector::ComputePSA()
+{
+   KVSignal* sig = 0;
+   TIter nexts(GetListOfSignals());
+   while ((sig = (KVSignal*)nexts())) {
+      sig->TreateSignal();
+   }
+}

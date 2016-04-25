@@ -107,7 +107,7 @@ public:
    KVList* GetListOfSignals() const;
    void SetCalibrators();
    virtual Bool_t IsCalibrated() const;
-
+   void ComputePSA();
 
    Int_t GetIdentifier() const
    {

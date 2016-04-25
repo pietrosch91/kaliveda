@@ -376,8 +376,31 @@ Double_t KVSignal::ComputeDuration(Double_t th)
    Multiply(-1);
    fAmplitude *= -1;
 
-   Double_t deltat = GetN() * fChannelWidth - qstart - qend;
+   //printf("qstart=%lf - qend=%lf\n",qstart,qend);
+   if (qend < qstart || qstart <= 0 || qend <= 0)
+      return -1;
+   //Double_t deltat = GetN() * fChannelWidth - qstart - qend;
+   Double_t deltat = ((GetN() * fChannelWidth - qend) - qstart);
    return deltat;
+}
+
+Double_t KVSignal::ComputeCFDThreshold(Double_t threshold)
+{
+   // calculate the time during which the signal is higher than th*fAmplitude
+   if (fAmplitude <= 0) {
+      SetADCData();
+      ComputeAmplitude();
+   }
+
+   Multiply(-1);
+   fAmplitude *= -1;
+
+   Double_t qstart = FindTzeroCFDCubic(threshold, 3);
+
+   Multiply(-1);
+   fAmplitude *= -1;
+
+   return qstart;
 }
 
 Double_t KVSignal::ComputeEndLine()
@@ -442,6 +465,40 @@ Double_t KVSignal::ComputeRiseTime()
    fRiseTime = qtrise72;
    return fRiseTime;
 }
+
+Double_t KVSignal::ARC_CFD(Double_t threshold, Double_t tdelay)
+{
+   //time of passage of the threshold
+
+   Double_t rtime = GetRiseTime();
+   if (!(tdelay < (1 - threshold)*rtime))
+      return -1;
+
+   rtime *= 2;
+   double time = GetAmplitude() / ((1 - threshold) * (rtime / tdelay));
+   Multiply(-1);
+   double re = FindTzeroLeadingEdgeCubic(time, 3);
+   Multiply(-1);
+
+   return re;
+
+}
+
+double KVSignal::FindTzeroLeadingEdgeCubic(double LEVEL, int Nrecurr)
+{
+
+   int i = 0;
+   float* data = fAdc.GetArray();
+   for (; i < fAdc.GetSize() - 1; i++)
+      if (-data[i] > LEVEL && -data[i + 1] > LEVEL) //to skip noise.
+         break;
+   if (i >= fAdc.GetSize() - 3) return -1;
+   i--;
+
+   return CubicInterpolation(data, i, - LEVEL, Nrecurr);
+}
+
+
 
 double KVSignal::FindMedia(double tsta, double tsto)
 {

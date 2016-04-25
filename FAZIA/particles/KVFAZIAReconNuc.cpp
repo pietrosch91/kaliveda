@@ -298,6 +298,16 @@ void KVFAZIAReconNuc::Calibrate()
    delete [] eloss;
 }
 
+void KVFAZIAReconNuc::ComputePSA()
+{
+   KVFAZIADetector* det = 0;
+
+   TIter nextd(GetDetectorList());
+   while ((det = (KVFAZIADetector*)nextd())) {
+      det->ComputePSA();
+   }
+
+}
 
 void KVFAZIAReconNuc::MakeDetectorList()
 {

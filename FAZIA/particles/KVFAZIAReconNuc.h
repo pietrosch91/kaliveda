@@ -88,6 +88,8 @@ public:
    Bool_t StoppedInSI2() const;
    Bool_t StoppedInCSI() const;
 
+   void ComputePSA();
+
    ClassDef(KVFAZIAReconNuc, 2) //Nucleus identified by FAZIA array
 };
 
