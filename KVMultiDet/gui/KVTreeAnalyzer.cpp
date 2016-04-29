@@ -2257,6 +2257,13 @@ void KVTreeAnalyzer::HistoAddition(Double_t c1, Double_t c2)
 {
    fMethodCalled = kTRUE;
    HistoAddResult->Add(HistoToAdd1, HistoToAdd2, c1, c2);
+// TODO: it would be nice to distinguish histograms which are the result of
+// adding other histograms together. For the moment they appear identical to
+// to the first histogram in terms of variables etc. The following attempt
+// doesn't work (can't parse the title correctly)
+//    TString title;
+//    title.Form("SUMHIST:{%s,%s}",HistoToAdd1->GetTitle(),HistoToAdd2->GetTitle());
+//    HistoAddResult->SetTitle(title);
 }
 
 
@@ -2284,6 +2291,7 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
 {
    switch (id) {
       case MH_OPEN_CHAIN:
+         AnalysisSaveCheck();
          OpenChain();
          break;
       case MH_OPEN_FILE:
@@ -2490,7 +2498,7 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
       KVList keys(0);
       keys.AddAll(file->GetListOfKeys());
       // Get list of trees in file
-      KVSeqCollection* trees = keys.GetSubListWithMethod("TTree", "GetClassName");
+      unique_ptr<KVSeqCollection> trees(keys.GetSubListWithMethod("TTree", "GetClassName"));
       if (trees->GetEntries()) {
          // Get name of first tree
          TString aTreeName = trees->First()->GetName();
@@ -2513,7 +2521,6 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
          G_selectionlist->Display(&fSelections);
          FillLeafList();
       }
-      delete trees;
       TIter next(&keys);
       TKey* akey;
       while ((akey = (TKey*)next())) {
@@ -2556,6 +2563,7 @@ void KVTreeAnalyzer::OpenChain(const TString& treename, const TString& treetitle
    G_selectionlist->Display(&fSelections);
    G_histolist->Display(&fHistolist);
    FillLeafList();
+   fMenuFile->EnableEntry(MH_ADD_FRIEND);
 }
 
 void KVTreeAnalyzer::GenerateAllAliases(TCollection* list)
