@@ -29,6 +29,19 @@ ClassImp(KVFlowTensor)
 // END_LATEX
 // in which case F becomes the (non-relativistic) kinetic energy flow tensor
 // (the trace of F is the total non-relativistic kinetic energy of the products).
+// This is the default weight used.
+// To change the weight, call method SetOption("weight","[your choice]")
+// with one of the following choices:
+//
+//     "RKE" : relativistic kinetic energy tensor
+//     i.e. with
+// BEGIN_LATEX
+// $w_{\nu}={1}\over{m_{\nu}(\gamma_{\nu}+1)}$
+// END_LATEX
+//
+//     "ONE","1", or "" : weight w=1
+//
+//     "NRKE" : non-relativistic KE tensor (default)
 //
 // Gyulassy et al.: "We emphasize that event shape analysis makes sense only in the
 // nucleus-nucleus center of mass system since the eigenvalues of F specify
@@ -98,6 +111,10 @@ void KVFlowTensor::Init(void)
 {
    // Initialisation of internal variables, called once before beginning treatment
    Reset();
+   TString wgt = GetOptionString("weight").Data();
+   if (wgt == "RKE") weight = kRKE;
+   else if (wgt == "ONE" || wgt == "" || wgt == "1") weight = kONE;
+   else weight = kNRKE;
 }
 
 //_________________________________________________________________
