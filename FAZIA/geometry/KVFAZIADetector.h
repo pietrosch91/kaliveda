@@ -111,6 +111,11 @@ public:
 
    Int_t GetIdentifier() const
    {
+      // Return the identifier of the detector. This is one of
+      //   KVFAZIADetector::kSI1
+      //   KVFAZIADetector::kSI2
+      //   KVFAZIADetector::kCSI
+      //   KVFAZIADetector::kOTHER
       return fIdentifier;
    }
    Int_t GetBlockNumber() const
@@ -119,11 +124,14 @@ public:
    }
    Int_t GetIndex() const
    {
+      // Return index of detector, defined as
+      //   100*block+10*quartet+telescope
       return fIndex;
    }
 
    Bool_t IsRutherford() const
    {
+      // Returns kTRUE if detector is part of elastic scattering monitor telescope
       return fIsRutherford;
    }
 

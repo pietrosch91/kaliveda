@@ -18,6 +18,16 @@ ClassImp(KVFAZIADetector)
 <h4>Base class for FAZIA detector</h4>
 <!-- */
 // --> END_HTML
+//
+// DETECTOR NAMES
+// ==============
+// Detector names are assumed to be defined as
+// label-xxx
+// where xxx is computed as follows (see KVFAZIADetector::GetIndex) :
+// 100*block number+10*quartet number+telescope number
+// and label can be SI1, SI2 or CSI
+// For example SI1-123 is the Silicon Si1 of the block 1, the quartet 2 and the telescope 3
+
 ////////////////////////////////////////////////////////////////////////////////
 
 //________________________________________________________________
@@ -50,7 +60,7 @@ KVFAZIADetector::KVFAZIADetector()
 //________________________________________________________________
 KVFAZIADetector::KVFAZIADetector(const Char_t* type, const Float_t thick) : KVDetector(type, thick)
 {
-   // Write your code here
+   // Create detector of given material type and thickness (in centimetres)
    init();
 }
 
@@ -167,9 +177,7 @@ Double_t KVFAZIADetector::GetCalibratedEnergy()
 //________________________________________________________________
 Double_t KVFAZIADetector::GetEnergy()
 {
-   //
    // Returns energy lost in active layer by particles.
-   //
    Double_t eloss = (GetActiveLayer() ? GetActiveLayer()->GetEnergyLoss() : KVMaterial::GetEnergyLoss());
    if (eloss <= 0) {
       Double_t ecal = GetCalibratedEnergy();
@@ -297,6 +305,8 @@ Bool_t KVFAZIADetector::SetProperties()
 //________________________________________________________________
 const Char_t* KVFAZIADetector::GetNewName(KVString oldname)
 {
+   // Translate an old-style FAZIA detector name (e.g. "SI1-T1-Q2-B001")
+   // to the new format ("SI1-121")
 
    Int_t tt = 0, qq = 0, bb = 0;
    KVString tmp = "";
@@ -389,28 +399,34 @@ void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
 //_________________________________________________________________________________
 Bool_t KVFAZIADetector::HasSignal() const
 {
+   // Returns kTRUE if detector has at least 1 associated signal
    return (fSignals && fSignals->GetEntries() > 0);
 }
 
 //_________________________________________________________________________________
 KVSignal* KVFAZIADetector::GetSignal(const Char_t* name) const
 {
+   // Access detector signal by name, i.e. as in FAZIA raw data
+   // e.g. "T1-Q3-B001-QL1"
    if (fSignals)
       return (KVSignal*)fSignals->FindObject(name);
-   return 0;
+   return nullptr;
 }
 
 //_________________________________________________________________________________
 KVSignal* KVFAZIADetector::GetSignalByType(const Char_t* type) const
 {
+   // Access detector signal of given type: "I1", "I2", "Q2", "Q3", "QH1", "QL1"
    if (fSignals)
       return (KVSignal*)fSignals->FindObjectWithMethod(type, "GetType");
-   return 0;
+   return nullptr;
 }
 
 //_________________________________________________________________________________
 KVSignal* KVFAZIADetector::GetSignal(Int_t idx) const
 {
+   // Access signal with given index in list of detector's signals
+   // 0 <= idx < KVFAZIADetector::GetNumberOfSignals()
    if (fSignals && 0 <= idx && idx < fSignals->GetEntries())
       return (KVSignal*)fSignals->At(idx);
    return 0;
@@ -433,6 +449,7 @@ KVList* KVFAZIADetector::GetListOfSignals() const
 //_________________________________________________________________________________
 void KVFAZIADetector::ComputePSA()
 {
+   // Perform Pulse Shape Analysis on all signals
    KVSignal* sig = 0;
    TIter nexts(GetListOfSignals());
    while ((sig = (KVSignal*)nexts())) {

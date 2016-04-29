@@ -38,6 +38,7 @@ ClassImp(KVFAZIAReconNuc);
 //Nuclei reconstructed from data measured in the FAZIA array.
 //Most useful methods are already defined in parent classes KVReconstructedNucleus,
 //KVNucleus and KVParticle.
+////////////////////////////////////////////////////////////////////////////
 
 
 void KVFAZIAReconNuc::init()
@@ -80,8 +81,7 @@ void KVFAZIAReconNuc::Copy(TObject& obj) const
 
 void KVFAZIAReconNuc::Print(Option_t*) const
 {
-
-   //KVReconstructedNucleus::Print(option);
+   // Print information on particle
 
    if (IsIdentified()) {
 
@@ -133,26 +133,37 @@ void KVFAZIAReconNuc::Clear(Option_t* t)
 
 KVFAZIADetector* KVFAZIAReconNuc::Get(const Char_t* label) const
 {
+   // Access one of the detectors hit by this particle: "SI1", "SI2", or "CSI"
+   // If the requested detector type was not hit (i.e. requesting "CSI" for a particle
+   // which stopped in "SI1" or "SI2") then a null pointer will be returned.
+
    KVFAZIADetector* det = (KVFAZIADetector*) GetDetectorList()->FindObjectByLabel(label);
    return det;
 }
 
 KVFAZIADetector* KVFAZIAReconNuc::GetCSI() const
 {
+   // Access CSI detector hit by particle. If particle stopped before CSI, returns null pointer.
    return Get("CSI");
 }
 KVFAZIADetector* KVFAZIAReconNuc::GetSI1() const
 {
+   // Access SI1 detector hit by particle.
    return Get("SI1");
 }
 KVFAZIADetector* KVFAZIAReconNuc::GetSI2() const
 {
+   // Access SI2 detector hit by particle. If particle stopped in SI1, returns null pointer.
    return Get("SI2");
 }
 
 Int_t KVFAZIAReconNuc::GetIndex() const
 {
-   KVFAZIADetector* det = 0;
+   // Return index of dectector in which particle stopped
+   // (see KVFaziaDetector::GetIndex for meaning of index).
+   // If no stopping detector defined (weird?), returns -1.
+
+   KVFAZIADetector* det(nullptr);
    if (!(det = (KVFAZIADetector*)GetStoppingDetector())) return -1;
    return det->GetIndex();
 }
@@ -160,12 +171,15 @@ Int_t KVFAZIAReconNuc::GetIndex() const
 
 Bool_t KVFAZIAReconNuc::StoppedIn(const Char_t* label) const
 {
-   //Returns kTRUE if particle stopped in the labelled detector
+   //Returns kTRUE if particle stopped in the given detector: "SI1", "SI2" or "CSI"
    return (GetStoppingDetector() == Get(label));
 }
 
 Int_t KVFAZIAReconNuc::GetIdentifierOfStoppingDetector() const
 {
+   // Return the identifier of the detector in which particle stopped.
+   // For the definition of possible returned values, see KVFAZIADetector::GetIdentifier
+
    return ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
 }
 
@@ -237,6 +251,8 @@ void KVFAZIAReconNuc::Identify()
 
 void KVFAZIAReconNuc::Calibrate()
 {
+   // Perform energy calibration of (previously identified) particle
+
    KVNucleus avatar;
    //printf("start Calibrate\n");
    Int_t ntot = GetDetectorList()->GetEntries();
@@ -300,6 +316,8 @@ void KVFAZIAReconNuc::Calibrate()
 
 void KVFAZIAReconNuc::ComputePSA()
 {
+   // Perform Pulse Shape Analysis for all detectors hit by this particle
+
    KVFAZIADetector* det = 0;
 
    TIter nextd(GetDetectorList());
@@ -313,7 +331,9 @@ void KVFAZIAReconNuc::MakeDetectorList()
 {
    // Protected method, called when required to fill fDetList with pointers to
    // the detectors whose names are stored in fDetNames.
-   // If gMultiDetArray=0x0, fDetList list will be empty.
+   // Also set all raw data values in the detectors.
+   // If gMultiDetArray=nullptr (no array defined), fDetList list will be empty.
+
    KVFAZIADetector* det = 0;
    Double_t val = -1;
    fDetList.Clear();
