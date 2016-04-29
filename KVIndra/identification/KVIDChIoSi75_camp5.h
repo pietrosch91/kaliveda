@@ -9,8 +9,6 @@
 class KVIDChIoSi75_camp5 : public KVIDChIoSi75 {
    KVIDZAGrid* fGGgrid;//!
    KVIDZAGrid* fPGgrid;//!
-   KVDetector* fChIo;//!
-   KVDetector* fSi;//!
 
 public:
    KVIDChIoSi75_camp5();

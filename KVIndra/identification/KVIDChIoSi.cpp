@@ -124,3 +124,14 @@ void KVIDChIoSi::Initialize()
    } else
       ResetBit(kReadyForID);
 }
+
+Bool_t KVIDChIoSi::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, Double_t)
+{
+   // Overrides KVIDTelescope method
+   // We lower the calculated energy threshold to be better in agreement with data
+   // EINC argument not used as ChIo-Si is always first telescope
+
+   Double_t emin = (1.9 / 2.5) * (fchio->GetEIncOfMaxDeltaE(ION->GetZ(), ION->GetA()));
+   return (ION->GetEnergy() > emin);
+
+}

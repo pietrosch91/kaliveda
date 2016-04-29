@@ -54,6 +54,8 @@ public:
       return (Z > 1);
    }
 
+   Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
+
    ClassDef(KVIDChIoSi, 1)     //INDRA identification using ChIo-Si matrices
 };
 

@@ -14,7 +14,7 @@ class KVFAZIAIDSiPSA : public KVFAZIAIDTelescope {
 public:
    KVFAZIAIDSiPSA();
    virtual ~KVFAZIAIDSiPSA();
-   Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus*, Double_t = 0.);
+   Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
 
    ClassDef(KVFAZIAIDSiPSA, 1) //PSA identification in first silicon of FAZIA telescopes
 };

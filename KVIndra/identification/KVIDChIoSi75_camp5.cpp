@@ -21,8 +21,6 @@ KVIDChIoSi75_camp5::KVIDChIoSi75_camp5()
    // Default constructor
    fGGgrid = 0;
    fPGgrid = 0;
-   fChIo = 0;
-   fSi = 0;
 }
 
 KVIDChIoSi75_camp5::~KVIDChIoSi75_camp5()
@@ -38,8 +36,8 @@ void KVIDChIoSi75_camp5::Initialize()
    // If there is at least 1 grid, we set fCanIdentify = kTRUE
    // "Natural" line widths are calculated for KVIDZAGrids.
 
-   fChIo = GetDetector(1);
-   fSi = GetDetector(2);
+   fchio = GetDetector(1);
+   fsi = GetDetector(2);
    fGGgrid = fPGgrid = 0;
    TIter next(fIDGrids);
    KVIDGrid* grid = 0;
@@ -60,7 +58,7 @@ Double_t KVIDChIoSi75_camp5::GetIDMapX(Option_t* opt)
 {
    //Calculates current X coordinate for identification.
 
-   return fSi->GetACQData(opt);
+   return fsi->GetACQData(opt);
 }
 
 //__________________________________________________________________________//
@@ -71,7 +69,7 @@ Double_t KVIDChIoSi75_camp5::GetIDMapY(Option_t* opt)
    //It is the ionisation chamber's current grand gain (if opt="GG") or petit gain (opt != "GG")
    //coder data, without pedestal correction.
 
-   return fChIo->GetACQData(opt);
+   return fchio->GetACQData(opt);
 }
 
 //________________________________________________________________________________________//
