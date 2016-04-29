@@ -487,7 +487,8 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
             TIter nxtidt(recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification());
             idtelstop = (KVIDTelescope*)nxtidt();
             while (idtelstop) {
-               if (idtelstop->CanIdentify(recon_nuc->GetZ(), recon_nuc->GetA())) {
+               if (idtelstop->CanIdentify(recon_nuc->GetZ(), recon_nuc->GetA())
+                     && idtelstop->CheckTheoreticalIdentificationThreshold(recon_nuc)) { // make sure we are above identification threshold
                   nchanged++;
                   // if this is not the first round, this particle has been 'identified' after
                   // dealing with other particles in the group
