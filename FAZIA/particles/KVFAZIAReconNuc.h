@@ -28,9 +28,9 @@ class KVFAZIADetector;
 class KVFAZIAReconNuc: public KVReconstructedNucleus {
 
 protected:
-   Float_t fECsI;//csi contribution to energy
-   Float_t fESi1;//si1 contribution to energy
-   Float_t fESi2;//si2 contribution to energy
+   Float_t fECSI;//csi contribution to energy
+   Float_t fESI1;//si1 contribution to energy
+   Float_t fESI2;//si2 contribution to energy
 
    virtual void MakeDetectorList();
 
@@ -48,7 +48,7 @@ public:
    virtual void Identify();
    virtual void Calibrate();
 
-   Float_t GetEnergySi1()
+   Float_t GetEnergySI1()
    {
       // Return the calculated SI1 contribution to the particle's energy
       //
@@ -57,9 +57,9 @@ public:
       // between all identifications indicates contribution
       // of several particles to SI1 energy
 
-      return fESi1;
+      return fESI1;
    };
-   Float_t GetEnergySi2()
+   Float_t GetEnergySI2()
    {
       // Return the calculated SI2 contribution to the particle's energy
       //
@@ -67,12 +67,12 @@ public:
       // because all identifications indicates contribution
       // of several particles to SI2 energy
 
-      return fESi2;
+      return fESI2;
    };
-   Float_t GetEnergyCsI()
+   Float_t GetEnergyCSI()
    {
       // Return the calculated CsI contribution to the particle's energy
-      return fECsI;
+      return fECSI;
    };
 
    KVFAZIADetector* Get(const Char_t* label) const;

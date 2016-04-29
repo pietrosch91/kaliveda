@@ -50,12 +50,12 @@ Double_t KVFAZIAIDSiCsI::GetIDMapY(Option_t*)
 
 //____________________________________________________________________________________
 
-Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
+Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
 {
    //Particle identification and code setting using identification grid (class KVIDZAGrid).
 
-   IDR->SetIDType(GetType());
-   IDR->IDattempted = kTRUE;
+   idr->SetIDType(GetType());
+   idr->IDattempted = kTRUE;
 
    //perform identification
    Double_t si2 = (y < 0. ? GetIDMapY() : y);
@@ -68,14 +68,14 @@ Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_
    //Bool_t OKthreshold = ((fSiThreshold && fSiThreshold->TestPoint(csi, si2)) || !fSiThreshold);
    //if (OKproton && OKthreshold){
    if (TheGrid->IsIdentifiable(csi, si2)) {
-      TheGrid->Identify(csi, si2, IDR);
+      TheGrid->Identify(csi, si2, idr);
    } else {
-      IDR->IDOK = kFALSE;
-      IDR->IDquality = KVIDZAGrid::kICODE8;
+      idr->IDOK = kFALSE;
+      idr->IDquality = KVIDZAGrid::kICODE8;
    }
 
    // set general ID code
-   IDR->IDcode = GetIDCode();
+   idr->IDcode = GetIDCode();
 
    return kTRUE;
 

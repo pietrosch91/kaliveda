@@ -55,8 +55,7 @@ void KVFAZIAIDSiSi::Initialize()
 Bool_t KVFAZIAIDSiSi::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
 {
    // Particle identification and code setting using identification grids.
-   // perform identification in Si(GG) - CsI(H) map
-   // Sets idr->deltaEpedestal according to position in GG map
+   // perform identification in QH1-Q2 map
 
    idr->SetIDType(GetType());
    idr->IDattempted = kTRUE;
@@ -64,7 +63,12 @@ Bool_t KVFAZIAIDSiSi::Identify(KVIdentificationResult* idr, Double_t x, Double_t
    Double_t si1 = (y < 0. ? GetIDMapY() : y);
    Double_t si2 = (x < 0. ? GetIDMapX() : x);
 
-   fSiSiGrid->Identify(si2, si1, idr);
+   if (fSiSiGrid->IsIdentifiable(si2, si1)) {
+      fSiSiGrid->Identify(si2, si1, idr);
+   } else {
+      idr->IDOK = kFALSE;
+      idr->IDquality = KVIDZAGrid::kICODE8;
+   }
 
    idr->IDcode = GetIDCode();
 

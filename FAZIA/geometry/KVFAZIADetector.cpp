@@ -118,6 +118,11 @@ void KVFAZIADetector::SortIDTelescopes()
 void KVFAZIADetector::SetCalibrators()
 {
    //Set up calibrators for this detector. Call once name has been set.
+   //test to check that there is not already defined calibrators
+   //
+   if (GetListOfCalibrators())
+      return;
+
    TString sf = "";
 
    fChannelToEnergy = new KVFAZIACalibrator(GetName(), "Channel-Energy");
@@ -128,6 +133,7 @@ void KVFAZIADetector::SetCalibrators()
    } else {
       fChannelToEnergy->SetFunction(sf.Data());
    }
+
    fChannelToVolt = new KVFAZIACalibrator(GetName(), "Channel-Volt");
    fChannelToVolt->SetDetector(this);
    sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Volt", "");
@@ -149,6 +155,7 @@ void KVFAZIADetector::SetCalibrators()
    AddCalibrator(fChannelToEnergy);
    AddCalibrator(fChannelToVolt);
    AddCalibrator(fVoltToEnergy);
+
 }
 
 Bool_t KVFAZIADetector::IsCalibrated() const

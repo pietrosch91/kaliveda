@@ -46,7 +46,7 @@ void KVFAZIAReconNuc::init()
    //default initialisations
    if (gDataSet)
       SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVFAZIAReconNuc.MassFormula", Double_t(kEALMass))));
-   fECsI = fESi1 = fESi2 = 0.;
+   fECSI = fESI1 = fESI2 = 0.;
 }
 
 KVFAZIAReconNuc::KVFAZIAReconNuc()
@@ -256,17 +256,25 @@ void KVFAZIAReconNuc::Calibrate()
    KVNucleus avatar;
    //printf("start Calibrate\n");
    Int_t ntot = GetDetectorList()->GetEntries();
+   if (ntot <= 1)
+      return;
+   Bool_t punch_through = kFALSE;
+   Bool_t incoherency = kFALSE;
+
    Double_t* eloss = new Double_t[ntot];
+   for (Int_t ii = 0; ii < ntot; ii += 1) eloss[ii] = 0;
    TIter next(GetDetectorList());
    KVFAZIADetector* det = 0;
    Int_t ndet = 0;
    Int_t ndet_calib = 0;
    Double_t etot = 0;
    while ((det = (KVFAZIADetector*)next())) {
-      //printf("\t%s\n",det->GetName());
+
       if (det->IsCalibrated()) {
          eloss[ntot - ndet - 1] = det->GetEnergy();
-         //printf("\tdet=%s ndet=%d ntot-ndet-1=%d de=%lf\n",det->GetName(),ndet,ntot-ndet-1,eloss[ntot-ndet-1]);
+         if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
+         else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
+         else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
          etot += eloss[ntot - ndet - 1];
          ndet_calib += 1;
       }
@@ -276,39 +284,67 @@ void KVFAZIAReconNuc::Calibrate()
       Double_t E_targ = 0;
       SetEnergy(etot);
 
-      Double_t etot_avatar = 0;
-      Double_t chi2 = 0;
-      avatar.SetZAandE(GetZ(), GetA(), GetKE());
-      for (Int_t nn = ntot - 1; nn >= 0; nn -= 1) {
-         Double_t temp = GetDetector(nn)->GetELostByParticle(&avatar);
-         //printf("\t (avatar) det=%s de=%lf(%lf)\n",GetDetector(nn)->GetName(),temp,eloss[ntot-1-nn]);
-         etot_avatar += temp;
-         chi2 += TMath::Power(eloss[ntot - 1 - nn] - temp, 2.);
+      if (IsAMeasured()) {
+         Double_t etot_avatar = 0;
+         Double_t chi2 = 0;
+         avatar.SetZAandE(GetZ(), GetA(), GetKE());
+         for (Int_t nn = ntot - 1; nn >= 0; nn -= 1) {
+            Double_t temp = GetDetector(nn)->GetELostByParticle(&avatar);
+            etot_avatar += temp;
+            chi2 += TMath::Power(eloss[ntot - 1 - nn] - temp, 2.);
+            avatar.SetKE(avatar.GetKE() - temp);
+         }
+         if (avatar.GetKE() > 0) {
 
-         avatar.SetKE(avatar.GetKE() - temp);
-      }
-      if (avatar.GetKE() > 0) {
-         Warning("Calibrate", "Incoherence energie residuelle %lf (PUNCH THROUGH)", avatar.GetKE());
-      } else if (TMath::Abs(etot - etot_avatar) > 1e-3) {
-         Warning("Calibrate", "Incoherence %lf != %lf", etot, etot_avatar);
-      } else {
-         SetIsCalibrated();
-         chi2 /= ndet;
-         //Info("Calibrate","z=%d a=%d edet=%lf chi2=%lf ameasured=%d",GetZ(),GetA(),etot,chi2,Int_t(IsAMeasured()));
+            //Warning("Calibrate", "Incoherence energie residuelle %lf (PUNCH THROUGH) %s", avatar.GetKE(),GetStoppingDetector()->GetName());
+            punch_through = kTRUE;
+         } else if (TMath::Abs(etot - etot_avatar) > 1e-3) {
+            //Warning("Calibrate", "Incoherence %lf != %lf", etot, etot_avatar);
+            incoherency = kTRUE;
+         } else {
+            chi2 /= ndet;
+         }
       }
 
       if (GetZ() && GetEnergy() > 0) {
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          SetTargetEnergyLoss(E_targ);
       }
+
       Double_t E_tot = GetEnergy() + E_targ;
       SetEnergy(E_tot);
       // set particle momentum from telescope dimensions (random)
       GetAnglesFromStoppingDetector();
+      SetECode(0);
+      if (punch_through)   SetECode(2);
+      if (incoherency)     SetECode(3);
 
-      //SetIsCalibrated();
+      SetIsCalibrated();
    } else {
-      //Info("Calibrate","Incomplete calibration");
+      if (StoppedInCSI() && !(GetCSI()->IsCalibrated()) && ndet_calib == 2) {
+         if (GetZ() > 0) {
+            if (!IsAMeasured()) {
+
+               if (GetZ() == 1)       SetA(1);
+               else if (GetZ() == 2)  SetA(4);
+               else if (GetZ() == 20) SetA(48);
+               else {
+                  SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+               }
+            }
+
+            Double_t E_targ = 0;
+            fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+            SetEnergy(fECSI + fESI1 + fESI2);
+
+            E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+            Double_t E_tot = GetEnergy() + E_targ;
+            SetECode(1);
+            SetIsCalibrated();
+            SetEnergy(E_tot);
+            GetAnglesFromStoppingDetector();
+         }
+      }
    }
 
    delete [] eloss;
