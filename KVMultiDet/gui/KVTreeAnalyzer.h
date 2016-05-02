@@ -550,6 +550,7 @@ public:
    void HistoFileMenu_OpenFriend();
    Long64_t GetEntriesInCurrentSelection() const;
    ClassDef(KVTreeAnalyzer, 5) //KVTreeAnalyzer
+   void OpenSingleFile(TFile* file);
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer* gTreeAnalyzer;

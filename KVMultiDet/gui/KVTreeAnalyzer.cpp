@@ -2291,7 +2291,6 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
 {
    switch (id) {
       case MH_OPEN_CHAIN:
-         AnalysisSaveCheck();
          OpenChain();
          break;
       case MH_OPEN_FILE:
@@ -2429,14 +2428,16 @@ void KVTreeAnalyzer::OpenChain()
       KVList keys(0);
       keys.AddAll(file->GetListOfKeys());
       // Get list of trees in file
-      KVSeqCollection* trees = keys.GetSubListWithMethod("TTree", "GetClassName");
+      unique_ptr<KVSeqCollection> trees(keys.GetSubListWithMethod("TTree", "GetClassName"));
       if (trees->GetEntries()) {
          theTreeName = trees->First()->GetName();
          theTreeTitle = trees->First()->GetTitle();
       }
-      delete trees;
       if (theTreeName != "") {
-         OpenChain(theTreeName, theTreeTitle, fi.fFileNamesList);
+         // if analysis already en cours, open new GUI
+         KVTreeAnalyzer* newAnal = this;
+         if (fTree) newAnal = new KVTreeAnalyzer(kFALSE);
+         newAnal->OpenChain(theTreeName, theTreeTitle, fi.fFileNamesList);
       }
    }
    dir = fi.fIniDir;
@@ -2482,6 +2483,38 @@ void KVTreeAnalyzer::HistoFileMenu_Save()
    fAnalysisSaveDir = fi.fIniDir;
 }
 
+void KVTreeAnalyzer::OpenSingleFile(TFile* file)
+{
+   // Open TTree in file (as a TChain) and import any histograms found in file
+
+   fHistolist.Clear();
+   KVList keys(0);
+   keys.AddAll(file->GetListOfKeys());
+   // Get list of trees in file
+   unique_ptr<KVSeqCollection> trees(keys.GetSubListWithMethod("TTree", "GetClassName"));
+   if (trees->GetEntries()) {
+      // Get name of first tree
+      TString aTreeName = trees->First()->GetName();
+      TString aFileName = file->GetName();
+      TList fileList;
+      TNamed ff(aFileName.Data(), "File Name");
+      fileList.Add(&ff);
+      OpenChain(aTreeName, trees->First()->GetTitle(), &fileList);
+   }
+   TIter next(&keys);
+   TKey* akey;
+   while ((akey = (TKey*)next())) {
+      if (TClass::GetClass(akey->GetClassName())->InheritsFrom("TH1")) {
+         if (!fHistolist.FindObject(akey->GetName())) {
+            TH1* h = (TH1*)file->Get(akey->GetName());
+            h->SetDirectory(0);
+            fHistolist.Add(new KVHistogram(h));
+         }
+      }
+   }
+   G_histolist->Display(&fHistolist);
+}
+
 void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
 {
    // assuming filepath is the URL of a ROOT file containing a previously-saved analysis, open it and
@@ -2494,45 +2527,7 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
    if (kvta) {
       ReadFromFile(file);
    } else {
-      fHistolist.Clear();
-      KVList keys(0);
-      keys.AddAll(file->GetListOfKeys());
-      // Get list of trees in file
-      unique_ptr<KVSeqCollection> trees(keys.GetSubListWithMethod("TTree", "GetClassName"));
-      if (trees->GetEntries()) {
-         // Get name of first tree
-         TString aTreeName = trees->First()->GetName();
-         if (fTree) fTree->GetCurrentFile()->Close();
-         fTree = 0;
-         // Use this tree
-         TTree* t = (TTree*)file->Get(aTreeName);
-         SetTitle(t->GetTitle());
-         SetTree(t);
-         fSelections.Clear();
-         fAliasList.Clear();
-         fHistoNumber = 1;
-         fSelectionNumber = 1;
-         fAliasNumber = 1;
-         fSameColorIndex = 0;
-         fSelectedSelections = 0;
-         fSelectedLeaves = 0;
-         fSelectedHistos = 0;
-         SetAnalysisModifiedSinceLastSave(kFALSE);
-         G_selectionlist->Display(&fSelections);
-         FillLeafList();
-      }
-      TIter next(&keys);
-      TKey* akey;
-      while ((akey = (TKey*)next())) {
-         if (TClass::GetClass(akey->GetClassName())->InheritsFrom("TH1")) {
-            if (!fHistolist.FindObject(akey->GetName())) {
-               TH1* h = (TH1*)file->Get(akey->GetName());
-               h->SetDirectory(0);
-               fHistolist.Add(new KVHistogram(h));
-            }
-         }
-      }
-      G_histolist->Display(&fHistolist);
+      OpenSingleFile(file);
    }
    fMenuFile->EnableEntry(MH_ADD_FRIEND);
 }
