@@ -22,4 +22,5 @@
 #ifdef WITH_GEMINI
 #pragma link C++ class KVGemini+;
 #endif
+#pragma link C++ class KVFissionKinematics+;
 #endif
