@@ -479,7 +479,7 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
          } else if (recon_nuc->GetStatus() == 2) {
             // pile-up in first stage of telescopes
             recon_nuc->SetIsIdentified();
-            if (idtelstop) idtelstop->SetIDCode(recon_nuc, idtelstop->GetMultiHitFirstStageIDCode());
+            if (idtelstop && idtelstop->IsReadyForID()) idtelstop->SetIDCode(recon_nuc, idtelstop->GetMultiHitFirstStageIDCode());
             else recon_nuc->SetIsOK(kFALSE);
             nchanged++;
          } else if (recon_nuc->GetStatus() == 0) {
@@ -487,7 +487,7 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
             TIter nxtidt(recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification());
             idtelstop = (KVIDTelescope*)nxtidt();
             while (idtelstop) {
-               if (idtelstop->CanIdentify(recon_nuc->GetZ(), recon_nuc->GetA())
+               if (idtelstop->IsReadyForID() && idtelstop->CanIdentify(recon_nuc->GetZ(), recon_nuc->GetA())
                      && idtelstop->CheckTheoreticalIdentificationThreshold(recon_nuc)) { // make sure we are above identification threshold
                   nchanged++;
                   // if this is not the first round, this particle has been 'identified' after
@@ -881,7 +881,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   ntouche++;
             }
             if (ntouche < ndet) continue;
-            if (fFilterType == kFilterType_Geo || theIDT->CanIdentify(part->GetZ(), part->GetA())) {
+            if (fFilterType == kFilterType_Geo ||
+                  (theIDT->IsReadyForID() && theIDT->CanIdentify(part->GetZ(), part->GetA()))) {
                part->GetParameters()->SetValue("IDENTIFYING TELESCOPE", theIDT->GetName());
                break;
             }
@@ -1026,7 +1027,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
             KVDetector* last_det = 0;
             if (part->GetParameters()->HasParameter("STOPPING DETECTOR"))
                last_det = GetDetector(part->GetParameters()->GetStringValue("STOPPING DETECTOR"));
-            if (!last_det) continue;
+            if (!last_det || !(last_det->IsOK())) continue;
 
             recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
             recon_nuc->Reconstruct(last_det);
