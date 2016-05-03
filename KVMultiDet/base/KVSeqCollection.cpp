@@ -457,13 +457,15 @@ TObject* KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue, const Cha
             if (mt.ReturnType() == TMethodCall::kString) {
                Char_t* ret;
                mt.Execute(obj, "", &ret);
-               if (!wildcard) {
-                  if (RV == ret) {
-                     return obj;
-                  }
-               } else {
-                  if (KVString(ret).Match(RV)) {
-                     return obj;
+               if (ret != nullptr) {
+                  if (!wildcard) {
+                     if (RV == ret) {
+                        return obj;
+                     }
+                  } else {
+                     if (KVString(ret).Match(RV)) {
+                        return obj;
+                     }
                   }
                }
             } else if (mt.ReturnType() == TMethodCall::kLong) {

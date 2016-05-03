@@ -264,8 +264,14 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    else histo.Form(">>%s(%d,%lf,%lf)", name.Data(), (fUserBinning ? fNxF : nX), (fUserBinning ? fXminF : 0.), (fUserBinning ?  fXmaxF : 0));
 
    if (!fProfileHisto) drawexp += histo;
-   if (fProfileHisto) fTree->Draw(Form("%s>>%s", drawexp.Data(), name.Data()), Selection, "prof,goff");
-   else  fTree->Draw(drawexp, Selection, "goff");
+   Long64_t drawResult;
+   if (fProfileHisto) drawResult = fTree->Draw(Form("%s>>%s", drawexp.Data(), name.Data()), Selection, "prof,goff");
+   else drawResult = fTree->Draw(drawexp, Selection, "goff");
+   if (drawResult < 0) {
+      // Error with Draw: probably a bad expression
+      new TGMsgBox(gClient->GetRoot(), fMain_histolist, "Error", "Problem drawing histogram: check the expressions?", kMBIconExclamation, kMBDismiss);
+      return nullptr;
+   }
    TH1* h;
    if (IsPROOFEnabled()) h = (TH1*)gProof->GetOutputList()->FindObject(name);
    else h = (TH1*)gDirectory->Get(name);
@@ -318,7 +324,11 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
       else Selection = weight;
    } else
       Selection = selection;
-   fTree->Draw(drawexp, Selection, "goff");
+   Long64_t drawResult = fTree->Draw(drawexp, Selection, "goff");
+   if (drawResult < 0) {
+      new TGMsgBox(gClient->GetRoot(), fMain_histolist, "Error", "Problem drawing histogram: check the expressions?", kMBIconExclamation, kMBDismiss);
+      return nullptr;
+   }
    TH1* h;
    if (IsPROOFEnabled()) h = (TH1*)gProof->GetOutputList()->FindObject(name);
    else h = (TH1*)gDirectory->Get(name);
@@ -1557,13 +1567,6 @@ void KVTreeAnalyzer::DrawLeafExpr()
       return;
    }
 
-   if (fUserBinning) {
-      ResetMethodCalled();
-      Bool_t ok = KVBase::OpenContextMenu("DefineUserBinning", this);
-      if (!ok) return;
-      // cancel was pressed ?
-      if (MethodNotCalled()) return;
-   }
    if (fUserWeight) {
       ResetMethodCalled();
       Bool_t ok = KVBase::OpenContextMenu("DefineWeight", this);
@@ -1579,6 +1582,42 @@ void KVTreeAnalyzer::DrawLeafExpr()
    Xexpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName() : fXLeaf->GetTitle());
    Yexpr = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName() : fYLeaf->GetTitle());
    if (threeDexp) Zexpr = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName() : fZLeaf->GetTitle());
+   if (fXLeaf->InheritsFrom("TLeaf") && !strcmp(((TLeaf*)fXLeaf)->GetTypeName(), "Char_t")) {
+      TString tmp = Xexpr;
+      Xexpr.Form("int(%s)", tmp.Data());
+   }
+   if (fYLeaf->InheritsFrom("TLeaf") && !strcmp(((TLeaf*)fYLeaf)->GetTypeName(), "Char_t")) {
+      TString tmp = Yexpr;
+      Yexpr.Form("int(%s)", tmp.Data());
+   }
+
+   if (threeDexp) fLeafExpr.Form("%s:%s:%s", Zexpr.Data(), Yexpr.Data(), Xexpr.Data());
+   else fLeafExpr.Form("%s:%s", Yexpr.Data(), Xexpr.Data());
+   TString name;
+   name.Form("h%d", fHistoNumber);
+   TString drawexp(fLeafExpr), histo, histotitle;
+   if (fUserWeight) GenerateHistoTitle(histotitle, fLeafExpr, "", fWeight);
+   else GenerateHistoTitle(histotitle, fLeafExpr, "");
+
+   // Check histo doesn't already exist
+   // Look for list of histograms with given title as we don't distinguish TH2 from TProfile
+   unique_ptr<KVSeqCollection> same_histo(fHistolist.GetSubListWithMethod(histotitle, "GetHistoTitle"));
+   TIter nxtSame(same_histo.get());
+   KVHistogram* kvhisto;
+   while ((kvhisto = (KVHistogram*)nxtSame())) {
+      if ((fProfileHisto && kvhisto->IsProfile()) || (!fProfileHisto && kvhisto->IsTH2())) {
+         DrawHisto(kvhisto->GetHisto());
+         return;
+      }
+   }
+
+   if (fUserBinning) {
+      ResetMethodCalled();
+      Bool_t ok = KVBase::OpenContextMenu("DefineUserBinning", this);
+      if (!ok) return;
+      // cancel was pressed ?
+      if (MethodNotCalled()) return;
+   }
 
    xmin = fTree->GetMinimum(Xexpr);
    xmax = fTree->GetMaximum(Xexpr);
@@ -1598,15 +1637,6 @@ void KVTreeAnalyzer::DrawLeafExpr()
       ymax += 0.5;
       ny = ymax - ymin;
    }
-   if (fXLeaf->InheritsFrom("TLeaf") && !strcmp(((TLeaf*)fXLeaf)->GetTypeName(), "Char_t")) {
-      TString tmp = Xexpr;
-      Xexpr.Form("int(%s)", tmp.Data());
-   }
-   if (fYLeaf->InheritsFrom("TLeaf") && !strcmp(((TLeaf*)fYLeaf)->GetTypeName(), "Char_t")) {
-      TString tmp = Yexpr;
-      Yexpr.Form("int(%s)", tmp.Data());
-   }
-
    if (fUserBinning) {
       nx = fNx;
       ny = fNy;
@@ -1616,13 +1646,6 @@ void KVTreeAnalyzer::DrawLeafExpr()
       ymax = fYmax;
    }
 
-   if (threeDexp) fLeafExpr.Form("%s:%s:%s", Zexpr.Data(), Yexpr.Data(), Xexpr.Data());
-   else fLeafExpr.Form("%s:%s", Yexpr.Data(), Xexpr.Data());
-   TString name;
-   name.Form("h%d", fHistoNumber);
-   TString drawexp(fLeafExpr), histo, histotitle;
-   if (fUserWeight) GenerateHistoTitle(histotitle, fLeafExpr, "", fWeight);
-   else GenerateHistoTitle(histotitle, fLeafExpr, "");
    if (!fProfileHisto) histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx, xmin, xmax, ny, ymin, ymax);
    else {
       if (fUserBinning) histo.Form(">>%s(%d,%f,%f)", name.Data(), nx, xmin, xmax);
@@ -1631,9 +1654,15 @@ void KVTreeAnalyzer::DrawLeafExpr()
    drawexp += histo;
    TString ww = "";
    if (fUserWeight) ww += fWeight;
-   if (!fProfileHisto) fTree->Draw(drawexp, ww.Data(), "goff");
-   else  fTree->Draw(drawexp, ww.Data(), "prof,goff");
-   TH1* h;
+   Long64_t drawResult;
+   if (!fProfileHisto) drawResult = fTree->Draw(drawexp, ww.Data(), "goff");
+   else  drawResult = fTree->Draw(drawexp, ww.Data(), "prof,goff");
+   if (drawResult < 0) {
+      // Error: problem with Draw, probably bad expression
+      new TGMsgBox(gClient->GetRoot(), fMain_histolist, "Error", "Problem drawing histogram: check the expressions?", kMBIconExclamation, kMBDismiss);
+      return;
+   }
+   TH1* h(nullptr);
    if (IsPROOFEnabled())
       h = (TH1*)gProof->GetOutputList()->FindObject(name);
    else
@@ -1771,7 +1800,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
       if (MethodNotCalled()) return;
    }
 
-   TH1* histo = 0;
+   TH1* histo = nullptr;
    if (obj->InheritsFrom("TLeaf")) {
       TLeaf* leaf = dynamic_cast<TLeaf*>(obj);
       TString expr = leaf->GetName();
@@ -1796,6 +1825,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
             histo->GetXaxis()->SetTitle(leaf->GetName());
          } else {
             histo = MakeHisto(expr, "", 500, 0, (fUserWeight ? fWeight.Data() : ""));
+            if (!histo) return;
             histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          if (!histo) return;

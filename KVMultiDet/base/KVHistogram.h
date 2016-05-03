@@ -34,6 +34,18 @@ public:
    {
       return fCut;
    }
+   Bool_t IsProfile() const
+   {
+      return (fHisto && fHisto->InheritsFrom("TProfile"));
+   }
+   Bool_t IsTH2() const
+   {
+      return (fHisto && fHisto->InheritsFrom("TH2"));
+   }
+   Bool_t IsTH1() const
+   {
+      return (fHisto && !IsProfile() && !IsTH2());
+   }
    const Char_t* GetExpression() const;
    const Char_t* GetHistoTitle() const;
    const Char_t* GetVarX() const;
