@@ -80,6 +80,8 @@ KVEventViewer::KVEventViewer(Int_t protoncolor, Int_t neutroncolor, Int_t highli
 
    fHighlightMode = kNoHighlight;
    fAxesMode = kFALSE;
+
+   fFixPerspective = kFALSE;
 }
 
 KVEventViewer::~KVEventViewer()
@@ -162,7 +164,13 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    }
    // scale down
    maxV *= 0.5;
-   if (fMaxVelocity > 0) maxV = fMaxVelocity;
+   if (fFixPerspective) {
+      // fixed perspective mode
+      // calculate maxV once (first event), store it in fMaxVelocity, then use
+      // for all other events
+      if (fMaxVelocity > 0) maxV = fMaxVelocity;
+      else fMaxVelocity = maxV;
+   } else if (fMaxVelocity > 0) maxV = fMaxVelocity;
 
    TGeoVolume* box  = geom->MakeSphere("box",  Box,  0.99 * maxV, maxV);
    box->SetLineColor(kBlack);

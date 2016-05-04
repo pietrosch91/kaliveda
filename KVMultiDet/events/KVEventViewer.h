@@ -62,6 +62,8 @@ protected:
    Int_t fHighlightMode;
    Bool_t fAxesMode;
 
+   Bool_t fFixPerspective;
+
 public:
    enum EHighlightMode {
       kNoHighlight,
@@ -162,6 +164,14 @@ public:
    void DumpCurrentEvent()
    {
       if (theEvent) theEvent->Print("ok");
+   }
+
+   void SetFixPerspective(Bool_t on = kTRUE)
+   {
+      // Fix size of box used to represent event from "dimensions" of first
+      // event viewed, then use the same for all following events
+
+      fFixPerspective = on;
    }
 
    ClassDef(KVEventViewer, 1) //Draw events in 3D using OpenGL
