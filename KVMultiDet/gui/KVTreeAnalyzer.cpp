@@ -265,6 +265,11 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
 
    if (!fProfileHisto) drawexp += histo;
    Long64_t drawResult;
+   if (fPROOFEnabled) {
+      // force updating of TDSet entrylist
+      fChain->SetProof(kFALSE);
+      fChain->SetProof(kTRUE);
+   }
    if (fProfileHisto) drawResult = fTree->Draw(Form("%s>>%s", drawexp.Data(), name.Data()), Selection, "prof,goff");
    else drawResult = fTree->Draw(drawexp, Selection, "goff");
    if (drawResult < 0) {
@@ -324,6 +329,11 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
       else Selection = weight;
    } else
       Selection = selection;
+   if (fPROOFEnabled) {
+      // force updating of TDSet entrylist
+      fChain->SetProof(kFALSE);
+      fChain->SetProof(kTRUE);
+   }
    Long64_t drawResult = fTree->Draw(drawexp, Selection, "goff");
    if (drawResult < 0) {
       new TGMsgBox(gClient->GetRoot(), fMain_histolist, "Error", "Problem drawing histogram: check the expressions?", kMBIconExclamation, kMBDismiss);
@@ -387,7 +397,8 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    name.Form("el%d", fSelectionNumber);
    TString drawexp(name.Data());
    drawexp.Prepend(">>");
-   if (!IsPROOFEnabledForSelections()) fChain->SetProof(kFALSE);
+   fChain->SetProof(kFALSE);
+   if (IsPROOFEnabledForSelections() && IsPROOFEnabled()) fChain->SetProof(kTRUE);
    if (fTree->Draw(drawexp, selection, "entrylist") < 0) {
       new TGMsgBox(gClient->GetRoot(), 0, "Warning", "Mistake in your new selection!", kMBIconExclamation, kMBClose);
       return kFALSE;
@@ -1655,6 +1666,11 @@ void KVTreeAnalyzer::DrawLeafExpr()
    TString ww = "";
    if (fUserWeight) ww += fWeight;
    Long64_t drawResult;
+   if (fPROOFEnabled) {
+      //force update of TDSet entrylist
+      fChain->SetProof(kFALSE);
+      fChain->SetProof(kTRUE);
+   }
    if (!fProfileHisto) drawResult = fTree->Draw(drawexp, ww.Data(), "goff");
    else  drawResult = fTree->Draw(drawexp, ww.Data(), "prof,goff");
    if (drawResult < 0) {
@@ -1970,7 +1986,7 @@ void KVTreeAnalyzer::EnablePROOF(Bool_t yes)
    if (yes) {
       // open new PROOF-lite session
       if (!gProof) TProof::Open("");
-      if (fChain) fChain->SetProof();
+      if (fChain) fChain->SetProof(kTRUE, kTRUE);
    } else {
       if (fChain) fChain->SetProof(false);
    }
