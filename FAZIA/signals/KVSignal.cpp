@@ -38,6 +38,7 @@ ClassImp(KVSignal)
 
 void KVSignal::init()
 {
+   printf("hello Giuseppe\n");
    fPSAIsDone = kFALSE;
    fChannel = kUNKDT;
    fYmin = fYmax = 0;
