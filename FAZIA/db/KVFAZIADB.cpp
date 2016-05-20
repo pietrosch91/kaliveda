@@ -715,24 +715,17 @@ void KVFAZIADB::ReadExceptions()
          } else {
             KVString name(fr.GetReadPar(0));
             name.Begin(".");
-            KVString tel = name.Next();
-            tel.Begin("-");
-            KVString sdet = tel.Next();
-            sdet.Prepend("-");
-            sdet.Prepend(tel.Next());
-            sdet.Prepend("-");
-            sdet.Prepend(tel.Next());
-            sdet.Prepend("-");
+            KVString sdet = name.Next();
 
             KVString sig = name.Next();
-            if (sig == "QH1" || sig == "QL1" || sig == "I1")   sdet.Prepend("SI1");
-            else if (sig == "Q2" || sig == "I2")        sdet.Prepend("SI2");
-            else if (sig == "Q3")                   sdet.Prepend("CSI");
+            if (sig == "QH1" || sig == "QL1" || sig == "I1")   sdet.Prepend("SI1-");
+            else if (sig == "Q2" || sig == "I2")        sdet.Prepend("SI2-");
+            else if (sig == "Q3")                   sdet.Prepend("CSI-");
 
-            printf("tel=%s -> sdet=%s\n", tel.Data(), sdet.Data());
+            printf("sdet=%s\n", sdet.Data());
 
             KVString par = name.Next();
-            if (!(dbp = (KVDBParameterList*)ll->FindObject(Form("%s.%s", tel.Data(), sig.Data())))) {
+            if (!(dbp = (KVDBParameterList*)ll->FindObject(Form("%s.%s", sdet.Data(), sig.Data())))) {
                dbp = new KVDBParameterList(Form("%s.%s", sdet.Data(), sig.Data()), sdet.Data());
                dbp->AddKey("Runs", "List of Runs");
                fExceptions->AddRecord(dbp);
@@ -743,7 +736,7 @@ void KVFAZIADB::ReadExceptions()
             }
             dbp->GetParameters()->SetValue(par.Data(), fr.GetDoubleReadPar(1));
 
-            printf("\t%s %s %s %lf\n", tel.Data(), sig.Data(), par.Data(), fr.GetDoubleReadPar(1));
+            printf("\t%s %s %s %lf\n", sdet.Data(), sig.Data(), par.Data(), fr.GetDoubleReadPar(1));
          }
       }
    }
