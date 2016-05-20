@@ -162,10 +162,17 @@ public:
    };
    Double_t GetWaveLength() const
    {
+      //should be in fm
       if (GetMomentum().Mag() == 0)
          return 0;
-      Double_t hbar = TMath::Hbar() * TMath::C() / TMath::Qe() * 1e9; //in MeV/fm
-      return TMath::TwoPi() * hbar / GetMomentum().Mag();
+      Double_t h = TMath::H() * TMath::C() / TMath::Qe() * 1e9; //in MeV.fm
+      return h / GetMomentum().Mag();
+   };
+   Double_t GetThermalWaveLength(Double_t temp) const
+   {
+      //should be in fm
+      Double_t h = TMath::H() * TMath::C() / TMath::Qe() * 1e9; //in MeV.fm
+      return h / TMath::Sqrt(TMath::TwoPi() * temp * GetMass());
    };
    TVector3 GetVelocity() const;
    TVector3 GetV() const

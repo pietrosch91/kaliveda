@@ -877,7 +877,7 @@ void KVFAZIADB::ReadCalibrationFiles()
 {
 
    if (!strcmp(GetCalibFileName("CalibrationFiles"), "")) {
-      Info("ReadCalibrationFiles()", "No file foud for CalibrationFiles");
+      Info("ReadCalibrationFiles()", "No file found for CalibrationFiles");
       return;
    }
    TString fp;
@@ -905,13 +905,27 @@ void KVFAZIADB::ReadCalibrationFiles()
 void KVFAZIADB::ReadCalibFile(const Char_t* filename)
 {
 
-   if (gSystem->Exec(Form("test -e %s/%s", GetDataSetDir(), filename)) != 0) {
-      Info("ReadCalibFile", "%s/%s do not exist", GetDataSetDir(), filename);
+   Bool_t find = kFALSE;
+   TString fullpath = "";
+   if (gSystem->Exec(Form("test -e %s/%s", GetDataSetDir(), filename)) == 0) {
+      //Info("ReadCalibFile", "%s/%s do not exist", GetDataSetDir(), filename);
+      //return;
+      find = kTRUE;
+      fullpath.Form("%s/%s", GetDataSetDir(), filename);
+   } else if (gSystem->Exec(Form("test -e %s", filename)) == 0) {
+      //Info("ReadCalibFile", "%s do not exist", filename);
+      //return;
+      find = kTRUE;
+      fullpath.Form("%s", filename);
+   }
+   if (!find) {
+      Info("ReadCalibFile", "%s does not exist or not found", filename);
       return;
    }
 
+   Info("ReadCalibFile", "file : %s found", fullpath.Data());
    TEnv env;
-   env.ReadFile(Form("%s/%s", GetDataSetDir(), filename), kEnvAll);
+   env.ReadFile(Form("%s", fullpath.Data()), kEnvAll);
    TIter next(env.GetTable());
    TEnvRec* rec = 0;
    KVDBParameterSet* par = 0;
