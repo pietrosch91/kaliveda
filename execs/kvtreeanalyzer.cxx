@@ -10,11 +10,13 @@ int main(int argc, char** argv)
       fname = argv[1];
       --argc;
    }
+   KVBase::InitEnvironment();
    TRint* myapp = new TRint("kvtreeanalyzer", &argc, argv, NULL, 0);
    KVTreeAnalyzer* kvt = new KVTreeAnalyzer(kFALSE);
    if (fname != "" && fname.EndsWith(".root")) {
       kvt->OpenAnyFile(argv[1]);
    }
+   myapp->SetPrompt("kaliveda [%d] ");
    myapp->Run();
    delete myapp;
    return 0;
