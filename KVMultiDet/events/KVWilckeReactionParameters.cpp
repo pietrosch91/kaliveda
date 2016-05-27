@@ -230,3 +230,13 @@ Double_t KVWilckeReactionParameters::GetMaximumAngularMomentumWithPocket()
    }
    return 0;
 }
+
+Double_t KVWilckeReactionParameters::GetBassReactionCrossSection(Double_t e_sur_a)
+{
+   // Bass reaction cross-section [mb] for incident energy [MeV/nucleon]
+   Double_t R1 = 1.12 * pow(AP, 1. / 3.) - 0.94 * pow(AP, -1. / 3.);
+   Double_t R2 = 1.12 * pow(AT, 1. / 3.) - 0.94 * pow(AT, -1. / 3.);
+   Double_t Rint = R1 + R2 + 3.2;
+   Double_t VRINT = 1.44 * ZP * ZT / Rint - R1 * R2 / (R1 + R2);
+   return 10 * TMath::Pi() * pow(Rint, 2) * (1. - VRINT / ECM(e_sur_a));
+}

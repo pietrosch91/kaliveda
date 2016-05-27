@@ -151,14 +151,52 @@ public:
       Double_t Vcent = l[0] * (l[0] + 1.) * pow(KVNucleus::hbar, 2) / (2.*MU * mu_Wilcke * R * R);
       return ProxPot(&x[0], 0) + VC(&x[0], 0) + Vcent;
    }
+   Double_t GetAngularMomentumFromImpactParameter(Double_t e_sur_a, Double_t b) const
+   {
+      // For beam energy e_sur_a [MeV/nucleon] and impact parameter b [fm],
+      // calculate the equivalent angular momentum [hbar]
+      return b * k(e_sur_a);
+   }
+   Double_t GetImpactParameterFromAngularMomentum(Double_t e_sur_a, Double_t l) const
+   {
+      // For beam energy e_sur_a [MeV/nucleon] and angular momentum l [hbar],
+      // calculate the equivalent impact parameter [fm]
+      return l / k(e_sur_a);
+   }
+   Double_t GetCrossSectionFromMaxAngularMomentum(Double_t e_sur_a, Double_t lmax) const
+   {
+      // Calculate cross-section [mb] for a given beam energy [MeV/nucleon] and
+      // maximum entrance channel angular momentum [hbar]
+      return 10.*(TMath::Pi() / pow(k(e_sur_a), 2)) * pow(lmax + 0.5, 2);
+   }
+   Double_t GetMaxAngularMomentumFromCrossSection(Double_t e_sur_a, Double_t sigma) const
+   {
+      // Calculate maximum entrance channel angular momentum [hbar]
+      // for a given cross-section [mb] and beam energy [MeV/nucleon]
+      // (sharp cut-off approximatin)
+      return sqrt(sigma / (10.*(TMath::Pi() / pow(k(e_sur_a), 2)))) - 0.5;
+   }
+   Double_t GetCrossSectionFromMaxImpactParameter(Double_t bmax) const
+   {
+      // Calculate cross-section [mb] for a given
+      // maximum entrance channel impact parameter [fm]
+      return 10.*TMath::Pi() * pow(bmax, 2);
+   }
+   Double_t GetMaxImpactParameterFromCrossSection(Double_t sigma) const
+   {
+      // Calculate maximum entrance channel impact parameter [fm]
+      // for a given cross-section [mb]  (sharp cut-off approximation)
+      return sqrt(sigma / (10.*TMath::Pi()));
+   }
    TF1* GetCentrifugalPotential(Double_t e_sur_a, Double_t b) const
    {
       // Total (nuclear+coulomb+centrifugal) potential for given beam energy (E/A)
       // and impact parameter (fm)
-      Double_t l = b * k(e_sur_a);
+      Double_t l = GetAngularMomentumFromImpactParameter(e_sur_a, b);
       fCentPot->SetParameter(0, l);
       return fCentPot;
    }
+
    TF1* GetCentrifugalPotential(Double_t l) const
    {
       // Total (nuclear+coulomb+centrifugal) potential for given angular momentum (hbar)
@@ -248,7 +286,7 @@ public:
    Double_t SigmaR(Double_t* x, Double_t*) const
    {
       // Reaction X-section from Lmax in mb
-      return 10.*(TMath::Pi() / pow(k(*x), 2)) * pow(Lmax(x, 0) + 0.5, 2);
+      return GetCrossSectionFromMaxAngularMomentum(*x, Lmax(x, 0));
    }
    Double_t ECM(Double_t e_sur_a) const
    {
@@ -264,8 +302,8 @@ public:
       // Fusion cross section in mb
       if (*e_sur_a <= 0) return 0.;
       Double_t e = VRB / ECM(*e_sur_a);
-      Double_t S1 = (e > 1. ? 0. : 10.*TMath::Pi() * pow(RBARRIER, 2) * (1. - e));
-      Double_t S2 = 10.*(TMath::Pi() / pow(k(*e_sur_a), 2)) * pow(LCRIT + 0.5, 2);
+      Double_t S1 = (e > 1. ? 0. : GetCrossSectionFromMaxImpactParameter(RBARRIER) * (1. - e));
+      Double_t S2 = GetCrossSectionFromMaxAngularMomentum(*e_sur_a, LCRIT);
       Double_t S = TMath::Min(S1, S2);
       return S;
    }
@@ -328,6 +366,7 @@ public:
    {
       return RINT;
    }
+   Double_t GetBassReactionCrossSection(Double_t e_sur_a);
 
    ClassDef(KVWilckeReactionParameters, 1) //Reaction parameters for heavy-ion collisions (Wilcke et al)
 };
