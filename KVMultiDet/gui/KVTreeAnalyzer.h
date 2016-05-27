@@ -288,6 +288,8 @@ class KVTreeAnalyzer : public TNamed {
    void AnalysisSaveCheck();
    void SetAnalysisModifiedSinceLastSave(Bool_t);
 
+   void SetEntryList(TEntryList*);
+
 public:
    KVTreeAnalyzer(Bool_t nogui = kTRUE);
    KVTreeAnalyzer(TTree*, Bool_t nogui = kFALSE);
@@ -551,6 +553,11 @@ public:
    Long64_t GetEntriesInCurrentSelection() const;
    ClassDef(KVTreeAnalyzer, 5) //KVTreeAnalyzer
    void OpenSingleFile(TFile* file);
+
+   TChain* GetChain() const
+   {
+      return fChain;
+   }
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer* gTreeAnalyzer;
