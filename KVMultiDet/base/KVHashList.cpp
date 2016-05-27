@@ -103,4 +103,3 @@ TList* KVHashList::GetListForObject(const TObject* obj) const
 
    return ((THashList*)fCollection)->GetListForObject(obj);
 }
-
