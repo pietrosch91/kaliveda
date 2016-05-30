@@ -21,14 +21,6 @@
 #pragma link C++ class KVDataPatch+;
 #pragma link C++ class KVDataPatchList+;
 #pragma link C++ class KVEventSelector+;
-#pragma link C++ class KVSimReader;
-#pragma link C++ class KVSimReader_HIPSE;
-#pragma link C++ class KVSimReader_HIPSE_asym;
-#pragma link C++ class KVSimReader_SMF;
-#pragma link C++ class KVSimReader_SMF_asym;
-#pragma link C++ class KVSimReader_MMM;
-#pragma link C++ class KVSimReader_MMM_asym;
-#pragma link C++ class KVSimReader_ELIE;
 #pragma link C++ class KVAutoFit;
 #pragma link C++ class KVGaus1D;
 #pragma link C++ class KVGaus2D;
