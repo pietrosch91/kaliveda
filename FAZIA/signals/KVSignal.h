@@ -415,6 +415,7 @@ public:
    //------------------ OPERATORI ---------------------//
    void ShiftLeft(double);//shift in ns
    void ShiftRight(double);//shift in ns
+   void TestDraw();
 
    ClassDef(KVSignal, 3) //Base class for FAZIA signal processing
 };

@@ -1401,4 +1401,10 @@ void KVSignal::ShiftRight(double tshift)//shift is in ns
    for (int i = 0; i < shift; i++)
       fAdc.AddAt(fAdc.At(shift), i);
 }
+/***************************************************************************/
+void KVSignal::TestDraw()
+{
+   this->Draw();
+   getchar();
+}
 
