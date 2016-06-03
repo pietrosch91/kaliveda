@@ -8,7 +8,7 @@
 #include "KVSimEvent.h"
 
 class KVCoulombPropagator : public KVRungeKutta {
-   KVSimEvent& theEvent;
+   KVSimEvent* theEvent;
    Int_t fMult;
 
    Int_t particle_position_offset(Int_t i)
@@ -23,7 +23,7 @@ class KVCoulombPropagator : public KVRungeKutta {
    void updateEvent();
 
 public:
-   KVCoulombPropagator(KVSimEvent&, Double_t precision = 1.e-9);
+   KVCoulombPropagator(KVSimEvent*, Double_t precision = 1.e-9);
 
    virtual ~KVCoulombPropagator();
 

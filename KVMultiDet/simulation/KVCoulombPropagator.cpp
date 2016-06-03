@@ -19,12 +19,12 @@ ClassImp(KVCoulombPropagator)
 void KVCoulombPropagator::updateEvent()
 {
    for (int i = 1; i <= fMult; ++i) {
-      static_cast<KVSimNucleus*>(theEvent.GetParticle(i))->SetPosition(
+      static_cast<KVSimNucleus*>(theEvent->GetParticle(i))->SetPosition(
          y[particle_position_offset(i)],
          y[particle_position_offset(i) + 1],
          y[particle_position_offset(i) + 2]
       );
-      static_cast<KVSimNucleus*>(theEvent.GetParticle(i))->SetVelocity(
+      static_cast<KVSimNucleus*>(theEvent->GetParticle(i))->SetVelocity(
          TVector3(KVNucleus::C()*y[particle_velocity_offset(i)],
                   KVNucleus::C()*y[particle_velocity_offset(i) + 1],
                   KVNucleus::C()*y[particle_velocity_offset(i) + 2])
@@ -32,8 +32,8 @@ void KVCoulombPropagator::updateEvent()
    }
 }
 
-KVCoulombPropagator::KVCoulombPropagator(KVSimEvent& e, Double_t precision)
-   : KVRungeKutta(e.GetMult() * 6, precision), theEvent(e), fMult(e.GetMult())
+KVCoulombPropagator::KVCoulombPropagator(KVSimEvent* e, Double_t precision)
+   : KVRungeKutta(e->GetMult() * 6, precision), theEvent(e), fMult(e->GetMult())
 {
    // Initialise Coulomb propagation of event
 
@@ -42,8 +42,8 @@ KVCoulombPropagator::KVCoulombPropagator(KVSimEvent& e, Double_t precision)
 
    for (int i = 1; i <= fMult; ++i) {
       for (int j = 0; j < 3; ++j) {
-         y[particle_position_offset(i) + j] = static_cast<KVSimNucleus*>(e.GetParticle(i))->GetPosition()[j];
-         y[particle_velocity_offset(i) + j] = static_cast<KVSimNucleus*>(e.GetParticle(i))->GetVelocity()[j] / KVNucleus::C();
+         y[particle_position_offset(i) + j] = static_cast<KVSimNucleus*>(e->GetParticle(i))->GetPosition()[j];
+         y[particle_velocity_offset(i) + j] = static_cast<KVSimNucleus*>(e->GetParticle(i))->GetVelocity()[j] / KVNucleus::C();
       }
    }
 }
@@ -65,10 +65,10 @@ void KVCoulombPropagator::CalcDerivs(Double_t, Double_t* Y, Double_t* DYDX)
       }
    }
    for (int i = 1; i < fMult; ++i) {
-      KVSimNucleus* Ni = static_cast<KVSimNucleus*>(theEvent.GetParticle(i));
+      KVSimNucleus* Ni = static_cast<KVSimNucleus*>(theEvent->GetParticle(i));
 
       for (int j = i + 1; j <= fMult; ++j) {
-         KVSimNucleus* Nj = static_cast<KVSimNucleus*>(theEvent.GetParticle(j));
+         KVSimNucleus* Nj = static_cast<KVSimNucleus*>(theEvent->GetParticle(j));
          TVector3 Rij(Y[particle_position_offset(i)] - Y[particle_position_offset(j)],
                       Y[particle_position_offset(i) + 1] - Y[particle_position_offset(j) + 1],
                       Y[particle_position_offset(i) + 2] - Y[particle_position_offset(j) + 2]);
@@ -90,10 +90,10 @@ Double_t KVCoulombPropagator::TotalPotentialEnergy() const
 {
    Double_t etot = 0;
    for (int i = 1; i < fMult; ++i) {
-      KVSimNucleus* Ni = static_cast<KVSimNucleus*>(theEvent.GetParticle(i));
+      KVSimNucleus* Ni = static_cast<KVSimNucleus*>(theEvent->GetParticle(i));
 
       for (int j = i + 1; j <= fMult; ++j) {
-         KVSimNucleus* Nj = static_cast<KVSimNucleus*>(theEvent.GetParticle(j));
+         KVSimNucleus* Nj = static_cast<KVSimNucleus*>(theEvent->GetParticle(j));
          TVector3 Rij = Ni->GetPosition() - Nj->GetPosition();
          Double_t U = Ni->GetZ() * Nj->GetZ() * KVNucleus::e2 / Rij.Mag();
 
