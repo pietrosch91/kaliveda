@@ -16,6 +16,7 @@
 /usr/share/kaliveda/templates/KVVarGlobTemplate.h
 /usr/share/kaliveda/etc/kaliveda.rootrc
 /usr/lib/libKVMultiDetgui.so.1.10.10
+/usr/lib/libKVMultiDetsimulation.so.1
 /usr/lib/libKVMultiDetanalysis.so.1.10.10
 /usr/lib/libKVMultiDetdaq_cec.so.1
 /usr/lib/libKVMultiDetglobvars.so.1
@@ -40,6 +41,7 @@
 /usr/lib/libKVMultiDetcalibration.so.1
 /usr/lib/libKVMultiDetbase.so.1
 /usr/lib/libKVMultiDetexp_events.so.1
+/usr/lib/libKVMultiDetsimulation.so.1.10.10
 /usr/lib/libKVMultiDetdata_management.so.1
 /usr/lib/libKVMultiDettrieur.so.1.10.10
 /usr/lib/libKVMultiDetdb.so.1
