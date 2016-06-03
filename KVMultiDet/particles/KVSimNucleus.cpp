@@ -43,6 +43,12 @@ void KVSimNucleus::SetPosition(Double_t rx, Double_t ry, Double_t rz)
    position.SetXYZ(rx, ry, rz);
 }
 
+void KVSimNucleus::SetPosition(const TVector3& r)
+{
+   //set the position of the nucleus in position space
+   position = r;
+}
+
 
 //___________________________
 void KVSimNucleus::SetAngMom(Double_t lx, Double_t ly, Double_t lz)
@@ -92,4 +98,13 @@ TVector3 KVSimNucleus::GetExitPosition(const TString& detname) const
       return TVector3(x, y, z);
    }
    return TVector3(0, 0, 0);
+}
+
+void KVSimNucleus::Print(Option_t* t) const
+{
+   KVNucleus::Print(t);
+   cout << "KVSimNucleus: Position : ";
+   position.Print();
+   cout << "KVSimNucleus: Ang. Mom. : ";
+   angmom.Print();
 }
