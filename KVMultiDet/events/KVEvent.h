@@ -34,6 +34,7 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "KVNameValueList.h"
 #include "TMethodCall.h"
 
+#include <TH1.h>
 #include <iterator>
 
 class KVIntegerList;
@@ -150,7 +151,7 @@ public:
 
       KVNucleus& operator* () const
       {
-         // Returns pointer to current particle in iteration
+         // Returns reference to current particle in iteration
 
          return *(current());
       }
@@ -257,6 +258,8 @@ public:
    void GetMultiplicities(Int_t mult[], const TString& species);
    Double_t GetSum(const Char_t* KVNucleus_method, Option_t* opt = "");
    Double_t GetSum(const Char_t* KVNucleus_method, const Char_t* method_prototype, const Char_t* args, Option_t* opt = "");
+   void FillHisto(TH1* h, const Char_t* KVNucleus_method, Option_t* opt = "");
+   void FillHisto(TH1* h, const Char_t* KVNucleus_method, const Char_t* method_prototype, const Char_t* args, Option_t* opt = "");
    virtual void Clear(Option_t* opt = "");
    virtual void Print(Option_t* t = "") const;
    virtual void ls(Option_t* t = "") const

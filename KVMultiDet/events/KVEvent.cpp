@@ -324,6 +324,77 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, const Char_t* method_pr
    return fSum;
 }
 
+void KVEvent::FillHisto(TH1* h, const Char_t* KVNucleus_method, Option_t* opt)
+{
+   // Fill histogram with values of the observable given by the indicated KVNucleus_method.
+   // For example: if  the method is called this way - GetSum("GetZ") - it fills histogram
+   // with the charge of all particles in the current event.
+   //
+   // If opt = "ok" only particles with IsOK()==kTRUE are considered.
+   // If opt = "name" only particles with GetName()=="name" are considered.
+   //
+   // IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
+   // OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   TString Opt(opt);
+   Opt.ToUpper();
+   TMethodCall mt;
+   mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, "");
+
+   if (mt.IsValid()) {
+      ResetGetNextParticle();
+      if (mt.ReturnType() == TMethodCall::kLong) {
+         Long_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, "", ret);
+            h->Fill((Double_t)ret);
+         }
+      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+         Double_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, "", ret);
+            h->Fill(ret);
+         }
+      }
+   }
+}
+
+void KVEvent::FillHisto(TH1* h, const Char_t* KVNucleus_method, const Char_t* method_prototype, const Char_t* args, Option_t* opt)
+{
+   // Fill histogram with values of given method with given prototype (e.g. method_prototype="int,int") and argument values
+   // e.g. args="2,4") for each particle in event.
+   //
+   // If opt = "ok" only particles with IsOK()==kTRUE are considered.
+   // If opt = "name" only particles with GetName()=="name" are considered.
+   //
+   // IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
+   // OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   TString Opt(opt);
+   Opt.ToUpper();
+   TMethodCall mt;
+   mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, method_prototype);
+
+   if (mt.IsValid()) {
+      ResetGetNextParticle();
+      if (mt.ReturnType() == TMethodCall::kLong) {
+         Long_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, args, ret);
+            h->Fill((Double_t)ret);
+         }
+      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+         Double_t ret;
+         KVNucleus* tmp;
+         while ((tmp = GetNextParticle(Opt))) {
+            mt.Execute(tmp, args, ret);
+            h->Fill(ret);
+         }
+      }
+   }
+}
+
 Int_t KVEvent::GetMultiplicity(Int_t Z, Int_t A, Option_t* opt)
 {
    // Calculate the multiplicity of nuclei given Z (if A not given)
