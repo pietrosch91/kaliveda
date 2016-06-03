@@ -11,6 +11,9 @@ public:
 
    KVSimEvent(Int_t mult = 50, const char* classname = "KVSimNucleus");
    virtual ~KVSimEvent();
+   virtual void Print(Option_t* t = "") const;
+
+   Double_t GetTotalCoulombEnergy() const;
 
    ClassDef(KVSimEvent, 3) //Events from simulation
 };
