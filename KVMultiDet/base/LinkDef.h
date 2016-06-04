@@ -15,7 +15,6 @@
 #pragma link C++ class Binary_t<UInt_t>+;
 #pragma link C++ class Binary_t<Long64_t>+;
 #pragma link C++ class KVString+;
-#pragma link C++ class KVRungeKutta+;
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVNameValueList+;
 #pragma link C++ class KVBase-;//customised streamer
@@ -55,7 +54,6 @@
 #pragma link C++ class KVPosition+;
 #pragma link C++ class KVIntegerList-;
 #pragma link C++ class KVCouple+;
-#pragma link C++ class KVPartitionGenerator+;
 #pragma link C++ class KVPartition+;
 #pragma link C++ class KVPartitionFromLeaf+;
 #pragma link C++ class KVPartitionList+;

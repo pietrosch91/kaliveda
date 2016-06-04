@@ -55,12 +55,17 @@ public:
    {
       // Return number of succesful steps taken in integration
       return nok;
-   };
+   }
    Int_t GetNBadSteps() const
    {
       // Return number of bad (but retried and fixed) steps taken in integration
       return nbad;
-   };
+   }
+   Bool_t IsOK() const
+   {
+      // Can be used after call to Integrate to check if successful
+      return fOK;
+   }
 
    ClassDef(KVRungeKutta, 0) //Adaptive step-size 4th order Runge-Kutta ODE integrator from Numerical Recipes
 };

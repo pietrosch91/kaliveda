@@ -6,6 +6,7 @@
 #pragma link C++ global gDataBase;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
+#pragma link C++ class KV2Body+;
 #pragma link C++ class KVDataBase;
 #pragma link C++ class KVDBKey;
 #pragma link C++ class KVDBRecord;

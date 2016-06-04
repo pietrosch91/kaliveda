@@ -30,6 +30,7 @@ public:
    void Copy(TObject& obj) const;
 
    void SetPosition(Double_t rx, Double_t ry, Double_t rz);
+   void SetPosition(const TVector3&);
    const TVector3* GetPosition() const
    {
       return &position;
@@ -51,6 +52,8 @@ public:
    Double_t GetEnergyLoss(const TString& detname) const;
    TVector3 GetEntrancePosition(const TString& detname) const;
    TVector3 GetExitPosition(const TString& detname) const;
+
+   void Print(Option_t* t = "") const;
 
    ClassDef(KVSimNucleus, 3) //Nuclear particle in a simulated event
 

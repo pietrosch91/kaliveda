@@ -27,6 +27,12 @@ public:
    {
       ((THashList*)fCollection)->Sort(order);
    };
+   template<typename T> Bool_t ContainsObjectWithName(const T& o)
+   {
+      // Returns true if list contains an object with the same name as o
+      // class T must have a method const char* T::GetName() const
+      return Contains(o.GetName());
+   }
 
    ClassDef(KVHashList, 1) //Extended version of ROOT THashList
 };

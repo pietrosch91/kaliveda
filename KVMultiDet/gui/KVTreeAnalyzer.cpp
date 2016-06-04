@@ -201,7 +201,7 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
 
    TString _selection(selection);
    TString _elist;
-   if (fTree->GetEntryList()) _elist = fTree->GetEntryList()->GetTitle();
+   if (fChain->GetEntryList()) _elist = fChain->GetEntryList()->GetTitle();
    if (strcmp(weight, "")) {
       if (_selection != "" && _elist != "")
          title.Form("%s [%s] {(%s) && (%s)}", expr, weight, _elist.Data(), selection);
@@ -265,11 +265,6 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
 
    if (!fProfileHisto) drawexp += histo;
    Long64_t drawResult;
-   if (fPROOFEnabled) {
-      // force updating of TDSet entrylist
-      fChain->SetProof(kFALSE);
-      fChain->SetProof(kTRUE);
-   }
    if (fProfileHisto) drawResult = fTree->Draw(Form("%s>>%s", drawexp.Data(), name.Data()), Selection, "prof,goff");
    else drawResult = fTree->Draw(drawexp, Selection, "goff");
    if (drawResult < 0) {
@@ -329,11 +324,6 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
       else Selection = weight;
    } else
       Selection = selection;
-   if (fPROOFEnabled) {
-      // force updating of TDSet entrylist
-      fChain->SetProof(kFALSE);
-      fChain->SetProof(kTRUE);
-   }
    Long64_t drawResult = fTree->Draw(drawexp, Selection, "goff");
    if (drawResult < 0) {
       new TGMsgBox(gClient->GetRoot(), fMain_histolist, "Error", "Problem drawing histogram: check the expressions?", kMBIconExclamation, kMBDismiss);
@@ -398,8 +388,8 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    TString drawexp(name.Data());
    drawexp.Prepend(">>");
    fChain->SetProof(kFALSE);
-   if (IsPROOFEnabledForSelections() && IsPROOFEnabled()) fChain->SetProof(kTRUE);
-   if (fTree->Draw(drawexp, selection, "entrylist") < 0) {
+   if (IsPROOFEnabledForSelections()) fChain->SetProof(kTRUE);
+   if (fChain->Draw(drawexp, selection, "entrylist") < 0) {
       new TGMsgBox(gClient->GetRoot(), 0, "Warning", "Mistake in your new selection!", kMBIconExclamation, kMBClose);
       return kFALSE;
    }
@@ -410,8 +400,8 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    else
       el = (TEntryList*)gDirectory->Get(name);
    el->SetTitle(selection);//needed with PROOF
-   if (fTree->GetEntryList()) {
-      TString _elist = fTree->GetEntryList()->GetTitle();
+   if (fChain->GetEntryList()) {
+      TString _elist = fChain->GetEntryList()->GetTitle();
       TString title;
       title.Form("(%s) && (%s)", _elist.Data(), selection);
       el->SetTitle(title);
@@ -433,12 +423,12 @@ void KVTreeAnalyzer::SetSelection(TObject* obj)
 
    if (!obj->InheritsFrom("TEntryList")) return;
    TEntryList* el = dynamic_cast<TEntryList*>(obj);
-   if (fTree->GetEntryList() == el) {
-      fTree->SetEntryList(0);
+   if (fChain->GetEntryList() == el) {
+      SetEntryList(nullptr);
       G_selection_status->SetText("CURRENT SELECTION:", 0);
       return;
    }
-   fTree->SetEntryList(el);
+   SetEntryList(el);
    G_selection_status->SetText(Form("CURRENT SELECTION: %s (%lld)", el->GetTitle(), el->GetN()), 0);
 }
 
@@ -447,7 +437,7 @@ void KVTreeAnalyzer::CurrentSelection()
    // Print the currently active selection (TEntryList set on TTree).
 
    TString tmp;
-   if (fTree->GetEntryList()) tmp = fTree->GetEntryList()->GetTitle();
+   if (fChain->GetEntryList()) tmp = fChain->GetEntryList()->GetTitle();
    else tmp = "";
    if (tmp != "") cout << "CURRENT SELECTION : " << tmp << endl;
 }
@@ -457,8 +447,8 @@ Long64_t KVTreeAnalyzer::GetEntriesInCurrentSelection() const
    // Return number of entries (events) in the currently active selection,
    // or the number of entries in the analysed TTree/TChain if no selection active
 
-   if (fTree->GetEntryList()) return fTree->GetEntryList()->GetN();
-   return fTree->GetEntries();
+   if (fChain->GetEntryList()) return fChain->GetEntryList()->GetN();
+   return fChain->GetEntries();
 }
 
 void KVTreeAnalyzer::FillLeafList()
@@ -530,6 +520,24 @@ void KVTreeAnalyzer::SetAnalysisModifiedSinceLastSave(Bool_t x)
          fMenuFile->DisableEntry(MH_SAVE);
          fMenuFile->DisableEntry(MH_SAVE_FILE);
       }
+   }
+}
+
+void KVTreeAnalyzer::SetEntryList(TEntryList* l)
+{
+   // Modify currently active selection (TEntryList)
+   // Instead of calling
+   //      fChain->SetEntryList(l);
+   // call this method which works with or without PROOF.
+   // When using PROOF, fChain->SetEntryList(nullptr)
+   // does not work (bug in TProofChain), the last selection
+   // remains active. This problem is corrected here.
+
+   fChain->SetEntryList(l);
+
+   if (l == nullptr && IsPROOFEnabled()) {
+      fChain->SetProof(kFALSE);
+      fChain->SetProof(kTRUE);
    }
 }
 
@@ -1293,7 +1301,7 @@ Bool_t KVTreeAnalyzer::IsCurrentSelection(const Char_t* sel)
    TString test_sel(sel);
    TString tree_sel;
    TEntryList* el;
-   if ((el = fTree->GetEntryList())) tree_sel = el->GetTitle();
+   if ((el = fChain->GetEntryList())) tree_sel = el->GetTitle();
    return (test_sel == tree_sel);
 }
 
@@ -1363,8 +1371,8 @@ void KVTreeAnalyzer::CombineSelectionsAnd()
    // the currently selected selections.
 
    if (fSelectedSelections) {
-      TEntryList* save_elist = fTree->GetEntryList();
-      fTree->SetEntryList((TEntryList*)fSelectedSelections->First());
+      TEntryList* save_elist = fChain->GetEntryList();
+      SetEntryList((TEntryList*)fSelectedSelections->First());
       TString newselect;
       int nsel = fSelectedSelections->GetEntries();
       for (int i = 1; i < nsel; i++) {
@@ -1375,7 +1383,7 @@ void KVTreeAnalyzer::CombineSelectionsAnd()
          newselect += tmp.Data();
       }
       MakeSelection(newselect);
-      fTree->SetEntryList(save_elist);
+      SetEntryList(save_elist);
    }
 }
 
@@ -1386,9 +1394,8 @@ void KVTreeAnalyzer::CombineSelectionsOr()
    // the currently selected selections.
 
    if (fSelectedSelections) {
-      TEntryList* save_elist = fTree->GetEntryList();
-//      fTree->SetEntryList((TEntryList*)fSelectedSelections->First());
-      fTree->SetEntryList((TEntryList*)0);
+      TEntryList* save_elist = fChain->GetEntryList();
+      SetEntryList(nullptr);
       TString newselect;
       int nsel = fSelectedSelections->GetEntries();
       for (int i = 0; i < nsel; i++) {
@@ -1399,7 +1406,7 @@ void KVTreeAnalyzer::CombineSelectionsOr()
          newselect += tmp.Data();
       }
       MakeSelection(newselect);
-      fTree->SetEntryList(save_elist);
+      SetEntryList(save_elist);
    }
 }
 
@@ -1666,11 +1673,6 @@ void KVTreeAnalyzer::DrawLeafExpr()
    TString ww = "";
    if (fUserWeight) ww += fWeight;
    Long64_t drawResult;
-   if (fPROOFEnabled) {
-      //force update of TDSet entrylist
-      fChain->SetProof(kFALSE);
-      fChain->SetProof(kTRUE);
-   }
    if (!fProfileHisto) drawResult = fTree->Draw(drawexp, ww.Data(), "goff");
    else  drawResult = fTree->Draw(drawexp, ww.Data(), "prof,goff");
    if (drawResult < 0) {
@@ -1763,7 +1765,7 @@ void KVTreeAnalyzer::DrawAsDalitz()
    else             h = new KVDalitzPlot(Form("h%d", fHistoNumber), histotitle.Data());
    fHistoNumber++;
 
-   TEntryList* el = fTree->GetEntryList();
+   TEntryList* el = fChain->GetEntryList();
    if (el) el->GetEntry(0);
    Int_t nentries = fTree->GetEntries();
 
@@ -1918,10 +1920,10 @@ void KVTreeAnalyzer::HistoSelectionChanged()
 //    Double_t varCut = ipscale->GetObservable(Bmax);
 //    TString selection;
 //    selection.Form("%s>%f", ipvar.Data(), varCut);
-//    TEntryList* save_elist = fTree->GetEntryList();
+//    TEntryList* save_elist = fChain->GetEntryList();
 //    SetSelection(ipsel);
 //    MakeSelection(selection);
-//    fTree->SetEntryList(save_elist);
+//    SetEntryList(save_elist);
 // }
 //
 void KVTreeAnalyzer::GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin)
@@ -1947,10 +1949,10 @@ void KVTreeAnalyzer::GenerateConstantXSecSelections(const char* name, Double_t s
       TString selection;
       if (sigma_old > 0) selection.Form("%s>=%f && %s<%f", ipvar.Data(), varCut, ipvar.Data(), varCutold);
       else selection.Form("%s>=%f", ipvar.Data(), varCut);
-      TEntryList* save_elist = fTree->GetEntryList();
+      TEntryList* save_elist = fChain->GetEntryList();
       SetSelection(ipsel);
       MakeSelection(selection);
-      fTree->SetEntryList(save_elist);
+      SetEntryList(save_elist);
       sigma_old = sigma;
       sigma += sigmaBin;
    }
@@ -1972,7 +1974,7 @@ void KVTreeAnalyzer::MakeAbsoluteIPScale(const char* name, Double_t sigmaTot)
 
 void KVTreeAnalyzer::SetSelection(const Char_t* sel)
 {
-   fTree->SetEntryList(GetSelection(sel));
+   SetEntryList(GetSelection(sel));
 }
 
 TEntryList* KVTreeAnalyzer::GetSelection(const Char_t* selection)
@@ -1986,9 +1988,9 @@ void KVTreeAnalyzer::EnablePROOF(Bool_t yes)
    if (yes) {
       // open new PROOF-lite session
       if (!gProof) TProof::Open("");
-      if (fChain) fChain->SetProof(kTRUE, kTRUE);
+      if (fChain) fChain->SetProof(kTRUE);
    } else {
-      if (fChain) fChain->SetProof(false);
+      if (fChain) fChain->SetProof(kFALSE);
    }
 }
 
@@ -2322,7 +2324,7 @@ void KVTreeAnalyzer::UpdateEntryLists()
    G_selectionlist->RemoveAll();
    TIter next(&old_lists);
    TEntryList* old_el;
-   fTree->SetEntryList(0);
+   SetEntryList(nullptr);
    SelectionChanged();
    while ((old_el = (TEntryList*)next())) {
       cout << "REGENERATING SELECTION : " << old_el->GetTitle() << endl;
@@ -2651,7 +2653,7 @@ void KVTreeAnalyzer::ReapplyAnyFile(const Char_t* filepath)
       applyAnal->GenerateAllSelections(&fSelections);
       applyAnal->GenerateAllHistograms(&fHistolist);
       // make sure no selection is left active without being displayed
-      applyAnal->fTree->SetEntryList(0);
+      applyAnal->SetEntryList(nullptr);
       applyAnal->G_selection_status->SetText("CURRENT SELECTION:", 0);
       applyAnal->GenerateAllAliases(&fAliasList);
    }
@@ -2791,6 +2793,57 @@ void KVTreeAnalyzer::Streamer(TBuffer& R__b)
          ReconnectTree();
       }
       if (fChain && fTree != fChain) SetTree(fChain);
+      if (fChain) {
+         if (fChain->GetListOfFriends() && fChain->GetListOfFriends()->GetEntries()) {
+            Info("Streamer", "Checking friends");
+            // check friends are TChains, not TTrees & they have valid pointers
+            TFriendElement* fe;
+            TIter nxt(fChain->GetListOfFriends());
+            KVNumberList toRemove;
+            KVNameValueList infos;
+            int idx = 0;
+            while ((fe = (TFriendElement*)nxt())) {
+               if (!fe->GetTree() || (fe->GetTree() && !fe->GetTree()->InheritsFrom("TChain"))) {
+                  Info("Streamer", "Found friend to convert to TChain");
+                  toRemove.Add(idx);
+                  infos.SetValue(Form("treeName%d", idx), fe->GetTreeName());
+                  if (!fe->GetFile()) {
+                     Info("Streamer", "Choose file containg friend tree %s", fe->GetTreeName());
+                     static TString dir(".");
+                     const char* filetypes[] = {
+                        "ROOT files", "*.root",
+                        0, 0
+                     };
+                     TGFileInfo fi;
+                     fi.fFileTypes = filetypes;
+                     fi.fIniDir = StrDup(dir);
+                     new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
+                     if (fi.fFilename) {
+                        infos.SetValue(Form("fileName%d", idx), fi.fFilename);
+                     }
+                     dir = fi.fIniDir;
+                  } else
+                     infos.SetValue(Form("fileName%d", idx), fe->GetFile()->GetName());
+               }
+               ++idx;
+            }
+            if (toRemove.GetEntries()) {
+               Info("Streamer", "Removing TTree friends");
+               toRemove.Begin();
+               while (!toRemove.End()) {
+                  fChain->RemoveFriend(fChain->GetFriend(infos.GetStringValue(Form("treeName%d", toRemove.Next()))));
+               }
+               toRemove.Begin();
+               Info("Streamer", "Adding friends as TChains");
+               while (!toRemove.End()) {
+                  idx = toRemove.Next();
+                  TChain* friendChain = new TChain(infos.GetStringValue(Form("treeName%d", idx)));
+                  friendChain->Add(infos.GetStringValue(Form("fileName%d", idx)));
+                  fChain->AddFriend(friendChain);
+               }
+            }
+         }
+      }
       if (R__v < 4) {
          //Info("Streamer","Converting old histo list");
          // convert fHistolist
@@ -2837,15 +2890,15 @@ void KVTreeAnalyzer::OpenAnyFriendFile(const Char_t* filepath)
    KVList keys(0);
    keys.AddAll(file->GetListOfKeys());
    // Get list of trees in file
-   KVSeqCollection* trees = keys.GetSubListWithMethod("TTree", "GetClassName");
+   unique_ptr<KVSeqCollection> trees(keys.GetSubListWithMethod("TTree", "GetClassName"));
    if (trees->GetEntries()) {
       // Get name of first tree
       TString aTreeName = trees->First()->GetName();
-      TTree* t = (TTree*)file->Get(aTreeName);
-      fTree->AddFriend(t);
+      TChain* t = new TChain(aTreeName);
+      t->Add(filepath);
+      fChain->AddFriend(t);
       FillLeafList();
    }
-   delete trees;
    TIter next(&keys);
    TKey* akey;
    while ((akey = (TKey*)next())) {
