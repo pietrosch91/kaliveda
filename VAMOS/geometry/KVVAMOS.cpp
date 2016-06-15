@@ -140,7 +140,11 @@ KVVAMOS::~KVVAMOS()
    SafeDelete(fReconNavigator);
    SafeDelete(fFilter);
 
-   if (gVamos == this) gVamos = NULL;
+   if (gVamos == this) {
+      gVamos = NULL;
+      // destroy ROOT geometry associated
+      delete gGeoManager;
+   }
 }
 //________________________________________________________________
 
