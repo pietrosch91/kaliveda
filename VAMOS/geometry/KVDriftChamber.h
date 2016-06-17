@@ -22,7 +22,7 @@ private:
 
 protected:
 
-   TH1F***   fQ;    //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2]
+   TH1F***   fQ;   //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2]
    Double_t   fRawPosX[3]; //! Measured X raw position for both Chambers
    Double_t   fERawPosX[3]; //! Error of measured X raw position for both Chambers
    Double_t   fRawPosY; //!  Measured Y raw position
@@ -84,6 +84,7 @@ public:
    Bool_t    IsPositionCalibrated() const;
    void      SetZOffsets(Float_t X1 = -2.5, Float_t X2 = 2.5, Float_t Y = 0);
    void      SetXOffsets(Float_t X1 = 0., Float_t X2 = 0.);
+   Int_t     GetPadMax(Int_t row_num);
    void      SetSECHSReconstructionX(Bool_t kSECHS = kTRUE);
    Bool_t    IsSECHSReconstructionX();
 
@@ -178,6 +179,17 @@ inline void KVDriftChamber::SetXOffsets(Float_t X1, Float_t X2)
    fOffsetX[1] = X2;
 }
 //________________________________________________________________
+
+inline Int_t KVDriftChamber::GetPadMax(Int_t row_num)
+{
+   // Returns the pad with the maximum charge from the histogram representing
+   // the calibrated charge versus strip number for the chosen row of the drift
+   // chamber.
+   // row_num = {1,2}
+
+   if (row_num < 3 && row_num > 0) return fPadMax[ row_num - 1 ];
+   else return -1;
+}
 
 inline void KVDriftChamber::SetSECHSReconstructionX(Bool_t ksechs)
 {
