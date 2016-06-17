@@ -529,11 +529,11 @@ void KVVAMOSReconNuc::IdentifyQandA()
          } else { // if ID-Telescope for e503 experiment
             if (idt->InheritsFrom(KVIDHarpeeICSi_e503::Class()) || idt->InheritsFrom(KVIDHarpeeSiCsI_e503::Class())) {
                // loop over the time acquisition parameters
-               const KVString str = "TSI_HF";
-               const KVString tof_name;
+               const Char_t* tof_name = NULL;
 
                for (Short_t i = 0; !ok && (tof_name = GetCodes().GetToFName(i)); i++) {
-                  if (str != tof_name) continue;
+                  const KVString str(tof_name);
+                  if (str != "TSI_HF") continue;
 
                   Double_t beta    = GetBeta(tof_name);
                   Double_t RealA   = CalculateRealA(GetZ(), GetEnergyBeforeVAMOS(), beta);
