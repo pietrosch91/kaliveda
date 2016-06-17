@@ -471,7 +471,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
    // Two methods can be used for X raw position: the Hyperblic Secant Squared (SECHS) method (used by default)
    // or the strip Mean and RMS estimation method.
    //
-   // SECHS method ( see Lau et al. NIMA 366 (1995) ):
+   // SECHS method ( see T.Roger et al. NIMA 638 (2001) and Lau et al. NIMA 366 (1995) ):
    // We compute here the charge profile's centroid, seen on a strip of width w=StripWidth()/2.
    // This means the avalanche centroid's position evolves in [0.,w/2.], without considering for the moment
    // the number of the strip.
@@ -508,7 +508,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
             for (Int_t c = 1; c < 3; c++) { //loop over both chambers
                fRawPosX [ c ]   = -666;
                fERawPosX[ c ]   = -1;
-               fPadMax[ c - 1 ] = -1;
+               fPadMax[ c - 1 ] = -666;
 
                TH1F* hh = GetCleanQHisto(c);
                if (!hh) continue;
@@ -541,27 +541,23 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
 
                if (IsSECHSReconstructionX()) {//Hyperbolic secant squared (SECHS) method
                   // Hyperbolic secant squared (SECHS) method:
-                  // by convention Q1 is the charge of the most significant strip
-                  // and Q2 and Q3 the charges of the neighbouring strips
-                  // (with Q1>Q2>Q3), and ww is the strip(pad) witdh.
+                  // by convention Q0 is the charge of the most significant strip
+                  // and Q+ and Q- are the charges of the left and right neighboring pads
+                  //, and ww is the strip(pad) witdh.
                   fPadMax[c - 1] = hh->GetBinCenter(binMax); //the bin center is the number of the pad
                   Float_t* QQ  = new Float_t[fNstripsOK];
-                  Int_t*   idx = new Int_t[fNstripsOK];
-                  QQ[0] = hh->GetBinContent(binMax - 1);
-                  QQ[1] = hh->GetBinContent(binMax);
-                  QQ[2] = hh->GetBinContent(binMax + 1);
+                  QQ[0] = hh->GetBinContent(binMax - 1); //Q-
+                  QQ[1] = hh->GetBinContent(binMax);     //Q0
+                  QQ[2] = hh->GetBinContent(binMax + 1); //Q+
+                  Double_t ww = GetStripWidth();         //width of a pad in cm
 
-                  //Sort in descending order
-                  TMath::Sort(fNstripsOK, QQ, idx, kTRUE);
+                  Double_t a2 = 0.5 * (TMath::Sqrt(QQ[1] / QQ[2]) + TMath::Sqrt(QQ[1] / QQ[0]));
+                  Double_t a1 = (TMath::Sqrt(QQ[1] / QQ[2]) - TMath::Sqrt(QQ[1] / QQ[0])) / (2.*TMath::SinH(a2));
+                  Double_t delta = ww / 2. * TMath::Log((1 + a1) / (1 - a1)) / (TMath::Log(a2 + TMath::Sqrt(a2 * a2 - 1)));
 
-                  Double_t ww = GetStripWidth(); //width of a pad in cm
-                  Double_t a3 = (TMath::Pi() * ww) / (TMath::ACosH(0.5 * (TMath::Sqrt(QQ[idx[0]] / QQ[idx[2]]) + TMath::Sqrt(QQ[idx[0]] / QQ[idx[1]]))));
-                  Double_t a2 = (a3 / TMath::Pi() * TMath::ATanH(TMath::Sqrt(QQ[idx[0]] / QQ[idx[2]]) - TMath::Sqrt(QQ[idx[0]] / QQ[idx[1]]))) / (2.*TMath::SinH(TMath::Pi() * ww / a3));
-
-                  fRawPosX [ c ]  = a2;
+                  fRawPosX [ c ]  = delta;
                   fERawPosX[ c ]  = 0.; //to be modified
 
-                  delete idx;
                   delete QQ;
                } else { //Meand and RMS method
                   // The two cathode plans are offset by half a strip to
@@ -662,9 +658,9 @@ UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
    if (!IsPositionCalibrated()) return 0;
 
    // num will contain info about dir and num
-   //  X1 --> num=0
-   //  X2 --> num=1
-   //  else num = 2
+   //  X1 --> num=1
+   //  X2 --> num=2
+   //  else num = 0
    num = (dir == 'X' && (num == 1 || num == 2) ? num : 0);
 
    UChar_t rvalue = 0;       // returned value;
@@ -674,9 +670,9 @@ UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
 
    if (Xraw >= -500) { // Calibrate X
       if (IsSECHSReconstructionX()) {
-         Int_t pad = GetPadMax(num + 1);
-         if (GetNumber() == 2) XYZf[0] = (pad - 32.5) * GetStripWidth() + Xraw + fOffsetX[1];
-         if (GetNumber() == 1) XYZf[0] = (pad - 32) * GetStripWidth()   + Xraw + fOffsetX[0];
+         Int_t pad = GetPadMax(num);
+         if (num == 1) XYZf[0] = (pad - 32.5) * GetStripWidth() + Xraw + fOffsetX[0];
+         if (num == 2) XYZf[0] = (pad - 32.) * GetStripWidth()  + Xraw + fOffsetX[1];
       } else {
          XYZf[0] = Xraw * GetStripWidth();
       }
