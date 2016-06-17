@@ -22,7 +22,7 @@ private:
 
 protected:
 
-   TH1F***   fQ;     //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2]
+   TH1F***   fQ;    //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2]
    Double_t   fRawPosX[3]; //! Measured X raw position for both Chambers
    Double_t   fERawPosX[3]; //! Error of measured X raw position for both Chambers
    Double_t   fRawPosY; //!  Measured Y raw position
@@ -33,6 +33,7 @@ protected:
    Float_t     fStripWidth;//! X-Strip width
    Float_t     fOffsetZ[3];// Z offset in cm for Y, X1 and X2 measurements
    Float_t     fOffsetX[2];// X1 and X2 offset in fraction of the strip width
+   Int_t       fPadMax[2];// Pad with maximum charge from the histogram representing the calibrated charge versus strip number
    Bool_t      fkSECHS;    //! Set kTRUE to use the Hyperbolic Secant Squared (SECHS) method to find X positions, else will use the Mean's and RMS's of the charges
 
    void init();
