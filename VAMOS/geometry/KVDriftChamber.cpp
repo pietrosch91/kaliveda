@@ -55,6 +55,9 @@ void KVDriftChamber::init()
    // of the range 2 and between strips 32 and 33 of the range 1 (offsets 0,0).
    SetXOffsets();
 
+   // Method for X reconstruction is SECHS by default
+   SetSECHSReconstructionX();
+
    //a KVDriftChamber can not be used in a ID telescope
    ResetBit(kOKforID);
 }
@@ -640,6 +643,20 @@ UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
    // The 3 first bits of the returned UChar_t value give an information about
    // the coordinates well determined, calibrated and corrected. For example is the Y
    // coordinate, with the indice 1, is good then the bit 1 is set to 1.
+   //
+   // The two cathode plans are offset by half a strip to reduce the non linearity of the position measurement
+   // in between the strips. The center of the detector is by default at the middle of the strip 32 of the
+   // range 2 and between strips 32 and 33 of the range 1.
+   //
+   // The way X position is calculated depends on the method used for raw position.
+   //
+   // If the Hyperblic Secant Squared (SECHS) method was used (by default), then
+   // the bin with the maximum charge, the strip width and the raw position
+   // (in cm = disparity with respect to the pad center) are used to fine the position.
+   // The offsets are taken into account.
+   //
+   // Else if the Mean and RMS method was used then we compute the real distance using
+   // the strip width and the found raw position.
 
    // Nothing is done if there is no calibrator for the position
    if (!IsPositionCalibrated()) return 0;
@@ -656,7 +673,13 @@ UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
    Double_t Yraw = GetRawPosition('Y');
 
    if (Xraw >= -500) { // Calibrate X
-      XYZf[0] = Xraw * GetStripWidth();
+      if (IsSECHSReconstructionX()) {
+         Int_t pad = GetPadMax(num + 1);
+         if (GetNumber() == 2) XYZf[0] = (pad - 32.5) * GetStripWidth() + Xraw + fOffsetX[1];
+         if (GetNumber() == 1) XYZf[0] = (pad - 32) * GetStripWidth()   + Xraw + fOffsetX[0];
+      } else {
+         XYZf[0] = Xraw * GetStripWidth();
+      }
       rvalue += 1;
    }
    if ((Yraw >= -500) && GetDriftTimeCalibrator()) { //Calibrate Y
