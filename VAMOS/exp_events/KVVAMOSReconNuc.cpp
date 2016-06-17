@@ -502,7 +502,7 @@ void KVVAMOSReconNuc::IdentifyQandA()
          // is telescope able to identify for this run ?
          if (!idt->IsReadyForID()) continue;
 
-         if (idt->InheritsFrom(KVIDQA::Class())) { // If ID-telescope for Q and A identification (e494s)
+         if (idt->InheritsFrom(KVIDQA::Class())) { // if ID-telescope for Q and A identification (e494s)
             KVIDQA* qa_idt = (KVIDQA*)idt;
 
             static KVIdentificationResult IDR;
@@ -529,15 +529,19 @@ void KVVAMOSReconNuc::IdentifyQandA()
          } else { // if ID-Telescope for e503 experiment
             if (idt->InheritsFrom(KVIDHarpeeICSi_e503::Class()) || idt->InheritsFrom(KVIDHarpeeSiCsI_e503::Class())) {
                // loop over the time acquisition parameters
-               const Char_t* tof_name = NULL;
+               const KVString str = "TSI_HF";
+               const KVString tof_name;
+
                for (Short_t i = 0; !ok && (tof_name = GetCodes().GetToFName(i)); i++) {
+                  if (str != tof_name) continue;
+
                   Double_t beta    = GetBeta(tof_name);
                   Double_t RealA   = CalculateRealA(GetZ(), GetEnergyBeforeVAMOS(), beta);
                   Double_t RealAoQ = CalculateMassOverQ(GetBrho(), beta) / u();
 
                   SetRealAoverQ(RealAoQ);
                   SetRealQ(RealA / RealAoQ);
-//                return;
+                  return;
                }
             } else continue; //Not ID-Telescope for e494s either e503
          }
