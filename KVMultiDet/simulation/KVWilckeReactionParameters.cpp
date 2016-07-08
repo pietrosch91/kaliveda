@@ -221,23 +221,36 @@ Double_t KVWilckeReactionParameters::PotentialPocketRadius(Double_t l)
 Double_t KVWilckeReactionParameters::GetMaximumAngularMomentumWithPocket()
 {
    // Retuns maximum angular momentum for which a pocket exists in the interaction potential
+   // which corresponds to a lower potential energy than the maximum
 
-   Double_t lmin, lmax;
-   lmin = 0;
-   lmax = 200;
-   Double_t l = lmin;
-   while (lmax > lmin) {
-      if (PotentialPocketRadius(l) > 0.) {
-         if (lmax - lmin == 2.0) return l;
-         lmin = l;
-      } else {
-         if (l < 1) return 0;
-         lmax = l;
-      }
-      if (lmax - lmin == 1.0) return lmin;
-      l = TMath::Nint((lmin + lmax) / 2.);
+//   Double_t lmin, lmax;
+//   lmin = 0;
+//   lmax = 200;
+//   Double_t l = lmin;
+//   while (lmax > lmin) {
+//      if (PotentialPocketRadius(l) > 0.) {
+//         if (lmax - lmin == 2.0) return l;
+//         lmin = l;
+//      } else {
+//         if (l < 1) return 0;
+//         lmax = l;
+//      }
+//      if (lmax - lmin == 1.0) return lmin;
+//      l = TMath::Nint((lmin + lmax) / 2.);
+//   }
+//   return 0;
+   Double_t l_last_pock = -1;
+   Double_t l = 0;
+   while (1) {
+      Double_t Rmax = PotentialMaximumRadius(l);
+      if (Rmax < 0) break;
+      Double_t Rmin = PotentialPocketRadius(l);
+      if (Rmin < 0) break;
+      if (GetCentrifugalPotential(l)->Eval(Rmin) >= GetCentrifugalPotential(l)->Eval(Rmax)) break;
+      else l_last_pock = l;
+      ++l;
    }
-   return 0;
+   return l_last_pock;
 }
 
 Double_t KVWilckeReactionParameters::PotentialMaximumRadius(Double_t l)
