@@ -921,7 +921,14 @@ void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
    Clear(opt);
    TIter it(events);
    KVEvent* e;
-   while ((e = (KVEvent*)it())) fParticles->AbsorbObjects(e->fParticles);
+   while ((e = (KVEvent*)it())) { //fParticles->AbsorbObjects(e->fParticles);
+      KVNucleus* n;
+      e->ResetGetNextParticle();
+      while ((n = e->GetNextParticle())) {
+         n->Copy(*AddParticle());
+      }
+      e->Clear();
+   }
 }
 
 KVEvent* KVEvent::Factory(const char* plugin)
