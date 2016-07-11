@@ -9,6 +9,8 @@
 #include "KVFileReader.h"
 #include "KVDBParameterList.h"
 #include "KVDBParameterSet.h"
+#include "IRODS.h"
+#include "TRandom.h"
 
 KVFAZIADB* gFaziaDB;
 
@@ -35,6 +37,11 @@ void KVFAZIADB::init()
    fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
    fCalibrations = AddTable("Calibrations", "Available calibration for FAZIA detectors");
    fOoODets = AddTable("Calibrations", "Available calibration for FAZIA detectors");
+
+   fDONEfile = "FromKVFAZIADB_transferdone.list";
+   fFAILEDfile = "FromKVFAZIADB_transferfailed.list";
+
+   Info("init", "file names for tranfert:\n%s\n%s", fDONEfile.Data(), fFAILEDfile.Data());
 }
 
 KVFAZIADB::KVFAZIADB(const Char_t* name): KVDataBase(name,
@@ -676,6 +683,177 @@ void KVFAZIADB::ReadDBFile(TString file)
 
    delete run;
    delete ref;
+}
+
+
+//____________________________________________________________________________
+Bool_t KVFAZIADB::TransferAcquisitionFileToCcali(TString file, TString ccali_rep, TString option)
+{
+//Perform the tranfer via irods to ccali for the indicated directory [file]
+//return status of the iput command
+// OK if the transfer is done
+// not OK if it has failed
+//
+
+   IRODS ir;
+   Int_t retour = ir.put(
+                     Form("-%s %s", option.Data(), file.Data()),
+                     Form("%s/%s/%s", ccali_rep.Data(), gDataSet->GetDataPathSubdir(), gDataSet->GetDataTypeSubdir("bin"))
+                  );
+   return (retour == 0);
+
+   /*
+   //some lines to test all the process
+   Double_t val = gRandom->Uniform(0,1);
+   printf("%s %lf\n",file.Data(),val);
+   return (val<0.5);
+   */
+
+}
+
+//____________________________________________________________________________
+Bool_t KVFAZIADB::TransferRunToCcali(Int_t run, TString path, TString ccali_rep, TString option)
+{
+// test the status of the transfer
+// write to the corresponding file : done or failed
+//
+
+   Bool_t retour = TransferAcquisitionFileToCcali(Form("%s/run%06d", path.Data(), run), ccali_rep, option);
+   if (retour) {
+      FILE* ff = fopen(fDONEfile.Data(), "a");
+      fprintf(ff, "%d\n", run);
+      fclose(ff);
+   } else {
+      FILE* ff = fopen(fFAILEDfile.Data(), "a");
+      fprintf(ff, "%d\n", run);
+      fclose(ff);
+   }
+
+   return retour;
+
+}
+
+//____________________________________________________________________________
+void KVFAZIADB::TransferRunListToCcali(KVNumberList lrun, TString path, TString ccali_rep, TString option)
+{
+
+//Remove file where failed tranfer runs are listed
+//
+   KVNumberList lFAILED;
+   gSystem->Exec(Form("rm %s", fFAILEDfile.Data()));
+
+//Loop on run list
+//If transfer fails, the run number is kept in a kvnumberlist
+//for status at the end
+//
+   lrun.Begin();
+   while (!lrun.End()) {
+      Int_t run = lrun.Next();
+      if (!TransferRunToCcali(run, path, ccali_rep, option)) {
+         lFAILED.Add(run);
+      }
+   }
+
+//print list of failed tranfers
+   if (!lFAILED.IsEmpty())
+      Warning("TransferRunListToCcali", "Transfer failed for %d runs :\n%s", lFAILED.GetNValues(), lFAILED.AsString());
+
+}
+
+//____________________________________________________________________________
+void KVFAZIADB::StartTransfer(TString filename, TString ccali_rep, TString option)
+{
+
+   Int_t run;
+   TString datadir = "";
+
+//-----------
+// list of runs for which transfer failed during the last tentative
+//-----------
+   KVNumberList lFAILED;
+   KVFileReader fr;
+   fr.OpenFileToRead(fFAILEDfile.Data());
+   while (fr.IsOK()) {
+      fr.ReadLine(0);
+      if (fr.GetCurrentLine() != "") {
+         run = fr.GetCurrentLine().Atoi();
+         lFAILED.Add(run);
+      }
+   }
+   fr.CloseFile();
+
+//-----------
+// list of runs for which transfer succeeded since the beginning
+//-----------
+   KVNumberList lDONE;
+   fr.Clear();
+   fr.OpenFileToRead(fDONEfile.Data());
+   while (fr.IsOK()) {
+      fr.ReadLine(0);
+      if (fr.GetCurrentLine() != "") {
+         run = fr.GetCurrentLine().Atoi();
+         lDONE.Add(run);
+      }
+   }
+   if (lDONE.GetNValues() > 0)
+      Info("StartTransfer", "%d runs already tranfered:\n%s", lDONE.GetNValues(), lDONE.AsString());
+   fr.CloseFile();
+
+//-----------
+// all runs produced
+//-----------
+
+   KVNumberList lALL;
+   fr.Clear();
+   fr.OpenFileToRead(filename.Data());
+   while (fr.IsOK()) {
+
+      fr.ReadLine("|");
+      if (fr.GetCurrentLine().BeginsWith("#")) {
+         KVString line = fr.GetCurrentLine();
+         line.ReplaceAll("#", "");
+         line = line.StripAllExtraWhiteSpace();
+         line.Begin("=");
+         KVString name = line.Next();
+         if (!line.End() && name == "--dir") {
+            datadir = line.Next();
+            Info("ReadDBFile", "acquisition file directory: %s", datadir.Data());
+         }
+      } else {
+         if (datadir == "") {
+            fr.CloseFile();
+            Warning("ReadDBFile", "no data directory has been found ...");
+            return;
+         }
+         if (fr.GetNparRead() > 0) {
+            for (Int_t ii = 0; ii < fr.GetNparRead(); ii += 1) {
+
+               KVString couple = fr.GetReadPar(ii);
+               couple.Begin("=");
+               KVString name = couple.Next();
+               name = name.Strip(TString::kBoth);
+               KVString value = "";
+               if (!couple.End()) {
+                  value = couple.Next();
+                  value = value.Strip(TString::kBoth);
+               }
+               if (name == "run") {
+                  run = value.Atoi();
+                  if (!lDONE.Contains(run))
+                     lALL.Add(run);
+               }
+            }
+         }
+      }
+   }
+   fr.CloseFile();
+
+   if (lALL.GetNValues() > 0) {
+      Info("StartTransfer", "Start transfer for %d runs:\n%s", lALL.GetNValues(), lALL.AsString());
+      TransferRunListToCcali(lALL, datadir.Data(), ccali_rep, option);
+   } else
+      Info("StartTransfer", "no runs to tranfer ...");
+
 }
 
 //__________________________________________________________________________________________________________________
