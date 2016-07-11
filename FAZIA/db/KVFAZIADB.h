@@ -39,6 +39,8 @@ protected:
    Bool_t OpenCalibFile(const Char_t* type, std::ifstream& fs) const;
    const Char_t* GetDBEnv(const Char_t* type) const;
    void ReadCalibFile(const Char_t* filename);
+   TString fDONEfile;   //!
+   TString fFAILEDfile; //!
 
 public:
 
@@ -113,6 +115,11 @@ public:
 
    void BuildQuickAndDirtyDataBase(TString);
    void ReadDBFile(TString file);
+   Bool_t TransferAcquisitionFileToCcali(TString file, TString ccali_rep = "/fazia", TString option = "frv");
+   Bool_t TransferRunToCcali(Int_t run, TString path, TString ccali_rep = "/fazia", TString option = "frv");
+   void TransferRunListToCcali(KVNumberList lrun, TString path, TString ccali_rep = "/fazia", TString option = "frv");
+   void StartTransfer(TString filename = "runlist.dat", TString ccali_rep = "/fazia", TString option = "frv");
+
 
    ClassDef(KVFAZIADB, 2) //database for FAZIA detector
 };
