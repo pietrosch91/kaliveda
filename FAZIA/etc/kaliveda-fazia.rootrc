@@ -99,7 +99,7 @@ FAZIADB.Systems:     Systems.dat
 
 #Array
 
-+Plugin.KVMultiDetArray:    LNS_2014    KVFAZIANFS    FAZIAgeometry    "KVFAZIA_2B()"
++Plugin.KVMultiDetArray:    LNS_2014    KVFAZIA_2B    FAZIAgeometry    "KVFAZIA_2B()"
 +Plugin.KVMultiDetArray:    FAZIASYM    KVFAZIASYM    FAZIAgeometry    "KVFAZIASYM()"
 +Plugin.KVMultiDetArray:    ISOFAZIA    KVISOFAZIA    FAZIAgeometry    "KVISOFAZIA()"
 +Plugin.KVMultiDetArray:    FAZIANFS    KVFAZIANFS    FAZIAgeometry    "KVFAZIANFS()"
