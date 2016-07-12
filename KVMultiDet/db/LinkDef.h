@@ -8,6 +8,7 @@
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KV2Body+;
 #pragma link C++ class KVDataBase;
+#pragma link C++ class KVExpDB;
 #pragma link C++ class KVDBKey;
 #pragma link C++ class KVDBRecord;
 #pragma link C++ class KVDBRun;

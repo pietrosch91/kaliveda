@@ -96,6 +96,21 @@ public:
       Modified();
    }
 
+   void SetTrigger(Int_t trig)
+   {
+      SetScaler("Trigger multiplicity", trig);
+   };
+
+   Int_t GetTrigger() const
+   {
+      return GetScaler("Trigger multiplicity");
+   };
+   const Char_t* GetTriggerString() const
+   {
+      if (GetTrigger() > 0) return Form("M>=%d", GetTrigger());
+      else return Form("xxx");
+   };
+
    TDatime& GetDatime()
    {
       return fDatime;
