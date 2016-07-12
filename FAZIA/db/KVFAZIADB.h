@@ -8,6 +8,7 @@
 #include "KVDBTable.h"
 #include "KVFAZIADBRun.h"
 #include "KVDBRecord.h"
+#include "KVFileReader.h"
 
 class KVNumberList;
 class KVDBSystem;
@@ -43,6 +44,9 @@ public:
       return (KVFAZIADBRun*) GetDBRun(run);
    }
 
+   const Char_t* GetFileName(const Char_t* meth, const Char_t* keyw);
+   KVFileReader* GetKVFileReader(const Char_t* meth, const Char_t* keyw);
+   TEnv* GetFileTEnv(const Char_t* meth, const Char_t* keyw);
 
    void ReadExceptions();
    void ReadRutherfordCounting();
