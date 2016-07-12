@@ -103,7 +103,7 @@ void KVFAZIALNS2016::BuildFAZIA()
    Double_t dx = (block->GetTotalSideWithBlindage()) / 2.;
 
    TVector3 centre;
-   for (Int_t bb = 1; bb < fNblocks; bb += 1) {
+   for (Int_t bb = 0; bb < fNblocks; bb += 1) {
 
       if (bb == 1)        centre.SetXYZ(-1 * (dx - centre_hole / 2), -dx - centre_hole / 2, distance_block_cible);
       else if (bb == 2)   centre.SetXYZ(-1 * (dx + centre_hole / 2), dx - centre_hole / 2, distance_block_cible);
