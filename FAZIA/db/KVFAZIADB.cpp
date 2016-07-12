@@ -6,7 +6,7 @@
 #include "KVNumberList.h"
 #include "KVDataSetManager.h"
 #include "KVRunListLine.h"
-#include "KVFileReader.h"
+
 #include "KVDBParameterList.h"
 #include "KVDBParameterSet.h"
 #include "IRODS.h"
@@ -447,44 +447,86 @@ void KVFAZIADB::StartTransfer(TString filename, TString ccali_rep, TString optio
 
 }
 
+
+//__________________________________________________________________________________________________________________
+const Char_t* KVFAZIADB::GetFileName(const Char_t* meth, const Char_t* keyw)
+{
+
+   TString basic_name = GetCalibFileName(keyw);
+   if (basic_name == "") {
+      Info(meth, "No name found for \"%s\" file", keyw);
+      return "";
+   }
+   Info(meth, "Search for %s for dataset %s ...", basic_name.Data(), gDataSet->GetName());
+   static TString fp;
+   gDataSet->SearchKVFile(basic_name.Data(), fp, gDataSet->GetName());
+   if (fp == "") {
+      Info(meth, "\tNo file found ...");
+      return "";
+   }
+   return fp.Data();
+
+}
+
+//__________________________________________________________________________________________________________________
+KVFileReader* KVFAZIADB::GetKVFileReader(const Char_t* meth, const Char_t* keyw)
+{
+
+   TString fp = GetFileName(meth, keyw);
+   if (fp == "")
+      return 0;
+
+   KVFileReader* fr = new KVFileReader();
+   if (!fr->OpenFileToRead(fp.Data())) {
+      Error(meth, "Error in opening file %s", fp.Data());
+      delete fr;
+      return 0;
+   }
+
+   Info(meth, "Reading %s file", fp.Data());
+   return fr;
+
+}
+
+//__________________________________________________________________________________________________________________
+TEnv* KVFAZIADB::GetFileTEnv(const Char_t* meth, const Char_t* keyw)
+{
+
+   TString fp = GetFileName(meth, keyw);
+   if (fp == "")
+      return 0;
+
+   Info(meth, "Reading %s file", fp.Data());
+   TEnv* env = new TEnv();
+   env->ReadFile(fp.Data(), kEnvAll);
+   return env;
+
+}
+
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadExceptions()
 {
-   if (!strcmp(GetCalibFileName("Exceptions"), "")) {
-      Info("ReadExceptions()", "No file found for Exceptions");
+   KVFileReader* fr = GetKVFileReader("ReadExceptions()", "Exceptions");
+   if (!fr)
       return;
-   }
-
-   TString fp;
-   gDataSet->SearchKVFile(GetCalibFileName("Exceptions"), fp, gDataSet->GetName());
-
-   KVFileReader fr;
-   if (!fr.OpenFileToRead(fp.Data())) {
-      Error("ReadExceptions()", "Error in opening file %s\n", fp.Data());
-      return;
-   }
-
-   Info("ReadExceptions()", "Reading exceptions ...");
-
 
    TList* ll = new TList();
    KVNumberList lruns;
    KVDBParameterList* dbp = 0;
 
    ll->SetOwner(kFALSE);
-   while (fr.IsOK()) {
-      fr.ReadLine(":");
-      if (fr.GetNparRead() == 2) {
-         if (fr.GetReadPar(0) == "RunRange") {
+   while (fr->IsOK()) {
+      fr->ReadLine(":");
+      if (fr->GetNparRead() == 2) {
+         if (fr->GetReadPar(0) == "RunRange") {
             if (ll->GetEntries() > 0) {
-               printf("\t linkage avec les runs\n");
                LinkListToRunRange(ll, lruns);
                ll->Clear();
             }
-            lruns.SetList(fr.GetReadPar(1));
-            printf("nouvelle plage : %s\n", lruns.AsString());
+            lruns.SetList(fr->GetReadPar(1));
+            //printf("nouvelle plage : %s\n", lruns.AsString());
          } else {
-            KVString name(fr.GetReadPar(0));
+            KVString name(fr->GetReadPar(0));
             name.Begin(".");
             KVString sdet = name.Next();
 
@@ -492,8 +534,6 @@ void KVFAZIADB::ReadExceptions()
             if (sig == "QH1" || sig == "QL1" || sig == "I1")   sdet.Prepend("SI1-");
             else if (sig == "Q2" || sig == "I2")        sdet.Prepend("SI2-");
             else if (sig == "Q3")                   sdet.Prepend("CSI-");
-
-            printf("sdet=%s\n", sdet.Data());
 
             KVString par = name.Next();
             if (!(dbp = (KVDBParameterList*)ll->FindObject(Form("%s.%s", sdet.Data(), sig.Data())))) {
@@ -505,62 +545,41 @@ void KVFAZIADB::ReadExceptions()
                dbp->GetParameters()->SetValue("Detector", sdet.Data());
                dbp->GetParameters()->SetValue("Signal", sig.Data());
             }
-            dbp->GetParameters()->SetValue(par.Data(), fr.GetDoubleReadPar(1));
-
-            printf("\t%s %s %s %lf\n", sdet.Data(), sig.Data(), par.Data(), fr.GetDoubleReadPar(1));
+            dbp->GetParameters()->SetValue(par.Data(), fr->GetDoubleReadPar(1));
          }
       }
    }
 
    if (ll->GetEntries() > 0) {
-      printf("\t linkage avec les runs\n");
       LinkListToRunRange(ll, lruns);
       ll->Clear();
    }
 
    delete ll;
+   delete fr;
 
 }
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadComments()
 {
-   TString method_name = "ReadComments()";
-
-   TString basic_name = GetCalibFileName("Comments");
-   if (basic_name == "") {
-      Info(method_name.Data(), "No name found for \"Comments\" file");
+   KVFileReader* fr = GetKVFileReader("ReadComments()", "Comments");
+   if (!fr)
       return;
-   }
-   Info(method_name.Data(), "Search for %s for dataset %s ...", basic_name.Data(), gDataSet->GetName());
-   TString fp;
-   gDataSet->SearchKVFile(basic_name.Data(), fp, gDataSet->GetName());
-   if (fp == "") {
-      Info(method_name.Data(), "\tNo file found ...");
-      return;
-   }
-
-   KVFileReader fr;
-   if (!fr.OpenFileToRead(fp.Data())) {
-      Error(method_name.Data(), "Error in opening file %s", fp.Data());
-      return;
-   }
-
-   Info(method_name.Data(), "Reading %s file", fp.Data());
 
    KVFAZIADBRun* dbrun = 0;
-   while (fr.IsOK()) {
-      fr.ReadLine("|");
-      if (fr.GetCurrentLine().BeginsWith("#")) {
+   while (fr->IsOK()) {
+      fr->ReadLine("|");
+      if (fr->GetCurrentLine().BeginsWith("#")) {
 
-      } else if (fr.GetCurrentLine() == "") {
+      } else if (fr->GetCurrentLine() == "") {
 
       } else {
-         if (fr.GetNparRead() == 2) {
-            KVString srun(fr.GetReadPar(0));
+         if (fr->GetNparRead() == 2) {
+            KVString srun(fr->GetReadPar(0));
             srun.Begin("=");
             srun.Next();
             KVNumberList lruns(srun.Next());
-            KVString comments(fr.GetReadPar(1));
+            KVString comments(fr->GetReadPar(1));
             lruns.Begin();
             while (!lruns.End()) {
                Int_t run = lruns.Next();
@@ -571,6 +590,7 @@ void KVFAZIADB::ReadComments()
          }
       }
    }
+   delete fr;
 
 }
 
@@ -578,32 +598,11 @@ void KVFAZIADB::ReadComments()
 void KVFAZIADB::ReadRutherfordCounting()
 {
 
-   TString method_name = "ReadRutherfordCounting()";
-
-   TString basic_name = GetCalibFileName("RutherfordCounting");
-   if (basic_name == "") {
-      Info(method_name.Data(), "No name found for \"RutherfordCounting\" file");
+   TEnv* env = GetFileTEnv("ReadRutherfordCounting()", "RutherfordCounting");
+   if (!env)
       return;
-   }
-   Info(method_name.Data(), "Search for %s for dataset %s ...", basic_name.Data(), gDataSet->GetName());
-   TString fp;
-   gDataSet->SearchKVFile(basic_name.Data(), fp, gDataSet->GetName());
-   if (fp == "") {
-      Info(method_name.Data(), "\tNo file found ...");
-      return;
-   }
 
-   KVFileReader fr;
-   if (!fr.OpenFileToRead(fp.Data())) {
-      Error(method_name.Data(), "Error in opening file %s", fp.Data());
-      return;
-   }
-
-   Info(method_name.Data(), "Reading %s file", fp.Data());
-
-   TEnv env;
-   env.ReadFile(fp.Data(), kEnvAll);
-   TIter next(env.GetTable());
+   TIter next(env->GetTable());
    TEnvRec* rec = 0;
    KVFAZIADBRun* dbrun = 0;
    while ((rec = (TEnvRec*)next())) {
@@ -611,48 +610,29 @@ void KVFAZIADB::ReadRutherfordCounting()
       dbrun = GetRun(sname.Atoi());
       dbrun->SetRutherfordCount(TString(rec->GetValue()).Atoi());
    }
-
+   delete env;
 }
 
 //__________________________________________________________________________________________________________________
 void KVFAZIADB::ReadRutherfordCrossSection()
 {
-   TString method_name = "ReadRutherfordCrossSection()";
-
-   TString basic_name = GetCalibFileName("RutherfordCrossSection");
-   if (basic_name == "") {
-      Info(method_name.Data(), "No name found for \"RutherfordCrossSection\" file");
+   KVFileReader* fr = GetKVFileReader("ReadRutherfordCrossSection()", "RutherfordCrossSection");
+   if (!fr)
       return;
-   }
-   Info(method_name.Data(), "Search for %s for dataset %s ...", basic_name.Data(), gDataSet->GetName());
-   TString fp;
-   gDataSet->SearchKVFile(basic_name.Data(), fp, gDataSet->GetName());
-   if (fp == "") {
-      Info(method_name.Data(), "\tNo file found ...");
-      return;
-   }
-
-   KVFileReader fr;
-   if (!fr.OpenFileToRead(fp.Data())) {
-      Error(method_name.Data(), "Error in opening file %s", fp.Data());
-      return;
-   }
-
-   Info(method_name.Data(), "Reading %s file", fp.Data());
 
    KVFAZIADBRun* dbrun = 0;
    KVDBSystem* dbsys = 0;
-   while (fr.IsOK()) {
-      fr.ReadLine(":");
-      if (fr.GetCurrentLine().BeginsWith("#")) {
+   while (fr->IsOK()) {
+      fr->ReadLine(":");
+      if (fr->GetCurrentLine().BeginsWith("#")) {
 
-      } else if (fr.GetCurrentLine() == "") {
+      } else if (fr->GetCurrentLine() == "") {
 
       } else {
-         if (fr.GetNparRead() == 2) {
-            dbsys = GetSystem(fr.GetReadPar(0));
+         if (fr->GetNparRead() == 2) {
+            dbsys = GetSystem(fr->GetReadPar(0));
             if (dbsys) {
-               Double_t val = fr.GetDoubleReadPar(1);
+               Double_t val = fr->GetDoubleReadPar(1);
                TIter next(dbsys->GetRuns());
                while ((dbrun = (KVFAZIADBRun*)next())) {
                   dbrun->SetRutherfordCrossSection(val);
@@ -661,7 +641,8 @@ void KVFAZIADB::ReadRutherfordCrossSection()
          }
       }
    }
-   fr.CloseFile();
+   fr->CloseFile();
+   delete fr;
 
 }
 
@@ -669,29 +650,19 @@ void KVFAZIADB::ReadRutherfordCrossSection()
 void KVFAZIADB::ReadCalibrationFiles()
 {
 
-   if (!strcmp(GetCalibFileName("CalibrationFiles"), "")) {
-      Info("ReadCalibrationFiles()", "No file found for CalibrationFiles");
+   KVFileReader* fr = GetKVFileReader("ReadCalibrationFiles()", "CalibrationFiles");
+   if (!fr)
       return;
-   }
-   TString fp;
-   gDataSet->SearchKVFile(GetCalibFileName("CalibrationFiles"), fp, gDataSet->GetName());
 
-
-   KVFileReader fr;
-   if (!fr.OpenFileToRead(fp.Data())) {
-      Error("ReadCalibrationFiles()", "Error in opening file %s\n", fp.Data());
-      return;
-   }
-
-   Info("ReadCalibrationFiles()", "Reading calibration files");
-   while (fr.IsOK()) {
-      fr.ReadLine(0);
-      if (fr.GetCurrentLine().BeginsWith("#") || fr.GetCurrentLine() == "") {}
+   while (fr->IsOK()) {
+      fr->ReadLine(0);
+      if (fr->GetCurrentLine().BeginsWith("#") || fr->GetCurrentLine() == "") {}
       else {
-         ReadCalibFile(fr.GetCurrentLine().Data());
+         ReadCalibFile(fr->GetCurrentLine().Data());
       }
    }
-   fr.CloseFile();
+   fr->CloseFile();
+   delete fr;
 
 }
 //__________________________________________________________________________________________________________________
@@ -764,20 +735,17 @@ void KVFAZIADB::ReadOoODetectors()
 
    //Lit le fichier ou sont listes les dedtecteurs ne marchant plus au cours
    //de la manip
-   TString fp;
-   if (!KVBase::SearchKVFile(GetCalibFileName("OoODet"), fp, fDataSet.Data())) {
-      Warning("ReadOoODetectors", "No file  %s for this dataset", GetCalibFileName("OoODet"));
+   TEnv* env = GetFileTEnv("ReadOoODetectors()", "OoODet");
+   if (!env)
       return;
-   }
-   Info("ReadOoODetectors()", "Read out of order detectors ...");
+
    fOoODets = AddTable("OoO Detectors", "Name of out of order detectors");
 
    KVDBRecord* dbrec = 0;
-   TEnv env;
-   TEnvRec* rec = 0;
-   env.ReadFile(fp.Data(), kEnvAll);
-   TIter it(env.GetTable());
 
+   TEnvRec* rec = 0;
+
+   TIter it(env->GetTable());
    while ((rec = (TEnvRec*)it.Next())) {
       KVString srec(rec->GetName());
       KVNumberList nl(rec->GetValue());
@@ -797,7 +765,7 @@ void KVFAZIADB::ReadOoODetectors()
          LinkRecordToRunRange(dbrec, nl);
       }
    }
-
+   delete env;
 }
 
 //---------------------------------------
