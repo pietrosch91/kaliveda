@@ -109,7 +109,7 @@ void KVFAZIALNS2016::BuildFAZIA()
       else if (bb == 2)   centre.SetXYZ(-1 * (dx + centre_hole / 2), dx - centre_hole / 2, distance_block_cible);
       else if (bb == 3)   centre.SetXYZ(-1 * (-dx + centre_hole / 2), dx + centre_hole / 2, distance_block_cible);
       else if (bb == 0)   centre.SetXYZ(-1 * (-dx - centre_hole / 2), -dx + centre_hole / 2, distance_block_cible);
-      else if (bb == 4)   centre.SetXYZ(-1 * (dx - centre_hole / 2), -3 * dx - centre_hole / 2, distance_block_cible);
+      else if (bb == 4)   centre.SetXYZ(-1 * (-dx - centre_hole / 2), -3 * dx + centre_hole / 2, distance_block_cible); //centre.SetXYZ(-1 * (dx - centre_hole / 2), -3 * dx - centre_hole / 2, distance_block_cible);
       else {
          Warning("BuildFAZIA", "Block position definition is done only for %d blocks", fNblocks);
       }
