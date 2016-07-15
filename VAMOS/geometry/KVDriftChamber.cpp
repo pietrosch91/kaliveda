@@ -558,7 +558,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
                   fRawPosX [ c ]  = delta;
                   fERawPosX[ c ]  = 0.; //to be modified
 
-                  delete QQ;
+                  delete[] QQ;
                } else { //Meand and RMS method
                   // The two cathode plans are offset by half a strip to
                   // reduce the non linearity of the position measurement
