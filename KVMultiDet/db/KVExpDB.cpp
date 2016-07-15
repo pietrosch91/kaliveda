@@ -6,6 +6,9 @@
 #include "KVDBSystem.h"
 #include "KVNumberList.h"
 
+#include <iostream>
+using namespace std;
+
 ClassImp(KVExpDB)
 
 ////////////////////////////////////////////////////////////////////////////////
