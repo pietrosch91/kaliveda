@@ -111,7 +111,7 @@ KVSignal* KVSignal::ConvertTo(const Char_t* type)
       sig = (KVSignal*)cl->New();
       sig->SetData(this->GetN(), this->GetX(), this->GetY());
       sig->LoadPSAParameters();
-      delete cl;
+      //delete cl;
    }
    return sig;
 }
