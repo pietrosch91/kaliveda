@@ -1074,7 +1074,7 @@ void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
    if (nlast <= 0) return;
 
 //   for (int i = 0; i < interpo.GetSize()-3*tau; i++) interpo.AddAt(GetDataSmoothingSplineLTI(i * taufinal), i);
-   for (int i = 0; i < interpo.GetSize() - (int)(3 * tau / taufinal); i++) interpo.AddAt(GetDataSmoothingSplineLTI(i * taufinal), i);
+   for (int i = 0; i < interpo.GetSize() - (int)(53 * tau / taufinal); i++) interpo.AddAt(coeff->GetDataSmoothingSplineLTI(i * taufinal), i);
    fAdc.Set(0);
    fAdc.Set(interpo.GetSize());
    for (int i = 0; i < nlast; i++) fAdc.AddAt(interpo.At(i), i);
@@ -1128,7 +1128,7 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
          fmax = abs(-2 * roB * cos(phib - (nmax + 1) * phiz) / pow(roZ, nmax + 1));
          if (fmax * pow(2, nfloat + 1) < 1) nmax--;
       } while (fmax * pow(2, nfloat + 1) < 1);
-   } else nmax = 100;
+   } else nmax = 50;
    double* xvec = new double[2 * nmax + 1];
    double* yvec = new double[2 * nmax + 1];
    if (nbits > 2) {
