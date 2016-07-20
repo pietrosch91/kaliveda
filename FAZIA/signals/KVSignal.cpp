@@ -232,7 +232,7 @@ void KVSignal::DeduceFromName()
          TString stit = GetTitle();
          stit.ToUpper();
          //new format
-         Info("DeduceFromName", "New format %s", GetName());
+         //Info("DeduceFromName", "New format %s", GetName());
          tmp.Begin("-");
          fType = tmp.Next();
          KVString ss = tmp.Next();
