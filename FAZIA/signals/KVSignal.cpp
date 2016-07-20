@@ -68,9 +68,8 @@ void KVSignal::init()
 
 void KVSignal::ResetIndexes()
 {
-   fIndex = -1;
-   fBlock = fQuartet = fTelescope = -1;
-   fType = fDet = fTelName = fQuartetName = "";
+   fIndex = 0;
+   fDetName = "";
    fFPGAOutputNumbers = 0;
 }
 
@@ -111,7 +110,6 @@ KVSignal* KVSignal::ConvertTo(const Char_t* type)
       sig = (KVSignal*)cl->New();
       sig->SetData(this->GetN(), this->GetX(), this->GetY());
       sig->LoadPSAParameters();
-      //delete cl;
    }
    return sig;
 }
@@ -159,6 +157,7 @@ void KVSignal::SetData(Int_t nn, Double_t* xx, Double_t* yy)
    SetADCData();
 }
 
+//________________________________________________________________
 void KVSignal::SetADCData()
 {
 
@@ -167,6 +166,45 @@ void KVSignal::SetADCData()
    for (int ii = 0; ii < GetN(); ii++) fAdc.AddAt(fY[ii], ii);
 
 }
+
+
+//________________________________________________________________
+void KVSignal::TreateOldSignalName()
+{
+   TString stit = GetTitle();
+   stit.ToUpper();
+
+   KVString tmp = GetName();
+   KVString part = "";
+   if (tmp.BeginsWith("B")) {
+      tmp.Begin("-");
+      part = tmp.Next();
+      part.ReplaceAll("B", "");
+      Int_t bb = part.Atoi();
+      part = tmp.Next();
+      part.ReplaceAll("Q", "");
+      Int_t qq = part.Atoi();
+      part = tmp.Next();
+      part.ReplaceAll("T", "");
+      Int_t tt = part.Atoi();
+      fType = tmp.Next();
+
+      fIndex = 100 * bb + 10 * qq + tt;
+      fDetName.Form("%s-%d", stit.Data(), fIndex);
+   } else if (tmp.BeginsWith("RUTH")) {
+      //Old FAZIA telescope denomination
+      //    Rutherford telescope case for FAZIASYM experiment
+      tmp.Begin("-");
+      part = tmp.Next();
+      fType = tmp.Next();
+
+      TString stit = GetTitle();
+      stit.ToUpper();
+
+      fDetName.Form("%s-RUTH", stit.Data());
+   }
+}
+
 
 //________________________________________________________________
 void KVSignal::DeduceFromName()
@@ -179,41 +217,38 @@ void KVSignal::DeduceFromName()
    ResetIndexes();
    KVString tmp = GetName();
    KVString part = "";
-   if (tmp.BeginsWith("B")) {
-      //FAZIA telescope denomination
-      tmp.Begin("-");
-      part = tmp.Next();
-      part.ReplaceAll("B", "");
-      fBlock = part.Atoi();
-      part = tmp.Next();
-      part.ReplaceAll("Q", "");
-      fQuartet = part.Atoi();
-      part = tmp.Next();
-      part.ReplaceAll("T", "");
-      fTelescope = part.Atoi();
-      fType = tmp.Next();
-      fDet = GetTitle();
-      fDet.ToUpper();
-
-      fDetName.Form("%s-T%d-Q%d-B%03d", fDet.Data(), fTelescope, fQuartet, fBlock);
-      fTelName.Form("B%03d-Q%d-T%d", fBlock, fQuartet, fTelescope);
-      fQuartetName.Form("B%03d-Q%d", fBlock, fQuartet);
-
-      fIndex = 100 * fBlock + 10 * fQuartet + fTelescope;
-
-   } else if (tmp.BeginsWith("RUTH")) {
-      //Info("DeduceFromName","Rutherford signal : %s",GetName());
-      tmp.Begin("-");
-      fTelName = tmp.Next();
-      fType = tmp.Next();
-
-      fDet = GetTitle();
-      fDet.ToUpper();
-
-      fDetName.Form("%s-%s", fDet.Data(), fTelName.Data());
+   if (tmp.BeginsWith("B") || tmp.BeginsWith("RUTH")) {
+      //Old FAZIA telescope denomination
+      //Info("DeduceFromName","Old format %s",GetName());
+      TreateOldSignalName();
    } else {
-      Info("DeduceFromName", "Other name format that standard FAZIA name : #%s#", GetName());
+
+      if (tmp.GetNValues("-") == 2) {
+         //new general denomination
+         //in KaliVeda :
+         //    signal name : [signal_type]-[index]
+         //    if  index is digit (number), it is the telescope number : 100*b+10*q+t
+         //    if index is a string of character, we kept it as it is
+         //          for example RUTH for the FAZIASYM dataset
+         TString stit = GetTitle();
+         stit.ToUpper();
+         //new format
+         Info("DeduceFromName", "New format %s", GetName());
+         tmp.Begin("-");
+         fType = tmp.Next();
+         KVString ss = tmp.Next();
+
+         if (ss.IsDigit()) {
+            fIndex = ss.Atoi();
+            fDetName.Form("%s-%d", stit.Data(), fIndex);
+         } else {
+            fDetName.Form("%s-%s", stit.Data(), ss.Data());
+         }
+      } else {
+         Warning("DeduceFromName", "Unkown format %s", GetName());
+      }
    }
+
 
 }
 
@@ -281,25 +316,13 @@ KVPSAResult* KVSignal::GetPSAResult() const
    return 0;
 }
 
-//________________________________________________________________
-void KVSignal::SetDetectorName(const Char_t* detname)
-{
-   fDetName = detname;
-}
 
-//________________________________________________________________
-void KVSignal::SetDetector(const Char_t* det)
-{
-   fDet = det;
-   fDet.ToUpper();
-}
 //________________________________________________________________
 void KVSignal::Print(Option_t*) const
 {
    Info("Print", "\nName: %s - Title: %s", GetName(), GetTitle());
-   if (fBlock != -1) {
-      printf("\tBlock# %d - Quartet# %d - Telescope# %d\n", fBlock, fQuartet, fTelescope);
-      printf("\tType: %s - Detecteur: %s\n", fType.Data(), fDet.Data());
+   if (fDetName != "") {
+      printf("\tAssociated to the detector %s\n", fDetName.Data());
    }
    printf("################\nPSA parameters:\n");
    printf("\tBaseLine: length: %lf first: %lf\n", GetBLLength(), GetBLFirst());
@@ -312,7 +335,6 @@ void KVSignal::Print(Option_t*) const
       printf(" %1.2lf", GetInterpolatedChannelWidth());
    printf("\n");
    printf("\tWith PoleZero correction: %d\n", Int_t(fWithPoleZeroCorrection));
-
 
 }
 

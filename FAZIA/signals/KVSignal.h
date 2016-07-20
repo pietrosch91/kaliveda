@@ -27,15 +27,11 @@ public:
 
 protected:
    Int_t fIndex;        //!index deduced from block, quartet and telescope numbering
-   Int_t fBlock;
-   Int_t fQuartet;
-   TString fQuartetName;
-   Int_t fTelescope;
-   Int_t fChannel;                 //! signal type (see KVSignal::SignalType enum)
-   TString fTelName;
-   TString fDetName;
-   TString fType;
-   TString fDet;
+   Int_t fChannel;      //! signal type (see KVSignal::SignalType enum)
+
+   TString fDetName;    //name of the detector, the signal is linked to, needed to find it in the KVMultiDetector
+   TString fType;       //string to identify the signal type : "QH1", "I2" etc ...
+
    Int_t fFPGAOutputNumbers;  //!ASsociated FPGA energy outputs
 
    TArrayF fAdc;                    //! needed to use the psa methods copied from FClasses of Firenze
@@ -72,6 +68,7 @@ protected:
    virtual void BuildCubicSignal(); //Interpolazione mediante cubic
    virtual void BuildCubicSplineSignal(); //Interpolazione mediante cubic
    void init();
+   void TreateOldSignalName();
 
 public:
    KVSignal();
@@ -83,16 +80,11 @@ public:
    //
    //routines to link signal to its detector in kaliveda framework
    //
-   void SetDetectorName(const Char_t* detname);
    const Char_t* GetDetectorName()  const
    {
       return fDetName.Data();
    }
-   void SetDetector(const Char_t* det);
-   const Char_t* GetDetector()      const
-   {
-      return fDet.Data();
-   }
+
    void SetType(const Char_t* type)
    {
       fType = type;
@@ -107,26 +99,7 @@ public:
    {
       return fIndex;
    }
-   Int_t GetBlockNumber()           const
-   {
-      return fBlock;
-   }
-   Int_t GetQuartetNumber()         const
-   {
-      return fQuartet;
-   }
-   const Char_t* GetQuartetName()   const
-   {
-      return fQuartetName.Data();
-   }
-   Int_t GetTelescopeNumber()       const
-   {
-      return fTelescope;
-   }
-   const Char_t* GetTelescopeName() const
-   {
-      return fTelName.Data();
-   }
+
    virtual Bool_t IsCharge() const
    {
       return kFALSE;
@@ -406,7 +379,7 @@ public:
    // apply modifications of fAdc to the original signal
    void ApplyModifications(TGraph* newSignal = 0, Int_t nsa = -1);
 
-   ClassDef(KVSignal, 3) //Base class for FAZIA signal processing
+   ClassDef(KVSignal, 4) //Base class for FAZIA signal processing
 };
 
 #endif
