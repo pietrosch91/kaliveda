@@ -205,7 +205,6 @@ void KVSignal::TreateOldSignalName()
    }
 }
 
-
 //________________________________________________________________
 void KVSignal::DeduceFromName()
 {
@@ -1086,11 +1085,14 @@ void KVSignal::BuildCubicSplineSignal(double taufinal)
    fChannelWidthInt = taufinal;
    TArrayF interpo;
    interpo.Set((int)(Nsa * tau / taufinal));
+   int nlast = interpo.GetSize() - (int)(3 * tau / taufinal);
+   if (nlast <= 0) return;
 
    for (int i = 0; i < interpo.GetSize(); i++) interpo.AddAt(GetDataCubicSpline(i * taufinal), i);
    fAdc.Set(0);
    fAdc.Set(interpo.GetSize());
    for (int i = 0; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(i), i);
+   for (int i = nlast; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(nlast), i);
 
 }
 /***********************************************/
@@ -1126,6 +1128,159 @@ void KVSignal::BuildCubicSignal()
    BuildCubicSignal(GetInterpolatedChannelWidth());
 }
 
+/***********************************************/
+void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
+{
+   const int Nsa = fAdc.GetSize();
+   const double tau = fChannelWidth;
+
+   KVSignal* coeff = new KVSignal();
+   this->ApplyModifications(coeff);
+   coeff->SetADCData();
+   if (coeff->FIR_ApplySmoothingSpline(l, nbits) != 0) return;
+
+   fChannelWidthInt = taufinal;
+   TArrayF interpo;
+   interpo.Set((int)(Nsa * tau / taufinal));
+//   int nlast = interpo.GetSize() - (int)(3 * tau / taufinal);
+   int nlast = interpo.GetSize() - (int)(3 * tau);
+   if (nlast <= 0) return;
+
+//   for (int i = 0; i < interpo.GetSize()-3*tau; i++) interpo.AddAt(GetDataSmoothingSplineLTI(i * taufinal), i);
+   for (int i = 0; i < interpo.GetSize() - (int)(53 * tau / taufinal); i++) interpo.AddAt(coeff->GetDataSmoothingSplineLTI(i * taufinal), i);
+   fAdc.Set(0);
+   fAdc.Set(interpo.GetSize());
+   for (int i = 0; i < nlast; i++) fAdc.AddAt(interpo.At(i), i);
+   for (int i = nlast; i < interpo.GetSize(); i++) fAdc.AddAt(interpo.At(nlast), i);
+
+}
+/***********************************************/
+int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
+{
+   if (l < 0.1) return -1;
+   int i;
+   double x0 = ApplyNewton(l, 1000);
+   double r = sqrt(x0);
+   double a = (1 - 24 * l) / (6 * l);
+   double cphi = -a * r / (2 * (r * r + 1));
+   if ((cphi < -1) || (cphi > 1) || (l < 0.1)) {
+      printf("Error Aborting on FIR_ApplySmoothingSpline\n");
+      return -1;
+   }
+   double sphi = sqrt(1 - cphi * cphi);
+   double Re = sqrt(x0) * cphi;
+   double Im = sqrt(x0) * sphi;
+   double a1, a2, b1, b2, t;
+   t = 4 * Re * Re * (x0 - 1) / (x0 + 1) + 1 - x0 * x0;
+   b2 = 1 / (l * t);
+   a2 = -2 * Re * x0 * b2 / (1 + x0);
+   b1 = -x0 * x0 * b2;
+   a1 = -a2;
+   double czr, czi;
+   czr = a1 / 2;
+   czi = (-a1 * Re - b1) / (2 * Im);
+   double phib, phiz;
+   phiz = atan2(sphi, cphi);
+   phib = atan2(czi, czr);
+   double roB;
+   roB = sqrt(czr * czr + czi * czi);
+   double roZ = sqrt(x0);
+   int nfloat = 0;
+   int nmax;
+   double imax, fmax;
+   if (nbits > 2) {
+      //Determination of best notation
+      //1 bit always for the sign
+      //#integer bit depends on output evaluated in 0//
+      //#fixed to 0, l>0.1
+      nfloat = nbits - 1;
+      //1 represented as 2^(nfloats)...//
+      imax = ((nbits + 1) * log(2) + log(roB)) / log(roZ) - 1.;
+      nmax = floor(imax);
+      do {
+         fmax = abs(-2 * roB * cos(phib - (nmax + 1) * phiz) / pow(roZ, nmax + 1));
+         if (fmax * pow(2, nfloat + 1) < 1) nmax--;
+      } while (fmax * pow(2, nfloat + 1) < 1);
+   } else nmax = 50;
+   double* xvec = new double[2 * nmax + 1];
+   double* yvec = new double[2 * nmax + 1];
+   if (nbits > 2) {
+      for (i = 0; i <= nmax; i++) {
+         yvec[nmax + i] = yvec[nmax - i] = 0;
+         xvec[nmax + i] = xvec[nmax - i] = ((double)floor(-2 * roB * cos(phib - (i + 1) * phiz) / pow(roZ, i + 1) * pow(2, nfloat) + 0.5)) / pow(2, nfloat);
+      }
+   } else {
+      for (i = 0; i <= nmax; i++) {
+         yvec[nmax + i] = yvec[nmax - i] = 0;
+         xvec[nmax + i] = xvec[nmax - i] = -2 * roB * cos(phib - (i + 1) * phiz) / pow(roZ, i + 1);
+      }
+   }
+   FIR_ApplyRecursiveFilter(0, 2 * nmax + 1, xvec, yvec, 0);
+   this->ShiftLeft(nmax * fChannelWidth);
+   return 0;
+}
+
+/***********************************************/
+double KVSignal::ApplyNewton(double l, double X0)
+{
+   double a = (1 - 24 * l) / (6 * l);
+   double b = (4 + 36 * l) / (6 * l);
+   double A = 2 - b;
+   double B = 2 + a * a - 2 * b;
+   Double_t x1, x0, x2, x3;
+   double der, fx;
+   double fxold1;
+   x0 = X0;
+   x1 = X0;
+   x2 = x0;
+   fx = pow(x1, 4) + A * pow(x1, 3) + B * pow(x1, 2) + A * x1 + 1;
+   fxold1 = fx + 1;
+   int fexit = 0;
+   int loopcount = 0;
+   do {
+      der = 4 * pow(x1, 3) + 3 * A * pow(x1, 2) + 2 * B * x1 + A;
+      x3 = x2;
+      x2 = x0;
+      x0 = x1;
+      x1 = x0 - fx / der;
+      if (x1 == x2) {
+         x1 = (x1 + x0) / 2.;
+         loopcount++;
+      } else if (x1 == x3) {
+         x1 = (x1 + x0 + x2) / 3.;
+         loopcount++;
+      }
+      if ((x1 == x0) && (x1 == x2) && (x1 == x3)) fexit = 1;
+      if (loopcount == 100) fexit = 1;
+      fxold1 = fx;
+      fx = pow(x1, 4) + A * pow(x1, 3) + B * pow(x1, 2) + A * x1 + 1;
+   } while (((fx > 0.000000001) || (fxold1 != fx)) && (fexit == 0));
+   return x1;
+}
+/***********************************************/
+double KVSignal::GetDataSmoothingSplineLTI(double t)
+{
+   double tsamp = t / fChannelWidth;
+   int n0 = floor(tsamp);
+   double tres = tsamp - n0;
+   double res = 0;
+   if (n0 == 0)return 0;
+   else {
+      for (int i = -1; i < 3; i++) {
+         res += fAdc.At(n0 + i) * EvalCubicSpline(tres - i);
+      }
+   }
+   return res;
+}
+/***********************************************/
+double KVSignal::EvalCubicSpline(double X)
+{
+   double ax = TMath::Abs(X);
+   if (ax > 2) return 0;
+   else if (ax > 1) return pow(2 - ax, 3) / 6.;
+   else return pow(ax, 3) / 2. - ax * ax + 2. / 3.;
+}
+/***********************************************/
 double KVSignal::FindTzeroCFDCubic_rev(double level, double tend, int Nrecurr)
 {
    // recurr=1 means: linear + 1 approx
@@ -1285,3 +1440,44 @@ void KVSignal::Add(Double_t fact)
 {
    for (int i = 0; i < fAdc.GetSize(); i++) fAdc.AddAt(fAdc.At(i) + fact, i);
 }
+
+/***************************************************************************/
+void KVSignal::ShiftLeft(double tshift)//shift is in ns
+{
+   if (fAdc.GetSize() <= 0) return;
+   if (tshift < 0) {
+      ShiftRight(-tshift);
+      return;
+   }
+
+   int shift = (int)floor(tshift / fChannelWidth);
+   if (shift == 0) return;
+   for (int i = 0; i < fAdc.GetSize() - shift; i++)
+      fAdc.AddAt(fAdc.At(i + shift), i);
+   fAdc.Set(fAdc.GetSize() - shift);
+}
+/***************************************************************************/
+void KVSignal::ShiftRight(double tshift)//shift is in ns
+{
+   if (fAdc.GetSize() <= 0) return;
+   if (tshift < 0) {
+      ShiftLeft(-tshift);
+      return;
+   }
+
+   int shift = (int)floor(tshift / fChannelWidth);
+   if (shift == 0) return;
+
+   fAdc.Set(fAdc.GetSize() + shift);
+   for (int i = fAdc.GetSize() - 1; i >= shift; i--)
+      fAdc.AddAt(fAdc.At(i - shift), i);
+   for (int i = 0; i < shift; i++)
+      fAdc.AddAt(fAdc.At(shift), i);
+}
+/***************************************************************************/
+void KVSignal::TestDraw()
+{
+   this->Draw();
+   getchar();
+}
+

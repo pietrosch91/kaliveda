@@ -110,15 +110,22 @@ void KVI1::TreateSignal()
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 
-   FIR_ApplyMovingAverage(4);
+//  FIR_ApplyMovingAverage(4);
 
    Add(-1.*ComputeBaseLine());
-   if (fWithInterpolation) {
-      BuildCubicSignal();
+   ApplyModifications();
+
+//   if (fWithInterpolation) {
+//      BuildCubicSignal();
 //      SetNSamples(GetNSamples() - 5*(fChannelWidth /fInterpolatedChannelWidth)); // because we use a 3th order interpolation...
-   }
+//   }
+
    fAmplitude = ComputeAmplitude();
    fPSAIsDone = kTRUE;
+
+   printf("Amplitude=%f\n", fAmplitude);
+   TestDraw();
+
 }
 
 

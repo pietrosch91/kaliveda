@@ -66,7 +66,7 @@ protected:
    Double_t fChannelWidthInt;       // internal parameter channel width of interpolated signal in ns
    void ResetIndexes();
    virtual void BuildCubicSignal(); //Interpolazione mediante cubic
-   virtual void BuildCubicSplineSignal(); //Interpolazione mediante cubic
+   virtual void BuildCubicSplineSignal(); //Interpolazione mediante cubic spline
    void init();
    void TreateOldSignalName();
 
@@ -358,11 +358,14 @@ public:
    Double_t CubicInterpolation(float* data, int x2, double fmax, int Nrecurr);
 
    virtual void BuildCubicSignal(double taufinal); //Interpolazione mediante cubic
-   virtual void BuildCubicSplineSignal(double taufinal);
+   virtual void BuildCubicSplineSignal(double taufinal);//Interpolazione mediante spline cubic
+   virtual void BuildSmoothingSplineSignal(double taufinal, double l, int nbits = -1); //Interpolazione mediante smoothing spline
 
    virtual double GetDataInter(double t);
    virtual double GetDataInterCubic(double t);
    virtual double GetDataCubicSpline(double t);
+   virtual double GetDataSmoothingSplineLTI(double t);//metodo che serve a BuildSmoothingSpline
+   virtual double EvalCubicSpline(double X);//metodo che serve a BuildSmoothingSpline
 
    // different shapers (modify only fAdc)
    void FIR_ApplyTrapezoidal(double trise, double tflat); // trise=sqrt(12)*tausha di CR-RC^4 se tflat=trise/2
@@ -372,6 +375,8 @@ public:
    void FIR_ApplyRecursiveFilter(double a0, int N, double* a, double* b, int reverse);
    void FIR_ApplyMovingAverage(int npoints);
    void PoleZeroSuppression(Double_t tauRC);
+   int FIR_ApplySmoothingSpline(double l, int nbits = -1);
+   double ApplyNewton(double l, double x0);//metodo che serve a FIR_ApplySmoothingSpline
 
    // fast fourier transform and windowing of the signal (modify only fAdc)
    void ApplyWindowing(int window_type = 3); // 0: barlett, 1:hanning, 2:hamming, 3: blackman
@@ -382,7 +387,14 @@ public:
    // apply modifications of fAdc to the original signal
    void ApplyModifications(TGraph* newSignal = 0, Int_t nsa = -1);
 
+
+   //------------------ OPERATORI ---------------------//
+   void ShiftLeft(double);//shift in ns
+   void ShiftRight(double);//shift in ns
+   void TestDraw();
+
    ClassDef(KVSignal, 4) //Base class for FAZIA signal processing
+
 };
 
 #endif
