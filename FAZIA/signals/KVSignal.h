@@ -338,10 +338,13 @@ public:
    }
 
    // compute mean value and rms of a subset of samples
-   double FindMedia(double tsta, double tsto);
-   double FindMedia(int tsta, int tsto);
-   double FindSigma2(double tsta, double tsto);
-   double FindSigma2(int tsta, int tsto);
+   Bool_t ComputeMeanAndSigma(Int_t start, Int_t stop, Double_t& mean, Double_t& sigma);
+   Bool_t ComputeMeanAndSigma(Double_t start, Double_t stop, Double_t& mean, Double_t& sigma);
+
+//    double FindMedia(double tsta, double tsto);
+//    double FindMedia(int tsta, int tsto);
+//    double FindSigma2(double tsta, double tsto);
+//    double FindSigma2(int tsta, int tsto);
 
    // multiply the signal  (modify only fAdc)
    void Multiply(Double_t fact);
