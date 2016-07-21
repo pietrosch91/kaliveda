@@ -67,6 +67,7 @@ protected:
    void ResetIndexes();
    virtual void BuildCubicSignal(); //Interpolazione mediante cubic
    virtual void BuildCubicSplineSignal(); //Interpolazione mediante cubic spline
+   virtual void BuildSmoothingSplineSignal(); //Interpolazione mediante cubic spline
    void init();
    void TreateOldSignalName();
 
@@ -359,7 +360,7 @@ public:
 
    virtual void BuildCubicSignal(double taufinal); //Interpolazione mediante cubic
    virtual void BuildCubicSplineSignal(double taufinal);//Interpolazione mediante spline cubic
-   virtual void BuildSmoothingSplineSignal(double taufinal, double l, int nbits = -1); //Interpolazione mediante smoothing spline
+   virtual void BuildSmoothingSplineSignal(double taufinal, double l = 1, int nbits = -1); //Interpolazione mediante smoothing spline
 
    virtual double GetDataInter(double t);
    virtual double GetDataInterCubic(double t);
