@@ -919,7 +919,7 @@ TH1* KVSignal::FFT2Histo(int output, TH1* hh)  // 0 modulo, 1 modulo db (normali
             break;
       }
    }
-   h->GetXaxis()->SetTitle("Frequency");
+//   h->GetXaxis()->SetTitle("Frequency");
    delete [] re;
    delete [] im;
 
