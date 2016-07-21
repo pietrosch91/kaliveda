@@ -1082,6 +1082,12 @@ void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
 
 }
 /***********************************************/
+void KVSignal::BuildSmoothingSplineSignal()
+{
+   BuildSmoothingSplineSignal(GetInterpolatedChannelWidth());
+}
+/***********************************************/
+
 int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
 {
    if (l < 0.1) return -1;
