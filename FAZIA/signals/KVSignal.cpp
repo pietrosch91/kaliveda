@@ -1204,7 +1204,7 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
       imax = ((nbits + 1) * log(2) + log(roB)) / log(roZ) - 1.;
       nmax = floor(imax);
       do {
-         fmax = abs(-2 * roB * cos(phib - (nmax + 1) * phiz) / pow(roZ, nmax + 1));
+         fmax = std::abs(-2 * roB * cos(phib - (nmax + 1) * phiz) / pow(roZ, nmax + 1));
          if (fmax * pow(2, nfloat + 1) < 1) nmax--;
       } while (fmax * pow(2, nfloat + 1) < 1);
    } else nmax = 50;
