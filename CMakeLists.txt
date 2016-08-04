@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}  ${PROJECT_SOURCE_DIR}/cmake)
 find_package(ROOT
    REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
    RIO Tree MathCore Matrix Gpad Gui Net Graf3d
-   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html Minuit)
+   OPTIONAL_COMPONENTS RGL RooFit RooFitCore Html Minuit RSQLite)
 
 #--optional support for OpenGL
 if(ROOT_opengl_FOUND)
@@ -17,6 +17,14 @@ if(ROOT_opengl_FOUND)
 	message(STATUS "ROOT with OpenGL support library")
 else()
 	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
+endif()
+
+#--optional support for SQLite
+if(ROOT_sqlite_FOUND)
+   set(WITH_RSQLITE yes)
+   message(STATUS "ROOT with SQLite support library")
+else()
+   message(STATUS "ROOT with no SQLite support: KVSQLite disabled")
 endif()
 
 #--check if HTML class reference can be made
