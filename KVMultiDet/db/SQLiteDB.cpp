@@ -62,6 +62,20 @@ namespace KVSQLite {
 
    }
 
+   void database::show_tables() const
+   {
+      // print list of tables
+      std::cout << "Tables in database:" << std::endl;
+#ifdef WITH_CPP11
+      for (auto it = fTables.begin();
+#else
+      for (std::map<std::string, KVSQLite::table>::const_iterator it = fTables.begin();
+#endif
+            it != fTables.end(); ++it) {
+         std::cout << "\t" << it->first << std::endl;
+      }
+   }
+
    void database::open(const TString& dbfile)
    {
       // Open/create sqlite db file given path
@@ -507,6 +521,19 @@ namespace KVSQLite {
       type_map["INTEGER"] = KVSQLite::column_type::INTEGER;
       type_map["TEXT"] = KVSQLite::column_type::TEXT;
       type_map["BLOB"] = KVSQLite::column_type::BLOB;
+   }
+
+   void table::show_columns() const
+   {
+      // print list of columns
+      std::cout << "Columns in table:" << std::endl;
+#ifdef WITH_CPP11
+      for (auto it = fColumns.begin(); it != fColumns.end(); ++it) {
+#else
+      for (std::vector<KVSQLite::column>::const_iterator it = fColumns.begin(); it != fColumns.end(); ++it) {
+#endif
+         std::cout << "\t" << it->name() << " [" << it->type_name() << "]" << std::endl;
+      }
    }
 
    column& table::add_column(const column& c)

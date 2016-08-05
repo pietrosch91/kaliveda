@@ -135,6 +135,7 @@ namespace KVSQLite {
       {
          return fName;
       }
+      void show_columns() const;
       void set_insert_mode(KVSQLite_insert_mode i)
       {
          // The insert mode determines how to deal with errors caused by constraints
@@ -211,6 +212,7 @@ namespace KVSQLite {
       {
          open(dbfile);
       }
+      void show_tables() const;
       virtual ~database() {}
 
       void open(const TString& dbfile);
