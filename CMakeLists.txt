@@ -19,14 +19,6 @@ else()
 	message(STATUS "ROOT with no OpenGL support: KVEventViewer disabled")
 endif()
 
-#--optional support for SQLite
-if(ROOT_sqlite_FOUND)
-   set(WITH_RSQLITE yes)
-   message(STATUS "ROOT with SQLite support library")
-else()
-   message(STATUS "ROOT with no SQLite support: KVSQLite disabled")
-endif()
-
 #--check if HTML class reference can be made
 if(ROOT_Html_LIBRARY)
    set(CAN_DO_HTMLDOC true)
@@ -123,6 +115,18 @@ if(USE_PARALLEL_MODE)
    endif()
 endif()
 add_feature_info(parallel USE_PARALLEL_MODE "Enable parallelisation of code using OpenMP")
+
+#--optional support for SQLite
+option(USE_SQLITE "Enable sqlite database interface KVSQLite" ON)
+if(USE_SQLITE)
+   if(ROOT_sqlite_FOUND)
+      set(WITH_RSQLITE yes)
+   else()
+      message(STATUS "ROOT with no SQLite support: KVSQLite disabled")
+      set(USE_SQLITE OFF CACHE BOOL "" FORCE)
+   endif()
+endif(USE_SQLITE)
+add_feature_info(sqlite USE_SQLITE "Enable sqlite database interface KVSQLite")
 
 #---Built-in package for reading GANIL acquisition data
 option(USE_BUILTIN_GRU
