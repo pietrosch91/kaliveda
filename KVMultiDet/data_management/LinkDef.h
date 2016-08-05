@@ -12,7 +12,6 @@
 #pragma link C++ global gDataSet;
 
 #pragma link C++ class KVDataAnalysisTask+;
-#pragma link C++ class KVAvailableRunsFile+;
 #pragma link C++ class KVRunFile+;
 #pragma link C++ class KVAvailableRunsFile+;
 #pragma link C++ class KVRemoteAvailableRunsFile+;
