@@ -1134,10 +1134,10 @@ void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
    const int Nsa = fAdc.GetSize();
    const double tau = fChannelWidth;
 
-   KVSignal* coeff = new KVSignal();
-   this->ApplyModifications(coeff);
-   coeff->SetADCData();
-   if (coeff->FIR_ApplySmoothingSpline(l, nbits) != 0) return;
+   KVSignal coeff;
+   this->ApplyModifications(&coeff);
+   coeff.SetADCData();
+   if (coeff.FIR_ApplySmoothingSpline(l, nbits) != 0) return;
 
    fChannelWidthInt = taufinal;
    TArrayF interpo;
@@ -1147,7 +1147,7 @@ void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
    if (nlast <= 0) return;
 
 //   for (int i = 0; i < interpo.GetSize()-3*tau; i++) interpo.AddAt(GetDataSmoothingSplineLTI(i * taufinal), i);
-   for (int i = 0; i < interpo.GetSize() - (int)(53 * tau / taufinal); i++) interpo.AddAt(coeff->GetDataSmoothingSplineLTI(i * taufinal), i);
+   for (int i = 0; i < interpo.GetSize() - (int)(53 * tau / taufinal); i++) interpo.AddAt(coeff.GetDataSmoothingSplineLTI(i * taufinal), i);
    fAdc.Set(0);
    fAdc.Set(interpo.GetSize());
    for (int i = 0; i < nlast; i++) fAdc.AddAt(interpo.At(i), i);
