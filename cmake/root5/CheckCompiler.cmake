@@ -99,7 +99,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_THREAD_FLAG}")
 
 if(GCC_MAJOR EQUAL 6)
    # turn off -Wmisleading-indentation: too many warnings due to ROOT headers
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation -Wno-deprecated-declarations")
    message(STATUS "Compiler warning (gcc6): -Wmisleading-indentation disabled.")
 endif(GCC_MAJOR EQUAL 6)
 
