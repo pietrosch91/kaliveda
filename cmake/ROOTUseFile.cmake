@@ -28,6 +28,31 @@ function(KALIVEDA_PROVIDED_INSTALL_HEADERS)
                            ${ARG_OPTIONS})
 endfunction()
 
+
+#---------------------------------------------------------------------------------------------------
+#---KALIVEDA_GENERATE_DICTIONARY(libname LINKDEF [name of LinkDef.h] HEADERS [toto.h titi.h ...] DEPENDENCIES [lib1 lib2])
+#
+#---Generate ROOT dictionary & rootmap.
+#   This works with ROOT5 or ROOT6.
+#   For ROOT6 we generate the .pcm file too.
+#   rootmap and pcm will be installed in ${CMAKE_INSTALL_LIBDIR}
+#
+#---------------------------------------------------------------------------------------------------
+function(KALIVEDA_GENERATE_DICTIONARY libname)
+  CMAKE_PARSE_ARGUMENTS(ARG "" "LINKDEF" "HEADERS;DEPENDENCIES" ${ARGN})
+
+  if(${ROOT_VERSION} VERSION_LESS 6)
+    ROOT_GENERATE_DICTIONARY(G__${libname} ${ARG_HEADERS} LINKDEF ${ARG_LINKDEF} OPTIONS -p)
+    ROOT_GENERATE_ROOTMAP(${libname} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_LINKDEF} DEPENDENCIES ${ARG_DEPENDENCIES})
+    set_source_files_properties(${libname}.rootmap PROPERTIES GENERATED TRUE)
+  else()
+    ROOT_GENERATE_DICTIONARY(G__${libname} ${ARG_HEADERS} MODULE ${libname} LINKDEF ${ARG_LINKDEF} OPTIONS -p)    
+    set_source_files_properties(${libname}_rdict.pcm ${libname}.rootmap PROPERTIES GENERATED TRUE)
+  endif()
+  set_source_files_properties(G__${libname}.cxx G__${libname}.h  PROPERTIES GENERATED TRUE)
+
+endfunction()
+
 #---------------------------------------------------------------------------------------------------
 #---KALIVEDA_MAKE_ROOT_LIBRARY(libname [DIRECTORY tata] [DICT_EXCLUDE toto.h titi.h ...] [LIB_EXCLUDE Class1 Class2...] DEPENDENCIES lib1 lib2)
 #
@@ -38,7 +63,10 @@ endfunction()
 #   For ROOT5 we generate the rootmap. For ROOT6 we generate the .pcm
 #
 #  To exclude some headers from dictionary generation: DICT_EXCLUDE toto.h titi.h ...
+#    - corresponding source file will still be compiled, and header will be installed
 #  To exclude some classes from shared library: LIB_EXCLUDE Class1 Class2 ...
+#    - corresponding source files will not be compiled
+#    - corresponding header files will not be used in dictionary, and not installed
 # 
 #   All used headers will be installed in ${CMAKE_INSTALL_INCLUDEDIR}
 #---------------------------------------------------------------------------------------------------
@@ -46,8 +74,6 @@ function(KALIVEDA_MAKE_ROOT_LIBRARY libname)
   CMAKE_PARSE_ARGUMENTS(ARG "" "DIRECTORY" "DICT_EXCLUDE;LIB_EXCLUDE;DEPENDENCIES" ${ARGN})
   
   #---get list of all headers in directory, except LinkDef.h
-  #---remove any headers given to DICT_EXCLUDE from list
-  set(headerfiles)
   set(rheaderfiles)
   if(ARG_DIRECTORY)
    include_directories(${ARG_DIRECTORY})
@@ -64,41 +90,53 @@ function(KALIVEDA_MAKE_ROOT_LIBRARY libname)
    	endif()
     endforeach()
   endif()
-#  string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" ""  headerfiles "${rheaderfiles}")
-   set(headerfiles ${rheaderfiles})
+  set(dict_headers)
+  #--remove any headers which were given to argument DICT_EXCLUDE
   if(ARG_DICT_EXCLUDE)
-	 list(REMOVE_ITEM headerfiles ${ARG_DICT_EXCLUDE})
+    foreach(head ${rheaderfiles})
+      get_filename_component(no_dir_head ${head} NAME)
+      if(NOT no_dir_head MATCHES ${ARG_DICT_EXCLUDE})
+        set(dict_headers ${dict_headers} ${head})
+      endif()
+    endforeach()
+  else()
+    set(dict_headers ${rheaderfiles})
   endif()
+  #--all header files are installed, even if not used in dictionary generation
+  set(inst_headers ${rheaderfiles})
   
   #---get list of all sources in directory
   #---for each class in LIB_EXCLUDE we remove the corresponding .cpp and .h
   #---from source & header file lists
-  set(sourcefiles)
   set(rsourcefiles)
   if(ARG_DIRECTORY)
-   file(GLOB rsourcefiles ${ARG_DIRECTORY}/*.cpp ${ARG_DIRECTORY}/*.cxx)
+    file(GLOB rsourcefiles ${ARG_DIRECTORY}/*.cpp ${ARG_DIRECTORY}/*.cxx)
   else(ARG_DIRECTORY)
-   file(GLOB rsourcefiles *.cpp *.cxx)
+    file(GLOB rsourcefiles *.cpp *.cxx)
   endif(ARG_DIRECTORY)
-#  string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" ""  sourcefiles "${rsourcefiles}")
-   set(sourcefiles ${rsourcefiles})
+  set(sourcefiles)
   if(ARG_LIB_EXCLUDE)
-    foreach(clex ${ARG_LIB_EXCLUDE})
-	   list(REMOVE_ITEM sourcefiles ${clex}.cpp)
-	   list(REMOVE_ITEM headerfiles ${clex}.h)
+    foreach(source ${rsourcefiles})
+      get_filename_component(classname ${source} NAME_WE)
+      get_filename_component(path_to_source ${source} PATH)
+      if(classname MATCHES ${ARG_LIB_EXCLUDE})
+	     list(REMOVE_ITEM dict_headers ${path_to_source}/${classname}.h)
+	     list(REMOVE_ITEM inst_headers ${path_to_source}/${classname}.h)
+      else()
+        set(sourcefiles ${sourcefiles} ${source})
+      endif()
     endforeach()
+  else()
+    set(sourcefiles ${rsourcefiles})
   endif()
   
-  if(${ROOT_VERSION} VERSION_LESS 6)
-    ROOT_GENERATE_DICTIONARY(G__${libname} ${headerfiles} LINKDEF ${LINKDEF_FILE} OPTIONS -p)
-    ROOT_GENERATE_ROOTMAP(${libname} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LINKDEF_FILE} DEPENDENCIES ${ARG_DEPENDENCIES})
-    set_source_files_properties(${libname}.rootmap PROPERTIES GENERATED TRUE)
-  else()
-    ROOT_GENERATE_DICTIONARY(G__${libname} ${headerfiles} MODULE ${libname} LINKDEF ${LINKDEF_FILE} OPTIONS -p)    
-    set_source_files_properties(${libname}_rdict.pcm ${libname}.rootmap PROPERTIES GENERATED TRUE)
-  endif()
-  set_source_files_properties(G__${libname}.cxx G__${libname}.h  PROPERTIES GENERATED TRUE)
+  KALIVEDA_GENERATE_DICTIONARY(${libname} LINKDEF ${LINKDEF_FILE} HEADERS ${dict_headers} DEPENDENCIES ${ARG_DEPENDENCIES})
+  
   ROOT_LINKER_LIBRARY(${libname} ${sourcefiles} G__${libname}.cxx DEPENDENCIES ${ARG_DEPENDENCIES})
-  KALIVEDA_PROVIDED_INSTALL_HEADERS(${headerfiles} ${ARG_DICT_EXCLUDE})
+  
+  KALIVEDA_PROVIDED_INSTALL_HEADERS(${inst_headers})
+  
+  message(STATUS "dict:${dict_headers}")
+  message(STATUS "inst:${inst_headers}")
+  
 endfunction()
-
