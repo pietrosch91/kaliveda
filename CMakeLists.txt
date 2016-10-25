@@ -374,7 +374,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/KaliVedaConfig.cmake ${CMAKE_CURRENT_B
 #---in order to be able to reuse cmake macros for building ROOT libraries with either ROOT5 or ROOT6
 install(FILES 
    ${CMAKE_SOURCE_DIR}/cmake/FindROOT.cmake ${CMAKE_SOURCE_DIR}/cmake/ROOTUseFile.cmake 
-   DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
+   ${CMAKE_SOURCE_DIR}/cmake/GenerateRootLibrary.cmake
+    DESTINATION ${CMAKE_INSTALL_CMAKEPKGDIR}
    )
 install(DIRECTORY 
    ${CMAKE_SOURCE_DIR}/cmake/root5
