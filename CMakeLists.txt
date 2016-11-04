@@ -344,7 +344,7 @@ install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL
 install(PROGRAMS tools/thiskaliveda.sh tools/thiskaliveda.csh
    DESTINATION ${CMAKE_INSTALL_BINDIR})
 #---install other stuff from tools/ directory in ${CMAKE_INSTALL_SYSCONFDIR}
-install(FILES tools/.nedit DESTINATION ${CMAKE_INSTALL_SYSCONFDIR} RENAME nedit.cf)
+install(FILES tools/nedit.cf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
 #---install README, COPYING, etc. in ${CMAKE_INSTALL_DOCDIR}
 install(FILES COPYING INSTALL README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
