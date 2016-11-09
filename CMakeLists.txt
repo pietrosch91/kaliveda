@@ -13,7 +13,7 @@ endif()
 #--look for ROOT & all essential libraries
 find_package(ROOT
    REQUIRED Rint Graf Geom Spectrum Proof ProofPlayer Physics Hist
-   RIO Tree MathCore Matrix Gpad Gui Net Graf3d
+   RIO Tree MathCore Matrix Gpad Gui Net Graf3d Thread
    OPTIONAL_COMPONENTS RGL RooFit RooFitCore Minuit RSQLite SQLite)
 
 #--optional support for OpenGL
