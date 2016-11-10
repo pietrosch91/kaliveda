@@ -926,6 +926,7 @@ void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
       e->ResetGetNextParticle();
       while ((n = e->GetNextParticle())) {
          n->Copy(*AddParticle());
+         //AddParticle()->CopyAndMoveReferences(n);
       }
       e->Clear(opt);
    }
