@@ -70,7 +70,7 @@ if [ -n "${old_KVROOT}" ] ; then
    fi
    if [ -n "${ROOT_INCLUDE_PATH}" ]; then
       drop_from_path $ROOT_INCLUDE_PATH ${old_KVROOT}/${old_incdir}
-      MANPATH=$newpath
+      ROOT_INCLUDE_PATH=$newpath
    fi
 fi
 
