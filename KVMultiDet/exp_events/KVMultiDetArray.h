@@ -116,6 +116,7 @@ protected:
       fTrajectories.Add(d);
    }
    void AssociateTrajectoriesAndNodes();
+   void DeduceGroupsFromTrajectories();
 
 #ifdef WITH_MFM
    virtual Bool_t handle_raw_data_event_mfmfile(KVMFMDataFileReader&);
@@ -217,7 +218,7 @@ public:
    {
       return fIDTelescopes;
    };
-   KVList* GetIDTelescopeTypes();
+   KVUniqueNameList* GetIDTelescopeTypes();
    KVSeqCollection* GetIDTelescopesWithType(const Char_t* type);
    virtual void SetDetectorThicknesses();
 
@@ -380,6 +381,7 @@ public:
    Bool_t HandleRawDataEvent(KVRawDataReader*);
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
+   void RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniqueNameList& tried_trajectories, KVUniqueNameList& multitraj_nodes, KVUniqueNameList& detectors_of_group);
 };
 
 //................  global variable
