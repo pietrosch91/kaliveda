@@ -402,7 +402,7 @@ KVLightEnergyCsIFull::KVLightEnergyCsIFull(): KVCalibrator(5)
 }
 
 //________________________________________________________________
-KVLightEnergyCsIFull::KVLightEnergyCsIFull(KVDetector* kvd, Int_t lightFormula): KVCalibrator(5) // : KVCalibrator(kvd)
+KVLightEnergyCsIFull::KVLightEnergyCsIFull(const Char_t* name, const Char_t* type, KVDetector* kvd, Int_t lightFormula): KVCalibrator(name, type, 5) // : KVCalibrator(kvd)
 {
    SetDetector(kvd);
    SetLightFormula(lightFormula);
@@ -413,13 +413,14 @@ KVLightEnergyCsIFull::KVLightEnergyCsIFull(KVDetector* kvd, Int_t lightFormula):
 void KVLightEnergyCsIFull::init()
 {
    //default initialisations
-   SetType("Light-Energy CsI");
-   if (fDetector) fMaterialTable = fDetector->GetRangeTable()->GetMaterial(fDetector->GetMaterialName());
-   else Error("init", "No detector provided !");
+//   SetType("Light-Energy CsI");
+//   if(fDetector&&(fLightFormula==kExact)) fMaterialTable = fDetector->GetRangeTable()->GetMaterial(fDetector->GetMaterialName());
+//   else Error("init", "No detector provided !");
    SetA(1);
    SetZ(1);
-   fZmed = fDetector->GetZ();
-   fAmed = fDetector->GetMass();
+   fZmed = 54;//fDetector->GetZ();
+   fAmed = 130;//fDetector->GetMass();
+
    u = 931.5;
    fDlight = 0;
 
