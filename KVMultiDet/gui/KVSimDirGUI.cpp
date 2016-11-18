@@ -206,6 +206,7 @@ KVSimDirGUI::KVSimDirGUI()
 
    fTESystem = new TGTextEntry(tmpf, new TGTextBuffer(200));
    fTESystem->Resize(200, fTESystem->GetDefaultHeight());
+   fTESystem->SetToolTipText("[Projectile_Symbol]+[Target_Symbol]@[Incident_Energy]MeV/A (ex: 129Xe+119Sn@50.0MeV/A)");
    tmpf->AddFrame(fTESystem, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
 
    hf->AddFrame(tmpf, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));
@@ -733,6 +734,8 @@ void KVSimDirGUI::RunFilter()
    if (fSystem == "") {
       fSystem = fTESystem->GetText();
       KV2Body cd(fSystem.Data());
+      cd.CalculateKinematics();
+      cd.Print();
    }
 
    TString options;
