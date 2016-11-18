@@ -162,8 +162,15 @@ void KVEventFiltering::InitAnalysis()
 
    TString system = GetOpt("System").Data();
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);
-   fCMVelocity = (sys ? sys->GetKinematics()->GetCMVelocity() : TVector3(0, 0, 0));
+   KV2Body* tb = 0;
+
+   if (sys) tb =  sys->GetKinematics();
+   else if (system) tb = new KV2Body(system);
+
+   fCMVelocity = (tb ? tb->GetCMVelocity() : TVector3(0, 0, 0));
    fCMVelocity *= -1.0;
+
+   delete tb;
 
    Int_t run = 0;
    if (IsOptGiven("Run")) run = GetOpt("Run").Atoi();
