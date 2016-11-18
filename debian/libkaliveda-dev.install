@@ -58,6 +58,7 @@
 /usr/include/kaliveda/KVPulseHeightDefect.h
 /usr/include/kaliveda/KVLinCal.h
 /usr/include/kaliveda/KVRecombination.h
+/usr/include/kaliveda/KVLightEnergyCsIFull.h
 /usr/include/kaliveda/KVRungeKutta.h
 /usr/include/kaliveda/KVSimReader_SMF_asym.h
 /usr/include/kaliveda/KVFissionKinematics.h
@@ -324,6 +325,7 @@
 /usr/include/kaliveda/KVDP2toIDGridConvertor.h
 /usr/include/kaliveda/KVIDGCsI.h
 /usr/include/kaliveda/KVIDZAContour.h
+/usr/include/kaliveda/KVIDZoneContour.h
 /usr/include/kaliveda/KVIDMap.h
 /usr/include/kaliveda/KVTGID.h
 /usr/include/kaliveda/KVTGIDGrid.h
