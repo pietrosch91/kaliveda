@@ -357,7 +357,7 @@ void KVEvent::FillHisto(TH1* h, const Char_t* KVNucleus_method, Option_t* opt)
          for (; it != end(); ++it) {
             KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, "", ret);
-            h->Fill((Double_t)ret);
+            h->Fill(ret);
          }
       }
    }
@@ -926,7 +926,6 @@ void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
       e->ResetGetNextParticle();
       while ((n = e->GetNextParticle())) {
          n->Copy(*AddParticle());
-         //AddParticle()->CopyAndMoveReferences(n);
       }
       e->Clear(opt);
    }
