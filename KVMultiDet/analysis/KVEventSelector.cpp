@@ -4,6 +4,10 @@
 #include "TPluginManager.h"
 #include "TSystem.h"
 #include "KVDataAnalyser.h"
+#include "KVDataRepositoryManager.h"
+#include "KVDataRepository.h"
+#include "KVDataSetManager.h"
+#include "TProof.h"
 
 using namespace std;
 
@@ -79,6 +83,7 @@ ClassImp(KVEventSelector)
 // If you want all results of your analysis to be written in a single file
 // containing both histos and trees, put the following in the list of options:
 //      CombinedOutputFile=myResults.root
+// or call method SetCombinedOutputFile("myResults.root") in your InitAnalysis();
 // do not call SaveHistos() in EndAnalysis(), and make
 // sure you call CreateTreeFile() without giving a name (the
 // resulting intermediate file will have a default name
@@ -88,12 +93,33 @@ ClassImp(KVEventSelector)
 void KVEventSelector::Begin(TTree* /*tree*/)
 {
    // Need to parse options here for use in Terminate
+   // Also, on PROOF, any KVDataAnalyser instance has to be passed to the workers
+   // via the TSelector input list.
 
    ParseOptions();
 
    if (IsOptGiven("CombinedOutputFile")) {
       fCombinedOutputFile = GetOpt("CombinedOutputFile");
-      Info("Begin", "Output file name = %s", fCombinedOutputFile.Data());
+   } else if (gProof) {
+      // when running with PROOF, if the user calls SetCombinedOutputFile()
+      // in InitAnalysis(), it will only be executed on the workers (in SlaveBegin()).
+      // therefore we call InitAnalysis() here, but deactivate CreateTreeFile(),
+      // AddTree() and AddHisto() in order to avoid interference with workers
+      fDisableCreateTreeFile = kTRUE;
+      if (gDataAnalyser) {
+         gDataAnalyser->RegisterUserClass(this);
+         gDataAnalyser->preInitAnalysis();
+      }
+      InitAnalysis();              //user initialisations for analysis
+      if (gDataAnalyser) gDataAnalyser->postInitAnalysis();
+      fDisableCreateTreeFile = kFALSE;
+   }
+
+   if (gDataAnalyser) {
+      if (GetInputList()) {
+         gDataAnalyser->AddJobDescriptionList(GetInputList());
+         GetInputList()->ls();
+      }
    }
 }
 
@@ -112,6 +138,24 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
    // Test the presence or not of such histo or tree
    // to manage it properly
 
+   if (GetInputList() && GetInputList()->FindObject("JobDescriptionList")) {
+      KVNameValueList* jdl = dynamic_cast<KVNameValueList*>(GetInputList()->FindObject("JobDescriptionList"));
+      if (jdl) {
+         if (!gDataRepositoryManager) {
+            new KVDataRepositoryManager;
+            gDataRepositoryManager->Init();
+            gDataRepositoryManager->GetRepository(jdl->GetStringValue("DataRepository"))->cd();
+            gDataSetManager->GetDataSet(jdl->GetStringValue("DataSet"))->cd();
+            KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(jdl->GetStringValue("AnalysisTask"));
+            gDataAnalyser = KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
+            gDataAnalyser->SetDataSet(gDataSet);
+            gDataAnalyser->SetAnalysisTask(task);
+            gDataAnalyser->RegisterUserClass(this);
+            gDataAnalyser->SetProofMode((KVDataAnalyser::EProofMode)jdl->GetIntValue("PROOFMode"));
+         }
+      }
+   }
+
    ParseOptions();
 
    if (IsOptGiven("CombinedOutputFile")) {
@@ -119,7 +163,13 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
       Info("SlaveBegin", "Output file name = %s", fCombinedOutputFile.Data());
    }
 
-   InitAnalysis();
+   // tell the data analyser who we are
+   if (gDataAnalyser) {
+      gDataAnalyser->RegisterUserClass(this);
+      gDataAnalyser->preInitAnalysis();
+   }
+   InitAnalysis();              //user initialisations for analysis
+   if (gDataAnalyser) gDataAnalyser->postInitAnalysis();
 
    if (ltree->GetEntries() > 0)
       for (Int_t ii = 0; ii < ltree->GetEntries(); ii += 1) {
@@ -134,6 +184,8 @@ Bool_t KVEventSelector::CreateTreeFile(const Char_t* filename)
    // For PROOF:
    // This method must be called before creating any user TTree in InitAnalysis().
    // If no filename is given, default name="TreeFileFrom[name of selector class].root"
+
+   if (fDisableCreateTreeFile) return kTRUE;
 
    if (!strcmp(filename, ""))
       tree_file_name.Form("TreeFileFrom%s.root", ClassName());
@@ -196,6 +248,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
       }
    }
    GetEntry(entry);
+   if (gDataAnalyser) gDataAnalyser->preAnalysis();
    fEventsRead++;
    if (GetEvent()) {
       SetAnalysisFrame();//let user define any necessary reference frames
@@ -218,6 +271,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
 
    Bool_t ok_anal = kTRUE;
    ok_anal = Analysis();     //user analysis
+   if (gDataAnalyser) gDataAnalyser->postAnalysis();
 
    CheckEndOfRun();
 
@@ -229,8 +283,9 @@ void KVEventSelector::CheckEndOfRun()
    // Testing whether EndRun() should be called
    if (AtEndOfRun()) {
       Info("Process", "End of file reached after %lld events", fEventsRead);
-
+      if (gDataAnalyser) gDataAnalyser->preEndRun();
       EndRun();
+      if (gDataAnalyser) gDataAnalyser->postEndRun();
       fNotifyCalled = kFALSE;//Notify will be called when next file is opened (in TChain)
    }
 
@@ -307,9 +362,9 @@ void KVEventSelector::Terminate()
       } else  Info("Terminate", "none");
    }
 
-
+   if (gDataAnalyser) gDataAnalyser->preEndAnalysis();
    EndAnalysis();               //user end of analysis routine
-
+   if (gDataAnalyser) gDataAnalyser->postEndAnalysis();
 }
 
 KVVarGlob* KVEventSelector::AddGV(const Char_t* class_name,
@@ -416,7 +471,7 @@ void KVEventSelector::RecalculateGlobalVariables()
 
 //____________________________________________________________________________
 
-void KVEventSelector::SetParticleConditions(const KVParticleCondition& cond)
+void KVEventSelector::SetParticleConditions(const KVParticleCondition& cond, const KVString& upcast_class)
 {
    //Use this method to set criteria for selecting particles to include in analysis.
    //The criteria defined in the KVParticleCondition object will be applied to every
@@ -426,9 +481,15 @@ void KVEventSelector::SetParticleConditions(const KVParticleCondition& cond)
    //Neither will the particle be included in the evaluation of any global variables.
    //
    //This method must be called in the user's InitAnalysis() or InitRun() method.
+   //
+   //If the methods used in the condition are not defined for KVNucleus, you can give the
+   //name of the class to which the methods refer (upcast_class), or you can set it before
+   //hand (SetParticleConditionsParticleClassName)
 
    if (!fPartCond) fPartCond = new KVParticleCondition(cond);
    else *fPartCond = cond;
+   if (upcast_class != "") fPartCond->SetParticleClassName(upcast_class);
+   else if (fPartName) fPartCond->SetParticleClassName(fPartName);
 }
 
 //____________________________________________________________________________
@@ -456,6 +517,9 @@ void KVEventSelector::AddHisto(TH1* histo)
 {
    // Declare a histogram to be used in analysis.
    // This method must be called when using PROOF.
+
+   if (fDisableCreateTreeFile) return;
+
    lhisto->Add(histo);
    fOutput->Add(histo);
    if (!fOutput->FindObject("ThereAreHistos")) fOutput->Add(new TNamed("ThereAreHistos", "...so save them!"));
@@ -465,6 +529,9 @@ void KVEventSelector::AddTree(TTree* tree)
 {
    // Declare a TTree to be used in analysis.
    // This method must be called when using PROOF.
+
+   if (fDisableCreateTreeFile) return;
+
    ltree->Add(tree);
 }
 
@@ -704,4 +771,50 @@ void KVEventSelector::ParseOptions()
    if (IsOptGiven("BranchName")) SetBranchName(GetOpt("BranchName"));
    // check for events read interval
    if (IsOptGiven("EventsReadInterval")) SetEventsReadInterval(GetOpt("EventsReadInterval").Atoi());
+}
+
+void KVEventSelector::Init(TTree* tree)
+{
+   // The Init() function is called when the selector needs to initialize
+   // a new tree or chain. Typically here the branch addresses and branch
+   // pointers of the tree will be set.
+   // It is normally not necessary to make changes to the generated
+   // code, but the routine can be extended by the user if needed.
+   // Init() will be called many times when running on PROOF
+   // (once per file to be processed).
+
+   // Set object pointer
+   Event = 0;
+   // Set branch addresses and branch pointers
+   if (!tree) return;
+   fChain = tree;
+   fChain->SetMakeClass(1);
+
+   if (strcmp(GetBranchName(), "")  && fChain->GetBranch(GetBranchName())) {
+      Info("Init", "Analysing data in branch : %s", GetBranchName());
+      fChain->SetBranchAddress(GetBranchName() , &Event, &b_Event);
+   }
+   //user additional branches addressing
+   SetAdditionalBranchAddress();
+   fEventsRead = 0;
+
+}
+
+Bool_t KVEventSelector::Notify()
+{
+   // The Notify() function is called when a new file is opened. This
+   // can be either for a new TTree in a TChain or when when a new TTree
+   // is started when using PROOF. It is normally not necessary to make changes
+   // to the generated code, but the routine can be extended by the
+   // user if needed. The return value is currently not used.
+
+   if (fNotifyCalled) return kTRUE; // avoid multiple calls at beginning of analysis
+   fNotifyCalled = kTRUE;
+
+   Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
+
+   if (gDataAnalyser) gDataAnalyser->preInitRun();
+   InitRun();                   //user initialisations for run
+   if (gDataAnalyser) gDataAnalyser->postInitRun();
+   return kTRUE;
 }

@@ -45,6 +45,7 @@ protected :
    KVString fBranchName; //name of branch which contains events to analyse
 
    KVParticleCondition* fPartCond;//(optional) conditions for selecting particles
+   KVString fPartName;//(optional) classname for upcasting in KVParticleCondition::Optimize
 
    Bool_t fFirstEvent;//set to kFALSE after first event is read
 
@@ -61,6 +62,8 @@ protected :
    //parsed list of options given to TTree::Process
    KVNameValueList fOptionList;
 
+   Bool_t fDisableCreateTreeFile;//used with PROOF
+
    void FillTH1(TH1* h1, Double_t one, Double_t two);
    void FillTProfile(TProfile* h1, Double_t one, Double_t two, Double_t three);
    void FillTH2(TH2* h2, Double_t one, Double_t two, Double_t three);
@@ -76,7 +79,7 @@ public:
    virtual void ParseOptions();
 
    KVEventSelector(TTree* /*tree*/ = 0) : fChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
-      fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE)
+      fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE), fDisableCreateTreeFile(kFALSE)
    {
       lhisto = new KVHashList();
       ltree = new KVHashList();
@@ -213,7 +216,11 @@ public:
       return (fTreeEntry + 1 == fChain->GetTree()->GetEntries());
    };
 
-   virtual void SetParticleConditions(const KVParticleCondition&);
+   virtual void SetParticleConditions(const KVParticleCondition&, const KVString& = "");
+   void SetParticleConditionsParticleClassName(const KVString& t)
+   {
+      fPartName = t;
+   }
 
    void AddHisto(TH1* histo);
    void AddTree(TTree* tree);
@@ -238,57 +245,20 @@ public:
    {
       //if user wants to read additional branches of the tree
       //
-   };
+   }
+   void SetCombinedOutputFile(const TString& filename)
+   {
+      // Call in InitAnalysis() to set the name of the single output file
+      // containing all histograms and TTrees produced by analysis.
+      // This is equivalent to running the analysis with option
+      //    CombinedOutputFile=[filename]
+      // but setting this option in InitAnalysis() will not work.
+      // Note that if this method is not called/the option is not given,
+      // histograms and TTrees will be written in separate files.
+      fCombinedOutputFile = filename;
+   }
 
    ClassDef(KVEventSelector, 0)//General purpose analysis class for TTrees containing KVEvent objects
 };
 
 #endif
-
-#ifdef KVEventSelector_cxx
-void KVEventSelector::Init(TTree* tree)
-{
-   // The Init() function is called when the selector needs to initialize
-   // a new tree or chain. Typically here the branch addresses and branch
-   // pointers of the tree will be set.
-   // It is normally not necessary to make changes to the generated
-   // code, but the routine can be extended by the user if needed.
-   // Init() will be called many times when running on PROOF
-   // (once per file to be processed).
-
-   // Set object pointer
-   Event = 0;
-   // Set branch addresses and branch pointers
-   if (!tree) return;
-   fChain = tree;
-   fChain->SetMakeClass(1);
-
-   if (strcmp(GetBranchName(), "")  && fChain->GetBranch(GetBranchName())) {
-      Info("Init", "Analysing data in branch : %s", GetBranchName());
-      fChain->SetBranchAddress(GetBranchName() , &Event, &b_Event);
-   }
-   //user additional branches addressing
-   SetAdditionalBranchAddress();
-   fEventsRead = 0;
-
-}
-
-Bool_t KVEventSelector::Notify()
-{
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
-
-   if (fNotifyCalled) return kTRUE; // avoid multiple calls at beginning of analysis
-   fNotifyCalled = kTRUE;
-
-   Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
-
-   InitRun();                   //user initialisations for run
-
-   return kTRUE;
-}
-
-#endif // #ifdef KVEventSelector_cxx

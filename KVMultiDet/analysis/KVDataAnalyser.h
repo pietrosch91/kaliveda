@@ -61,14 +61,31 @@ protected:
    void CopyAnalysisResultsToLaunchDirectory();
 
    virtual KVNumberList PrintAvailableRuns(KVString& datatype);
-   virtual Bool_t CheckIfUserClassIsValid();
-   virtual TObject* GetInstanceOfUserClass();
+   virtual Bool_t CheckIfUserClassIsValid(const KVString& alternative_base_class = "");
+   virtual TObject* GetInstanceOfUserClass(const KVString& alternative_base_class = "");
 
    virtual const Char_t* GetACliCMode();
 
    static Bool_t fCleanAbort;//flag to force abort of processing
 
 public:
+   enum EProofMode {
+      None,
+      Lite,
+      Proof
+   };
+private:
+   EProofMode fProofMode;
+public:
+   void SetProofMode(EProofMode e)
+   {
+      fProofMode = e;
+   }
+   EProofMode GetProofMode() const
+   {
+      return fProofMode;
+   }
+
    static void SetAbortProcessingLoop(Bool_t now = kTRUE)
    {
       // Set flag to force a clean abort of the processing loop
@@ -252,6 +269,8 @@ public:
    static void RunAnalyser(const Char_t* plugin = "");
 
    static Bool_t IsRunningBatchAnalysis();
+
+   virtual void AddJobDescriptionList(TList*);
 
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

@@ -179,6 +179,7 @@ KVDataAnalyser::KVDataAnalyser()
    fChoseRunMode = kFALSE;
    fWorkDirInit = fWorkDirEnd = 0;
    fMenus = kFALSE;
+   fProofMode = EProofMode::None;
 }
 
 KVDataAnalyser::~KVDataAnalyser()
@@ -209,6 +210,7 @@ void KVDataAnalyser::Reset()
    nbEventToRead = -1;
    fBatchSystem = 0;
    fChoseRunMode = kFALSE;
+   fProofMode = EProofMode::None;
 }
 
 //_________________________________________________________________
@@ -976,7 +978,7 @@ Bool_t KVDataAnalyser::DoUserClassFilesExist()
 
 //__________________________________________________________________________________//
 
-Bool_t KVDataAnalyser::CheckIfUserClassIsValid()
+Bool_t KVDataAnalyser::CheckIfUserClassIsValid(const KVString& alternative_base_class)
 {
    //Return kTRUE if the name of the class given by the user (fUserClass) is valid
    //for the analysis task. This is so if one of the following is true:
@@ -989,12 +991,16 @@ Bool_t KVDataAnalyser::CheckIfUserClassIsValid()
    //  - source files for the class are present in the working directory. In this case
    //    we can add a plugin handler for the class.
    //In the latter two cases, the class is valid if compilation succeeds.
+   //
+   //If the user's class may in fact be derived from an alternative base class, rather
+   //than the base class defined for this analysis task (see KVDataAnalysisTask::SetUserBaseClass)
+   //you can supply the name of this class.
 
-   TObject* o = GetInstanceOfUserClass();
+   TObject* o = GetInstanceOfUserClass(alternative_base_class);
    if (o) {
       delete o;
       return kTRUE;
-   };
+   }
    return kFALSE;
 }
 
@@ -1022,7 +1028,7 @@ const Char_t* KVDataAnalyser::GetACliCMode()
 
 //__________________________________________________________________________________//
 
-TObject* KVDataAnalyser::GetInstanceOfUserClass()
+TObject* KVDataAnalyser::GetInstanceOfUserClass(const KVString& alternative_base_class)
 {
    //Return an instance of the class given by the user (fUserClass), if it is valid.
    //If the user class is given in the form of source code, it will be (re)compiled
@@ -1032,6 +1038,11 @@ TObject* KVDataAnalyser::GetInstanceOfUserClass()
    //  KVDataAnalyser.UserClass.Debug:    yes
    //
    //is set, the user's class will be compiled with extra debugging information
+   //
+   //Once compiled, we check that the user's class is indeed derived from the base
+   //class defined for this analysis task (see KVDataAnalysisTask::SetUserBaseClass).
+   //If the user's class may in fact be derived from an alternative base class, you
+   //can supply the name of this class.
 
    // make sure any required plugin library defining base class for user's analysis class is loaded
    if (!fTask->CheckUserBaseClassIsLoaded()) return 0x0;
@@ -1066,9 +1077,15 @@ TObject* KVDataAnalyser::GetInstanceOfUserClass()
       }
       if (!cl->GetBaseClass(fTask->GetUserBaseClass())) {
          //class does not inherit from correct base
-         Info("GetInstanceOfUserClass", "Class %s does not inherit from correct base class (%s), or compilation of class %s failed. Correct the mistakes and try again",
-              fUserClass.Data(), fTask->GetUserBaseClass(), fUserClass.Data());
-         return 0;
+         if (alternative_base_class == "" || !cl->GetBaseClass(alternative_base_class)) {
+            if (alternative_base_class != "")
+               Info("GetInstanceOfUserClass", "Class %s does not inherit from correct base class (%s or %s), or compilation of class %s failed. Correct the mistakes and try again",
+                    fUserClass.Data(), fTask->GetUserBaseClass(), alternative_base_class.Data(), fUserClass.Data());
+            else
+               Info("GetInstanceOfUserClass", "Class %s does not inherit from correct base class (%s), or compilation of class %s failed. Correct the mistakes and try again",
+                    fUserClass.Data(), fTask->GetUserBaseClass(), fUserClass.Data());
+            return nullptr;
+         }
       }
       //EVERYTHING OK!! now instanciate an object of the new class
       return (TObject*)cl->New();
@@ -1307,6 +1324,7 @@ void KVDataAnalyser::SubmitTask()
    the_analyser->SetBatchMode(BatchMode());
    the_analyser->SetBatchName(GetBatchName());
    the_analyser->SetBatchSystem(fBatchSystem);
+   the_analyser->SetProofMode(GetProofMode());
    //set global pointer to analyser object which performs the analysis
    //this allows e.g. user class to obtain information on the analysis task
    gDataAnalyser = the_analyser;
@@ -1619,5 +1637,22 @@ Bool_t KVDataAnalyser::IsRunningBatchAnalysis()
 
    if (gDataAnalyser) return (gDataAnalyser->BatchMode() && gDataAnalyser->fBatchSystem);
    return kFALSE;
+}
+
+void KVDataAnalyser::AddJobDescriptionList(TList* l)
+{
+   // Create a KVNameValueList called "JobDescriptionList" and add it to
+   // the TList. The parameters in the list describe the properties of the
+   // current job. The TList pointer could be, for example, the address of
+   // the TSelector::fInput list used by PROOF.
+
+   KVNameValueList* jdl = new KVNameValueList("JobDescriptionList", "Job parameters");
+
+   jdl->SetValue("DataRepository", gDataRepository->GetName());
+   jdl->SetValue("DataSet", fDataSet->GetName());
+   jdl->SetValue("AnalysisTask", fTask->GetType());
+   jdl->SetValue("PROOFMode", GetProofMode());
+
+   l->Add(jdl);
 }
 
