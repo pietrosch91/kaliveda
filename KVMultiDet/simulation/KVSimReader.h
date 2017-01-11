@@ -24,6 +24,8 @@
 
 class KVSimReader : public KVFileReader {
 
+   void init();
+
 protected:
 
    TTree* tree;//!
@@ -48,7 +50,6 @@ public:
    KVSimReader(KVString filename);
    virtual ~KVSimReader();
 
-   void init();
    void CleanAll();
 
    virtual KVString GetDate()

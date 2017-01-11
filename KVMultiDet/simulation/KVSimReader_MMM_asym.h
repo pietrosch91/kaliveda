@@ -7,6 +7,14 @@
 #include "KVSimReader.h"
 
 class KVSimReader_MMM_asym : public KVSimReader {
+   void init()
+   {
+      tree_name = "MMM_asym";
+      Info("init", "%s", branch_name.Data());
+      idx = 0;
+      fApplyBoost = kFALSE;
+   }
+
 protected:
    Int_t idx;
    Bool_t fApplyBoost;
@@ -19,14 +27,6 @@ public:
    void SetBoost(TVector3& vQP, TVector3& vQC);
 
    virtual ~KVSimReader_MMM_asym();
-
-   void init()
-   {
-      tree_name = "MMM_asym";
-      Info("init", "%s", branch_name.Data());
-      idx = 0;
-      fApplyBoost = kFALSE;
-   }
 
    virtual void ReadFile();
    virtual Bool_t ReadEvent();

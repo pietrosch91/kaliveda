@@ -8,18 +8,18 @@
 
 class KVSimReader_SMF_asym : public KVSimReader {
 
+   void init()
+   {
+      tree_name = "SMF_asym";
+      ndes = 0;
+   }
+
 protected:
    Int_t ndes;
 
 public:
    KVSimReader_SMF_asym();
    KVSimReader_SMF_asym(KVString filename);
-
-   void init()
-   {
-      tree_name = "SMF_asym";
-      ndes = 0;
-   }
 
    virtual ~KVSimReader_SMF_asym();
 

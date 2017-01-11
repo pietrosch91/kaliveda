@@ -8,6 +8,13 @@
 #include "TH1F.h"
 
 class KVSimReader_HIPSE : public KVSimReader {
+   void init()
+   {
+      Info("init", "passe");
+      tree_name = "HIPSE";
+      Info("init", "%s", branch_name.Data());
+      h1 = 0;
+   }
 
 protected:
    TH1F* h1;
@@ -17,14 +24,6 @@ public:
    KVSimReader_HIPSE(KVString filename);
 
    virtual ~KVSimReader_HIPSE();
-
-   void init()
-   {
-      Info("init", "passe");
-      tree_name = "HIPSE";
-      Info("init", "%s", branch_name.Data());
-      h1 = 0;
-   }
 
    void ReadFile();
    Bool_t ReadHeader();

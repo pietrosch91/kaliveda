@@ -8,14 +8,14 @@
 
 class KVSimReader_SMF : public KVSimReader {
 
-public:
-   KVSimReader_SMF();
-   KVSimReader_SMF(KVString filename);
-
    void init()
    {
       tree_name = "SMF";
    }
+
+public:
+   KVSimReader_SMF();
+   KVSimReader_SMF(KVString filename);
 
    virtual ~KVSimReader_SMF();
 

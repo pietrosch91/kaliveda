@@ -8,6 +8,13 @@
 
 class KVSimReader_MMM : public KVSimReader {
 
+   void init()
+   {
+      tree_name = "MMM";
+      Info("init", "%s", branch_name.Data());
+      idx = 0;
+   }
+
 protected:
    Int_t idx;
 
@@ -16,13 +23,6 @@ public:
    KVSimReader_MMM(KVString filename);
 
    virtual ~KVSimReader_MMM();
-
-   void init()
-   {
-      tree_name = "MMM";
-      Info("init", "%s", branch_name.Data());
-      idx = 0;
-   }
 
    virtual void ReadFile();
    virtual Bool_t ReadEvent();
