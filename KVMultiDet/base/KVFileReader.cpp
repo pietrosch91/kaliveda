@@ -20,13 +20,6 @@ KVFileReader::KVFileReader()
    init();
 }
 
-KVFileReader::~KVFileReader()
-{
-   // Destructor
-   if (toks) delete toks;
-   toks = 0;
-}
-
 //______________________
 KVFileReader::KVFileReader(const KVFileReader& obj) : KVBase()
 {

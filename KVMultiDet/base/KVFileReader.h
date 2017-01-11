@@ -12,8 +12,15 @@
 #include "TObjString.h"
 
 class KVFileReader : public KVBase {
+private:
+   void init()
+   {
+      reading_line = "";
+      nline = 0;
+   }
+
 protected:
-   TObjArray* toks;//->
+   unique_ptr<TObjArray> toks;
    KVString reading_line, file_name;
    Int_t nline;
    Bool_t status;
@@ -25,13 +32,7 @@ public:
    KVFileReader(const KVFileReader&);
    virtual void Copy(TObject&) const;
 
-   virtual ~KVFileReader();
-   virtual void init()
-   {
-      reading_line = "";
-      nline = 0;
-      toks = new TObjArray();
-   }
+   virtual ~KVFileReader() {}
 
    KVString GetFileName()
    {
@@ -40,7 +41,6 @@ public:
 
    void Clear(Option_t* /*opt*/ = "")
    {
-      if (toks) delete toks;
       init();
    }
 
@@ -115,18 +115,16 @@ public:
 
    void StoreParameters(const Char_t* pattern)
    {
-      delete toks;
-      toks = GetCurrentLine().Tokenize(pattern);
+      toks.reset(GetCurrentLine().Tokenize(pattern));
    }
 
    void AddParameters(const Char_t* pattern)
    {
-      //delete toks;
-      TObjArray* tamp = GetCurrentLine().Tokenize(pattern);
+      unique_ptr<TObjArray> tamp(GetCurrentLine().Tokenize(pattern));
       Int_t ne = tamp->GetEntries();
-      for (Int_t kk = 0; kk < ne; kk += 1)
-         toks->Add(tamp->RemoveAt(kk));
-      delete tamp;
+      // toks may be uninitialized
+      if (toks.get() == nullptr) toks.reset(new TObjArray);
+      for (Int_t kk = 0; kk < ne; kk += 1) toks->Add(tamp->RemoveAt(kk));
    }
 
    Int_t GetNparRead()
@@ -152,7 +150,7 @@ public:
    }
 
 
-   ClassDef(KVFileReader, 1) //Manage the reading of file
+   ClassDef(KVFileReader, 2) //Manage the reading of file
 };
 
 #endif
