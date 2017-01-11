@@ -14,6 +14,14 @@ ClassImp(KVSimReader_ELIE)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+void KVSimReader_ELIE::define_output_filename()
+{
+   // ROOT file called: ELIE_[PROJ]_[TARG]_[EBEAM]AMeV_PRIM.root
+   // Call after reading file header
+   SetROOTFileName(Form("ELIE_%s_%s_%.1fAMeV_PRIM.root",
+                        proj.GetSymbol(), targ.GetSymbol(), ebeam));
+}
+
 KVSimReader_ELIE::KVSimReader_ELIE()
 {
    // Default constructor
@@ -24,16 +32,9 @@ KVSimReader_ELIE::KVSimReader_ELIE()
 
 KVSimReader_ELIE::KVSimReader_ELIE(KVString filename) : KVSimReader()
 {
-   // Write your code here
+   // Read file
    init();
-   if (!OpenFileToRead(filename)) return;
-   if (!ReadHeader()) return;
-   SetROOTFileName(filename + ".root");
-   tree_title.Form("ELIE events %s + %s %.1f MeV/nuc.",
-                   proj.GetSymbol(), targ.GetSymbol(), ebeam);
-   Run(root_file_name);
-   SaveTree();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 KVSimReader_ELIE::~KVSimReader_ELIE()
@@ -41,9 +42,21 @@ KVSimReader_ELIE::~KVSimReader_ELIE()
    // Destructor
 }
 
+void KVSimReader_ELIE::ConvertEventsInFile(KVString filename)
+{
+   if (!OpenFileToRead(filename)) return;
+   if (!ReadHeader()) return;
+   define_output_filename();
+   tree_title.Form("ELIE primary events %s + %s %.1f MeV/nuc.",
+                   proj.GetSymbol(), targ.GetSymbol(), ebeam);
+   Run(root_file_name);
+   CloseFile();
+}
+
 
 void KVSimReader_ELIE::ReadFile()
 {
+   Info("ReadFile", "begins");
    while (IsOK()) {
       while (ReadEvent()) {
          if (nevt && nevt % 1000 == 0) Info("ReadFile", "%d evts lus", nevt);
@@ -54,13 +67,23 @@ void KVSimReader_ELIE::ReadFile()
 
 Bool_t KVSimReader_ELIE::ReadHeader()
 {
-   // File header contains info on colliding nuclei
-   // and number of simulated events:
+   // File header contains info on simulation
    //
    // 54 129 50 119 32
    // 20000
+   //   ievt=50
+   //   projectile=Ni
+   //   target=Au
+   //   a_proj=58
+   //   z_proj=28
+   //   a_targ=197
+   //   z_targ=79
+   //   [...]
+   //   geometry=0
+   //   free_nucleon=0
+   //   lambda_ex=1.3
    //
-   // for 20000 events of 129Xe+119Sn@32MeV/nucleon
+   // The simulation parameters are stored in a KVNameValueList
 
    Int_t res = ReadLineAndCheck(5, " ");
    switch (res) {
@@ -88,38 +111,50 @@ Bool_t KVSimReader_ELIE::ReadHeader()
          return kFALSE;
       case 1:
          AddInfo("Nevents", GetReadPar(0));
-         return kTRUE;
+         break;
 
       default:
          return kFALSE;
    }
+   elie_params->Clear();
+   elie_params->SetName("ELIE Parameters");
+   res = ReadLineAndCheck(2, "=");
+   while (res < 2) {
+      if (res > 0) {
+         if (GetReadPar(1).IsDigit()) elie_params->SetValue(GetReadPar(0), GetIntReadPar(1));
+         else if (GetReadPar(1).IsFloat()) elie_params->SetValue(GetReadPar(0), GetDoubleReadPar(1));
+         else elie_params->SetValue(GetReadPar(0), GetReadPar(1));
+      }
+      res = ReadLineAndCheck(2, "=");
+   }
+   if (elie_params->GetEntries()) AddObject(elie_params);
 
-   return kFALSE;
+   return kTRUE;
 }
 
 Bool_t KVSimReader_ELIE::ReadEvent()
 {
-   // Events begin with event number, multiplicity and (?) impact parameter,
-   // followed by list of particles:
-   // 0 61 0
-   // 0 11 24.0 57.4156777729 306.493830835 107.248038513
-   // 1 2 3.0 44.7736647511 50.6065561553 127.526000603
-   // 2 7 15.0 57.7807658304 121.672537111 55.9601768553
-   // 3 9 19.0 35.5421741719 70.5034488937 236.567079783
-   // etc.
+   // Event structure: (primary events)
+   //   nevt multiplicite b reduit
+   //   0 2 0.998654688551
+   //   particules dans l'evt
+   //   indice_particule  charge_particule masse_particule teta_particule(degres) phi_particule(degres) indice_particule energie d'excitation totale (MeV)
+   //   0 27 57 3.27897003986 230.52425244 1109.37002505 0 0.00499304975261
+   //   1 80 198 176.726338776 129.481056376 319.364098122 1 0.017344278088
 
    evt->Clear();
 
-   Int_t res = ReadLineAndCheck(3, " ");
+   // first line of first event will have been read already by ReadHeader,
+   // therefore we do not read a new line in this case (when nevt=0)
+   Int_t res = (nevt ? ReadLineAndCheck(3, " ") : ReuseLineAndCheck(3, " "));
    Int_t mult = 0;
    switch (res) {
       case 0:
-         Info("ReadEvent", "case 0 line est vide");
          return kFALSE;
       case 1:
          evt->SetNumber(GetIntReadPar(0));
          mult = GetIntReadPar(1);
-         evt->GetParameters()->SetValue("b", GetDoubleReadPar(2));
+         evt->GetParameters()->SetValue("bred", GetDoubleReadPar(2));
          evt->GetParameters()->SetValue("mult", mult);
          break;
       default:
@@ -135,19 +170,24 @@ Bool_t KVSimReader_ELIE::ReadEvent()
 
 Bool_t KVSimReader_ELIE::ReadNucleus()
 {
-   // Particles are given as:
-   // 0 11 24.0 57.4156777729 306.493830835 107.248038513
-   // # Z  A     theta(deg)      phi(deg)    energy(MeV)
+   // Event structure: (primary events)
+   //   nevt multiplicite b reduit
+   //   0 2 0.998654688551
+   //   particules dans l'evt
+   //   indice_particule  charge_particule masse_particule teta_particule(degres) phi_particule(degres) indice_particule energie d'excitation totale (MeV)
+   //   0 27 57 3.27897003986 230.52425244 1109.37002505 0 0.00499304975261
+   //   1 80 198 176.726338776 129.481056376 319.364098122 1 0.017344278088
 
-   Int_t res = ReadLineAndCheck(6, " ");
+   Int_t res = ReadLineAndCheck(8, " ");
    switch (res) {
       case 0:
          Info("ReadNucleus", "case 0 line est vide");
          return kFALSE;
 
       case 1:
-         nuc->SetZ((int)GetDoubleReadPar(1));
-         nuc->SetA((int)GetDoubleReadPar(2));
+         nuc->SetZ(GetIntReadPar(1));
+         nuc->SetA(GetIntReadPar(2));
+         nuc->SetExcitEnergy(GetDoubleReadPar(7));
          nuc->SetEnergy(GetDoubleReadPar(5));
          nuc->SetTheta(GetDoubleReadPar(3));
          nuc->SetPhi(GetDoubleReadPar(4));

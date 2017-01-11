@@ -16,17 +16,19 @@
 #include "TGComboBox.h"
 #include "RQ_OBJECT.h"
 #include "KVListView.h"
-
+#include "KVSimDir.h"
 class TChain;
 
 class KVSimDirGUI : public KVBase {
    RQ_OBJECT("KVSimDirGUI")
 
    KVList fListOfDirs;
+   KVSimDir* fSelectedSimDir;
 
    TGMainFrame* MainFrame;
    /* picture buttons for managing directories */
    TGPictureButton* BaddDir;
+   TGPictureButton* BimpSim;
    TGPictureButton* BremDir;
    TGPictureButton* BrefreshDir;
    /* list tree for managing directories */
@@ -141,6 +143,8 @@ public:
 //      if (proof_analysis_ana->IsDown()) proof_analysis_ana->SetDown(kFALSE);
 //      else proof_analysis->SetDown(kFALSE);
    }
+
+   void ImportSimulation();
 
    ClassDef(KVSimDirGUI, 0) //GUI for simulated data
 };

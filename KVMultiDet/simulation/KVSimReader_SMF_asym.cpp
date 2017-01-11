@@ -24,9 +24,7 @@ KVSimReader_SMF_asym::KVSimReader_SMF_asym()
 KVSimReader_SMF_asym::KVSimReader_SMF_asym(KVString filename)
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 

@@ -309,3 +309,13 @@ KVBatchSystemGUI.RefreshInterval:    300
 # Plugins for event reconstruction
 Plugin.KVGroupReconstructor:   KVGroupReconstructor KVGroupReconstructor KVMultiDetexp_events "KVGroupReconstructor()"
 Plugin.KVGeoDNTrajectory: KVReconNucTrajectory KVReconNucTrajectory KVMultiDetexp_events "KVReconNucTrajectory(const KVGeoDNTrajectory*, const KVGeoDetectorNode*)"
+
+# Plugins for reading simulated events and converting to TTrees
+Plugin.KVSimReader: ELIE  KVSimReader_ELIE KVMultiDetsimulation "KVSimReader_ELIE()"
++Plugin.KVSimReader: ELIE_asym  KVSimReader_ELIE_asym KVMultiDetsimulation "KVSimReader_ELIE_asym()"
++Plugin.KVSimReader: HIPSE  KVSimReader_HIPSE KVMultiDetsimulation "KVSimReader_HIPSE()"
++Plugin.KVSimReader: HIPSE_asym  KVSimReader_HIPSE_asym KVMultiDetsimulation "KVSimReader_HIPSE_asym()"
++Plugin.KVSimReader: MMM  KVSimReader_MMM KVMultiDetsimulation "KVSimReader_MMM()"
++Plugin.KVSimReader: MMM_asym  KVSimReader_MMM_asym KVMultiDetsimulation "KVSimReader_MMM_asym()"
++Plugin.KVSimReader: SMF  KVSimReader_SMF KVMultiDetsimulation "KVSimReader_SMF()"
++Plugin.KVSimReader: SMF_asym  KVSimReader_SMF_asym KVMultiDetsimulation "KVSimReader_SMF_asym()"

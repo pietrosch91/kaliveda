@@ -26,9 +26,7 @@ KVSimReader_SMF::KVSimReader_SMF()
 KVSimReader_SMF::KVSimReader_SMF(KVString filename)
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 //________________________________________________________________

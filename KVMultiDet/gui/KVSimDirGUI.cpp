@@ -2,7 +2,6 @@
 //Author: John Frankland,,,
 
 #include "KVSimDirGUI.h"
-#include "KVSimDir.h"
 #include "KVDataSetManager.h"
 #include "KVDataSet.h"
 #include "KVDataBase.h"
@@ -17,9 +16,11 @@
 #include "TGMsgBox.h"
 #include "TSystem.h"
 #include "TChain.h"
+#include <KVSimReader.h>
 #include <iostream>
 using namespace std;
 
+#include "KVDropDownDialog.h"
 #include "TProof.h"
 
 ClassImp(KVSimDirGUI)
@@ -41,6 +42,7 @@ KVSimDirGUI::KVSimDirGUI()
    // Default constructor
    // main frame
 
+   fSelectedSimDir = nullptr;
    fWithPROOF = kFALSE;
 
    // make Aclic create all *.so *.d files in separate temporary directories
@@ -49,6 +51,7 @@ KVSimDirGUI::KVSimDirGUI()
 
    MainFrame = new TGMainFrame(gClient->GetRoot(), 10, 10, kMainFrame | kVerticalFrame);
    MainFrame->SetName("KaliVedaSim GUI");
+   MainFrame->SetWindowName("KaliVedaSim GUI");
 
    TGHorizontalFrame* hftop = new TGHorizontalFrame(MainFrame, 10, 10, kHorizontalFrame);
 
@@ -60,6 +63,11 @@ KVSimDirGUI::KVSimDirGUI()
    BaddDir->Resize(40, 40);
    BaddDir->SetToolTipText("Add directory");
    BaddDir->Connect("Clicked()", "KVSimDirGUI", this, "AddSimDir()");
+   BimpSim = new TGPictureButton(hf, gClient->GetPicture("bld_text.xpm"));
+   hf->AddFrame(BimpSim, new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2, 2, 2));
+   BimpSim->Resize(40, 40);
+   BimpSim->SetToolTipText("Import simulation");
+   BimpSim->Connect("Clicked()", "KVSimDirGUI", this, "ImportSimulation()");
    BremDir = new TGPictureButton(hf, gClient->GetPicture("package_delete.xpm"));
    hf->AddFrame(BremDir, new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2, 2, 2));
    BremDir->Resize(40, 40);
@@ -70,11 +78,14 @@ KVSimDirGUI::KVSimDirGUI()
    BrefreshDir->Resize(40, 40);
    BrefreshDir->SetToolTipText("Update");
    BrefreshDir->Connect("Clicked()", "KVSimDirGUI", this, "RefreshSimDir()");
+   BimpSim->SetEnabled(kFALSE);
+   BremDir->SetEnabled(kFALSE);
+   BrefreshDir->SetEnabled(kFALSE);
 
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2));
 
    // canvas widget
-   fDirListCanvas = new TGCanvas(vf, 150, 400);
+   fDirListCanvas = new TGCanvas(vf, 172, 400);
    // canvas viewport
    fDirListViewPort = fDirListCanvas->GetViewPort();
    // list tree
@@ -233,10 +244,10 @@ KVSimDirGUI::KVSimDirGUI()
    TGButtonGroup* bgroup = new TGButtonGroup(hf, "Filter type");
    TGRadioButton* radiob = new TGRadioButton(bgroup, "Geometric");
    radiob = new TGRadioButton(bgroup, "Geometry+Thresholds");
+   radiob->SetState(kButtonDown);
    radiob = new TGRadioButton(bgroup, "Full");
    bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "FilterType(Int_t)");
-   radiob->SetState(kButtonDown);
-   fFilterType = kFTFull;
+   fFilterType = kFTSeuils;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY, 2, 2, 2, 2));
    bgroup = new TGButtonGroup(hf, "Geometry");
    radiob = new TGRadioButton(bgroup, "KaliVeda");
@@ -399,6 +410,9 @@ void KVSimDirGUI::EmptyTreeList()
       fDirListTree->DeleteItem(first);
       first = fDirListTree->GetFirstItem();
    }
+   BremDir->SetEnabled(kFALSE);
+   BimpSim->SetEnabled(kFALSE);
+   BrefreshDir->SetEnabled(kFALSE);
 }
 
 void KVSimDirGUI::AddSimDir()
@@ -435,33 +449,27 @@ void KVSimDirGUI::AddSimDir()
 
 void KVSimDirGUI::RefreshSimDir()
 {
-   TGListTreeItem* selection = fDirListTree->GetSelected();
-   if (!selection) return;
-   TString simdirname = selection->GetText();
-   KVSimDir* togo = (KVSimDir*)fListOfDirs.FindObject(simdirname);
-   if (!togo) return;
-   togo->AnalyseDirectory();
-   fLVsimData->Display(togo->GetSimDataList());
-   fLVfiltData->Display(togo->GetFiltDataList());
+   if (!fSelectedSimDir) return;
+   fSelectedSimDir->AnalyseDirectory();
+   fLVsimData->Display(fSelectedSimDir->GetSimDataList());
+   fLVfiltData->Display(fSelectedSimDir->GetFiltDataList());
 }
 
 void KVSimDirGUI::RemSimDir()
 {
-   TGListTreeItem* selection = fDirListTree->GetSelected();
-   if (!selection) return;
-   TString simdirname = selection->GetText();
-   KVSimDir* togo = (KVSimDir*)fListOfDirs.FindObject(simdirname);
-   if (!togo) return;
-   fListOfDirs.Remove(togo);
+   if (!fSelectedSimDir) return;
+   fListOfDirs.Remove(fSelectedSimDir);
    // there is no way of removing a name-value pair from a TEnv!!
-   fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), "");
-   delete togo;
+   fGuirc.SetValue(Form("%s.Directory", fSelectedSimDir->GetName()), "");
+   delete fSelectedSimDir;
+   fSelectedSimDir = nullptr;
    FillTreeList();
    fLVsimData->RemoveAll();
    fLVfiltData->RemoveAll();
    // update guirc file
    TString simdirs = "";
    TIter next(&fListOfDirs);
+   KVSimDir* togo;
    while ((togo = (KVSimDir*)next())) {
       if (simdirs != "") simdirs += " ";
       simdirs += togo->GetName();
@@ -473,9 +481,18 @@ void KVSimDirGUI::RemSimDir()
 
 void KVSimDirGUI::SelectSimDir(TGListTreeItem* simdir, Int_t)
 {
-   KVSimDir* sd = (KVSimDir*)fListOfDirs.FindObject(simdir->GetText());
-   fLVsimData->Display(sd->GetSimDataList());
-   fLVfiltData->Display(sd->GetFiltDataList());
+   fSelectedSimDir = (KVSimDir*)fListOfDirs.FindObject(simdir->GetText());
+   if (fSelectedSimDir) {
+      fLVsimData->Display(fSelectedSimDir->GetSimDataList());
+      fLVfiltData->Display(fSelectedSimDir->GetFiltDataList());
+      BremDir->SetEnabled();
+      BimpSim->SetEnabled();
+      BrefreshDir->SetEnabled();
+   } else {
+      BremDir->SetEnabled(kFALSE);
+      BimpSim->SetEnabled(kFALSE);
+      BrefreshDir->SetEnabled(kFALSE);
+   }
 }
 
 void KVSimDirGUI::SelectAnalysisClass()
@@ -796,4 +813,43 @@ void KVSimDirGUI::RunFilter()
    delete analysis_chain;
    delete selected_sim_runs;
    delete selected_filt_runs;
+}
+
+void KVSimDirGUI::ImportSimulation()
+{
+   // Import simulation data from currently selected directory
+
+   const char* filetypes[] = {
+      "All files", "*.*",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fIniDir = StrDup(fSelectedSimDir->GetDirectory());
+   fi.fFileTypes = filetypes;
+
+   new KVFileDialog(gClient->GetDefaultRoot(), MainFrame, kKVFDOpen, &fi);
+   if (fi.fFilename) {
+      // set up list of KVSimReader plugins
+      KVString plugins = KVBase::GetListOfPlugins("KVSimReader");
+      KVString choices;
+      plugins.Begin(" ");
+      while (!plugins.End()) {
+         // get URI corresponding to plugin
+         KVString uri = KVBase::GetPluginURI("KVSimReader", plugins.Next());
+         if (choices.Length()) choices += " ";
+         choices += uri;
+      }
+      // get model from user
+      TString model;
+      Bool_t ok;
+      new KVDropDownDialog(MainFrame, "Choose the simulation model and type of events", choices, 0, &model, &ok);
+      if (ok) {
+
+         KVSimReader* SR = KVSimReader::MakeSimReader(model);
+         SR->ConvertAndSaveEventsInFile(fi.fFilename);
+         delete SR;
+
+         RefreshSimDir();
+      }
+   }
 }

@@ -47,7 +47,7 @@ protected:
 public:
 
    KVSimReader();
-   KVSimReader(KVString filename);
+   virtual void ConvertEventsInFile(KVString filename);
    virtual ~KVSimReader();
 
    void CleanAll();
@@ -129,6 +129,9 @@ public:
       branch_name = n;
    }
 
+   virtual void ConvertAndSaveEventsInFile(KVString filename);
+
+   static KVSimReader* MakeSimReader(const char* model_uri);
 
    ClassDef(KVSimReader, 1) //Base class to read output files for simulation and create tree using KVEvent type class
 };

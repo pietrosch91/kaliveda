@@ -10,9 +10,34 @@ ClassImp(KVSimReader)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVSimReader</h2>
-<h4>Base class to read output files for simulation and create tree using KVEvent type class</h4>
+<h4>Base class to read output files for simulation and create tree using KVSimEvent class</h4>
 <!-- */
 // --> END_HTML
+//
+// Specific classes derived from this one can be used to read a variety of simulation
+// output files and transform them into ROOT files containing a TTree with KVSimEvent
+// objects in a branch called 'Simulated_events'.
+//
+// To see the list of available classes/models:
+//
+//    kaliveda[0] KVBase::GetListOfPlugins("KVSimReader")
+//    (const Char_t *) "KVSimReader_ELIE KVSimReader_ELIE_asym KVSimReader_HIPSE KVSimReader_HIPSE_asym ... "
+//
+// Usually for each model there is a class [XXX] and a class [XXX]_asym.
+// The first one is for reading "primary" events (e.g. before secondary decay),
+// the second one is for converting "asymptotic" events (e.g. just before detection).
+// To generate an instance of the appropriate reader object, use the static method
+// KVSimReader::MakeReader("[model name]_[asym]")
+//
+// Example 1
+// To convert asymptotic events from an MMM simulation in file "mmm.out", do:
+//
+//    kaliveda[0] KVSimReader::MakeReader("MMM_asym")->ConvertAndSaveEventsInFile("mmm.out")
+//
+// Example 2
+// To convert primary events (before secondary decay) from an ELIE simulation in file "elie.out", do:
+//
+//    kaliveda[0] KVSimReader::MakeReader("ELIE")->ConvertAndSaveEventsInFile("elie.out")
 ////////////////////////////////////////////////////////////////////////////////
 
 //____________________________________________________
@@ -45,11 +70,9 @@ KVSimReader::KVSimReader()
    init();
 }
 
-//____________________________________________________
-KVSimReader::KVSimReader(KVString filename)
+void KVSimReader::ConvertEventsInFile(KVString filename)
 {
-   init();
-
+   // Method called by constructors with KVString filename argument
    if (!OpenFileToRead(filename)) return;
 
    Run(root_file_name);
@@ -204,6 +227,26 @@ Bool_t KVSimReader::ReadNucleus()
    }
    */
    return kTRUE;
+}
+
+void KVSimReader::ConvertAndSaveEventsInFile(KVString filename)
+{
+   // Read events, convert and save in ROOT file
+   ConvertEventsInFile(filename);
+   SaveTree();
+}
+
+KVSimReader* KVSimReader::MakeSimReader(const char* model_uri)
+{
+   // Static method
+   // Returns an instance of a child class specific to given model.
+
+   TPluginHandler* ph = LoadPlugin("KVSimReader", model_uri);
+   if (!ph) {
+      ::Error("KVSimReader::MakeSimReader", "No plugin defined with name %s", model_uri);
+      return nullptr;
+   }
+   return (KVSimReader*)ph->ExecPlugin(0);
 }
 
 //____________________________________________________

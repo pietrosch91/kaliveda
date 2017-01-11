@@ -23,9 +23,7 @@ KVSimReader_MMM_asym::KVSimReader_MMM_asym()
 KVSimReader_MMM_asym::KVSimReader_MMM_asym(KVString filename)
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 

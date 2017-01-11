@@ -21,12 +21,10 @@ KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym()
    init();
 }
 
-KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename)
+KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename) : KVSimReader_HIPSE()
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 KVSimReader_HIPSE_asym::~KVSimReader_HIPSE_asym()

@@ -23,9 +23,7 @@ KVSimReader_HIPSE::KVSimReader_HIPSE()
 KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 KVSimReader_HIPSE::~KVSimReader_HIPSE()

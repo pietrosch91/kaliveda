@@ -107,6 +107,18 @@ public:
       }
 
    }
+   Int_t ReuseLineAndCheck(Int_t nexpect, const Char_t* pattern)
+   {
+      // Same as ReadLineAndCheck, except that instead of reading a
+      // new line we re-use the last read line
+      StoreParameters(pattern);
+      if (GetNparRead() == nexpect) {
+         return 1;
+      } else {
+         return 2;
+      }
+
+   }
 
    KVString GetCurrentLine()
    {

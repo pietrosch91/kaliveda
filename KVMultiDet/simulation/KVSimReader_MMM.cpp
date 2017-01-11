@@ -23,9 +23,7 @@ KVSimReader_MMM::KVSimReader_MMM()
 KVSimReader_MMM::KVSimReader_MMM(KVString filename)
 {
    init();
-   if (!OpenFileToRead(filename)) return;
-   Run();
-   CloseFile();
+   ConvertEventsInFile(filename);
 }
 
 KVSimReader_MMM::~KVSimReader_MMM()
