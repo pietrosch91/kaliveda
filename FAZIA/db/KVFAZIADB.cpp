@@ -177,6 +177,8 @@ void KVFAZIADB::ReadNewRunList()
                   run->SetDeadTime(value.Atof());
                } else if (name == "trig info") { //number of trigger block in the acquisition file
                   run->SetNumberOfTriggerBlocks(value.Atoi());
+               } else if (name == "size(GB)") { //size in GB
+                  run->SetSize(value.Atof());
                } else {
                   //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
                }
