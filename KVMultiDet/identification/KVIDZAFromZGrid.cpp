@@ -42,7 +42,7 @@ of identification.
   <li>     KVIDZAGrid::kICODE1,                   Z ok, slight ambiguity of A, which could be larger</li>
   <li>     KVIDZAGrid::kICODE2,                   Z ok, slight ambiguity of A, which could be smaller</li>
     <li>   KVIDZAGrid::kICODE3,                   Z ok, slight ambiguity of A, which could be larger or smaller</li>
-   <li>    KVIDZAGrid::kICODE4,                   point is in between two isotopes of different Z, too far from either to be considered well-identified</li>
+   <li>    KVIDZAGrid::kICODE4,                   point out of mass identification intervals, strong ambiguity of A</li>
   <li>     KVIDZAGrid::kICODE5,                   point is in between two isotopes of different Z, too far from either to be considered well-identified</li>
    <li>    KVIDZAGrid::kICODE6,                   (x,y) is below first line in grid</li>
    <li>    KVIDZAGrid::kICODE7,                   (x,y) is above last line in grid</li>
@@ -147,6 +147,7 @@ void KVIDZAFromZGrid::LoadPIDRanges()
       if (mes.IsWhitespace()) continue;
       int type = (mes.Contains(",") ? 2 : 1);
       interval* itv = new interval(zz, type);
+      itv->SetName(GetName());
       mes.Begin("|");
       while (!mes.End())
 
@@ -213,113 +214,54 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
    // (usual case), then particles between the two lines can have "real" masses
    // between 7.5 and 8.5, but their integer A will be =7 or =9, never 8.
    //
+
    idr->IDOK = kFALSE;
    if (!const_cast<KVIDZAFromZGrid*>(this)->FindFourEmbracingLines(x, y, "above")) {
-      //no lines corresponding to point were found
       const_cast < KVIDZAFromZGrid* >(this)->fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
       idr->IDquality = kICODE8;
       idr->SetComment("no identification: (x,y) out of range covered by grid");
       return;
    }
-   if (OnlyZId()) {
-      Double_t Z;
-      const_cast < KVIDZAFromZGrid* >(this)->IdentZ(x, y, Z);
-      idr->IDquality = fICode;
-      if (fICode < kICODE4 || fICode == kICODE7) {
-         idr->Zident = kTRUE;
-      }
-      if (fICode < kICODE4) {
-         idr->IDOK = kTRUE;
-      }
-      idr->Z = Zint;
-      idr->PID = Z;
-      idr->A = Aint;
-      idr->Aident = kFALSE;
 
-      if ((fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > 0) && !fHasMassCut && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z))) ||
-            (fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z >= fZminInt - 1) && fHasMassCut && GetIdentifier("MassID")->IsInside(x, y))) {
-         const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr);
-         if (idr->IDquality < kICODE4) {
-            idr->Aident = kTRUE;
-            idr->IDOK = kTRUE;
-         }
+   Double_t Z;
+   const_cast < KVIDZAFromZGrid* >(this)->IdentZ(x, y, Z);
+   idr->IDquality = fICode;
+   if (fICode < kICODE4 || fICode == kICODE7) {
+      idr->Zident = kTRUE;
+   }
+   if (fICode < kICODE4) {
+      idr->IDOK = kTRUE;
+   }
+   idr->Z = Zint;
+   idr->PID = Z;
+   idr->Aident = kFALSE;
 
-
-//         pid = 0;
-//         idr->PID = std::abs(pid);
-//         idr->A = TMath::Nint(pid);
-//         idr->Aident = kTRUE;
-//         if (pid > 0) {
-//            idr->IDquality = kICODE0;
-//            idr->SetComment("ok");
-//         } else {
-//            idr->IDquality = kICODE3;
-//            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
-//         }
-      } else {
-         switch (fICode) {
-
-            case kICODE0:
-               idr->SetComment("ok");
-               break;
-            case kICODE1:
-               idr->SetComment("slight ambiguity of Z, which could be larger");
-               break;
-            case kICODE2:
-               idr->SetComment("slight ambiguity of Z, which could be smaller");
-               break;
-            case kICODE3:
-               idr->SetComment("slight ambiguity of Z, which could be larger or smaller");
-               break;
-            case kICODE4:
-               idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
-               break;
-            case kICODE5:
-               idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
-               break;
-            case kICODE6:
-               idr->SetComment("(x,y) is below first line in grid");
-               break;
-            case kICODE7:
-               idr->SetComment("(x,y) is above last line in grid");
-               break;
-            default:
-               idr->SetComment("no identification: (x,y) out of range covered by grid");
-         }
-      }
-   } else {
-      Int_t Z;
-      Double_t A;
-      const_cast < KVIDZAFromZGrid* >(this)->IdentZA(x, y, Z, A);
-      idr->IDquality = fICode;
-      idr->Z = Z;
-      idr->PID = A;
-      if (fICode < kICODE4 || fICode == kICODE7) {
-         idr->Zident = kTRUE;
-      }
-      idr->A = Aint;
-      if (fICode < kICODE4) {
+   if ((fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > fZminInt - 1) && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z)))
+         && ((!fHasMassCut) || (fHasMassCut && GetIdentifier("MassID")->IsInside(x, y)))) {
+      const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr); // IDQuality and comments assigned here
+      if (idr->IDquality <= kICODE4) { // should always be true: to be verified...
          idr->Aident = kTRUE;
          idr->IDOK = kTRUE;
       }
+   } else {
       switch (fICode) {
          case kICODE0:
             idr->SetComment("ok");
             break;
          case kICODE1:
-            idr->SetComment("slight ambiguity of A, which could be larger");
+            idr->SetComment("slight ambiguity of Z, which could be larger");
             break;
          case kICODE2:
-            idr->SetComment("slight ambiguity of A, which could be smaller");
+            idr->SetComment("slight ambiguity of Z, which could be smaller");
             break;
          case kICODE3:
-            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+            idr->SetComment("slight ambiguity of Z, which could be larger or smaller");
             break;
          case kICODE4:
-            idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified");
+            idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
             break;
          case kICODE5:
-            idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified");
+            idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
             break;
          case kICODE6:
             idr->SetComment("(x,y) is below first line in grid");
@@ -361,18 +303,16 @@ double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
          idr->PID = res;
          idr->IDquality = kICODE0;
          idr->SetComment("ok");
-//            Info("eval","A id ok -> code0");
       } else {
-//            Info("eval","A id outside interval -> code3");
          ares = TMath::Nint(res);
          idr->A = ares;
          idr->PID = res;
-         if (ares > fAs.at(0) && ares < fAs.at(fNPIDs - 1)) {
+         if (res > fPIDmins.at(0) && res < fPIDmaxs.at(fNPIDs - 1)) {
             idr->IDquality = kICODE3;
             idr->SetComment("slight ambiguity of A, which could be larger or smaller");
          } else {
-            idr->IDquality = kICODE3;
-            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+            idr->IDquality = kICODE4;
+            idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
          }
       }
    } else {
@@ -383,8 +323,8 @@ double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
          idr->IDquality = kICODE0;
          idr->SetComment("ok");
       } else {
-         idr->IDquality = kICODE3;
-         idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+         idr->IDquality = kICODE4;
+         idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
       }
    }
    return res;
@@ -398,7 +338,7 @@ bool KVIDZAFromZGrid::interval::is_inside(double pid)
 }
 
 
-KVIDZAFromZGrid::interval::interval(int zz, int type)//:TNamed(Form("interval%d",zz),Form("interval%d",zz))
+KVIDZAFromZGrid::interval::interval(int zz, int type)
 {
    fType = type;
    fZ = zz;
@@ -412,7 +352,7 @@ void KVIDZAFromZGrid::interval::add(int aa, double pid, double pidmin, double pi
       return;
    }
    if (fType == KVIDZAFromZGrid::kIntType && !(pid > pidmin && pid < pidmax)) {
-      Error("add", "Wrong interval for Z=%d and A=%d: [%.4lf  %.4lf  %.4lf]", fZ, aa, pidmin, pid, pidmax);
+      Error("add", "Wrong interval for Z=%d and A=%d: [%.4lf  %.4lf  %.4lf] (%s)", fZ, aa, pidmin, pid, pidmax, GetName());
       return;
    }
 
