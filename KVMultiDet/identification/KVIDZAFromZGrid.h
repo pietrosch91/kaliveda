@@ -58,6 +58,7 @@ public:
 
    void PrintPIDLimits();
 
+   void Initialize();
 protected:
    bool is_inside(double pid);
 

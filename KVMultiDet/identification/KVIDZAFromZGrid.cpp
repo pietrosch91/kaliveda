@@ -187,6 +187,18 @@ bool KVIDZAFromZGrid::is_inside(double pid)
    else return kFALSE;
 }
 
+void KVIDZAFromZGrid::Initialize()
+{
+   // General initialisation method for identification grid.
+   // This method MUST be called once before using the grid for identifications.
+   // The ID lines are sorted.
+   // The natural line widths of all ID lines are calculated.
+   // The line with the largest Z (Zmax line) is found.
+
+   KVIDGrid::Initialize();
+   // Zmax should be Z of last line in sorted list
+   fZMax = 0;     // protection au cas ou il n y a aucune ligne de Z
+}
 
 void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
 {
