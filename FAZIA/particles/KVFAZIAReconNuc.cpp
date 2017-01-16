@@ -217,7 +217,7 @@ void KVFAZIAReconNuc::Identify()
       KVIDTelescope* idt;
       TIter next(idt_list);
       while ((idt = (KVIDTelescope*) next()) && !IsIdentified()) {
-         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue;
+         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
          IDR = GetIdentificationResult(idnumber);
          IDR->SetName(idt->GetName());
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
@@ -243,8 +243,51 @@ void KVFAZIAReconNuc::Identify()
          idnumber += 1;
       }
 
+      KVIdentificationResult partID;
+      Bool_t ok = kFALSE;
+      if (StoppedInSI1()) {
+         ok = CoherencySi(partID);
+      } else if (StoppedInSI2()) {
+         ok = CoherencySiSi(partID);
+      } else if (StoppedInCSI()) {
+         ok = CoherencySiCsI(partID);
+      }
+
+      if (ok) {
+         SetIsIdentified();
+         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType(partID.GetType());
+         if (!idt) {
+            Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
+            GetIDTelescopes()->ls();
+            partID.Print();
+         }
+         SetIdentifyingTelescope(idt);
+         SetIdentification(&partID);
+      }
+
    }
 
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySi(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDsi = GetIdentificationResult(1);
+   theID = *IDsi;
+   return kTRUE;
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDsi = GetIdentificationResult(2);
+   theID = *IDsi;
+   return kTRUE;
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDsi = GetIdentificationResult(2);
+   theID = *IDsi;
+   return kTRUE;
 }
 
 //_________________________________________________________________________________
