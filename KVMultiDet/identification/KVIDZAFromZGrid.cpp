@@ -3,6 +3,7 @@
 
 #include "KVIDZAFromZGrid.h"
 #include "TMultiGraph.h"
+#include "KVIDZALine.h"
 #include "TCanvas.h"
 
 ClassImp(KVIDZAFromZGrid)
@@ -197,7 +198,17 @@ void KVIDZAFromZGrid::Initialize()
 
    KVIDGrid::Initialize();
    // Zmax should be Z of last line in sorted list
-   fZMax = 0;     // protection au cas ou il n y a aucune ligne de Z
+
+   TIter it(GetIdentifiers());
+   KVIDentifier* id = 0;
+
+   fZMax = 0;
+   while ((id = (KVIDentifier*)it())) {
+      if (!id->InheritsFrom("KVIDZALine")) continue;
+      int zz = ((KVIDZALine*)id)->GetZ();
+      if (zz > fZMax) fZMax = zz;
+   }
+
 }
 
 void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
