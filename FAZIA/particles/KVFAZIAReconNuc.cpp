@@ -315,7 +315,7 @@ void KVFAZIAReconNuc::Calibrate()
    KVNucleus avatar;
    //printf("start Calibrate\n");
    Int_t ntot = GetDetectorList()->GetEntries();
-   if (ntot <= 1)
+   if (ntot < 1)
       return;
    Bool_t punch_through = kFALSE;
    Bool_t incoherency = kFALSE;
