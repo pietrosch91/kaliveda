@@ -27,6 +27,7 @@ $Id: KVFAZIAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "KVMultiDetArray.h"
 #include "KVFAZIADetector.h"
 #include "KVIDZAGrid.h"
+#include "KVLightEnergyCsIFull.h"
 
 using namespace std;
 
@@ -330,7 +331,13 @@ void KVFAZIAReconNuc::Calibrate()
    while ((det = (KVFAZIADetector*)next())) {
 
       if (det->IsCalibrated()) {
-         eloss[ntot - ndet - 1] = det->GetEnergy();
+         if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
+            KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
+            calib->SetZ(GetZ());
+            calib->SetA(GetA());
+            eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+         } else eloss[ntot - ndet - 1] = det->GetEnergy();
+
          if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
          else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
          else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
