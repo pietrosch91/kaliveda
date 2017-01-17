@@ -216,10 +216,12 @@ void KVFAZIAReconNuc::Identify()
 
       KVIDTelescope* idt;
       TIter next(idt_list);
-      while ((idt = (KVIDTelescope*) next()) && !IsIdentified()) {
+      while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
+         if (StoppedInSI1() && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
          if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
          IDR = GetIdentificationResult(idnumber);
          IDR->SetName(idt->GetName());
+         IDR->SetType(idt->GetType());
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
 
             IDR->IDattempted = kTRUE;
@@ -271,23 +273,37 @@ void KVFAZIAReconNuc::Identify()
 
 Bool_t KVFAZIAReconNuc::CoherencySi(KVIdentificationResult& theID)
 {
-   KVIdentificationResult* IDsi = GetIdentificationResult(1);
-   theID = *IDsi;
-   return kTRUE;
+   KVIdentificationResult* IDsi = GetIdentificationResult("SiPSA");
+   if (IDsi && IDsi->IDOK) {
+      theID = *IDsi;
+      return kTRUE;
+   } else return kFALSE;
 }
 
 Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
 {
-   KVIdentificationResult* IDsi = GetIdentificationResult(2);
-   theID = *IDsi;
-   return kTRUE;
+   KVIdentificationResult* IDsisi = GetIdentificationResult("Si-Si");
+   KVIdentificationResult* IDsi = GetIdentificationResult("SiPSA");
+   if (IDsisi && IDsisi->IDOK)    {
+      theID = *IDsisi;
+      return kTRUE;
+   } else if (IDsi && IDsi->IDOK) {
+      theID = *IDsi;
+      return kTRUE;
+   } else return kFALSE;
 }
 
 Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 {
-   KVIdentificationResult* IDsi = GetIdentificationResult(2);
-   theID = *IDsi;
-   return kTRUE;
+   KVIdentificationResult* IDcsi = GetIdentificationResult("CsI");
+   KVIdentificationResult* IDsicsi = GetIdentificationResult("Si-CsI");
+   if (IDsicsi && IDsicsi->IDOK)    {
+      theID = *IDsicsi;
+      return kTRUE;
+   } else if (IDcsi && IDcsi->IDOK) {
+      theID = *IDcsi;
+      return kTRUE;
+   } else return kFALSE;
 }
 
 //_________________________________________________________________________________
