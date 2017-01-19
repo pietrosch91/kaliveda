@@ -330,7 +330,7 @@ double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
          ares = TMath::Nint(res);
          idr->A = ares;
          idr->PID = res;
-         if (res > fPIDmins.at(0) && res < fPIDmaxs.at(fNPIDs - 1)) {
+         if (pid > fPIDmins.at(0) && pid < fPIDmaxs.at(fNPIDs - 1)) {
             idr->IDquality = kICODE3;
             idr->SetComment("slight ambiguity of A, which could be larger or smaller");
          } else {
