@@ -130,9 +130,7 @@ Bool_t KVSimReader_SMF::ReadNucleus()
          nuc->SetExcitEnergy(GetDoubleReadPar(3));
          nuc->GetParameters()->SetValue("spin", GetDoubleReadPar(4));
          //Axe "faisceau dans SMF z"
-         nuc->SetPx(GetDoubleReadPar(5));
-         nuc->SetPy(GetDoubleReadPar(6));
-         nuc->SetPz(GetDoubleReadPar(7));
+         nuc->SetMomentum(GetDoubleReadPar(5), GetDoubleReadPar(6), GetDoubleReadPar(7));
          nuc->SetPosition(GetDoubleReadPar(8), GetDoubleReadPar(9), GetDoubleReadPar(10));
          nuc->GetParameters()->SetValue("avoir", GetDoubleReadPar(11));
 

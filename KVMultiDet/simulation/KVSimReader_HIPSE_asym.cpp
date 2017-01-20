@@ -143,9 +143,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus()
 
       case 1:
          //Axe "faisceau dans HIPSE x -> on effectue une rotation X,Y,Z -> Y,Z,X"
-         nuc->SetPx(GetDoubleReadPar(1));
-         nuc->SetPy(GetDoubleReadPar(2));
-         nuc->SetPz(GetDoubleReadPar(0));
+         nuc->SetMomentum(GetDoubleReadPar(1), GetDoubleReadPar(2), GetDoubleReadPar(0));
          {
             TVector3 vv = nuc->GetVelocity();
             vv *= rr;

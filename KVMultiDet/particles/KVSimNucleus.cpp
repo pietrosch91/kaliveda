@@ -87,9 +87,8 @@ KVSimNucleus KVSimNucleus::operator+(const KVSimNucleus& rhs)
 
    Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-   CN.SetVect(ptot);
-   CN.SetT(etot);
-
+   TLorentzVector q(ptot, etot);
+   CN.Set4Mom(q);
 
    TVector3 pos;
    const TVector3* prhs = rhs.GetPosition();

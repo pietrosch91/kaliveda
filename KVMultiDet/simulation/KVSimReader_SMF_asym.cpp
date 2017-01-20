@@ -135,9 +135,7 @@ Bool_t KVSimReader_SMF_asym::ReadNucleus()
          nuc->SetA(GetIntReadPar(0));
 
          //Axe "faisceau dans SMF z"
-         nuc->SetPx(GetDoubleReadPar(2));
-         nuc->SetPy(GetDoubleReadPar(3));
-         nuc->SetPz(GetDoubleReadPar(4));
+         nuc->SetMomentum(GetDoubleReadPar(2), GetDoubleReadPar(3), GetDoubleReadPar(4));
 
          return kTRUE;
 
