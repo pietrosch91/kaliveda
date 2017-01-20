@@ -206,16 +206,16 @@ KVTensP& KVTensP::operator =(const KVTensP& a)
 //_________________________________________________________________
 void KVTensP::Init(void)
 {
-// methode d'initialisation des
-// variables internes
    tenseurP->Reset();
+   KVParticleCondition pc(Form("_NUC_->GetZ()>=%d", GetZmin()));
+   if (HasLabel()) pc = (pc && KVParticleCondition(Form("_NUC_->BelongsToGroup(\"%s\")", GetPartGroup())));
+   if (fSelection) pc = (pc && *fSelection);
+   SetSelection(pc);
 }
 
 //_________________________________________________________________
 void KVTensP::Reset(void)
 {
-// Remise a zero avant le
-// traitement d'un evenement
    tenseurP->Reset();
 }
 
@@ -238,10 +238,10 @@ void KVTensP::Fill(KVNucleus* c)
    //To calculate in another frame, use KVVarGlob::SetFrame() before
    //calculation begins
 
-   Bool_t ok = (HasLabel() ? (c->BelongsToGroup(GetPartGroup())) : kTRUE);
-
-   //check Z of particle
-   if ((c->GetZ() >= GetZmin()) && ok) {
+   // if method is called by FillWithCondition i.e. by KVGVList::CalculateGlobalVariables
+   // (conditioned_fill==kTRUE), all selections have already been tested
+   // if not i.e. Fill method called "by hand", we need to test here
+   if (conditioned_fill || fSelection->Test(c)) {
       Double_t poids = (Double_t) c->GetA();
       tenseurP->Fill(c->GetFrame(fFrame.Data())->GetV(), poids);
    }

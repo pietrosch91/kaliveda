@@ -62,12 +62,12 @@ public:
 
    virtual Int_t GetZmin(void) const
    {
-      return (Int_t)const_cast<KVTensP*>(this)->GetParameter("Zmin");
-   };
+      return GetParameter("Zmin");
+   }
    virtual void SetZmin(Int_t zm)
    {
       SetParameter("Zmin", zm);
-   };
+   }
 
    KVTenseur3* GetTensor() const
    {
