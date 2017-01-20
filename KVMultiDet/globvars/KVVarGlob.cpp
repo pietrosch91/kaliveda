@@ -146,6 +146,7 @@ void KVVarGlob::init(void)
    fType = kOneBody;
    fValueType = 'D';
    fMaxNumBranches = -1;
+   conditioned_fill = kFALSE;
 }
 
 //_________________________________________________________________
@@ -457,7 +458,7 @@ Bool_t KVVarGlob::IsParameterSet(const Char_t* par)
 
 //_________________________________________________________________
 
-Double_t KVVarGlob::GetParameter(const Char_t* par)
+Double_t KVVarGlob::GetParameter(const Char_t* par) const
 {
    //Returns the value of the parameter 'par'
 

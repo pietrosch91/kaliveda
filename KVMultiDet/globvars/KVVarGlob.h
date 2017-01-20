@@ -90,6 +90,7 @@ protected:
       AbstractMethod("getvalue_int");
       return 0;
    };
+   Bool_t conditioned_fill;//! can be tested in Fill/Fill2 method to know if it was called by FillWithCondition
 
 public:
    KVVarGlob(void);            // constructeur par defaut
@@ -140,14 +141,22 @@ public:
       // Evaluate contribution of particle to variable only if it satisfies
       // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? fSelection->Test(c) : kTRUE);
-      if (ok) Fill(c);
+      if (ok) {
+         conditioned_fill = kTRUE;
+         Fill(c);
+         conditioned_fill = kFALSE;
+      }
    };
    void Fill2WithCondition(KVNucleus* n1, KVNucleus* n2)
    {
       // Evaluate contribution of particles to variable only if both satisfy
       // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? (fSelection->Test(n1) && fSelection->Test(n2))  : kTRUE);
-      if (ok) Fill2(n1, n2);
+      if (ok) {
+         conditioned_fill = kTRUE;
+         Fill2(n1, n2);
+         conditioned_fill = kFALSE;
+      }
    };
 
    Double_t GetValue(void) const
@@ -217,7 +226,7 @@ public:
 
    virtual void SetParameter(const Char_t* par, Double_t value);
    virtual Bool_t IsParameterSet(const Char_t* par);
-   virtual Double_t GetParameter(const Char_t* par);
+   virtual Double_t GetParameter(const Char_t* par) const;
    virtual void UnsetParameter(const Char_t* par);
 
    virtual void SetSelection(const KVParticleCondition&);
