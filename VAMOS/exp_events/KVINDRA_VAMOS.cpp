@@ -172,7 +172,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event,
       cout << "DetectEvent(): looking at particle in VAMOS---->" << endl;
       part->Print();
 #endif
-      _part = (KVNucleus*)part->GetFrame(detection_frame);
+      _part = (KVNucleus*)part->GetFrame(detection_frame, kFALSE);
 
 
       if (_part->GetTheta() > 14) continue;

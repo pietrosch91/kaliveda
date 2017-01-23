@@ -102,21 +102,19 @@ Bool_t KVSimReader_MMM_asym::ReadNucleus()
    nuc->SetMomentum(px, py, pz);
 
    if (fApplyBoost) {
-      nuc->SetFrame("QP", fBoostQP, kTRUE);
-      TVector3 momQP = nuc->GetFrame("QP")->GetMomentum();
-
-      nuc->SetFrame("QC", fBoostQC, kTRUE);
-      TVector3 momQC = nuc->GetFrame("QC")->GetMomentum();
-
-      nuc->Clear();
+      // add particle twice to the event
+      // the first one (labelled "Prov=QP") with the particle's momentum
+      // in the QP Frame
+      // the second one (labelled "Prov=QC") with the particle's momentum
+      // in the QC Frame
+      nuc->ChangeFrame(KVFrameTransform(fBoostQP, kTRUE));
       nuc->GetParameters()->SetValue("Prov", "QP");
-      nuc->SetZandA(zz, aa);
-      nuc->SetMomentum(momQP.X(), momQP.Y(), momQP.Z());
 
       nuc = (KVSimNucleus*)evt->AddParticle();
-      nuc->GetParameters()->SetValue("Prov", "QC");
       nuc->SetZandA(zz, aa);
-      nuc->SetMomentum(momQC.X(), momQC.Y(), momQC.Z());
+      nuc->SetMomentum(px, py, pz);
+      nuc->ChangeFrame(KVFrameTransform(fBoostQC, kTRUE));
+      nuc->GetParameters()->SetValue("Prov", "QC");
    }
 
    return kTRUE;

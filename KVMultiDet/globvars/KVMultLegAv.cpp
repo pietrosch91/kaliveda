@@ -55,5 +55,5 @@ void KVMultLegAv::Fill(KVNucleus* c)
    //The multiplicity is incremented if the projection of the particle's velocity
    //along the 'z'-direction in the currently defined frame is >0 and if the Z of
    //nucleus *c is <=zmax
-   if (c->GetFrame(fFrame.Data())->GetVpar() > 0) KVMultLeg::Fill(c);
+   if (c->GetFrame(fFrame.Data(), kFALSE)->GetVpar() > 0) KVMultLeg::Fill(c);
 }

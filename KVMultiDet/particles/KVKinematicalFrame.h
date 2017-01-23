@@ -14,16 +14,31 @@ class KVKinematicalFrame : public TNamed {
 
 public:
    KVKinematicalFrame(const Char_t* name, const KVParticle* original, const KVFrameTransform& trans);
+   KVKinematicalFrame(KVParticle*, const KVFrameTransform&);
+   KVKinematicalFrame(const KVFrameTransform& trans, const KVParticle* original);
    virtual ~KVKinematicalFrame() {}
 
    KVParticle* GetParticle() const
    {
       return fParticle.get();
    }
+   const KVParticle* operator->() const
+   {
+      return (const KVParticle*)GetParticle();
+   }
    void ReapplyTransform(const KVParticle* original);
    void ApplyTransform(const KVParticle* original, const KVFrameTransform& trans);
 
-   ClassDef(KVKinematicalFrame, 0) //Kinematical representation of a particle in a different frame
+   const KVFrameTransform& GetTransform() const
+   {
+      return fTransform;
+   }
+   void SetTransform(const KVFrameTransform& f)
+   {
+      fTransform = f;
+   }
+
+   ClassDef(KVKinematicalFrame, 0) //Handle representation of a particle in different kinematical frames
 };
 
 #endif

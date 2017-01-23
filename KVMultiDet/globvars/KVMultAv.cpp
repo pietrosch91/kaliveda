@@ -123,5 +123,5 @@ void KVMultAv::Fill(KVNucleus* c)
 {
    //The multiplicity is incremented if the projection of the particle's velocity
    //along the 'z'-direction in the currently defined frame is >0.
-   if (c->GetFrame(fFrame.Data())->GetVpar() > 0) FillVar(1.);
+   if (c->GetFrame(fFrame.Data(), kFALSE)->GetVpar() > 0) FillVar(1.);
 }

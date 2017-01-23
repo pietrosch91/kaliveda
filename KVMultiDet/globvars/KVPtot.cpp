@@ -264,7 +264,7 @@ void KVPtot::Fill(KVNucleus* c)
 //
 // Routine de remplissage
 //
-   ptot += c->GetFrame(fFrame.Data())->GetMomentum();
+   ptot += c->GetFrame(fFrame.Data(), kFALSE)->GetMomentum();
 }
 
 //_________________________________________________________________

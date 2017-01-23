@@ -154,7 +154,7 @@ void KVVGSum::Fill(KVNucleus* c)
       if (TestBit(kNoFrame))
          fMethod->Execute(c, fVal);
       else
-         fMethod->Execute(c->GetFrame(fFrame.Data()), fVal);
+         fMethod->Execute((void*)c->GetFrame(fFrame.Data(), kFALSE), fVal);
       FillVar(fVal, (Double_t)(fSelection ? fSelection->Test(c) : 1));
    } else
       FillVar(1, (Double_t)(fSelection ? fSelection->Test(c) : 1));

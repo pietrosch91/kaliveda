@@ -57,5 +57,5 @@ void KVZtotAv::Fill(KVNucleus* c)
 //
 // Routine de remplissage
 //
-   if (c->GetFrame(fFrame.Data())->GetVpar() > 0) KVZtot::Fill(c);
+   if (c->GetFrame(fFrame.Data(), kFALSE)->GetVpar() > 0) KVZtot::Fill(c);
 }

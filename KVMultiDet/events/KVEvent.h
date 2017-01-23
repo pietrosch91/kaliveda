@@ -290,26 +290,16 @@ public:
    void CustomStreamer()
    {
       fParticles->BypassStreamer(kFALSE);
-   };
+   }
 
    void DefineGroup(const Char_t* groupname, const Char_t* from = "");
    void DefineGroup(const Char_t* groupname, KVParticleCondition* cond, const Char_t* from = "");
 
-   void SetFrame(const Char_t* frame, const TVector3& boost, Bool_t beta =
-                    kFALSE);
-   void SetFrame(const Char_t* frame, const TLorentzRotation& rot);
-   void SetFrame(const Char_t* frame, const TRotation& rot);
-   void SetFrame(const Char_t* frame, const TVector3& boost, TRotation& rot,
-                 Bool_t beta = kFALSE);
-
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TVector3& boost, Bool_t beta = kFALSE);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TLorentzRotation& rot);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TRotation& rot);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TVector3& boost, TRotation& rot, Bool_t beta = kFALSE);
+   void SetFrame(const Char_t* frame, const KVFrameTransform& ft);
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform& ft);
+   void ChangeFrame(const KVFrameTransform&);
+   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "orig");
+   void UpdateAllFrames();
 
    virtual void FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame = "", const TString& selection = "");
    virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz, const TString& frame = "", const TString& selection = "");

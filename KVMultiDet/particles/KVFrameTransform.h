@@ -14,6 +14,7 @@ public:
    KVFrameTransform(const TLorentzRotation& r);
    KVFrameTransform(const KVFrameTransform& r);
    KVFrameTransform(const TVector3& boost, const TRotation& r, Bool_t beta = kFALSE);
+   KVFrameTransform(const TRotation& r, const TVector3& boost, Bool_t beta = kFALSE);
 
    virtual ~KVFrameTransform() {}
 

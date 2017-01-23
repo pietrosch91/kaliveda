@@ -138,7 +138,7 @@ void KVSource::Fill(KVNucleus* c)
 {
    //Add the particle's contribution to global variable.
 
-   fSource += (*((KVNucleus*)c->GetFrame(fFrame)));
+   fSource += (*((KVNucleus*)c->GetFrame(fFrame, kFALSE)));
    c->AddGroup(GetName());
    fMult++;
 }

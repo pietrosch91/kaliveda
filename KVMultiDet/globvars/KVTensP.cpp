@@ -243,7 +243,7 @@ void KVTensP::Fill(KVNucleus* c)
    // if not i.e. Fill method called "by hand", we need to test here
    if (conditioned_fill || fSelection->Test(c)) {
       Double_t poids = (Double_t) c->GetA();
-      tenseurP->Fill(c->GetFrame(fFrame.Data())->GetV(), poids);
+      tenseurP->Fill(c->GetFrame(fFrame.Data(), kFALSE)->GetV(), poids);
    }
 }
 
