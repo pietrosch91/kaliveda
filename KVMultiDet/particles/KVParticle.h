@@ -39,9 +39,8 @@ class KVParticle: public TLorentzVector {
 private:
    void print_frames(TString fmt = "") const;
    KVKinematicalFrame* get_frame(const Char_t*);
-public:
    KVKinematicalFrame* get_parent_frame(const Char_t*, KVKinematicalFrame* F = nullptr);
-private:
+
    TString fName;                       //!non-persistent name field - Is useful
    TString fFrameName;                  //!non-persistent frame name field, sets when calling SetFrame method
    KVList fBoosted;                     //!list of momenta of the particle in different Lorentz-boosted frames
