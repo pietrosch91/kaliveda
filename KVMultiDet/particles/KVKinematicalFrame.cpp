@@ -45,6 +45,13 @@ KVKinematicalFrame::KVKinematicalFrame(KVParticle* p, const KVFrameTransform& t)
    p->UpdateAllFrames();
 }
 
+KVKinematicalFrame::KVKinematicalFrame(const KVKinematicalFrame& o)
+   : TNamed((const TNamed&)o), fTransform(o.fTransform),
+     fParticle(o.GetParticle() ? (KVParticle*)o.GetParticle()->IsA()->New() : nullptr)
+{
+   // Copy constructor required for rootcint (not rootcling)
+}
+
 void KVKinematicalFrame::ReapplyTransform(const KVParticle* original)
 {
    // Apply stored kinematical transformation to the particle
