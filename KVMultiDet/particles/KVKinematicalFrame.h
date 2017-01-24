@@ -17,6 +17,7 @@ public:
    KVKinematicalFrame(KVParticle*, const KVFrameTransform&);
    KVKinematicalFrame(const KVFrameTransform& trans, const KVParticle* original);
    KVKinematicalFrame(const KVKinematicalFrame&);
+   KVKinematicalFrame& operator=(const KVKinematicalFrame&);
    virtual ~KVKinematicalFrame() {}
 
    KVParticle* GetParticle() const

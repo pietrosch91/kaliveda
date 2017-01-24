@@ -50,6 +50,18 @@ KVKinematicalFrame::KVKinematicalFrame(const KVKinematicalFrame& o)
      fParticle(o.GetParticle() ? (KVParticle*)o.GetParticle()->IsA()->New() : nullptr)
 {
    // Copy constructor required for rootcint (not rootcling)
+   if (GetParticle()) o.GetParticle()->Copy(*GetParticle());
+}
+
+KVKinematicalFrame& KVKinematicalFrame::operator=(const KVKinematicalFrame& o)
+{
+   // Assignment operator required for rootcint (not rootcling)
+
+   if (&o == this) return (*this);
+   fTransform = o.fTransform;
+   fParticle.reset(o.GetParticle() ? (KVParticle*)o.GetParticle()->IsA()->New() : nullptr);
+   if (GetParticle()) o.GetParticle()->Copy(*GetParticle());
+   return *this;
 }
 
 void KVKinematicalFrame::ReapplyTransform(const KVParticle* original)
