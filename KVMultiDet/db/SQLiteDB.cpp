@@ -423,9 +423,9 @@ namespace KVSQLite {
       int ncol = fBulkTable->number_of_columns();
       int idx = 0;
       for (int i = 0; i < ncol; ++i) {
-         if (columns.Contains((*fBulkTable)[i].name())) {
+         if (columns.Contains((*fBulkTable)[i].name().c_str())) {
             if (idx) query += ",";
-            query += (*fBulkTable)[i].name();
+            query += (*fBulkTable)[i].name().c_str();
             query += "=?";
             ++idx;
          }
@@ -435,7 +435,7 @@ namespace KVSQLite {
       fSQLstmt->NextIteration();
       idx = 0;
       for (int i = 0; i < ncol; ++i) {
-         if (columns.Contains((*fBulkTable)[i].name())) {
+         if (columns.Contains((*fBulkTable)[i].name().c_str())) {
             (*fBulkTable)[i].set_data_in_statement(fSQLstmt.get(), idx);
             ++idx;
          }

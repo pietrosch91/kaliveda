@@ -864,8 +864,12 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
    KVKinematicalFrame* f = get_frame(frame);
    return f ? (KVParticle const*)f->GetParticle() :
           (warn_and_return_null_if_unknown ?
-           Warning("GetFrame(const Char_t*)", "No frame \"%s\" defined for particle. %p returned.",
-                   frame, nullptr), nullptr
+           Warning("GetFrame(const Char_t*)", "No frame \"%s\" defined for particle. 0x0 returned.",
+#ifndef WITH_CPP11
+                   frame), (KVParticle*)nullptr
+#else
+                   frame), nullptr
+#endif
            : this);
 }
 
