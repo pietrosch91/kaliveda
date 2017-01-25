@@ -75,7 +75,6 @@ incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
 kaliveda_exec=$bindir/kaliveda
 examplesdir=@CMAKE_INSTALL_FULL_TUTDIR@
-git_infos=`$kaliveda_exec --gitinfos`
 # get list of all installed libraries
 modules="@subprojlist@"
 libs=""
@@ -146,6 +145,7 @@ while test $# -gt 0; do
           ;;
           --gitinfos)
             ### output git infos
+            git_infos=`$kaliveda_exec --gitinfos`
             out="$out $git_infos"
             ;;
     --libs)
