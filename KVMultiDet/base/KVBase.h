@@ -179,6 +179,8 @@ public:
 
    virtual TObject* GetObject() const;
 
+   static void PrintSplashScreen();
+
    ClassDef(KVBase, 4)          //Base class for all KaliVeda objects
 };
 

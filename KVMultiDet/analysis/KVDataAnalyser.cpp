@@ -211,34 +211,6 @@ void KVDataAnalyser::Reset()
    fChoseRunMode = kFALSE;
 }
 
-void KVDataAnalyser::PrintSplashScreen()
-{
-   //Prints welcome message
-   cout << "***********************************************************" <<
-        endl;
-   cout << "*                    HI COQUINE !!!                       *" <<
-        endl;
-   cout << "*                                                         *" <<
-        endl;
-   cout << "*         W E L C O M E     to     K A L I V E D A        *" <<
-        endl;
-   cout << "*                                                         *" <<
-        endl;
-   printf("*                   Version:%10s                    *\n", KVBase::GetKVVersion());
-   cout << "*                                                         *" <<
-        endl;
-   cout << "*               For help, read the doc on :               *" <<
-        endl;
-   cout << "*           http://indra.in2p3.fr/KaliVedaDoc             *" <<
-        endl;
-   cout << "*                                                         *" <<
-        endl;
-   cout << "*                          ENJOY !!!                      *" <<
-        endl;
-   cout << "***********************************************************" <<
-        endl << endl;
-}
-
 //_________________________________________________________________
 
 void KVDataAnalyser::Run()
@@ -247,7 +219,7 @@ void KVDataAnalyser::Run()
 
    fSubmit = kFALSE;
    //print welcome message for main (parent) analyser
-   if (!fParent && !fMenus) PrintSplashScreen();
+   if (!fParent && !fMenus) KVBase::PrintSplashScreen();
 
    if (CheckTaskVariables()) {
       if (fBatchSystem && !BatchMode()) {
@@ -301,7 +273,7 @@ void KVDataAnalyser::RunMenus()
 
    fMenus = kTRUE;
    Reset();
-   PrintSplashScreen();
+   KVBase::PrintSplashScreen();
 
    fQuit = kFALSE;
    fChoozDataSet = kTRUE;
@@ -323,7 +295,7 @@ void KVDataAnalyser::RunMenus()
       else if (fSubmit) {
          Run();
          Reset();
-         PrintSplashScreen();
+         KVBase::PrintSplashScreen();
       }
    }
 }

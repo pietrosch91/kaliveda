@@ -64,8 +64,6 @@ protected:
    virtual Bool_t CheckIfUserClassIsValid();
    virtual TObject* GetInstanceOfUserClass();
 
-   virtual void PrintSplashScreen();
-
    virtual const Char_t* GetACliCMode();
 
    static Bool_t fCleanAbort;//flag to force abort of processing
