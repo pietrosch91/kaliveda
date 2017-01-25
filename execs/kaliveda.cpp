@@ -1,7 +1,7 @@
 #include "TRint.h"
 #include "KVBase.h"
 #include <iostream>
-using namespace std;
+
 int main(int argc, char** argv)
 {
    // kaliveda command-line interpreter
@@ -11,6 +11,7 @@ int main(int argc, char** argv)
    //  kaliveda --gitcommit: print git commit and exit
 
    KVBase::InitEnvironment();
+#ifdef WITH_GIT_INFOS
    for (int i = 0; i < argc; ++i) {
       if (!strcmp(argv[i], "--gitinfos")) {
          std::cout << KVBase::gitBranch() << "@" << KVBase::gitCommit() << std::endl;
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
          return 0;
       }
    }
-
+#endif
    TRint* myapp = new TRint("kaliveda", &argc, argv, NULL, 0, kTRUE);
    KVBase::PrintSplashScreen();
    myapp->SetPrompt("kaliveda [%d] ");

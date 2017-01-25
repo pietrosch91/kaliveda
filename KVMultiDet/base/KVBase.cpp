@@ -1214,13 +1214,14 @@ void KVBase::PrintSplashScreen()
         endl;
    printf("* Version: %-10s                   Built: %-10s *\n", KVBase::GetKVVersion(), KVBase::GetKVBuildDate());
 #ifdef WITH_BZR_INFOS
-   printf("(bzr branch : %s revision#%d (clean=%d) date : %s)\n",
-          bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
+   TString bzrinfo;
+   bzrinfo.Form("%s@%d", bzrBranchNick(), bzrRevisionNumber());
+   printf("* bzr: %50s *\n", bzrinfo.Data());
 #endif
 #ifdef WITH_GIT_INFOS
    TString gitinfo;
    gitinfo.Form("%s@%s", gitBranch(), gitCommit());
-   printf("* git: %50s *\n", gitinfo.Data());
+   printf("* git: %-50s *\n", gitinfo.Data());
 #endif
    cout << "*                                                         *" <<
         endl;
