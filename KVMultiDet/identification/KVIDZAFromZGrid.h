@@ -8,6 +8,10 @@
 #include "KVList.h"
 #include "KVIdentificationResult.h"
 
+
+class interval;
+class interval_set;
+
 class KVIDZAFromZGrid : public KVIDZAGrid {
 public:
    enum PIDType {
@@ -17,24 +21,6 @@ public:
    };
 
 public:
-   class interval: public TNamed {
-   public:
-      int fType;
-      int fZ;
-      int fNPIDs;
-
-      std::vector<int>    fAs;
-      std::vector<double> fPIDmins;
-      std::vector<double> fPIDmaxs;
-      TGraph fPIDs;
-
-      interval(int zz, int type);
-      void   add(int aa, double pid, double pidmin = -1., double pidmax = -1.);
-      double eval(KVIdentificationResult* idr);
-      bool is_inside(double pid);
-
-      ClassDef(interval, 1) //
-   };
 //  std::vector<interval> toto;
 
 public:
@@ -55,6 +41,11 @@ public:
    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
    virtual double DeduceAfromPID(KVIdentificationResult* idr);
    void LoadPIDRanges();
+   interval_set* GetIntervalSet(int zint);
+   KVList* GetIntervalSets()
+   {
+      return &fTables;
+   }
 
    void PrintPIDLimits();
 
@@ -65,5 +56,112 @@ protected:
 
    ClassDef(KVIDZAFromZGrid, 1) //Compute Z and A only from Z lines...
 };
+
+
+
+class interval: public TNamed {
+public:
+   int fType;
+   int fZ;
+   int fA;
+
+   double fPID;
+   double fPIDMin;
+   double fPIDmax;
+
+   interval(int zz, int aa, double pid, double pidmin = -1., double pidmax = -1.)
+   {
+      fZ = zz;
+      fA = aa;
+      fPID = pid;
+      fPIDMin = pidmin;
+      fPIDmax = pidmax;
+      SetName(Form("%d_%d", zz, aa));
+   }
+   bool is_inside(double pid)
+   {
+      if (pid > fPIDMin && pid < fPIDmax) return kTRUE;
+      return kFALSE;
+   }
+
+   int    GetA()
+   {
+      return fA;
+   }
+   int    GetZ()
+   {
+      return fZ;
+   }
+   double GetPID()
+   {
+      return fPID;
+   }
+   double GetPIDmin()
+   {
+      return fPIDMin;
+   }
+   double GetPIDmax()
+   {
+      return fPIDmax;
+   }
+
+   void SetA(int aa)
+   {
+      fA = aa;
+   }
+   void SetZ(int zz)
+   {
+      fZ = zz;
+   }
+   void SetPID(double pid)
+   {
+      fPID = pid;
+   }
+   void SetPIDmin(double pidmin)
+   {
+      fPIDMin = pidmin;
+   }
+   void SetPIDmax(double pidmax)
+   {
+      fPIDmax = pidmax;
+   }
+
+
+   ClassDef(interval, 1) //
+};
+
+class interval_set: public TNamed {
+public:
+   int fType;
+   int fZ;
+   KVList fIntervals;
+   Int_t  fNPIDs;
+   TGraph fPIDs;
+
+   int GetZ()
+   {
+      return fZ;
+   }
+   int GetNPID()
+   {
+      return fIntervals.GetSize();
+   }
+   KVList* GetIntervals()
+   {
+      return &fIntervals;
+   }
+   const char* GetListOfMasses();
+
+   interval_set(int zz, int type);
+   void   add(int aa, double pid, double pidmin = -1., double pidmax = -1.);
+   double eval(KVIdentificationResult* idr);
+   bool is_inside(double pid);
+
+   ClassDef(interval_set, 1) //
+};
+
+
+
+
 
 #endif
