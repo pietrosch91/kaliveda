@@ -1,0 +1,17 @@
+.PHONY: all install clean
+
+all: html
+
+LYX_SOURCE:=$(wildcard *.lyx)
+LYX_HTML_DIR:=$(patsubst %.lyx,%.html.LyXconv,$(LYX_SOURCE))
+HTML_DIR:=$(patsubst %.lyx,%Doc,$(LYX_SOURCE))
+
+html: $(LYX_SOURCE)
+	-lyx -e html $^
+	
+install:
+	-rm -rf $(PREFIX)/$(HTML_DIR)
+	-cp -r $(LYX_HTML_DIR) $(PREFIX)/$(HTML_DIR)
+
+clean:
+	-rm -rf $(LYX_HTML_DIR)

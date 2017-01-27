@@ -1,0 +1,455 @@
+% KaliVeda User's Guide
+
+# Using Detector Array Geometries #
+
+The main purpose of KaliVeda is to describe charged-particle detector arrays in order
+to perform the following tasks:
+
+  * simulate detection of charged particles by the array;
+  * simulate reconstruction & identification of charged particles detected by the array;
+  * reconstruct & identify charged particles detected by the array from experimental data.
+  
+In this chapter we describe how to go about it.
+
+## Creating a valid geometry ##
+The detector array geometry has first to be implemented using the [ROOT geometry package][ROOTgeom]
+which will then be imported into the KaliVeda toolkit. Here we look at a few examples.
+
+### Simple (single-layer) detectors ###
+Let us begin with a simple example: a single telescope made up of a stack of 3 identical silicon wafers.
+The first thing to do when describing any geometry is to initialise the geometry manager:
+
+~~~~~~~~{.cpp}
+TGeoManager* myGeo = new TGeoManager("simpleGeo1", "A simple detector array");
+~~~~~~~~
+
+Next we set up the materials required for the construction of our array, and create a 'top' volume
+which will be the 'world' containing our geometry:
+
+~~~~~~~~{.cpp}
+/* materials required for creation of geometry */
+KVMaterial silicon("Si");
+
+/* top volume must be big enough to contain all detectors - if in doubt, make it too big!! */
+TGeoVolume *top = myGeo->MakeBox("WORLD", silicon.GetGeoMedium("Vacuum"),
+                                         50*KVUnits::cm,50*KVUnits::cm,50*KVUnits::cm);
+myGeo->SetTopVolume(top);
+~~~~~~~~
+
+In this case, our `WORLD` is a vacuum-filled box with sides whose half-lengths are 50cm, i.e. it is
+a cube of side 1m. Note that any `KVMaterial` object can be used to obtain the "Vacuum" medium.
+
+Now we can build our silicon wafers, which are to be 5cm square and 300$\mu$m thick:
+
+~~~~~~~~{.cpp}
+double si_dim  = 5 *KVUnits::cm; // square silicon detector 5cm x 5cm
+double si_thick= 300*KVUnits::um;// silicon thickness 300um
+
+// build the detector
+TGeoVolume *si_det = myGeo->MakeBox("DET_SILICON",silicon.GetGeoMedium(),si_dim/2.,si_dim/2.,si_thick/2.);
+~~~~~~~~
+
+Note that, once again, the dimensions are given in terms of half-lengths. The name of our silicon box is
+very important: in order for KaliVeda to recognise a volume as a detector, its name must begin with
+`"DET_"`.
+
+Next we place three silicon detectors one behind the other, with the first one being 10cm from the
+centre of the `WORLD` volume (the origin of the coordinate system), and the two others placed
+respectively 0.25cm and 0.5cm behind it:
+
+~~~~~~~~{.cpp}
+double si_dist = 10*KVUnits::cm; // distance from target (origin): 10cm
+
+// positioning of volumes is done with respect to the centre of the object:
+// therefore in order to have the entrance window of the first detector at si_dist
+// centimetres from the origin, its centre must be at si_dist + half the thickness
+// of the detector (0.5*si_thick)
+top->AddNode(si_det, 1, new TGeoTranslation(0,0,si_dist+0.5*si_thick));
+top->AddNode(si_det, 2, new TGeoTranslation(0,0,si_dist+0.5*si_thick+0.25*KVUnits::cm));
+top->AddNode(si_det, 3, new TGeoTranslation(0,0,si_dist+0.5*si_thick+0.50*KVUnits::cm));
+~~~~~~~~
+
+Notice how we use the same volume 3 times to create 3 independent detectors? There is no need to
+create more than one volume (geometric shape/medium) to describe detectors which are the same apart
+from their position (node) in the geometry. The second argument in each call to `top->AddNode(...)`{.cpp}
+is a 'node number' which is used to distinguish the three nodes: they will be called `DET_SILICON_1`,
+`DET_SILICON_2` and `DET_SILICON_3`.
+
+The last step in creating a valid ROOT geometry description of an array is
+
+~~~~~~~~{.cpp}
+myGeo->CloseGeometry();
+~~~~~~~~
+
+You can now view the geometry in 3D using OpenGL:
+
+~~~~~~~~{.cpp}
+myGeo->GetTopVolume()->Draw("ogl");
+~~~~~~~~
+
+See below for the next step: [importing your geometry into KaliVeda](#importing-the-geometry).
+
+### Multi-layer detectors & dead zones ###
+Now for a slightly more realistic example: an ionisation chamber consisting of an aluminium frame, two
+mylar windows, and between the windows: isobutane gas at a pressure of 50mbar.
+As before we begin by initialising the geometry manager,
+the materials we'll need and create a `WORLD` volume:
+
+~~~~~~~~{.cpp}
+/* must create geomanager before anything else */
+TGeoManager* myGeo = new TGeoManager("simpleGeo2", "A simple ionisation chamber");
+
+/* materials required for creation of geometry */
+KVMaterial aluminium("Al");
+KVMaterial mylar("Mylar");
+KVMaterial isobutane("Isobutane");
+isobutane.SetPressure(50*KVUnits::mbar);
+
+/* top volume must be big enough to contain all detectors - if in doubt, make it too big!! */
+TGeoVolume *top = myGeo->MakeBox("WORLD", aluminium.GetGeoMedium("Vacuum"),50,50,50);
+myGeo->SetTopVolume(top);
+~~~~~~~~
+
+Now we build the volume corresponding to our two (square) mylar windows:
+
+~~~~~~~~{.cpp}
+double dx_chio     = 4.*KVUnits::cm; // 4cm square detector
+double thick_frame = 1*KVUnits::mm;  // 1mm thick aluminium frame
+double thick_win   = 2.5*KVUnits::um;// 2.5um thick mylar window
+
+TGeoVolume* window = myGeo->MakeBox("WINDOW", mylar.GetGeoMedium(), 
+         (dx_chio-2*thick_frame)/2, (dx_chio-2*thick_frame)/2., thick_win/2.);
+~~~~~~~~
+
+Now the volumes for building the frame: one for the top & bottom, and one for the sides:
+
+~~~~~~~~{.cpp}
+double thick_gas   = 2.*KVUnits::cm;;// 2cm thick gas
+double thick_chio  = thick_gas+2*thick_win;
+
+/* frame = dead zone (stops all particles) of ionisation chamber */
+TGeoVolume* frame_top = myGeo->MakeBox("DEADZONE_CHIOFRAME_TOP", aluminium.GetGeoMedium(),
+         (dx_chio-2*thick_frame)/2, thick_frame/2.,thick_chio/2.);
+TGeoVolume* frame_side = myGeo->MakeBox("DEADZONE_CHIOFRAME_SIDE", aluminium.GetGeoMedium(),
+         thick_frame/2., dx_chio/2, thick_chio/2.);
+~~~~~~~~
+
+The keyword `DEADZONE_` in the name of these volumes will be recognised by KaliVeda when the geometry
+is imported: when particles are propagated through the array during detection simulation, any which
+arrive in these volumes will be stopped regardless of their kinetic energy.
+
+Finally we construct the gas volume where the energy losses of charged particles traversing the detector
+will be reported as the energy measured in the detector: this is the 'active' part of the detector,
+the volume name has the keyword `ACTIVE_`:
+
+~~~~~~~~{.cpp}
+/* active layer of ionisation chamber */
+TGeoVolume* gas = myGeo->MakeBox("ACTIVE_GAS", isobutane.GetGeoMedium(), 
+         (dx_chio-2*thick_frame)/2, (dx_chio-2*thick_frame)/2., thick_gas/2.);
+~~~~~~~~
+
+Now in order to build our detector, we put together all the pieces in a special kind of volume
+which is built from other volumes, a `TGeoVolumeAssembly` to which we give the name for our new
+detector, beginning with the keyword `DET_`:
+
+~~~~~~~~{.cpp}
+/* put everything together in detector structure */
+TGeoVolume* chio = myGeo->MakeVolumeAssembly("DET_CHIO");
+chio->AddNode(window, 1, new TGeoTranslation(0,0, -thick_chio/2. + thick_win/2.));
+chio->AddNode(gas, 1);
+chio->AddNode(window, 2, new TGeoTranslation(0,0, thick_chio/2. - thick_win/2.));
+chio->AddNode(frame_top, 1, new TGeoTranslation(0, (dx_chio-thick_frame)/2.,0.)); 
+chio->AddNode(frame_top, 2, new TGeoTranslation(0, -(dx_chio-thick_frame)/2.,0.)); 
+chio->AddNode(frame_side, 1, new TGeoTranslation((dx_chio-thick_frame)/2.,0,0.)); 
+chio->AddNode(frame_side, 2, new TGeoTranslation(-(dx_chio-thick_frame)/2.,0,0.)); 
+~~~~~~~~
+
+Last of all we position our ionisation chamber where we want in our geometry:
+
+~~~~~~~~{.cpp}
+double dist_chio   = 20*KVUnits::cm; // place 20 cm from target  
+top->AddNode(chio, 1, new TGeoTranslation(0,0,dist_chio+0.5*thick_chio));
+~~~~~~~~
+
+As in the previous example, in order to have the entrance window of the ionisation chamber
+at a given distance from the origin, because positioning of volumes is done with respect to
+the centre of the volume, we place our volume at the distance
+plus half of the (total) thickness of the ionisation chamber.
+
+After closing the geometry we are then ready to import the geometry into KaliVeda.
+
+### Angular positioning & detector alignment ###
+There is a trick to placing detectors at given angular coordinates $(\theta,\phi)$ while keeping
+the detector's axis aligned with the flight path of particles coming from the target (assumed to
+be placed at the origin). As it is not easy to deduce, we give it here for future reference.
+
+We use the KaliVeda coordinate-system convention: *i.e.*
+
+   * the positive $z$-axis is aligned with the beam direction;
+   * the positive $x$-axis is vertically upwards (12 o'clock);
+   * the positive $y$-axis (corresponding to $\phi=+90^o$ is in the horizontal plane, pointing to the right
+     when looking in the beam direction
+     
+Then in order to position a detector volume at a distance `D` cm from the target at angular coordinates
+$(\theta,\phi)$ with its entrance window perpendicular to the vector connecting the centre of the detector
+to the origin, do the following:
+
+~~~~~~~~{.cpp}
+[TGeoVolume* det = pointer to our detector volume]
+[Double_t phi,theta = detector angles]
+[Double_t D = distance to entrance window]
+[Double_t detector_thickness = ... guess]
+[Int_t node_number = number to give to this detector in geometry]
+
+TGeoRotation rot1,rot2;
+rot2.SetAngles(phi+90, theta, 0);
+rot1.SetAngles(-90, 0., 0.);
+TGeoTranslation trans(0,0,D+0.5*detector_thickness);
+TGeoHMatrix h = rot2 * trans * rot1;
+top->AddNode(det, node_number, new TGeoHMatrix(h));
+~~~~~~~~
+
+### Detector structures ###
+Any association of detectors which occurs several times
+in a geometry in different places, with the same internal structure, can be defined as a 'structure'.
+Such a structure can be defined once and then re-used many times in your detector array.
+For example we could combine our ionisation chamber example with a silicon detector placed
+immediately behind in order to create a telescope:
+
+~~~~~~~~{.cpp}
+TGeoVolume* chio_si = myGeo->MakeVolumeAssembly("STRUCT_TELESCOPE");
+double si_dist = 1*KVUnits::cm;                                     // place silicon 1cm behind IC
+double tel_length = thick_chio+si_dist+si_thick;                    // total length of telescope
+chio_si->AddNode(chio, 1, new TGeoTranslation(0,0,0.5*(thick_chio-tel_length)));
+chio_si->AddNode(si_det, 1, new TGeoTranslation(0,0,0.5*(tel_length-si_thick)));
+~~~~~~~~
+
+The keyword `STRUCT` in the structure's volume name is essential. The name of this structure will
+be (after importing the geometry) `TELESCOPE`.
+
+## Importing the geometry ##
+Once you have a valid ROOT geometry describing your array, you can import it into KaliVeda
+using the `KVGeoImport` class to initialise a new `KVMultiDetArray` object:
+
+~~~~~~~~{.cpp}
+KVGeoImport gimp(gGeoManager, KVMaterial::GetRangeTable(), new KVMultiDetArray);
+gimp.ImportGeometry();
+~~~~~~~~
+
+Here we have used the `gGeoManager` global pointer to the currently active geometry: you can of course
+use whatever valid pointer you have to your geometry (*e.g.* `myGeo` in the above examples).
+
+As an example, let us see what happens if you import the
+[first example geometry above](#simple-single-layer-detectors), composed of a telescope
+of three silicon detectors:
+
+~~~~~~~~{.cpp}
+Info in <KVGeoImport::ImportGeometry>: Importing geometry in angular ranges : Theta=[0.000000,180.000000:0.100000] Phi=[0.000000,360.000000:1.000000]
+Info in <KVGeoImport::ImportGeometry>: tested 650161 directions
+~~~~~~~~
+
+The first step is a scan of the geometry over the angular ranges indicated, which in this case is
+overkill:
+you can change the default range and angular step size if you wish when you call `KVGeoImport::ImportGeometry`.
+
+~~~~~~~~{.cpp}
+Info in <KVGeoImport::ImportGeometry>: Imported 3 detectors into array
+Info in <KVMultiDetArray::CalculateTrajectories>: Calculating all possible trajectories:
+ -- calculated 1 trajectories
+Info in <KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry>: Calculating...
+ -- created 2 telescopes
+Info in <KVMultiDetArray::CalculateReconstructionTrajectories>: Calculating...
+ -- calculated 3 trajectories
+~~~~~~~~
+
+These are the results of the scan: 3 detectors were correctly identified and imported. You can see the list
+by doing:
+
+~~~~~~~~{.cpp}
+gMultiDetArray->GetDetectors()->ls();
+
+ OBJ: KVDetector	SILICON_1	Si : 0 at: 0x34f3110
+ OBJ: KVDetector	SILICON_2	Si : 0 at: 0x34f5770
+ OBJ: KVDetector	SILICON_3	Si : 0 at: 0x34f6b60
+~~~~~~~~
+
+Next we calculate all possible trajectories through the detectors of the array that a particle leaving
+the target (origin) could take. In this case the answer is: 1! You can obtain the list by doing:
+
+~~~~~~~~{.cpp}
+gMultiDetArray->GetTrajectories()->ls();
+
+GDNTraj_1 : SILICON_3/SILICON_2/SILICON_1/
+~~~~~~~~
+
+Notice that trajectories always begin with the detector the furthest from the target (origin).
+
+From this information, we then
+proceed to deduce all possible ways that a (charged) particle could be identified from its energy
+losses in the detectors on the different trajectories. By default, this means associating each pair
+of successive detectors on the same trajectory into a $\Delta E$-$E$ identification telescope,
+but it is possible (by defining appropriate `KVIDTelescope` plugins) to add single-detector identification
+methods (such as pulse shape analysis in silicon detectors or cesium iodide scintillators). To see the list
+of deduced identification telescopes:
+
+~~~~~~~~{.cpp}
+gMultiDetArray->GetListOfIDTelescopes()->ls();
+
+ OBJ: KVIDTelescope	ID_SILICON_2_SILICON_3	 : 0 at: 0x3dab370
+ OBJ: KVIDTelescope	ID_SILICON_1_SILICON_2	 : 0 at: 0x3dac490
+~~~~~~~~
+
+
+Finally, we calculate all possible trajectories that could correspond to particles stopping in the
+detectors of the array, from which we can try to reconstruct the identity of the particle. In this case,
+there are 3 possibilities, corresponding to particles stopping in either the first, second, or third
+detector. To see the list of reconstruction trajectories:
+
+~~~~~~~~{.cpp}
+gMultiDetArray->GetReconTrajectories()->ls();
+
+GDNTraj_1_SILICON_3 : SILICON_3/SILICON_2/SILICON_1/
+Identifications [2/2] : 
+	ID_SILICON_2_SILICON_3 (1)
+	ID_SILICON_1_SILICON_2 (1)
+GDNTraj_1_SILICON_2 : SILICON_2/SILICON_1/
+Identifications [1/1] : 
+	ID_SILICON_1_SILICON_2 (1)
+GDNTraj_1_SILICON_1 : SILICON_1/
+Identifications [0/0] : 
+~~~~~~~~
+
+Each reconstruction trajectory has an associated list of identification telescopes which could be used
+to try to identify corresponding particles.
+
+Now let us see what happens if we import our [ionisation chamber + silicon telescope structure example](#detector-structures):
+
+~~~~~~~~{.cpp}
+Info in <KVGeoImport::ImportGeometry>: tested 650161 directions
+Info in <KVGeoImport::ImportGeometry>: Imported 2 detectors into array
+Info in <KVMultiDetArray::CalculateTrajectories>: Calculating all possible trajectories:
+ -- calculated 1 trajectories
+Info in <KVMultiDetArray::DeduceIdentificationTelescopesFromGeometry>: Calculating...
+ -- created 1 telescopes
+Info in <KVMultiDetArray::CalculateReconstructionTrajectories>: Calculating...
+ -- calculated 2 trajectories
+
+gMultiDetArray->Print();
+
+KVMultiDetArray::simpleGeo3 [TYPE=Ionisation chamber+silicon telescope]
+
+ DETECTORS : 
+
+      TELESCOPE_1_CHIO_1
+      TELESCOPE_1_SILICON_1
+
+ KVGeoStrucElement::TELESCOPE_1 [TYPE=TELESCOPE]
+
+  DETECTORS : 
+
+       TELESCOPE_1_CHIO_1
+       TELESCOPE_1_SILICON_1
+       
+ KVGroup::Group_1 [TYPE=GROUP]
+
+  DETECTORS : 
+
+       TELESCOPE_1_CHIO_1
+       TELESCOPE_1_SILICON_1
+~~~~~~~~
+
+The output of the `KVMultiDetArray::Print()` method is two lists: first the list of all detectors in the
+array, and then the list of all structures in the array, and the lists of all detectors that they contain.
+Here we can see that our `TELESCOPE` structure has been faithfully imported into the array as a
+`KVGeoStrucElement` object, but there is also a second structure which is of type `GROUP`. These structures
+are defined automatically for all detector geometries, a group corresponds to the largest subset of
+detectors which can be treated independently of all others in the array.
+
+###Structure & detector names ###
+
+The names of the detectors reflect their positioning in a `TELESCOPE` structure, which gives quite long names,
+especially for the derived identification telescope(s):
+
+~~~~~~~~{.cpp}
+gMultiDetArray->GetListOfIDTelescopes()->ls()
+
+ OBJ: KVIDTelescope	ID_TELESCOPE_1_CHIO_1_TELESCOPE_1_SILICON_1	 : 0 at: 0x3d56770
+~~~~~~~~
+
+What can we do?
+
+####Change default formatting####
+We can change the default names given to structures and detectors using two methods provided by `KVGeoNavigator`
+(the base class for `KVGeoImport`). They allow to define our own formatting conventions for the names
+derived from the geometry. For example, if we do
+
+~~~~~~{.cpp}
+KVGeoImport gimp(gGeoManager, KVMaterial::GetRangeTable(), new KVMultiDetArray);   
+
+// change default formatting of structure & detector names
+gimp.SetStructureNameFormat("TELESCOPE", "T$number%02d$");
+gimp.SetDetectorNameFormat("$det:name%.2s$_$struc:TELESCOPE:name$");
+
+gimp.ImportGeometry();
+~~~~~~
+
+then the result is:
+
+~~~~~~{.cpp}
+gMultiDetArray->Print()
+
+KVMultiDetArray::simpleGeo3 [TYPE=Ionisation chamber+silicon telescope]
+
+ DETECTORS : 
+
+      CH_T01
+      SI_T01
+[...]
+
+gMultiDetArray->GetListOfIDTelescopes()->ls()
+
+ OBJ: KVIDTelescope	ID_CH_T01_SI_T01	 : 0 at: 0x3d56770
+~~~~~~
+
+####Use correspondance list name translation####
+Not every case can be treated using formatting strings as above however, so we provide another possibility.
+If you provide a file containing lines like:
+
+~~~~~~{.cpp}
+[file names.txt]
+TELESCOPE_1_CHIO_1:   DE-01
+TELESCOPE_1_SILICON_1: E-01
+~~~~~~
+
+and then do
+
+~~~~~~{.cpp}
+KVGeoImport gimp(gGeoManager, KVMaterial::GetRangeTable(), new KVMultiDetArray);   
+
+// set correspondance list for name translation
+gimp.SetNameCorrespondanceList("names.txt");
+
+gimp.ImportGeometry();
+~~~~~~
+
+the file will be used to look up the name of each detector and/or structure as derived from the geometry
+using the default formatting rules (or whatever formatting you impose), and replace it with whatever
+name is given in the file:
+
+~~~~~~{.cpp}
+gMultiDetArray->Print()
+
+KVMultiDetArray::simpleGeo3 [TYPE=Ionisation chamber+silicon telescope]
+
+ DETECTORS : 
+
+      DE-01
+      E-01
+
+gMultiDetArray->GetListOfIDTelescopes()->ls()
+
+ OBJ: KVIDTelescope	ID_DE-01_E-01	 : 0 at: 0x4eeb2d0
+~~~~~~
+
+
+[ROOTgeom]: https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html#the-geometry-package

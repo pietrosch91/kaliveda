@@ -1,0 +1,836 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+KaliVedaGUI Data Analysis Launcher
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Usage
+\end_layout
+
+\begin_layout Standard
+To launch the application from the command line, type
+\end_layout
+
+\begin_layout LyX-Code
+$ KaliVedaGUI
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KaliVedaGUI.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+The KaliVedaGUI graphical interface
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:The-KaliVedaGUI-graphical"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Choosing data to analyse and analysis task
+\end_layout
+
+\begin_layout Standard
+Choose a data repository and dataset from the drop-down menus.
+ The 'ANALYSIS TASK' list will fill with all possible tasks, depending on
+ the types of data which are available in the repository.
+ Picking an analysis task will fill the list of available systems for the
+ data type corresponding to the task.
+ Choose a system and the list of runs will fill with all available files
+ for the given system.
+\end_layout
+
+\begin_layout Standard
+Note that in both system & run lists, clicking on the 'header' of a column
+ ('Run', 'Zproj', 'Trigger', etc.) will sort the list according to the contents
+ of the column.
+ Subsequent clicks will reverse the order of sorting.
+\end_layout
+
+\begin_layout Standard
+Runs can be chosen individually (left-click on a run), or multiple selections
+ can be made (CTRL-left-click to choose several individual runs, or SHIFT-left-c
+lick to select ranges of runs).
+ The buttons below the list ('Select All', 'Deselect All') can also be used.
+ The list of currently selected runs is displayed (in an abbreviated format
+ if too long) just below these buttons (
+\begin_inset Quotes eld
+\end_inset
+
+Selected Runs : ...
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsubsection
+Setting the runlist
+\end_layout
+
+\begin_layout Standard
+The 'Runlist' button can be used to enter a list of runs in the form 
+\begin_inset Quotes eld
+\end_inset
+
+1-10, 23, 25-29
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Clicking the button opens a dialogue box containing the currently-selected
+ list of runs.
+ After modification, the list display will be updated to reflect the changes.
+\end_layout
+
+\begin_layout Subsection
+User analysis class
+\end_layout
+
+\begin_layout Standard
+If the chosen task requires a user-provided analysis class, the drop-down
+ list 'User Class' will be activated.
+ This list is filled automatically with the names of all analysis classes
+ in the current directory, which is deduced from the presence of a pair
+ of files with the extensions '.h' and '.cpp' (or '.C' or '.cxx').
+ For example, if in the current working directory there are two files called
+ 
+\family typewriter
+MyAnalysis.h
+\family default
+ and 
+\family typewriter
+MyAnalysis.cpp
+\family default
+, the 'User Class' list will contain 
+\family typewriter
+MyAnalysis
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Clicking on the button next to the 'User Class' list will open the source
+ files for the currently-selected analysis class in your favourite text
+ editor (defined by the shell variable 
+\family typewriter
+$EDITOR
+\family default
+).
+\end_layout
+
+\begin_layout Subsubsection
+User class options
+\end_layout
+
+\begin_layout Standard
+Optional parameters can be supplied to classes for analysis of reconstructed
+ data (derived from 
+\family typewriter
+KVSelector
+\family default
+) using the 'User class options' text box.
+ These are given in the form of a comma-separated list of 'name=value' pairs
+ as shown in figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:The-KaliVedaGUI-graphical"
+
+\end_inset
+
+.
+ These parameters can be manipulated in the analysis class using the 
+\family typewriter
+KVSelector
+\family default
+ methods
+\end_layout
+
+\begin_layout LyX-Code
+Bool_t IsOptGiven(const Char_t* name)
+\end_layout
+
+\begin_layout LyX-Code
+KVString& GetOpt(const Char_t* name)
+\end_layout
+
+\begin_layout Standard
+For example, in the example shown, part of the 
+\family typewriter
+CheckEtalonModules
+\family default
+ analysis class could use the following code:
+\end_layout
+
+\begin_layout LyX-Code
+KVString toto=
+\begin_inset Quotes erd
+\end_inset
+
+titi
+\begin_inset Quotes erd
+\end_inset
+
+; Double_t googoo=-1.;
+\end_layout
+
+\begin_layout LyX-Code
+// Initialisation of parameters for this job
+\end_layout
+
+\begin_layout LyX-Code
+if( IsOptGiven(
+\begin_inset Quotes eld
+\end_inset
+
+toto
+\begin_inset Quotes erd
+\end_inset
+
+) ) toto = GetOpt(
+\begin_inset Quotes eld
+\end_inset
+
+toto
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout LyX-Code
+if( IsOptGiven(
+\begin_inset Quotes eld
+\end_inset
+
+googoo
+\begin_inset Quotes erd
+\end_inset
+
+) ) googoo = GetOpt(
+\begin_inset Quotes eld
+\end_inset
+
+googoo
+\begin_inset Quotes erd
+\end_inset
+
+).Atof();
+\end_layout
+
+\begin_layout LyX-Code
+// Modify analysis depending on user-supplied values
+\end_layout
+
+\begin_layout LyX-Code
+if( toto == 
+\begin_inset Quotes eld
+\end_inset
+
+tutu
+\begin_inset Quotes erd
+\end_inset
+
+ ){
+\end_layout
+
+\begin_layout LyX-Code
+   TVector3 boost(0,0,googoo);
+\end_layout
+
+\begin_layout LyX-Code
+   GetEvent()->SetFrame(
+\begin_inset Quotes eld
+\end_inset
+
+myQPframe
+\begin_inset Quotes erd
+\end_inset
+
+, boost);
+\end_layout
+
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+else if (toto == 
+\begin_inset Quotes eld
+\end_inset
+
+titi
+\begin_inset Quotes erd
+\end_inset
+
+){
+\end_layout
+
+\begin_layout LyX-Code
+   ...
+\end_layout
+
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout Standard
+Note that any call to method 
+\family typewriter
+GetOpt(name)
+\family default
+ should be preceded by a call to 
+\family typewriter
+IsOptGiven(name)
+\family default
+ in order to ensure that the required parameter is defined.
+\end_layout
+
+\begin_layout Subsection
+Data selector
+\end_layout
+
+\begin_layout Standard
+The use of the KVDataSelector class to select and analyse subsets of data
+ is deprecated, and should be replaced in the near future by an alternative
+ which is suitable for use with 
+\family typewriter
+PROOF
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+Number of events to read
+\end_layout
+
+\begin_layout Standard
+Putting '
+\family typewriter
+0
+\family default
+' (zero) means 'read all events in each file (run)'.
+ Any non-zero value will limit the number of events analysed, as can be
+ useful for a quick interactive test before batch job submission.
+ Remember to put '
+\family typewriter
+0
+\family default
+' (zero) before submitting a production job! (as this is a common mistake,
+ if you try to submit a batch job with a non-zero number of events to read,
+ a dialogue box will open asking you to confirm this).
+\end_layout
+
+\begin_layout Subsection
+User libraries
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KaliVedaGUI_userLibs.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Select user libraries
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Select-user-libraries"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename KaliVedaGUI_userIncludes.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Select user include directory
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Select-user-include"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Select user libraries and include directories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If your analysis requires extra libraries, you can give them by clicking
+ on the 'User's libraries' button.
+ In the dialogue box (see figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Select-user-libraries"
+
+\end_inset
+
+), click on 'Add File' and then navigate to and select the shared object
+ (
+\family typewriter
+*.so
+\family default
+) library you require.
+ If compilation of your analysis class requires access to the 'header' files
+ associated with the library, click on the 'User's includes' button, click
+ on 'Add Directory' (see figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Select-user-include"
+
+\end_inset
+
+) and navigate to the directory containing the required '
+\family typewriter
+.h
+\family default
+' files.
+ Note that in order to 'select' the directory, you must select one of the
+ files in the directory.
+\end_layout
+
+\begin_layout Standard
+
+\noun on
+IMPORTANT:
+\noun default
+ the shared libraries and include file directories are remembered from one
+ session to another.
+ They will still be defined the next time that you run 
+\family typewriter
+KaliVedaGUI
+\family default
+.
+ If you no longer want to use them, you must click on 'User's Libraries'
+ and 'User's Includes' and remove them.
+\end_layout
+
+\begin_layout Subsection
+Running Mode : Now!
+\end_layout
+
+\begin_layout Standard
+Selecting 'Now!' means your analysis will start as soon as you click on
+ the 'Process' button.
+ 'Batch' parameters are inactive.
+\end_layout
+
+\begin_layout Subsection
+Running Mode: Batch
+\end_layout
+
+\begin_layout Standard
+Select 'Batch' in order to submit your analysis as a batch job.
+ The batch system used depends on the currently-defined default batch system
+ (see variable 
+\family typewriter
+Default.BatchSystem
+\family default
+ in 
+\family typewriter
+.kvrootrc
+\family default
+ configuration file).
+ Selecting 'Batch' will activate the batch parameter widgets.
+\end_layout
+
+\begin_layout Subsubsection
+Runs per batch job
+\end_layout
+
+\begin_layout Standard
+The default value of '1' means that a batch job will be submitted for each
+ selected run.
+ Increasing this value to 
+\begin_inset Formula $N$
+\end_inset
+
+ will decrease the number of batch jobs, by submitting a job for every 
+\begin_inset Formula $N$
+\end_inset
+
+ runs to analyse.
+\end_layout
+
+\begin_layout Subsubsection
+Batch name
+\end_layout
+
+\begin_layout Standard
+If 'Auto' is unchecked, enter the name you want for your job in the 'Batch
+ name' window.
+ If 'Auto' is checked, enter a formatted name in the 'Batch name format'
+ window, which may use one of the special 'variables':
+\end_layout
+
+\begin_layout LyX-Code
+$User (user login)
+\end_layout
+
+\begin_layout LyX-Code
+$Date (current date and time)
+\end_layout
+
+\begin_layout LyX-Code
+$UserClass (name of user analysis class)
+\end_layout
+
+\begin_layout LyX-Code
+$System (name of system analysed)
+\end_layout
+
+\begin_layout Standard
+These variables will be replaced in the batch jobname by their values (see
+ example in figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:The-KaliVedaGUI-graphical"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsubsection
+CCIN2P3 Grid Engine batch system
+\end_layout
+
+\begin_layout Standard
+On CCIN2P3 machines, the default batch system defined for KaliVeda is Grid
+ Engine (GE).
+ In this case three extra windows at the bottom of the GUI are available
+ to define the required limits of memory (RAM), scratch disk, and CPU time.
+ Note that the units must be given for memory and scratch disk, which are
+ '
+\family typewriter
+K
+\family default
+', '
+\family typewriter
+M
+\family default
+', '
+\family typewriter
+G
+\family default
+', '
+\family typewriter
+T
+\family default
+' (for kilo-, mega-, giga-, and tera- byte, respectively).
+ Job time may be given as 
+\family typewriter
+seconds
+\family default
+, or 
+\family typewriter
+minutes:seconds
+\family default
+, or 
+\family typewriter
+hours:minutes:seconds
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+Validation of user class
+\end_layout
+
+\begin_layout Standard
+Whether in batch or live mode, clicking on 'Process' will first launch the
+ compilation of your analysis class (if one is given).
+ If compilation is unsuccessful, the source files of your class will be
+ automatically opened in your favourite text editor (defined by the shell
+ variable 
+\family typewriter
+$EDITOR
+\family default
+) so that you can correct any mistakes.
+ When the correction is finished, you can close the editor and try 'Process'
+ again.
+\end_layout
+
+\begin_layout Subsection
+Monitoring of batch jobs (CCIN2P3-GE)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename kvbatchsystem.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\family typewriter
+KVBatchSystemGUI
+\family default
+ batch job monitoring interface
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:KVBatchSystemGUI-batch-job"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If jobs are submitted to the Grid Engine batch system, a window will open
+ which allows to monitor their progress (see figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:KVBatchSystemGUI-batch-job"
+
+\end_inset
+
+).
+ The display automatically updates according to the variables
+\end_layout
+
+\begin_layout LyX-Code
+KVBatchSystemGUI.AutoUpdate
+\end_layout
+
+\begin_layout LyX-Code
+KVBatchSystemGUI.RefreshInterval
+\end_layout
+
+\begin_layout Standard
+in 
+\family typewriter
+.kvrootrc
+\family default
+ configuration file.
+ The interface can be used to kill or alter the batch properties of selected
+ jobs.
+ If you exit 
+\family typewriter
+KaliVedaGUI
+\family default
+ the batch monitor GUI will disappear also.
+ If you want to monitor your batch jobs independently of 
+\family typewriter
+KaliVedaGUI
+\family default
+, you can open the GUI by typing
+\end_layout
+
+\begin_layout LyX-Code
+root[0] new KVBatchSystemGUI
+\end_layout
+
+\begin_layout Standard
+in a ROOT session.
+\end_layout
+
+\end_body
+\end_document

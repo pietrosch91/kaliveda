@@ -1,0 +1,238 @@
+% KaliVeda User's Guide
+
+# Explicit Argument Types #
+
+Most methods in the toolkit have _explicit argument types_, that is to say that rather than
+defining the method to set the cartesian components of the momentum vector of a particle
+using simple built-in (ROOT) types like this:
+
+~~~~~~~{.cpp}
+KVParticle::KVParticle(Double_t,Double_t,Double_t);  [constructor1]
+~~~~~~~~
+
+we make _explicit_ the meaning of each of the three (otherwise identical) arguments, like so:
+
+~~~~~~~{.cpp}
+KVParticle::KVParticle(MomentumXComponent,MomentumYComponent,MomentumZComponent);  [constructor2]
+~~~~~~~~
+
+Why do this? **To catch physics/programming errors at compile time!** Let us explain:
+
+In principle, `[constructor1]` could be called with any three
+arguments of type `Double_t`, regardless of their physical meaning. For example, imagine we
+have three methods all returning `Double_t` types, we could very well call `[constructor1]`
+using the values returned by these methods:
+
+~~~~~~~{.cpp}
+[method definitions in KVParticle.h]
+Double_t KVParticle::GetEnergy();
+Double_t KVParticle::GetTheta();
+Double_t KVParticle::GetPhi();
+
+[somewhere in our code]
+KVParticle* aPart;  // reference to some existing particle 
+KVParticle myPart(aPart->GetEnergy(),aPart->GetTheta(),aPart->GetPhi()); // [constructor1] OK ?
+~~~~~~~~
+
+The call to `[constructor1]` is perfectly valid from a C++ viewpoint, but entirely wrong
+from a physical viewpoint. Obviously, if `[constructor1]` is a well-documented method,
+and if the programmer has taken time to read the many and informative comments supplied
+by the author, such a mistake will never happen. On the other hand, if we give explicit
+types to each argument and/or return values of the same methods, there will be far less room
+for mistakes:
+
+~~~~~~~{.cpp}
+[explicit method definitions in KVParticle.h]
+KineticEnergy KVParticle::GetEnergy();
+PolarAngle KVParticle::GetTheta();
+AzimuthalAngle KVParticle::GetPhi();
+
+[somewhere in our code]
+KVParticle* aPart;  // reference to some existing particle 
+KVParticle myPart(aPart->GetEnergy(),aPart->GetTheta(),aPart->GetPhi()); // [constructor2]
+ --> compile error: no KVParticle::KVParticle(KineticEnergy,PolarAngle,AzimuthalAngle) method defined
+~~~~~~~~
+
+So now, at least in this case, a physics error is also a programming error:
+**we have physics-aware C++ code!**
+
+## Properties of explicit argument types ##
+
+All of the explicit argument types used in the toolkit are defined in
+`namespace KVArgType {...}`{.cpp}. Each one is a wrapper around an actual concrete
+type, either a (ROOT) built-in (`Int_t`, `Double_t`, ...) or a class (`TString`, `TVector3`, ...).
+
+### Information on type & encapsulated type ###
+All explicit argument types have a static member function which returns the name of the
+encapsulated type or class:
+
+~~~~~~~{.cpp}
+cout << Name::get_encapsulated_typename() << endl;                   "TString"
+cout << Mass::get_encapsulated_typename() << endl;                   "Double_t"
+cout << AtomicNumber::get_encapsulated_typename() << endl;           "Int_t"
+cout << KineticEnergy::get_encapsulated_typename() << endl;          "Double_t"
+cout << MomentumVector::get_encapsulated_typename() << endl;         "TVector3"
+~~~~~~~~
+
+and another static member function which returns the name of the argument type itself
+(RTTI):
+
+~~~~~~~{.cpp}
+cout << Name::get_typename() << endl;                   "Name"
+cout << Mass::get_typename() << endl;                   "Mass"
+cout << AtomicNumber::get_typename() << endl;           "AtomicNumber"
+cout << KineticEnergy::get_typename() << endl;          "KineticEnergy"
+cout << MomentumVector::get_typename() << endl;         "MomentumVector"
+~~~~~~~~
+
+### Wrappers around built-in types (int, double, ...) ###
+
+Implicit conversions and assignment to/from their actual type should be transparent, i.e.
+for `KVArgType::KineticEnergy`{.cpp} which encapsulates a `Double_t`, all of the following
+are valid:
+
+~~~~~~~{.cpp}
+#include "KVArgType.h"
+using namespace KVArgType; // so we don't have to type KVArgType:: every time
+
+// function with explicit argument type
+void f(KineticEnergy x) { cout << x << endl; }
+
+// function with explicit return type
+KineticEnergy g() { return 5.0; }
+
+int main()
+{
+   KineticEnergy e = 156.5;   // assignment from encapsulated type
+   Double_t E = e;            // assignment to encapsulated type
+   
+   f(E);                      // call with encapsulated type instead of
+                              // explicit argument type
+   
+   e = g();                   // receive explicit return type in encapsulated
+                              // type
+                              
+   Double_t x = (Double_t)e;  // explicit cast to encapsulated type
+   Double_t y = e();          // functor operator returning encapsulated type
+   
+   cout << e << endl;         // automatic cast to encapsulated type
+}
+~~~~~~~~
+
+In addition, argument types which are wrappers around numeric built-in variable types
+(`int`,`double`) have a full set of arithmetical operations just like their encapsulated
+types.
+
+### Wrappers around classes ###
+
+Some of the explicit argument types are in fact wrappers around classes, such as `TVector3`
+or `TString`. In this case, the explicit argument types are interchangeable with their
+encapsulated classes as for simple types, but we can also access the class member functions
+using the overloaded `->`{.cpp} operator:
+
+~~~~~~~{.cpp}
+#include "KVArgType.h"
+using namespace KVArgType;
+
+void f(MomentumVector x)     // function with explicit argument type
+{
+   x->Print();               // call TVector3 member function
+}
+
+MomentumVector g()           // function with explicit return type...
+{ 
+   return TVector3(1,2,3);   // ...returns temporary object of encapsulated type
+                             // which will be converted to explicit type
+} 
+
+int main()
+{
+   MomentumVector p = TVector3(0,0,100); // assignment from encapsulated type
+
+   p->Print();                           // call TVector3 member function
+   
+   f(p);                                 // call explicit argument function
+   
+   TVector3 q = g();                     // initialise encapsulated type using
+                                         // explicit return value
+
+   f(q);                                 // call function with encapsulated type
+}
+~~~~~~~~
+
+Obviously it is a little disturbing to access member functions using `->` without an
+object pointer, but C++ does not allow to override the `.` member access operator so this
+is the next best thing (the 'smart pointers' introduced in C++11 e.g. `shared_ptr` have a
+similar behaviour - if it's good enough for the ISO standards committee...)
+
+#### Extensions for `TString`-like arguments ####
+In addition to the above rules, explicit argument types which encapsulate a `TString` 
+are extended to allow not only conversion from/to their encapsulated class, but also
+using C-strings:
+
+~~~~~~~{.cpp}
+
+void f(const char* x) { printf("%s\n", x); }
+
+int main()
+{
+   Name toto = "hello";         // initialisation using 'const char*'
+   
+   f(toto);                     // call to function requiring 'const char*' argument
+   
+   cout << toto << endl;        // directly print string using cout
+}
+~~~~~~~
+
+#### Extensions for `TVector3`-like arguments ####
+For all vectorial argument types, we add the possibility to call directly the (underlying)
+TVector3 constructor for initialisation, as well as adding subtypes representing different
+components of the vector and methods to access them:
+
+~~~~~~~{.cpp}
+Direction pointer(1,1,1);               // initialisation a la TVector3
+
+Direction::XComponent x = pointer.X();  // return X component as a Direction::XComponent
+                                        // type
+
+// pointer->X(); => call encapsulated TVector3::X() method (returns Double_t)
+
+Velocity V(0,0,15);
+
+Velocity::TransverseComponent vtran = V.Perp();  // return transverse component (in XY-plane)
+                                                 // as a Velocity::TransverseComponent type
+
+// V->Perp(); => call encapsulated TVector3::Perp() method (returns Double_t)
+~~~~~~~
+
+## Conversions between explicit types ##
+Because of the physical meaning of some of the explicit argument types, certain mathematical
+operations between different types can produce values of a different type: for example,
+dividing `KineticEnergy` by `MassNumber` gives the quantity `KineticEnergyPerNucleon`.
+This is achieved by defining a special division operator for the two specific types
+`KineticEnergy` and `MassNumber` which returns a value of type `KineticEnergyPerNucleon`.
+The associated operations implied by this relationship (`KineticEnergyPerNucleon` multiplied by
+`MassNumber` gives `KineticEnergy`, etc.) are also defined:
+
+
+~~~~~~~{.cpp}
+using namespace KVArgType;
+
+MassNumber A = 48;
+KineticEnergyPerNucleon e = 35;
+
+auto E1 = A*e;
+cout << "E1 = " << E1 << " [" << E1.get_typename() << "]" << endl;
+auto E2 = e*A;
+cout << "E2 = " << E2 << " [" << E2.get_typename() << "]" << endl;
+auto e2 = E1/A;
+cout << "e2 = " << e2 << " [" << e2.get_typename() << "]" << endl;   
+auto A3 = E1/e;
+cout << "A3 = " << A3 << " [" << A3.get_typename() << "]" << endl;
+
+[output:]
+E1 = 1680 [KineticEnergy]
+E2 = 1680 [KineticEnergy]
+e2 = 35 [KineticEnergyPerNucleon]
+A3 = 48 [MassNumber]
+~~~~~~~~

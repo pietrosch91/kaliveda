@@ -1,0 +1,6 @@
+*.d
+ClassCategories_*.html
+Examples.html
+KaliVedaDoc
+kvversion.txt
+make_html_doc
