@@ -4,3 +4,7 @@ Examples.html
 KaliVedaDoc
 kvversion.txt
 make_html_doc
+upload.batch
+userguide_TOC.html
+usersguide/html
+*.LyXconv

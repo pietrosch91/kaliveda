@@ -6,7 +6,7 @@
 #                                         #
 ###########################################
 
-prefix = $(PWD)
+prefix = $(HOME)/software/kaliveda.website
 
 
 WEBSITE_URL = http://indra.in2p3.fr/kaliveda

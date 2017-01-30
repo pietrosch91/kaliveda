@@ -12,10 +12,6 @@
     <h1>KaliVeda stand-alone applications<br>
     </h1>
     <div class="leftSide">
-      <div class="KaliVeda">KaliVeda</div>
-      <img style="margin-left: 1px; margin-top: 1px; width: 110px;
-        height: 100px;" alt="indra"
-        src="images/indra_huguet_210x210.png"><br>
       <script language="javascript" src="js/nav.js"></script> <br>
       <!-- SiteSearch Google -->
       <form method="get" action="http://www.google.com/search"><input
@@ -27,10 +23,15 @@
       <!-- SiteSearch Google --> </div>
     <div class="page"> <br>
       <div class="download">
+      <br><br><br>
         <h2>Command-line tools &amp; graphical interfaces (GUI)<br>
         </h2>
-        <h4><br>
+        <h4><a href="#kaliveda">kaliveda</a><br>
         </h4>
+        <h4>- ROOT/KaliVeda interactive session</h4>
+        <h4><a href="#kalivedaconfig">kaliveda-config</a><br>
+        </h4>
+        <h4>- informations on installed version</h4>
         <h4><font color="#000000"><a href="#KVTreeAnalyzer">KVTreeAnalyzer
 
             </a></font><br>
@@ -59,12 +60,51 @@
         <h4> </h4>
         <h4><a href="#analyse_logs_jobname_format_list_of">analyse_logs</a></h4>
         <h4> </h4>
-        <h4><a href="#SetKaliVedaVersion_version_name_path">SetKaliVedaVersion</a></h4>
-        <h4> </h4>
-        <h4><a href="#KaliVeda_repositoryname">KaliVeda</a></h4>
         <br>
         <br>
         <br>
+        <h3>kaliveda<a name="kaliveda"></a></h3>
+        <h4>Command-line interface, a ROOT/KaliVeda interactive session</h4><br>
+<div class="code">$ kaliveda
+***********************************************************
+*                    HI COQUINE !!!                       *
+*                                                         *
+*         W E L C O M E     to     K A L I V E D A        *
+*                                                         *
+* Version: 1.10/13                      Built: 2017-01-27 *
+* git: release-1.10.13@release-1.10.13                    *
+*                                                         *
+*               For help, read the doc on :               *
+*           http://indra.in2p3.fr/KaliVedaDoc             *
+*                                                         *
+*                          ENJOY !!!                      *
+***********************************************************
+
+kaliveda [0] KVSimNucleus Proj("66Zn",15.);      // projectile energy 15AMeV
+kaliveda [1] KVSimNucleus Targ("64Ni");
+
+kaliveda [2] KVSimNucleus CN = Proj + Targ;     // compound nucleus from fusion reaction
+
+kaliveda [3] CN.Print()
+KVNucleus Z=58 A=130 E*=429.83
+KVParticle mass=121445 Theta=0 Phi=0 KE=503.595
+</div>        
+        <h3>kaliveda-config<a name="kalivedaconfig"></a></h3>
+        <h4>Access informations on installation of KaliVeda</h4><br>
+<div class="code">$ kaliveda-config --help
+Usage: kaliveda-config [options]
+
+  --version             Print the KaliVeda version
+  --bindir              Print the executable directory
+  --libdir              Print the library directory
+  --incdir              Print the header directory
+  --libs                Print linker directives for all libraries
+  --builddir            Print the CMake build directory
+  --srcdir              Print the source directory
+  --gitinfos            Print the git branch and commit
+  --examples            Print the examples directory
+  --help                Print this message
+</div>        
         <h3>KVTreeAnalyzer<a name="KVTreeAnalyzer"></a></h3>
         <h4>Analysis tool for TTrees and/or histograms</h4>
         <p><br>
@@ -86,7 +126,7 @@
         <h4> Graphical interface for drawing, visualising, testing etc.
           identification grids.</h4>
         <br>
-        <a href="KVIDGridManagerGUI.html"><img alt="IDGridManagerGUI"
+        <a href="http://kaliveda-dev.github.io/kaliveda/htmldoc_v1.10/KVIDGridManagerGUI.html"><img alt="IDGridManagerGUI"
             src="images/newIDgridManager.png" height="763" width="1315"
             border="0"></a><br>
         <br>
@@ -100,7 +140,7 @@
           Access to many tools for identification grid generation from
           data, fitting, testing, etc.<br>
         </p>
-        <a href="KVIDGridEditor.html"><img alt="IDGridEditor"
+        <a href="http://kaliveda-dev.github.io/kaliveda/htmldoc_v1.10/KVIDGridEditor.html"><img alt="IDGridEditor"
             src="images/IDGridEditor.png" height="631" width="802"
             border="0"></a>
         <p><br>
@@ -117,7 +157,7 @@
         <h4> Graphical interface for creating and modifying the database
           of experimental runs and systems for each dataset.</h4>
         <br>
-        <a href="KVDataBaseGUI.html"><img alt="KVDataBaseGUI"
+        <a href="http://kaliveda-dev.github.io/kaliveda/htmldoc_v1.10/KVINDRARunSheetGUI.html"><img alt="KVDataBaseGUI"
             src="images/kvdatabasegui.png" height="752" width="1280"
             border="0"></a><br>
         <br>
@@ -177,153 +217,6 @@
         <br>
         <pre>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Analysis of Grid Engine (CCIN2P3) batch log files<br><br>&nbsp;&nbsp;&nbsp; analyse_logs [jobname]<br><br>&nbsp;&nbsp;&nbsp; arguments are:<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; [jobname] common root of name of all jobs to analyse<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e.g. "PbAu29MeV" for jobs with names like "PbAu29MeV_R8213" etc.<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The programme will attempt to read all files with names like<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PbAu29MeV_R8213.o5647093<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PbAu29MeV_R8214.o5647094<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etc. in the current directory</pre>
         <br>
-        <br>
-        <h3><a name="SetKaliVedaVersion_version_name_path"></a><font
-            style="font-weight: bold;" size="+1"><span
-              style="font-family: helvetica,arial,sans-serif;">SetKaliVedaVersion
-[version
-
-
-              name] [path to installation directories]</span></font></h3>
-        This tool has several uses:<br>
-        <br>
-        <div style="margin-left: 40px;">1. it can be used to set up the
-          directories needed for a new installation of KaliVeda, set the
-          KVROOT environment variable, and modify the user's PATH and
-          LD_LIBRARY_PATH accordingly<br>
-          2. it can be used to change between different versions of
-          KaliVeda on the same machine (automatically setting the
-          correct KVROOT, PATH and LD_LIBRARY_PATH)<br>
-          3. if used in the user's login script, it can automatically
-          switch to the correct installation of KaliVeda depending on
-          the local versions of ROOT and gcc on different machines
-          (automatically setting the correct KVROOT, PATH and
-          LD_LIBRARY_PATH)<br>
-        </div>
-        <br>
-        <span style="font-weight: bold;">Note:</span> only works for
-        Linux machines running the (t)csh shell<br>
-        <span style="font-weight: bold;"><a name="Note2"></a>Note2: </span>it
-is
-
-
-        not installed when KaliVeda is installed; to use it, you must
-        first copy the following files<br>
-        <br>
-        <div style="margin-left: 40px;"><span style="font-family:
-            monospace;">[KaliVeda source
-            directory]/tools/SetUpKaliVeda.csh</span><br
-            style="font-family: monospace;">
-          <span style="font-family: monospace;">[KaliVeda source
-            directory]/tools/SetUpKaliVedaDirectories.sh</span><br>
-        </div>
-        <br>
-        into a directory which is in your PATH variable, e.g. $HOME/bin
-        if it is in your PATH variable. Then create the following alias
-        (csh syntax), which you should add to your .cshrc:<br>
-        <br>
-        <div style="margin-left: 40px; font-family: monospace;">alias
-          SetKaliVedaVersion 'source `which SetUpKaliVeda.csh`'<br>
-        </div>
-        &nbsp;<br>
-        <br>
-        <h4><a name="Case_1:_creating_directories_for"></a><span
-            style="font-family: helvetica,arial,sans-serif;">Case 1:
-            creating directories for installation</span></h4>
-        After following the instructions in <a href="#Note2">Note2</a>
-        above, type one of the following commands:<br>
-        <br>
-        <div style="margin-left: 40px;"><span style="font-family:
-            monospace;">SetKaliVedaVersion version
-            /path/where/I/want/to/install</span><br>
-          <span style="font-family: monospace;">SetKaliVedaVersion
-            version</span><br>
-        </div>
-        <br>
-        replacing 'version' and '/path/where/I/want/to/install' by some
-        real values! (If no path is given, your $HOME will be used by
-        default, or the last path given if you have already used
-        SetKaliVedaVersion).<br>
-        This will create the following directories:<br>
-        <br>
-        <div style="margin-left: 40px; font-family: monospace;">/path/where/I/want/to/install/.kvroot-version_name<br>
-/path/where/I/want/to/install/.kvroot-version_name_gcc-vx.x.x_root-x.x.x<br>
-        </div>
-        <br>
-        with 'x.x.x' being replaced by the version numbers of gcc &amp;
-        ROOT respectively, and will set KVROOT to point to the second of
-        the two directories (to save disk space, files which do not
-        depend on the version of gcc or ROOT are installed in the first
-        directory, and are accessible from the KVROOT directory through
-        symbolic links). The PATH and LD_LIBRARY_PATH variables are also
-        updated with, respectively, $KVROOT/bin and $KVROOT/lib being
-        added to them.<br>
-        You can now build &amp; install KaliVeda by going to the
-        top-level source directory and typing 'make' (see <a
-          href="build.html">here</a> for full description of Makefile
-        targets &amp; options).<br>
-        <br>
-        If you want, you can set up the variables KVROOT, PATH and
-        LD_LIBRARY_PATH the next time you login by simply typing the
-        command<br>
-        <br>
-        <div style="margin-left: 40px;"><span style="font-family:
-            monospace;">SetKaliVedaVersion<br>
-            <br>
-          </span></div>
-        without any arguments. See <a
-          href="#Case_3_:_automatically_changing_version"><span
-            style="font-weight: bold;">Case 3</span></a> below for how
-        to make this automatic.<br>
-        <br>
-        <h4><a name="Case_2_:_using_different_versions_of"></a>Case 2 :
-          using different versions of KaliVeda</h4>
-        If you install several versions of KaliVeda using the procedure
-        described in <a href="#Case_1:_creating_directories_for">Case 1</a>,
-        you can change from one version to another by typing the command<br>
-        <br>
-        <div style="margin-left: 40px;"><span style="font-family:
-            monospace;">SetKaliVedaVersion new_version
-            [/installation/path]<br>
-          </span></div>
-        <br>
-        The installation path is only necessary if the new version is
-        installed in a directory different from the current version.<br>
-        <br>
-        <h4><a name="Case_3_:_automatically_changing_version"></a>Case 3
-          : automatically changing version when ROOT/gcc version changes</h4>
-        This option is very useful if, for example, you log into your
-        account on several different machines, with different versions
-        of ROOT and/or gcc. You can also use it quite simply to set
-        KVROOT, PATH and LD_LIBRARY_PATH correctly when you log on to a
-        single machine. Add the following line to your .cshrc (after the
-        definition of the SetKaliVedaVersion alias):<br>
-        <br>
-        <div style="margin-left: 40px; font-family: monospace;">SetKaliVedaVersion
-&gt;&amp;
-
-
-          /dev/null<br>
-          <br>
-        </div>
-        Now each time that you log in, your environment variables will
-        be automatically set to use KaliVeda on the current machine.
-        Note that if you log in to a machine with a version of ROOT or
-        gcc which you have not encountered before, this will create the
-        installation directories for a new build of KaliVeda, as in <a
-          href="#Case_1:_creating_directories_for">Case 1</a>; all you
-        have to do then is to perform the build. Note also that if you
-        change versions of KaliVeda during a session (as in <a
-          href="#Case_2_:_using_different_versions_of">Case 2</a>), this
-        version will be used for all subsequent sessions (until you
-        change again).<br>
-        <br>
-        <br>
-        <h3><a name="KaliVeda_repositoryname"></a>KaliVeda
-          [repository=name]</h3>
-        Text-based menu-driven application for running data analysis
-        tasks.<br>
-        See <a href="DataAnalysis.html#analysis_with_KaliVeda">here</a>.<br>
         <br>
       </div>
       <p class="copyright">Web design based on www.xmms.org - Hope you

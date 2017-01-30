@@ -39,6 +39,7 @@ tex/%.tex: %$(MKDWN_EXT)
 # find and strip main title in markdown
 # sed -n '/^# /p' filter.txt | sed 's/^[# ]*// ; s/[ #]*$//'
 links_to_doc:
+	@mkdir -p html
 	@echo \<ol\> > userguide_TOC.html ; \
         i=1;\
 	for docfile in $(MKDWN_SOURCES); do \

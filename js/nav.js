@@ -41,7 +41,7 @@ var links_url = new Array (
 //  "DataAnalysis.html",
 //  "Examples.html",
 //  "KaliVeda-FAQ.html",
-  "http://kaliveda-dev.github.io/kaliveda/htmldoc_v1.10/index.html",
+  "http://kaliveda-dev.github.io/kaliveda/htmldoc_v1.10/ClassIndex.html",
   "usersguide.html",
   "appli.html",
   "https://github.com/kaliveda-dev/kaliveda",

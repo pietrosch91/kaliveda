@@ -57,35 +57,37 @@
         <h3 class="newsTitle">Example of interactive session<br>
         </h3>
 <div class="code">$ kaliveda
-   ----------------------------------------------------------------
-  | Welcome to ROOT 6.05/03                    http://root.cern.ch |
-  |                                   (c) 1995-2014, The ROOT Team |
-  | Built for linuxx8664gcc                                        |
-  | From heads/master@v6-05-02-212-gff56c46, Sep 25 2015, 17:10:00 |
-  | Try '.help', '.demo', '.license', '.credits', '.quit'/'.q'     |
-   ----------------------------------------------------------------
+***********************************************************
+*                    HI COQUINE !!!                       *
+*                                                         *
+*         W E L C O M E     to     K A L I V E D A        *
+*                                                         *
+* Version: 1.10/13                      Built: 2017-01-27 *
+* git: release-1.10.13@release-1.10.13                    *
+*                                                         *
+*               For help, read the doc on :               *
+*           http://indra.in2p3.fr/KaliVedaDoc             *
+*                                                         *
+*                          ENJOY !!!                      *
+***********************************************************
 
-Info in <KVBase::InitEnvironment>: Initialising KaliVeda environment...
-Info in <KVBase::InitEnvironment>: Using KaliVeda version 1.10/03 built on 2015-09-28
-Info in <KVBase::InitEnvironment>: (git : heads/1.10@release-1.10.03-65-gf0f300f)
+kaliveda [0] KVSimNucleus Proj("66Zn",15.);      // projectile energy 15AMeV
+kaliveda [1] KVSimNucleus Targ("64Ni");
 
-root [0] KVSimNucleus Proj("66Zn",15.);      // projectile energy 15AMeV
-root [1] KVSimNucleus Targ("64Ni");
+kaliveda [2] KVSimNucleus CN = Proj + Targ;     // compound nucleus from fusion reaction
 
-root [2] KVSimNucleus CN = Proj + Targ;     // compound nucleus from fusion reaction
-
-root [3] CN.Print()
+kaliveda [3] CN.Print()
 KVNucleus Z=58 A=130 E*=429.83
 KVParticle mass=121445 Theta=0 Phi=0 KE=503.595
 
-root [4] KVLifeTime* life = CN.GetLifeTimePtr();  // info on ground-state lifetime of CN
-root [5] life->Print()
+kaliveda [4] KVLifeTime* life = CN.GetLifeTimePtr();  // info on ground-state lifetime of CN
+kaliveda [5] life->Print()
 KVLifeTime :  1374 s
 
-root [6] KVMaterial degrader("Aluminium", 10.*KVUnits::um); // aluminium foil 10 microns thick
+kaliveda [6] KVMaterial degrader("Aluminium", 10.*KVUnits::um); // aluminium foil 10 microns thick
 Info in <KVedaLoss::init_materials>: Initialising KVedaLoss...
 
-root [7] degrader.Print()
+kaliveda [7] degrader.Print()
 KVMaterial: Aluminium (Aluminium)
  Thickness 0.001 cm
  Area density 0.0026989 g/cm**2
@@ -94,15 +96,15 @@ KVMaterial: Aluminium (Aluminium)
  Density = 2.6989 g/cm**3
 -----------------------------------------------
 
-root [8] degrader.GetELostByParticle(&CN); // calculate energy loss of CN in foil (MeV)
+kaliveda [8] degrader.GetELostByParticle(&CN); // calculate energy loss of CN in foil (MeV)
 (Double_t) 195.516
 
-root [9] KVGemini G;     // interface to Gemini++ statistical decay code
+kaliveda [9] KVGemini G;     // interface to Gemini++ statistical decay code
 
-root [10] KVSimEvent E;         // event = container to hold particles/nuclei
+kaliveda [10] KVSimEvent E;         // event = container to hold particles/nuclei
 
-root [11] G.DecaySingleNucleus(CN,&E);       // do Gemini decay of compound
-root [12] E.Print()
+kaliveda [11] G.DecaySingleNucleus(CN,&E);       // do Gemini decay of compound
+kaliveda [12] E.Print()
 
 KVEvent with 24 particles :
 ------------------------------------
