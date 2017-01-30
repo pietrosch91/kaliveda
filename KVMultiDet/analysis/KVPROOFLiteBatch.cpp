@@ -45,7 +45,11 @@ void KVPROOFLiteBatch::SubmitTask(KVDataAnalyser* da)
          p->EnablePackage("KaliVeda");
       }
    }
+#ifdef WITH_CPP11
    da->SetProofMode(KVDataAnalyser::EProofMode::Lite);
+#else
+   da->SetProofMode(KVDataAnalyser::Lite);
+#endif
    SetAnalyser(da);
    da->SubmitTask();
 }

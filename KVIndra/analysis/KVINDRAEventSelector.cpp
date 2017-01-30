@@ -35,7 +35,11 @@ void KVINDRAEventSelector::Init(TTree* tree)
 {
    // When using PROOF, need to set tree pointer in KVDataAnalyser
    KVEventSelector::Init(tree);
+#ifdef WITH_CPP11
    if (tree && gDataAnalyser->GetProofMode() != KVDataAnalyser::EProofMode::None) {
+#else
+   if (tree && gDataAnalyser->GetProofMode() != KVDataAnalyser::None) {
+#endif
       dynamic_cast<KVINDRAReconDataAnalyser*>(gDataAnalyser)->SetTree(tree);
    }
 }

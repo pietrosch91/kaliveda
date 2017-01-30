@@ -156,7 +156,11 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    } else {
       SafeDelete(new_selector);
       Info("SubmitTask", "Beginning TChain::Process...");
+#ifdef WITH_CPP11
       if (gDataAnalyser->GetProofMode() != KVDataAnalyser::EProofMode::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
+#else
+      if (gDataAnalyser->GetProofMode() != KVDataAnalyser::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
+#endif
       if (nbEventToRead) {
          theChain->Process(Form("%s%s", fUserClassImp.Data(), GetACliCMode()), option.Data(), nbEventToRead);
       } else {

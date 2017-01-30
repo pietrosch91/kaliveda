@@ -179,7 +179,11 @@ KVDataAnalyser::KVDataAnalyser()
    fChoseRunMode = kFALSE;
    fWorkDirInit = fWorkDirEnd = 0;
    fMenus = kFALSE;
+#ifdef WITH_CPP11
    fProofMode = EProofMode::None;
+#else
+   fProofMode = None;
+#endif
 }
 
 KVDataAnalyser::~KVDataAnalyser()
@@ -210,7 +214,11 @@ void KVDataAnalyser::Reset()
    nbEventToRead = -1;
    fBatchSystem = 0;
    fChoseRunMode = kFALSE;
+#ifdef WITH_CPP11
    fProofMode = EProofMode::None;
+#else
+   fProofMode = None;
+#endif
 }
 
 //_________________________________________________________________
