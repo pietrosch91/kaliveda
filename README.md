@@ -69,6 +69,6 @@ See the wiki page https://github.com/kaliveda-dev/kaliveda/wiki/Using-KaliVeda-i
 
 ## More information
 
-See the website http://indra.in2p3.fr/KaliVedaDoc
+See the website http://indra.in2p3.fr/kaliveda
 
 
