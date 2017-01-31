@@ -90,8 +90,8 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
    TIter next(list);
    while ((par = (KVDBParameterSet*)next())) {
       TString sdet(par->GetName());
-      Info("SetCalibrations", "%s", sdet.Data());
-      par->Print();
+//      Info("SetCalibrations", "%s", sdet.Data());
+//      par->Print();
       det = (KVFAZIADetector*)gFazia->GetDetector(sdet.Data());
       if (det && (cal = det->GetCalibrator(par->GetTitle()))) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
