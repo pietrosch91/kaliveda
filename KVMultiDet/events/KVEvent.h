@@ -297,8 +297,8 @@ public:
 
    void SetFrame(const Char_t* frame, const KVFrameTransform& ft);
    void SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform& ft);
-   void ChangeFrame(const KVFrameTransform&);
-   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "orig");
+   void ChangeFrame(const KVFrameTransform&, const KVString& = "");
+   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "");
    void UpdateAllFrames();
 
    virtual void FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_t* py, Double_t* pz, const TString& frame = "", const TString& selection = "");
@@ -325,6 +325,19 @@ public:
 
    void MergeEventFragments(TCollection*);
    static KVEvent* Factory(const char*);
+   void SetFrameName(const KVString&);
+   template<typename ValType> void SetParameter(const Char_t* name, ValType value) const
+   {
+      GetParameters()->SetValue(name, value);
+   }
+   const Char_t* GetFrameName() const
+   {
+      // Returns name of default kinematical frame for particles in event, if set
+      // (see KVEvent::SetFrameName)
+
+      return (GetParameters()->HasStringParameter("defaultFrame") ?
+              GetParameters()->GetStringValue("defaultFrame") : "");
+   }
 
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };

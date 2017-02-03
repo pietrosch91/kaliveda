@@ -69,7 +69,7 @@ void KVSimReader_ELIE::transform_to_cm()
    // transform all particle kinematics to CM frame from lab
 
    KVNucleus compound = proj + targ;
-   evt->ChangeFrame(compound.GetV());
+   evt->ChangeFrame(compound.GetV(), "CM");
 }
 
 KVSimReader_ELIE::KVSimReader_ELIE()
@@ -218,6 +218,7 @@ Bool_t KVSimReader_ELIE::ReadEvent()
 
    // if in lab, transform to CM frame
    if (elie_params->GetIntValue("lab_frame") > 0) transform_to_cm();
+   else evt->SetFrameName("CM");
 
    return kTRUE;
 }

@@ -698,21 +698,26 @@ KVParticle KVParticle::InFrame(const KVFrameTransform& t)
    return p;
 }
 
-void KVParticle::ChangeFrame(const KVFrameTransform& t)
+void KVParticle::ChangeFrame(const KVFrameTransform& t, const KVString& name)
 {
    // Permanently modify kinematics of particle according to the given transformation.
+   // You can optionally set the name of this new default kinematics.
    // NB the current kinematics will be lost. If you want to keep it after changing the
    // default kinematics, define the new frame with SetFrame and then use ChangeDefaultFrame.
 
    KVKinematicalFrame(this, t);
+   if (name != "") SetFrameName(name);
 }
 
 void KVParticle::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
 {
    // Make existing reference frame 'newdef' the new default frame for particle kinematics.
    // The current default frame will then be accessible from the list of frames
-   // using name 'defname' (by default, "orig")
+   // using its name (if set with SetFrameName). You can change/set the name of the previous
+   // default frame with 'defname'
 
+   TString _defname(defname);
+   if (_defname == "") _defname = GetFrameName();
    // get list of all parents of new default
    TList parents;
    TString ff = newdef;
@@ -744,7 +749,7 @@ void KVParticle::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
    Set4Mom(*(save_newdef->GetParticle()));
    save_newdef->GetParticle()->Set4Mom(old_def_p);
    save_newdef->SetTransform(next_trans.Inverse());
-   save_newdef->SetName(defname);
+   save_newdef->SetName(_defname);
    newdframe->GetParticle()->GetListOfFrames()->Add(save_newdef);
    // copy frame list from new default frame
    TList frame_list;
@@ -753,6 +758,7 @@ void KVParticle::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
    save_newdef->GetParticle()->GetListOfFrames()->AddAll(&fBoosted);
    fBoosted.Clear("nodelete");
    fBoosted.AddAll(&frame_list);
+   SetFrameName(newdef);
 }
 
 void KVParticle::SetFrame(const Char_t* frame, const KVFrameTransform& ft)
@@ -832,6 +838,9 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
 {
    // Return the momentum of the particle in the Lorentz-boosted frame corresponding to the name
    // "frame" given as argument (see SetFrame() for definition of different frames).
+   // If the default frame name has been set (see KVEvent::SetFrameName) and 'frame' is the
+   // name of this default frame (KVParticle::fFrameName), we return the address of the particle
+   // itself.
    //
    // This frame may have been defined by a direct transformation of the original kinematics of the
    // particle (using SetFrame(newframe,...)) or by a transformation of the kinematics in another
@@ -861,6 +870,7 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
    //      my_part->GetFrame("QP_frame")->GetTheta();// polar angle in "QP_frame"
    //      etc. etc.
 
+   if (fFrameName == frame) return (KVParticle const*)this;
    KVKinematicalFrame* f = get_frame(frame);
    return f ? (KVParticle const*)f->GetParticle() :
           (warn_and_return_null_if_unknown ?
@@ -1002,4 +1012,18 @@ void KVParticle::SetVelocity(const TVector3& vel)
    Double_t gamma = 1. / kSpeedOfLight / sqrt(1 - (vel.Mag2() / pow(kSpeedOfLight, 2)));
    TVector3 p = GetMass() * gamma * vel;
    SetMomentum(p);
+}
+
+void KVParticle::Streamer(TBuffer& R__b)
+{
+   // Stream an object of class KVParticle.
+   // When reading: If parameter "frameName" is set, use it to set non-persistent
+   // fFrameName member (used by GetFrame)
+
+   if (R__b.IsReading()) {
+      R__b.ReadClassBuffer(KVParticle::Class(), this);
+      if (GetParameters()->HasStringParameter("frameName")) fFrameName = GetParameters()->GetStringValue("frameName");
+   } else {
+      R__b.WriteClassBuffer(KVParticle::Class(), this);
+   }
 }

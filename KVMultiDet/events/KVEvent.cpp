@@ -602,10 +602,11 @@ void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVF
    }
 }
 
-void KVEvent::ChangeFrame(const KVFrameTransform& ft)
+void KVEvent::ChangeFrame(const KVFrameTransform& ft, const KVString& name)
 {
    //Permanently change the reference frame used for particle kinematics in the event.
    //The transformation is applied to all "ok" particles in the event.
+   //You can optionally set the name of this new default kinematical reference frame.
    //
    //See KVParticle::ChangeFrame() and KVParticle::SetFrame() for details.
    //
@@ -615,15 +616,16 @@ void KVEvent::ChangeFrame(const KVFrameTransform& ft)
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->ChangeFrame(ft);
+      nuc->ChangeFrame(ft, name);
    }
+   if (name != "") SetParameter("defaultFrame", name);
 }
 
 void KVEvent::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
 {
    // Make existing reference frame 'newdef' the new default frame for particle kinematics.
    // The current default frame will then be accessible from the list of frames
-   // using name 'defname' (by default, "orig")
+   // using its name (previously set with SetFrameName). You can change this name with 'defname'.
    //
    //See KVParticle::ChangeDefaultFrame() and KVParticle::SetFrame() for details.
    //
@@ -635,6 +637,7 @@ void KVEvent::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
    while ((nuc = GetNextParticle("ok"))) {
       nuc->ChangeDefaultFrame(newdef, defname);
    }
+   SetParameter("defaultFrame", newdef);
 }
 
 void KVEvent::UpdateAllFrames()
@@ -949,6 +952,26 @@ KVEvent* KVEvent::Factory(const char* plugin)
       return (KVEvent*)ph->ExecPlugin(0);
    }
    return nullptr;
+}
+
+void KVEvent::SetFrameName(const KVString& name)
+{
+   // Set name of default frame for all particles in event
+   // After using this method, calls to
+   //    KVParticle::GetFrame(name)
+   // will return the address of the particle in question, i.e.
+   // its default kinematics
+   // The default frame name is stored as a parameter "defaultFrame"
+
+#ifdef WITH_CPP11
+   for (KVEvent::Iterator it = std::begin(*this); it != std::end(*this); ++it)
+#else
+   for (KVEvent::Iterator it = begin(); it != end(); ++it)
+#endif
+   {
+      (*it).SetFrameName(name);
+   }
+   SetParameter("defaultFrame", name);
 }
 
 ClassImp(KVEvent::Iterator)

@@ -333,8 +333,8 @@ public:
    void ListGroups(void) const;
 
    KVParticle InFrame(const KVFrameTransform&);
-   void ChangeFrame(const KVFrameTransform&);
-   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "orig");
+   void ChangeFrame(const KVFrameTransform&, const KVString& = "");
+   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "");
    void SetFrame(const Char_t* frame, const KVFrameTransform&);
    void SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform&);
 
@@ -346,7 +346,11 @@ public:
    }
    void SetFrameName(const Char_t* framename)
    {
+      // Set the (non-persistent) name of the reference frame for this particle's kinematics.
+      // Also sets a (persistent) parameter "frameName"
       fFrameName = framename;
+      if (fFrameName != "") SetParameter("frameName", framename);
+      else GetParameters()->RemoveParameter("frameName");
    }
 
    KVNameValueList* GetParameters() const
