@@ -592,10 +592,11 @@ void KVSimDirGUI::RunAnalysis()
                    first_file->GetRun()
                   );
    } else {
-      options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s",
+      options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,SimulationInfos=%s",
                    (nevents > 10 ? nevents / 10 : 1),
                    first_file->GetBranchName(),
-                   results_file_name.Data());
+                   results_file_name.Data(),
+                   first_file->GetTitle());
    }
 
    if (!all_events) {
