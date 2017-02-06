@@ -37,6 +37,7 @@ public:
 // Champs Prive
 private:
    KVNameValueList nameList;//correspondence between variable name and index
+   Bool_t fIsInitialized;//! flag set after initialisation
 
 // Methodes
 protected:
@@ -119,6 +120,7 @@ public:
       return fType == kNBody;
    };
 
+   void ListInit();
    virtual void Init(void)
    {
       // Initialisation of internal variables, called once before beginning treatment

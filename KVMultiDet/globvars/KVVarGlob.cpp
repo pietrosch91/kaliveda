@@ -147,6 +147,7 @@ void KVVarGlob::init(void)
    fValueType = 'D';
    fMaxNumBranches = -1;
    conditioned_fill = kFALSE;
+   fIsInitialized = kFALSE;
 }
 
 //_________________________________________________________________
@@ -229,6 +230,17 @@ KVVarGlob& KVVarGlob::operator =(const KVVarGlob& a)
    cout << "Nom de la copie par egalite: " << GetName() << endl;
 #endif
    return *this;
+}
+
+void KVVarGlob::ListInit()
+{
+   // Method called by KVGVList::Init
+   // Ensures that initialisation of variable is performed only once
+
+   if (!fIsInitialized) {
+      Init();
+      fIsInitialized = kTRUE;
+   }
 }
 
 //_________________________________________________________________
