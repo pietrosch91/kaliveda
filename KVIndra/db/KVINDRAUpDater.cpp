@@ -149,7 +149,7 @@ void KVINDRAUpDater::SetTrigger(KVDBRun* kvrun)
    cout << "--> Setting Trigger:" << endl;
    gIndra->SetTrigger(dynamic_cast <
                       KVINDRADBRun* >(kvrun)->GetTrigger());
-   cout << "      M>=" << gIndra->GetTrigger() << endl;
+   cout << "      M>=" << (Int_t)gIndra->GetTrigger() << endl;
 }
 
 
