@@ -440,29 +440,20 @@ void KVEventSelector::RecalculateGlobalVariables()
    //criteria.
 
    if (gvlist) {
-      // 1st step: Reset global variables
       gvlist->Reset();
-
-      //2nd step: loop over particles with correct codes
-      //          and fill global variables
-      KVNucleus* n1 = 0;
-      // calculate 1-body variables
-      if (gvlist->Has1BodyVariables()) {
-         while ((n1 = GetEvent()->GetNextParticle("ok"))) {
-            gvlist->Fill(n1);
-         }
-      }
-      KVNucleus* n2 = 0;
-      // calculate 2-body variables
-      // we use every pair of particles (including identical pairs) in the event
-      if (gvlist->Has2BodyVariables()) {
-         Int_t N = GetEvent()->GetMult();
-         for (int i1 = 1; i1 <= N ; i1++) {
-            for (int i2 = 1 ; i2 <= N ; i2++) {
-               n1 = GetEvent()->GetParticle(i1);
-               n2 = GetEvent()->GetParticle(i2);
-               if (n1->IsOK() && n2->IsOK())
-                  gvlist->Fill2(n1, n2);
+      if (gvlist->Has1BodyVariables() || gvlist->Has2BodyVariables()) {
+#ifdef WITH_CPP11
+         for (KVEvent::Iterator it1(GetEvent(), KVEvent::Iterator::Type::OK); it1 != KVEvent::Iterator::End(); ++it1) {
+#else
+         for (KVEvent::Iterator it1(GetEvent(), KVEvent::Iterator::OK); it1 != KVEvent::Iterator::End(); ++it1) {
+#endif
+            if (gvlist->Has1BodyVariables()) gvlist->Fill(&(*it1));// calculate 1-body variables
+            if (gvlist->Has2BodyVariables()) {
+               for (KVEvent::Iterator it2(it1); it2 != KVEvent::Iterator::End(); ++it2) {
+                  // calculate 2-body variables
+                  // we use every pair of particles (including identical pairs) in the event
+                  gvlist->Fill2(&(*it1), &(*it2));
+               }
             }
          }
       }
