@@ -325,7 +325,7 @@ KVSimDirGUI::KVSimDirGUI()
 
    TGPictureButton* launch_analysis = new TGPictureButton(hf, gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "Run()");
-   launch_analysis->SetToolTipText("Run filter");
+   launch_analysis->SetToolTipText("Run analysis/filter");
    launch_analysis->Resize(40, 40);
 
    hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY | kLHintsRight, 5, 2, 2, 2));

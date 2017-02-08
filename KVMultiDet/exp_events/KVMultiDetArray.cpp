@@ -662,7 +662,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       cout << "DetectEvent(): looking at particle---->" << endl;
       part->Print();
 #endif
-      _part = (KVNucleus*)part->GetFrame(detection_frame, kFALSE);
+      if (strcmp(detection_frame, "")) _part = (KVNucleus*)part->GetFrame(detection_frame);
+      else _part = (KVNucleus*)part;
       _part->SetE0();
       det_stat->Clear();
       Double_t eLostInTarget = 0;
@@ -1770,7 +1771,7 @@ void KVMultiDetArray::SetIdentifications()
    //set until SetParameters or SetRunIdentificationParameters is called.
 
    TString id_labels = gDataSet->GetDataSetEnv("ActiveIdentifications");
-   if (id_labels == "") {
+   if (id_labels == "" || !gDataSet->HasCalibIdentInfos()) {
       Info("SetIdentifications", "No active identifications");
       return;
    }

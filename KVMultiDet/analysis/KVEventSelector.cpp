@@ -251,15 +251,17 @@ Bool_t KVEventSelector::Process(Long64_t entry)
    if (gDataAnalyser) gDataAnalyser->preAnalysis();
    fEventsRead++;
    if (GetEvent()) {
-      SetAnalysisFrame();//let user define any necessary reference frames
       KVNucleus* part = 0;
       //apply particle selection criteria
       if (fPartCond) {
          part = 0;
+         GetEvent()->ResetGetNextParticle();
          while ((part = GetEvent()->GetNextParticle("ok"))) {
             part->SetIsOK(fPartCond->Test(part));
          }
       }
+      GetEvent()->ResetGetNextParticle();
+      SetAnalysisFrame();//let user define any necessary reference frames for OK particles
 
       // initialise global variables at first event
       if (fFirstEvent && gvlist) {

@@ -76,13 +76,7 @@ KVSimReader_ELIE_asym::KVSimReader_ELIE_asym(KVString filename)
    : KVSimReader_ELIE()
 {
    // Read file and convert to ROOT TTree
-   if (!OpenFileToRead(filename)) return;
-   if (!ReadHeader()) return;
-   define_output_filename();
-   tree_title.Form("ELIE asymptotic events %s + %s %.1f MeV/nuc.",
-                   proj.GetSymbol(), targ.GetSymbol(), ebeam);
-   Run(root_file_name);
-   CloseFile();
+   ConvertEventsInFile(filename);
    SaveTree();
 }
 
@@ -92,6 +86,18 @@ KVSimReader_ELIE_asym::~KVSimReader_ELIE_asym()
 {
    // Destructor
 }
+
+void KVSimReader_ELIE_asym::ConvertEventsInFile(KVString filename)
+{
+   if (!OpenFileToRead(filename)) return;
+   if (!ReadHeader()) return;
+   define_output_filename();
+   tree_title.Form("ELIE secondary events %s + %s %.1f MeV/nuc.",
+                   proj.GetSymbol(), targ.GetSymbol(), ebeam);
+   Run(root_file_name);
+   CloseFile();
+}
+
 
 Bool_t KVSimReader_ELIE_asym::ReadNucleus()
 {
