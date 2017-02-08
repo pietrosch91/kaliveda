@@ -870,7 +870,7 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
    //      my_part->GetFrame("QP_frame")->GetTheta();// polar angle in "QP_frame"
    //      etc. etc.
 
-   if (fFrameName == frame) return (KVParticle const*)this;
+   if (!fFrameName.CompareTo(frame, TString::kIgnoreCase)) return (KVParticle const*)this;
    KVKinematicalFrame* f = get_frame(frame);
    return f ? (KVParticle const*)f->GetParticle() :
           (warn_and_return_null_if_unknown ?
