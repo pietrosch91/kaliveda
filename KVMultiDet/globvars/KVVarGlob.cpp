@@ -422,6 +422,7 @@ void KVVarGlob::SetOption(const Char_t* option, const Char_t* value)
    //Set a value for an option
    KVString tmp(value);
    fOptions.SetValue(option, tmp);
+   fIsInitialized = kFALSE; //allow re-initialisation
 }
 
 //_________________________________________________________________
@@ -457,6 +458,7 @@ void KVVarGlob::SetParameter(const Char_t* par, Double_t value)
 {
    //Set the value for a parameter
    fParameters.SetValue(par, value);
+   fIsInitialized = kFALSE; //allow re-initialisation
 }
 
 //_________________________________________________________________

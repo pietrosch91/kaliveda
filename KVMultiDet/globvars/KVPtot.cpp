@@ -40,26 +40,8 @@ ClassImp(KVPtot)
 //
 // The vector (TVector3) can be used by calling the GetTVector3() method.
 //
-// Here are examples of obtaining values.
-//
-// KVPtot *ptot_ptr=new KVPtot();
-// KVPtot ptot;
-// ...
-// Double_t r=ptot_ptr->GetValue();  |
-//          r=ptot_ptr->GetValue(0); |--> Pz
-//          r=ptot("Z");             |
-// Double_t px=ptot("X");---------> X component of total parallel momentum
-// Double_t ptottrans=ptot_ptr->GetTVector3().GetPerp();--> Sum of transverse momenta
-// Double_t *values=.GetValuePtr();
-//          pz=values[0];   --> Pz
-//          px=values[1];   --> Px
-//          py=values[2];   --> Py
-//
-//
-// Look at KVVarGlob class to have an example of use.
-//
-//
-/* */
+// If you want to normalize the values e.g. to the momentum of the projectile
+// in the laboratory frame, set the parameter "Normalization"
 Int_t KVPtot::nb = 0;
 Int_t KVPtot::nb_crea = 0;
 Int_t KVPtot::nb_dest = 0;
@@ -189,7 +171,12 @@ void KVPtot::Init(void)
 //
 // Initialisations
 //
+   Info("Init", "called");
    ptot.SetXYZ(0., 0., 0.);
+   if (IsParameterSet("Normalization")) {
+      fNorm = GetParameter("Normalization");
+      Info("Init", "Normalization factor = %g", fNorm);
+   } else fNorm = 1;
 }
 
 
@@ -264,7 +251,7 @@ void KVPtot::Fill(KVNucleus* c)
 //
 // Routine de remplissage
 //
-   ptot += c->GetFrame(fFrame.Data(), kFALSE)->GetMomentum();
+   ptot += ((1. / fNorm) * c->GetFrame(fFrame.Data(), kFALSE)->GetMomentum());
 }
 
 //_________________________________________________________________
