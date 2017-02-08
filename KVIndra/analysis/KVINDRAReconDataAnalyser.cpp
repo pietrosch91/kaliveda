@@ -139,6 +139,10 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
 
+   // Add the total run list in option
+   option += ",";
+   option += GetFullRunList().GetList();
+
    // Add any user-defined options
    if (GetUserClassOptions() != "") {
       option += ",";

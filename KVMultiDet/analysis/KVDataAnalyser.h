@@ -30,6 +30,7 @@ protected:
    KVString fBatchName;         //name of batch job when used in a non-interactive environment
    KVDBSystem* fSystem;         //system chosen by user
    KVNumberList fRunList;       //list of runs to analyse
+   KVNumberList fFullRunList;   //list of all runs for the analysis task
    KVDataSet* fDataSet;         //dataset chosen by user
    Long64_t nbEventToRead;
 
@@ -77,22 +78,18 @@ public:
 private:
    EProofMode fProofMode;
 public:
-   void SetProofMode(EProofMode e)
-   {
+   void SetProofMode(EProofMode e) {
       fProofMode = e;
    }
-   EProofMode GetProofMode() const
-   {
+   EProofMode GetProofMode() const {
       return fProofMode;
    }
 
-   static void SetAbortProcessingLoop(Bool_t now = kTRUE)
-   {
+   static void SetAbortProcessingLoop(Bool_t now = kTRUE) {
       // Set flag to force a clean abort of the processing loop
       fCleanAbort = now;
    }
-   static Bool_t AbortProcessingLoop()
-   {
+   static Bool_t AbortProcessingLoop() {
       return fCleanAbort;
    }
 
@@ -100,12 +97,10 @@ public:
    virtual ~ KVDataAnalyser();
 
    virtual void SetUserClass(const Char_t* kvs, Bool_t check = kTRUE);
-   virtual const Char_t* GetUserClass()
-   {
+   virtual const Char_t* GetUserClass() {
       return fUserClass.Data();
    };
-   Bool_t IsUserClassValid() const
-   {
+   Bool_t IsUserClassValid() const {
       return fUserClassIsOK;
    }
 
@@ -123,30 +118,24 @@ public:
    virtual Bool_t CheckTaskVariables();
    virtual Bool_t DoUserClassFilesExist();
 
-   virtual void SetBatchMode(Bool_t on = kTRUE)
-   {
+   virtual void SetBatchMode(Bool_t on = kTRUE) {
       fBatch = on;
    };
-   virtual Bool_t BatchMode() const
-   {
+   virtual Bool_t BatchMode() const {
       return fBatch;
    };
-   virtual void SetBatchName(const Char_t* batchname)
-   {
+   virtual void SetBatchName(const Char_t* batchname) {
       fBatchName = batchname;
    };
-   virtual const Char_t* GetBatchName()
-   {
+   virtual const Char_t* GetBatchName() {
       return fBatchName.Data();
    };
-   virtual void SetBatchSystem(KVBatchSystem* bs)
-   {
+   virtual void SetBatchSystem(KVBatchSystem* bs) {
       fBatchSystem = bs;
       fChoseRunMode = kTRUE;
       if (bs) fBatchSystem->cd();
    };
-   virtual const KVBatchSystem* GetBatchSystem()
-   {
+   virtual const KVBatchSystem* GetBatchSystem() {
       return fBatchSystem;
    };
    virtual Bool_t RunningInLaunchDirectory();
@@ -156,49 +145,42 @@ public:
    const Char_t* GetBatchStatusFileName() const;
    void UpdateBatchStatusFile(Int_t totev, Int_t evread, TString disk) const;
    void DeleteBatchStatusFile() const;
-   virtual Long64_t GetTotalEntriesToRead() const
-   {
+   virtual Long64_t GetTotalEntriesToRead() const {
       return 0;
    }
    Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
    void DoStatusUpdate(Int_t nevents) const;
 
-   virtual KVDataAnalysisTask* GetAnalysisTask()
-   {
+   virtual KVDataAnalysisTask* GetAnalysisTask() {
       return fTask;
    }
-   virtual KVString& GetDataType()
-   {
+   virtual KVString& GetDataType() {
       return fDataType;
    }
-   virtual KVDBSystem* GetSystem()
-   {
+   virtual KVDBSystem* GetSystem() {
       return fSystem;
    }
-   virtual KVNumberList& GetRunList()
-   {
+   virtual KVNumberList& GetRunList() {
       return fRunList;
    }
-   virtual KVDataSet* GetDataSet()
-   {
+   virtual KVNumberList& GetFullRunList() {
+      return fFullRunList;
+   }
+   virtual KVDataSet* GetDataSet() {
       return fDataSet;
    }
-   virtual KVString& GetUserIncludes()
-   {
+   virtual KVString& GetUserIncludes() {
       return fIncludes;
    }
-   virtual KVString& GetUserLibraries()
-   {
+   virtual KVString& GetUserLibraries() {
       return fLibraries;
    }
 
-   virtual void SetNbEventToRead(Long64_t nb = 0)
-   {
+   virtual void SetNbEventToRead(Long64_t nb = 0) {
       nbEventToRead = nb;
    }
 
-   virtual Long64_t GetNbEventToRead(void)
-   {
+   virtual Long64_t GetNbEventToRead(void) {
       return nbEventToRead;
    }
 
@@ -206,29 +188,26 @@ public:
    virtual void SetDataSet(KVDataSet* ds);
    virtual void SetDataSet(const Char_t* name);
    virtual void SetAnalysisTask(KVDataAnalysisTask* at);
-   virtual void SetDataType(const Char_t* name)
-   {
+   virtual void SetDataType(const Char_t* name) {
       fDataType = name;
    }
    virtual void SetSystem(KVDBSystem* syst);
    virtual void SetRuns(KVNumberList& nl, Bool_t check = kTRUE);
    virtual void SetRuns(const Char_t*, Bool_t check = kTRUE);
+   virtual void SetFullRunList(KVNumberList& nl);
 
    virtual void SetUserIncludes(const Char_t* incDirs = 0);
    virtual void SetUserLibraries(const Char_t* libs = 0);
 
-   virtual void ClearRunList()
-   {
+   virtual void ClearRunList() {
       fRunList.Clear();
    };
    virtual void Reset();
 
-   virtual void SetParent(KVDataAnalyser* da)
-   {
+   virtual void SetParent(KVDataAnalyser* da) {
       fParent = da;
    };
-   virtual KVDataAnalyser* GetParent() const
-   {
+   virtual KVDataAnalyser* GetParent() const {
       return fParent;
    };
 
@@ -257,12 +236,10 @@ public:
 
    virtual void RegisterUserClass(TObject*) {}
 
-   void SetUserClassOptions(const Char_t* o = "")
-   {
+   void SetUserClassOptions(const Char_t* o = "") {
       fUserClassOptions = o;
    }
-   const KVString& GetUserClassOptions() const
-   {
+   const KVString& GetUserClassOptions() const {
       return fUserClassOptions;
    }
 
