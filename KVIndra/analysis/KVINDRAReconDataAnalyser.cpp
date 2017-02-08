@@ -140,6 +140,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    }
 
    // Add the total run list in option
+
    option += ",";
    option += GetFullRunList().GetList();
 
@@ -148,6 +149,9 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       option += ",";
       option += GetUserClassOptions();
    }
+
+   //debug
+   //Info("SubmitTask", "Option=%s", option.Data());
 
    // for backwards compatibility, we allow user class to inherit from
    // KVOldINDRASelector instead of KVINDRAEventSelector
