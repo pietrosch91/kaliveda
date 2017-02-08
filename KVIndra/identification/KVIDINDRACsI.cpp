@@ -21,6 +21,7 @@
 #include "KVINDRACodeMask.h"
 #include "TMath.h"
 #include "KVIdentificationResult.h"
+#include "KVDataSet.h"
 
 ClassImp(KVIDINDRACsI)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +120,8 @@ void KVIDINDRACsI::Initialize()
    // Initialisation of telescope before identification.
    // This method MUST be called once before any identification is attempted.
    // Initialisation of grid is performed here.
-   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
+   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run,
+   // or if no calibr/ident parameters are defined for the dataset
 
    CsIGrid = (KVIDGCsI*) GetIDGrid();
    fCsI = GetDetector(1);
@@ -128,4 +130,5 @@ void KVIDINDRACsI::Initialize()
       SetBit(kReadyForID);
    } else
       ResetBit(kReadyForID);
+   if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }

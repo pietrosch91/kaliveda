@@ -44,12 +44,14 @@ INDRA_camp1.DataSet.Title:    1st INDRA campaign (1993)
 INDRA_camp1.DataSet.RepositoryDir:   campagne1
 INDRA_camp1.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_camp1.ReconstructedEventClassName:   KVINDRAReconEvent
+INDRA_camp1.HasCalibIdentInfos:   no
 
 +DataSet:    INDRA_camp2
 INDRA_camp2.DataSet.Title:    2nd INDRA campaign (1994)
 INDRA_camp2.DataSet.RepositoryDir:   campagne2
 INDRA_camp2.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_camp2.ReconstructedEventClassName:   KVINDRAReconEvent
+INDRA_camp2.HasCalibIdentInfos:   no
 
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
@@ -57,6 +59,7 @@ INDRA_camp4.DataSet.RepositoryDir:   campagne4
 INDRA_camp4.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_camp4.KVDataSet.DataType.Subdir.dst:  dst2
 INDRA_camp4.ReconstructedEventClassName:   KVINDRAReconEvent
+INDRA_camp4.HasCalibIdentInfos:   no
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -576,9 +579,11 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 # Format:
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
+INDRA_camp1.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI PHOS
+INDRA_camp2.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI PHOS
+INDRA_camp4.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_camp5.ActiveIdentifications:      CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:      CSI CI-CSI SI-CSI CI-SI
-INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 
 #================================ Plugins for detectors

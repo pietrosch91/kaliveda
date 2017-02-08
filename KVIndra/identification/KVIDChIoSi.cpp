@@ -18,6 +18,7 @@
 #include "KVIDChIoSi.h"
 #include "KVIdentificationResult.h"
 #include "KVINDRACodeMask.h"
+#include "KVDataSet.h"
 
 ClassImp(KVIDChIoSi)
 /////////////////////////////////////////////////////////////////////////////
@@ -111,7 +112,8 @@ void KVIDChIoSi::Initialize()
    // Initialisation of telescope before identification.
    // This method MUST be called once before any identification is attempted.
    // Initialisation of grid is performed here.
-   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
+   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run
+   // or if no calib/ident parameters are available for current dataset.
 
    fchio = GetDetector(1);
    fsi = GetDetector(2);
@@ -123,6 +125,7 @@ void KVIDChIoSi::Initialize()
       SetBit(kReadyForID);
    } else
       ResetBit(kReadyForID);
+   if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }
 
 Bool_t KVIDChIoSi::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, Double_t)

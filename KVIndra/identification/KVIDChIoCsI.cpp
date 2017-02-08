@@ -52,6 +52,7 @@ void KVIDChIoCsI::Initialize()
 {
    // Initialize telescope for current run.
 
+   KVINDRAIDTelescope::Initialize();
    fChIo = (KVChIo*) GetDetector(1);
    fCsI = (KVCsI*) GetDetector(2);
 }

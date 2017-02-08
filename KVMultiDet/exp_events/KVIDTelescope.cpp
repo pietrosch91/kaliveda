@@ -118,6 +118,20 @@ void KVIDTelescope::init()
    fVarX = fVarY = "";
 }
 
+void KVIDTelescope::Initialize(void)
+{
+   // Default initialisation for ID telescopes.
+   // kReadyForID is set to kFALSE, unless the current dataset (if defined)
+   // has been declared to have no associated identification/calibration parameters,
+   // in which case kReadyForID is by default set to kTRUE (for filtering simulations).
+   //
+   // To implement identification, make a class derived from KVIDTelescope
+   // and set kReadyForID to kTRUE in Initialize() method of derived class if
+   // necessary conditions for identification are met (has an ID grid etc.).
+   ResetBit(kReadyForID);
+   if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+}
+
 KVIDTelescope::~KVIDTelescope()
 {
    //delete this ID telescope

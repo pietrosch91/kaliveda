@@ -43,7 +43,7 @@ protected:
    KVDataBase* fDataBase;       //pointer to dataset's database
    KVList fAvailableRuns;       //!list of KVAvailableRunsFile objects used to read infos on available runs
    enum {
-      kAvailable = BIT(14)      //flag set if this dataset is physically present on local machine
+      kAvailable = BIT(14)     //flag set if this dataset is physically present on local machine
    };
    TString fUserGroups;         //list of user groups allowed to read data
 
@@ -195,6 +195,15 @@ public:
 
    TString GetOutputRepository(const Char_t* taskname);
    void CopyRunfilesToRepository(const Char_t* type, KVNumberList runs, const Char_t* destrepo);
+
+   Bool_t HasCalibIdentInfos() const
+   {
+      // If calibration/identification parameters are available for this dataset
+      // This is mostly important for filtering simulations: identification telescopes are only
+      // considered 'ready for identification' if they have (at least one) associated identification
+      // grid. If no identification grids exist, this condition should not be applied.
+      return GetDataSetEnv("HasCalibIdentInfos", kTRUE);
+   }
 
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda
 };
