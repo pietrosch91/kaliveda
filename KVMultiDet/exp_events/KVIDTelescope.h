@@ -34,6 +34,8 @@ class TH2;
 
 class KVIDTelescope: public KVBase {
 
+   static TEnv* fgIdentificationBilan;
+
 protected:
    KVList* fDetectors;          //->list of detectors in telescope
    KVGroup* fGroup;             //group to which telescope belongs
@@ -237,6 +239,10 @@ public:
 
       return (GetSize() == 1 || (GetSize() == 2 && GetDetector(1)->GetNode()->GetNTraj() == 1));
    }
+
+   static void OpenIdentificationBilan(const TString& path);
+   void CheckIdentificationBilan(const TString& system);
+
    ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };
 

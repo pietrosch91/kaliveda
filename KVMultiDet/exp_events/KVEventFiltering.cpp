@@ -222,7 +222,20 @@ void KVEventFiltering::InitAnalysis()
       Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
    }
 
-
+   if (!gDataSet->HasCalibIdentInfos()) {
+      TString fullpath;
+      if (KVBase::SearchKVFile("IdentificationBilan.dat", fullpath, gDataSet->GetName())) {
+         Info("InitAnalysis", "Setting identification bilan...");
+         TString sysname = sys->GetBatchName();
+         KVIDTelescope::OpenIdentificationBilan(fullpath);
+         TIter next(gMultiDetArray->GetListOfIDTelescopes());
+         KVIDTelescope* idt;
+         while ((idt = (KVIDTelescope*)next())) {
+            idt->CheckIdentificationBilan(sysname);
+         }
+      }
+   }
+   gMultiDetArray->PrintStatusOfIDTelescopes();
 
    OpenOutputFile(sys, run);
    if (sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle(), sys->GetName()));
