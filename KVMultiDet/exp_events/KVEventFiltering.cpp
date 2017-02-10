@@ -9,7 +9,6 @@
 #include "KVDBRun.h"
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
-#include "KVDataRepositoryManager.h"
 #include "KVGeoNavigator.h"
 
 ClassImp(KVEventFiltering)
@@ -131,9 +130,6 @@ Bool_t KVEventFiltering::Analysis()
 
 void KVEventFiltering::EndAnalysis()
 {
-   // Write file containing filtered data to disk.
-   //fFile->Write();
-   //delete fFile;
 }
 
 void KVEventFiltering::EndRun()
@@ -157,10 +153,12 @@ void KVEventFiltering::InitAnalysis()
    // 'ReconEvent'. The class used for reconstructed events depends on the dataset,
    // it is given by KVDataSet::GetReconstructedEventClassName().
 
+   if (fDisableCreateTreeFile) return; //when running with PROOF, only execute on workers
+
    TString dataset = GetOpt("Dataset").Data();
    if (!gDataSetManager) {
-      new KVDataRepositoryManager;
-      gDataRepositoryManager->Init();
+      gDataSetManager = new KVDataSetManager;
+      gDataSetManager->Init();
    }
    gDataSetManager->GetDataSet(dataset)->cd();
 
