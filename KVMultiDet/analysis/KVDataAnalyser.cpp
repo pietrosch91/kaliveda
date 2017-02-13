@@ -346,7 +346,7 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
          ChooseUserClass();
       }
 
-      while (!CheckIfUserClassIsValid()) {
+      while (!CheckIfUserClassIsValid(fUserClassAlternativeBaseClass)) {
          cout << "============> Warning <=============" << endl;
          cout << GetUserClass() << " is not a valid " << fTask->GetUserBaseClass() << endl;
          cout << "Analysis aborted." << endl;
@@ -1257,6 +1257,8 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          Error("ReadBatchEnvFile", "Name of user class header file not given");
          return ok;
       }
+      fUserClassAlternativeBaseClass = fBatchEnv->GetValue("UserClassAlternativeBaseClass", "");
+
       //If current working directory is not the same as the launch directory,
       //we have to copy the user's files here
       if (!RunningInLaunchDirectory()) {

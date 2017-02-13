@@ -198,6 +198,8 @@ void KVINDRAReconDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t s
       if (fDataSelectorImp != "") fBatchEnv->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
       if (fDataSelectorDec != "") fBatchEnv->SetValue("KVDataSelectorDec", fDataSelectorDec.Data());
    }
+   // backwards-compatible fix for old KVSelector analysis classes
+   fBatchEnv->SetValue("UserClassAlternativeBaseClass", "KVOldINDRASelector");
    if (save) fBatchEnv->SaveLevel(kEnvUser);
 }
 
