@@ -262,6 +262,7 @@ KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
 
 # Run list file containing run, brho, theta_vamos, DT, scalers_indra used for event normalisation in VAMOS
 INDRA_e503.KVVAMOSWeightFinder.RunListFile:  e503_runlist.dat
+INDRA_e503.KVVAMOSWeightFinder.TransCoefFileList:  e503_transcoef.list
 
 # Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent".
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS

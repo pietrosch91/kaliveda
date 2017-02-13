@@ -510,7 +510,6 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ifstream& file, const Cha
    }
    return kFALSE;
 }
-
 //________________________________________________________________________________//
 
 Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ofstream& file, const Char_t* kvsubdir, KVLockfile* locks)
