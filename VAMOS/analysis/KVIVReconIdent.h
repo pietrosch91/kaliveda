@@ -2,6 +2,7 @@
 #define KVIVReconIdent_h
 
 #include "KVINDRAReconIdent.h"
+#include "KVVAMOSDataCorrection.h"
 
 class KVIVReconIdent: public KVINDRAReconIdent {
 
@@ -14,11 +15,13 @@ protected:
 
    Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
 
+   KVVAMOSDataCorrection* fDataCorr;
+
+   KVVAMOSDataCorrection* GetDataCorrection();
 
 public:
 
-   KVIVReconIdent()
-   {
+   KVIVReconIdent() {
       fIsIVevent = kFALSE;
    }
    virtual ~ KVIVReconIdent() {}
@@ -28,8 +31,7 @@ public:
    virtual Bool_t Analysis();
    virtual void EndAnalysis();
 
-   virtual void Init(TTree* tree)
-   {
+   virtual void Init(TTree* tree) {
       //Before to call KVINDRAReconIdent::Init change the name of
       //the branch of reconstructed events which will be read  if
       //its class is a KVIVReconEvent and not a KVINDRAReconEvent
