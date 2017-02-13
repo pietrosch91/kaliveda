@@ -14,12 +14,12 @@ ClassImp(KVVAMOSWeightFinder)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVVAMOSWeightFinder</h2>
-<h4>Class used to estimate normalisation weights with VAMOS events</h4>
+<h4>Class used to estimate normalisation weights for VAMOS events</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVVAMOSWeightFinder::KVVAMOSWeightFinder() : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS")
+KVVAMOSWeightFinder::KVVAMOSWeightFinder() : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
 {
    // Default constructor
    fkIsInit = kFALSE;
@@ -29,7 +29,7 @@ KVVAMOSWeightFinder::KVVAMOSWeightFinder() : KVBase("VAMOSWeightFinder", "Normal
 }
 //____________________________________________________________________________//
 
-KVVAMOSWeightFinder::KVVAMOSWeightFinder(const KVVAMOSWeightFinder& obj) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS")
+KVVAMOSWeightFinder::KVVAMOSWeightFinder(const KVVAMOSWeightFinder& obj) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
 {
    // Copy constructor
    // Use this constructor to copy an existing object
@@ -44,6 +44,7 @@ KVVAMOSWeightFinder::~KVVAMOSWeightFinder()
    fRunList.Clear();
    fvec_infos.clear();
    fvec_TCfiles.clear();
+   fvec_TCsteps.clear();
 
    delete fchain;
    fchain = NULL;
@@ -60,6 +61,7 @@ void KVVAMOSWeightFinder::Copy(TObject& obj) const
    CastedObj.fRunList = fRunList;
    CastedObj.fvec_infos = fvec_infos;
    CastedObj.fvec_TCfiles = fvec_TCfiles;
+   CastedObj.fvec_TCsteps = fvec_TCsteps;
    CastedObj.fchain = fchain;
 }
 //____________________________________________________________________________//
@@ -437,6 +439,7 @@ Float_t KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle_deg, Float_t delta,
 
    else return -666.;
 }
+//____________________________________________________________________________//
 
 Int_t KVVAMOSWeightFinder::GetNValue(Float_t val_exp, Float_t val_min, Float_t val_max, Float_t val_step)
 {
@@ -462,9 +465,8 @@ Int_t KVVAMOSWeightFinder::GetNValue(Float_t val_exp, Float_t val_min, Float_t v
       return val_num;
    }
 }
-
-
 //____________________________________________________________________________//
+
 void KVVAMOSWeightFinder::PrintRunInfoVector()
 {
    //Print the current state of fvec_infos, vector containing
@@ -515,3 +517,5 @@ void KVVAMOSWeightFinder::PrintTransCoefStepVector()
       num++;
    }
 }
+
+//____________________________________________________________________________//
