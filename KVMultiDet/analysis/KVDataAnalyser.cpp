@@ -850,6 +850,13 @@ void KVDataAnalyser::SetRuns(KVNumberList& nl, Bool_t check)
 }
 
 //_________________________________________________________________
+void KVDataAnalyser::SetFullRunList(KVNumberList& nl)
+{
+   // Sets the total run list set in the analysis task
+   fFullRunList = nl;
+}
+
+//_________________________________________________________________
 
 void KVDataAnalyser::SetUserIncludes(const Char_t* incDirs)
 {

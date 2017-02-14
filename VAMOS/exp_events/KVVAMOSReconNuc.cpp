@@ -11,6 +11,7 @@
 #include "KVIDQA.h"
 #include "KVIDHarpeeICSi_e503.h"
 #include "KVIDHarpeeSiCsI_e503.h"
+#include "KVVAMOSDataCorrection.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -94,6 +95,7 @@ void KVVAMOSReconNuc::Copy(TObject& obj) const
    KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
    CastedObj.fCodes = fCodes;
    CastedObj.fRT    = fRT;
+   CastedObj.fDataCorr = fDataCorr;
    CastedObj.fDetE  = fDetE;
    CastedObj.fStripFoilEloss  = fStripFoilEloss;
    CastedObj.fRealQ     = fRealQ;
@@ -929,6 +931,13 @@ void KVVAMOSReconNuc::Propagate(ECalib cal)
 //    GetParameters()->Print();
 //    cout<<endl;
 // }
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::ApplyCorrections()
+{
+   //Info("ApplyCorrections", "... applying corrections ...");
+   GetDataCorrection()->ApplyCorrections(this);
 }
 //________________________________________________________________
 

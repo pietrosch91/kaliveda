@@ -22,6 +22,7 @@ class KVCalibrator;
 class KVDetector;
 class KVVAMOSTransferMatrix;
 class KVVAMOSReconGeoNavigator;
+class KVVAMOSWeightFinder;
 class KVReconstructedNucleus;
 class KVBasicVAMOSFilter;
 
@@ -52,6 +53,7 @@ protected:
    Double_t               fStripFoilPos; // distance between the target point and the stripping foil
    KVVAMOSReconGeoNavigator* fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
    KVVAMOSTransferMatrix* fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
+   KVVAMOSWeightFinder* fWeightFinder;//!Weight computation for VAMOS events
    KVList*      fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
    TGeoVolume*  fVAMOSvol;    //!TGeoVolume of VAMOS
    KVList*      fVCalibrators;//->References to calibrator belonging to VAMOS
@@ -96,6 +98,7 @@ public:
    virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
    KVVAMOSReconGeoNavigator* GetReconNavigator();
    KVVAMOSTransferMatrix* GetTransferMatrix();
+   KVVAMOSWeightFinder* GetWeightFinder();
    virtual void     Initialize();
    static  KVVAMOS* MakeVAMOS(const Char_t* name);
    virtual void     ResetParameters();
@@ -141,27 +144,22 @@ public:
 
    static UInt_t    CalculateUniqueID(KVBase* param, KVVAMOSDetector* det = NULL);
    static UChar_t   GetACQParamTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
-   static UChar_t   GetACQParamTypeIdxFromID(UInt_t id)
-   {
+   static UChar_t   GetACQParamTypeIdxFromID(UInt_t id) {
       return (id / 1000) % 10;
    }
-   static KVString& GetACQParamTypes()
-   {
+   static KVString& GetACQParamTypes() {
       return fACQParamTypes;
    }
    static UChar_t   GetPositionTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
-   static UChar_t   GetPositionTypeIdxFromID(UInt_t id)
-   {
+   static UChar_t   GetPositionTypeIdxFromID(UInt_t id) {
       return (id / 10000) % 10;
    }
-   static KVString& GetPositionTypes()
-   {
+   static KVString& GetPositionTypes() {
       return fPositionTypes;
    }
    static Bool_t    IsUsedToMeasure(const Char_t* type, KVVAMOSDetector* det = NULL);
 
-   void ShowECalibPar()
-   {
+   void ShowECalibPar() {
       cout << "par0= " << fECalibPar[0] << endl;
       cout << "par1= " << fECalibPar[1] << endl;
       cout << "par2= " << fECalibPar[2] << endl;

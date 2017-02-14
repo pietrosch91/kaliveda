@@ -218,7 +218,7 @@ void KVVAMOSReconEvent::IdentifyEvent_Z()
    KVReconstructedEvent::IdentifyEvent();
 }
 //________________________________________________________________
-void KVVAMOSReconEvent::IdentAndCalibEvent()
+void KVVAMOSReconEvent::IdentAndCalibEvent(KVVAMOSDataCorrection* data_corr)
 {
 
    //If the nuclei measured in VAMOS have not been previously Z-identified
@@ -233,15 +233,11 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
       t->SetOutgoing(kTRUE);
    }
 
-
-   //debug
-   //std::cout << "#############KVVAMOSReconEvent -> Identifying new event !##############" << std::endl;
-
    KVVAMOSReconNuc* d;
    while ((d = GetNextNucleus())) {
 
       //debug
-      //std::cout << "==>KVVAMOSReconEvent::IdentAndCalibEvent -> new particle in the event! GetStatus()=" << d->GetStatus() << "<==" << std::endl;
+      //Info("IdentAndCalibEvent", "... new particle ...");
 
       //-----------------------
       // Z-identification
@@ -266,6 +262,7 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
       }
 
       //debug
+      //Info("IdentAndCalibEvent", "... Z identification done ...");
       //std::cout << "#KVVAMOSReconEvent::IdentAndCalib() -> End of Z identification for the particle... results follow:" << std::endl;
       //std::cout << "IDcode=" << d->GetIDCode() << std::endl;
       //std::cout << "Zident=" <<
@@ -281,12 +278,18 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
       //-----------------------
       if (d->IsZidentified() && !d->IsCalibrated()) d->Calibrate();
 
+      //debug
+      //Info("IdentAndCalibEvent", "... calibration done ...");
+
       //--------------------------------------------------------------------------
       //All particles which have been previously Z-identified (IsZidentified=kTRUE)
       //and calibrated (IsCalibrated=kTRUE) will be Q and A identified.
       //--------------------------------------------------------------------------
       if (d->IsZidentified() && d->IsCalibrated() && !d->IsQandAidentified()) {
          d->IdentifyQandA();
+
+         //debug
+         //Info("IdentAndCalibEvent", "... QandA identification done (IDCode=%d) ...", d->GetIDCode());
 
          //debug
 //         std::cout << "#KVVAMOSReconEvent::IdentAndCalib() -> End of A identification for the particle... results follow:" << std::endl;
@@ -308,6 +311,14 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
 //         std::cout << "Energy_ChIo=" << d->GetEnergy("CHI") << std::endl;
 //         std::cout << "Energy_Si="  << d->GetEnergy("SI")   << std::endl;
 //         std::cout << "Energy_CsI=" << d->GetEnergy("CSI")  << std::endl;
+      }
+
+      if (data_corr && d->IsZidentified() && d->IsCalibrated() && d->IsQandAidentified()) {
+         d->SetDataCorrection(data_corr);
+         d->ApplyCorrections();
+
+         //debug
+         //Info("IdentAndCalibEvent", "... corrections done ...");
       }
    }
 }

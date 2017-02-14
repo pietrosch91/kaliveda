@@ -215,6 +215,7 @@ void KVBatchSystem::Run()
          if ((fCurrJobRunList.GetNValues() == GetRunsPerJob()) || runs.End()) {
             // submit job for GetRunsPerJob() runs (or less if we have reached end of runlist 'runs')
             fAnalyser->SetRuns(fCurrJobRunList, kFALSE);
+            fAnalyser->SetFullRunList(runs);
             SubmitJob();
             fCurrJobRunList.Clear();
          }

@@ -919,27 +919,27 @@ Bool_t KVDataAnalysisLauncher::ProcessMessage(Long_t msg, Long_t , Long_t)
    cout << msg << " : " << par1 << " / " << par2 << endl;
 #endif
    switch (GET_MSG(msg)) {
-      //       case kC_CONTAINER:
-      //          switch (GET_SUBMSG(msg)) {
-      //             case kCT_ITEMCLICK:
-      //                if (par1 == kButton1) {
-      //                   cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
-      //                   if (lcRuns->NumSelected() > 0) {
-      //                      UpdateListOfSelectedRuns();
-      //                   }
-      //                   else {
-      //                      ClearListOfSelectedRuns();
-      //                   }
-      //                }
-      //                break;
-      //
-      //             case kCT_SELCHANGED:
-      //                cout << "SELCHANGED: number selected = " << par2 << endl;
-      //                break;
-      //
-      //             default:
-      //                break;
-      //          }
+         //       case kC_CONTAINER:
+         //          switch (GET_SUBMSG(msg)) {
+         //             case kCT_ITEMCLICK:
+         //                if (par1 == kButton1) {
+         //                   cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
+         //                   if (lcRuns->NumSelected() > 0) {
+         //                      UpdateListOfSelectedRuns();
+         //                   }
+         //                   else {
+         //                      ClearListOfSelectedRuns();
+         //                   }
+         //                }
+         //                break;
+         //
+         //             case kCT_SELCHANGED:
+         //                cout << "SELCHANGED: number selected = " << par2 << endl;
+         //                break;
+         //
+         //             default:
+         //                break;
+         //          }
 
       default:
          break;
@@ -1236,6 +1236,7 @@ void KVDataAnalysisLauncher::Process(void)
    datan->SetAnalysisTask(task);
    if (listOfRuns.GetNValues()) {
       datan->SetRuns(listOfRuns, kFALSE);
+      datan->SetFullRunList(listOfRuns);
    } else {
       WarningBox("Empty Run List", "The list of runs to process is empty.");
       return;

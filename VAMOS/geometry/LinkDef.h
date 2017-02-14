@@ -21,6 +21,7 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class KVVAMOS+;
 #pragma link C++ class KVVAMOSDetector+;
 #pragma link C++ class KVSpectroDetector+;
+#pragma link C++ class KVVAMOSWeightFinder+;
 
 #pragma link C++ class KVCsIVamos+;
 #pragma link C++ class KVDriftChamber+;
