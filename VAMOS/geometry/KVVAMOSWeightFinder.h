@@ -20,6 +20,7 @@ protected:
    Bool_t fkIsInit;
 
    KVNumberList fRunList; //runs to use for the weight computation
+   KVNumberList fCompRunList; //complementary list of the given run list, based on experimental run list file
    std::vector< std::vector<Float_t> > fvec_infos; //vector of 'run BrhoRef AngleVamos DT scaler' for the runs in fRunList
    std::vector< std::pair<Float_t, TString> > fvec_TCfiles; //vector of pairs<VamosAngle, path> for each VamosAngle used in weight computation
    std::vector< std::vector<Float_t> > fvec_TCsteps; //vector of steps associated to each trans. coef. file
@@ -80,6 +81,8 @@ public:
    void SetVerbose(Bool_t verbose) {
       fkverbose = verbose;
    }
+
+   Float_t GetWeight(Float_t brho_exp, Float_t thetaI_exp);
 
 
    ClassDef(KVVAMOSWeightFinder, 1) //Class used to compute normalisation weights for VAMOS events
