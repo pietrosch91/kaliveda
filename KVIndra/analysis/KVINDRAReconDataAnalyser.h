@@ -10,13 +10,13 @@ $Date: 2007/05/31 09:59:22 $
 #ifndef __KVINDRAReconDataAnalyser_H
 #define __KVINDRAReconDataAnalyser_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "KVINDRAEventSelector.h"
 #include "KVOldINDRASelector.h" // backwards compatibility
 #include <KVDataPatchList.h>
 class TChain;
 
-class KVINDRAReconDataAnalyser: public KVDataAnalyser {
+class KVINDRAReconDataAnalyser: public KVDataSetAnalyser {
 
 protected:
    KVString fDataSelector;//name of KVDataSelector to use

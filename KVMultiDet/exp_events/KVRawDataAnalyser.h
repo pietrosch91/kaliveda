@@ -4,12 +4,12 @@
 #ifndef __KVRAWDATAANALYSER_H
 #define __KVRAWDATAANALYSER_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "KVHashList.h"
 #include "KVDetectorEvent.h"
 #include "KVRawDataReader.h"
 
-class KVRawDataAnalyser : public KVDataAnalyser {
+class KVRawDataAnalyser : public KVDataSetAnalyser {
 protected:
 
    KVRawDataReader* fRunFile;    //currently analysed run file

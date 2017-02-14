@@ -273,7 +273,7 @@ const Char_t* KVINDRAReconDataAnalyser::ExpandAutoBatchName(const Char_t* format
    //  $DataSelector  :  name of user's data selector (KVDataSelector)
 
    static KVString tmp;
-   tmp = KVDataAnalyser::ExpandAutoBatchName(format);
+   tmp = KVDataSetAnalyser::ExpandAutoBatchName(format);
    tmp.ReplaceAll("$Selector", GetUserClass());
    tmp.ReplaceAll("$DataSelector", GetKVDataSelector());
    return tmp.Data();

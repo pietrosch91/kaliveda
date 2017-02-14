@@ -14,7 +14,7 @@ $Date: 2007/05/31 09:59:22 $
 #include "KVNumberList.h"
 #include "KVIntegerList.h"
 #include "KVDataSet.h"
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "TString.h"
 
 class KVINDRAReconEvent;
@@ -22,7 +22,7 @@ class KVIDTelescope;
 class KVDetector;
 class TTree;
 
-class KVINDRADstToRootTransfert : public KVDataAnalyser {
+class KVINDRADstToRootTransfert : public KVDataSetAnalyser {
 
 protected:
    Int_t fEventNumber;//!

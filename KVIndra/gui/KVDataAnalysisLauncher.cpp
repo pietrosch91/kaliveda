@@ -1052,17 +1052,17 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t* dataset)
    //if(noSystems) SetTriggersList(0);
 }
 
-KVDataAnalyser* KVDataAnalysisLauncher::GetDataAnalyser(KVDataAnalysisTask* task)
+KVDataSetAnalyser* KVDataAnalysisLauncher::GetDataAnalyser(KVDataAnalysisTask* task)
 {
    //Get analyser for task
    //If task = 0 we return the current analyser
 
    if (!task) {
-      if (!ia) ia = new KVDataAnalyser;
+      if (!ia) ia = new KVDataSetAnalyser;
    } else {
       if (ia) delete ia;
-      ia = KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
-      if (!ia) ia = new KVDataAnalyser;
+      ia = (KVDataSetAnalyser*)KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
+      if (!ia) ia = new KVDataSetAnalyser;
       ia->SetAnalysisTask(task);
    }
    return ia;
@@ -1227,7 +1227,7 @@ void KVDataAnalysisLauncher::Process(void)
    }
 
    KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(cbTask->GetSelected() + 1);
-   KVDataAnalyser* datan = GetDataAnalyser(task);
+   KVDataSetAnalyser* datan = GetDataAnalyser(task);
 
    //set global pointer to analyser
    gDataAnalyser = datan;

@@ -10,12 +10,12 @@ $Date: 2007/01/04 16:38:50 $
 #ifndef __KVDATATRANSFER_H
 #define __KVDATATRANSFER_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "TString.h"
 
 class KVDataRepository;
 
-class KVDataTransfer: public KVDataAnalyser {
+class KVDataTransfer: public KVDataSetAnalyser {
 protected:
    KVDataRepository* fSourceRep;        // repository containing source files
    KVDataRepository* fTargetRep;        // repository where files will be copied

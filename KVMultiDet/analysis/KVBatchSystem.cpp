@@ -14,6 +14,7 @@ $Date: 2008/04/14 08:49:11 $
 #include "TSystem.h"
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
+#include "KVDataSetAnalyser.h"
 
 using namespace std;
 
@@ -202,9 +203,10 @@ void KVBatchSystem::Run()
 
    if (!CheckJobParameters()) return;
 
-   if (MultiJobsMode()) {
+   if (MultiJobsMode() && fAnalyser->InheritsFrom("KVDataSetAnalyser")) {
       //submit jobs for every GetRunsPerJob() runs in runlist
-      KVNumberList runs = fAnalyser->GetRunList();
+      KVDataSetAnalyser* ana = dynamic_cast<KVDataSetAnalyser*>(fAnalyser);
+      KVNumberList runs = ana->GetRunList();
       runs.Begin();
       Int_t remaining_runs = runs.GetNValues();
       fCurrJobRunList.Clear();
@@ -214,13 +216,13 @@ void KVBatchSystem::Run()
          fCurrJobRunList.Add(run);
          if ((fCurrJobRunList.GetNValues() == GetRunsPerJob()) || runs.End()) {
             // submit job for GetRunsPerJob() runs (or less if we have reached end of runlist 'runs')
-            fAnalyser->SetRuns(fCurrJobRunList, kFALSE);
-            fAnalyser->SetFullRunList(runs);
+            ana->SetRuns(fCurrJobRunList, kFALSE);
+            ana->SetFullRunList(runs);
             SubmitJob();
             fCurrJobRunList.Clear();
          }
       }
-      fAnalyser->SetRuns(runs, kFALSE);
+      ana->SetRuns(runs, kFALSE);
    } else {
       SubmitJob();
    }
