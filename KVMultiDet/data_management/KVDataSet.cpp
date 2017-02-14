@@ -1465,8 +1465,8 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    _task += " analysis";
    //We want to be able to write analysis classes even when we don't have any data
    //to analyse. Therefore we use GetAnalysisTaskAny.
-   KVDataAnalysisTask* dat = GetAnalysisTaskAny(_task.Data());
-   if (!dat) {
+   unique_ptr<KVDataAnalysisTask> dat(GetAnalysisTaskAny(_task.Data()));
+   if (!dat.get()) {
       Error("MakeAnalysisClass",
             "called for unknown or unavailable analysis task : %s", _task.Data());
       return;
@@ -1474,7 +1474,6 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    if (!dat->WithUserClass()) {
       Error("MakeAnalysisClass",
             "no user analysis class for analysis task : %s", dat->GetTitle());
-      delete dat;
       return;
    }
 
@@ -1484,27 +1483,20 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    TClass* cl = 0x0;
    //has the user base class for the task been compiled and loaded ?
    if (dat->CheckUserBaseClassIsLoaded()) cl = TClass::GetClass(dat->GetUserBaseClass());
-   else {
-      delete dat;
+   else
       return;
-   }
-
-   delete dat;  // we have finished with dat: we must delete it
 
    //set up call to static Make method
-   TMethodCall* methcall;
-   methcall = new  TMethodCall(cl, "Make", Form("\"%s\"", classname));
+   unique_ptr<TMethodCall> methcall(new  TMethodCall(cl, "Make", Form("\"%s\"", classname)));
 
    if (!methcall->IsValid()) {
       Error("MakeAnalysisClass", "static Make(const Char_t*) method for class %s is not valid",
             cl->GetName());
-      delete methcall;
       return;
    }
 
    //generate skeleton class
    methcall->Execute();
-   delete methcall;
 }
 
 //___________________________________________________________________________

@@ -22,6 +22,7 @@
 #pragma link C++ class KVDataPatch+;
 #pragma link C++ class KVDataPatchList+;
 #pragma link C++ class KVEventSelector+;
+#pragma link C++ class KVSimDirAnalyser+;
 #pragma link C++ class KVAutoFit;
 #pragma link C++ class KVGaus1D;
 #pragma link C++ class KVGaus2D;

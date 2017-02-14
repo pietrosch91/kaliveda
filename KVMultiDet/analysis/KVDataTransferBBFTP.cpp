@@ -67,34 +67,34 @@ void KVDataTransferBBFTP::WriteTransferScript()
 
    //write a line for each file to transfer
    //loop over runs in runlist
-   fRunList.Begin();
+   GetRunList().Begin();
    TString targ_file;
-   while (!fRunList.End()) {
+   while (!GetRunList().End()) {
 
-      Int_t run = fRunList.Next();      // current run number
+      Int_t run = GetRunList().Next();      // current run number
 
       file << getput.Data();
       cout << getput.Data();
 
       //source file name
-      file << fSourceRep->GetFullPathToTransferFile(fDataSet,
-            fDataType.Data(),
-            fDataSet->
+      file << fSourceRep->GetFullPathToTransferFile(GetDataSet(),
+            GetDataType(),
+            GetDataSet()->
             GetRunfileName
-            (fDataType.Data(),
+            (GetDataType(),
              run)) << " ";
-      cout << fSourceRep->GetFullPathToTransferFile(fDataSet,
-            fDataType.Data(),
-            fDataSet->
+      cout << fSourceRep->GetFullPathToTransferFile(GetDataSet(),
+            GetDataType(),
+            GetDataSet()->
             GetRunfileName
-            (fDataType.Data(),
+            (GetDataType(),
              run)) << " ";
 
       //target file name
       //target repository dataset pointer
       KVDataSet* targ_ds =
-         fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName());
-      targ_file = fDataSet->GetRunfileName(fDataType.Data(), run);
+         fTargetRep->GetDataSetManager()->GetDataSet(GetDataSet()->GetName());
+      targ_file = GetDataSet()->GetRunfileName(GetDataType(), run);
       //if the target repository is the local repository,
       //we have to replace illegal characters like ":" in the target file name
       //to avoid problems due to the meaning of the ":" character for some
@@ -102,11 +102,11 @@ void KVDataTransferBBFTP::WriteTransferScript()
       if (!fTargetRep->IsRemote())
          targ_file.ReplaceAll(":", "_");
       file << fTargetRep->GetFullPathToTransferFile(targ_ds,
-            fDataType.Data(),
+            GetDataType(),
             targ_file.
             Data()) << endl;
       cout << fTargetRep->GetFullPathToTransferFile(targ_ds,
-            fDataType.Data(),
+            GetDataType(),
             targ_file.
             Data()) << endl;
    }

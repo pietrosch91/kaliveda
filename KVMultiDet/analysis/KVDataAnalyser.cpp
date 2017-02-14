@@ -693,7 +693,7 @@ void KVDataAnalyser::ChooseRuns(KVDBSystem* system,
 
 //_________________________________________________________________
 
-void KVDataAnalyser::SetDataSet(KVDataSet* ds)
+void KVDataAnalyser::set_dataset_pointer(KVDataSet* ds)
 {
    //Set dataset to be used for analysis.
    //If the chosen dataset is not available, an error message is printed
@@ -724,7 +724,7 @@ void KVDataAnalyser::SetDataSet(KVDataSet* ds)
 
 //_________________________________________________________________
 
-void KVDataAnalyser::SetDataSet(const Char_t* name)
+void KVDataAnalyser::set_dataset_name(const Char_t* name)
 {
    //Set dataset to be analysed.
    //If 'name' is not the name of a valid and available dataset
@@ -736,7 +736,7 @@ void KVDataAnalyser::SetDataSet(const Char_t* name)
    if (!ds) {
       Error("SetDataSet", "Unknown dataset %s", name);
    } else {
-      SetDataSet(ds);
+      set_dataset_pointer(ds);
    }
 }
 
@@ -789,18 +789,7 @@ void KVDataAnalyser::SetSystem(KVDBSystem* syst)
 
 //_________________________________________________________________
 
-void KVDataAnalyser::SetRuns(const Char_t* rl, Bool_t check)
-{
-   //Sets the run list (string has format of a KVNumberList)
-   //If check=kTRUE (default), we check that the runs are available, and if they belong to different
-   //systems we print a warning message
-   KVNumberList tmp(rl);
-   SetRuns(tmp, check);
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetRuns(KVNumberList& nl, Bool_t check)
+void KVDataAnalyser::SetRuns(const KVNumberList& nl, Bool_t check)
 {
    // Sets the run list
    //If check=kTRUE (default), we check that the runs are available, and if they belong to different

@@ -81,6 +81,15 @@ RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 RawAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
+# analysis of TTree containing KVEvent objects using KVEventSelector
++DataAnalysisTask:     SimEventAnalysis
+SimEventAnalysis.DataAnalysisTask.Title:     Analysis of simulated events in tree
+SimEventAnalysis.DataAnalysisTask.Prereq:     sim
+SimEventAnalysis.DataAnalysisTask.Analyser:     SimDirAnalyser
+SimEventAnalysis.DataAnalysisTask.UserClass:     yes
+SimEventAnalysis.DataAnalysisTask.UserClass.Base:     EventSelector/TSelector
+SimEventAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+
 +DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
@@ -140,6 +149,9 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootB
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
+
++Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer

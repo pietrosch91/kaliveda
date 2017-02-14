@@ -45,21 +45,20 @@ void KVINDRAGeneDataAnalyser::SubmitTask()
 
    //make the chosen dataset the active dataset ( = gDataSet; note this also opens database
    //and positions gDataBase & gIndraDB).
-   fDataSet->cd();
+   GetDataSet()->cd();
 
    TChain* t = new TChain("GeneData");
    t->SetDirectory(0);//we handle delete
 
-   fRunList.Begin();
+   GetRunList().Begin();
    Int_t run;
-   while (!fRunList.End()) {
+   while (!GetRunList().End()) {
 
-      run = fRunList.Next();
-      cout << "Adding file " << gDataSet->GetFullPathToRunfile(fDataType.
-            Data(),
+      run = GetRunList().Next();
+      cout << "Adding file " << gDataSet->GetFullPathToRunfile(GetDataType(),
             run);
       cout << " to the TChain." << endl;
-      t->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(), run), -1);
+      t->Add(gDataSet->GetFullPathToRunfile(GetDataType(), run), -1);
    }
 
    KVINDRAGeneDataSelector* selector = (KVINDRAGeneDataSelector*)GetInstanceOfUserClass();
@@ -68,8 +67,8 @@ void KVINDRAGeneDataAnalyser::SubmitTask()
       cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
       cout << "Process aborted." << endl;
    } else {
-      if (nbEventToRead) {
-         t->Process(GetUserClass(), "", nbEventToRead);
+      if (GetNbEventToRead()) {
+         t->Process(GetUserClass(), "", GetNbEventToRead());
       } else {
          t->Process(GetUserClass());
       }
@@ -85,14 +84,14 @@ KVNumberList KVINDRAGeneDataAnalyser::PrintAvailableRuns(KVString& datatype)
    //Returns list containing all run numbers
 
    KVNumberList all_runs =
-      fDataSet->GetRunList(datatype.Data(), fSystem);
+      GetDataSet()->GetRunList(datatype.Data(), GetSystem());
    KVINDRADBRun* dbrun;
 
    //first read list and find what triggers are available
    vector<int> triggers;
    all_runs.Begin();
    while (!all_runs.End()) {
-      dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
       if (triggers.size() == 0
             || std::find(triggers.begin(), triggers.end(), dbrun->GetTrigger()) != triggers.end()) {
          triggers.push_back(dbrun->GetTrigger());
@@ -106,7 +105,7 @@ KVNumberList KVINDRAGeneDataAnalyser::PrintAvailableRuns(KVString& datatype)
       cout << " ---> Trigger M>" << *it << endl;
       all_runs.Begin();
       while (!all_runs.End()) {
-         dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
          if (dbrun->GetTrigger() == *it) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
             cout << Form("\t(%7d events)", dbrun->GetEvents());
