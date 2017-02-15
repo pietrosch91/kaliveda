@@ -270,7 +270,7 @@ void KVVAMOSWeightFinder::ReadTransCoefListFile(std::ifstream& file)
    while (std::getline(file, newline)) {
       //Ignore comments in the file
       if (newline.compare(0, 1, "#") != 0) {
-         TString ss(newline);
+         TString ss(newline.c_str());
          TObjArray* obj_arr = ss.Tokenize(" ");
          obj_arr->ls();
          TString str_va = ((TObjString*) obj_arr->At(0))->GetString();
