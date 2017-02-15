@@ -5,12 +5,30 @@
 #define __KVSIMDIRANALYSER_H
 
 #include "KVDataAnalyser.h"
+#include "TChain.h"
 
 class KVSimDirAnalyser : public KVDataAnalyser {
+
+   TList* fListOfSimFiles;//!    list of files/trees to analyse
+   TChain* fAnalysisChain;//!    TChain for analysis
+
+protected:
+   void BuildChain();
+   virtual Bool_t NeedToChooseWhatToAnalyse() const
+   {
+      return !(fListOfSimFiles && fListOfSimFiles->GetEntries());
+   }
+
 public:
    KVSimDirAnalyser();
-
    virtual ~KVSimDirAnalyser();
+
+   void SetFileList(TList* l)
+   {
+      fListOfSimFiles = l;
+   }
+
+   void SubmitTask();
 
    ClassDef(KVSimDirAnalyser, 1) //Analysis of trees containing simulated events
 };

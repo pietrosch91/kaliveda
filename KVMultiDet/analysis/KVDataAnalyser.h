@@ -71,12 +71,11 @@ protected:
    virtual void PostRunReset();
    virtual Bool_t NeedToChooseWhatToDo() const
    {
-      // TO IMPELEMNT
-      return kTRUE;
+      return !GetAnalysisTask();
    }
    virtual Bool_t NeedToChooseWhatToAnalyse() const
    {
-      // TO IMPLEMENT
+      AbstractMethod("NeedToChooseWhatToAnalyse");
       return kTRUE;
    }
    virtual void ChooseWhatToAnalyse();
@@ -173,11 +172,11 @@ public:
    Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
    void DoStatusUpdate(Int_t nevents) const;
 
-   KVDataAnalysisTask* GetAnalysisTask()
+   KVDataAnalysisTask* GetAnalysisTask() const
    {
       return fTask;
    }
-   KVString& GetDataType()
+   const KVString& GetDataType() const
    {
       return fDataType;
    }
@@ -185,13 +184,17 @@ public:
    {
       return fFullRunList;
    }
-   KVString& GetUserIncludes()
+   const KVString& GetUserIncludes() const
    {
       return fIncludes;
    }
-   KVString& GetUserLibraries()
+   const KVString& GetUserLibraries() const
    {
       return fLibraries;
+   }
+   virtual void SetFileList(TList*)
+   {
+      AbstractMethod("SetFileList(TList*)");
    }
 
    void SetNbEventToRead(Long64_t nb = 0)
@@ -199,7 +202,7 @@ public:
       nbEventToRead = nb;
    }
 
-   Long64_t GetNbEventToRead(void)
+   Long64_t GetNbEventToRead(void) const
    {
       return nbEventToRead;
    }

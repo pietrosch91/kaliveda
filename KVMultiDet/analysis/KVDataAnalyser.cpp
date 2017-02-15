@@ -314,15 +314,14 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
 
 Bool_t KVDataAnalyser::CheckWhatToAnalyseAndHow()
 {
-   if (!fTask) {
-      /* got no task? */
+   if (NeedToChooseWhatToDo()) {
+      return kFALSE;
    }
 
-   if (1 /* don't know what to analyse */) {
-      // TO IMPLEMENT
-      ChooseWhatToAnalyse();
+   if (NeedToChooseWhatToAnalyse()) {
+      return kFALSE;
    }
-   return kFALSE;
+   return kTRUE;
 }
 
 
@@ -1114,3 +1113,12 @@ void KVDataAnalyser::AddJobDescriptionList(TList* l)
    l->Add(jdl);
 }
 
+void KVDataAnalyser::ChooseWhatToAnalyse()
+{
+   // TO IMPLEMENT ?
+}
+
+void KVDataAnalyser::ChooseWhatToDo()
+{
+   // TO IMPLEMENT ?
+}

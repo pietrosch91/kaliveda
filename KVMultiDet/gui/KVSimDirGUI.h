@@ -99,6 +99,7 @@ public:
    void EnableEventNumberEntry(Bool_t);
    void SelectAnalysisClass();
    void RunAnalysis();
+   void new_RunAnalysis(TList* to_analyse);
    TChain* BuildChain(TList*);
 
    void SelectDataSet(const char*);

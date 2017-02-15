@@ -3,6 +3,7 @@
 
 #include "KVSimDirGUI.h"
 #include "KVDataSetManager.h"
+#include "KVBatchSystemManager.h"
 #include "KVDataSet.h"
 #include "KVDataBase.h"
 #include "KVDBSystem.h"
@@ -16,6 +17,7 @@
 #include "TGMsgBox.h"
 #include "TSystem.h"
 #include "TChain.h"
+#include <KVDataAnalyser.h>
 #include <KVSimReader.h>
 #include <iostream>
 using namespace std;
@@ -545,6 +547,10 @@ void KVSimDirGUI::RunAnalysis()
    TList* runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs.get() : selected_filt_runs.get());
    Bool_t filtered_analysis = (selected_filt_runs->GetEntries() > 0) ;
    runs_to_analyse->ls();
+   if (!filtered_analysis) {
+      new_RunAnalysis(runs_to_analyse);
+      return;
+   }
    unique_ptr<TChain> analysis_chain(BuildChain(runs_to_analyse));
 
    TString fullclasspath;
@@ -598,6 +604,33 @@ void KVSimDirGUI::RunAnalysis()
       analysis_chain->Process(fullclasspath, options, nevents);
    } else
       analysis_chain->Process(fullclasspath, options);
+}
+
+void KVSimDirGUI::new_RunAnalysis(TList* to_analyse)
+{
+   if (!gDataSetManager) {
+      gDataSetManager = new KVDataSetManager;
+      gDataSetManager->Init();
+   }
+   KVDataAnalysisTask* anTask = gDataSetManager->GetAnalysisTaskAny("tree");
+   gDataAnalyser = KVDataAnalyser::GetAnalyser(anTask->GetDataAnalyser());
+   gDataAnalyser->SetAnalysisTask(anTask);
+   gDataAnalyser->SetFileList(to_analyse);
+   if (anTask->WithUserClass())
+      gDataAnalyser->SetUserClass(fAnalClassName);
+   else if (strcmp(anTask->GetUserBaseClass(), ""))
+      gDataAnalyser->SetUserClass(anTask->GetUserBaseClass(), kFALSE);//task with default "user" class
+   Bool_t all_events = fCBAllEvents->IsDown();
+   if (!all_events)
+      gDataAnalyser->SetNbEventToRead((Long64_t)fNENumberEvents->GetNumber());
+   else
+      gDataAnalyser->SetNbEventToRead(0);
+   if (fWithPROOF) {
+      gBatchSystemManager->GetBatchSystem("PROOFLite")->cd();
+      gBatchSystem->Clear();
+      gDataAnalyser->SetBatchSystem(gBatchSystem);
+   }
+   gDataAnalyser->Run();
 }
 
 TChain* KVSimDirGUI::BuildChain(TList* runs)
