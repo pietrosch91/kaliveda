@@ -32,7 +32,7 @@ protected:
    std::ifstream fRunlist;     //for reading runlist file
    KVLockfile runlist_lock;   //for locking runlist file
 
-   KVDataSet* fDataSet;         //dataset to which this file belongs
+   const KVDataSet* fDataSet;         //dataset to which this file belongs
    KVHashList* fAvailableRuns;//! temporary list used to store infos when updating
    void ReadFile();
    KVNameValueList* RunHasFileWithDateAndName(Int_t run, const Char_t* filename, TDatime modtime, Int_t& OccNum);
@@ -53,7 +53,7 @@ public:
 
    KVAvailableRunsFile();
    KVAvailableRunsFile(const Char_t* type);
-   KVAvailableRunsFile(const Char_t* type, KVDataSet* parent);
+   KVAvailableRunsFile(const Char_t* type, const KVDataSet* parent);
    virtual ~ KVAvailableRunsFile();
 
    Bool_t FileExists() const
@@ -81,13 +81,13 @@ public:
    virtual void UpdateInfos(Int_t run, const Char_t* filename, const Char_t* kvversion, const Char_t* username);
    virtual Bool_t InfosNeedUpdate(Int_t run, const Char_t* filename);
    virtual void Add(Int_t run, const Char_t* filename);
-   KVDataSet* GetDataSet() const
+   const KVDataSet* GetDataSet() const
    {
       //Dataset to which this file belongs
       return fDataSet;
    }
 
-   void SetDataSet(KVDataSet* d)
+   void SetDataSet(const KVDataSet* d)
    {
       // Set dataset to which this file belongs
       fDataSet = d;

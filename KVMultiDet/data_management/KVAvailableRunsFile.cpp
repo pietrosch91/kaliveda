@@ -39,8 +39,7 @@ ClassImp(KVAvailableRunsFile)
 //
 ////////////////////////////////////////////////////////////////////////////////
 KVAvailableRunsFile::KVAvailableRunsFile(const Char_t* type,
-      KVDataSet*
-      parent): KVBase(type)
+      const KVDataSet* parent): KVBase(type)
 {
    //Constructor with name of datatype and pointer to dataset to which this file belongs
    fDataSet = parent;

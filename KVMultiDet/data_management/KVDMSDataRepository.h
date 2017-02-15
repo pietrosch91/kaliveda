@@ -16,36 +16,36 @@ public:
    KVDMSDataRepository();
    virtual ~KVDMSDataRepository();
 
-   virtual KVUniqueNameList* GetDirectoryListing(KVDataSet*,
+   virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet*,
          const Char_t* datatype = "");
    virtual Bool_t CheckSubdirExists(const Char_t* dir,
                                     const Char_t* subdir = 0);
-   virtual void CopyFileFromRepository(KVDataSet*,
+   virtual void CopyFileFromRepository(const KVDataSet*,
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
    virtual void CopyFileToRepository(const Char_t* source,
-                                     KVDataSet*,
+                                     const KVDataSet*,
                                      const Char_t* datatype,
                                      const Char_t* filename);
-   virtual Bool_t CheckFileStatus(KVDataSet*,
+   virtual Bool_t CheckFileStatus(const KVDataSet*,
                                   const Char_t* datatype,
                                   const Char_t* runfile);
-   virtual void MakeSubdirectory(KVDataSet*,
+   virtual void MakeSubdirectory(const KVDataSet*,
                                  const Char_t* datatype = "");
-   virtual void DeleteFile(KVDataSet*,
+   virtual void DeleteFile(const KVDataSet*,
                            const Char_t* datatype,
                            const Char_t* filename, Bool_t confirm =
                               kTRUE);
-   virtual Bool_t GetFileInfo(KVDataSet*,
+   virtual Bool_t GetFileInfo(const KVDataSet*,
                               const Char_t* datatype,
                               const Char_t* runfile, FileStat_t& fs);
 
-   virtual const Char_t* GetFullPathToOpenFile(KVDataSet* dataset,
+   virtual const Char_t* GetFullPathToOpenFile(const KVDataSet* dataset,
          const Char_t* datatype,
          const Char_t* runfile);
 
-   TObject* OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
+   TObject* OpenDataSetRunFile(const KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
 
    ClassDef(KVDMSDataRepository, 1) //Remote data repository using Data Management Systems
 };

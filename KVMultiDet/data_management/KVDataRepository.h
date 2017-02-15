@@ -47,7 +47,7 @@ protected:
    TString fTransferuser;
    Bool_t fCanWrite; //kTRUE if new files can be created and written directly in the repository; kFALSE if they have to be written locally then copied to repository
    //used by CreateNewFile and CommitFile
-   KVDataSet* fCommitDataSet;   //!
+   const KVDataSet* fCommitDataSet;   //!
    TString fCommitDataType;     //!
    TString fCommitFileName;     //!
    KVDataSetManager* fDSM;      //handles datasets in repository
@@ -59,7 +59,7 @@ protected:
    virtual void PrepareXRDTunnel();
 
    TSeqCollection*  fHelpers;          //List of helper classes for alternative file/directory access
-   TObject* OpenDataSetFile(KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt = "");
+   TObject* OpenDataSetFile(const KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt = "");
 public:
    virtual int  CopyFile(const char* f, const char* t, Bool_t overwrite = kFALSE);
    TSystem*               FindHelper(const char* path, void* dirptr = 0);
@@ -72,18 +72,18 @@ public:
 
    virtual Bool_t CheckSubdirExists(const Char_t* dir,
                                     const Char_t* subdir = 0);
-   virtual Bool_t GetFileInfo(KVDataSet* dataset,
+   virtual Bool_t GetFileInfo(const KVDataSet* dataset,
                               const Char_t* datatype,
                               const Char_t* runfile, FileStat_t& fs);
-   virtual Bool_t CheckFileStatus(KVDataSet* dataset,
+   virtual Bool_t CheckFileStatus(const KVDataSet* dataset,
                                   const Char_t* datatype,
                                   const Char_t* runfile);
 
-   virtual const Char_t* GetFullPathToOpenFile(KVDataSet* dataset,
+   virtual const Char_t* GetFullPathToOpenFile(const KVDataSet* dataset,
          const Char_t* datatype,
          const Char_t* runfile);
 
-   virtual const Char_t* GetFullPathToTransferFile(KVDataSet* dataset,
+   virtual const Char_t* GetFullPathToTransferFile(const KVDataSet* dataset,
          const Char_t* datatype,
          const Char_t* runfile);
 
@@ -105,27 +105,27 @@ public:
    {
       return fCanWrite;
    }
-   virtual KVUniqueNameList* GetDirectoryListing(KVDataSet* dataset,
+   virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet* dataset,
          const Char_t* datatype = "");
 
-   virtual void CopyFileFromRepository(KVDataSet* dataset,
+   virtual void CopyFileFromRepository(const KVDataSet* dataset,
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
    virtual void CopyFileToRepository(const Char_t* source,
-                                     KVDataSet* dataset,
+                                     const KVDataSet* dataset,
                                      const Char_t* datatype,
                                      const Char_t* filename);
 
-   virtual TFile* CreateNewFile(KVDataSet* dataset,
+   virtual TFile* CreateNewFile(const KVDataSet* dataset,
                                 const Char_t* datatype,
                                 const Char_t* filename);
-   virtual void CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset);
+   virtual void CommitFile(TFile* file, const Char_t* datatype, const KVDataSet* dataset);
 
-   virtual void MakeSubdirectory(KVDataSet* dataset,
+   virtual void MakeSubdirectory(const KVDataSet* dataset,
                                  const Char_t* datatype = "");
 
-   virtual void DeleteFile(KVDataSet* dataset,
+   virtual void DeleteFile(const KVDataSet* dataset,
                            const Char_t* datatype,
                            const Char_t* filename, Bool_t confirm =
                               kTRUE);
@@ -161,9 +161,9 @@ public:
 
    void cd();
    static KVDataRepository* NewRepository(const Char_t* type);
-   virtual KVAvailableRunsFile* NewAvailableRunsFile(const Char_t*, KVDataSet*);
-   virtual TObject* OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
-   void CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType);
+   virtual KVAvailableRunsFile* NewAvailableRunsFile(const Char_t*, const KVDataSet*);
+   virtual TObject* OpenDataSetRunFile(const KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt = "");
+   void CreateAllNeededSubdirectories(const KVDataSet* DataSet, const Char_t* DataType);
 
    virtual void PrintAvailableDatasetsUpdateWarning() const
    {

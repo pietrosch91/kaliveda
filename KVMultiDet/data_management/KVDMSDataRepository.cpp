@@ -31,7 +31,7 @@ KVDMSDataRepository::~KVDMSDataRepository()
    SafeDelete(fDMS);
 }
 
-KVUniqueNameList* KVDMSDataRepository::GetDirectoryListing(KVDataSet* ds,
+KVUniqueNameList* KVDMSDataRepository::GetDirectoryListing(const KVDataSet* ds,
       const Char_t* datatype)
 {
    //Use the DMS catalogue in order to examine the directory
@@ -75,7 +75,7 @@ Bool_t KVDMSDataRepository::CheckSubdirExists(const Char_t* dir,
 
 //___________________________________________________________________________
 
-void KVDMSDataRepository::CopyFileFromRepository(KVDataSet* ds,
+void KVDMSDataRepository::CopyFileFromRepository(const KVDataSet* ds,
       const Char_t* datatype,
       const Char_t* filename,
       const Char_t* destination)
@@ -97,7 +97,7 @@ void KVDMSDataRepository::CopyFileFromRepository(KVDataSet* ds,
 //___________________________________________________________________________
 
 void KVDMSDataRepository::CopyFileToRepository(const Char_t* source,
-      KVDataSet* ds,
+      const KVDataSet* ds,
       const Char_t* datatype,
       const Char_t* filename)
 {
@@ -115,7 +115,7 @@ void KVDMSDataRepository::CopyFileToRepository(const Char_t* source,
 
 //___________________________________________________________________________
 
-Bool_t KVDMSDataRepository::CheckFileStatus(KVDataSet* ds,
+Bool_t KVDMSDataRepository::CheckFileStatus(const KVDataSet* ds,
       const Char_t* datatype,
       const Char_t* runfile)
 {
@@ -135,7 +135,7 @@ Bool_t KVDMSDataRepository::CheckFileStatus(KVDataSet* ds,
 
 //___________________________________________________________________________
 
-void KVDMSDataRepository::MakeSubdirectory(KVDataSet* ds,
+void KVDMSDataRepository::MakeSubdirectory(const KVDataSet* ds,
       const Char_t* datatype)
 {
    // Overrides KVDataRepository method.
@@ -148,7 +148,7 @@ void KVDMSDataRepository::MakeSubdirectory(KVDataSet* ds,
 
 //___________________________________________________________________________
 
-void KVDMSDataRepository::DeleteFile(KVDataSet* ds,
+void KVDMSDataRepository::DeleteFile(const KVDataSet* ds,
                                      const Char_t* datatype,
                                      const Char_t* filename, Bool_t confirm)
 {
@@ -188,7 +188,7 @@ int KVDMSDataRepository::Chmod(const char* file, UInt_t mode)
 }
 //___________________________________________________________________________
 
-Bool_t KVDMSDataRepository::GetFileInfo(KVDataSet* ds,
+Bool_t KVDMSDataRepository::GetFileInfo(const KVDataSet* ds,
                                         const Char_t* datatype,
                                         const Char_t* runfile,
                                         FileStat_t& fs)
@@ -222,7 +222,7 @@ Bool_t KVDMSDataRepository::GetFileInfo(KVDataSet* ds,
    return kFALSE;
 }
 
-const Char_t* KVDMSDataRepository::GetFullPathToOpenFile(KVDataSet* dataset, const Char_t* datatype, const Char_t* runfile)
+const Char_t* KVDMSDataRepository::GetFullPathToOpenFile(const KVDataSet* dataset, const Char_t* datatype, const Char_t* runfile)
 {
    // Redefinition of KVDataRepository::GetFullPathToOpenFile
    //
@@ -240,7 +240,7 @@ const Char_t* KVDMSDataRepository::GetFullPathToOpenFile(KVDataSet* dataset, con
    return tmpdir_filepath.Data();
 }
 
-TObject* KVDMSDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
+TObject* KVDMSDataRepository::OpenDataSetRunFile(const KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
 {
    // Overrides KVDataRepository method
    //
