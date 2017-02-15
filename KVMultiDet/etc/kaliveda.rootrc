@@ -90,6 +90,15 @@ SimEventAnalysis.DataAnalysisTask.UserClass:     yes
 SimEventAnalysis.DataAnalysisTask.UserClass.Base:     EventSelector/TSelector
 SimEventAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
+# filtering of TTree containing KVEvent objects using KVEventFiltering
++DataAnalysisTask:     SimEventFilter
+SimEventFilter.DataAnalysisTask.Title:     Filter simulated events in tree
+SimEventFilter.DataAnalysisTask.Prereq:     sim
+SimEventFilter.DataAnalysisTask.Analyser:     SimDirAnalyser
+SimEventFilter.DataAnalysisTask.UserClass:     no
+SimEventFilter.DataAnalysisTask.UserClass.Base:     EventFilter/TSelector
+SimEventFilter.DataAnalysisTask.StatusUpdateInterval:     20000
+
 +DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
@@ -152,6 +161,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
 
 +Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
++Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer

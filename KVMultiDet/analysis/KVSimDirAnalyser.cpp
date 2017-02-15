@@ -44,8 +44,12 @@ void KVSimDirAnalyser::SubmitTask()
    KVSimFile* first_file = (KVSimFile*)fListOfSimFiles->First();
    results_file_name.Form("%s_%s", GetUserClass(), first_file->GetName());
    TString options;
-   options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,SimulationInfos=%s",
-                update_interval, first_file->GetBranchName(), results_file_name.Data(), first_file->GetTitle());
+   options.Form("SimFileName=%s,SimTitle=%s,OutputDir=%s,EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,SimulationInfos=%s",
+                first_file->GetName(), fAnalysisChain->GetTitle(), first_file->GetSimDir()->GetDirectory(),
+                update_interval, first_file->GetBranchName(),
+                results_file_name.Data(), first_file->GetTitle());
+   if (first_file->IsFiltered()) options += Form(",DataSet=%s,System=%s,Run=%d",
+            first_file->GetDataSet(), first_file->GetSystem(), first_file->GetRun());
    // Add any user-defined options
    if (GetUserClassOptions() != "") {
       options += ",";

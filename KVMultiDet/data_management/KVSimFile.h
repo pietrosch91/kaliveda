@@ -32,6 +32,10 @@ public:
    virtual ~KVSimFile();
    void Copy(TObject&) const;
 
+   Bool_t IsFiltered() const
+   {
+      return fFiltered;
+   }
    KVSimDir* GetSimDir() const
    {
       // return pointer to KVSimDir dataset to which this file belongs

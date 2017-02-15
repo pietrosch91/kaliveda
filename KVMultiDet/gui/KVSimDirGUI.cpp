@@ -547,7 +547,7 @@ void KVSimDirGUI::RunAnalysis()
    TList* runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs.get() : selected_filt_runs.get());
    Bool_t filtered_analysis = (selected_filt_runs->GetEntries() > 0) ;
    runs_to_analyse->ls();
-   if (!filtered_analysis) {
+   if (1) {
       new_RunAnalysis(runs_to_analyse);
       return;
    }
