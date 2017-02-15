@@ -168,10 +168,14 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 #else
       if (gDataAnalyser->GetProofMode() != KVDataAnalyser::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
 #endif
+      TString analysis_class;
+      if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", fUserClassImp.Data(), GetACliCMode());
+      else analysis_class = GetUserClass();
+
       if (nbEventToRead) {
-         theChain->Process(Form("%s%s", fUserClassImp.Data(), GetACliCMode()), option.Data(), nbEventToRead);
+         theChain->Process(analysis_class, option.Data(), nbEventToRead);
       } else {
-         theChain->Process(Form("%s%s", fUserClassImp.Data(), GetACliCMode()), option.Data());
+         theChain->Process(analysis_class, option.Data());
       }
    }
    delete theChain;

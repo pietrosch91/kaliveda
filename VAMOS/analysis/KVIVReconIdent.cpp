@@ -161,18 +161,17 @@ KVVAMOSDataCorrection* KVIVReconIdent::GetDataCorrection()
 
       const TString keyname("VAMOSIDCorrectionParameters");
 
-      Info("GetDataCorrection", "Retrieving records using key \'%s\'...", keyname.Data());
+      Info("GetDataCorrection", "... Retrieving records using key \'%s\'...", keyname.Data());
 
       const KVRList* const records(db_run_entry->GetLinks(keyname));
-      assert(records);
-
       if (!records) {
-         Error("GetDataCorrection", "Failed to retrieve records using key \"%s\", "
-               "has the key name changed?", keyname.Data());
+         Error("GetDataCorrection", "... Failed to retrieve records using key \"%s\", "
+               "has the key name changed? ...", keyname.Data());
       }
 
       else {
          fDataCorr->SetIDCorrectionParameters(records);
+         Info("GetDataCorrection", "... Records found and set into data correction ...");
       }
    }
 
