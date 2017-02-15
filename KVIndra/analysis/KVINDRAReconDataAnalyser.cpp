@@ -203,7 +203,7 @@ void KVINDRAReconDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t s
    //If save=kTRUE (default), write the information in a file whose name is given by ".jobname"
    //where 'jobname' is the name of the job as given to the batch system.
 
-   KVDataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
+   KVDataSetAnalyser::WriteBatchEnvFile(jobname, kFALSE);
    if (fDataSelector != "none" && fDataSelector != "") {
       GetBatchInfoFile()->SetValue("KVDataSelector", fDataSelector.Data());
       if (fDataSelectorImp != "") GetBatchInfoFile()->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
@@ -224,7 +224,7 @@ Bool_t KVINDRAReconDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
 
    Bool_t ok = kFALSE;
 
-   if (!KVDataAnalyser::ReadBatchEnvFile(filename)) return ok;
+   if (!KVDataSetAnalyser::ReadBatchEnvFile(filename)) return ok;
 
    fDataSelector = GetBatchInfoFile()->GetValue("KVDataSelector", "");
    if (fDataSelector != "" && fDataSelector != "none") {
