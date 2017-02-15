@@ -265,5 +265,8 @@ KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
 INDRA_e503.KVVAMOSWeightFinder.RunListFile:  e503_runlist.dat
 INDRA_e503.KVVAMOSWeightFinder.TransCoefFileList:  e503_transcoef.list
 
+# File with list of files containing cuts for Mass:Charge ratio duplication correction
+INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI:  [file_name]
+
 # Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent".
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS

@@ -56,7 +56,7 @@ public:
 
    void SetRunList(KVNumberList& nl);
 
-   Bool_t Init();
+   void Init();
 
    Int_t   GetRunPosition(Int_t run_number);
    Float_t GetScalerINDRA(Int_t run_number) {

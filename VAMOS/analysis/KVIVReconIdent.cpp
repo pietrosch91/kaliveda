@@ -152,7 +152,7 @@ KVVAMOSDataCorrection* KVIVReconIdent::GetDataCorrection()
    //Returns the KVVAMOSDataCorrection object used to apply corrections on VAMOS
 
    if (!fDataCorr) {
-      fDataCorr = KVVAMOSDataCorrection::MakeDataCorrection(gDataSet->GetName());
+      fDataCorr = KVVAMOSDataCorrection::MakeDataCorrection(gDataSet->GetName(), fRunNumber);
 
       KVDBRun* db_run_entry(gIndraDB->GetRun(fRunNumber));
       assert(db_run_entry);
@@ -173,7 +173,6 @@ KVVAMOSDataCorrection* KVIVReconIdent::GetDataCorrection()
 
       else {
          fDataCorr->SetIDCorrectionParameters(records);
-         fDataCorr->Init();
       }
    }
 

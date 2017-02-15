@@ -13,6 +13,7 @@ class KVVAMOSDataCorrection : public KVBase {
 protected:
    KVList* fRecords;
    TString fDataSet;  //!name of dataset associated
+   Int_t fRunNumber;  //!run number associated to this data corrector
 
 public:
    KVVAMOSDataCorrection();
@@ -24,11 +25,11 @@ public:
    virtual const KVList* GetIDCorrectionParameters() const;
 
    // Initialiser to modify in child class if needed
-   virtual Bool_t Init();
+   virtual void Init();
 
    virtual void ApplyCorrections(KVVAMOSReconNuc*);
 
-   static KVVAMOSDataCorrection* MakeDataCorrection(const Char_t* uri);
+   static KVVAMOSDataCorrection* MakeDataCorrection(const Char_t* uri, Int_t run_number);
 
    ClassDef(KVVAMOSDataCorrection, 1) //Base class to use for VAMOS data corrections
 };

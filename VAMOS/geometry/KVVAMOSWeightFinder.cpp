@@ -76,7 +76,7 @@ void KVVAMOSWeightFinder::SetRunList(KVNumberList& nl)
 
 //____________________________________________________________________________//
 
-Bool_t KVVAMOSWeightFinder::Init()
+void KVVAMOSWeightFinder::Init()
 {
    //Initialise the weight finder.
    //Need to have set the run list correctly first...
@@ -90,7 +90,7 @@ Bool_t KVVAMOSWeightFinder::Init()
 
    if (!fkIsInit) Warning("Init", "... runlist is empty, initialisation went wrong ...");
 
-   return fkIsInit;
+   return;
 }
 //____________________________________________________________________________//
 
@@ -111,12 +111,12 @@ void KVVAMOSWeightFinder::ReadRunListInDataSet()
    //Find the file to use
    TString filename = gDataSet->GetDataSetEnv("KVVAMOSWeightFinder.RunListFile");
    if (filename == "") {
-      Warning("ReadRunListInDataSet", "No filename defined. Should be given by %s.KVVAMOSWeightFinder.RunListFile", gDataSet->GetName());
+      Warning("ReadRunListInDataSet", "... No filename defined. Should be given by %s.KVVAMOSWeightFinder.RunListFile ...", gDataSet->GetName());
       return;
    }
    std::ifstream ifile;
    if (gDataSet->OpenDataSetFile(filename.Data(), ifile)) {
-      Info("ReadRunListInDataSet", "run list informations in: '%s'", filename.Data());
+      if (fkverbose) Info("ReadRunListInDataSet", "... run list informations in: '%s' ...", filename.Data());
       ReadInformations(ifile);
       ifile.close();
    }
@@ -158,7 +158,7 @@ void KVVAMOSWeightFinder::ReadInformations(std::ifstream& file)
    //any run in this list doesn't exist in the
    //experimental run list file
    if (!fCompRunList.IsEmpty()) {
-      Info("ReadInformations", "... the following runs don't exist in data set run list file and will be ignored:\n%s", fCompRunList.GetList());
+      if (fkverbose) Info("ReadInformations", "... the following runs don't exist in data set run list file and will be ignored:\n%s", fCompRunList.GetList());
    }
 }
 //____________________________________________________________________________//
@@ -251,7 +251,7 @@ void KVVAMOSWeightFinder::ReadTransCoefFileListInDataSet()
    }
    std::ifstream ifile;
    if (gDataSet->OpenDataSetFile(filename.Data(), ifile)) {
-      Info("ReadTransCoefFilesInDataSet", "trans. coef. list of files in:  '%s' ", filename.Data());
+      if (fkverbose) Info("ReadTransCoefFilesInDataSet", "trans. coef. list of files in:  '%s' ", filename.Data());
       ReadTransCoefListFile(ifile);
       ifile.close();
    }
@@ -272,7 +272,10 @@ void KVVAMOSWeightFinder::ReadTransCoefListFile(std::ifstream& file)
       if (newline.compare(0, 1, "#") != 0) {
          TString ss(newline);
          TObjArray* obj_arr = ss.Tokenize(" ");
-         obj_arr->ls();
+
+         //debug
+//         obj_arr->ls();
+
          TString str_va = ((TObjString*) obj_arr->At(0))->GetString();
          TString str_na = ((TObjString*) obj_arr->At(1))->GetString();
 
@@ -411,8 +414,8 @@ Float_t KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle_deg, Float_t delta,
    //Also check if the VamosAngle is OK.
    std::vector<Float_t> line = fvec_TCsteps.at(num_angle);
    if (TMath::Abs(line.at(0) - VamosAngle_deg) > 0.1) {
-      Error("GetTransCoef", "... found VamosAngle in steps vector (=%f) is different from given angle (=%f) ...",
-            line.at(0), VamosAngle_deg);
+      if (fkverbose) Error("GetTransCoef", "... found VamosAngle in steps vector (=%f) is different from given angle (=%f) ...",
+                              line.at(0), VamosAngle_deg);
       return -666.;
    }
 

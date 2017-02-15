@@ -1162,6 +1162,7 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
    fBatchEnv->SetValue("DataSet", fDataSet->GetName());
    fBatchEnv->SetValue("AnalysisTask", fTask->GetType());
    fBatchEnv->SetValue("Runs", fRunList.GetList());
+   fBatchEnv->SetValue("FullRunList", fFullRunList.GetList());
    if (fTask->WithUserClass()) {
       fBatchEnv->SetValue("UserClass", GetUserClass());
       if (fUserClassImp == "" || fUserClassDec == "") {
@@ -1234,6 +1235,13 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
       Error("ReadBatchEnvFile", "List of runs not given");
       return ok;
    }
+
+   val = fBatchEnv->GetValue("FullRunList", "");
+   if (val != "") {
+      KVNumberList runs(val.Data());
+      SetFullRunList(runs);
+   }
+
    nbEventToRead = (Long64_t)fBatchEnv->GetValue("NbToRead", -1);
    SetUserIncludes(fBatchEnv->GetValue("UserIncludes", ""));
    SetUserLibraries(fBatchEnv->GetValue("UserLibraries", ""));
