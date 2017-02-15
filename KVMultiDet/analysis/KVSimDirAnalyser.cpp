@@ -64,10 +64,13 @@ void KVSimDirAnalyser::SubmitTask()
 #else
       if (GetProofMode() != KVDataAnalyser::None) fAnalysisChain->SetProof(kTRUE);
 #endif
+      TString analysis_class;
+      if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", GetUserClassImp().Data(), GetACliCMode());
+      else analysis_class = GetUserClass();
       if (read_all_events) {
-         fAnalysisChain->Process(Form("%s%s", GetUserClassImp().Data(), GetACliCMode()), options.Data());
+         fAnalysisChain->Process(analysis_class, options.Data());
       } else {
-         fAnalysisChain->Process(Form("%s%s", GetUserClassImp().Data(), GetACliCMode()), options.Data(), GetNbEventToRead());
+         fAnalysisChain->Process(analysis_class, options.Data(), GetNbEventToRead());
       }
    }
    delete fAnalysisChain;
