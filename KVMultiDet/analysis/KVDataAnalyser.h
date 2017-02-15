@@ -25,7 +25,6 @@ private:
    KVString fDataType;          //datatype chosen by user
    Bool_t fBatch;               //set to kTRUE when used in a non-interactive environment
    KVString fBatchName;         //name of batch job when used in a non-interactive environment
-   KVNumberList fFullRunList;   //list of all runs for the analysis task
    Long64_t nbEventToRead;
 
    Bool_t fMenus; //set to kTRUE in menu-driven mode
@@ -180,10 +179,6 @@ public:
    {
       return fDataType;
    }
-   KVNumberList& GetFullRunList()
-   {
-      return fFullRunList;
-   }
    const KVString& GetUserIncludes() const
    {
       return fIncludes;
@@ -213,7 +208,6 @@ public:
    {
       fDataType = name;
    }
-   void SetFullRunList(KVNumberList& nl);
 
    void SetUserIncludes(const Char_t* incDirs = 0);
    void SetUserLibraries(const Char_t* libs = 0);

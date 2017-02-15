@@ -13,6 +13,7 @@ class KVDataSetAnalyser : public KVDataAnalyser {
 private:
    KVDBSystem* fSystem;         //system chosen by user
    KVNumberList fRunList;       //list of runs to analyse
+   KVNumberList fFullRunList;   //list of all runs for the analysis task
    KVDataSet* fDataSet;         //dataset chosen by user
 
    Bool_t fChoozDataSet;        //set to kTRUE when user wants to choose a dataset
@@ -56,15 +57,19 @@ public:
    void ChooseRuns(KVDBSystem* system = nullptr, const Char_t* data_type = "");
    void Reset();
 
-   KVDBSystem* GetSystem()
+   const KVDBSystem* GetSystem() const
    {
       return fSystem;
    }
-   const KVNumberList& GetRunList()
+   const KVNumberList& GetRunList() const
    {
       return fRunList;
    }
-   KVDataSet* GetDataSet()
+   const KVNumberList& GetFullRunList() const
+   {
+      return fFullRunList;
+   }
+   const KVDataSet* GetDataSet() const
    {
       return fDataSet;
    }
@@ -78,6 +83,11 @@ public:
    }
    void SetSystem(KVDBSystem* syst);
    void SetRuns(const KVNumberList& nl, Bool_t check = kTRUE);
+   void SetFullRunList(const KVNumberList& nl)
+   {
+      fFullRunList = nl;
+   }
+
    void ClearRunList()
    {
       fRunList.Clear();
