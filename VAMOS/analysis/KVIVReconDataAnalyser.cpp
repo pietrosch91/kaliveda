@@ -3,6 +3,7 @@
 
 #include "KVIVReconDataAnalyser.h"
 #include "KVVAMOS.h"
+#include "KVINDRADB.h"
 
 ClassImp(KVIVReconDataAnalyser)
 
