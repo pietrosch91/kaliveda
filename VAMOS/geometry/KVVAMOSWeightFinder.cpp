@@ -551,7 +551,7 @@ Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
    //
    //The returned weight 'W(brho, thetaI)' will be computed from:
    // Begin_Latex
-   // #frac{1}{W(B #rho , #theta _{I}) = #frac{#sum_{i}^{RunList}Scaler^{i} #cdot T(#delta ^{i}, #theta_{I} , #theta ^{i}_{V})}{#sum_{i}^{RunList}Scaler^{i}}
+   // #frac{1}{W(B #rho , #theta _{I}) = #frac{#sum_{i}^{RunList}Scaler^{i} #cdot DT^{i}_{corr} #cdot T(#delta ^{i}, #theta_{I} , #theta ^{i}_{V})}{#sum_{i}^{RunList}Scaler^{i} #cdot DT^{i}_{corr}}
    // End_Latex
    //
    //Where:
@@ -561,6 +561,8 @@ Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
    //    thetaI     = experimental theta angle in rad and in lab. ref. frame in INDRA convention
    //    Scaler_i   = value of INDRA scalers for the run i
    //    theta_V    = rotation angle of VAMOS in theta around beam trajectory
+   //    DT_corr_i  = 1./(1.-DT)
+   //    DT_i       = dead time associated to the run i
 
 
    Float_t num = 0.;
@@ -574,11 +576,12 @@ Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
       Float_t scaler   = GetScalerINDRA(next_run);
       Float_t thetav   = GetThetaVamos(next_run);
       Float_t tc       = GetTransCoef(thetav, brho / brho_ref, thetaI);
+      Float_t dt_corr  = 1. / (1. - GetDeadTime());
 
       //if values found
-      if (brho_ref > 0 && scaler > 0 && tc >= 0.) {
-         num += tc * scaler;
-         denum += scaler;
+      if (brho_ref > 0 && scaler > 0 && tc >= 0. && dt_corr >= 0.) {
+         num += tc * scaler * dt_corr;
+         denum += scaler * dt_corr;
       }
 
       //debug

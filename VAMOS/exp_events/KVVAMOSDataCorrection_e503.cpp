@@ -24,7 +24,7 @@ ClassImp(KVVAMOSDataCorrection_e503)
 KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503()
 {
    // Default constructor
-   fkverbose      = kTRUE;
+   fkverbose      = kFALSE;
    fkInitialised  = kFALSE;
    fRunNumber     = -1;
 
@@ -299,37 +299,44 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyAoverQDuplicationCorrections(KVVAMOSReco
    assert(nuc);
    assert(aoq_cut);
 
-   if (fkverbose) Info("ApplyAoverQDuplicationCorrections", "... starting AoQ corrections for the nucleus ...");
+   //if (fkverbose) Info("ApplyAoverQDuplicationCorrections", "... starting AoQ corrections for the nucleus ...");
 
-   Float_t Z_nuc   = nuc->GetRealZ();
-   Float_t AoQ_nuc = nuc->GetRealAoverQ();
+   Float_t  old_RealZ   = nuc->GetRealZ();
+   Float_t  old_RealAoQ = nuc->GetRealAoverQ();
+   Float_t  old_RealA   = nuc->GetRealA();
+   Double_t old_KE      = nuc->GetEnergy();
+   Double_t old_KEBV    = nuc->GetEnergyBeforeVAMOS();
 
    TIter next_cut(aoq_cut);
    TCutG* cut = NULL;
    while ((cut = dynamic_cast<TCutG*>(next_cut.Next()))) {
-      if (cut->IsInside(AoQ_nuc, Z_nuc)) {//if nuc needs to be corrected
-         //Find new value of mass:charge ratio
-         Double_t new_AoQ = -666.;
-         Double_t brho    = nuc->GetBrho();
-         Double_t path    = -666.;
-         Double_t tof     = -666.;
-         const Char_t* tof_name = "TSI_HF";
-         nuc->GetCorrFlightDistanceAndTime(path, tof, tof_name);
-         Double_t time  = tof + tof_corr;
-         Double_t beta  = path / time / KVParticle::C();
-         Double_t gamma = 1.0 / TMath::Sqrt(1. - beta * beta);
-         Double_t tmp   = beta * gamma;
-         new_AoQ = brho * KVParticle::C() * 10. / tmp / KVNucleus::u();
+      if (cut->IsInside(old_RealAoQ, old_RealZ)) {//if nuc needs to be corrected
 
-         //Set new value of mass:charge
-         //nuc->SetRealAoverQ(new_AoQ);
+         if (fkverbose) {
+            Info("ApplyAoverQDuplicationCorrections", "... before corrections: [RealZ=%f, RealAoQ=%f, RealA=%f, KE=%e, KEBeforeVamos=%e] ...",
+                 old_RealZ, old_RealAoQ, old_RealA, old_KE, old_KEBV);
+         }
 
-         if (fkverbose) Info("ApplyAoverQDuplicationCorrections", "... finishing AoQ corrections [AoQ_old=%e, AoQ_new=%e] ...", AoQ_nuc, new_AoQ);
+         nuc->SetToFHFOffset(tof_corr);
+         nuc->IdentifyQandA();
+
+         if (fkverbose) {
+            Float_t  new_RealZ   = nuc->GetRealZ();
+            Float_t  new_RealAoQ = nuc->GetRealAoverQ();
+            Float_t  new_RealA   = nuc->GetRealA();
+            Double_t new_KE      = nuc->GetEnergy();
+            Double_t new_KEBV    = nuc->GetEnergyBeforeVAMOS();
+
+            Info("ApplyAoverQDuplicationCorrections", "... after corrections: [RealZ=%f, RealAoQ=%f, RealA=%f, KE=%e, KEBeforeVamos=%e] ...",
+                 new_RealZ, new_RealAoQ, new_RealA, new_KE, new_KEBV);
+         }
+
+
          return kTRUE;
       }
    }
 
-   if (fkverbose) Info("ApplyAoverQDuplicationCorrections", "... finishing AoQ corrections, did nothing ...");
+   //if (fkverbose) Info("ApplyAoverQDuplicationCorrections", "... finishing AoQ corrections, did nothing ...");
    return kFALSE; //no correction needed
 }
 

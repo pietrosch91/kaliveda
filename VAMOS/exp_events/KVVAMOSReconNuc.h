@@ -40,13 +40,14 @@ protected:
       kIsQAidentified = BIT(23)  //flag set when Q and A identification of particle is complete
    };
 
-   KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
+   KVVAMOSReconTrajectory  fRT;             //handles trajectory reconstruction data
    KVVAMOSDataCorrection*  fDataCorr;//!data correction
-   Double_t               fStripFoilEloss; //calculated energy lost in the stripping foil
+   Double_t                fStripFoilEloss; //calculated energy lost in the stripping foil
 
    std::vector<Double_t>  fDetE;           //array with the corrected energy lost in each detector of fDetList
    Float_t                fRealQ;          //Q returned by identification routine
    Float_t                fRealAoQ;        //A/Q returned by identification routine
+   Float_t                fToFFHOffset;    //ToF offset correction for HF (in ns)
    UChar_t fQ;                             //charge state
    Bool_t  fQMeasured;                     //true/false if charge state is measured/calculated
    Bool_t  fVAMeasured;                    //true/false if A from IdentifyQandA() method was measured/calculated
@@ -73,7 +74,7 @@ public:
    Bool_t StoppedInSi();
    Bool_t StoppedInCsI();
 
-   Bool_t   GetCorrFlightDistanceAndTime(Double_t& dist, Double_t& tof, const Char_t* tof_name) const;
+   Bool_t  GetCorrFlightDistanceAndTime(Double_t& dist, Double_t& tof, const Char_t* tof_name) const;
    virtual Double_t  GetCorrectedT_HF(Double_t tof, Double_t dist)   const;
    virtual void     Calibrate();
    virtual Bool_t   CheckTrackingCoherence();
@@ -136,6 +137,7 @@ public:
    Int_t             GetQ()                              const;
    Float_t           GetRealAoverQ()                     const;
    Float_t           GetRealQ()                          const;
+   Float_t           GetToFHFOffset()                    const;
 
 
    virtual Double_t  GetStripFoilEnergyLoss()            const;
@@ -164,6 +166,7 @@ public:
    void             SetXYf(Float_t x, Float_t y);
    void             SetFPDirection(Double_t th_f, Double_t ph_f);
    void             SetDataCorrection(KVVAMOSDataCorrection* data_corr);
+   void             SetToFHFOffset(Float_t tof_offset_ns);
 
    Bool_t IsZidentified()                              const;
    Bool_t IsQandAidentified()                          const;
@@ -174,7 +177,7 @@ public:
    void SetIsQandAidentified();
    void SetIsQandAunidentified();
 
-   ClassDef(KVVAMOSReconNuc, 4) //Nucleus identified by VAMOS spectrometer
+   ClassDef(KVVAMOSReconNuc, 5) //Nucleus identified by VAMOS spectrometer
 };
 
 //____________________________________________________________________________________________//
@@ -451,6 +454,12 @@ inline Float_t KVVAMOSReconNuc::GetRealQ() const
 }
 //____________________________________________________________________________________________//
 
+inline Float_t  KVVAMOSReconNuc::GetToFHFOffset() const
+{
+   // Returns the ToF offset applied in identification
+   return fToFFHOffset;
+}
+
 inline Double_t KVVAMOSReconNuc::GetStripFoilEnergyLoss() const
 {
    // Returns calculated energy loss in stripping foil of reconstructed nucleus ( in MeV )
@@ -629,6 +638,13 @@ inline void KVVAMOSReconNuc::SetDataCorrection(KVVAMOSDataCorrection* data_corr)
 {
    //Set the class to handle corrections of VAMOS data
    fDataCorr = data_corr;
+}
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetToFHFOffset(Float_t tof_offset_ns)
+{
+   //Set an offset to ToF value if it is measured by HF time
+   fToFFHOffset = tof_offset_ns;
 }
 //____________________________________________________________________________________________//
 
