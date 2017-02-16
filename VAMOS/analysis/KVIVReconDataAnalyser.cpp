@@ -54,7 +54,7 @@ void KVIVReconDataAnalyser::preAnalysis()
 
    if (!theRawData) return;
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
-   Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+   Long64_t rawEntry = GetRawEntryNumber();
 
    gMultiDetArray->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
 

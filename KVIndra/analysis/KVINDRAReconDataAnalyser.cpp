@@ -334,6 +334,15 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
 }
 
 
+void KVINDRAReconDataAnalyser::SetSelectorCurrentRun(KVINDRADBRun* CurrentRun)
+{
+   if (fSelector) {
+      fSelector->SetCurrentRun(CurrentRun);
+   } else {
+      fOldSelector->SetCurrentRun(CurrentRun);
+   }
+}
+
 void KVINDRAReconDataAnalyser::preInitRun()
 {
    // Called by currently-processed TSelector when a new file in the TChain is opened.
@@ -345,11 +354,7 @@ void KVINDRAReconDataAnalyser::preInitRun()
    Int_t run = GetRunNumberFromFileName(theChain->GetCurrentFile()->GetName());
    gIndra->SetParameters(run);
    KVINDRADBRun* CurrentRun = gIndraDB->GetRun(run);
-   if (fSelector) {
-      fSelector->SetCurrentRun(CurrentRun);
-   } else {
-      fOldSelector->SetCurrentRun(CurrentRun);
-   }
+   SetSelectorCurrentRun(CurrentRun);
    cout << endl << " ===================  New Run  =================== " <<
         endl << endl;
 
@@ -372,6 +377,19 @@ void KVINDRAReconDataAnalyser::preInitRun()
    fRustines.Print();
 }
 
+Long64_t KVINDRAReconDataAnalyser::GetRawEntryNumber()
+{
+   Long64_t rawEntry = (fSelector ? fSelector->GetEventNumber() - 1
+                        : fOldSelector->GetEventNumber() - 1);
+
+   return rawEntry;
+}
+
+KVReconstructedEvent* KVINDRAReconDataAnalyser::GetReconstructedEvent()
+{
+   return (fSelector ? fSelector->GetEvent() : fOldSelector->GetEvent());
+}
+
 void KVINDRAReconDataAnalyser::preAnalysis()
 {
    // Read and set raw data for the current reconstructed event
@@ -379,8 +397,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    if (!theRawData) return;
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
-   Long64_t rawEntry = (fSelector ? fSelector->GetEventNumber() - 1
-                        : fOldSelector->GetEventNumber() - 1);
+   Long64_t rawEntry = GetRawEntryNumber();
 
    gIndra->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
 
@@ -394,7 +411,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    // as rustines often depend on a knowledge of the original raw data,
    // we apply them after it has been read in
-   KVINDRAReconEvent* event = (fSelector ? fSelector->GetEvent() : fOldSelector->GetEvent());
+   KVINDRAReconEvent* event = (KVINDRAReconEvent*)GetReconstructedEvent();
    if (fRustines.HasActivePatches()) fRustines.Apply(event);
 }
 

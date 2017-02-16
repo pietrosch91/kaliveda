@@ -114,6 +114,9 @@ public:
    }
    void CloneRawAndGeneTrees();
    virtual Bool_t CheckIfUserClassIsValid(const KVString& = "");
+   void SetSelectorCurrentRun(KVINDRADBRun* CurrentRun);
+   Long64_t GetRawEntryNumber();
+   KVReconstructedEvent* GetReconstructedEvent();
 
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };
