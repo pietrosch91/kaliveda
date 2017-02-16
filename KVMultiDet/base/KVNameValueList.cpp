@@ -42,7 +42,7 @@ ClassImp(KVNameValueList)
 
 //______________________________________________
 KVNameValueList::KVNameValueList()
-   : fList()
+   : fList(), fIgnoreBool(kFALSE)
 {
    // Default constructor
    fList.SetOwner(kTRUE);
@@ -50,7 +50,7 @@ KVNameValueList::KVNameValueList()
 
 //______________________________________________
 KVNameValueList::KVNameValueList(const Char_t* name, const Char_t* title)
-   : TNamed(name, title), fList()
+   : TNamed(name, title), fList(), fIgnoreBool(kFALSE)
 {
    // Ctor with name & title
    fList.SetOwner(kTRUE);
@@ -94,6 +94,7 @@ void KVNameValueList::Copy(TObject& nvl) const
    TNamed::Copy(nvl);
    KVNameValueList& _obj = (KVNameValueList&)nvl;
    fList.Copy(_obj.fList);
+   _obj.fIgnoreBool = fIgnoreBool;
 }
 
 //______________________________________________
@@ -200,6 +201,15 @@ void KVNameValueList::SetValue_int(const Char_t* name, Int_t value)
    par ? par->Set(value) : fList.Add(new KVNamedParameter(name, value));
 }
 
+void KVNameValueList::SetValue_bool(const Char_t* name, Bool_t value)
+{
+   //associate a parameter (define by its name) and a value
+   //if the parameter is not in the list, it is added
+   //if it's in the list replace its value
+   KVNamedParameter* par = FindParameter(name);
+   par ? par->Set(value) : fList.Add(new KVNamedParameter(name, value));
+}
+
 //______________________________________________
 void KVNameValueList::SetValue_flt(const Char_t* name, Double_t value)
 {
@@ -251,6 +261,14 @@ void KVNameValueList::SetValue(const Char_t* name, Int_t value)
    //if the parameter is not in the list, it is added
    //if it's in the list replace its value
    SetValue_int(name, value);
+}
+
+void KVNameValueList::SetValue(const Char_t* name, Bool_t value)
+{
+   //associate a parameter (define by its name) and a value
+   //if the parameter is not in the list, it is added
+   //if it's in the list replace its value
+   SetValue_bool(name, value);
 }
 
 //______________________________________________
@@ -381,6 +399,14 @@ Bool_t KVNameValueList::HasIntParameter(const Char_t* name) const
    return (p && p->IsInt());
 }
 
+Bool_t KVNameValueList::HasBoolParameter(const Char_t* name) const
+{
+   // Return kTRUE if list has parameter called 'name' and it is a boolean value
+
+   KVNamedParameter* p = FindParameter(name);
+   return (p && p->IsBool());
+}
+
 Bool_t KVNameValueList::HasDoubleParameter(const Char_t* name) const
 {
    // Return kTRUE if list has parameter called 'name' and it is a double/floating-point value
@@ -439,6 +465,16 @@ Int_t KVNameValueList::GetIntValue(const Char_t* name) const
 
    KVNamedParameter* par = FindParameter(name);
    return (par ? par->GetInt() : -1);
+}
+
+Bool_t KVNameValueList::GetBoolValue(const Char_t* name) const
+{
+   //return the value in boolean format
+   //for a parameter using its name
+   //return false if no parameter with such name is present
+
+   KVNamedParameter* par = FindParameter(name);
+   return (par ? par->GetBool() : kFALSE);
 }
 
 //______________________________________________
@@ -500,6 +536,15 @@ Int_t KVNameValueList::GetIntValue(Int_t idx) const
    return (par ? par->GetInt() : -1);
 }
 
+Bool_t KVNameValueList::GetBoolValue(Int_t idx) const
+{
+   //return the value in bool format
+   //for a parameter using its position
+   //return false if idx is greater than the number of stored parameters
+   KVNamedParameter* par = GetParameter(idx);
+   return (par ? par->GetBool() : kFALSE);
+}
+
 //______________________________________________
 Double_t KVNameValueList::GetDoubleValue(Int_t idx) const
 {
@@ -558,6 +603,17 @@ Bool_t KVNameValueList::IsValue(const Char_t* name, Int_t value)
    return kFALSE;
 }
 
+Bool_t KVNameValueList::IsValue(const Char_t* name, Bool_t value)
+{
+   // Returns kTRUE if parameter with given name exists and is equal to given value
+   KVNamedParameter* par = FindParameter(name);
+   if (par) {
+      KVNamedParameter tmp(name, value);
+      return (*par) == tmp;
+   }
+   return kFALSE;
+}
+
 Bool_t KVNameValueList::IsValue(const Char_t* name, Double_t value)
 {
    // Returns kTRUE if parameter with given name exists and is equal to given value
@@ -577,6 +633,9 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
    // values are read as strings from the TEnv and we use
    // TString::IsDigit, TString::IsFloat to decide whether to store
    // them as integers, floats, or strings.
+   // booleans are recognized as: TRUE, FALSE, ON, OFF, YES, NO, OK, NOT
+   // (to disable this feature and read such values as strings, call
+   // SetIgnoreBool(kTRUE))
    //
    // Special case:
    //   if the parameter name contains the string NumberList
@@ -603,7 +662,14 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
          TString parval(nv_pair->GetValue());
          if (parval.IsDigit()) SetValue(parname, parval.Atoi());
          else if (parval.IsFloat()) SetValue(parname, parval.Atof());
-         else SetValue(parname, parval);
+         else {
+            TString PARVAL(parval);
+            PARVAL.ToUpper();
+            if (!fIgnoreBool && (PARVAL == "TRUE" || PARVAL == "FALSE" || PARVAL == "ON" || PARVAL == "OFF"
+                                 || PARVAL == "YES" || PARVAL == "NO" || PARVAL == "OK" || PARVAL == "NOT"))
+               SetValue(parname, (Bool_t)env_file.GetValue(parname, 0));
+            else SetValue(parname, parval);
+         }
       }
    }
 }
@@ -620,6 +686,7 @@ KVEnv* KVNameValueList::ProduceEnvFile()
       if (par->IsString()) envfile->SetValue(par->GetName(), par->GetString());
       else if (par->IsInt()) envfile->SetValue(par->GetName(), par->GetInt());
       else if (par->IsDouble()) envfile->SetValue(par->GetName(), par->GetDouble());
+      else if (par->IsBool()) envfile->SetValue(par->GetName(), par->GetString());
    }
    return envfile;
 }
@@ -643,6 +710,7 @@ KVNameValueList KVNameValueList::operator += (KVNameValueList& nvl)
       if (par->IsInt())         SetValue(par->GetName(), par->GetInt());
       else if (par->IsDouble()) SetValue(par->GetName(), par->GetDouble());
       else if (par->IsString()) SetValue(par->GetName(), par->GetString());
+      else if (par->IsBool()) SetValue(par->GetName(), par->GetBool());
    }
    return *this;
 }
@@ -651,6 +719,7 @@ void KVNameValueList::WriteClass(const Char_t* classname, const Char_t* classdes
 {
    // Generate a class with member variables and Get/Set methods corresponding
    // to the names and types of the parameters in the list
+   // For booleans we use Isxxxx/SetIsxxx
 
    KVClassFactory cf(classname, classdesc, base_class);
    cf.AddGetSetMethods(*this);
