@@ -7,10 +7,13 @@
 #include "KVDataAnalyser.h"
 #include "TChain.h"
 
+#include <KVSimDir.h>
+
 class KVSimDirAnalyser : public KVDataAnalyser {
 
    TList* fListOfSimFiles;//!    list of files/trees to analyse
    TChain* fAnalysisChain;//!    TChain for analysis
+   KVSimDir* fSimDir;//!         used for batch analysis
 
 protected:
    void BuildChain();
@@ -29,8 +32,14 @@ public:
    }
 
    void SubmitTask();
+   KVString GetRootDirectoryOfDataToAnalyse() const;
+
+   void WriteBatchEnvFile(const Char_t*, Bool_t sav = kTRUE);
+   Bool_t ReadBatchEnvFile(const Char_t*);
 
    ClassDef(KVSimDirAnalyser, 1) //Analysis of trees containing simulated events
+private:
+   void DeleteSimFilesListIfOurs();
 };
 
 #endif

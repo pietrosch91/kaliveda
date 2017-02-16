@@ -295,6 +295,11 @@ public:
    {
       return fSubmit;
    }
+   virtual KVString GetRootDirectoryOfDataToAnalyse() const
+   {
+      AbstractMethod("GetRootDirectoryOfDataToAnalyse");
+      return "";
+   }
 
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

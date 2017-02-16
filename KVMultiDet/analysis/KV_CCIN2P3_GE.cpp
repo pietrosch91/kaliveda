@@ -240,7 +240,7 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
    //
    KVBatchSystem::ChangeDefJobOpt(da);
    KVString taskname = da->GetAnalysisTask()->GetName();
-   KVString rootdir = gDataRepository->GetRootDirectory();
+   KVString rootdir = da->GetRootDirectoryOfDataToAnalyse();
    Bool_t repIsSPS = rootdir.BeginsWith("/sps/");
 
    KVString wrkdir(gSystem->WorkingDirectory());

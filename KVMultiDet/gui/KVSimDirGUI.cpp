@@ -23,7 +23,6 @@
 using namespace std;
 
 #include "KVDropDownDialog.h"
-#include "TProof.h"
 
 ClassImp(KVSimDirGUI)
 
@@ -442,7 +441,7 @@ void KVSimDirGUI::AddSimDir()
          if (simdirs != "") simdirs += " ";
          simdirs += simdirname;
          fGuirc.SetValue("SimDirs", simdirs);
-         fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), fi.fIniDir);
+         fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), sd->GetDirectory());
          fGuirc.SaveLevel(kEnvUser);
       }
    }
@@ -657,8 +656,9 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
    else
       gDataAnalyser->SetNbEventToRead(0);
    if (fWithPROOF) {
-      gBatchSystemManager->GetBatchSystem("PROOFLite")->cd();
+      gBatchSystemManager->GetDefaultBatchSystem()->cd();
       gBatchSystem->Clear();
+      gBatchSystem->SetJobName("GE_batch_test");
       gDataAnalyser->SetBatchSystem(gBatchSystem);
    }
    if (type == "filter") SetFilterOptions();

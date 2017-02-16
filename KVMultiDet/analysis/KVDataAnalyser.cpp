@@ -287,7 +287,7 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
 
    if (BatchMode()) ReadBatchEnvFile(Form(".%s", GetBatchName()));
 
-   if (!CheckWhatToAnalyseAndHow()) return kFALSE;
+   //if (!CheckWhatToAnalyseAndHow()) return kFALSE;
 
    if (fTask->WithUserClass() && fUserClass != ClassName()) {
       //task requires user analysis class
@@ -658,6 +658,9 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
       fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
       fBatchEnv->SetValue("UserClassImp", fUserClassImp);
       fBatchEnv->SetValue("UserClassDec", fUserClassDec);
+   } else {
+      // a task without a user class may still need to pass options to the predefined analysis class
+      if (fUserClassOptions != "") fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
    }
    fBatchEnv->SetValue("NbToRead", (Double_t)nbEventToRead);
    fBatchEnv->SetValue("LaunchDirectory", gSystem->WorkingDirectory());
@@ -746,6 +749,9 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          AssignAndDelete(path_trg, gSystem->ConcatFileName(gSystem->WorkingDirectory(), fUserClassDec.Data()));
          gSystem->CopyFile(path_src.Data(), path_trg.Data());
       }
+   } else {
+      // a task without a user class may still need to pass options to the predefined analysis class
+      fUserClassOptions = fBatchEnv->GetValue("UserClassOptions", "");
    }
 
    ok = kTRUE;

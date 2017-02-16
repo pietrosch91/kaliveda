@@ -698,3 +698,9 @@ void KVDataSetAnalyser::AddJobDescriptionList(TList* l)
    jdl->SetValue("DataRepository", gDataRepository->GetName());
    jdl->SetValue("DataSet", fDataSet->GetName());
 }
+
+KVString KVDataSetAnalyser::GetRootDirectoryOfDataToAnalyse() const
+{
+   // Returns path to data to be analysed
+   return gDataRepository->GetRootDirectory();
+}

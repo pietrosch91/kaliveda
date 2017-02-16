@@ -19,16 +19,24 @@ ClassImp(KVSimDirAnalyser)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVSimDirAnalyser::KVSimDirAnalyser()
-   : KVDataAnalyser(), fListOfSimFiles(nullptr), fAnalysisChain(nullptr)
+   : KVDataAnalyser(), fListOfSimFiles(nullptr), fAnalysisChain(nullptr), fSimDir(nullptr)
 {
    // Default constructor
 }
 
 //____________________________________________________________________________//
 
+void KVSimDirAnalyser::DeleteSimFilesListIfOurs()
+{
+   if (fListOfSimFiles && TString(fListOfSimFiles->GetName()) == "toDelete")
+      SafeDelete(fListOfSimFiles);
+}
+
 KVSimDirAnalyser::~KVSimDirAnalyser()
 {
    // Destructor
+   SafeDelete(fSimDir);
+   DeleteSimFilesListIfOurs();
 }
 
 void KVSimDirAnalyser::SubmitTask()
@@ -75,6 +83,75 @@ void KVSimDirAnalyser::SubmitTask()
    }
    delete fAnalysisChain;
    fAnalysisChain = nullptr;
+}
+
+KVString KVSimDirAnalyser::GetRootDirectoryOfDataToAnalyse() const
+{
+   // Returns path to data to be analysed
+   if (!NeedToChooseWhatToAnalyse()) {
+      KVSimFile* first_file = (KVSimFile*)fListOfSimFiles->First();
+      return first_file->GetSimDir()->GetDirectory();
+   }
+   return "";
+}
+
+void KVSimDirAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t sav)
+{
+   //Save (in the TEnv fBatchEnv) all necessary information on analysis task which can be used to execute it later
+   //(i.e. when batch processing system executes the job).
+   //If save=kTRUE (default), write the information in a file whose name is given by ".jobname"
+   //where 'jobname' is the name of the job as given to the batch system.
+
+   KVDataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
+   KVSimFile* simF = (KVSimFile*)fListOfSimFiles->First();
+   KVSimDir* simD = simF->GetSimDir();
+   GetBatchInfoFile()->SetValue("SimDir", simD->GetDirectory());
+   if (simF->IsFiltered()) GetBatchInfoFile()->SetValue("SimFile.Type", "filtered");
+   else GetBatchInfoFile()->SetValue("SimFile.Type", "simulated");
+   GetBatchInfoFile()->SetValue("SimFiles", simF->GetName());
+   if (fListOfSimFiles->GetEntries() > 1) {
+      TIter next(fListOfSimFiles);
+      next();
+      while ((simF = (KVSimFile*)next())) GetBatchInfoFile()->SetValue("+SimFiles", simF->GetName());
+   }
+   if (sav) GetBatchInfoFile()->SaveLevel(kEnvUser);
+}
+
+Bool_t KVSimDirAnalyser::ReadBatchEnvFile(const Char_t* filename)
+{
+   //Read the batch env file "filename" and initialise the analysis task using the
+   //informations in the file
+   //Returns kTRUE if all goes well
+
+   Bool_t ok = kFALSE;
+
+   if (!KVDataAnalyser::ReadBatchEnvFile(filename)) return ok;
+
+   KVString simdir = GetBatchInfoFile()->GetValue("SimDir", "");
+   if (simdir == "") return ok;
+
+   fSimDir = new KVSimDir("SIMDIR", simdir);
+   fSimDir->AnalyseDirectory();
+
+   KVString filetype = GetBatchInfoFile()->GetValue("SimFile.Type", "");
+   if (filetype == "") return ok;
+
+   KVString simfiles = GetBatchInfoFile()->GetValue("SimFiles", "");
+   if (simfiles == "") return ok;
+
+   DeleteSimFilesListIfOurs();
+   fListOfSimFiles = new TList;
+   fListOfSimFiles->SetName("toDelete");
+
+   simfiles.Begin(" ");
+   while (!simfiles.End()) {
+      if (filetype == "simulated") fListOfSimFiles->Add(fSimDir->GetSimDataList()->FindObject(simfiles.Next()));
+      else if (filetype == "filtered") fListOfSimFiles->Add(fSimDir->GetFiltDataList()->FindObject(simfiles.Next()));
+   }
+
+   ok = kTRUE;
+
+   return ok;
 }
 
 void KVSimDirAnalyser::BuildChain()

@@ -129,6 +129,7 @@ public:
    Bool_t ReadBatchEnvFile(const Char_t* filename);
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
    virtual void AddJobDescriptionList(TList*);
+   KVString GetRootDirectoryOfDataToAnalyse() const;
 
    ClassDef(KVDataSetAnalyser, 1) //Analysis of data in datasets
 };
