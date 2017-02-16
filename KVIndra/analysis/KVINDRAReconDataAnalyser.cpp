@@ -168,6 +168,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 #else
       if (gDataAnalyser->GetProofMode() != KVDataAnalyser::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
 #endif
+
       TString analysis_class;
       if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", fUserClassImp.Data(), GetACliCMode());
       else analysis_class = GetUserClass();

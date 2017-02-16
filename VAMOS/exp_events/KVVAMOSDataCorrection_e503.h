@@ -14,8 +14,8 @@ protected:
 
    Float_t ftof_corr_sicsi;          //correction of ToF (in ns) for AoQ duplication correction for SiCsI telescopes
    Float_t ftof_corr_icsi;           //correction of ToF (in ns) for AoQ duplication correction for ICSi telescopes
-   KVList* flist_aoq_cut_sicsi;       //list of TCutG* for AoQ duplication correction for SiCsI telescopes
-   KVList* flist_aoq_cut_icsi;        //list of TCutG* for AoQ duplication correction for ICSi telescopes
+   KVHashList* flist_aoq_cut_sicsi;       //list of TCutG* for AoQ duplication correction for SiCsI telescopes
+   KVHashList* flist_aoq_cut_icsi;        //list of TCutG* for AoQ duplication correction for ICSi telescopes
 
 
    //Si-CsI
@@ -23,7 +23,7 @@ protected:
    virtual void ReadDuplicationICSiCutFileListInDataSet();
    virtual void ReadDuplicationCutFileList(std::ifstream& file, Int_t type);
 
-   virtual Bool_t ApplyAoverQDuplicationCorrections(KVVAMOSReconNuc*, KVList*, Float_t);
+   virtual Bool_t ApplyAoverQDuplicationCorrections(KVVAMOSReconNuc*, KVHashList*, Float_t);
 
 public:
    KVVAMOSDataCorrection_e503();

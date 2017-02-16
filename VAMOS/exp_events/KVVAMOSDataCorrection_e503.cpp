@@ -24,10 +24,14 @@ ClassImp(KVVAMOSDataCorrection_e503)
 KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503()
 {
    // Default constructor
-   fkverbose      = kFALSE;
+   fkverbose      = kTRUE;
    fkInitialised  = kFALSE;
+   fRunNumber     = -1;
 
-   Init();
+   flist_aoq_cut_sicsi = new KVHashList;
+   flist_aoq_cut_sicsi->SetOwner(kTRUE);
+   flist_aoq_cut_icsi  = new KVHashList;
+   flist_aoq_cut_icsi->SetOwner(kTRUE);
 }
 
 //____________________________________________________________________________//
@@ -72,29 +76,35 @@ void KVVAMOSDataCorrection_e503::Init()
 
    //if not already init
    else {
-      Info("Init", "... starting initiliasing correction class ...");
+      if (fRunNumber != -1) {
+         Info("Init", "... starting initiliasing correction class  for run %d ...", fRunNumber);
 
-      //Si-CsI duplication correction
-      ftof_corr_sicsi = -666.;
-      ReadDuplicationSiCsICutFileListInDataSet();
+         //Si-CsI duplication correction
+         ftof_corr_sicsi = -666.;
+         ReadDuplicationSiCsICutFileListInDataSet();
 
-      //IC-Si duplication correction
-      ftof_corr_icsi = -666.;
-      ReadDuplicationICSiCutFileListInDataSet();
+         //IC-Si duplication correction
+         ftof_corr_icsi = -666.;
+         ReadDuplicationICSiCutFileListInDataSet();
 
 
-      Info("Init", "... initiliasing of correction class done ...");
-      fkInitialised = kTRUE;
+         Info("Init", "... initiliasing of correction class done ...");
+         fkInitialised = kTRUE;
 
-      //debug
-      if (fkverbose) {
-         Info("Init", "... printing ToF corrections then cuts lists to be applied ...");
-         printf("[tof_sicsi=%e ; tof_icsi=%e]\n", ftof_corr_sicsi, ftof_corr_icsi);
-         flist_aoq_cut_sicsi->ls();
-         flist_aoq_cut_sicsi->Print();
-         flist_aoq_cut_icsi->ls();
-         flist_aoq_cut_icsi->Print();
+         //debug
+         if (fkverbose) {
+            Info("Init", "... printing ToF corrections then cuts lists to be applied ...");
+            printf("[tof_sicsi=%e ; tof_icsi=%e]\n", ftof_corr_sicsi, ftof_corr_icsi);
+            printf("list of Si-CsI cuts follows:\n");
+            flist_aoq_cut_sicsi->ls();
+            flist_aoq_cut_sicsi->Print();
+            printf("list of IC-Si cuts follows:\n");
+            flist_aoq_cut_icsi->ls();
+            flist_aoq_cut_icsi->Print();
+         }
       }
+
+      else Error("Init", "... no run number set , will do nothing ...");
    }
 }
 
@@ -122,7 +132,7 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationSiCsICutFileListInDataSet()
    //Find the list file to use
    TString filename = gDataSet->GetDataSetEnv("KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI");
    if (filename == "") {
-      Warning("ReadDuplicationCutFileListInDataSet", "No filename defined. It can be defined by %s.KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI", gDataSet->GetName());
+      Warning("ReadDuplicationSiCsICutFileListInDataSet", "No filename defined. It can be defined by %s.KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI", gDataSet->GetName());
       return;
    }
    std::ifstream ifile;
@@ -201,32 +211,60 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationCutFileList(std::ifstream& file,
                //find the TEnv and access to run_range and tof_corr values
                TEnv* env = (TEnv*) file->Get("TEnv");
                assert(env);
-               const Char_t* run_range = env->GetValue("run_range", " ");
+
+               if (fkverbose) {
+                  Info("ReadDuplicationCutFileList", "... TEnv infos follow ...");
+                  env->Print();
+               }
+
+               const Char_t* run_range = env->GetValue("run_range", "");
+               if (fkverbose) {
+                  Info("ReadDuplicationCutFileList", "... run (=%d) | run range of the file (=%s) ...",
+                       fRunNumber, run_range);
+               }
 
                //check if 'fRunNumber' is in run range
+
                KVNumberList nl(run_range);
                if (nl.Contains(fRunNumber)) {
+
+                  if (fkverbose) {
+                     Info("ReadDuplicationCutFileList", "... run (=%d) is in the run range of the file (=%s) ...",
+                          fRunNumber, run_range);
+
+                  }
+
                   //extract and save ToF correction value
-                  if (type == 0) ftof_corr_sicsi = env->GetValue("tof_corr_ns", (Float_t) - 666.);
-                  if (type == 1) ftof_corr_icsi  = env->GetValue("tof_corr_ns", (Float_t) - 666.);
+                  if (type == 0) {
+                     ftof_corr_sicsi = env->GetValue("tof_corr_ns", (Float_t) - 666.);
+                     if (fkverbose) Info("ReadDuplicationCutFileList", " ... Si-CsI tof_corr= %f ns ...", ftof_corr_sicsi);
+                  }
+                  if (type == 1) {
+                     ftof_corr_icsi  = env->GetValue("tof_corr_ns", (Float_t) - 666.);
+                     if (fkverbose) Info("ReadDuplicationCutFileList", " ... IC-Si tof_corr= %f ns ...", ftof_corr_icsi);
+                  }
+
                   //exctract cuts list
                   TKey* key = NULL;
-                  TIter it(file->GetListOfKeys());
+                  TList* list = file->GetListOfKeys();
+                  assert(list);
+                  TIter it(list);
                   while ((key = (TKey*) it.Next())) {
-                     if (key->ReadObj()->InheritsFrom("TCutG")) {
-                        TCutG* cutg = (TCutG*) key->ReadObj();
-                        if (type == 0) flist_aoq_cut_sicsi->Add(cutg);
-                        if (type == 1) flist_aoq_cut_icsi->Add(cutg);
+                     if ((key->ReadObj())->InheritsFrom("TCutG")) {
+                        const TCutG* cutg = (TCutG*) key->ReadObj();
+                        TCutG* copy_cut = new TCutG(*cutg);
+                        if (type == 0) flist_aoq_cut_sicsi->Add(copy_cut);
+                        else if (type == 1) flist_aoq_cut_icsi->Add(copy_cut);
                      }
                   }
 
                   found = kTRUE;
                }
 
-               else file->Close();
-            }
-         }
-      }
+               file->Close();
+            }//end of file is ok
+         }//end of SearchKVFile
+      }//end of line ok
    }//all lines read
 }
 
@@ -250,7 +288,7 @@ void KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
 }
 
 //____________________________________________________________________________//
-Bool_t KVVAMOSDataCorrection_e503::ApplyAoverQDuplicationCorrections(KVVAMOSReconNuc* nuc, KVList* aoq_cut, Float_t tof_corr)
+Bool_t KVVAMOSDataCorrection_e503::ApplyAoverQDuplicationCorrections(KVVAMOSReconNuc* nuc, KVHashList* aoq_cut, Float_t tof_corr)
 {
    //Check if the provided nucleus, identified by either KVIDHarpeeSiCsI_e503 or
    //KVIDHarpeeICSi_e503 telescope, needs to be corrected for mass:charge
