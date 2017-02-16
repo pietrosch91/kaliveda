@@ -150,7 +150,8 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    }
 
    //debug
-   Info("SubmitTask", "Option= '%s'", option.Data());
+   //Info("SubmitTask", "Option=%s", option.Data());
+
 
    // for backwards compatibility, we allow user class to inherit from
    // KVOldINDRASelector instead of KVINDRAEventSelector
@@ -168,7 +169,6 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 #else
       if (gDataAnalyser->GetProofMode() != KVDataAnalyser::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
 #endif
-
       TString analysis_class;
       if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", fUserClassImp.Data(), GetACliCMode());
       else analysis_class = GetUserClass();
@@ -210,6 +210,8 @@ void KVINDRAReconDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t s
       if (fDataSelectorImp != "") fBatchEnv->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
       if (fDataSelectorDec != "") fBatchEnv->SetValue("KVDataSelectorDec", fDataSelectorDec.Data());
    }
+   // backwards-compatible fix for old KVSelector analysis classes
+   fBatchEnv->SetValue("UserClassAlternativeBaseClass", "KVOldINDRASelector");
    if (save) fBatchEnv->SaveLevel(kEnvUser);
 }
 
@@ -333,6 +335,15 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
 }
 
 
+void KVINDRAReconDataAnalyser::SetSelectorCurrentRun(KVINDRADBRun* CurrentRun)
+{
+   if (fSelector) {
+      fSelector->SetCurrentRun(CurrentRun);
+   } else {
+      fOldSelector->SetCurrentRun(CurrentRun);
+   }
+}
+
 void KVINDRAReconDataAnalyser::preInitRun()
 {
    // Called by currently-processed TSelector when a new file in the TChain is opened.
@@ -344,11 +355,7 @@ void KVINDRAReconDataAnalyser::preInitRun()
    Int_t run = GetRunNumberFromFileName(theChain->GetCurrentFile()->GetName());
    gIndra->SetParameters(run);
    KVINDRADBRun* CurrentRun = gIndraDB->GetRun(run);
-   if (fSelector) {
-      fSelector->SetCurrentRun(CurrentRun);
-   } else {
-      fOldSelector->SetCurrentRun(CurrentRun);
-   }
+   SetSelectorCurrentRun(CurrentRun);
    cout << endl << " ===================  New Run  =================== " <<
         endl << endl;
 
@@ -371,6 +378,19 @@ void KVINDRAReconDataAnalyser::preInitRun()
    fRustines.Print();
 }
 
+Long64_t KVINDRAReconDataAnalyser::GetRawEntryNumber()
+{
+   Long64_t rawEntry = (fSelector ? fSelector->GetEventNumber() - 1
+                        : fOldSelector->GetEventNumber() - 1);
+
+   return rawEntry;
+}
+
+KVReconstructedEvent* KVINDRAReconDataAnalyser::GetReconstructedEvent()
+{
+   return (fSelector ? fSelector->GetEvent() : fOldSelector->GetEvent());
+}
+
 void KVINDRAReconDataAnalyser::preAnalysis()
 {
    // Read and set raw data for the current reconstructed event
@@ -378,8 +398,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    if (!theRawData) return;
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
-   Long64_t rawEntry = (fSelector ? fSelector->GetEventNumber() - 1
-                        : fOldSelector->GetEventNumber() - 1);
+   Long64_t rawEntry = GetRawEntryNumber();
 
    gIndra->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
 
@@ -393,7 +412,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    // as rustines often depend on a knowledge of the original raw data,
    // we apply them after it has been read in
-   KVINDRAReconEvent* event = (fSelector ? fSelector->GetEvent() : fOldSelector->GetEvent());
+   KVINDRAReconEvent* event = (KVINDRAReconEvent*)GetReconstructedEvent();
    if (fRustines.HasActivePatches()) fRustines.Apply(event);
 }
 

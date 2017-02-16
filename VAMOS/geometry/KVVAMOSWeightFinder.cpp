@@ -89,7 +89,6 @@ void KVVAMOSWeightFinder::Init()
    } else fkIsInit = kFALSE;
 
    if (!fkIsInit) Warning("Init", "... runlist is empty, initialisation went wrong ...");
-
    return;
 }
 //____________________________________________________________________________//
@@ -270,11 +269,10 @@ void KVVAMOSWeightFinder::ReadTransCoefListFile(std::ifstream& file)
    while (std::getline(file, newline)) {
       //Ignore comments in the file
       if (newline.compare(0, 1, "#") != 0) {
-         TString ss(newline);
-         TObjArray* obj_arr = ss.Tokenize(" ");
 
-         //debug
-//         obj_arr->ls();
+         TString ss(newline.c_str());
+         TObjArray* obj_arr = ss.Tokenize(" ");
+         obj_arr->ls();
 
          TString str_va = ((TObjString*) obj_arr->At(0))->GetString();
          TString str_na = ((TObjString*) obj_arr->At(1))->GetString();

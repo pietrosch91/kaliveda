@@ -49,6 +49,7 @@ protected:
    KVString fUserClassDec;    //user's analysis class header file
    Bool_t fUserClassIsOK;  //set once user class has been validated
    KVString fUserClassOptions;   //options to be passed to user analysis class
+   KVString fUserClassAlternativeBaseClass;    //alternative base class for user's analysis class
 
    KVDataAnalyser* fParent;   //holds address of parent analyser which created this one
 

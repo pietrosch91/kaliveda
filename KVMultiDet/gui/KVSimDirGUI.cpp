@@ -528,30 +528,24 @@ void KVSimDirGUI::EnableEventNumberEntry(Bool_t on)
 
 void KVSimDirGUI::RunAnalysis()
 {
-   TList* selected_sim_runs = fLVsimData->GetSelectedObjects();
-   TList* selected_filt_runs = fLVfiltData->GetSelectedObjects();
+   unique_ptr<TList> selected_sim_runs(fLVsimData->GetSelectedObjects());
+   unique_ptr<TList> selected_filt_runs(fLVfiltData->GetSelectedObjects());
    if (!selected_sim_runs->GetEntries() && !selected_filt_runs->GetEntries()) {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose one or more simulated or filtered data files!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
    if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
    if (fAnalClassHeader == "" || fAnalClassImp == "") {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose a valid analysis class!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
-   TList* runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs : selected_filt_runs);
+   TList* runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs.get() : selected_filt_runs.get());
    Bool_t filtered_analysis = (selected_filt_runs->GetEntries() > 0) ;
    runs_to_analyse->ls();
-   TChain* analysis_chain = BuildChain(runs_to_analyse);
+   unique_ptr<TChain> analysis_chain(BuildChain(runs_to_analyse));
 
    TString fullclasspath;
    AssignAndDelete(fullclasspath, gSystem->ConcatFileName(fAnalClassDir, fAnalClassImp));
@@ -604,10 +598,6 @@ void KVSimDirGUI::RunAnalysis()
       analysis_chain->Process(fullclasspath, options, nevents);
    } else
       analysis_chain->Process(fullclasspath, options);
-
-   delete analysis_chain;
-   delete selected_sim_runs;
-   delete selected_filt_runs;
 }
 
 TChain* KVSimDirGUI::BuildChain(TList* runs)
@@ -707,29 +697,23 @@ void KVSimDirGUI::Run()
 
 void KVSimDirGUI::RunFilter()
 {
-   TList* selected_sim_runs = fLVsimData->GetSelectedObjects();
-   TList* selected_filt_runs = fLVfiltData->GetSelectedObjects();
+   unique_ptr<TList> selected_sim_runs(fLVsimData->GetSelectedObjects());
+   unique_ptr<TList> selected_filt_runs(fLVfiltData->GetSelectedObjects());
    if (selected_filt_runs->GetEntries()) {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Only simulated events can be filtered!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
    if (!selected_sim_runs->GetEntries()) {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose a simulated data file to filter!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
    if (selected_sim_runs->GetEntries() > 1) {
       new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
-      delete selected_sim_runs;
-      delete selected_filt_runs;
       return;
    }
-   TList* runs_to_analyse = selected_sim_runs;
+   TList* runs_to_analyse = selected_sim_runs.get();
    runs_to_analyse->ls();
-   TChain* analysis_chain = BuildChain(runs_to_analyse);
+   unique_ptr<TChain> analysis_chain(BuildChain(runs_to_analyse));
    analysis_chain->ls();
 
    TString geometry;
@@ -766,16 +750,6 @@ void KVSimDirGUI::RunFilter()
       nevents = (Long64_t)fNENumberEvents->GetNumber();
    }
 
-   options.Form("EventsReadInterval=%lld,SimFileName=%s,SimTitle=%s,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
-                (nevents > 10 ? nevents / 10 : 1),
-                ((KVSimFile*)runs_to_analyse->First())->GetName(),
-                analysis_chain->GetTitle(),
-                ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
-                fDataset.Data(), fSystem.Data(), geometry.Data(), filter.Data(),
-                ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory(), kinema.Data());
-
-   Info("RunFilter", "old : %s", options.Data());
-
    options  = Form("EventsReadInterval=%lld,", (nevents > 10 ? nevents / 10 : 1));
    options += Form("SimFileName=%s,", ((KVSimFile*)runs_to_analyse->First())->GetName());
    options += Form("SimTitle=%s,", analysis_chain->GetTitle());
@@ -787,14 +761,12 @@ void KVSimDirGUI::RunFilter()
    options += Form("OutputDir=%s,", ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
    options += Form("Kinematics=%s", kinema.Data());
 
-
    if (fRun != "") {
       TString r;
       r.Form(",Run=%s", fRun.Data());
       options += r;
    }
    Info("RunFilter", "%s", options.Data());
-
 
    if (fWithPROOF) {
       TProof* p = TProof::Open("");
@@ -809,11 +781,9 @@ void KVSimDirGUI::RunFilter()
       }
    }
    analysis_chain->Process("KVEventFiltering", options, nevents);
+   selected_filt_runs.reset(nullptr);
+   selected_sim_runs.reset(nullptr);
    RefreshSimDir();
-
-   delete analysis_chain;
-   delete selected_sim_runs;
-   delete selected_filt_runs;
 }
 
 void KVSimDirGUI::ImportSimulation()

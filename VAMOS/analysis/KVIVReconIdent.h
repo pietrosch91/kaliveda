@@ -14,8 +14,8 @@ protected:
    };
 
    Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
-
    KVVAMOSDataCorrection* fDataCorr;
+
    KVVAMOSDataCorrection* GetDataCorrection();
 
 public:

@@ -346,7 +346,7 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
          ChooseUserClass();
       }
 
-      while (!CheckIfUserClassIsValid()) {
+      while (!CheckIfUserClassIsValid(fUserClassAlternativeBaseClass)) {
          cout << "============> Warning <=============" << endl;
          cout << GetUserClass() << " is not a valid " << fTask->GetUserBaseClass() << endl;
          cout << "Analysis aborted." << endl;
@@ -1272,6 +1272,8 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          Error("ReadBatchEnvFile", "Name of user class header file not given");
          return ok;
       }
+      fUserClassAlternativeBaseClass = fBatchEnv->GetValue("UserClassAlternativeBaseClass", "");
+
       //If current working directory is not the same as the launch directory,
       //we have to copy the user's files here
       if (!RunningInLaunchDirectory()) {
@@ -1540,7 +1542,7 @@ void KVDataAnalyser::CopyAnalysisResultsToLaunchDirectory()
          fname.Form("%s", file->GetName());
          //ajout d une condition pour eviter le transfert des file*.so generes par les KVParticleCondition
          //et aussi les .d generes par les KVParticleCondition
-         if (!(fname.BeginsWith("file") && (fname.EndsWith(".so") || fname.EndsWith(".d")))) {
+         if (!(fname.EndsWith(".so") || fname.EndsWith(".d") || fname.EndsWith(".pcm") || fname.EndsWith(".bak"))) {
             TString path_src, path_trg;
             AssignAndDelete(path_trg, gSystem->ConcatFileName(launchDir.Data(), file->GetName()));
             AssignAndDelete(path_src, gSystem->ConcatFileName(gSystem->WorkingDirectory(),

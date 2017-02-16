@@ -66,7 +66,6 @@ KVVAMOSDataCorrection* KVVAMOSDataCorrection::MakeDataCorrection(const Char_t* u
    dc->fRunNumber = run_number;
    dc->Init();
 
-
    std::cout << "KVVAMOSDataCorrection::MakeDataCorrection, ... printing info on created object ..." << std::endl;
    dc->Print();
 
