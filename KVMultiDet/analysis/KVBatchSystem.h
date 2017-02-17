@@ -138,6 +138,9 @@ public:
       ;
    }
 
+   virtual void GetBatchSystemParameterList(KVNameValueList&);
+   virtual void SetBatchSystemParameters(const KVNameValueList&);
+
    ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };
 

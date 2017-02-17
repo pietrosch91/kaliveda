@@ -392,6 +392,21 @@ KVList* KVBatchSystem::GetListOfJobs()
    return 0x0;
 }
 
+void KVBatchSystem::GetBatchSystemParameterList(KVNameValueList&)
+{
+   // To be implemented in child classes.
+   // Fill the list with all relevant parameters for batch system,
+   // set to their default values.
+   AbstractMethod("GetBatchSystemParameterList");
+}
+
+void KVBatchSystem::SetBatchSystemParameters(const KVNameValueList&)
+{
+   // To be implemented in child classes.
+   // Use the parameters in the list to set all relevant parameters for batch system.
+   AbstractMethod("SetBatchSystemParameters");
+}
+
 //_______________________________________________________________________________//
 
 void KVBatchSystem::SetJobName(const Char_t* name)
