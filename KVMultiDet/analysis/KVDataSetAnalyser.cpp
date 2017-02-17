@@ -584,6 +584,7 @@ void KVDataSetAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
    GetBatchInfoFile()->SetValue("DataRepository", gDataRepository->GetName());
    GetBatchInfoFile()->SetValue("DataSet", fDataSet->GetName());
    GetBatchInfoFile()->SetValue("Runs", fRunList.GetList());
+   GetBatchInfoFile()->SetValue("FullRunList", fFullRunList.GetList());
    if (save) GetBatchInfoFile()->SaveLevel(kEnvUser);
 }
 
@@ -629,13 +630,15 @@ Bool_t KVDataSetAnalyser::ReadBatchEnvFile(const Char_t* filename)
    }
    val = GetBatchInfoFile()->GetValue("Runs", "");
    if (val != "") {
-      KVNumberList runs(val.Data());
-      SetRuns(runs);
+      SetRuns(val.Data());
    } else {
       Error("ReadBatchEnvFile", "List of runs not given");
       return ok;
    }
-
+   val = GetBatchInfoFile()->GetValue("FullRunList", "");
+   if (val != "") {
+      SetFullRunList(val.Data());
+   }
    ok = kTRUE;
 
    return ok;
