@@ -29,10 +29,7 @@ protected:
    KVString fJobSubCmd;          //shell command for submitting job
    KVString fJobScript;          //full path of shell script to be executed by batch system
    KVString fDefOpt;             //default options for job submission command
-   Bool_t fMultiJobs;  //set to kTRUE if several jobs are to be submitted for the runlist set in fAnalyser
-   Int_t fRunsPerJob; //number of runs per job submitted in multi job mode (default=1)
-   KVString fCurrJobName; //name of current job being submitted
-   KVNumberList fCurrJobRunList;//runlist for (multi job mode) job being submitted
+   mutable KVString fCurrJobName; //name of current job being submitted
 
    virtual void ChangeDefJobOpt(KVDataAnalyser* da);
 
@@ -76,7 +73,7 @@ public:
    };
 
    virtual void SetJobName(const Char_t* name);
-   virtual const Char_t* GetJobName();
+   virtual const Char_t* GetJobName() const;
 
    virtual const Char_t* GetJobSubCmdLine();
 
@@ -86,25 +83,6 @@ public:
 
    void cd();
 
-   virtual void SetMultiJobsMode(Bool_t on = kTRUE)
-   {
-      fMultiJobs = on;
-   };
-   virtual Bool_t MultiJobsMode() const
-   {
-      return fMultiJobs;
-   };
-
-   virtual void SetRunsPerJob(Int_t n)
-   {
-      // Set number of runs per job submitted in multi jobs mode (default=1)
-      fRunsPerJob = n;
-   };
-   virtual Int_t GetRunsPerJob() const
-   {
-      // Returns number of runs per job submitted in multi jobs mode
-      return fRunsPerJob;
-   };
 
    virtual void WriteBatchEnvFile(TEnv*);
    virtual void ReadBatchEnvFile(TEnv*);
@@ -115,21 +93,8 @@ public:
       fAnalyser = da;
    }
 
-   virtual TString BQS_Request(KVString /*value*/, KVString /*jobname*/ = "")
-   {
 
-      Warning("BQS_Request", "Only define for KV_CCIN2P3_BQS sub class");
-      return "";
-   }
-   virtual void SetJobTimeString(const Char_t* = "") {}
-   virtual void SetJobTime(Int_t, Int_t = 0, Int_t = 0) {}
-   virtual void SetJobMemory(const Char_t* = "") {}
-   virtual void SetJobDisk(const Char_t* = "") {}
-   virtual void SetSendMailOnJobStart() {}
-   virtual void SetSendMailOnJobEnd() {}
-   virtual void SetSendMailAddress(const char*) {}
-
-   virtual void SanitizeJobName() {}
+   virtual void SanitizeJobName() const {}
 
    virtual KVList* GetListOfJobs();
 

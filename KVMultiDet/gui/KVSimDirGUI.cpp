@@ -22,6 +22,7 @@
 #include <iostream>
 using namespace std;
 
+#include "KVBatchSystemParametersGUI.h"
 #include "KVDropDownDialog.h"
 
 ClassImp(KVSimDirGUI)
@@ -655,14 +656,20 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
       gDataAnalyser->SetNbEventToRead((Long64_t)fNENumberEvents->GetNumber());
    else
       gDataAnalyser->SetNbEventToRead(0);
+   Bool_t cancel_batch_job = kFALSE;
    if (fWithPROOF) {
       gBatchSystemManager->GetDefaultBatchSystem()->cd();
       gBatchSystem->Clear();
-      gBatchSystem->SetJobName("GE_batch_test");
-      gDataAnalyser->SetBatchSystem(gBatchSystem);
+      KVNameValueList batchParams;
+      gBatchSystem->GetBatchSystemParameterList(batchParams);
+      new KVBatchSystemParametersGUI(MainFrame, &batchParams, gDataAnalyser, &cancel_batch_job);
+      if (!cancel_batch_job) {
+         gBatchSystem->SetBatchSystemParameters(batchParams);
+         gDataAnalyser->SetBatchSystem(gBatchSystem);
+      }
    }
    if (type == "filter") SetFilterOptions();
-   gDataAnalyser->Run();
+   if (!cancel_batch_job) gDataAnalyser->Run();
    selected_filt_runs.reset(nullptr);
    selected_sim_runs.reset(nullptr);
    RefreshSimDir();

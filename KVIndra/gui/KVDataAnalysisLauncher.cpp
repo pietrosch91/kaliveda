@@ -31,6 +31,7 @@
 #include "KVInputDialog.h"
 #include "KVBatchSystemGUI.h"
 
+#include <KVNameValueListGUI.h>
 #include <KVRunFile.h>
 
 #define TTDELAY 750
@@ -873,8 +874,6 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow* p, UInt_t w, UInt
          send_mail_at_job_end->SetState(kButtonUp, kFALSE);
       TString email = GUIenv->GetValue("KVDataAnalysisLauncher.SendMailAddress", "");
       if (email == "") {
-         email = gSystem->GetFromPipe("email");//only works at CCIN2P3!!!
-         if (email.Index('=') > -1) email.Remove(0, email.Index('=') + 2);
       }
       if (email != "") alternative_email->SetText(email, kFALSE);
    }
@@ -919,27 +918,27 @@ Bool_t KVDataAnalysisLauncher::ProcessMessage(Long_t msg, Long_t , Long_t)
    cout << msg << " : " << par1 << " / " << par2 << endl;
 #endif
    switch (GET_MSG(msg)) {
-         //       case kC_CONTAINER:
-         //          switch (GET_SUBMSG(msg)) {
-         //             case kCT_ITEMCLICK:
-         //                if (par1 == kButton1) {
-         //                   cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
-         //                   if (lcRuns->NumSelected() > 0) {
-         //                      UpdateListOfSelectedRuns();
-         //                   }
-         //                   else {
-         //                      ClearListOfSelectedRuns();
-         //                   }
-         //                }
-         //                break;
-         //
-         //             case kCT_SELCHANGED:
-         //                cout << "SELCHANGED: number selected = " << par2 << endl;
-         //                break;
-         //
-         //             default:
-         //                break;
-         //          }
+      //       case kC_CONTAINER:
+      //          switch (GET_SUBMSG(msg)) {
+      //             case kCT_ITEMCLICK:
+      //                if (par1 == kButton1) {
+      //                   cout << "Now with " << lcRuns->NumSelected() << " selected items" << endl;
+      //                   if (lcRuns->NumSelected() > 0) {
+      //                      UpdateListOfSelectedRuns();
+      //                   }
+      //                   else {
+      //                      ClearListOfSelectedRuns();
+      //                   }
+      //                }
+      //                break;
+      //
+      //             case kCT_SELCHANGED:
+      //                cout << "SELCHANGED: number selected = " << par2 << endl;
+      //                break;
+      //
+      //             default:
+      //                break;
+      //          }
 
       default:
          break;
@@ -1309,18 +1308,20 @@ void KVDataAnalysisLauncher::Process(void)
    if (IsBatch()) {
       gBatchSystemManager->GetDefaultBatchSystem()->cd();
       gBatchSystem->Clear();
-      if (IsBatchNameAuto()) gBatchSystem->SetJobName(teBatchNameFormat->GetText());
-      else gBatchSystem->SetJobName(teBatchName->GetText());
-      gBatchSystem->SetJobMemory(teBatchMemory->GetText());
-      gBatchSystem->SetJobDisk(teBatchDisk->GetText());
-      gBatchSystem->SetJobTime((Int_t)teBatchTime->GetIntNumber());
-      gBatchSystem->SetRunsPerJob(runsPerJob->GetNumber());
-      gBatchSystem->SetMultiJobsMode(runsPerJob->GetNumber() < listOfRuns.GetNValues());
-      if (SendMailAtJobStart()) gBatchSystem->SetSendMailOnJobStart();
-      if (SendMailAtJobEnd()) gBatchSystem->SetSendMailOnJobEnd();
-      if (SendMailAtJobStart() || SendMailAtJobEnd()) {
-         if (email != "") gBatchSystem->SetSendMailAddress(email);
-      }
+      KVNameValueList batchParams;
+      gBatchSystem->GetBatchSystemParameterList(batchParams);
+      batchParams.SetValue("AutoJobName", IsBatchNameAuto());
+      batchParams.SetValue("JobName", teBatchName->GetText());
+      batchParams.SetValue("AutoJobNameFormat", teBatchNameFormat->GetText());
+      batchParams.SetValue("JobMemory", teBatchMemory->GetText());
+      batchParams.SetValue("JobDisk", teBatchDisk->GetText());
+      batchParams.SetValue("JobTime", teBatchTime->GetTextEntry()->GetText());
+      batchParams.SetValue("RunsPerJob", runsPerJob->GetNumber());
+      batchParams.SetValue("MultiJobsMode", runsPerJob->GetNumber() < listOfRuns.GetNValues());
+      batchParams.SetValue("EMailOnStart", SendMailAtJobStart());
+      batchParams.SetValue("EMailOnEnd", SendMailAtJobEnd());
+      batchParams.SetValue("EMailAddress", email);
+      gBatchSystem->SetBatchSystemParameters(batchParams);
       datan->SetBatchSystem(gBatchSystem);
    } else {
       datan->SetBatchSystem(0);

@@ -124,6 +124,11 @@ public:
       return fUserClassIsOK;
    }
 
+   virtual Int_t GetNumberOfFilesToAnalyse() const
+   {
+      return 0;
+   }
+
    virtual void Run();
    virtual void RunMenus();
    void ChooseUserClass();
@@ -300,6 +305,7 @@ public:
       AbstractMethod("GetRootDirectoryOfDataToAnalyse");
       return "";
    }
+   virtual const Char_t* GetRecognisedAutoBatchNameKeywords() const;
 
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

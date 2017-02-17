@@ -30,6 +30,10 @@ public:
    {
       fListOfSimFiles = l;
    }
+   Int_t GetNumberOfFilesToAnalyse() const
+   {
+      return fListOfSimFiles ? fListOfSimFiles->GetEntries() : 0;
+   }
 
    void SubmitTask();
    KVString GetRootDirectoryOfDataToAnalyse() const;

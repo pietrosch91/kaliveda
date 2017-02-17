@@ -13,8 +13,9 @@
 
 class KVNameValueListGUI {
    RQ_OBJECT("KVNameValueListGUI")
-protected:
+private:
    KVNameValueList* theList;
+   KVNameValueList fOriginal;
 
    TGTransientFrame* fMain;
    TGTextButton* fOKBut;        //OK button
@@ -22,17 +23,35 @@ protected:
    Bool_t* fOK;                 //set to kTRUE if OK button is pressed
    UInt_t max_width;
    TObjArray fData;
+
+   Bool_t* fCancel;
+
+protected:
    virtual TObject* AddAString(Int_t i, TGHorizontalFrame* hf);
    virtual TObject* AddABool(Int_t i, TGHorizontalFrame* hf);
    virtual TObject* AddADouble(Int_t i, TGHorizontalFrame* hf);
    virtual TObject* AddAInt(Int_t i, TGHorizontalFrame* hf);
 
+   TObject* GetDataWidget(int i) const
+   {
+      return fData[i];
+   }
+   KVNameValueList* GetList() const
+   {
+      return theList;
+   }
+   TGTransientFrame* GetMain() const
+   {
+      return fMain;
+   }
+
 public:
-   KVNameValueListGUI(const TGWindow* main, KVNameValueList* params);
+   KVNameValueListGUI(const TGWindow* main, KVNameValueList* params, Bool_t* cancel_pressed, Bool_t wait_for_main = kTRUE);
 
    virtual ~KVNameValueListGUI();
 
    void ReadData();
+   void RestoreData();
    void DoClose();
    void CloseWindow();
 

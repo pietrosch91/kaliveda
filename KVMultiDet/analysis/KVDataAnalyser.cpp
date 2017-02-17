@@ -845,6 +845,13 @@ const Char_t* KVDataAnalyser::ExpandAutoBatchName(const Char_t* format)
    return tmp.Data();
 }
 
+const Char_t* KVDataAnalyser::GetRecognisedAutoBatchNameKeywords() const
+{
+   static TString keywords = "Will be expanded: $Date, $User, $UserClass";
+   return keywords;
+}
+
+
 //__________________________________________________________________________________//
 
 
@@ -955,12 +962,6 @@ void KVDataAnalyser::ChooseRunningMode()
    } while (!tmp.IsDigit());
    fBatchSystem = gBatchSystemManager->GetBatchSystem(tmp.Atoi());
    fBatchSystem->Clear();
-   do {
-      cout << endl << "Single or Multi-job mode (S or M) ? : " << endl;
-      tmp.ReadLine(cin);
-   } while (tmp != "s" && tmp != "S" && tmp != "m" && tmp != "M");
-   tmp.ToUpper();
-   fBatchSystem->SetMultiJobsMode(tmp == "M");
 }
 
 //__________________________________________________________________________________//

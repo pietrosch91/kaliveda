@@ -675,6 +675,13 @@ const Char_t* KVDataSetAnalyser::ExpandAutoBatchName(const Char_t* format)
    return tmp.Data();
 }
 
+const Char_t* KVDataSetAnalyser::GetRecognisedAutoBatchNameKeywords() const
+{
+   static KVString tmp = KVDataAnalyser::GetRecognisedAutoBatchNameKeywords();
+   tmp += ", $System";
+   return tmp;
+}
+
 Int_t KVDataSetAnalyser::GetRunNumberFromFileName(const Char_t* fileName)
 {
    // Get the run number from the filename

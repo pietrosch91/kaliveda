@@ -78,7 +78,14 @@ void KVNameValueListGUI::ReadData()
    }
 }
 
-KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* params)
+void KVNameValueListGUI::RestoreData()
+{
+   // return all values to original state
+   fOriginal.Copy(*theList);
+   *fCancel = kTRUE;
+}
+
+KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* params, Bool_t* cancel_pressed, Bool_t wait_for_main)
    : fData(params->GetNpar())
 {
    // Constructor
@@ -89,8 +96,12 @@ KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* pa
    // use hierarchical cleaning
    fMain->SetCleanup(kDeepCleanup);
 
+   fCancel = cancel_pressed;
+   *fCancel = kFALSE;
+
    // SET UP GUI
    theList = params;
+   theList->Copy(fOriginal); // copy original values in case "Cancel" is pressed
    // for each name-value pair, add a horizontal frame with a label (name)
    // and a text entry box (value)
    Int_t nentries = theList->GetEntries();
@@ -124,6 +135,7 @@ KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* pa
    fOKBut = new TGTextButton(hf, "&OK", 1);
    hf->AddFrame(fOKBut, new TGLayoutHints(kLHintsCenterY | kLHintsExpandX, 2, 3, 0, 0));
    height = fOKBut->GetDefaultHeight();
+   fOKBut->SetToolTipText("Save changes and close");
    fOKBut->Resize(max_width, height);
    fOKBut->Connect("Clicked()", "KVNameValueListGUI", this, "ReadData()");
    fOKBut->Connect("Clicked()", "KVNameValueListGUI", this, "DoClose()");
@@ -131,6 +143,8 @@ KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* pa
    fCancelBut = new TGTextButton(hf, "&Cancel", 3);
    hf->AddFrame(fCancelBut, new TGLayoutHints(kLHintsCenterY | kLHintsExpandX, 3, 2, 0, 0));
    fCancelBut->Resize(max_width, height);
+   fCancelBut->SetToolTipText("Discard changes and close");
+   fCancelBut->Connect("Clicked()", "KVNameValueListGUI", this, "RestoreData()");
    fCancelBut->Connect("Clicked()", "KVNameValueListGUI", this, "DoClose()");
 
    fMain->AddFrame(hf, new TGLayoutHints(kLHintsBottom | kLHintsCenterX | kLHintsExpandX, 0, 0, 10, 5));
@@ -152,7 +166,7 @@ KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* pa
    fMain->SetWindowName(theList->GetTitle());
 
    fMain->MapWindow();
-   gClient->WaitFor(fMain);
+   if (wait_for_main) gClient->WaitFor(fMain);
 }
 
 //____________________________________________________________________________//

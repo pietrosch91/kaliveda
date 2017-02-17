@@ -65,6 +65,10 @@ public:
    {
       return fRunList;
    }
+   Int_t GetNumberOfFilesToAnalyse() const
+   {
+      return fRunList.GetNValues();
+   }
    const KVNumberList& GetFullRunList() const
    {
       return fFullRunList;
@@ -130,6 +134,7 @@ public:
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
    virtual void AddJobDescriptionList(TList*);
    KVString GetRootDirectoryOfDataToAnalyse() const;
+   const Char_t* GetRecognisedAutoBatchNameKeywords() const;
 
    ClassDef(KVDataSetAnalyser, 1) //Analysis of data in datasets
 };

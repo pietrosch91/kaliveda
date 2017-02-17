@@ -18,6 +18,7 @@
 #pragma link C++ class KVDBSystemDialog+;
 #pragma link C++ class KVSimDirGUI+;
 #pragma link C++ class KVBatchSystemGUI+;
+#pragma link C++ class KVBatchSystemParametersGUI+;
 #pragma link C++ class KVLauncherGUI+;
 #pragma link C++ class KVTextDialog+;
 #pragma link C++ class KVTestListView+;
