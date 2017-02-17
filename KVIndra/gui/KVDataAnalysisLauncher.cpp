@@ -874,6 +874,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow* p, UInt_t w, UInt
          send_mail_at_job_end->SetState(kButtonUp, kFALSE);
       TString email = GUIenv->GetValue("KVDataAnalysisLauncher.SendMailAddress", "");
       if (email == "") {
+         email = gSystem->GetFromPipe("email");
+         if (email.Index('=') > -1) email.Remove(0, email.Index('=') + 2);
       }
       if (email != "") alternative_email->SetText(email, kFALSE);
    }

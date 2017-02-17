@@ -62,6 +62,8 @@ void KV_CCIN2P3_GE::SetJobTime(const Char_t* time)
    //      SetJobTime() => use default time
    KVString tmp(time);
    if (tmp == "") tmp = fDefJobTime;
+   //time given as either "hh:mm:ss" or "ss" but NOT "mm:ss"!
+   if (tmp.GetNValues(":") == 2) tmp.Prepend("0:");
    fParList.SetValue("-l ct=", tmp);
    fTimeSet = kTRUE;
 }
