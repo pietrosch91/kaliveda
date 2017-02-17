@@ -321,7 +321,9 @@ KVSimDirGUI::KVSimDirGUI()
    proof_analysis = new TGPictureButton(hf, gClient->GetPicture("proof_base.xpm"));
    proof_analysis->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
    proof_analysis->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
-   proof_analysis->SetToolTipText("Enable PROOF");
+   if (!gBatchSystemManager) new KVBatchSystemManager;
+   gBatchSystemManager->GetDefaultBatchSystem()->cd();
+   proof_analysis->SetToolTipText(gBatchSystem->GetTitle());
    proof_analysis->Resize(40, 40);
    proof_analysis->AllowStayDown(kTRUE);
 
@@ -658,7 +660,6 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
       gDataAnalyser->SetNbEventToRead(0);
    Bool_t cancel_batch_job = kFALSE;
    if (fWithPROOF) {
-      gBatchSystemManager->GetDefaultBatchSystem()->cd();
       gBatchSystem->Clear();
       KVNameValueList batchParams;
       gBatchSystem->GetBatchSystemParameterList(batchParams);

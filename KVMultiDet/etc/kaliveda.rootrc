@@ -148,7 +148,7 @@ Linux.BatchSystem.Title:    Execute task in background with output stored in log
 Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 +BatchSystem:    PROOFLite
-PROOFLite.BatchSystem.Title:  PROOFLite
+PROOFLite.BatchSystem.Title:  Use PROOFLite
 PROOFLite.BatchSystem.JobSubCmd:  root
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootBatch(const Char_t*)"
