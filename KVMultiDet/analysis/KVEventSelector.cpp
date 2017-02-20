@@ -8,6 +8,7 @@
 #include "KVDataRepository.h"
 #include "KVDataSetManager.h"
 #include "TProof.h"
+#include "KVDataSetAnalyser.h"
 
 using namespace std;
 
@@ -141,18 +142,28 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
    if (GetInputList() && GetInputList()->FindObject("JobDescriptionList")) {
       KVNameValueList* jdl = dynamic_cast<KVNameValueList*>(GetInputList()->FindObject("JobDescriptionList"));
       if (jdl) {
-         if (!gDataRepositoryManager) {
-            new KVDataRepositoryManager;
-            gDataRepositoryManager->Init();
+         KVDataAnalysisTask* task = nullptr;
+         if (jdl->HasParameter("DataRepository")) {
+            if (!gDataRepositoryManager) {
+               new KVDataRepositoryManager;
+               gDataRepositoryManager->Init();
+            }
             gDataRepositoryManager->GetRepository(jdl->GetStringValue("DataRepository"))->cd();
             gDataSetManager->GetDataSet(jdl->GetStringValue("DataSet"))->cd();
-            KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(jdl->GetStringValue("AnalysisTask"));
-            gDataAnalyser = KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
-            gDataAnalyser->SetDataSet(gDataSet);
-            gDataAnalyser->SetAnalysisTask(task);
-            gDataAnalyser->RegisterUserClass(this);
-            gDataAnalyser->SetProofMode((KVDataAnalyser::EProofMode)jdl->GetIntValue("PROOFMode"));
+            task = gDataSet->GetAnalysisTask(jdl->GetStringValue("AnalysisTask"));
+         } else {
+            if (!gDataSetManager) {
+               gDataSetManager = new KVDataSetManager;
+               gDataSetManager->Init();
+            }
+            task = gDataSetManager->GetAnalysisTaskAny(jdl->GetStringValue("AnalysisTask"));
          }
+         gDataAnalyser = KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
+         if (gDataSet && gDataAnalyser->InheritsFrom("KVDataSetAnalyser"))
+            dynamic_cast<KVDataSetAnalyser*>(gDataAnalyser)->SetDataSet(gDataSet);
+         gDataAnalyser->SetAnalysisTask(task);
+         gDataAnalyser->RegisterUserClass(this);
+         gDataAnalyser->SetProofMode((KVDataAnalyser::EProofMode)jdl->GetIntValue("PROOFMode"));
       }
    }
 

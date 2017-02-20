@@ -313,7 +313,7 @@ void KVDataRepository::SetFullPath(TString& path, const Char_t* protocol)
 
 //___________________________________________________________________________
 
-Bool_t KVDataRepository::GetFileInfo(KVDataSet* dataset,
+Bool_t KVDataRepository::GetFileInfo(const KVDataSet* dataset,
                                      const Char_t* datatype,
                                      const Char_t* runfile,
                                      FileStat_t& fs)
@@ -336,7 +336,7 @@ Bool_t KVDataRepository::GetFileInfo(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-Bool_t KVDataRepository::CheckFileStatus(KVDataSet* dataset,
+Bool_t KVDataRepository::CheckFileStatus(const KVDataSet* dataset,
       const Char_t* datatype,
       const Char_t* runfile)
 {
@@ -357,7 +357,7 @@ Bool_t KVDataRepository::CheckFileStatus(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-const Char_t* KVDataRepository::GetFullPathToOpenFile(KVDataSet* dataset,
+const Char_t* KVDataRepository::GetFullPathToOpenFile(const KVDataSet* dataset,
       const Char_t*
       datatype,
       const Char_t*
@@ -404,8 +404,7 @@ const Char_t* KVDataRepository::GetFullPathToOpenFile(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-const Char_t* KVDataRepository::GetFullPathToTransferFile(KVDataSet*
-      dataset,
+const Char_t* KVDataRepository::GetFullPathToTransferFile(const KVDataSet* dataset,
       const Char_t*
       datatype,
       const Char_t*
@@ -470,7 +469,7 @@ const Char_t* KVDataRepository::GetReadProtocol(const Char_t* dataset,
 
 //___________________________________________________________________________
 
-void KVDataRepository::CopyFileFromRepository(KVDataSet* dataset,
+void KVDataRepository::CopyFileFromRepository(const KVDataSet* dataset,
       const Char_t* datatype,
       const Char_t* filename,
       const Char_t* destination)
@@ -492,7 +491,7 @@ void KVDataRepository::CopyFileFromRepository(KVDataSet* dataset,
 //___________________________________________________________________________
 
 void KVDataRepository::CopyFileToRepository(const Char_t* source,
-      KVDataSet* dataset,
+      const KVDataSet* dataset,
       const Char_t* datatype,
       const Char_t* filename)
 {
@@ -513,7 +512,7 @@ void KVDataRepository::CopyFileToRepository(const Char_t* source,
 
 //___________________________________________________________________________
 
-void KVDataRepository::MakeSubdirectory(KVDataSet* dataset,
+void KVDataRepository::MakeSubdirectory(const KVDataSet* dataset,
                                         const Char_t* datatype)
 {
    //Create a new subdirectory in the repository:
@@ -538,7 +537,7 @@ void KVDataRepository::MakeSubdirectory(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-KVUniqueNameList* KVDataRepository::GetDirectoryListing(KVDataSet* dataset,
+KVUniqueNameList* KVDataRepository::GetDirectoryListing(const KVDataSet* dataset,
       const Char_t* datatype)
 {
    //Use the access protocol defined by DataRepository.AccessProtocol (=local by default)
@@ -591,7 +590,7 @@ KVUniqueNameList* KVDataRepository::GetDirectoryListing(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
+TFile* KVDataRepository::CreateNewFile(const KVDataSet* dataset,
                                        const Char_t* datatype,
                                        const Char_t* filename)
 {
@@ -627,7 +626,7 @@ TFile* KVDataRepository::CreateNewFile(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, KVDataSet* dataset)
+void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, const KVDataSet* dataset)
 {
    //Add this file (previously created by a call to CreateNewFile) to the repository.
    //Any objects should be written to the file before calling this method, either by
@@ -680,7 +679,7 @@ void KVDataRepository::CommitFile(TFile* file, const Char_t* datatype, KVDataSet
 
 //___________________________________________________________________________
 
-void KVDataRepository::DeleteFile(KVDataSet* dataset,
+void KVDataRepository::DeleteFile(const KVDataSet* dataset,
                                   const Char_t* datatype,
                                   const Char_t* filename, Bool_t confirm)
 {
@@ -976,7 +975,7 @@ KVDataRepository* KVDataRepository::NewRepository(const Char_t* type)
 
 //______________________________________________________________________________________________//
 
-KVAvailableRunsFile* KVDataRepository::NewAvailableRunsFile(const Char_t* data_type, KVDataSet* ds)
+KVAvailableRunsFile* KVDataRepository::NewAvailableRunsFile(const Char_t* data_type, const KVDataSet* ds)
 {
    // Create new instance of class derived from KVAvailableRunsFile.
    // Actual class of object depends on the type of the repository,
@@ -994,7 +993,7 @@ KVAvailableRunsFile* KVDataRepository::NewAvailableRunsFile(const Char_t* data_t
 
 //___________________________________________________________________________
 
-TObject* KVDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
+TObject* KVDataRepository::OpenDataSetRunFile(const KVDataSet* ds, const Char_t* type, Int_t run, Option_t* opt)
 {
    //Open a file using plugin defined in $KVROOT/KVFiles/.kvrootrc
    //The default base classes for each type are defined as in this example:
@@ -1031,7 +1030,7 @@ TObject* KVDataRepository::OpenDataSetRunFile(KVDataSet* ds, const Char_t* type,
 
 //___________________________________________________________________________
 
-TObject* KVDataRepository::OpenDataSetFile(KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt)
+TObject* KVDataRepository::OpenDataSetFile(const KVDataSet* ds, const Char_t* type, const TString& fname, Option_t* opt)
 {
    //Open a file using plugin defined in $KVROOT/KVFiles/.kvrootrc
    //fname is the full path required to open the file
@@ -1102,7 +1101,7 @@ TObject* KVDataRepository::OpenDataSetFile(KVDataSet* ds, const Char_t* type, co
    return ((TObject*)(retval));
 }
 
-void KVDataRepository::CreateAllNeededSubdirectories(KVDataSet* DataSet, const Char_t* DataType)
+void KVDataRepository::CreateAllNeededSubdirectories(const KVDataSet* DataSet, const Char_t* DataType)
 {
    // Ensure that all required subdirectories exist and any missing ones are created
    // in order to store a runfile of given DataType for the given DataSet

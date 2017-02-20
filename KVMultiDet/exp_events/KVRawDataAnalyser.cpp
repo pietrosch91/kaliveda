@@ -131,7 +131,7 @@ void KVRawDataAnalyser::SubmitTask()
    //   postEndAnalysis()
    // which are executed respectively just before and just after the methods.
 
-   if (gDataSet != fDataSet) fDataSet->cd();
+   if (gDataSet != GetDataSet()) GetDataSet()->cd();
 
    preInitAnalysis();
    //call user's initialisation

@@ -10,7 +10,7 @@ $Author: franklan $
 
 #include "KVUniqueNameList.h"
 #include "KVNameValueList.h"
-
+#include <vector>
 #include "KVDataSet.h"
 #include "KVDataRepository.h"
 #include "KVDataAnalysisTask.h"
@@ -24,7 +24,7 @@ protected:
    KVUniqueNameList fDataSets;            //list of datasets handled by manager
    KVUniqueNameList fTasks;               //list of all known analysis tasks
    Int_t fNavailable;           //number of available datasets
-   Int_t* fIndex;               //array of indices of available datasets
+   std::vector<Int_t> fIndex;               //array of indices of available datasets
    KVNameValueList fUserGroups;    //list of user groups
 
    virtual Bool_t ReadDataSetList();
@@ -34,10 +34,9 @@ protected:
    virtual KVDataSet* NewDataSet();
    KVDataRepository* fRepository;       //the repository for which data sets are handled
 
-   const KVSeqCollection* GetAnalysisTaskList() const
-   {
+   const KVSeqCollection* GetAnalysisTaskList() const {
       return &fTasks;
-   };
+   }
    virtual Bool_t OpenAvailableDatasetsFile();
    virtual Bool_t ReadAvailableDatasetsFile();
    Bool_t fCacheAvailable;//kTRUE if caching is activated for parent repository
@@ -46,7 +45,6 @@ protected:
    virtual Bool_t CheckCacheStatus();
 
 public:
-
    KVDataSetManager();
    virtual ~ KVDataSetManager();
 
@@ -56,16 +54,13 @@ public:
    virtual KVDataSet* GetDataSet(Int_t) const;
    virtual KVDataSet* GetDataSet(const Char_t*);
    virtual KVDataSet* GetAvailableDataSet(Int_t) const;
-   virtual Int_t GetNavailable() const
-   {
+   virtual Int_t GetNavailable() const {
       return fNavailable;
    };
-   virtual Int_t GetNtotal() const
-   {
+   virtual Int_t GetNtotal() const {
       return fDataSets.GetSize();
    };
-   const KVNameValueList& GetUserGroups()
-   {
+   const KVNameValueList& GetUserGroups() {
       return fUserGroups;
    };
    virtual Bool_t CheckUser(const Char_t* groupname,
@@ -74,6 +69,7 @@ public:
    virtual KVDataAnalysisTask* GetTask(const Char_t* name);
 
    virtual void Update();
+   KVDataAnalysisTask* GetAnalysisTaskAny(const Char_t* keywords) const;
 
    ClassDef(KVDataSetManager, 3)        //Handles datasets in a data repository
 };

@@ -19,11 +19,12 @@ ClassImp(KVVAMOSWeightFinder)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVVAMOSWeightFinder::KVVAMOSWeightFinder() : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
+KVVAMOSWeightFinder::KVVAMOSWeightFinder(Int_t run_number = -1) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
 {
    // Default constructor
-   fkIsInit = kFALSE;
-   fkverbose = kFALSE;
+   fRunNumber = run_number;
+   fkIsInit   = kFALSE;
+   fkverbose  = kFALSE;
 
    fchain = new TChain("tree");
 }
@@ -59,6 +60,7 @@ void KVVAMOSWeightFinder::Copy(TObject& obj) const
 
    KVBase::Copy(obj);
    KVVAMOSWeightFinder& CastedObj = (KVVAMOSWeightFinder&)obj;
+   CastedObj.fRunNumber = fRunNumber;
    CastedObj.fRunList = fRunList;
    CastedObj.fCompRunList = fCompRunList;
    CastedObj.fvec_infos = fvec_infos;
@@ -81,14 +83,14 @@ void KVVAMOSWeightFinder::Init()
    //Initialise the weight finder.
    //Need to have set the run list correctly first...
 
-   if (!fRunList.IsEmpty()) {
+   if ((!fRunList.IsEmpty()) && (fRunNumber > 0) && (fRunList.Contains(fRunNumber))) {
       ReadRunListInDataSet();
       SortInfoVector();
       ReadTransCoefFileListInDataSet();
       if (CheckTransCoefSteps()) fkIsInit = kTRUE;
    } else fkIsInit = kFALSE;
 
-   if (!fkIsInit) Warning("Init", "... runlist is empty, initialisation went wrong ...");
+   if (!fkIsInit) Warning("Init", "... problem in initialisation: runlist is empty OR/AND current run number<0 OR/AND run list doesn't contain the current run ...");
    return;
 }
 //____________________________________________________________________________//
@@ -535,62 +537,87 @@ void KVVAMOSWeightFinder::PrintTransCoefStepVector()
 //____________________________________________________________________________//
 Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
 {
-   //Compute the weight for a given experimental (bro_exp, thetaI_rad)
-   //where 'brho' is in T.m and 'thetaI' is the experimental theta
-   //angle in rad and in lab. ref. frame in INDRA convention.
+   //Compute the weight for a given experimental VAMOS event,
+   //using the identified VAMOS nucleus informations, which means:
+   //(bro_exp, thetaI_rad) where 'brho' is in T.m of the nucleus,
+   //'thetaI' is the experimental theta angle in rad and in lab. ref. frame in
+   //INDRA convention of the nucleus ( and also the current run number this events
+   //belongs to, set as an argument of the class constructor).
    //
    //The weight will be computed from:
    //- the chosen run list (see SetRunList() method) and the associated experimental
-   //  BrhoRef, AngleVamos, DeadTime, Scalers_INDRA values to this run list
+   //  (BrhoRef, AngleVamos, Scalers_INDRA) values from this run list.
    //- the transmission coefficient obtained from ZGOUBI simulations (normalised over
-   //  2*TMath::Pi() in phi angle in lab. ref. frame and INDRA convention).
+   //  2*TMath::Pi() in phi angle in lab. ref. frame and INDRA convention, depending on
+   //  the (brho, thetaI) of the nucleus).
+   //- the experimental DeadTime associated to fRunNumber, the run number the VAMOS
+   //  events belongs to.
    //
    //It was chosen to apply a weighted average on VAMOS events only defined by their
-   //(Brho, thetaI) values. In this way we are able to use all the statistics without
+   //(Brho, thetaI) values. In this way we are able to use ALL the statistics without
    //applying cuts on overlaping experimental Brho.
    //
-   //The returned weight 'W(brho, thetaI)' will be computed from:
+   //The returned total weight 'W_tot' will be:
    // Begin_Latex
-   // #frac{1}{W(B #rho , #theta _{I}) = #frac{#sum_{i}^{RunList}Scaler^{i} #cdot DT^{i}_{corr} #cdot T(#delta ^{i}, #theta_{I} , #theta ^{i}_{V})}{#sum_{i}^{RunList}Scaler^{i} #cdot DT^{i}_{corr}}
+   // W_{tot}(B #rho , theta_{I}, run_number)= DT_{corr}(run_number) * W(B #rho , #theta _{I})
    // End_Latex
    //
-   //Where:
+   // where:
+   // Begin_Latex
+   // #frac{1}{W(B #rho , #theta _{I}) = #frac{#sum_{i}^{RunList}Scaler^{i} #cdot T(#delta ^{i}, #theta_{I} , #theta ^{i}_{V})}{#sum_{i}^{RunList}Scaler^{i}}
+   // End_Latex
+   // and:
+   // Begin_Latex
+   // DT_{corr}(run_number) = #frac{1}{1-DT(run_number)}
+   // End_Latex
+   //
+   // and:
+   //    run_number = current run number which the identified VAMOS nucleus belongs to
    //    delta      = brho/brho_ref_i
    //    brho       = experimental brho in T.m
    //    brho_ref_i = reference brho of VAMOS for the run i
    //    thetaI     = experimental theta angle in rad and in lab. ref. frame in INDRA convention
    //    Scaler_i   = value of INDRA scalers for the run i
    //    theta_V    = rotation angle of VAMOS in theta around beam trajectory
-   //    DT_corr_i  = 1./(1.-DT)
-   //    DT_i       = dead time associated to the run i
 
+   if (fkverbose) Info("GetWeight", "... starting weight computation for VAMOS event with (delta=%f, thetaI=%f, run=%d) ...", brho, thetaI, fRunNumber);
 
    Float_t num = 0.;
    Float_t denum = 0.;
 
-   fRunList.Begin();
-   while (!fRunList.End()) {
-      Int_t next_run = fRunList.Next();
+   Float_t dt_run = GetDeadTime(fRunNumber);
 
-      Float_t brho_ref = GetBrhoRef(next_run);
-      Float_t scaler   = GetScalerINDRA(next_run);
-      Float_t thetav   = GetThetaVamos(next_run);
-      Float_t tc       = GetTransCoef(thetav, brho / brho_ref, thetaI);
-      Float_t dt_corr  = 1. / (1. - GetDeadTime());
+   //DT found from the event run_number
+   if (dt_run >= 0.) {
+      fRunList.Begin();
+      while (!fRunList.End()) {
+         Int_t next_run = fRunList.Next();
 
-      //if values found
-      if (brho_ref > 0 && scaler > 0 && tc >= 0. && dt_corr >= 0.) {
-         num += tc * scaler * dt_corr;
-         denum += scaler * dt_corr;
-      }
+         Float_t brho_ref = GetBrhoRef(next_run);
+         Float_t scaler   = GetScalerINDRA(next_run);
+         Float_t thetav   = GetThetaVamos(next_run);
+         Float_t tc       = GetTransCoef(thetav, brho / brho_ref, thetaI);
 
-      //debug
-      if (fkverbose) {
-         Info("GetWeight", "... (run=%d, brho=%f, thetaI=%f) -> (brho_ref=%f, thetav=%f, scaler=%f, tc=%f) ...",
-              next_run, brho, thetaI, brho_ref, thetav, scaler, tc);
-         Info("GetWeight", "... numerator=%f, denumerator=%f", num, denum);
+         //if values found
+         if (brho_ref > 0 && scaler > 0 && tc >= 0.) {
+            num += tc * scaler;
+            denum += scaler;
+         }
+
+         //debug
+         if (fkverbose) {
+            Info("GetWeight", "... (next_run=%d, brho=%f, thetaI=%f) -> (brho_ref=%f, thetav=%f, scaler=%f, tc=%f) ...",
+                 next_run, brho, thetaI, brho_ref, thetav, scaler, tc);
+            Info("GetWeight", "... numerator=%f, denumerator=%f", num, denum);
+         }
       }
    }
 
-   return denum / num;
+   else {
+      if (fkverbose) {
+         Info("GetWeight", "... !!! DT(%d)=%f <0. !!! can't  compute the weight of the event ...", fRunNumber, dt_run);
+      }
+   }
+
+   return 1. / (1. - dt_run) * denum / num;
 }

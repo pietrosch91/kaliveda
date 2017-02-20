@@ -225,7 +225,7 @@ KVDataSet::~KVDataSet()
    fTasks.Delete();
 }
 
-KVAvailableRunsFile* KVDataSet::GetAvailableRunsFile(const Char_t* type)
+KVAvailableRunsFile* KVDataSet::GetAvailableRunsFile(const Char_t* type) const
 {
    //Returns available runs file object for given data 'type' (="raw", "recon", "ident", "root")
    //Object will be created and added to internal list if it does not exist
@@ -263,7 +263,7 @@ const Char_t* KVDataSet::GetDBName() const
 
 //_______________________________________________________________//
 
-void KVDataSet::OpenDBFile(const Char_t* full_path_to_dbfile)
+void KVDataSet::OpenDBFile(const Char_t* full_path_to_dbfile) const
 {
    //Open the database from a file on disk.
 
@@ -289,7 +289,7 @@ void KVDataSet::OpenDBFile(const Char_t* full_path_to_dbfile)
 
 //_______________________________________________________________//
 
-const Char_t* KVDataSet::GetFullPathToDB()
+const Char_t* KVDataSet::GetFullPathToDB() const
 {
    // Returns full path to file where database is written on disk
 
@@ -304,7 +304,7 @@ const Char_t* KVDataSet::GetFullPathToDB()
 
 //_______________________________________________________________//
 
-void KVDataSet::SaveDataBase()
+void KVDataSet::SaveDataBase() const
 {
    // Write the database to disk (ROOT file).
    // It will be written in the directory
@@ -356,7 +356,7 @@ void KVDataSet::SaveDataBase()
 
 //_______________________________________________________________//
 
-void KVDataSet::WriteDBFile(const Char_t* full_path_to_dbfile)
+void KVDataSet::WriteDBFile(const Char_t* full_path_to_dbfile) const
 {
    //PRIVATE METHOD
    //Write the database to disk.
@@ -381,7 +381,7 @@ void KVDataSet::WriteDBFile(const Char_t* full_path_to_dbfile)
    work_dir->cd();              //back to initial working directory
 }
 
-KVDataBase* KVDataSet::GetDataBase(Option_t* opt)
+KVDataBase* KVDataSet::GetDataBase(Option_t* opt) const
 {
    //Returns pointer to database associated with this dataset.
    //Opens, updates or creates database file if necessary
@@ -403,7 +403,7 @@ KVDataBase* KVDataSet::GetDataBase(Option_t* opt)
    return fDataBase;
 }
 
-void KVDataSet::OpenDataBase(Option_t* opt)
+void KVDataSet::OpenDataBase(Option_t* opt) const
 {
    //Open the database for this dataset.
    //If the database does not exist or is older than the source files
@@ -441,7 +441,7 @@ void KVDataSet::OpenDataBase(Option_t* opt)
          fDBase = 0;
       }
       // make sure gDataSet is set & points to us
-      gDataSet = this;
+      gDataSet = const_cast<KVDataSet*>(this);
       fDataBase = KVDataBase::MakeDataBase(GetDBName(), GetDataSetDir());
       if (!fDataBase) {
          // no database defined for dataset
@@ -678,7 +678,7 @@ const Char_t* KVDataSet::GetDataSetDir() const
    return fCalibDir.Data();
 }
 
-void KVDataSet::cd()
+void KVDataSet::cd() const
 {
    //Data analysis can only be performed if the data set in question
    //is "activated" or "selected" using this method.
@@ -686,7 +686,7 @@ void KVDataSet::cd()
    //this dataset also become the "active" ones (pointed to by the respective global
    //pointers, gDataRepository, gDataBase, etc. etc.)
 
-   gDataSet = this;
+   gDataSet = const_cast<KVDataSet*>(this);
    if (fRepository) fRepository->cd();
    KVDataBase* db = GetDataBase();
    if (db) db->cd();
@@ -749,7 +749,7 @@ TObject* KVDataSet::OpenRunfile(const Char_t* type, Int_t run)
 //__________________________________________________________________________________________________________________
 
 TString KVDataSet::GetFullPathToRunfile(const Char_t* type,
-                                        Int_t run)
+                                        Int_t run) const
 {
    //Return full path to file containing data of given datatype for given run number
    //of this dataset. NB. only works for available run files, if their is no file in the repository for this run,
@@ -766,7 +766,7 @@ TString KVDataSet::GetFullPathToRunfile(const Char_t* type,
 
 //__________________________________________________________________________________________________________________
 
-const Char_t* KVDataSet::GetRunfileName(const Char_t* type, Int_t run)
+const Char_t* KVDataSet::GetRunfileName(const Char_t* type, Int_t run) const
 {
    //Return name of file containing data of given datatype
    //for given run number of this dataset.
@@ -831,7 +831,7 @@ Bool_t KVDataSet::CheckRunfileAvailable(const Char_t* type, Int_t run)
 
 //___________________________________________________________________________
 
-const Char_t* KVDataSet::GetBaseFileName(const Char_t* type, Int_t run)
+const Char_t* KVDataSet::GetBaseFileName(const Char_t* type, Int_t run) const
 {
    //PRIVATE METHOD: Returns base name of data file containing data for the run of given datatype.
    //The filename corresponds to one of the formats defined in $KVROOT/KVFiles/.kvrootrc
@@ -1393,7 +1393,7 @@ KVNumberList KVDataSet::GetUpdatableRuns(const Char_t* data_type,
 //___________________________________________________________________________
 
 KVNumberList KVDataSet::GetRunList(const Char_t* data_type,
-                                   const KVDBSystem* system)
+                                   const KVDBSystem* system) const
 {
    //Returns list of all runs available for given "data_type"
    //If a pointer to a reaction system is given, only runs for the
@@ -1465,8 +1465,8 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    _task += " analysis";
    //We want to be able to write analysis classes even when we don't have any data
    //to analyse. Therefore we use GetAnalysisTaskAny.
-   KVDataAnalysisTask* dat = GetAnalysisTaskAny(_task.Data());
-   if (!dat) {
+   unique_ptr<KVDataAnalysisTask> dat(GetAnalysisTaskAny(_task.Data()));
+   if (!dat.get()) {
       Error("MakeAnalysisClass",
             "called for unknown or unavailable analysis task : %s", _task.Data());
       return;
@@ -1474,7 +1474,6 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    if (!dat->WithUserClass()) {
       Error("MakeAnalysisClass",
             "no user analysis class for analysis task : %s", dat->GetTitle());
-      delete dat;
       return;
    }
 
@@ -1484,27 +1483,20 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
    TClass* cl = 0x0;
    //has the user base class for the task been compiled and loaded ?
    if (dat->CheckUserBaseClassIsLoaded()) cl = TClass::GetClass(dat->GetUserBaseClass());
-   else {
-      delete dat;
+   else
       return;
-   }
-
-   delete dat;  // we have finished with dat: we must delete it
 
    //set up call to static Make method
-   TMethodCall* methcall;
-   methcall = new  TMethodCall(cl, "Make", Form("\"%s\"", classname));
+   unique_ptr<TMethodCall> methcall(new  TMethodCall(cl, "Make", Form("\"%s\"", classname)));
 
    if (!methcall->IsValid()) {
       Error("MakeAnalysisClass", "static Make(const Char_t*) method for class %s is not valid",
             cl->GetName());
-      delete methcall;
       return;
    }
 
    //generate skeleton class
    methcall->Execute();
-   delete methcall;
 }
 
 //___________________________________________________________________________
@@ -1547,7 +1539,7 @@ KVDataAnalysisTask* KVDataSet::GetAnalysisTaskAny(const Char_t* keywords) const
 
 //___________________________________________________________________________
 
-Bool_t KVDataSet::DataBaseNeedsUpdate()
+Bool_t KVDataSet::DataBaseNeedsUpdate() const
 {
    // Returns kTRUE if database needs to be regenerated from source files,
    // i.e. if source files are more recent than DataBase.root

@@ -644,7 +644,7 @@ void KVOldINDRASelector::BuildEventList(void)
          fTEVLexist[tn] = kFALSE;
          TString fname(((TNamed*) lof->At(tn))->GetTitle());
          cout << fname.Data() << endl;
-         Int_t nrun = gDataAnalyser->GetRunNumberFromFileName(fname.Data());
+         Int_t nrun = dynamic_cast<KVDataSetAnalyser*>(gDataAnalyser)->GetRunNumberFromFileName(fname.Data());
          if (nrun) {
             cout << "Numero de run " << nrun << endl;
             cout << "Recherche de " << Form("%s_run%d;1",

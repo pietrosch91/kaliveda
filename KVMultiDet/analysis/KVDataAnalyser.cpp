@@ -7,15 +7,8 @@ $Author: franklan $
 
 #include "KVBase.h"
 #include "KVDataAnalyser.h"
-#include "KVDataRepositoryManager.h"
-#include "KVDataRepository.h"
 #include "KVDataAnalysisTask.h"
 #include "KVDataSetManager.h"
-#include "KVDataSet.h"
-#include "KVDataBase.h"
-#include "KVDBSystem.h"
-#include "KV2Body.h"
-#include "KVDBRun.h"
 #include "KVString.h"
 #include "TObjString.h"
 #include "TObjArray.h"
@@ -26,6 +19,7 @@ $Author: franklan $
 #include "TROOT.h"
 #include "TClass.h"
 #include "THashList.h"
+#include "KVError.h"
 
 using namespace std;
 Bool_t KVDataAnalyser::fCleanAbort = kFALSE;
@@ -159,16 +153,10 @@ KVDataAnalyser* gDataAnalyser = 0;
 KVDataAnalyser::KVDataAnalyser()
 {
    //Default constructor.
-   fParent = 0;
+   fParent = nullptr;
    fBatch = kFALSE;
-   fTask = 0;
-   fSystem = 0;
-   fDataSet = 0;
+   fTask = nullptr;
    fQuit = kFALSE;
-   fChoozDataSet = kTRUE;
-   fChoozSystem = kFALSE;
-   fChoozTask = kFALSE;
-   fChoozRuns = kFALSE;
    fSubmit = kFALSE;
    nbEventToRead = -1;
    fUserClassIsOK = kFALSE;
@@ -192,27 +180,20 @@ KVDataAnalyser::~KVDataAnalyser()
    delete fBatchEnv;
    SafeDelete(fWorkDirInit);
    SafeDelete(fWorkDirEnd);
-   if (gDataAnalyser == this)gDataAnalyser = 0;
+   if (gDataAnalyser == this)gDataAnalyser = nullptr;
 }
 
 void KVDataAnalyser::Reset()
 {
-   fDataSet = 0;
    fDataType = "";
-   fRunList.Clear();
-   fTask = 0;
-   fSystem = 0;
+   fTask = nullptr;
    fQuit = kFALSE;
-   fChoozDataSet = kTRUE;
-   fChoozSystem = kFALSE;
-   fChoozTask = kFALSE;
-   fChoozRuns = kFALSE;
    fSubmit = kFALSE;
    fUserClassIsOK = kFALSE;
    fUserClass = "";
    fUserClassOptions = "";
    nbEventToRead = -1;
-   fBatchSystem = 0;
+   fBatchSystem = nullptr;
    fChoseRunMode = kFALSE;
 #ifdef WITH_CPP11
    fProofMode = EProofMode::None;
@@ -243,8 +224,7 @@ void KVDataAnalyser::Run()
             //just prior to running the analysis task
             ScanWorkingDirectory(&fWorkDirInit);
          }
-         //check connection to remote data repository, if needed
-         if (fParent && gDataRepository->IsRemote() && !gDataRepository->IsConnected()) return;
+         if (!PreSubmitCheck()) return;
          SubmitTask();
          if (!RunningInLaunchDirectory() && fParent) {
             //when batch job runs in directory different to launch directory,
@@ -271,8 +251,7 @@ void KVDataAnalyser::Run()
          }
       }
    }
-   fChoozDataSet = kTRUE;
-   fBatchSystem = 0;
+   PostRunReset();
 }
 
 //_________________________________________________________________
@@ -285,23 +264,11 @@ void KVDataAnalyser::RunMenus()
    Reset();
    KVBase::PrintSplashScreen();
 
-   fQuit = kFALSE;
-   fChoozDataSet = kTRUE;
-   fChoozSystem = kFALSE;
-   fChoozTask = kFALSE;
-   fChoozRuns = kFALSE;
-   fSubmit = kFALSE;
-
    while (!fQuit) {
-
-      if (fChoozDataSet)
-         ChooseDataSet();
-      else if (fChoozTask)
-         ChooseAnalysisTask();
-      else if (fChoozSystem)
-         ChooseSystem();
-      else if (fChoozRuns)
-         ChooseRuns();
+      if (NeedToChooseWhatToDo())
+         ChooseWhatToDo();
+      else if (NeedToChooseWhatToAnalyse())
+         ChooseWhatToAnalyse();
       else if (fSubmit) {
          Run();
          Reset();
@@ -320,25 +287,7 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
 
    if (BatchMode()) ReadBatchEnvFile(Form(".%s", GetBatchName()));
 
-   if (!fDataSet) {
-      ChooseDataSet();
-      if (!fDataSet) {
-         //if after calling ChooseDataSet we STILL don't have a dataset,
-         //there is something seriously wrong...
-         Error("CheckTaskVariables", "By the pricking of my thumb, something wicked this way comes...");
-         Error("CheckTaskVariables", "                        *** ABORTING THE ANALYSIS ***");
-         return kFALSE;
-      }
-   }
-
-   if (!fTask) {
-      ChooseAnalysisTask();
-   }
-
-   if (fRunList.IsEmpty()) {
-      ChooseSystem();
-      ChooseRuns();
-   }
+   //if (!CheckWhatToAnalyseAndHow()) return kFALSE;
 
    if (fTask->WithUserClass() && fUserClass != ClassName()) {
       //task requires user analysis class
@@ -363,382 +312,19 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
    return kTRUE;
 }
 
-//_________________________________________________________________
-
-void KVDataAnalyser::ChooseDataSet()
+Bool_t KVDataAnalyser::CheckWhatToAnalyseAndHow()
 {
-   //Print list of available datasets and get user to choose one
-   //A pointer to the chosen dataset can be retrieved with GetDataSet()
-
-   //not possible in batch mode
-   if (BatchMode()) return;
-
-   fChoozDataSet = kFALSE;
-   fQuit = kFALSE;
-   fDataSet = 0;
-   if (fTask) {
-      fTask = 0;
+   if (NeedToChooseWhatToDo()) {
+      return kFALSE;
    }
 
-   cout << "Available datasets :" << endl << endl;
-   gDataSetManager->Print("available");
-   Int_t n_dataset = -1;
-   Int_t n_avail = gDataSetManager->GetNavailable();
-
-   if (n_avail < 1) {
-      //no datasets available - force termination
-      fQuit = kTRUE;
-      return;
+   if (NeedToChooseWhatToAnalyse()) {
+      return kFALSE;
    }
-
-   if (n_avail == 1) {
-      //1 dataset available - automatic choice
-      n_dataset = 1;
-   } else {
-      KVString tmp;
-      while (!fQuit && (n_dataset < 1 || n_dataset > n_avail)) {
-         cout << endl << "Your choice (1-" << gDataSetManager->
-              GetNavailable() << ")";
-         if (fMenus) cout << " [q - quit]";
-         cout << " : ";
-         tmp.ReadLine(cin);
-         if (fMenus && (tmp.Contains("q") || tmp.Contains("Q"))) {
-            fQuit = kTRUE;
-            return;
-         } else if (tmp.IsDigit()) {
-            n_dataset = tmp.Atoi();
-         }
-      }
-   }
-   //we have chosen a dataset
-   fDataSet = gDataSetManager->GetAvailableDataSet(n_dataset);
-   //in menu-driven mode, next step is choice of analysis task
-   fChoozTask = kTRUE;
+   return kTRUE;
 }
 
-//_________________________________________________________________
 
-void KVDataAnalyser::ChooseDataType()
-{
-   //Print list of available types of data for the chosen dataset
-   //and get user to choose one.
-
-   //not possible in batch mode
-   if (BatchMode()) return;
-
-   fChoozTask = kFALSE;
-   fQuit = kFALSE;
-   fChoozSystem = kFALSE;
-   fChoozDataSet = kFALSE;
-   fTask = 0;
-   fDataType = "";
-
-   fDataSet->Print("data");
-   cout << endl << "Choose data type [d - change dataset | q - quit] : ";
-   TString tmp;
-   while (!fQuit && !fChoozDataSet && !fChoozSystem) {
-
-      tmp.ReadLine(cin);
-      if (tmp == "raw" || tmp == "recon" || tmp == "ident"
-            || tmp == "root") {
-         fChoozSystem = kTRUE;
-         fDataType = tmp;
-      } else if (tmp.Contains("q") || tmp.Contains("Q")) {
-         fQuit = kTRUE;
-      } else if (tmp.Contains("d") || tmp.Contains("D")) {
-         fChoozDataSet = kTRUE;
-      }
-
-   }
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::ChooseAnalysisTask()
-{
-   //Print list of all possible data analysis tasks for the chosen data set and invite the user
-   //to choose one of them.
-   //If only one task available, it is automatically selected
-
-   //not possible in batch mode
-   if (BatchMode()) return;
-
-   fChoozTask = kFALSE;
-   fTask = 0;
-   fDataType = "";
-   if (fSystem) {
-      fSystem = 0;
-   }
-
-   cout << endl << "Available data analysis tasks :" << endl << endl;
-   fDataSet->Print("tasks");
-   Int_t n_tasks = fDataSet->GetNtasks();
-   if (n_tasks == 1) {
-      SetAnalysisTask(fDataSet->GetAnalysisTask(1));
-      fChoozSystem = kTRUE;
-      return;
-   }
-
-   Int_t n_task = -1;
-   KVString tmp;
-
-   while (!fQuit && (n_task < 1 || n_task > n_tasks)) {
-      cout << endl << "Your choice (1-" << n_tasks <<
-           ")";
-      if (fMenus) cout << " [d - change dataset | q - quit]";
-      cout << " : ";
-      tmp.ReadLine(cin);
-      if (fMenus && (tmp.Contains("q") || tmp.Contains("Q"))) {
-         fQuit = kTRUE;
-         return;
-      } else if (fMenus && (tmp.Contains("d") || tmp.Contains("D"))) {
-         fChoozDataSet = kTRUE;
-         return;
-      } else if (tmp.IsDigit()) {
-         n_task = tmp.Atoi();
-      }
-   }
-   SetAnalysisTask(fDataSet->GetAnalysisTask(n_task));
-   //in menu-driven mode, next step is choice of system
-   fChoozSystem = kTRUE;
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::ChooseSystem(const Char_t* data_type)
-{
-   //Print out list of all available systems for the given data type of the chosen dataset
-   //and invite the user to choose one. Return pointer to chosen system.
-   //If 'data_type' is not given, we assume that ChooseAnalysisTask was previously
-   //called and we use the prerequisite data type for the chosen task (fTask->GetPrereq()).
-   //The available system list is deduced from the 'availableruns' file corresponding to the
-   //chosen dataset repository subdirectory and the
-   //chosen data type (="raw", "recon", "ident", "root").
-
-   //not possible in batch mode
-   if (BatchMode()) return;
-
-   fChoozSystem = kFALSE;
-   fSystem = 0;
-   ClearRunList();
-
-   //if no systems are defined for the dataset, we just want to pick from the runlist
-   if (!fDataSet->GetDataBase()->GetTable("Systems")->GetRecords()->GetSize()) {
-      fChoozRuns = kTRUE;
-      return;
-   }
-
-   TString d_t(data_type);
-   //If 'data_type' is not given, we assume that ChooseAnalysisTask or ChooseDataType
-   //was previously called and we use the value of fDataType
-   if (d_t == "")
-      d_t = fDataType;
-
-   TList* sys_list = fDataSet->GetListOfAvailableSystems(d_t.Data());
-   if (!sys_list || sys_list->GetSize() < 1) {
-      cout << "No systems found for dataset: " << fDataSet->
-           GetName() << ", datatype: " << d_t.Data() << endl;
-      if (sys_list)
-         delete sys_list;
-      //choose a different data type or analysis task
-      fChoozTask = kTRUE;
-      return;
-   }
-   TIter next_sys(sys_list);
-   KVDBSystem* sys;
-   int nsys = 0;
-   cout << endl << "Available systems : " << endl << endl;
-   while ((sys = (KVDBSystem*) next_sys())) {
-      nsys++;
-      cout << "     " << Form("%3d.", nsys);
-      cout << " " << Form("%-30s", sys->GetName());
-      cout << " (" << Form("%-3d",
-                           sys->GetNumberRuns()) << " runs)" << endl;
-   }
-
-   if (sys_list->GetSize() == 1) {
-      fChoozRuns = kTRUE;
-      fSystem = (KVDBSystem*) sys_list->At(0);
-      delete sys_list;
-      return;
-   }
-
-   int nsys_pick = -1;
-   KVString tmp;
-
-   fQuit = fChoozTask = fChoozRuns = kFALSE;
-
-   while (!fQuit && !fChoozTask && !fChoozRuns && !fChoozDataSet) {
-      cout << endl << "Your choice (1-" << nsys << ")";
-      if (fMenus) {
-         cout << " [r - choose runs | "; //ignore systems list & choose from all runs
-         if (fTask)
-            cout << "t - change task";
-         else
-            cout << "t - change type";
-         cout << " | d - change dataset | q - quit]";
-      }
-      cout << " : ";
-      tmp.ReadLine(cin);
-      if (fMenus && (tmp.Contains("q") || tmp.Contains("Q"))) {
-         fQuit = kTRUE;
-      } else if (fMenus && (tmp.Contains("t") || tmp.Contains("T"))) {
-         fChoozTask = kTRUE;
-      } else if (fMenus && (tmp.Contains("d") || tmp.Contains("D"))) {
-         fChoozDataSet = kTRUE;
-      } else if (fMenus && (tmp.Contains("r") || tmp.Contains("R"))) {
-         fChoozRuns = kTRUE;
-         delete sys_list;
-         return;
-      } else if (tmp.IsDigit()) {
-         nsys_pick = tmp.Atoi();
-         if (nsys_pick >= 1 && nsys_pick <= nsys)
-            fChoozRuns = kTRUE;
-      }
-   }
-   if (fChoozRuns)
-      fSystem = (KVDBSystem*) sys_list->At(nsys_pick - 1);
-   delete sys_list;
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::ChooseRuns(KVDBSystem* system,
-                                const Char_t* data_type)
-{
-   //Print out list of available runs for chosen dataset, task/data type and system
-   //and invite user to choose from among them
-   //If 'data_type' is not given, we assume that ChooseAnalysisTask was previously
-   //called and we use the prerequisite data type for the chosen task (fTask->GetPrereq()).
-   //If 'system' is not given, we assume ChooseSystem was previously called and use
-   //the internally-stored value of that choice (fSystem).
-
-   //not possible in batch mode
-   if (BatchMode()) return;
-
-   fChoozRuns = kFALSE;
-   //clear any previous list of runs
-   fRunList.Clear();
-
-   if (system)
-      fSystem = system;
-
-   KVString d_t(data_type);
-   //If 'data_type' is not given, we assume that ChooseAnalysisTask or ChooseDataType
-   //was previously called and we use the value of fDataType
-   if (d_t == "")
-      d_t = fDataType;
-
-   if (fSystem) {
-      cout << endl << "  Chosen system : " << endl;
-      fSystem->Print();
-   }
-   cout << endl << endl << "  Available runs: " << endl << endl;
-
-   KVNumberList all_runs = PrintAvailableRuns(d_t);
-
-   if (all_runs.IsEmpty()) {
-      //no runs - choose another system
-      fChoozSystem = kTRUE;
-      return;
-   }
-
-   cout << endl << "Enter list of runs [a - all";
-   if (fMenus) {
-      cout << " | ";
-      if (fSystem) cout << "s - change system | ";
-      if (fTask)
-         cout << "t - change task";
-      else
-         cout << "t - change type";
-      cout << " | d - change dataset | q - quit";
-   }
-   cout << "] : ";
-   TString tmp;
-   tmp.ReadLine(cin);
-   if (fMenus && (tmp.Contains("q") || tmp.Contains("Q"))) {
-      fQuit = kTRUE;
-   } else if (fMenus && (tmp.Contains("s") || tmp.Contains("S"))) {
-      fChoozSystem = kTRUE;
-   } else if (fMenus && (tmp.Contains("t") || tmp.Contains("T"))) {
-      fChoozTask = kTRUE;
-   } else if (fMenus && (tmp.Contains("d") || tmp.Contains("D"))) {
-      fChoozDataSet = kTRUE;
-   } else if (tmp.Contains("a") || tmp.Contains("A")) {
-      fRunList = all_runs;
-      fSubmit = kTRUE;
-   } else {
-      //cout << "YOU TYPED : " << tmp.Data() << endl;
-      KVNumberList user_list(tmp.Data());
-      //cout << "YOUR LIST : " << user_list.GetList() << endl;
-      //cout << "CLEARED RUNLIST : " <<  endl; fRunList.PrintLimits();
-      //remove from list any runs which did not actually appear in list
-      user_list.Begin();
-      while (!user_list.End()) {
-         Int_t user_run = user_list.Next();
-         if (all_runs.Contains(user_run)) fRunList.Add(user_run);
-      }
-      //cout << "CHECKED RUNLIST : " <<  endl; fRunList.PrintLimits();
-      if (fRunList.IsEmpty()) {
-         Error("ChooseRuns" ,
-               "None of the runs you chose appear in the list");
-         //we force the user to choose again
-         fChoozRuns = kTRUE;
-      } else
-         fSubmit = kTRUE;
-   }
-   if (fSubmit)
-      cout << endl << "Chosen runs : " << fRunList.GetList() << endl;
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetDataSet(KVDataSet* ds)
-{
-   //Set dataset to be used for analysis.
-   //If the chosen dataset is not available, an error message is printed
-   //Only available datasets can be analysed
-   //Moreover, only datasets in the currently active data repository,
-   //gDataRepository, can be analysed. This is also checked.
-
-   //allow user to reset dataset pointer to 0
-   fDataSet = ds;
-   if (!ds)
-      return;
-
-   //check availablility
-   if (!ds->IsAvailable()) {
-      Error("SetDataSet",
-            "Dataset %s is not available for analysis", ds->GetName());
-      fDataSet = 0;
-   }
-   //check repository
-   if (ds->GetRepository() != gDataRepository) {
-      Error("SetDataSet",
-            "%ld is address of dataset in repository \"%s\", not of the dataset in the current repository, \"%s\"",
-            (ULong_t) ds, ds->GetRepository()->GetName(),
-            gDataRepository->GetName());
-      fDataSet = 0;
-   }
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetDataSet(const Char_t* name)
-{
-   //Set dataset to be analysed.
-   //If 'name' is not the name of a valid and available dataset
-   //in the currently active data repository, gDataRepository,
-   //an error message is printed.
-
-   fDataSet = 0;
-   KVDataSet* ds = gDataSetManager->GetDataSet(name);
-   if (!ds) {
-      Error("SetDataSet", "Unknown dataset %s", name);
-   } else {
-      SetDataSet(ds);
-   }
-}
 
 //_________________________________________________________________
 
@@ -750,113 +336,10 @@ void KVDataAnalyser::SetAnalysisTask(KVDataAnalysisTask* at)
    fTask = at;
    if (at)
       fDataType = at->GetPrereq();
+   else
+      fDataType = "";
 }
 
-//_________________________________________________________________
-
-KVNumberList KVDataAnalyser::PrintAvailableRuns(KVString& datatype)
-{
-   //Prints list of available runs for selected dataset, data type/analysis task, and system
-   //Returns list containing all run numbers
-
-   KVNumberList all_runs =
-      fDataSet->GetRunList(datatype.Data(), fSystem);
-   KVDBRun* dbrun;
-   all_runs.Begin();
-   while (!all_runs.End()) {
-      dbrun = (KVDBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
-      if (dbrun) {
-         cout << "    " << Form("%4d", dbrun->GetNumber());
-         cout << Form("\t(%7d events)", dbrun->GetEvents());
-         cout << "\t[File written: " << dbrun->GetDatime().AsString() << "]";
-         if (dbrun->GetComments())
-            cout << "\t" << dbrun->GetComments();
-         cout << endl;
-      }
-   }
-
-   return all_runs;
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetSystem(KVDBSystem* syst)
-{
-   // Set the System used in the analysis
-
-   fSystem = syst;
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetRuns(const Char_t* rl, Bool_t check)
-{
-   //Sets the run list (string has format of a KVNumberList)
-   //If check=kTRUE (default), we check that the runs are available, and if they belong to different
-   //systems we print a warning message
-   KVNumberList tmp(rl);
-   SetRuns(tmp, check);
-}
-
-//_________________________________________________________________
-
-void KVDataAnalyser::SetRuns(KVNumberList& nl, Bool_t check)
-{
-   // Sets the run list
-   //If check=kTRUE (default), we check that the runs are available, and if they belong to different
-   //systems we print a warning message
-   if (!fDataSet) {
-      Warning("SetRuns", "Data Set not defined... Nothing done");
-      return;
-   }
-   if (!check) {
-      fRunList = nl;
-      //set fSystem using first run
-      KVDBRun* run = (KVDBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(nl.First());
-      if (run) fSystem = run->GetSystem();
-      else fSystem = 0;
-      return;
-   }
-   // Check if all runs are available for this data set and if they all correspond to the same system
-   Int_t i = 0;
-   Info("SetRuns", "Checking runs %s for Data type %s",
-        nl.AsString(), fDataType.Data());
-   nl.Begin();
-   fRunList.Clear();
-   while (!nl.End()) {
-      Int_t run_no = nl.Next();
-
-      if (!(fDataSet->CheckRunfileAvailable(fDataType.Data(), run_no))) {
-         Warning("SetRuns",
-                 "The run %d is not present for the data type \"%s\" of data set \"%s\".",
-                 run_no, fDataType.Data(), fDataSet->GetName());
-      } else {
-         fRunList.Add(run_no);
-      }
-      KVDBRun* run = (KVDBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(run_no);
-      if (!i) {
-         fSystem = run->GetSystem();
-         i = 1;
-      } else {
-         if (run->GetSystem() != fSystem) {
-            if (fSystem)
-               Warning("SetRuns",
-                       "The system \"%s\" of run %d differs from the system \"%s\" of the previous runs.",
-                       run->GetSystem()->GetName(), run_no, fSystem->GetName());
-         }
-      }
-   }
-   Info("SetRuns", "Accepted runs : %s", fRunList.AsString());
-}
-
-//_________________________________________________________________
-void KVDataAnalyser::SetFullRunList(KVNumberList& nl)
-{
-   // Sets the total run list set in the analysis task
-   fFullRunList = nl;
-}
-
-//_________________________________________________________________
 
 void KVDataAnalyser::SetUserIncludes(const Char_t* incDirs)
 {
@@ -1041,6 +524,11 @@ const Char_t* KVDataAnalyser::GetACliCMode()
    return aclic.Data();
 }
 
+void KVDataAnalyser::PostRunReset()
+{
+   fBatchSystem = nullptr;
+}
+
 //__________________________________________________________________________________//
 
 TObject* KVDataAnalyser::GetInstanceOfUserClass(const KVString& alternative_base_class)
@@ -1158,11 +646,8 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
       fBatchEnv->SetValue("BatchSystem", fBatchSystem->GetName());
       fBatchSystem->WriteBatchEnvFile(fBatchEnv);
    }
-   fBatchEnv->SetValue("DataRepository", gDataRepository->GetName());
-   fBatchEnv->SetValue("DataSet", fDataSet->GetName());
    fBatchEnv->SetValue("AnalysisTask", fTask->GetType());
-   fBatchEnv->SetValue("Runs", fRunList.GetList());
-   fBatchEnv->SetValue("FullRunList", fFullRunList.GetList());
+
    if (fTask->WithUserClass()) {
       fBatchEnv->SetValue("UserClass", GetUserClass());
       if (fUserClassImp == "" || fUserClassDec == "") {
@@ -1174,6 +659,9 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
       fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
       fBatchEnv->SetValue("UserClassImp", fUserClassImp);
       fBatchEnv->SetValue("UserClassDec", fUserClassDec);
+   } else {
+      // a task without a user class may still need to pass options to the predefined analysis class
+      if (fUserClassOptions != "") fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
    }
    fBatchEnv->SetValue("NbToRead", (Double_t)nbEventToRead);
    fBatchEnv->SetValue("LaunchDirectory", gSystem->WorkingDirectory());
@@ -1199,25 +687,14 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
 
    delete fBatchEnv;
    fBatchEnv = new TEnv(filename);
-   TString val = fBatchEnv->GetValue("DataRepository", "");
-   if (val != "") {
-      gDataRepositoryManager->GetRepository(val.Data())->cd();
-   } else {
-      Error("ReadBatchEnvFile", "Name of data repository not given");
-      return ok;
-   }
-   val = fBatchEnv->GetValue("DataSet", "");
-   if (val != "") {
-      gDataSetManager->GetDataSet(val.Data())->cd();
-      SetDataSet(gDataSet);
-   } else {
-      Error("ReadBatchEnvFile", "Name of dataset not given");
-      return ok;
-   }
-   val = fBatchEnv->GetValue("AnalysisTask", "");
+   KVString val = fBatchEnv->GetValue("AnalysisTask", "");
    fTask = 0;
    if (val != "") {
-      SetAnalysisTask(gDataSet->GetAnalysisTask(val.Data()));
+      if (!gDataSetManager) {
+         gDataSetManager = new KVDataSetManager;
+         gDataSetManager->Init();
+      }
+      SetAnalysisTask(gDataSetManager->GetAnalysisTaskAny(val.Data()));
    } else {
       Error("ReadBatchEnvFile", "Name of analysis task not given");
       return ok;
@@ -1226,20 +703,6 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
       Error("ReadBatchEnvFile", "Analysis task \"%s\"not found for dataset %s",
             val.Data(), gDataSet->GetName());
       return ok;
-   }
-   val = fBatchEnv->GetValue("Runs", "");
-   if (val != "") {
-      KVNumberList runs(val.Data());
-      SetRuns(runs);
-   } else {
-      Error("ReadBatchEnvFile", "List of runs not given");
-      return ok;
-   }
-
-   val = fBatchEnv->GetValue("FullRunList", "");
-   if (val != "") {
-      KVNumberList runs(val.Data());
-      SetFullRunList(runs);
    }
 
    nbEventToRead = (Long64_t)fBatchEnv->GetValue("NbToRead", -1);
@@ -1288,6 +751,9 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          AssignAndDelete(path_trg, gSystem->ConcatFileName(gSystem->WorkingDirectory(), fUserClassDec.Data()));
          gSystem->CopyFile(path_src.Data(), path_trg.Data());
       }
+   } else {
+      // a task without a user class may still need to pass options to the predefined analysis class
+      fUserClassOptions = fBatchEnv->GetValue("UserClassOptions", "");
    }
 
    ok = kTRUE;
@@ -1308,6 +774,15 @@ Bool_t KVDataAnalyser::RunningInLaunchDirectory()
 
 //_________________________________________________________________
 
+void KVDataAnalyser::set_up_analyser_for_task(KVDataAnalyser* the_analyser)
+{
+   the_analyser->SetParent(this);
+   the_analyser->SetAnalysisTask(fTask);
+   the_analyser->SetNbEventToRead(GetNbEventToRead());
+   the_analyser->SetUserIncludes(fIncludes.Data());
+   the_analyser->SetUserLibraries(fLibraries.Data());
+}
+
 void KVDataAnalyser::SubmitTask()
 {
    //In interactive mode, the data analysis task is performed by
@@ -1317,24 +792,18 @@ void KVDataAnalyser::SubmitTask()
 
    KVString task_data_analyser = fTask->GetDataAnalyser();
    Info("SubmitTask", "fTask->GetDataAnalyser()=%s", task_data_analyser.Data());
-   KVDataAnalyser* the_analyser = 0;
+   unique_ptr<KVDataAnalyser> the_analyser;
    if (task_data_analyser == "UserClass") {
       //the user-provided class is to be used as analyser
-      the_analyser = (KVDataAnalyser*)GetInstanceOfUserClass();
+      the_analyser.reset((KVDataAnalyser*)GetInstanceOfUserClass());
    } else {
-      the_analyser = GetAnalyser(fTask->GetDataAnalyser());
+      the_analyser.reset(GetAnalyser(fTask->GetDataAnalyser()));
    }
-   if (!the_analyser)
+   if (!the_analyser.get())
       Fatal("SubmitTask", "the_analyser is 0x0, go to crash");
 
-   the_analyser->SetParent(this);
-   the_analyser->SetDataSet(fDataSet);
-   the_analyser->SetAnalysisTask(fTask);
-   the_analyser->SetSystem(fSystem);
-   the_analyser->SetRuns(fRunList, kFALSE);
-   the_analyser->SetNbEventToRead(GetNbEventToRead());
-   the_analyser->SetUserIncludes(fIncludes.Data());
-   the_analyser->SetUserLibraries(fLibraries.Data());
+   set_up_analyser_for_task(the_analyser.get());
+
    if (fTask->WithUserClass()) {
       the_analyser->SetUserClass(GetUserClass(), kFALSE);
       the_analyser->SetUserClassOptions(fUserClassOptions);
@@ -1352,10 +821,8 @@ void KVDataAnalyser::SubmitTask()
    the_analyser->SetProofMode(GetProofMode());
    //set global pointer to analyser object which performs the analysis
    //this allows e.g. user class to obtain information on the analysis task
-   gDataAnalyser = the_analyser;
+   gDataAnalyser = the_analyser.get();
    the_analyser->Run();
-
-   delete the_analyser;
 }
 
 //__________________________________________________________________________________//
@@ -1365,14 +832,11 @@ const Char_t* KVDataAnalyser::ExpandAutoBatchName(const Char_t* format)
    //Replace any 'special' symbols in "format" with their current values
    //
    //  $Date   : current date and time
-   //  $System  :  name of system to be analysed
    //  $User  :  name of user
    //  $UserClass  :  name of user's analysis class
 
    static KVString tmp;
    tmp = format;
-   KVString sysname = SystemBatchName();
-   tmp.ReplaceAll("$System", SystemBatchName());
    TDatime now;
    KVString stDate = now.AsSQLString();
    stDate.ReplaceAll(" ", "-");
@@ -1383,20 +847,15 @@ const Char_t* KVDataAnalyser::ExpandAutoBatchName(const Char_t* format)
    return tmp.Data();
 }
 
+const Char_t* KVDataAnalyser::GetRecognisedAutoBatchNameKeywords() const
+{
+   static TString keywords = "Will be expanded: $Date, $User, $UserClass";
+   return keywords;
+}
+
+
 //__________________________________________________________________________________//
 
-const Char_t* KVDataAnalyser::SystemBatchName()
-{
-   // Private method used by ExpandAutoBatchName to build name for current system
-   // to be used in batch job name
-   // Also used by KVDataAnalysisLauncher::SystemBatchName for batch job names
-   // and for writing resources in .KVDataAnalysisGUIrc file
-
-   static KVString tmp;
-   tmp = "Unknown";
-   if (!fSystem) return tmp.Data();
-   return fSystem->GetBatchName();
-}
 
 const Char_t* KVDataAnalyser::GetLaunchDirectory() const
 {
@@ -1505,12 +964,6 @@ void KVDataAnalyser::ChooseRunningMode()
    } while (!tmp.IsDigit());
    fBatchSystem = gBatchSystemManager->GetBatchSystem(tmp.Atoi());
    fBatchSystem->Clear();
-   do {
-      cout << endl << "Single or Multi-job mode (S or M) ? : " << endl;
-      tmp.ReadLine(cin);
-   } while (tmp != "s" && tmp != "S" && tmp != "m" && tmp != "M");
-   tmp.ToUpper();
-   fBatchSystem->SetMultiJobsMode(tmp == "M");
 }
 
 //__________________________________________________________________________________//
@@ -1620,16 +1073,6 @@ void KVDataAnalyser::WriteBatchInfo(TTree* tt)
 
 }
 
-Int_t KVDataAnalyser::GetRunNumberFromFileName(const Char_t* fileName)
-{
-   // Get the run number from the filename
-
-   KVAvailableRunsFile* arf;
-   arf = GetDataSet()->GetAvailableRunsFile(GetDataType().Data());
-   return arf->IsRunFileName(fileName);
-}
-
-
 void KVDataAnalyser::RunAnalyser(const Char_t* uri)
 {
    //Set up and run data analysis task.
@@ -1673,11 +1116,18 @@ void KVDataAnalyser::AddJobDescriptionList(TList* l)
 
    KVNameValueList* jdl = new KVNameValueList("JobDescriptionList", "Job parameters");
 
-   jdl->SetValue("DataRepository", gDataRepository->GetName());
-   jdl->SetValue("DataSet", fDataSet->GetName());
    jdl->SetValue("AnalysisTask", fTask->GetType());
    jdl->SetValue("PROOFMode", GetProofMode());
 
    l->Add(jdl);
 }
 
+void KVDataAnalyser::ChooseWhatToAnalyse()
+{
+   // TO IMPLEMENT ?
+}
+
+void KVDataAnalyser::ChooseWhatToDo()
+{
+   // TO IMPLEMENT ?
+}

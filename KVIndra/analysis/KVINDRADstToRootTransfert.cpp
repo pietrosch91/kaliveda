@@ -336,7 +336,7 @@ void KVINDRADstToRootTransfert::EndRun()
 void KVINDRADstToRootTransfert::SubmitTask()
 {
 
-   if (gDataSet != fDataSet) fDataSet->cd();
+   if (gDataSet != GetDataSet()) GetDataSet()->cd();
    SetCampagneNumber();
 
    if (fCampNumber == -1) return;
@@ -994,14 +994,14 @@ KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString& datatype)
    //Returns list containing all run numbers
 
    KVNumberList all_runs =
-      fDataSet->GetRunList(datatype.Data(), fSystem);
+      GetDataSet()->GetRunList(datatype.Data(), GetSystem());
    KVINDRADBRun* dbrun;
 
    //first read list and find what triggers are available
    vector<int> triggers;
    all_runs.Begin();
    while (!all_runs.End()) {
-      dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
       if (triggers.size() == 0
             || std::find(triggers.begin(), triggers.end(), dbrun->GetTrigger()) != triggers.end()) {
          triggers.push_back(dbrun->GetTrigger());
@@ -1014,7 +1014,7 @@ KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString& datatype)
       cout << " ---> Trigger M>" << *it << endl;
       all_runs.Begin();
       while (!all_runs.End()) {
-         dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
          if (dbrun->GetTrigger() == *it) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
             cout << Form("\t(%7d events)", dbrun->GetEvents());

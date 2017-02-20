@@ -19,6 +19,8 @@ protected:
    Bool_t fkverbose;
    Bool_t fkIsInit;
 
+   Int_t fRunNumber; //run number of the VAMOS events analysed (used to access to DT_corr in weight computation)
+
    KVNumberList fRunList; //runs to use for the weight computation
    KVNumberList fCompRunList; //complementary list of the given run list, based on experimental run list file
    std::vector< std::vector<Float_t> > fvec_infos; //vector of 'run BrhoRef AngleVamos DT scaler' for the runs in fRunList
@@ -49,7 +51,7 @@ protected:
    static Bool_t SortVectors(const std::vector<Float_t>& vector1, const std::vector<Float_t>& vector2);
 
 public:
-   KVVAMOSWeightFinder();
+   KVVAMOSWeightFinder(Int_t run_number);
    KVVAMOSWeightFinder(const KVVAMOSWeightFinder&);
    virtual ~KVVAMOSWeightFinder();
    virtual void Copy(TObject&) const;

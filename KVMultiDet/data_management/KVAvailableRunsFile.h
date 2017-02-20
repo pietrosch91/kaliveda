@@ -32,7 +32,7 @@ protected:
    std::ifstream fRunlist;     //for reading runlist file
    KVLockfile runlist_lock;   //for locking runlist file
 
-   KVDataSet* fDataSet;         //dataset to which this file belongs
+   const KVDataSet* fDataSet;         //dataset to which this file belongs
    KVHashList* fAvailableRuns;//! temporary list used to store infos when updating
    void ReadFile();
    KVNameValueList* RunHasFileWithDateAndName(Int_t run, const Char_t* filename, TDatime modtime, Int_t& OccNum);
@@ -44,8 +44,7 @@ protected:
    virtual Bool_t OpenAvailableRunsFile();
    virtual void CloseAvailableRunsFile();
 
-   Bool_t IsFileOpen()
-   {
+   Bool_t IsFileOpen() {
       return fRunlist.is_open();
    };
 
@@ -53,16 +52,14 @@ public:
 
    KVAvailableRunsFile();
    KVAvailableRunsFile(const Char_t* type);
-   KVAvailableRunsFile(const Char_t* type, KVDataSet* parent);
+   KVAvailableRunsFile(const Char_t* type, const KVDataSet* parent);
    virtual ~ KVAvailableRunsFile();
 
-   Bool_t FileExists() const
-   {
+   Bool_t FileExists() const {
       return !gSystem->AccessPathName(GetFullPathToAvailableRunsFile());
    }
 
-   const Char_t* GetDataType() const
-   {
+   const Char_t* GetDataType() const {
       return GetName();
    }
    virtual Int_t IsRunFileName(const Char_t* filename);
@@ -81,19 +78,16 @@ public:
    virtual void UpdateInfos(Int_t run, const Char_t* filename, const Char_t* kvversion, const Char_t* username);
    virtual Bool_t InfosNeedUpdate(Int_t run, const Char_t* filename);
    virtual void Add(Int_t run, const Char_t* filename);
-   KVDataSet* GetDataSet() const
-   {
+   const KVDataSet* GetDataSet() const {
       //Dataset to which this file belongs
       return fDataSet;
    }
 
-   void SetDataSet(KVDataSet* d)
-   {
+   void SetDataSet(const KVDataSet* d) {
       // Set dataset to which this file belongs
       fDataSet = d;
    }
-   const Char_t* GetBaseRunFileName(Int_t run)
-   {
+   const Char_t* GetBaseRunFileName(Int_t run) {
       // Return base file name defined by dataset for run of this datatype
       return fDataSet->GetBaseFileName(GetDataType(), run);
    }

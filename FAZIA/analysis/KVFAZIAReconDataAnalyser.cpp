@@ -43,10 +43,10 @@ KVFAZIAReconDataAnalyser::~KVFAZIAReconDataAnalyser()
 void KVFAZIAReconDataAnalyser::SubmitTask()
 {
    //Run the interactive analysis
-   if (gDataSet != fDataSet) fDataSet->cd();
+   if (gDataSet != GetDataSet()) GetDataSet()->cd();
 
    KVEventSelector es;
-   es.SetOption(fUserClassOptions.Data());
+   es.SetOption(GetUserClassOptions());
    es.ParseOptions();
    fLinkRawData = es.IsOptGiven("ReadRawData");
 
@@ -68,8 +68,8 @@ void KVFAZIAReconDataAnalyser::ProcessRun()
    //
    // For further customisation, the pre/post-methods are called just before and just after
    // each of these methods (preInitRun(), postAnalysis(), etc. etc.)
-   TString fullPathToRunfile = gDataSet->GetFullPathToRunfile(fDataType.Data(), fRunNumber);
-   TFile* f = (TFile*)gDataSet->OpenRunfile(fDataType.Data(), fRunNumber);
+   TString fullPathToRunfile = gDataSet->GetFullPathToRunfile(GetDataType(), fRunNumber);
+   TFile* f = (TFile*)gDataSet->OpenRunfile(GetDataType(), fRunNumber);
    if (!(f && !f->IsZombie())) {
       Error("ProcessRun", "file %s does not exist or is made zombie", fullPathToRunfile.Data());
       return;
@@ -97,8 +97,8 @@ void KVFAZIAReconDataAnalyser::ProcessRun()
    }
 
    Info("SubmitTask", "Beginning TTree::Process... Option=%s", option.Data());
-   if (nbEventToRead) {
-      theTree->Process(GetUserClass(), option.Data(), nbEventToRead);
+   if (GetNbEventToRead()) {
+      theTree->Process(GetUserClass(), option.Data(), GetNbEventToRead());
    } else {
       theTree->Process(GetUserClass(), option.Data());
    }

@@ -4,9 +4,9 @@
 #ifndef __KVFAZIARAWDATAANALYSER_H
 #define __KVFAZIARAWDATAANALYSER_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 
-class KVFAZIARawDataAnalyser : public KVDataAnalyser {
+class KVFAZIARawDataAnalyser : public KVDataSetAnalyser {
    TTree* theTree;
    Int_t fRunNumber;             //run number of current file
 
@@ -19,8 +19,7 @@ public:
 
    void SubmitTask();
    void ProcessRun();
-   Int_t GetCurrentRunNumber() const
-   {
+   Int_t GetCurrentRunNumber() const {
       return fRunNumber;
    }
 

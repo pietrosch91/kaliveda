@@ -45,7 +45,6 @@ KVDataSetManager* gDataSetManager;
 KVDataSetManager::KVDataSetManager()
 {
    fNavailable = 0;
-   fIndex = 0;
    fRepository = 0;
    fCacheAvailable = kFALSE;
    fMaxCacheTime = 0;
@@ -56,8 +55,6 @@ KVDataSetManager::KVDataSetManager()
 
 KVDataSetManager::~KVDataSetManager()
 {
-   if (fIndex)
-      delete[]fIndex;
 }
 
 Bool_t KVDataSetManager::Init(KVDataRepository* dr)
@@ -173,13 +170,11 @@ Bool_t KVDataSetManager::ReadTaskList()
 
    fTasks.Clear();
 
-   TObjArray* tasks = task_list.Tokenize(" ");
-   TIter next(tasks);
-   TObjString* task;
-   while ((task = (TObjString*)next())) {
+   task_list.Begin(" ");
+   while (!task_list.End()) {
 
       KVDataAnalysisTask* dat = new KVDataAnalysisTask;
-      TString name = task->GetString();
+      TString name = task_list.Next();
       dat->SetName(name.Data());
       dat->SetTitle(gEnv->GetValue(Form("%s.DataAnalysisTask.Title", name.Data()), ""));
       dat->SetPrereq(gEnv->GetValue(Form("%s.DataAnalysisTask.Prereq", name.Data()), ""));
@@ -190,8 +185,6 @@ Bool_t KVDataSetManager::ReadTaskList()
       fTasks.Add(dat);
 
    }
-
-   delete tasks;
 
    return kTRUE;
 }
@@ -305,16 +298,12 @@ void KVDataSetManager::CheckAvailability()
          ReadAvailableDatasetsFile();
       } else {
          //now set up array of available datasets' indices
-         if (fIndex)
-            delete[]fIndex;
-         fIndex = new Int_t[fNavailable];
+         fIndex.clear();
          next.Reset();
-         Int_t i, j;
-         i = j = 0;
+         Int_t j(0);
          while ((ds = (KVDataSet*) next())) {
             if (ds->IsAvailable()) {
-               fIndex[i] = j;
-               i++;
+               fIndex.push_back(j);
             }
             j++;
          }
@@ -452,16 +441,12 @@ Bool_t KVDataSetManager::ReadAvailableDatasetsFile()
       if (fNavailable) {
          TIter next(&fDataSets);
          //now set up array of available datasets' indices
-         if (fIndex)
-            delete[]fIndex;
-         fIndex = new Int_t[fNavailable];
-         Int_t i, j;
-         i = j = 0;
+         fIndex.clear();
+         Int_t j(0);
          KVDataSet* ds;
          while ((ds = (KVDataSet*) next())) {
             if (ds->IsAvailable()) {
-               fIndex[i] = j;
-               i++;
+               fIndex.push_back(j);
             }
             j++;
          }
@@ -500,4 +485,14 @@ Bool_t KVDataSetManager::CheckCacheStatus()
    } else
       Info("KVDataSetManager::CheckCacheStatus", "...no file found");
    return kFALSE;
+}
+
+KVDataAnalysisTask* KVDataSetManager::GetAnalysisTaskAny(const Char_t* keywords) const
+{
+   // This method returns a pointer to the analysis task whose description (title) contains
+   // all of the whitespace-separated keywords (which may be regular expressions)
+   // given in the string "keywords". The comparison is case-insensitive.
+
+   //case-insensitive search for matches in list of all analysis tasks, based on 'title' attribute
+   return (KVDataAnalysisTask*)GetAnalysisTaskList()->FindObjectAny("title", keywords, kTRUE, kFALSE);
 }

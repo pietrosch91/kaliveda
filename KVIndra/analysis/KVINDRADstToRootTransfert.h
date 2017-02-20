@@ -14,7 +14,7 @@ $Date: 2007/05/31 09:59:22 $
 #include "KVNumberList.h"
 #include "KVIntegerList.h"
 #include "KVDataSet.h"
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "TString.h"
 
 class KVINDRAReconEvent;
@@ -22,7 +22,7 @@ class KVIDTelescope;
 class KVDetector;
 class TTree;
 
-class KVINDRADstToRootTransfert : public KVDataAnalyser {
+class KVINDRADstToRootTransfert : public KVDataSetAnalyser {
 
 protected:
    Int_t fEventNumber;//!
@@ -66,8 +66,7 @@ protected:
    TString req_time, req_mem, req_scratch;
    TString cur_time, cur_mem, cur_scratch;
 
-   void SetCampagneNumber()
-   {
+   void SetCampagneNumber() {
       fCampNumber = -1;
       KVString snom = gDataSet->GetName();
       KVNumberList nl = "1 2 4";

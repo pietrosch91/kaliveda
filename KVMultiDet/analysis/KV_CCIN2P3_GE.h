@@ -10,9 +10,12 @@ class KV_CCIN2P3_GE: public KVBatchSystem {
 
 protected:
 
-   Int_t fDefJobTime; // default job length (in seconds)
-   KVString fDefJobMem; // default job memory allocation (with units, e.g. "512MB")
-   KVString fDefJobDisk; // default job disk space (with units, e.g. "1GB")
+   Bool_t fMultiJobs;  //set to kTRUE if several jobs are to be submitted for the runlist set in fAnalyser
+   Int_t fRunsPerJob; //number of runs per job submitted in multi job mode (default=1)
+   KVNumberList fCurrJobRunList;//runlist for (multi job mode) job being submitted
+   KVString fDefJobTime; // default job length
+   KVString fDefJobMem; // default job memory allocation (with units, e.g. "512M")
+   KVString fDefJobDisk; // default job disk space (with units, e.g. "1G")
    Bool_t fTimeSet;
    Bool_t fDiskSet;
    Bool_t fMemSet;
@@ -24,21 +27,35 @@ public:
    KV_CCIN2P3_GE(const Char_t* name);
    virtual ~ KV_CCIN2P3_GE();
 
-   virtual void SetJobTimeString(const Char_t* h = "");      /* Set CPU time for batch job */
-   virtual void SetJobTime(Int_t, Int_t = 0, Int_t = 0);        /* Set CPU time for batch job */
-   virtual void SetJobMemory(const Char_t* h = ""); /* Set max memory for batch job */
-   virtual void SetJobDisk(const Char_t* h = "");   /* Set max disk space for batch job */
-   virtual void PrintJobs(Option_t* opt = "");  /* Print list of all jobs submitted to system */
+   void SetJobTime(const Char_t* h = "");      /* Set CPU time for batch job */
+   void SetJobMemory(const Char_t* h = ""); /* Set max memory for batch job */
+   void SetJobDisk(const Char_t* h = "");   /* Set max disk space for batch job */
+   void PrintJobs(Option_t* opt = "");  /* Print list of all jobs submitted to system */
 
    virtual Bool_t CheckJobParameters();        /* Checks job parameters */
+   void SetMultiJobsMode(Bool_t on = kTRUE) {
+      fMultiJobs = on;
+   }
+   Bool_t MultiJobsMode() const {
+      return fMultiJobs;
+   }
 
-   virtual const Char_t* GetJobTime(void);    /* Get CPU time for batch job */
-   virtual const Char_t* GetJobMemory(void);       /* Get max memory for batch job */
-   virtual const Char_t* GetJobDisk(void); /* Get max disk space for batch job */
+   void SetRunsPerJob(Int_t n) {
+      // Set number of runs per job submitted in multi jobs mode (default=1)
+      fRunsPerJob = n;
+   }
+   Int_t GetRunsPerJob() const {
+      // Returns number of runs per job submitted in multi jobs mode
+      return fRunsPerJob;
+   }
 
-   virtual void ChooseJobTime(void);    /* Choose CPU time for batch job */
-   virtual void ChooseJobMemory(void);       /* Choose max memory for batch job */
-   virtual void ChooseJobDisk(void); /* Choose max disk space for batch job */
+   const Char_t* GetJobTime(void) const;    /* Get CPU time for batch job */
+   const Char_t* GetJobMemory(void) const;       /* Get max memory for batch job */
+   const Char_t* GetJobDisk(void) const; /* Get max disk space for batch job */
+
+   void ChooseJobTime(void);    /* Choose CPU time for batch job */
+   void ChooseJobMemory(void);       /* Choose max memory for batch job */
+   void ChooseJobDisk(void); /* Choose max disk space for batch job */
 
    virtual void Clear(Option_t* opt = "");
 
@@ -46,14 +63,18 @@ public:
    virtual void ReadBatchEnvFile(TEnv*);
    virtual void Print(Option_t* /*option*/ = "") const;
 
-   virtual void SanitizeJobName();
+   virtual void SanitizeJobName() const;
 
    virtual KVList* GetListOfJobs();
 
-   virtual void SetSendMailOnJobStart();
-   virtual void SetSendMailOnJobEnd();
-   virtual void SetSendMailAddress(const char*);
+   void SetSendMailOnJobStart();
+   void SetSendMailOnJobEnd();
+   void SetSendMailAddress(const char*);
 
+   void Run();
+   const Char_t* GetJobName() const;
+   virtual void GetBatchSystemParameterList(KVNameValueList&);
+   virtual void SetBatchSystemParameters(const KVNameValueList&);
 
    ClassDef(KV_CCIN2P3_GE, 1)  //Interface to CCIN2P3-GE batch job management system
 };

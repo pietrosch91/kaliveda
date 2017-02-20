@@ -3,6 +3,7 @@
 
 #include "KVSimDirGUI.h"
 #include "KVDataSetManager.h"
+#include "KVBatchSystemManager.h"
 #include "KVDataSet.h"
 #include "KVDataBase.h"
 #include "KVDBSystem.h"
@@ -16,12 +17,13 @@
 #include "TGMsgBox.h"
 #include "TSystem.h"
 #include "TChain.h"
+#include <KVDataAnalyser.h>
 #include <KVSimReader.h>
 #include <iostream>
 using namespace std;
 
+#include "KVBatchSystemParametersGUI.h"
 #include "KVDropDownDialog.h"
-#include "TProof.h"
 
 ClassImp(KVSimDirGUI)
 
@@ -319,7 +321,9 @@ KVSimDirGUI::KVSimDirGUI()
    proof_analysis = new TGPictureButton(hf, gClient->GetPicture("proof_base.xpm"));
    proof_analysis->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
    proof_analysis->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
-   proof_analysis->SetToolTipText("Enable PROOF");
+   if (!gBatchSystemManager) new KVBatchSystemManager;
+   gBatchSystemManager->GetDefaultBatchSystem()->cd();
+   proof_analysis->SetToolTipText(gBatchSystem->GetTitle());
    proof_analysis->Resize(40, 40);
    proof_analysis->AllowStayDown(kTRUE);
 
@@ -440,7 +444,7 @@ void KVSimDirGUI::AddSimDir()
          if (simdirs != "") simdirs += " ";
          simdirs += simdirname;
          fGuirc.SetValue("SimDirs", simdirs);
-         fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), fi.fIniDir);
+         fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), sd->GetDirectory());
          fGuirc.SaveLevel(kEnvUser);
       }
    }
@@ -526,98 +530,6 @@ void KVSimDirGUI::EnableEventNumberEntry(Bool_t on)
    fNENumberEvents->SetState(!on);
 }
 
-void KVSimDirGUI::RunAnalysis()
-{
-   unique_ptr<TList> selected_sim_runs(fLVsimData->GetSelectedObjects());
-   unique_ptr<TList> selected_filt_runs(fLVfiltData->GetSelectedObjects());
-   if (!selected_sim_runs->GetEntries() && !selected_filt_runs->GetEntries()) {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose one or more simulated or filtered data files!", kMBIconExclamation);
-      return;
-   }
-   if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
-      return;
-   }
-   if (fAnalClassHeader == "" || fAnalClassImp == "") {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose a valid analysis class!", kMBIconExclamation);
-      return;
-   }
-   TList* runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs.get() : selected_filt_runs.get());
-   Bool_t filtered_analysis = (selected_filt_runs->GetEntries() > 0) ;
-   runs_to_analyse->ls();
-   unique_ptr<TChain> analysis_chain(BuildChain(runs_to_analyse));
-
-   TString fullclasspath;
-   AssignAndDelete(fullclasspath, gSystem->ConcatFileName(fAnalClassDir, fAnalClassImp));
-   fullclasspath += "+g";
-
-   Long64_t nevents = analysis_chain->GetEntries();
-   Bool_t all_events = fCBAllEvents->IsDown();
-
-   if (fWithPROOF) {
-      TProof* p = TProof::Open("");
-      analysis_chain->SetProof();
-      p->ClearCache();//to avoid problems with compilation of KVParticleCondition
-      // enable KaliVeda on PROOF cluster
-      if (p->EnablePackage("KaliVeda") != 0) {
-         // first time, need to 'upload' package
-         TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
-         p->UploadPackage(fullpath);
-         p->EnablePackage("KaliVeda");
-      }
-   }
-
-   TString results_file_name;
-   KVSimFile* first_file = (KVSimFile*)runs_to_analyse->First();
-   results_file_name.Form("%s_%s", fAnalClassName.Data(), first_file->GetName());
-
-   if (!all_events) {
-      nevents = (Long64_t)fNENumberEvents->GetNumber();
-   }
-
-   TString options;
-   if (filtered_analysis) {
-      options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,DataSet=%s,System=%s,Run=%d",
-                   (nevents > 10 ? nevents / 10 : 1),
-                   first_file->GetBranchName(),
-                   results_file_name.Data(),
-                   first_file->GetDataSet(),
-                   first_file->GetSystem(),
-                   first_file->GetRun()
-                  );
-   } else {
-      options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,SimulationInfos=%s",
-                   (nevents > 10 ? nevents / 10 : 1),
-                   first_file->GetBranchName(),
-                   results_file_name.Data(),
-                   first_file->GetTitle());
-   }
-
-   if (!all_events) {
-      cout << "Processing " << nevents << " events" << endl;
-      analysis_chain->Process(fullclasspath, options, nevents);
-   } else
-      analysis_chain->Process(fullclasspath, options);
-}
-
-TChain* KVSimDirGUI::BuildChain(TList* runs)
-{
-   TIter next(runs);
-   KVSimFile* file;
-   TChain* theChain = 0;
-   while ((file = (KVSimFile*)next())) {
-      if (!theChain) {
-         theChain = new TChain(file->GetTreeName());
-      }
-      TString fullpath;
-      AssignAndDelete(fullpath, gSystem->ConcatFileName(file->GetSimDir()->GetDirectory(), file->GetName()));
-      theChain->Add(fullpath);
-   }
-   return theChain;
-}
-
-//________________________________________________________________
-
 void KVSimDirGUI::SelectDataSet(const char* name)
 {
    KVDataSet* ds = gDataSetManager->GetDataSet(name);
@@ -678,8 +590,8 @@ void KVSimDirGUI::SelectRun(const char* run)
 void KVSimDirGUI::Run()
 {
 //    Info("Run","current tab : '%d'",fAnalysisTabs->GetCurrent());
-   if (fAnalysisTabs->GetCurrent() == 0)      RunAnalysis();
-   else if (fAnalysisTabs->GetCurrent() == 1) RunFilter();
+   if (fAnalysisTabs->GetCurrent() == 0)      RunAnalysis("tree");
+   else if (fAnalysisTabs->GetCurrent() == 1) RunAnalysis("filter");
 }
 
 // void KVSimDirGUI::ChangeOutputDirectory()
@@ -694,28 +606,78 @@ void KVSimDirGUI::Run()
 //    dir = fi.fIniDir;
 // }
 
-
-void KVSimDirGUI::RunFilter()
+void KVSimDirGUI::RunAnalysis(const TString& type)
 {
    unique_ptr<TList> selected_sim_runs(fLVsimData->GetSelectedObjects());
    unique_ptr<TList> selected_filt_runs(fLVfiltData->GetSelectedObjects());
-   if (selected_filt_runs->GetEntries()) {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Only simulated events can be filtered!", kMBIconExclamation);
-      return;
+   TList* runs_to_analyse(nullptr);
+   if (type == "tree") { // analysis of simulated or filtered events
+      if (!selected_sim_runs->GetEntries() && !selected_filt_runs->GetEntries()) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose one or more simulated or filtered data files!", kMBIconExclamation);
+         return;
+      }
+      if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
+         return;
+      }
+      if (fAnalClassHeader == "" || fAnalClassImp == "") {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose a valid analysis class!", kMBIconExclamation);
+         return;
+      }
+      runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs.get() : selected_filt_runs.get());
+   } else {
+      // filtering
+      if (selected_filt_runs->GetEntries()) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Only simulated events can be filtered!", kMBIconExclamation);
+         return;
+      }
+      if (!selected_sim_runs->GetEntries()) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose a simulated data file to filter!", kMBIconExclamation);
+         return;
+      }
+      if (selected_sim_runs->GetEntries() > 1) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
+         return;
+      }
+      runs_to_analyse = selected_sim_runs.get();
    }
-   if (!selected_sim_runs->GetEntries()) {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose a simulated data file to filter!", kMBIconExclamation);
-      return;
+   if (!gDataSetManager) {
+      gDataSetManager = new KVDataSetManager;
+      gDataSetManager->Init();
    }
-   if (selected_sim_runs->GetEntries() > 1) {
-      new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
-      return;
+   KVDataAnalysisTask* anTask = gDataSetManager->GetAnalysisTaskAny(type);
+   gDataAnalyser = KVDataAnalyser::GetAnalyser(anTask->GetDataAnalyser());
+   gDataAnalyser->SetAnalysisTask(anTask);
+   gDataAnalyser->SetFileList(runs_to_analyse);
+   if (anTask->WithUserClass())
+      gDataAnalyser->SetUserClass(fAnalClassName);
+   else if (strcmp(anTask->GetUserBaseClass(), ""))
+      gDataAnalyser->SetUserClass(anTask->GetUserBaseClass(), kFALSE);//task with default "user" class
+   Bool_t all_events = fCBAllEvents->IsDown();
+   if (!all_events)
+      gDataAnalyser->SetNbEventToRead((Long64_t)fNENumberEvents->GetNumber());
+   else
+      gDataAnalyser->SetNbEventToRead(0);
+   Bool_t cancel_batch_job = kFALSE;
+   if (fWithPROOF) {
+      gBatchSystem->Clear();
+      KVNameValueList batchParams;
+      gBatchSystem->GetBatchSystemParameterList(batchParams);
+      new KVBatchSystemParametersGUI(MainFrame, &batchParams, gDataAnalyser, &cancel_batch_job);
+      if (!cancel_batch_job) {
+         gBatchSystem->SetBatchSystemParameters(batchParams);
+         gDataAnalyser->SetBatchSystem(gBatchSystem);
+      }
    }
-   TList* runs_to_analyse = selected_sim_runs.get();
-   runs_to_analyse->ls();
-   unique_ptr<TChain> analysis_chain(BuildChain(runs_to_analyse));
-   analysis_chain->ls();
+   if (type == "filter") SetFilterOptions();
+   if (!cancel_batch_job) gDataAnalyser->Run();
+   selected_filt_runs.reset(nullptr);
+   selected_sim_runs.reset(nullptr);
+   RefreshSimDir();
+}
 
+void KVSimDirGUI::SetFilterOptions()
+{
    TString geometry;
    if (fGeoType == kGTROOT) geometry = "ROOT";
    else geometry = "KV";
@@ -744,46 +706,17 @@ void KVSimDirGUI::RunFilter()
    }
 
    TString options;
-   Long64_t nevents = analysis_chain->GetEntries();
-   Bool_t all_events = fCBAllEvents->IsDown();
-   if (!all_events) {
-      nevents = (Long64_t)fNENumberEvents->GetNumber();
-   }
-
-   options  = Form("EventsReadInterval=%lld,", (nevents > 10 ? nevents / 10 : 1));
-   options += Form("SimFileName=%s,", ((KVSimFile*)runs_to_analyse->First())->GetName());
-   options += Form("SimTitle=%s,", analysis_chain->GetTitle());
-   options += Form("BranchName=%s,", ((KVSimFile*)runs_to_analyse->First())->GetBranchName());
-   options += Form("Dataset=%s,", fDataset.Data());
+   options = Form("Dataset=%s,", fDataset.Data());
    options += Form("System=%s,", fSystem.Data());
    options += Form("Geometry=%s,", geometry.Data());
    options += Form("Filter=%s,", filter.Data());
-   options += Form("OutputDir=%s,", ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
    options += Form("Kinematics=%s", kinema.Data());
-
    if (fRun != "") {
       TString r;
       r.Form(",Run=%s", fRun.Data());
       options += r;
    }
-   Info("RunFilter", "%s", options.Data());
-
-   if (fWithPROOF) {
-      TProof* p = TProof::Open("");
-      analysis_chain->SetProof();
-      p->ClearCache();//to avoid problems with compilation of KVParticleCondition
-      // enable KaliVeda on PROOF cluster
-      if (p->EnablePackage("KaliVeda") != 0) {
-         // first time, need to 'upload' package
-         TString fullpath = KVBase::GetETCDIRFilePath("KaliVeda.par");
-         p->UploadPackage(fullpath);
-         p->EnablePackage("KaliVeda");
-      }
-   }
-   analysis_chain->Process("KVEventFiltering", options, nevents);
-   selected_filt_runs.reset(nullptr);
-   selected_sim_runs.reset(nullptr);
-   RefreshSimDir();
+   gDataAnalyser->SetUserClassOptions(options);
 }
 
 void KVSimDirGUI::ImportSimulation()

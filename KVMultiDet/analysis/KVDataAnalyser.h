@@ -16,30 +16,19 @@ $Author: franklan $
 #include "KVNumberList.h"
 #include "TEnv.h"
 
-class KVDataSet;
 class KVDataAnalysisTask;
-class KVDBSystem;
 
 class KVDataAnalyser : public TObject {
 
-protected:
-
+private:
    KVDataAnalysisTask* fTask;   //task chosen by user
    KVString fDataType;          //datatype chosen by user
    Bool_t fBatch;               //set to kTRUE when used in a non-interactive environment
    KVString fBatchName;         //name of batch job when used in a non-interactive environment
-   KVDBSystem* fSystem;         //system chosen by user
-   KVNumberList fRunList;       //list of runs to analyse
-   KVNumberList fFullRunList;   //list of all runs for the analysis task
-   KVDataSet* fDataSet;         //dataset chosen by user
    Long64_t nbEventToRead;
 
    Bool_t fMenus; //set to kTRUE in menu-driven mode
    Bool_t fQuit;                //set to kTRUE when user wants to quit
-   Bool_t fChoozDataSet;        //set to kTRUE when user wants to choose a dataset
-   Bool_t fChoozTask;           //set to kTRUE when user wants to choose analysis task
-   Bool_t fChoozSystem;         //set to kTRUE when user wants to choose a system
-   Bool_t fChoozRuns;           //set to kTRUE when user wants to choose runs
    Bool_t fSubmit;              //set to kTRUE when user wants to submit task
 
    KVString fIncludes;           //user's include directories
@@ -59,16 +48,36 @@ protected:
 
    TList* fWorkDirInit;//list of files in working directory before task runs
    TList* fWorkDirEnd;//list of files in working directory after task runs
-   virtual void ScanWorkingDirectory(TList**);
+   static Bool_t fCleanAbort;//flag to force abort of processing
+
+protected:
+   void ScanWorkingDirectory(TList**);
    void CopyAnalysisResultsToLaunchDirectory();
 
-   virtual KVNumberList PrintAvailableRuns(KVString& datatype);
    virtual Bool_t CheckIfUserClassIsValid(const KVString& alternative_base_class = "");
-   virtual TObject* GetInstanceOfUserClass(const KVString& alternative_base_class = "");
+   TObject* GetInstanceOfUserClass(const KVString& alternative_base_class = "");
 
-   virtual const Char_t* GetACliCMode();
+   const Char_t* GetACliCMode();
 
-   static Bool_t fCleanAbort;//flag to force abort of processing
+   TEnv* GetBatchInfoFile() const {
+      return fBatchEnv;
+   }
+   virtual Bool_t PreSubmitCheck() {
+      return kTRUE;
+   }
+   virtual void PostRunReset();
+   virtual Bool_t NeedToChooseWhatToDo() const {
+      return !GetAnalysisTask();
+   }
+   virtual Bool_t NeedToChooseWhatToAnalyse() const {
+      AbstractMethod("NeedToChooseWhatToAnalyse");
+      return kTRUE;
+   }
+   virtual void ChooseWhatToAnalyse();
+   virtual void ChooseWhatToDo();
+   virtual Bool_t CheckWhatToAnalyseAndHow();
+
+   virtual void set_up_analyser_for_task(KVDataAnalyser* the_analyser);
 
 public:
    enum EProofMode {
@@ -97,50 +106,47 @@ public:
    KVDataAnalyser();
    virtual ~ KVDataAnalyser();
 
-   virtual void SetUserClass(const Char_t* kvs, Bool_t check = kTRUE);
-   virtual const Char_t* GetUserClass() {
+   void SetUserClass(const Char_t* kvs, Bool_t check = kTRUE);
+   const Char_t* GetUserClass() {
       return fUserClass.Data();
-   };
+   }
    Bool_t IsUserClassValid() const {
       return fUserClassIsOK;
    }
 
+   virtual Int_t GetNumberOfFilesToAnalyse() const {
+      return 0;
+   }
+
    virtual void Run();
    virtual void RunMenus();
-   virtual void ChooseDataSet();
-   virtual void ChooseDataType();
-   virtual void ChooseAnalysisTask();
-   virtual void ChooseSystem(const Char_t* data_type = "");
-   virtual void ChooseRuns(KVDBSystem* system =
-                              0, const Char_t* data_type = "");
-   virtual void ChooseUserClass();
-   virtual void ChooseRunningMode();
+   void ChooseUserClass();
+   void ChooseRunningMode();
    virtual void SubmitTask();
    virtual Bool_t CheckTaskVariables();
-   virtual Bool_t DoUserClassFilesExist();
+   Bool_t DoUserClassFilesExist();
 
-   virtual void SetBatchMode(Bool_t on = kTRUE) {
+   void SetBatchMode(Bool_t on = kTRUE) {
       fBatch = on;
-   };
-   virtual Bool_t BatchMode() const {
+   }
+   Bool_t BatchMode() const {
       return fBatch;
-   };
-   virtual void SetBatchName(const Char_t* batchname) {
+   }
+   void SetBatchName(const Char_t* batchname) {
       fBatchName = batchname;
-   };
-   virtual const Char_t* GetBatchName() {
+   }
+   const Char_t* GetBatchName() {
       return fBatchName.Data();
-   };
-   virtual void SetBatchSystem(KVBatchSystem* bs) {
+   }
+   void SetBatchSystem(KVBatchSystem* bs) {
       fBatchSystem = bs;
       fChoseRunMode = kTRUE;
       if (bs) fBatchSystem->cd();
-   };
+   }
    virtual const KVBatchSystem* GetBatchSystem() {
       return fBatchSystem;
-   };
-   virtual Bool_t RunningInLaunchDirectory();
-   virtual const Char_t* SystemBatchName();
+   }
+   Bool_t RunningInLaunchDirectory();
 
    const Char_t* GetLaunchDirectory() const;
    const Char_t* GetBatchStatusFileName() const;
@@ -152,65 +158,54 @@ public:
    Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
    void DoStatusUpdate(Int_t nevents) const;
 
-   virtual KVDataAnalysisTask* GetAnalysisTask() {
+   KVDataAnalysisTask* GetAnalysisTask() const {
       return fTask;
    }
-   virtual KVString& GetDataType() {
+   const KVString& GetDataType() const {
       return fDataType;
    }
-   virtual KVDBSystem* GetSystem() {
-      return fSystem;
-   }
-   virtual KVNumberList& GetRunList() {
-      return fRunList;
-   }
-   virtual KVNumberList& GetFullRunList() {
-      return fFullRunList;
-   }
-   virtual KVDataSet* GetDataSet() {
-      return fDataSet;
-   }
-   virtual KVString& GetUserIncludes() {
+   const KVString& GetUserIncludes() const {
       return fIncludes;
    }
-   virtual KVString& GetUserLibraries() {
+   const KVString& GetUserLibraries() const {
       return fLibraries;
    }
+   virtual void SetFileList(TList*) {
+      AbstractMethod("SetFileList(TList*)");
+   }
 
-   virtual void SetNbEventToRead(Long64_t nb = 0) {
+   void SetNbEventToRead(Long64_t nb = 0) {
       nbEventToRead = nb;
    }
 
-   virtual Long64_t GetNbEventToRead(void) {
+   Long64_t GetNbEventToRead(void) const {
       return nbEventToRead;
    }
 
-   virtual void ChooseNbEventToRead();
-   virtual void SetDataSet(KVDataSet* ds);
-   virtual void SetDataSet(const Char_t* name);
-   virtual void SetAnalysisTask(KVDataAnalysisTask* at);
-   virtual void SetDataType(const Char_t* name) {
+   void ChooseNbEventToRead();
+   void SetAnalysisTask(KVDataAnalysisTask* at);
+   void SetDataType(const Char_t* name) {
       fDataType = name;
    }
-   virtual void SetSystem(KVDBSystem* syst);
-   virtual void SetRuns(KVNumberList& nl, Bool_t check = kTRUE);
-   virtual void SetRuns(const Char_t*, Bool_t check = kTRUE);
-   virtual void SetFullRunList(KVNumberList& nl);
 
-   virtual void SetUserIncludes(const Char_t* incDirs = 0);
-   virtual void SetUserLibraries(const Char_t* libs = 0);
+   void SetUserIncludes(const Char_t* incDirs = 0);
+   void SetUserLibraries(const Char_t* libs = 0);
 
-   virtual void ClearRunList() {
-      fRunList.Clear();
-   };
    virtual void Reset();
 
-   virtual void SetParent(KVDataAnalyser* da) {
+   void SetParent(KVDataAnalyser* da) {
       fParent = da;
-   };
-   virtual KVDataAnalyser* GetParent() const {
+   }
+   KVDataAnalyser* GetParent() const {
       return fParent;
-   };
+   }
+
+   const KVString& GetUserClassImp() const {
+      return fUserClassImp;
+   }
+   const KVString& GetUserClassDec() const {
+      return fUserClassDec;
+   }
 
    static KVDataAnalyser* GetAnalyser(const Char_t* plugin);
    virtual Bool_t ReadBatchEnvFile(const Char_t*);
@@ -232,8 +227,7 @@ public:
    virtual void preEndAnalysis() {}
    virtual void postEndAnalysis() {}
 
-   virtual void WriteBatchInfo(TTree*);
-   virtual Int_t GetRunNumberFromFileName(const Char_t*);
+   void WriteBatchInfo(TTree*);
 
    virtual void RegisterUserClass(TObject*) {}
 
@@ -249,6 +243,30 @@ public:
    static Bool_t IsRunningBatchAnalysis();
 
    virtual void AddJobDescriptionList(TList*);
+
+   void SetMenus(Bool_t on = kTRUE) {
+      fMenus = on;
+   }
+   Bool_t IsMenus() const {
+      return fMenus;
+   }
+   void SetQuit(Bool_t yes = kTRUE) {
+      fQuit = yes;
+   }
+   Bool_t IsQuit() const {
+      return fQuit;
+   }
+   void SetSubmit(Bool_t yes = kTRUE) {
+      fSubmit = yes;
+   }
+   Bool_t IsSubmit() const {
+      return fSubmit;
+   }
+   virtual KVString GetRootDirectoryOfDataToAnalyse() const {
+      AbstractMethod("GetRootDirectoryOfDataToAnalyse");
+      return "";
+   }
+   virtual const Char_t* GetRecognisedAutoBatchNameKeywords() const;
 
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

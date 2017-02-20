@@ -37,21 +37,21 @@ protected:
    KVList fTasks;                //possible data analysis tasks for this dataset
    TString fCalibDir;           //directory containing database, calibration, identification parameters etc. for dataset
    Bool_t fDBBuild;             //has the database been built by us ?
-   TFile* fDBase;               //file containing database
+   mutable TFile* fDBase;               //file containing database
    TString fDBName;             //name of database
    TString fDBFileName;         //name of file in which database is stored on disk
-   KVDataBase* fDataBase;       //pointer to dataset's database
-   KVList fAvailableRuns;       //!list of KVAvailableRunsFile objects used to read infos on available runs
+   mutable KVDataBase* fDataBase;       //pointer to dataset's database
+   mutable KVList fAvailableRuns;       //!list of KVAvailableRunsFile objects used to read infos on available runs
    enum {
       kAvailable = BIT(14)     //flag set if this dataset is physically present on local machine
    };
    TString fUserGroups;         //list of user groups allowed to read data
 
-   virtual const Char_t* GetBaseFileName(const Char_t* type, Int_t run);
+   virtual const Char_t* GetBaseFileName(const Char_t* type, Int_t run) const;
 
-   virtual void OpenDataBase(Option_t* opt = "");
-   virtual void OpenDBFile(const Char_t* full_path_to_dbfile);
-   virtual void WriteDBFile(const Char_t* full_path_to_dbfile);
+   virtual void OpenDataBase(Option_t* opt = "") const;
+   virtual void OpenDBFile(const Char_t* full_path_to_dbfile) const;
+   virtual void WriteDBFile(const Char_t* full_path_to_dbfile) const;
    void SetDBFileName(const Char_t* name) {
       fDBFileName = name;
    };
@@ -60,11 +60,11 @@ protected:
       fDBName = name;
    };
    const Char_t* GetDBName() const;
-   const Char_t* GetFullPathToDB();
+   const Char_t* GetFullPathToDB() const;
 
 public:
 
-   KVAvailableRunsFile* GetAvailableRunsFile(const Char_t* type);
+   KVAvailableRunsFile* GetAvailableRunsFile(const Char_t* type) const;
 
    KVDataSet();
    virtual ~ KVDataSet();
@@ -100,7 +100,7 @@ public:
    };
    virtual void CheckAvailable();
 
-   virtual Bool_t HasDataType(const Char_t* data_type) {
+   virtual Bool_t HasDataType(const Char_t* data_type) const {
       // Returns kTRUE if data files of the given type are stored in the data repository
       KVString _dt = data_type;
       _dt.Remove(TString::kBoth, ' ');
@@ -121,21 +121,21 @@ public:
    virtual TList* GetListOfAvailableSystems(KVDataAnalysisTask* datan,
          KVDBSystem* systol = 0);
 
-   void cd();
+   void cd() const;
 
    const Char_t* GetDataSetDir() const;
    void SetName(const char* name);
 
 
-   KVDataBase* GetDataBase(Option_t* opt = "");
-   virtual void SaveDataBase();
+   KVDataBase* GetDataBase(Option_t* opt = "") const;
+   virtual void SaveDataBase() const;
 
    const Char_t* GetDataSetEnv(const Char_t* type, const Char_t* defval = "") const;
    Double_t GetDataSetEnv(const Char_t* type, Double_t defval) const;
    Bool_t GetDataSetEnv(const Char_t* type, Bool_t defval) const;
 
-   TString GetFullPathToRunfile(const Char_t* type, Int_t run);
-   const Char_t* GetRunfileName(const Char_t* type, Int_t run);
+   TString GetFullPathToRunfile(const Char_t* type, Int_t run) const;
+   const Char_t* GetRunfileName(const Char_t* type, Int_t run) const;
    TDatime GetRunfileDate(const Char_t* type, Int_t run);
    virtual TObject* OpenRunfile(const Char_t* type, Int_t run);
    Bool_t CheckRunfileAvailable(const Char_t* type, Int_t run);
@@ -166,13 +166,13 @@ public:
                                  const Char_t* other_repos);
 
    KVNumberList GetRunList(const Char_t* data_type,
-                           const KVDBSystem* sys = 0);
+                           const KVDBSystem* sys = 0) const;
 
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
 
    virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
 
-   virtual Bool_t DataBaseNeedsUpdate();
+   virtual Bool_t DataBaseNeedsUpdate() const;
 
    virtual const Char_t* GetReconstructedEventClassName() const {
       // Returns the name of the class used to store reconstructed events for this dataset.

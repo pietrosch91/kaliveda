@@ -93,7 +93,7 @@ Bool_t KVRemoteDataRepository::CheckSubdirExists(const Char_t*,
 
 //___________________________________________________________________________
 
-Bool_t KVRemoteDataRepository::GetFileInfo(KVDataSet*,
+Bool_t KVRemoteDataRepository::GetFileInfo(const KVDataSet*,
       const Char_t*,
       const Char_t*,
       FileStat_t&)
@@ -114,7 +114,7 @@ Bool_t KVRemoteDataRepository::GetFileInfo(KVDataSet*,
 
 //___________________________________________________________________________
 
-Bool_t KVRemoteDataRepository::CheckFileStatus(KVDataSet*,
+Bool_t KVRemoteDataRepository::CheckFileStatus(const KVDataSet*,
       const Char_t*,
       const Char_t*)
 {
@@ -133,7 +133,7 @@ Bool_t KVRemoteDataRepository::CheckFileStatus(KVDataSet*,
 
 //___________________________________________________________________________
 
-void KVRemoteDataRepository::CopyFileFromRepository(KVDataSet*,
+void KVRemoteDataRepository::CopyFileFromRepository(const KVDataSet*,
       const Char_t*,
       const Char_t*,
       const Char_t*)
@@ -148,7 +148,7 @@ void KVRemoteDataRepository::CopyFileFromRepository(KVDataSet*,
 //___________________________________________________________________________
 
 void KVRemoteDataRepository::CopyFileToRepository(const Char_t*,
-      KVDataSet*,
+      const KVDataSet*,
       const Char_t*,
       const Char_t*)
 {
@@ -160,7 +160,7 @@ void KVRemoteDataRepository::CopyFileToRepository(const Char_t*,
 
 //___________________________________________________________________________
 
-void KVRemoteDataRepository::MakeSubdirectory(KVDataSet*,
+void KVRemoteDataRepository::MakeSubdirectory(const KVDataSet*,
       const Char_t*)
 {
    //Create a new subdirectory in the repository
@@ -170,7 +170,7 @@ void KVRemoteDataRepository::MakeSubdirectory(KVDataSet*,
 
 //___________________________________________________________________________
 
-KVUniqueNameList* KVRemoteDataRepository::GetDirectoryListing(KVDataSet*,
+KVUniqueNameList* KVRemoteDataRepository::GetDirectoryListing(const KVDataSet*,
       const Char_t*)
 {
    //Impossible on distant data repositories.
@@ -181,7 +181,7 @@ KVUniqueNameList* KVRemoteDataRepository::GetDirectoryListing(KVDataSet*,
 
 //___________________________________________________________________________
 
-void KVRemoteDataRepository::DeleteFile(KVDataSet*,
+void KVRemoteDataRepository::DeleteFile(const KVDataSet*,
                                         const Char_t*,
                                         const Char_t*,
                                         Bool_t)
@@ -201,8 +201,7 @@ KVDataSetManager* KVRemoteDataRepository::NewDataSetManager()
 
 //___________________________________________________________________________
 
-const Char_t* KVRemoteDataRepository::GetFullPathToTransferFile(KVDataSet*
-      dataset,
+const Char_t* KVRemoteDataRepository::GetFullPathToTransferFile(const KVDataSet* dataset,
       const
       Char_t*
       datatype,
@@ -238,7 +237,7 @@ const Char_t* KVRemoteDataRepository::GetFullPathToTransferFile(KVDataSet*
 
 //___________________________________________________________________________
 
-const Char_t* KVRemoteDataRepository::GetFullPathToOpenFile(KVDataSet* dataset,
+const Char_t* KVRemoteDataRepository::GetFullPathToOpenFile(const KVDataSet* dataset,
       const Char_t*
       datatype,
       const Char_t*

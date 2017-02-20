@@ -10,12 +10,12 @@ $Date: 2007/05/31 09:59:22 $
 #ifndef __KVFAZIAReconDataAnalyser_H
 #define __KVFAZIAReconDataAnalyser_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "TSelector.h"
 #include <KVDataPatchList.h>
 class TChain;
 
-class KVFAZIAReconDataAnalyser: public KVDataAnalyser {
+class KVFAZIAReconDataAnalyser: public KVDataSetAnalyser {
 
 protected:
 
@@ -33,8 +33,7 @@ public:
 
    void SubmitTask();
    void ProcessRun();
-   Int_t GetCurrentRunNumber() const
-   {
+   Int_t GetCurrentRunNumber() const {
       return fRunNumber;
    }
 

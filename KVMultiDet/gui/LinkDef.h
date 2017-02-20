@@ -18,11 +18,13 @@
 #pragma link C++ class KVDBSystemDialog+;
 #pragma link C++ class KVSimDirGUI+;
 #pragma link C++ class KVBatchSystemGUI+;
+#pragma link C++ class KVBatchSystemParametersGUI+;
 #pragma link C++ class KVLauncherGUI+;
 #pragma link C++ class KVTextDialog+;
 #pragma link C++ class KVTestListView+;
 #pragma link C++ class KVIDGridManagerGUI+;
 #pragma link C++ class KVNewGridDialog+;
+#pragma link C++ class KVNameValueListGUI+;
 #pragma link C++ class KVListView;
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
