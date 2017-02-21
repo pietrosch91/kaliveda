@@ -118,6 +118,8 @@ public:
       // call this method first.
       fIgnoreBool = ignore;
    }
+   void SetFromEnv(TEnv* tenv, const TString& prefix = "");
+   void WriteToEnv(TEnv* tenv, const TString& prefix = "");
 
    ClassDef(KVNameValueList, 4) //A general-purpose list of parameters
 };

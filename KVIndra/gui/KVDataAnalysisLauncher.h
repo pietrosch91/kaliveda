@@ -19,16 +19,16 @@
 #include "TEnv.h"
 #include "TApplication.h"
 
+
+#include "KVDBSystem.h"
 #include "KVNumberList.h"
 #include "KVDataSetAnalyser.h"
 #include "KVListView.h"
 #include "KVConfig.h"
 
-#define USE_KVTIMEENTRY
+//#define USE_KVTIMEENTRY
 #ifdef USE_KVTIMEENTRY
 #include "KVTimeEntry.h"
-
-#include <KVDBSystem.h>
 #endif
 
 class KVGFileList : public TGTransientFrame {
@@ -118,11 +118,8 @@ protected:
    TGComboBox* cbRepository;
    TGComboBox* cbTask;
    TGComboBox* cbDataSet;
-   //TGComboBox *cbSystem;
    KVListView* lvSystems;
    KVDBSystem* lastSelectedSystem;
-   //TGComboBox *cbTrigger;
-   //TGListBox  *lbRuns;
    KVListView* lvRuns;
    TGLabel*    selectedRuns;
    Int_t     entryMax;
@@ -131,40 +128,19 @@ protected:
 
    KVDataSetAnalyser* ia;
    TGCompositeFrame* cfAnalysis;
-   //TGTextEntry   *teSelector;
    TGComboBox* cbUserClass;
    TGPictureButton* btEditClass;
    TGLabel*         fUserClassLabel;
-   TGTextEntry*   teDataSelector;
    TGTextEntry*   teUserOptions;
-   TGLabel*         fDataSelectorLabel;
    TGNumberEntry* teNbToRead;
+   TGTextButton* withBatch;
+   TGTextButton* doBatchParams;
 
-   TGRadioButton* rbInteractive;
-   TGRadioButton* rbBatch;
-   TGTextEntry*   teBatchName;
-   TGTextEntry*   teBatchNameFormat;
-   TGCheckButton* chIsBatchNameAuto;
-
-   TGTextEntry*   teBatchMemory;
-   TGLabel*         fBatchMemLab;
-   TGTextEntry*   teBatchDisk;
-   TGLabel*        fBatchDiskLab;
-#ifdef USE_KVTIMEENTRY
-   KVTimeEntry*   teBatchTime;
-#else
-   TGNumberEntry* teBatchTime;
-#endif
-   TGLabel*        fBatchTimeLab;
-   TGNumberEntry* runsPerJob;
    TString         fUserLibraries;
    TString         fUserIncludes;
-   TGCheckButton* send_mail_at_job_start;
-   TGCheckButton* send_mail_at_job_end;
-   TGTextEntry* alternative_email;
    Bool_t         checkCompilation;
-   Bool_t withBatchParams;
    Bool_t noSystems;
+   KVNameValueList fBatchParameters;
    KVDataSetAnalyser* GetDataAnalyser(KVDataAnalysisTask* task = 0);
 
    TList* UserClassNames; // list of user classes present in working directory
@@ -175,15 +151,14 @@ protected:
    void DisableUserClassList();
    void EnableUserClassList();
    void GenerateNewUserClass();
+   const Char_t* SystemBatchName();
 
    UInt_t fMainGuiWidth;//width of main window in pixels
    UInt_t fMainGuiHeight;//heigth of main window in pixels
 
-
 public:
    KVDataAnalysisLauncher(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 400);
    ~KVDataAnalysisLauncher();
-   virtual Bool_t ProcessMessage(Long_t msg, Long_t par1, Long_t par2);
 
    virtual void Exit(void)
    {
@@ -217,21 +192,10 @@ public:
 
    virtual Bool_t IsBatch(void)
    {
-      return !rbInteractive->IsDown();
+      return withBatch->IsDown();
    }
-   virtual void SetBatch(void);
-   virtual Bool_t IsBatchNameAuto(void)
-   {
-      return chIsBatchNameAuto->IsDown();
-   }
-   virtual void SetBatchNameAuto(void);
-   virtual void SetRunsPerJobLimits()
-   {
-      runsPerJob->SetLimits(TGNumberFormat::kNELLimitMinMax, 1.0, (Double_t)listOfRuns.GetNValues());
-   };
-
-   virtual const Char_t* SystemBatchName(void);
-   virtual void SetAutoBatchName(void);
+   void SetBatch();
+   void SetBatchParameters();
 
    virtual void SetUserLibraries(void);
    virtual void SetUserIncludes(void);
@@ -241,18 +205,8 @@ public:
    void ClearListOfSelectedRuns();
    void EditUserClassFiles();
 
-   Bool_t SendMailAtJobStart()
-   {
-      return send_mail_at_job_start->IsOn();
-   }
-   Bool_t SendMailAtJobEnd()
-   {
-      return send_mail_at_job_end->IsOn();
-   }
-   void SetSendMailAtJobStart();
-   void SetSendMailAtJobEnd();
-
    ClassDef(KVDataAnalysisLauncher, 0) //Graphical interface for launching analysis tasks: KaliVedaGUI
+   void UpdateFromTEnv(KVNameValueList& nvl, TEnv* tenv, const TString& prefix = "");
 };
 
 #endif

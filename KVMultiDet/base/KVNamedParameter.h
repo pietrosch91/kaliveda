@@ -5,6 +5,7 @@
 #define __KVNAMEDPARAMETER_H
 
 #include "TNamed.h"
+#include "TEnv.h"
 
 class KVNamedParameter : public TNamed {
 
@@ -55,6 +56,7 @@ public:
    void Set(Int_t);
    void Set(Bool_t);
    void Set(const KVNamedParameter&);
+   void Set(TEnv*, const TString& p = "");
 
    const Char_t* GetString() const;
    const TString& GetTString() const;
@@ -91,6 +93,7 @@ public:
    virtual void ls(Option_t* opt = "") const;
 
    Int_t Compare(const TObject* obj) const;
+   void WriteToEnv(TEnv*, const TString& p = "");
 
    ClassDef(KVNamedParameter, 1) //A generic parameter with a name and a value
 };

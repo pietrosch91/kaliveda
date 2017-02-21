@@ -19,10 +19,6 @@ class TChain;
 class KVINDRAReconDataAnalyser: public KVDataSetAnalyser {
 
 protected:
-   KVString fDataSelector;//name of KVDataSelector to use
-   KVString fDataSelectorImp;//name of KVDataSelector implementation file (if it exists)
-   KVString fDataSelectorDec;//name of KVDataSelector header file (if it exists)
-
    virtual KVNumberList PrintAvailableRuns(KVString& datatype);
    KVINDRAEventSelector* fSelector;// the data analysis class
    KVOldINDRASelector* fOldSelector;// backwards compatibility
@@ -54,8 +50,6 @@ public:
    KVINDRAReconDataAnalyser();
    virtual ~ KVINDRAReconDataAnalyser();
 
-   virtual void SetKVDataSelector(const Char_t* kvs = "");
-
    TTree* GetTree() const
    {
       return theChain;
@@ -64,20 +58,12 @@ public:
    {
       theChain = t;
    }
-   virtual const Char_t* GetKVDataSelector(void)
-   {
-      return fDataSelector.Data();
-   }
 
    virtual void Reset();
-   virtual void ChooseKVDataSelector();
 
    virtual Bool_t CheckTaskVariables(void);
    virtual void SubmitTask();
    virtual void WriteBatchEnvFile(const Char_t*, Bool_t sav = kTRUE);
-   virtual Bool_t ReadBatchEnvFile(const Char_t*);
-
-   virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
 
    void preInitAnalysis();
    void preAnalysis();
