@@ -547,7 +547,6 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow* p, UInt_t w, UInt
    runs_and_nbevents->AddFrame(selectedRuns, new TGLayoutHints(kLHintsExpandX | kLHintsCenterY, 2, 2, 0, 0));
    TGHorizontalFrame* bidule = new TGHorizontalFrame(runs_and_nbevents);
    TGLabel* nevents = new TGLabel(bidule, "Events : ");
-   //nevents->Resize(50,20);
    bidule->AddFrame(nevents, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 2, 0, 0));
    teNbToRead = new TGNumberEntry(bidule, 0);
 #ifdef __WITHOUT_TGNUMBERENTRY_SETNUMSTYLE
@@ -704,7 +703,6 @@ void KVDataAnalysisLauncher::SetRepositoryList(void)
    TObject* o = 0;
    Int_t i = 0;
    while ((o = next())) {
-      //if(((KVDataRepository *)o)->GetDataSetManager()->GetNavailable())
       cbRepository->AddEntry(o->GetName(), i);
       i++;
    }
@@ -719,7 +717,6 @@ void KVDataAnalysisLauncher::SetDataSetList(Char_t* repository)
    // Sets the list of all available data sets in the data sets combo box
    SetResource("Repository", repository);
 
-   //TString ds=GetDataSet();
    TString ds = GetSavedResource("DataSet", "");
 
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
@@ -753,8 +750,6 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t* dataset)
    // Called when a new dataset is selected in the dropdown list
 
    SetResource("DataSet", dataset);
-
-   //Info("SetTaskList", "Called with dataset = %s", dataset);
 
    TString ds = GetSavedResource("Task", "");
 
@@ -840,7 +835,6 @@ void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
    if (ds.Length()) {
       SetSystem(ds.Data());
    } else {
-      //Info("SetSystemList","no selected system");
       SetRunsList();
    }
 }
@@ -896,18 +890,14 @@ void KVDataAnalysisLauncher::SetRunsList()
    lvRuns->Display(list_of_runs.get());
 
    TString ds = GetSavedResource("RunsList", "");
-   //Info("SetRunsList", "SetRuns");
    SetRuns(ds.Data());
 
-   // Set saved user class, data selector, number of events for current
+   // Set saved user class, number of events for current
    // repository, dataset, task, system, trigger & runs
    ds = GetSavedResource("UserClass", "");
    SetUserClass(ds.Data());
-   //ds = GetSavedResource("KVDataSelector", "");
-   //teDataSelector->SetText(ds.Data());
    ds = GetSavedResource("NbEventsToRead", "");
    teNbToRead->SetIntNumber(ds.Atoi());
-
 }
 
 
@@ -973,7 +963,6 @@ void KVDataAnalysisLauncher::Process(void)
       //read user's class name from input box
       if (kvs.Length()) {
          datan->SetUserClassOptions(teUserOptions->GetText());
-         //Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
          datan->SetUserClass(kvs.Data(), checkCompilation);
          if (datan->IsUserClassValid())
             checkCompilation = kFALSE;
@@ -1153,15 +1142,12 @@ void KVDataAnalysisLauncher::SetTask(const Char_t* r)
 //__________________________________________
 void KVDataAnalysisLauncher::SetSystem(const Char_t* r)
 {
-   //Info("SetSystem","system=%s",r);
    if (!strcmp(r, "")) {
       //remove all systems from list because no task chosen yet
       lvSystems->RemoveAll();
-      //if( !noSystems ) SetTrigger();
       SetResource("Task", "");
       //empty list of analysis classes and disable it
       DisableUserClassList();
-      //Info("SetSystem","SetRuns()");
       SetRuns();
       lvRuns->RemoveAll();
    } else {
@@ -1173,7 +1159,6 @@ void KVDataAnalysisLauncher::SetSystem(const Char_t* r)
 void KVDataAnalysisLauncher::SystemSelectionChanged()
 {
    KVDBSystem* system = (KVDBSystem*)lvSystems->GetLastSelectedObject();
-   //Info("SystemSelectionChanged","system=%p lastSelectedSystem=%p",system,lastSelectedSystem);
    if (system == lastSelectedSystem) return;
    lastSelectedSystem = system;
    GetDataAnalyser()->SetSystem(system);
@@ -1203,7 +1188,7 @@ void KVDataAnalysisLauncher::SetRuns(const Char_t* r)
 void KVDataAnalysisLauncher::SetBatch()
 {
    // Set the resource KVDataAnalysisLauncher.Batch according
-   // to whether radio button 'Batch' is down or up
+   // to whether button 'Batch' is down or up
 
    if (IsBatch()) withBatch->SetText("BatchMode: On");
    else withBatch->SetText("BatchMode: Off");
@@ -1384,11 +1369,9 @@ const Char_t* KVDataAnalysisLauncher::GetSavedResource(const Char_t* name, const
    BuildResourceName(name, res, ful_res);
 
    if (!ful_res.Length()) {
-      //cout << "GetSavedResource: current resource : " << res.Data() << endl;
       return GUIenv->GetValue(res.Data(), defaultvalue);
    }
 
-   //cout << "GetSavedResource: saved resource : " << ful_res.Data() << endl;
    return GUIenv->GetValue(ful_res.Data(), defaultvalue);
 }
 
@@ -1553,8 +1536,6 @@ void KVDataAnalysisLauncher::FillListOfUserClasses()
    }
    // add [NEW] to list
    UserClassNames->Add(new TNamed("[NEW]", "[NEW]"));
-   // Info("FillListOfUserClasses", "User classes found in working directory:");
-   // UserClassNames->ls();
 }
 
 //__________________________________________
@@ -1562,8 +1543,6 @@ void KVDataAnalysisLauncher::FillListOfUserClasses()
 void KVDataAnalysisLauncher::SetUserClassList()
 {
    // Sets the list of all available user classes in the drop down list
-
-   //Info("SetUserClassList", "called");
 
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
    RemoveAll(cbUserClass);
@@ -1588,8 +1567,6 @@ void KVDataAnalysisLauncher::UserClassSelected(char* class_name)
 {
    // Called when a user class is selected in the combo box.
    // Updates batch name if 'auto batch name' is selected.
-
-   //Info("UserClassSelected", "User class selected : %s", class_name);
 
    if (!strcmp(class_name, "[NEW]")) {
       GenerateNewUserClass();
@@ -1617,6 +1594,14 @@ void KVDataAnalysisLauncher::GenerateNewUserClass()
    TString classname;
    Bool_t ok;
    new KVInputDialog(this, "Enter name of new analysis class", &classname, &ok, "Enter name of new analysis class");
+   // check new classname is not name of existing class
+   KVString impfile, decfile;
+   if (KVBase::FindClassSourceFiles(classname, impfile, decfile)) {
+      ok = ok && WarningBox("Replacing existing class",
+                            Form("%s is the name of an existing class defined in [%s,%s].\nDo you want to overwrite this class?\n(All existing code will be lost)",
+                                 classname.Data(), decfile.Data(), impfile.Data()),
+                            kTRUE);
+   }
    if (ok) {
       gDataSet->MakeAnalysisClass(GetTask(), classname);
       FillListOfUserClasses();
@@ -1636,15 +1621,10 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t* class_name)
    // Updates batch name if 'auto batch name' is selected.
    // We update the resource corresponding to the current state of the interface.
 
-   //Info("SetUserClass", "Set user class : %s", class_name);
-
    // look for user class in list
    TGLBEntry* e = cbUserClass->FindEntry(class_name);
-   //cbUserClass->EnableTextInput(kFALSE);
 
    if (e) {
-      //Info("SetUserClass", "Found class in list");
-
       Int_t i = e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
       cbUserClass->Select(i);
@@ -1652,7 +1632,6 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t* class_name)
       cbUserClass->Select(i, kFALSE);
 #endif
       // save current user class options
-      //SetResource( "UserClassOptions", teUserOptions->GetText() );
       // save current user class
       SetResource("UserClass", class_name);
       teUserOptions->SetText(GetSavedResource("UserClassOptions", ""));
@@ -1662,14 +1641,12 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t* class_name)
    else
       // unknown user class
    {
-      //Info("SetUserClass", "Class not found in list");
       cbUserClass->Select(-1);
       SetResource("UserClass", "");
 
       btEditClass->SetEnabled(kFALSE);
    }
    checkCompilation = kTRUE;
-   //cbUserClass->EnableTextInput(kTRUE);
 }
 
 //__________________________________________
@@ -1691,7 +1668,6 @@ void KVDataAnalysisLauncher::DisableUserClassList()
 {
    // Remove all entries from user class combo box & disable text entry
 
-   //Info("DisableUserClassList", "called");
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
    RemoveAll(cbUserClass);
 #else
@@ -1699,7 +1675,6 @@ void KVDataAnalysisLauncher::DisableUserClassList()
 #endif
    cbUserClass->Select(-1);
    cbUserClass->SetEnabled(kFALSE);
-   //cbUserClass->EnableTextInput(kFALSE);
    teUserOptions->SetEnabled(kFALSE);
 }
 
@@ -1711,11 +1686,9 @@ void KVDataAnalysisLauncher::EnableUserClassList()
    // fill list with all known user classes & select the one corresponding
    // to the current environment
 
-   //Info("EnableUserClassList", "called");
 
    SetUserClassList();
    SetUserClass(GetSavedResource("UserClass", ""));
-   //cbUserClass->EnableTextInput(kTRUE);
    cbUserClass->SetEnabled(kTRUE);
    teUserOptions->SetEnabled(kTRUE);
 }

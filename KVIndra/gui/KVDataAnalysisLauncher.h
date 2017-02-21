@@ -26,11 +26,6 @@
 #include "KVListView.h"
 #include "KVConfig.h"
 
-//#define USE_KVTIMEENTRY
-#ifdef USE_KVTIMEENTRY
-#include "KVTimeEntry.h"
-#endif
-
 class KVGFileList : public TGTransientFrame {
    enum ElementId {
       B_Add,
@@ -206,7 +201,6 @@ public:
    void EditUserClassFiles();
 
    ClassDef(KVDataAnalysisLauncher, 0) //Graphical interface for launching analysis tasks: KaliVedaGUI
-   void UpdateFromTEnv(KVNameValueList& nvl, TEnv* tenv, const TString& prefix = "");
 };
 
 #endif
