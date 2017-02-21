@@ -140,9 +140,8 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    }
 
    // Add the total run list in option
-
-   option += ",";
-   option += GetFullRunList().GetList();
+   if (!(option.IsNull())) option += ",";
+   option += Form("FullRunList=%s", GetFullRunList().GetList());
 
    // Add any user-defined options
    if (GetUserClassOptions() != "") {
@@ -152,6 +151,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 
    //debug
    //Info("SubmitTask", "Option=%s", option.Data());
+
 
    // for backwards compatibility, we allow user class to inherit from
    // KVOldINDRASelector instead of KVINDRAEventSelector
@@ -172,6 +172,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       TString analysis_class;
       if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", GetUserClassImp().Data(), GetACliCMode());
       else analysis_class = GetUserClass();
+
       if (GetNbEventToRead()) {
          theChain->Process(analysis_class, option.Data(), GetNbEventToRead());
       } else {

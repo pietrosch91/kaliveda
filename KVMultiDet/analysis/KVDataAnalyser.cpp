@@ -647,6 +647,7 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
       fBatchSystem->WriteBatchEnvFile(fBatchEnv);
    }
    fBatchEnv->SetValue("AnalysisTask", fTask->GetType());
+
    if (fTask->WithUserClass()) {
       fBatchEnv->SetValue("UserClass", GetUserClass());
       if (fUserClassImp == "" || fUserClassDec == "") {
@@ -703,6 +704,7 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
             val.Data(), gDataSet->GetName());
       return ok;
    }
+
    nbEventToRead = (Long64_t)fBatchEnv->GetValue("NbToRead", -1);
    SetUserIncludes(fBatchEnv->GetValue("UserIncludes", ""));
    SetUserLibraries(fBatchEnv->GetValue("UserLibraries", ""));

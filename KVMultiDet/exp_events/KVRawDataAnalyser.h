@@ -26,8 +26,7 @@ protected:
    void AbortDuringRunProcessing();
 
 public:
-   Long64_t GetTotalEntriesToRead() const
-   {
+   Long64_t GetTotalEntriesToRead() const {
       return TotalEntriesToRead;
    }
 
@@ -40,21 +39,17 @@ public:
    virtual void EndRun() = 0;
    virtual void EndAnalysis() = 0;
 
-   const KVDetectorEvent* GetDetectorEvent() const
-   {
+   const KVDetectorEvent* GetDetectorEvent() const {
       return fDetEv;
    };
-   Int_t GetRunNumber() const
-   {
+   Int_t GetRunNumber() const {
       return fRunNumber;
    };
-   Long64_t GetEventNumber() const
-   {
+   Long64_t GetEventNumber() const {
       return fEventNumber;
    };
 
-   virtual Bool_t FileHasUnknownParameters() const
-   {
+   virtual Bool_t FileHasUnknownParameters() const {
       return (fRunFile->GetUnknownParameters()->GetSize() > 0);
    };
    virtual void SubmitTask();
@@ -64,8 +59,7 @@ public:
    virtual void ClearAllHistos();
    TH1* FindHisto(const Char_t* path);
 
-   virtual void CalculateTotalEventsToRead()
-   {
+   virtual void CalculateTotalEventsToRead() {
       ;
    }
 

@@ -185,8 +185,7 @@ public:
    ~KVDataAnalysisLauncher();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t par1, Long_t par2);
 
-   virtual void Exit(void)
-   {
+   virtual void Exit(void) {
       gApplication->SetReturnFromRun(kTRUE);
       gApplication->Terminate(0);
    }
@@ -215,18 +214,15 @@ public:
    virtual void SetSystem(const Char_t* s = "");
    virtual void SetRuns(const Char_t* s = "");
 
-   virtual Bool_t IsBatch(void)
-   {
+   virtual Bool_t IsBatch(void) {
       return !rbInteractive->IsDown();
    }
    virtual void SetBatch(void);
-   virtual Bool_t IsBatchNameAuto(void)
-   {
+   virtual Bool_t IsBatchNameAuto(void) {
       return chIsBatchNameAuto->IsDown();
    }
    virtual void SetBatchNameAuto(void);
-   virtual void SetRunsPerJobLimits()
-   {
+   virtual void SetRunsPerJobLimits() {
       runsPerJob->SetLimits(TGNumberFormat::kNELLimitMinMax, 1.0, (Double_t)listOfRuns.GetNValues());
    };
 
@@ -241,12 +237,10 @@ public:
    void ClearListOfSelectedRuns();
    void EditUserClassFiles();
 
-   Bool_t SendMailAtJobStart()
-   {
+   Bool_t SendMailAtJobStart() {
       return send_mail_at_job_start->IsOn();
    }
-   Bool_t SendMailAtJobEnd()
-   {
+   Bool_t SendMailAtJobEnd() {
       return send_mail_at_job_end->IsOn();
    }
    void SetSendMailAtJobStart();

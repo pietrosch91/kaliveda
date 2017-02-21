@@ -34,17 +34,17 @@ KVVAMOSDataCorrection::~KVVAMOSDataCorrection()
 
 
 //____________________________________________________________________________//
-Bool_t KVVAMOSDataCorrection::Init()
+void KVVAMOSDataCorrection::Init()
 {
    //Generic (empty) initialisation method.
    //Override in child classes to apply specific corrections.
-   //Returns kFALSE.
+   //Do nothing
 
-   return kFALSE;
+   return;
 }
 
 //____________________________________________________________________________//
-KVVAMOSDataCorrection* KVVAMOSDataCorrection::MakeDataCorrection(const Char_t* uri)
+KVVAMOSDataCorrection* KVVAMOSDataCorrection::MakeDataCorrection(const Char_t* uri, Int_t run_number)
 {
    //Looks for plugin (see $KVROOT/KVFiles/.kvrootrc) with name 'uri'(=name of dataset),
    //loads plugin library, creates object and returns pointer.
@@ -57,12 +57,14 @@ KVVAMOSDataCorrection* KVVAMOSDataCorrection::MakeDataCorrection(const Char_t* u
    TPluginHandler* ph;
    KVVAMOSDataCorrection* dc = 0;
    if (!(ph = KVBase::LoadPlugin("KVVAMOSDataCorrection", uri))) {
-      dc = new KVVAMOSDataCorrection;
+      dc = new KVVAMOSDataCorrection();
    } else {
       dc = (KVVAMOSDataCorrection*) ph->ExecPlugin(0);
    }
 
-   dc->fDataSet = uri;
+   dc->fDataSet   = uri;
+   dc->fRunNumber = run_number;
+   dc->Init();
 
    std::cout << "KVVAMOSDataCorrection::MakeDataCorrection, ... printing info on created object ..." << std::endl;
    dc->Print();

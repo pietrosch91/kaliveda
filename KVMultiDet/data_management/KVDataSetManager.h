@@ -34,8 +34,7 @@ protected:
    virtual KVDataSet* NewDataSet();
    KVDataRepository* fRepository;       //the repository for which data sets are handled
 
-   const KVSeqCollection* GetAnalysisTaskList() const
-   {
+   const KVSeqCollection* GetAnalysisTaskList() const {
       return &fTasks;
    }
    virtual Bool_t OpenAvailableDatasetsFile();
@@ -55,16 +54,13 @@ public:
    virtual KVDataSet* GetDataSet(Int_t) const;
    virtual KVDataSet* GetDataSet(const Char_t*);
    virtual KVDataSet* GetAvailableDataSet(Int_t) const;
-   virtual Int_t GetNavailable() const
-   {
+   virtual Int_t GetNavailable() const {
       return fNavailable;
    };
-   virtual Int_t GetNtotal() const
-   {
+   virtual Int_t GetNtotal() const {
       return fDataSets.GetSize();
    };
-   const KVNameValueList& GetUserGroups()
-   {
+   const KVNameValueList& GetUserGroups() {
       return fUserGroups;
    };
    virtual Bool_t CheckUser(const Char_t* groupname,

@@ -1065,7 +1065,7 @@ KVVAMOSWeightFinder* KVVAMOS::GetWeightFinder()
    //KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
 
    if (fWeightFinder) return fWeightFinder;
-   return (fWeightFinder = new KVVAMOSWeightFinder());
+   return (fWeightFinder = new KVVAMOSWeightFinder((Int_t) fCurrentRun));
 }
 //________________________________________________________________
 

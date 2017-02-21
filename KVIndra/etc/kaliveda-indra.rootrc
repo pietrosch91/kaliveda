@@ -99,6 +99,12 @@ INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 # INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
 
++DataSet:    INDRA_e494s_woVAMOS
+INDRA_e494s_woVAMOS.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
+INDRA_e494s_woVAMOS.DataSet.RepositoryDir:   e494s
+INDRA_e494s_woVAMOS.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e494s_woVAMOS.ReconstructedEventClassName:   KVINDRAReconEvent
+
 # INDRA analyser for Reconstruction DataAnalysisTask
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
 
@@ -435,6 +441,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndraexp_events    "KVIN
 +Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndraexp_events    "KVINDRAFNL()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndraexp_events    "KVINDRA4()"
 +Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA     KVIndraexp_events    "KVINDRA()"
++Plugin.KVMultiDetArray:    INDRA_e494s_woVAMOS    KVINDRA     KVIndraexp_events  "KVINDRA()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -453,6 +460,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndradb    "KVINDRADB1(con
 +Plugin.KVDataBase:    INDRA_camp5    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    INDRAFAZIA   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e494s_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -465,6 +473,7 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndradb    "KVIND
 +Plugin.KVUpDater:    INDRA_camp*    KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    INDRAFAZIA   KVINDRAUpDater     KVIndradb    "KVINDRAUpDater()"
++Plugin.KVUpDater:    INDRA_e494s_woVAMOS    KVINDRAUpDater     KVIndradb  "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to

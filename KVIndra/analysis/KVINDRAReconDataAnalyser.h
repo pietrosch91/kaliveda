@@ -46,8 +46,7 @@ protected:
 
 public:
 
-   Long64_t GetTotalEntriesToRead() const
-   {
+   Long64_t GetTotalEntriesToRead() const {
       return TotalEntriesToRead;
    }
 
@@ -56,16 +55,13 @@ public:
 
    virtual void SetKVDataSelector(const Char_t* kvs = "");
 
-   TTree* GetTree() const
-   {
+   TTree* GetTree() const {
       return theChain;
    }
-   void SetTree(TTree* t)
-   {
+   void SetTree(TTree* t) {
       theChain = t;
    }
-   virtual const Char_t* GetKVDataSelector(void)
-   {
+   virtual const Char_t* GetKVDataSelector(void) {
       return fDataSelector.Data();
    }
 
@@ -82,8 +78,7 @@ public:
    void preInitAnalysis();
    void preAnalysis();
    void preInitRun();
-   virtual void RegisterUserClass(TObject* obj)
-   {
+   virtual void RegisterUserClass(TObject* obj) {
       // The user class may inherit from KVINDRAEventSelector or KVOldINDRASelector
       // Only one of the two pointers will be valid
       fSelector = dynamic_cast<KVINDRAEventSelector*>(obj);
@@ -92,24 +87,19 @@ public:
    void PrintTreeInfos();
    TEnv* GetReconDataTreeInfos() const;
 
-   KVString GetDataVersion() const
-   {
+   KVString GetDataVersion() const {
       return fDataVersion;
    }
-   KVString GetDataSeries() const
-   {
+   KVString GetDataSeries() const {
       return fDataSeries;
    }
-   Int_t GetDataReleaseNumber() const
-   {
+   Int_t GetDataReleaseNumber() const {
       return fDataReleaseNum;
    }
-   TTree* GetRawDataTree() const
-   {
+   TTree* GetRawDataTree() const {
       return theRawData;
    }
-   TTree* GetGeneDataTree() const
-   {
+   TTree* GetGeneDataTree() const {
       return theGeneData;
    }
    void CloneRawAndGeneTrees();
