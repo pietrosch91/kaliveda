@@ -118,5 +118,5 @@ void KVEkin::Fill(KVNucleus* c)
 {
    //Add particle's kinetic energy in frame chosen with SetFrame()
    //to the sum of kinetic energies
-   FillVar(c->GetFrame(fFrame.Data())->GetKE());
+   FillVar(c->GetFrame(fFrame.Data(), kFALSE)->GetKE());
 }

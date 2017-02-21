@@ -102,6 +102,9 @@ ClassImp(KVIDTelescope)
 //which is assumed to contain identification grids. The file will be read in by gIDGridManager
 //and the grids added to its list.
 /////////////////////////////////////////////////////////////////////////////////////////
+
+TEnv* KVIDTelescope::fgIdentificationBilan = nullptr;
+
 KVIDTelescope::KVIDTelescope()
 {
    init();
@@ -116,6 +119,20 @@ void KVIDTelescope::init()
    fIDGrids = new KVList(kFALSE);
    fIDGrids->SetCleanup(kTRUE);
    fVarX = fVarY = "";
+}
+
+void KVIDTelescope::Initialize(void)
+{
+   // Default initialisation for ID telescopes.
+   // kReadyForID is set to kFALSE, unless the current dataset (if defined)
+   // has been declared to have no associated identification/calibration parameters,
+   // in which case kReadyForID is by default set to kTRUE (for filtering simulations).
+   //
+   // To implement identification, make a class derived from KVIDTelescope
+   // and set kReadyForID to kTRUE in Initialize() method of derived class if
+   // necessary conditions for identification are met (has an ID grid etc.).
+   ResetBit(kReadyForID);
+   if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }
 
 KVIDTelescope::~KVIDTelescope()
@@ -1142,4 +1159,18 @@ Bool_t KVIDTelescope::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, Do
    Double_t emin = dEdet->GetEIncOfMaxDeltaE(ION->GetZ(), ION->GetA());
    if (EINC > 0.0) return (EINC > emin);
    return (ION->GetEnergy() > emin);
+}
+
+void KVIDTelescope::OpenIdentificationBilan(const TString& path)
+{
+   // Open IdentificationBilan.dat file with given path
+
+   if (fgIdentificationBilan) delete fgIdentificationBilan;
+   fgIdentificationBilan = new TEnv(path);
+}
+
+void KVIDTelescope::CheckIdentificationBilan(const TString& system)
+{
+   // Set status of ID Telescope for given system
+   if (!(fgIdentificationBilan->GetValue(Form("%s.%s", system.Data(), GetName()), kTRUE))) ResetBit(kReadyForID);
 }

@@ -194,7 +194,7 @@ void KVZbound::Fill(KVNucleus* c)
    Int_t z = c->GetZ();
    Bool_t ok = (TestBit(kZMin) ? z >= zmin : (TestBit(kZMax) ? z <= zmax : (z >= zmin && z <= zmax)));
    if (ok && TestBit(kVTest)) {
-      Double_t v = c->GetFrame(fFrame.Data())->GetVpar();
+      Double_t v = c->GetFrame(fFrame.Data(), kFALSE)->GetVpar();
       ok = (TestBit(kVMin) ? v >= vmin : (TestBit(kVMax) ? v <= vmax : (v >= vmin && v <= vmax)));
    }
    if (ok) FillVar(z);

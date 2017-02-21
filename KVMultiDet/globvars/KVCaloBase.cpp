@@ -370,7 +370,7 @@ void KVCaloBase::Fill(KVNucleus* n)
    kIsModified = kTRUE;
    AddIngValue("Zsum", n->GetZ());
    AddIngValue("Asum", n->GetA());
-   AddIngValue("Eksum", n->GetFrame(fFrame.Data())->GetKE());
+   AddIngValue("Eksum", n->GetFrame(fFrame.Data(), kFALSE)->GetKE());
    AddIngValue("Qsum", n->GetMassExcess());
    AddIngValue("Msum", 1);
 

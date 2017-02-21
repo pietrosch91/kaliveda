@@ -30,33 +30,33 @@ public:
    virtual Bool_t IsConnected();
    virtual Bool_t CheckSubdirExists(const Char_t* dir,
                                     const Char_t* subdir = 0);
-   virtual Bool_t GetFileInfo(KVDataSet* ds,
+   virtual Bool_t GetFileInfo(const KVDataSet* ds,
                               const Char_t* datatype,
                               const Char_t* runfile, FileStat_t& fs);
-   virtual Bool_t CheckFileStatus(KVDataSet* ds,
+   virtual Bool_t CheckFileStatus(const KVDataSet* ds,
                                   const Char_t* datatype,
                                   const Char_t* runfile);
 
-   virtual void CopyFileFromRepository(KVDataSet* ds,
+   virtual void CopyFileFromRepository(const KVDataSet* ds,
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
    virtual void CopyFileToRepository(const Char_t* source,
-                                     KVDataSet* ds,
+                                     const KVDataSet* ds,
                                      const Char_t* datatype,
                                      const Char_t* filename);
-   virtual void MakeSubdirectory(KVDataSet* ds,
+   virtual void MakeSubdirectory(const KVDataSet* ds,
                                  const Char_t* datatype = "");
-   virtual KVUniqueNameList* GetDirectoryListing(KVDataSet* ds,
+   virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet* ds,
          const Char_t* datatype = "");
-   virtual void DeleteFile(KVDataSet* ds,
+   virtual void DeleteFile(const KVDataSet* ds,
                            const Char_t* datatype,
                            const Char_t* filename, Bool_t confirm =
                               kTRUE);
-   virtual const Char_t* GetFullPathToTransferFile(KVDataSet* dataset,
+   virtual const Char_t* GetFullPathToTransferFile(const KVDataSet* dataset,
          const Char_t* datatype,
          const Char_t* runfile);
-   virtual const Char_t* GetFullPathToOpenFile(KVDataSet* dataset,
+   virtual const Char_t* GetFullPathToOpenFile(const KVDataSet* dataset,
          const Char_t* datatype,
          const Char_t* runfile);
 

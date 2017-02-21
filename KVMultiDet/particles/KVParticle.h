@@ -29,17 +29,93 @@ $Id: KVParticle.h,v 1.41 2008/05/21 13:19:56 ebonnet Exp $
 #include "KVUniqueNameList.h"
 #include "TObjString.h"
 #include "KVNameValueList.h"
+#include "KVFrameTransform.h"
 
-class KVList;
+class KVKinematicalFrame;
 class KVParticleCondition;
 
 class KVParticle: public TLorentzVector {
+
+private:
+   void print_frames(TString fmt = "") const;
+   KVKinematicalFrame* get_frame(const Char_t*);
+   KVKinematicalFrame* get_parent_frame(const Char_t*, KVKinematicalFrame* F = nullptr);
 
    TString fName;                       //!non-persistent name field - Is useful
    TString fFrameName;                  //!non-persistent frame name field, sets when calling SetFrame method
    KVList fBoosted;                     //!list of momenta of the particle in different Lorentz-boosted frames
    KVUniqueNameList fGroups;            //!list of TObjString for manage different group name
    static Double_t kSpeedOfLight;       //speed of light in cm/ns
+
+   // TLorentzVector setters should not be used
+   void SetVect(const TVector3& vect3)
+   {
+      TLorentzVector::SetVect(vect3);
+   }
+   void SetVectM(const TVector3& spatial, Double_t mass)
+   {
+      TLorentzVector::SetVectM(spatial, mass);
+   }
+   void SetVectMag(const TVector3& spatial, Double_t magnitude)
+   {
+      TLorentzVector::SetVectMag(spatial, magnitude);
+   }
+   void SetPerp(Double_t p)
+   {
+      TLorentzVector::SetPerp(p);
+   }
+   void SetPtEtaPhiE(Double_t pt, Double_t eta, Double_t phi, Double_t e)
+   {
+      TLorentzVector::SetPtEtaPhiE(pt, eta, phi, e);
+   }
+   void SetPtEtaPhiM(Double_t pt, Double_t eta, Double_t phi, Double_t m)
+   {
+      TLorentzVector::SetPtEtaPhiM(pt, eta, phi, m);
+   }
+   void SetPx(Double_t a)
+   {
+      TLorentzVector::SetPx(a);
+   }
+   void SetPy(Double_t a)
+   {
+      TLorentzVector::SetPy(a);
+   }
+   void SetPz(Double_t a)
+   {
+      TLorentzVector::SetPz(a);
+   }
+   void SetPxPyPzE(Double_t px, Double_t py, Double_t pz, Double_t e)
+   {
+      TLorentzVector::SetPxPyPzE(px, py, pz, e);
+   }
+   void SetRho(Double_t rho)
+   {
+      TLorentzVector::SetRho(rho);
+   }
+   void SetT(Double_t a)
+   {
+      TLorentzVector::SetT(a);
+   }
+   void SetX(Double_t a)
+   {
+      TLorentzVector::SetX(a);
+   }
+   void SetY(Double_t a)
+   {
+      TLorentzVector::SetY(a);
+   }
+   void SetZ(Double_t a)
+   {
+      TLorentzVector::SetZ(a);
+   }
+   void SetXYZM(Double_t x, Double_t y, Double_t z, Double_t m)
+   {
+      TLorentzVector::SetXYZM(x, y, z, m);
+   }
+   void SetXYZT(Double_t x, Double_t y, Double_t z, Double_t t)
+   {
+      TLorentzVector::SetXYZT(x, y, z, t);
+   }
 
 protected:
 
@@ -54,11 +130,15 @@ protected:
 
 public:
 
-   Bool_t HasFrame(const Char_t* frame);
-   Int_t GetNumberOfDefinedFrames(void)
+   Bool_t HasFrame(const Char_t* frame)
    {
-      return fBoosted.GetEntries();
-   };
+      // Check if a given frame has been defined
+      // Note that this may be a frame defined by transformation of another frame
+      // Also: frame names are case-insensitive
+
+      return (get_frame(frame) != nullptr);
+   }
+   Int_t GetNumberOfDefinedFrames(void);
    Int_t GetNumberOfDefinedGroups(void);
    KVUniqueNameList* GetGroups() const;
 
@@ -213,19 +293,20 @@ public:
    void SetPhi(Double_t phi)
    {
       TLorentzVector::SetPhi(TMath::DegToRad() * phi);
-   };
+   }
 
    virtual Bool_t IsOK();
    void SetIsOK(Bool_t flag = kTRUE);
    void ResetIsOK()
    {
       ResetBit(kIsOKSet);
-   };
+   }
 
    KVList* GetListOfFrames(void)
    {
       return (KVList*)&fBoosted;
    }
+   void ls(Option_t* option = "") const;
 
    void SetE0(TVector3* e = 0)
    {
@@ -264,23 +345,13 @@ public:
    void RemoveAllGroups();
    void ListGroups(void) const;
 
-   void SetFrame(const Char_t* frame, const TVector3& boost, Bool_t beta =
-                    kFALSE);
-   void SetFrame(const Char_t* frame, const TLorentzRotation& rot);
-   void SetFrame(const Char_t* frame, const TRotation& rot);
-   void SetFrame(const Char_t* frame, const TVector3& boost, TRotation& rot,
-                 Bool_t beta = kFALSE);
+   KVParticle InFrame(const KVFrameTransform&);
+   void ChangeFrame(const KVFrameTransform&, const KVString& = "");
+   void ChangeDefaultFrame(const Char_t*, const Char_t* defname = "");
+   void SetFrame(const Char_t* frame, const KVFrameTransform&);
+   void SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform&);
 
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TVector3& boost, Bool_t beta = kFALSE);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TLorentzRotation& rot);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TRotation& rot);
-   void SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                 const TVector3& boost, TRotation& rot, Bool_t beta = kFALSE);
-
-   KVParticle* GetFrame(const Char_t* frame);
+   KVParticle const* GetFrame(const Char_t* frame, Bool_t warn_and_return_null_if_unknown = kTRUE);
 
    const Char_t* GetFrameName(void) const
    {
@@ -288,7 +359,11 @@ public:
    }
    void SetFrameName(const Char_t* framename)
    {
+      // Set the (non-persistent) name of the reference frame for this particle's kinematics.
+      // Also sets a (persistent) parameter "frameName"
       fFrameName = framename;
+      if (fFrameName != "") SetParameter("frameName", framename);
+      else GetParameters()->RemoveParameter("frameName");
    }
 
    KVNameValueList* GetParameters() const
@@ -299,6 +374,8 @@ public:
    {
       GetParameters()->SetValue(name, value);
    }
+
+   void UpdateAllFrames();
 
    ClassDef(KVParticle, 8)      //General base class for all massive particles
 };

@@ -6,7 +6,6 @@
 
 #include "RooFit.h"
 #include "RooAddPdf.h"
-#include "RooAddPdf.h"
 #include "RooAbsReal.h"
 #include "RooArgList.h"
 

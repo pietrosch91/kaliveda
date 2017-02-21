@@ -106,6 +106,10 @@ void KVIVReconIdent::InitRun(void)
       gVamos->PrintStatusOfIDTelescopes();
       // print status of calibrations
       gVamos->PrintCalibStatusOfDetectors();
+
+      // look for VAMOS data correction class if defined in env
+      fDataCorr = NULL;
+      fDataCorr = GetDataCorrection();
    }
 }
 //_____________________________________
@@ -131,8 +135,8 @@ Bool_t KVIVReconIdent::Analysis(void)
          // old recon ROOT files
 
          KVIVReconEvent* IVevent = (KVIVReconEvent*)GetEvent();
-         // Z-identification, calibration and Q-A identification
-         IVevent->IdentAndCalibVAMOSEvent();
+         // Z-identification, calibration and Q-A identification (and corrections)
+         IVevent->IdentAndCalibVAMOSEvent(fDataCorr);
       }
    }
 
@@ -140,6 +144,38 @@ Bool_t KVIVReconIdent::Analysis(void)
    fIdentTree->Fill();
 
    return kTRUE;
+}
+//_____________________________________
+
+KVVAMOSDataCorrection* KVIVReconIdent::GetDataCorrection()
+{
+   //Returns the KVVAMOSDataCorrection object used to apply corrections on VAMOS
+
+   if (!fDataCorr) {
+      fDataCorr = KVVAMOSDataCorrection::MakeDataCorrection(gDataSet->GetName(), fRunNumber);
+
+      KVDBRun* db_run_entry(gIndraDB->GetRun(fRunNumber));
+      assert(db_run_entry);
+
+      Info("GetDataCorrection", "Setting VAMOS ID correction parameters...");
+
+      const TString keyname("VAMOSIDCorrectionParameters");
+
+      Info("GetDataCorrection", "... Retrieving records using key \'%s\'...", keyname.Data());
+
+      const KVRList* const records(db_run_entry->GetLinks(keyname));
+      if (!records) {
+         Error("GetDataCorrection", "... Failed to retrieve records using key \"%s\", "
+               "has the key name changed? ...", keyname.Data());
+      }
+
+      else {
+         fDataCorr->SetIDCorrectionParameters(records);
+         Info("GetDataCorrection", "... Records found and set into data correction ...");
+      }
+   }
+
+   return fDataCorr;
 }
 //_____________________________________
 

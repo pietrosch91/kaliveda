@@ -294,7 +294,10 @@ void KVIDZAGrid::CalculateLineWidths()
 
    for (Int_t i = 0; i < (Int_t) GetNumberOfIdentifiers(); i++) {
 
-      KVIDZALine* _line = (KVIDZALine*) GetIdentifierAt(i);
+      KVIDentifier* obj =  GetIdentifierAt(i);
+      if (!obj->InheritsFrom("KVIDZALine")) continue;
+      KVIDZALine* _line = (KVIDZALine*) obj;
+//      KVIDZALine* _line = (KVIDZALine*) GetIdentifierAt(i);
 
       //Z of lines above and below this line - Zxx=-1 if there is no line above or below
       Int_t Zhi =

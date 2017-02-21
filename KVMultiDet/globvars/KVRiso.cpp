@@ -290,8 +290,8 @@ void KVRiso::Fill(KVNucleus* c)
 // Routine de remplissage
 //
    Riso = -1;
-   Double_t ep = c->GetFrame(fFrame.Data())->GetKE();
-   Double_t et = c->GetFrame(fFrame.Data())->GetEtran();
+   Double_t ep = c->GetFrame(fFrame.Data(), kFALSE)->GetKE();
+   Double_t et = c->GetFrame(fFrame.Data(), kFALSE)->GetEtran();
 
    Epar += (ep - et);
    Etrans += et;

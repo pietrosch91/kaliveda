@@ -27,6 +27,7 @@ $Id: KVFAZIAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "KVMultiDetArray.h"
 #include "KVFAZIADetector.h"
 #include "KVIDZAGrid.h"
+#include "KVLightEnergyCsIFull.h"
 
 using namespace std;
 
@@ -216,10 +217,12 @@ void KVFAZIAReconNuc::Identify()
 
       KVIDTelescope* idt;
       TIter next(idt_list);
-      while ((idt = (KVIDTelescope*) next()) && !IsIdentified()) {
-         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue;
+      while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
+         if (StoppedInSI1() && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
+         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
          IDR = GetIdentificationResult(idnumber);
          IDR->SetName(idt->GetName());
+         IDR->SetType(idt->GetType());
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
 
             IDR->IDattempted = kTRUE;
@@ -243,8 +246,65 @@ void KVFAZIAReconNuc::Identify()
          idnumber += 1;
       }
 
+      KVIdentificationResult partID;
+      Bool_t ok = kFALSE;
+      if (StoppedInSI1()) {
+         ok = CoherencySi(partID);
+      } else if (StoppedInSI2()) {
+         ok = CoherencySiSi(partID);
+      } else if (StoppedInCSI()) {
+         ok = CoherencySiCsI(partID);
+      }
+
+      if (ok) {
+         SetIsIdentified();
+         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType(partID.GetType());
+         if (!idt) {
+            Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
+            GetIDTelescopes()->ls();
+            partID.Print();
+         }
+         SetIdentifyingTelescope(idt);
+         SetIdentification(&partID);
+      }
+
    }
 
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySi(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDsi = GetIdentificationResult("SiPSA");
+   if (IDsi && IDsi->IDOK) {
+      theID = *IDsi;
+      return kTRUE;
+   } else return kFALSE;
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDsisi = GetIdentificationResult("Si-Si");
+   KVIdentificationResult* IDsi = GetIdentificationResult("SiPSA");
+   if (IDsisi && IDsisi->IDOK)    {
+      theID = *IDsisi;
+      return kTRUE;
+   } else if (IDsi && IDsi->IDOK) {
+      theID = *IDsi;
+      return kTRUE;
+   } else return kFALSE;
+}
+
+Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
+{
+   KVIdentificationResult* IDcsi = GetIdentificationResult("CsI");
+   KVIdentificationResult* IDsicsi = GetIdentificationResult("Si-CsI");
+   if (IDsicsi && IDsicsi->IDOK)    {
+      theID = *IDsicsi;
+      return kTRUE;
+   } else if (IDcsi && IDcsi->IDOK) {
+      theID = *IDcsi;
+      return kTRUE;
+   } else return kFALSE;
 }
 
 //_________________________________________________________________________________
@@ -256,7 +316,7 @@ void KVFAZIAReconNuc::Calibrate()
    KVNucleus avatar;
    //printf("start Calibrate\n");
    Int_t ntot = GetDetectorList()->GetEntries();
-   if (ntot <= 1)
+   if (ntot < 1)
       return;
    Bool_t punch_through = kFALSE;
    Bool_t incoherency = kFALSE;
@@ -271,7 +331,13 @@ void KVFAZIAReconNuc::Calibrate()
    while ((det = (KVFAZIADetector*)next())) {
 
       if (det->IsCalibrated()) {
-         eloss[ntot - ndet - 1] = det->GetEnergy();
+         if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
+            KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
+            calib->SetZ(GetZ());
+            calib->SetA(GetA());
+            eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+         } else eloss[ntot - ndet - 1] = det->GetEnergy();
+
          if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
          else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
          else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];

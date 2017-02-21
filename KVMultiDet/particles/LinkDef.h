@@ -8,7 +8,9 @@
 #pragma link C++ global gNDTManager;
 #pragma link C++ class KVSimNucleus+;
 #pragma link C++ class KVNucleus+;
-#pragma link C++ class KVParticle+;
+#pragma link C++ class KVParticle-;
+#pragma link C++ class KVFrameTransform+;
+#pragma link C++ class KVKinematicalFrame+;
 #pragma link C++ class KVParticleCondition+;
 #pragma link C++ class KVNuclData+;
 #pragma link C++ class NDT::value+;

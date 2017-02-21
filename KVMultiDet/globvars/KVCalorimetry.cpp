@@ -330,13 +330,13 @@ void KVCalorimetry::Fill(KVNucleus* n)
       if (n->GetZ() >= GetParValue("FragmentMinimumCharge")) {
          AddIngValue("Zfrag", n->GetZ());
          AddIngValue("Afrag", n->GetA());
-         AddIngValue("Ekfrag", n->GetFrame(fFrame.Data())->GetKE());
+         AddIngValue("Ekfrag", n->GetFrame(fFrame.Data(), kFALSE)->GetKE());
          AddIngValue("Qfrag", n->GetMassExcess());
          AddIngValue("Mfrag", 1);
       } else {
          AddIngValue("Zpart", n->GetZ());
          AddIngValue("Apart", n->GetA());
-         AddIngValue("Ekpart", n->GetFrame(fFrame.Data())->GetKE());
+         AddIngValue("Ekpart", n->GetFrame(fFrame.Data(), kFALSE)->GetKE());
          AddIngValue("Qpart", n->GetMassExcess());
          AddIngValue("Mpart", 1);
       }

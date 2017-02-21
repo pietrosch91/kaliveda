@@ -46,7 +46,7 @@ void KVRawDataAnalyser::ProcessRun()
 
    //Open data file
    KVString raw_file = gDataSet->GetFullPathToRunfile(GetDataType().Data(), fRunNumber);
-   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile(GetDataType().Data() , fRunNumber);
+   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile(GetDataType().Data(), fRunNumber);
    if ((!fRunFile) || fRunFile->IsZombie()) {
       //skip run if file cannot be opened
       if (fRunFile) delete fRunFile;
@@ -131,7 +131,7 @@ void KVRawDataAnalyser::SubmitTask()
    //   postEndAnalysis()
    // which are executed respectively just before and just after the methods.
 
-   if (gDataSet != fDataSet) fDataSet->cd();
+   if (gDataSet != GetDataSet()) GetDataSet()->cd();
 
    preInitAnalysis();
    //call user's initialisation

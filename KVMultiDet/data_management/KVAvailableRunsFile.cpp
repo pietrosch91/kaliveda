@@ -39,8 +39,7 @@ ClassImp(KVAvailableRunsFile)
 //
 ////////////////////////////////////////////////////////////////////////////////
 KVAvailableRunsFile::KVAvailableRunsFile(const Char_t* type,
-      KVDataSet*
-      parent): KVBase(type)
+      const KVDataSet* parent): KVBase(type)
 {
    //Constructor with name of datatype and pointer to dataset to which this file belongs
    fDataSet = parent;
@@ -1188,7 +1187,7 @@ KVNameValueList* KVAvailableRunsFile::RunHasFileWithDateAndName(Int_t run, const
    if (!NVL) return NULL;
    Int_t Occurs = NVL->GetIntValue("Occurs");
    for (OccNum = 0; OccNum < Occurs; OccNum++) {
-      if (NVL->IsValue(Form("Filename[%d]", OccNum) , filename) && NVL->IsValue(Form("Date[%d]", OccNum) , modtime.AsSQLString())) return NVL;
+      if (NVL->IsValue(Form("Filename[%d]", OccNum), filename) && NVL->IsValue(Form("Date[%d]", OccNum), modtime.AsSQLString())) return NVL;
    }
    return NULL;
 }
@@ -1205,7 +1204,7 @@ Bool_t KVAvailableRunsFile::InfosNeedUpdate(Int_t run, const Char_t* filename)
    if (!NVL) return kFALSE;
    Int_t Occurs = NVL->GetIntValue("Occurs");
    for (Int_t OccNum = 0; OccNum < Occurs; OccNum++) {
-      if (NVL->IsValue(Form("Filename[%d]", OccNum) , filename)) {
+      if (NVL->IsValue(Form("Filename[%d]", OccNum), filename)) {
          // infos need update if no KV version has been set
          return (!NVL->HasParameter(Form("KVVersion[%d]", OccNum)));
       }

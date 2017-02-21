@@ -82,10 +82,23 @@ KVNamedParameter::KVNamedParameter(const char* nom, Int_t val)
    SetType(kIsInt);
 }
 
+KVNamedParameter::KVNamedParameter(const char* nom, Bool_t val)
+   : TNamed(nom, "Bool_t"), fNumber(val)
+{
+   SetType(kIsBool);
+}
+
 void KVNamedParameter::Set(const char* name, Int_t val)
 {
    SetNameTitle(name, "Int_t");
    SetType(kIsInt);
+   fNumber = val;
+}
+
+void KVNamedParameter::Set(const char* name, Bool_t val)
+{
+   SetNameTitle(name, "Bool_t");
+   SetType(kIsBool);
    fNumber = val;
 }
 
@@ -96,6 +109,13 @@ void KVNamedParameter::Set(Int_t val)
    fNumber = val;
 }
 
+void KVNamedParameter::Set(Bool_t val)
+{
+   SetTitle("Bool_t");
+   SetType(kIsBool);
+   fNumber = val;
+}
+
 void KVNamedParameter::Set(const KVNamedParameter& p)
 {
    // Set name, type & value of parameter according to type & value of 'p'
@@ -103,7 +123,8 @@ void KVNamedParameter::Set(const KVNamedParameter& p)
    if (p.IsString()) Set(p.GetName(), p.GetString());
    else if (p.IsInt()) Set(p.GetName(), p.GetInt());
    else if (p.IsDouble()) Set(p.GetName(), p.GetDouble());
-   Warning("Set(const KVNamedParameter&)", "Unknown type of parameter argument");
+   else if (p.IsBool()) Set(p.GetName(), p.GetBool());
+   else Warning("Set(const KVNamedParameter&)", "Unknown type of parameter argument");
 }
 
 void KVNamedParameter::Clear(Option_t*)
@@ -117,12 +138,15 @@ void KVNamedParameter::Clear(Option_t*)
 const Char_t* KVNamedParameter::GetString() const
 {
    // Returns value of parameter as a string, whatever the type
-   // (integer or floating values are converted to a string)
+   // (integer or floating values are converted to a string,
+   // booleans are "true" or "false")
 
    if (IsString()) return GetTitle();
    static TString convert = "";
    if (IsDouble())
       convert.Form("%lf", fNumber);
+   else if (IsBool())
+      convert = (GetBool() ? "true" : "false");
    else
       convert.Form("%d", (Int_t)fNumber);
    return convert.Data();
@@ -137,6 +161,8 @@ const TString& KVNamedParameter::GetTString() const
    static TString convert = "";
    if (IsDouble())
       convert.Form("%lf", fNumber);
+   else if (IsBool())
+      convert = (GetBool() ? "true" : "false");
    else
       convert.Form("%d", (Int_t)fNumber);
    return convert;
@@ -164,6 +190,20 @@ Int_t KVNamedParameter::GetInt() const
       return TString(fTitle).Atoi();
    }
    return (Int_t)fNumber;
+}
+
+Bool_t KVNamedParameter::GetBool() const
+{
+   // returns boolean if parameter value is of boolean type
+   // if string, print warning and return zero
+   if (IsString()) {
+      /*
+      Warning("GetInt", "Parameter %s is a string : %s", GetName(), GetTitle());
+      return 0;
+      */
+      return TString(fTitle).Atoi();
+   }
+   return (Bool_t)fNumber;
 }
 
 Bool_t KVNamedParameter::IsEqual(const TObject* obj) const
@@ -195,6 +235,10 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
          return KVBase::AreEqual(other.GetDouble(), GetDouble());
          break;
 
+      case kIsBool:
+         if (other.GetBool() == GetBool()) return kTRUE;
+         break;
+
       default:
          return kFALSE;
    }
@@ -206,7 +250,7 @@ void KVNamedParameter::Print(Option_t*) const
    if (IsString()) {
       Info("Print", "Name = %s type = string value = %s", GetName(), GetTitle());
    } else
-      Info("Print", "Name = %s type = %s value = %f", GetName(), GetTitle(), fNumber);
+      Info("Print", "Name = %s type = %s value = %s", GetName(), GetTitle(), GetString());
 }
 
 void KVNamedParameter::ls(Option_t* option) const
@@ -215,6 +259,7 @@ void KVNamedParameter::ls(Option_t* option) const
    // option controls what is printed:
    //   "" (default) : all parameters
    //   "int" : only integer parameters
+   //   "bool" : only boolean parameters
    //   "double" : only double parameters
    //   "string" : only string parameters
 
@@ -223,6 +268,7 @@ void KVNamedParameter::ls(Option_t* option) const
       TString opt(option);
       opt.ToLower();
       if (opt == "int" && !IsInt()) can_print = kFALSE;
+      else if (opt == "bool" && !IsBool()) can_print = kFALSE;
       else if (opt == "double" && !IsDouble()) can_print = kFALSE;
       else if (opt == "string" && !IsString()) can_print = kFALSE;
    }
@@ -233,6 +279,10 @@ void KVNamedParameter::ls(Option_t* option) const
       switch (GetType()) {
          case kIsInt:
             if (can_print) cout << "<" << GetName() << "=" << GetInt() << ">" << endl;
+            break;
+
+         case kIsBool:
+            if (can_print) cout << "<" << GetName() << "=" << GetString() << ">" << endl;
             break;
 
          case kIsDouble:

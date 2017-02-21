@@ -2,6 +2,7 @@
 #define KVIVReconIdent_h
 
 #include "KVINDRAReconIdent.h"
+#include "KVVAMOSDataCorrection.h"
 
 class KVIVReconIdent: public KVINDRAReconIdent {
 
@@ -13,7 +14,9 @@ protected:
    };
 
    Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
+   KVVAMOSDataCorrection* fDataCorr;
 
+   KVVAMOSDataCorrection* GetDataCorrection();
 
 public:
 

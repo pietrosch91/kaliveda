@@ -18,6 +18,7 @@ protected:
    Double_t ebeam;
    KVNameValueList* elie_params;
    virtual void define_output_filename();
+   void transform_to_cm();
 
 public:
    KVSimReader_ELIE();

@@ -19,6 +19,7 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #include "KVLockfile.h"
 #include "Riostream.h"
 #include "TPluginManager.h"
+#include "TFile.h"
 
 class KVString;
 
@@ -178,6 +179,8 @@ public:
    static void CombineFiles(const Char_t* file1, const Char_t* file2, const Char_t* newfilename, Bool_t keep = kTRUE);
 
    virtual TObject* GetObject() const;
+
+   static void PrintSplashScreen();
 
    ClassDef(KVBase, 4)          //Base class for all KaliVeda objects
 };

@@ -11,6 +11,7 @@
 #include "KVIDQA.h"
 #include "KVIDHarpeeICSi_e503.h"
 #include "KVIDHarpeeSiCsI_e503.h"
+#include "KVVAMOSDataCorrection.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -94,12 +95,14 @@ void KVVAMOSReconNuc::Copy(TObject& obj) const
    KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
    CastedObj.fCodes = fCodes;
    CastedObj.fRT    = fRT;
+   CastedObj.fDataCorr = fDataCorr;
    CastedObj.fDetE  = fDetE;
    CastedObj.fStripFoilEloss  = fStripFoilEloss;
    CastedObj.fRealQ     = fRealQ;
    CastedObj.fRealAoQ   = fRealAoQ;
    CastedObj.fQ         = fQ;
    CastedObj.fQMeasured = fQMeasured;
+   CastedObj.fToFFHOffset = fToFFHOffset;
 }
 //________________________________________________________________
 
@@ -113,6 +116,7 @@ void KVVAMOSReconNuc::init()
    fDetE.clear();
    fRealQ = fRealAoQ = 0.;
    fQ = 0;
+   fToFFHOffset = 0.;
    fQMeasured = kFALSE;
 }
 //________________________________________________________________
@@ -932,6 +936,13 @@ void KVVAMOSReconNuc::Propagate(ECalib cal)
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::ApplyCorrections()
+{
+   //Info("ApplyCorrections", "... applying corrections ...");
+   GetDataCorrection()->ApplyCorrections(this);
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::Print(Option_t* option) const
 {
    IGNORE_UNUSED(option);
@@ -1059,7 +1070,10 @@ Bool_t KVVAMOSReconNuc::GetCorrFlightDistanceAndTime(Double_t& dist, Double_t& t
    dist = GetPath(start, stop);
 
    if (dist <= 0.) return kFALSE;
-   tof  = (isT_HF ? GetCorrectedT_HF(calibT, dist) : calibT);
+
+   // update: add possibility to offset ToF for HF time
+   // (in order to correct the experimental 'jitter' problem)
+   tof  = (isT_HF ? GetCorrectedT_HF(calibT + fToFFHOffset, dist) : calibT);
 
    return kTRUE;
 }

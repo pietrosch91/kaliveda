@@ -21,6 +21,7 @@ public:
 protected:
    TVector3 ptot;
    Double_t fVal[3];//! used by GetValuePtr
+   Double_t fNorm;//! normalisation factor
 
 // Methodes
 protected:

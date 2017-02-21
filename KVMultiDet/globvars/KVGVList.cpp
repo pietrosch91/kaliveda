@@ -121,10 +121,11 @@ KVGVList::~KVGVList(void)
 //_________________________________________________________________
 void KVGVList::Init(void)
 {
-   // methode d'initialisation des
-   // variables Internes
+   // Initialisation of all global variables in list
+   // As this method may be called several times we ensure that
+   // variables are only initialised once
 
-   this->R__FOR_EACH(KVVarGlob, Init)();
+   this->R__FOR_EACH(KVVarGlob, ListInit)();
 }
 
 //_________________________________________________________________
@@ -279,6 +280,9 @@ void KVGVList::MakeBranches(TTree* tree)
 
    if (!tree) return;
    if (fNbIBranch >= MAX_CAP_BRANCHES && fNbBranch >= MAX_CAP_BRANCHES) return;
+
+   // Make sure all variables are initialised before proceeding
+   Init();
 
    TIter next(this);
    KVVarGlob* ob;

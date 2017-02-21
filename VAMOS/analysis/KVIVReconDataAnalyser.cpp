@@ -3,6 +3,7 @@
 
 #include "KVIVReconDataAnalyser.h"
 #include "KVVAMOS.h"
+#include "KVINDRADB.h"
 
 ClassImp(KVIVReconDataAnalyser)
 
@@ -34,6 +35,19 @@ void KVIVReconDataAnalyser::preInitRun()
 
    Int_t run = GetRunNumberFromFileName(theChain->GetCurrentFile()->GetName());
    gMultiDetArray->SetParameters(run);
+   KVINDRADBRun* CurrentRun = gIndraDB->GetRun(run);
+   SetSelectorCurrentRun(CurrentRun);
+   cout << endl << " ===================  New Run  =================== " <<
+        endl << endl;
+
+   CurrentRun->Print();
+   if (CurrentRun->GetSystem()) {
+      if (CurrentRun->GetSystem()->GetKinematics())
+         CurrentRun->GetSystem()->GetKinematics()->Print();
+   }
+
+   cout << endl << " ================================================= " <<
+        endl << endl;
    ConnectRawDataTree();
    PrintTreeInfos();
 }
@@ -54,7 +68,7 @@ void KVIVReconDataAnalyser::preAnalysis()
 
    if (!theRawData) return;
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
-   Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+   Long64_t rawEntry = GetRawEntryNumber();
 
    gMultiDetArray->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
 

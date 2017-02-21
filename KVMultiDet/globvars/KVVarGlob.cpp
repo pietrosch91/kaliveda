@@ -146,6 +146,8 @@ void KVVarGlob::init(void)
    fType = kOneBody;
    fValueType = 'D';
    fMaxNumBranches = -1;
+   conditioned_fill = kFALSE;
+   fIsInitialized = kFALSE;
 }
 
 //_________________________________________________________________
@@ -228,6 +230,17 @@ KVVarGlob& KVVarGlob::operator =(const KVVarGlob& a)
    cout << "Nom de la copie par egalite: " << GetName() << endl;
 #endif
    return *this;
+}
+
+void KVVarGlob::ListInit()
+{
+   // Method called by KVGVList::Init
+   // Ensures that initialisation of variable is performed only once
+
+   if (!fIsInitialized) {
+      Init();
+      fIsInitialized = kTRUE;
+   }
 }
 
 //_________________________________________________________________
@@ -409,6 +422,7 @@ void KVVarGlob::SetOption(const Char_t* option, const Char_t* value)
    //Set a value for an option
    KVString tmp(value);
    fOptions.SetValue(option, tmp);
+   fIsInitialized = kFALSE; //allow re-initialisation
 }
 
 //_________________________________________________________________
@@ -444,6 +458,7 @@ void KVVarGlob::SetParameter(const Char_t* par, Double_t value)
 {
    //Set the value for a parameter
    fParameters.SetValue(par, value);
+   fIsInitialized = kFALSE; //allow re-initialisation
 }
 
 //_________________________________________________________________
@@ -457,7 +472,7 @@ Bool_t KVVarGlob::IsParameterSet(const Char_t* par)
 
 //_________________________________________________________________
 
-Double_t KVVarGlob::GetParameter(const Char_t* par)
+Double_t KVVarGlob::GetParameter(const Char_t* par) const
 {
    //Returns the value of the parameter 'par'
 

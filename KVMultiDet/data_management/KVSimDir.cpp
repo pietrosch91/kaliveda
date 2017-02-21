@@ -59,6 +59,11 @@ KVSimDir::KVSimDir(const Char_t* name, const Char_t* path)
 {
    // Ctor with name and directory to analyse
    init();
+   // make sure we have absolute path
+   KVString _path(path);
+   if (!_path.Contains("..")) _path.ReplaceAll(".", "$(PWD)");
+   gSystem->ExpandPathName(_path);
+   SetTitle(_path);
 }
 
 void KVSimDir::init()

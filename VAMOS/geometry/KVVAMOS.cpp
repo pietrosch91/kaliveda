@@ -5,6 +5,7 @@
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
+#include "KVVAMOSWeightFinder.h"
 #include "KVVAMOSCodes.h"
 #include "KVBasicVAMOSFilter.h"
 #include "KVChargeStateDistrib.h"
@@ -103,6 +104,7 @@ void KVVAMOS::init()
    fStripFoil     = NULL;
    fTransMatrix   = NULL;
    fReconNavigator = NULL;
+   fWeightFinder  = NULL;
    fRotation      = NULL;
    fFocalPos      = 0;
    fAngle         = 0;
@@ -138,6 +140,7 @@ KVVAMOS::~KVVAMOS()
    SafeDelete(fStripFoil);
    SafeDelete(fTransMatrix);
    SafeDelete(fReconNavigator);
+   SafeDelete(fWeightFinder);
    SafeDelete(fFilter);
 
    if (gVamos == this) {
@@ -1051,6 +1054,21 @@ KVVAMOSTransferMatrix* KVVAMOS::GetTransferMatrix()
    return (fTransMatrix = new KVVAMOSTransferMatrix(kTRUE));
 }
 //________________________________________________________________
+
+
+KVVAMOSWeightFinder* KVVAMOS::GetWeightFinder()
+{
+   //Returns the transformation matrix allowing to map the measured
+   //coordinates at the focal plane back to the target. If no matrix
+   //exists then a new matrix is built from coefficient files found
+   //in the directory of the current dataset ( see the method
+   //KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
+
+   if (fWeightFinder) return fWeightFinder;
+   return (fWeightFinder = new KVVAMOSWeightFinder((Int_t) fCurrentRun));
+}
+//________________________________________________________________
+
 
 void KVVAMOS::Initialize()
 {

@@ -117,5 +117,5 @@ void KVEtrans::Fill(KVNucleus* c)
 {
    //Add particle's transverse kinetic energy in frame chosen with SetFrame()
    //to the sum of transverse energies
-   FillVar(c->GetFrame(fFrame.Data())->GetEtran());
+   FillVar(c->GetFrame(fFrame.Data(), kFALSE)->GetEtran());
 }

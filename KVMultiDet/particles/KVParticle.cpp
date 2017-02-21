@@ -24,6 +24,7 @@ $Id: KVParticle.cpp,v 1.50 2009/04/28 08:59:05 franklan Exp $
 #include "TLorentzRotation.h"
 #include "TObjString.h"
 #include "TClass.h"
+#include "KVKinematicalFrame.h"
 
 Double_t KVParticle::kSpeedOfLight = TMath::C() * 1.e-07;
 
@@ -43,8 +44,10 @@ ClassImp(KVParticle);
 //      - all angles are in degrees (polar angles between 0 and 180 degrees; azimuthal angles between 0 and 360 degrees).
 //      - all momenta are in MeV/c
 //
-//This class derives from TLorentzVector - a particle is basically a Lorentz 4-vector with added attributes - and therefore any methods which are not
-//documented here will be found in that class. This also means that all particles and kinematics are relativistic in KaliVeda.
+//This class derives from TLorentzVector - a particle is basically a Lorentz 4-vector with added attributes - and therefore
+//any methods which are not documented here will be found in that class [N.B. most 'Set'ter methods of TLorentzVector
+//should not be used directly and have been made 'private' in KVParticle in order to prevent their use].
+//This also means that all particles and kinematics are relativistic in KaliVeda.
 //
 //Methods defined/redefined in this class:
 //
@@ -67,7 +70,7 @@ ClassImp(KVParticle);
 //or with the usual 'Set' methods:
 //
 //      part.SetMass(Double_t m);                                               // changes rest mass, leaves momentum unchanged
-//
+//      part.SetEnergy(Double_t e);                                             // set kinetic energy (in MeV)
 //      part.SetMomentum(const TVector3 & v);                                   // changes momentum, leaves rest mass unchanged
 //      part.SetMomentum(const TVector3 * v);
 //
@@ -113,6 +116,113 @@ ClassImp(KVParticle);
 //      the group groupname is only stored for "par->GetFrame(framename) particle"
 //      ie :   par->BelongsToGroup(groupname) = kFALSE
 //        and  par->GetFrame(framename).BelongsToGroup(groupname) = kTRUE
+//
+//KINEMATICAL REFERENCE FRAMES
+//1. Accessing particle kinematics in different frames
+//Particle kinematics in different frames can be accessed with InFrame(const KVFrameTransform&).
+//This method does not modify the particle's kinematics or default reference frame (see 2 below).
+//If you want to access lots of information from this frame, it is probably more efficient to
+//define and store it in the particle's list of reference frames (see 3 below).
+//
+// Ex.) inspect kinematics of particle (accessed through pointer KVParticle* p)
+//       - in a frame moving at 5 cm/ns in the beam direction:
+//
+//            p->InFrame(TVector3(0,0,5)).GetVpar();
+//
+//       - in a frame rotated by 90° clockwise around the +ve beam direction:
+//
+//            TRotation rot;
+//            rot.RotateZ(TMath::PiOver2());
+//            p->InFrame(rot).GetPhi();
+//
+//       - in a frame moving at 0.1c in the beam direction:
+//
+//            p->InFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE)).GetKE();
+//
+//       [note that in this case you have to explicitly use the KVFrameTransform constructor]
+//
+//2. Modifying particle kinematics
+//Particle kinematics can be modified using method ChangeFrame(const KVFrameTransform&):
+//
+// Ex.) change kinematics of particle (accessed through pointer KVParticle* p)
+//       - to a frame moving at 5 cm/ns in the beam direction:
+//
+//            p->ChangeFrame(TVector3(0,0,5));
+//
+//       - to a frame rotated by 90° clockwise around the +ve beam direction:
+//
+//            TRotation rot;
+//            rot.RotateZ(TMath::PiOver2());
+//            p->ChangeFrame(rot);
+//
+//       - to a frame moving at 0.1c in the beam direction:
+//
+//            p->ChangeFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE));
+//
+//       [note that in this case you have to explicitly use the KVFrameTransform constructor]
+//
+//3. Using several reference frames
+//Rather than changing the reference frame of the particle, you can define and use several
+//different reference frames while keeping the original kinematics as the default. Each
+//frame can be used independently, and new frames can be defined based on any of the
+//existing frames:
+//
+// Ex.) for a particle accessed through pointer KVParticle* p:
+//        - define a new frame moving at 5 cm/ns in the beam direction:
+//
+//            p->SetFrame("moving_frame", TVector3(0,0,5));
+//
+//        - define a rotated coordinate frame in the "moving_frame",
+//          rotated by 90° clockwise around the +ve beam direction:
+//
+//            TRotation rot;
+//            rot.RotateZ(TMath::PiOver2());
+//            p->SetFrame("rotated_moving_frame", "moving_frame", rot);
+//
+//        [Note that the same frame can be defined directly from the original
+//         particle by using a combined boost-then-rotation transform:
+//
+//            p->SetFrame("rotated_moving_frame", KVFrameTransform(TVector3(0,0,5),rot));
+//
+//         In this case the KVFrameTransform constructor has to be called explicitly.]
+//
+//        - define a similarly rotated coordinate frame in the original
+//          (default) reference frame:
+//
+//            p->SetFrame("rotated_frame", rot);
+//
+//        - access kinematical information in any of these frames:
+//
+//            p->GetFrame("moving_frame")->GetVpar();
+//            p->GetFrame("rotated_frame")->GetPhi();
+//            p->GetFrame("rotated_moving_frame")->GetTransverseEnergy();
+//
+//If you call KVParticle::SetFrame several times with the same frame name
+//[note that frame names are case insensitive], the existing reference frame will
+//be updated to use the new transformation, which will be applied to the kinematics
+//of the particle in the 'parent' frame used to define the frame. Any frames which
+//were defined based on the frame will be updated too:
+//
+// Ex.) for the previous particle & frame definitions
+//
+//        - change the angle of rotation in the moving rotated frame:
+//
+//           rot.RotateZ(-TMath::PiOver4());
+//           p->SetFrame("rotated_moving_frame", rot);
+//
+//        - change the velocity of the moving frame to 0.1c:
+//
+//           p->SetFrame("moving_frame", KVFrameTransform(TVector3(0,0,0.1),kTRUE));
+//
+//          [Note that in this case, the "rotated_moving_frame" will be updated
+//           automatically to take account of the new velocity of "moving_frame"]
+//
+//If you change the kinematics of the particle in its original (default) frame,
+//you can update the kinematics in all defined frames by calling the method
+//
+//           p->UpdateAllFrames();
+//
+//[it does not occur automatically].
 ///////////////////////////////////////////////////////////////////////////
 
 KVParticle::KVParticle() : fParameters("ParticleParameters", "Parameters associated with a particle in an event")
@@ -162,6 +272,7 @@ KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz) : fPar
 //________________________________________________________
 KVParticle::~KVParticle()
 {
+   //Info("~KVParticle","%p",this);
    Clear();
 }
 
@@ -218,22 +329,32 @@ void KVParticle::SetMomentum(Double_t T, TVector3 dir)
 };
 
 //________________________________________________________________________________________
+void KVParticle::print_frames(TString fmt) const
+{
+   // recursive print out of all defined kinematical frames
+
+   fmt += "\t";
+   if (fBoosted.GetEntries()) {
+      TIter next(&fBoosted);
+      KVKinematicalFrame* frame;
+      while ((frame = (KVKinematicalFrame*)next())) {
+         cout << fmt << " " << frame->GetName() << ": ";
+         KVParticle* part = frame->GetParticle();
+         cout << " Theta=" << part->GetTheta() << " Phi=" << part->GetPhi()
+              << " KE=" << part->GetKE() << " Vpar=" << part->GetVpar() << endl;
+         part->print_frames(fmt);
+      }
+   }
+}
+
 void KVParticle::Print(Option_t*) const
 {
    // print out characteristics of particle
 
    cout << "KVParticle mass=" << M() <<
         " Theta=" << GetTheta() << " Phi=" << GetPhi()
-        << " KE=" << GetKE() << endl;
-   if (fBoosted.GetEntries()) {
-      TIter next(&fBoosted);
-      KVParticle* part;
-      while ((part = (KVParticle*)next())) {
-         cout << "\t " << part->GetFrameName() << ": " <<
-              " Theta=" << part->GetTheta() << " Phi=" << part-> GetPhi()
-              << " KE=" << part->GetKE() << endl;
-      }
-   }
+        << " KE=" << GetKE() << " Vpar=" << GetVpar() << endl;
+   print_frames();
    GetParameters()->Print();
 }
 
@@ -327,6 +448,18 @@ void KVParticle::SetIsOK(Bool_t flag)
    SetBit(kIsOKSet);
 }
 
+void KVParticle::ls(Option_t* option) const
+{
+   std::cout << option << GetName() << ":" << GetFrameName() << ":" << this << "\n";
+   if (fBoosted.GetEntries()) {
+      TString nopt = option;
+      nopt += "   ";
+      TIter next(&fBoosted);
+      KVKinematicalFrame* p;
+      while ((p = (KVKinematicalFrame*)next())) p->GetParticle()->ls(nopt.Data());
+   }
+}
+
 //________________________________________________________________________________________________________
 
 KVParticle& KVParticle::operator=(const KVParticle& rhs)
@@ -387,6 +520,8 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname, const Char_t* f
    // the line
    //         if (!fGroups) CreateGroups();
    // has to be included
+   // The group will be added to all 'particles' representing different kinematical frames
+   // for this particle
 
    TString sfrom(from);
    sfrom.ToUpper();
@@ -396,9 +531,12 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname, const Char_t* f
    if (BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data())) {
       fGroups.Add(new TObjString(sgroupname.Data()));
       if (fBoosted.GetEntries()) {
-         TString inst;
-         inst.Form("\"%s\"", sgroupname.Data());
-         fBoosted.Execute("AddGroup", inst.Data());
+         // recursively add to all boosted particles
+         TIter it(&fBoosted);
+         KVKinematicalFrame* f;
+         while ((f = (KVKinematicalFrame*)it())) {
+            f->GetParticle()->AddGroup(sgroupname);
+         }
       }
    }
 }
@@ -409,9 +547,7 @@ void KVParticle::AddGroup(const Char_t* groupname, const Char_t* from)
    // Associate this particle with the given named group.
    // Optional argument "from" allows to put a condition on the already stored
    // group list, is set to "" by default
-   //
-   // Apply the method to all particles stored in fBoosted
-   //Info("AddGroup","%s",groupname);
+
    AddGroup_Sanscondition(groupname, from);
 }
 
@@ -448,6 +584,22 @@ void KVParticle::AddGroups(KVUniqueNameList* un)
       AddGroup(os->GetName());
    }
 
+}
+
+Int_t KVParticle::GetNumberOfDefinedFrames()
+{
+   // Returns the total number of defined kinematical frames for this particle.
+   // This includes all frames which are defined with respect to other frames
+   // (i.e. we count recursively the contents of all fBoosted lists)
+
+   if (!fBoosted.GetEntries()) return 0;
+   TIter it(&fBoosted);
+   KVKinematicalFrame* p;
+   Int_t nf = 0;
+   while ((p = (KVKinematicalFrame*)it())) {
+      nf += (1 + p->GetParticle()->GetNumberOfDefinedFrames());
+   }
+   return nf;
 }
 //___________________________________________________________________________//
 Int_t KVParticle::GetNumberOfDefinedGroups(void)
@@ -493,9 +645,11 @@ void KVParticle::RemoveGroup(const Char_t* groupname)
    if ((os = (TObjString*)fGroups.FindObject(sgroupname.Data()))) {
       delete fGroups.Remove(os);
       if (fBoosted.GetEntries()) {
-         TString inst;
-         inst.Form("\"%s\"", sgroupname.Data());
-         fBoosted.Execute("RemoveGroup", inst.Data());
+         TIter it(&fBoosted);
+         KVKinematicalFrame* f;
+         while ((f = (KVKinematicalFrame*)it())) {
+            f->GetParticle()->RemoveGroup(sgroupname);
+         }
       }
    }
 }
@@ -506,7 +660,13 @@ void KVParticle::RemoveAllGroups()
    //Remove all groups
    // Apply the method to all particles stored in fBoosted
    fGroups.Clear();
-   if (fBoosted.GetEntries()) fBoosted.Execute("RemoveAllGroups", "");
+   if (fBoosted.GetEntries()) {
+      TIter it(&fBoosted);
+      KVKinematicalFrame* f;
+      while ((f = (KVKinematicalFrame*)it())) {
+         f->GetParticle()->RemoveAllGroups();
+      }
+   }
 }
 
 //___________________________________________________________________________//
@@ -527,16 +687,179 @@ void KVParticle::ListGroups(void) const
    cout << "--------------------------------------------------" << endl;
 }
 
+KVParticle KVParticle::InFrame(const KVFrameTransform& t)
+{
+   // Use this method to obtain 'on-the-fly' some information on particle kinematics
+   // in a different reference frame. The default kinematics of the particle are unchanged.
+
+   KVParticle p;
+   p.Set4Mom(*this);
+   KVKinematicalFrame(&p, t);
+   return p;
+}
+
+void KVParticle::ChangeFrame(const KVFrameTransform& t, const KVString& name)
+{
+   // Permanently modify kinematics of particle according to the given transformation.
+   // You can optionally set the name of this new default kinematics.
+   // NB the current kinematics will be lost. If you want to keep it after changing the
+   // default kinematics, define the new frame with SetFrame and then use ChangeDefaultFrame.
+
+   KVKinematicalFrame(this, t);
+   if (name != "") SetFrameName(name);
+}
+
+void KVParticle::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
+{
+   // Make existing reference frame 'newdef' the new default frame for particle kinematics.
+   // The current default frame will then be accessible from the list of frames
+   // using its name (if set with SetFrameName). You can change/set the name of the previous
+   // default frame with 'defname'
+
+   TString _defname(defname);
+   if (_defname == "") _defname = GetFrameName();
+   // get list of all parents of new default
+   TList parents;
+   TString ff = newdef;
+   KVKinematicalFrame* f;
+   do {
+      f = get_parent_frame(ff);
+      if (f) {
+         parents.Add(f);
+         ff = f->GetName();
+      }
+   } while (f);
+   // modify tree structure
+   TIter it(&parents);
+   KVKinematicalFrame* newdframe = get_frame(newdef);
+   KVKinematicalFrame* save_newdef = newdframe;
+   KVFrameTransform trans, next_trans = newdframe->GetTransform();
+   while ((f = (KVKinematicalFrame*)it())) {
+      f->GetParticle()->GetListOfFrames()->Remove(newdframe);
+      trans = next_trans;
+      next_trans = f->GetTransform();
+      newdframe->GetParticle()->GetListOfFrames()->Add(f);
+      f->SetTransform(trans.Inverse());
+      newdframe = f;
+   }
+   GetListOfFrames()->Remove(newdframe);
+   // copy current default kinematics particle momentum/energy
+   TLorentzVector old_def_p(*this);
+   // set momentum/energy of new default kinematics
+   Set4Mom(*(save_newdef->GetParticle()));
+   save_newdef->GetParticle()->Set4Mom(old_def_p);
+   save_newdef->SetTransform(next_trans.Inverse());
+   save_newdef->SetName(_defname);
+   newdframe->GetParticle()->GetListOfFrames()->Add(save_newdef);
+   // copy frame list from new default frame
+   TList frame_list;
+   frame_list.AddAll(save_newdef->GetParticle()->GetListOfFrames());
+   save_newdef->GetParticle()->GetListOfFrames()->Clear("nodelete");
+   save_newdef->GetParticle()->GetListOfFrames()->AddAll(&fBoosted);
+   fBoosted.Clear("nodelete");
+   fBoosted.AddAll(&frame_list);
+   SetFrameName(newdef);
+}
+
+void KVParticle::SetFrame(const Char_t* frame, const KVFrameTransform& ft)
+{
+   //Define a Lorentz-boosted and/or rotated frame in which to calculate this particle's momentum and energy.
+   //
+   //The new frame will have the name given in the string "frame", which can then be used to
+   //access the kinematics of the particle in different frames using GetFrame() (frame names are case-insensitive).
+   //Calling this method with the name of an existing frame will update the kinematics of the particle
+   //in that frame using the given transform (note that kinematics in all frames defined as 'subframes' of
+   //this frame will also be updated).
+   //
+   //USING BOOSTS
+   //The boost velocity vector is that of the boosted frame with respect to the original frame of the particles in the event.
+   //The velocity vector can be given either in cm/ns units (default) or in units of 'c' (beta=kTRUE).
+   //
+   //E.g. to define a frame moving at 0.1c in the +ve z-direction with respect to the original
+   //event frame:
+   //
+   //      (...supposing a valid pointer KVParticle* my_part...)
+   //      TVector3 vframe(0,0,0.1);
+   //      my_part->SetFrame("my_frame", KVFrameTransform(vframe, kTRUE));
+   //
+   //or with velocity in cm/ns units (default):
+   //      TVector3 vframe(0,0,3);
+   //      my_part->SetFrame("my_frame", KVFrameTransform(vframe));
+   // OR   my_part->SetFrame("my_frame", vframe);
+   //
+   //USING ROTATIONS
+   //According to the conventions adopted for the TRotation and TLorentzRotation classes,
+   //we actually use the inverse of the TLorentzRotation to make the transformation,
+   //to get the coordinates corresponding to a rotated coordinate system, not the coordinates
+   //of a rotated vector in the same coordinate system
+   //=> you do not need to invert the transformation matrix
+   //
+   //E.g. if you want to define a new frame whose coordinate axes are rotated with respect
+   //to the original axes, you can set up a TRotation like so:
+   //
+   //      TRotation rot;
+   //      TVector3 newX, newY, newZ; // the new coordinate axes
+   //      rot.RotateAxes(newX, newY, newZ);
+   //
+   //If you are using one of the two global variables which calculate the event tensor
+   //(KVTensP and KVTensPCM) you can obtain the transformation to the tensor frame
+   //using:
+   //
+   //      TRotation rot;
+   //      KVTensP* tens_gv;// pointer to tensor global variable
+   //      tens_gv->GetTensor()->GetRotation(rot);// see KVTenseur3::GetRotation
+   //
+   //Then the new frame can be defined by
+   //      my_part->SetFrame("my_frame", KVFrameTransform(rot));
+   //  OR  my_part->SetFrame("my_frame", rot);
+   //
+   //USING COMBINED BOOST AND ROTATION
+   //You can define a frame using both a boost and a rotation like so:
+   //      my_part->SetFrame("my_frame", KVFrameTransform(vframe,rot,kTRUE));
+   //
+   //ACCESSING KINEMATICS IN NEW FRAMES
+   //In order to access the kinematics of the particle in the new frame:
+   //
+   //      my_part->GetFrame("my_frame")->GetTransverseEnergy();// transverse energy in "my_frame"
+
+   if (!strcmp(frame, "")) return;
+
+   KVKinematicalFrame* tmp = get_frame(frame);
+   if (!tmp) {
+      //if this frame has not already been defined, create a new one
+      tmp = new KVKinematicalFrame(frame, this, ft);
+      fBoosted.Add(tmp);
+   } else
+      tmp->ApplyTransform(this, ft);
+}
+
 //___________________________________________________________________________//
-KVParticle* KVParticle::GetFrame(const Char_t* frame)
+KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_return_null_if_unknown)
 {
    // Return the momentum of the particle in the Lorentz-boosted frame corresponding to the name
    // "frame" given as argument (see SetFrame() for definition of different frames).
+   // If the default frame name has been set (see KVEvent::SetFrameName) and 'frame' is the
+   // name of this default frame (KVParticle::fFrameName), we return the address of the particle
+   // itself.
    //
-   // WARNING: if "frame" does not correspond exactly to the name of a frame previously created with
-   //          SetFrame() - upper & lower case names are not considered the same - then we
-   //          return a pointer to the particle itself: in other words, you will be dealing with
-   //          the kinematics of the particle in its default (usually laboratory) frame.
+   // This frame may have been defined by a direct transformation of the original kinematics of the
+   // particle (using SetFrame(newframe,...)) or by a transformation of the kinematics in another
+   // user-defined frame (using SetFrame(newframe,oldframe,...)).
+   //
+   // Note that frames are not "dynamic": if any changes are made to the original particle's kinematics
+   // after definition of a frame, if you want these changes to affect also the other frames you
+   // need to update them by hand by calling KVParticle::UpdateAllFrames().
+   //
+   // Frame names are case insensitive: "CM" or "cm" or "Cm" are all good...
+   //
+   // By default, if no frame with the given name is found, we return nullptr and print a warning.
+   // If warn_and_return_null_if_unknown=kFALSE, we return the address of the particle itself,
+   // i.e. the original/default kinematics.
+   // [Note that this is an inversion of the previous default behaviour]
+   //
+   // Note that the properties of the particle returned by this method can not be modified:
+   //    this is deliberate, as any modifications e.g. to kinematics will have no effect
+   //    in any other frames.
    //
    // The returned pointer corresponds to a "pseudoparticle" in the desired frame,
    // therefore you can use any KVParticle method in order to access the kinematics of the
@@ -547,254 +870,90 @@ KVParticle* KVParticle::GetFrame(const Char_t* frame)
    //      my_part->GetFrame("QP_frame")->GetTheta();// polar angle in "QP_frame"
    //      etc. etc.
 
+   if (!fFrameName.CompareTo(frame, TString::kIgnoreCase)) return (KVParticle const*)this;
+   KVKinematicalFrame* f = get_frame(frame);
+   return f ? (KVParticle const*)f->GetParticle() :
+          (warn_and_return_null_if_unknown ?
+           Warning("GetFrame(const Char_t*)", "No frame \"%s\" defined for particle. 0x0 returned.",
+#ifndef WITH_CPP11
+                   frame), (KVParticle*)nullptr
+#else
+                   frame), nullptr
+#endif
+           : this);
+}
+
+void KVParticle::UpdateAllFrames()
+{
+   // Call this method to update particle kinematics in all defined frames if you change
+   // the kinematics of the particle in its original/default frame.
+
+   if (fBoosted.GetEntries()) {
+      TIter it(&fBoosted);
+      KVKinematicalFrame* f;
+      while ((f = (KVKinematicalFrame*)it())) {
+         f->ReapplyTransform(this);
+         // recursively apply to all subframes
+         f->GetParticle()->UpdateAllFrames();
+      }
+   }
+}
+
+KVKinematicalFrame* KVParticle::get_frame(const Char_t* frame)
+{
+   // PRIVATE method for internal use only
+   // This allows to modify the returned frame, i.e. in order to define
+   // new frames in SetFrame(newframe,oldframe,...)
+
    if (!fBoosted.GetEntries() || !strcmp(frame, "")) {
       // no frames defined or no frame name given
-      return this;
+      return nullptr;
    }
+   TString _frame(frame);
    TIter it(&fBoosted);
-   KVParticle* f;
-   while ((f = (KVParticle*)it())) if (!strcmp(frame, f->GetFrameName())) break;
-   if (!f) {
-      return this;
+   KVKinematicalFrame* p(nullptr), *f(nullptr);
+   while ((p = f = (KVKinematicalFrame*)it())) {
+      if (!_frame.CompareTo(p->GetName(), TString::kIgnoreCase)) break;
+      // look for subframe
+      if ((f = p->GetParticle()->get_frame(_frame))) break;
    }
    return f;
 }
 
-//___________________________________________________________________________//
-Bool_t KVParticle::HasFrame(const Char_t* frame)
+KVKinematicalFrame* KVParticle::get_parent_frame(const Char_t* f, KVKinematicalFrame* F)
 {
-   // Check if a given frame has been defined
-
-   return (GetFrame(frame) != this);
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* frame, const TVector3& boost,
-                          Bool_t beta)
-{
-   //Define a Lorentz-boosted frame in which to calculate the particle's momentum and energy.
-   //
-   //The new frame will have the name given in the string "frame", which can then be used to
-   //access the kinematics of the particle in different frames using GetFrame().
-   //
-   //The boost velocity vector is that of the boosted frame with respect to the original frame of the particles in the event.
-   //The velocity vector can be given either in cm/ns units (default) or in units of 'c' (beta=kTRUE).
-   //
-   //E.g. to define a frame moving at 0.1c in the +ve z-direction with respect to the original
-   //event frame:
-   //
-   //      (...supposing a valid pointer KVParticle* my_part...)
-   //      TVector3 vframe(0,0,0.1);
-   //      my_part->SetFrame("my_frame", vframe, kTRUE);
-   //
-   //In order to access the kinematics of the particle in the new frame:
-   //
-   //      my_part->GetFrame("my_frame")->GetTransverseEnergy();// transverse energy in "my_frame"
-
-   //set up TLorentzRotation corresponding to boosted frame
-   TLorentzRotation tmp;
-   if (beta) {
-      tmp.Boost(boost);
-   } else {
-      tmp.Boost(boost.X() / kSpeedOfLight, boost.Y() / kSpeedOfLight,
-                boost.Z() / kSpeedOfLight);
+   // PRIVATE method for internal use only
+   // Returns pointer to parent frame of 'f'
+   if (!fBoosted.GetEntries() || !strcmp(f, "")) {
+      // no frames defined or no frame name given
+      return nullptr;
    }
-   SetFrame(frame, tmp);
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* frame, const TLorentzRotation& rot)
-{
-   //Define a Lorentz-rotated frame in which to calculate the particle's momentum.
-   //
-   //The new frame will have the name given in the string "frame", which can then be used to
-   //access the kinematics of the particle in different frames using GetFrame().
-   //
-   //According to the conventions adopted for the TRotation and TLorentzRotation classes,
-   //we actually use the inverse of the TLorentzRotation to make the transformation,
-   //i.e. to get the coordinates corresponding to a rotated coordinate system, not the coordinates
-   //of a rotated vector in the same coordinate system.
-   //
-   //The transformed coordinates of the particle are calculated using
-   //      v *= rot.Inverse();
-   //where v = particle's original momentum 4-vector and rot = TLorentzRotation
-
-   if (!strcmp(frame, "")) return;
-
-   KVParticle* tmp = 0;
-   if (HasFrame(frame)) {
-      tmp = GetFrame(frame);
-   } else {
-      //if this frame has not already been defined, create a new particle
-      tmp = (KVParticle*)this->IsA()->New();
-      tmp->SetFrameName(frame);
-      fBoosted.Add(tmp);
+   TString _frame(f);
+   TIter it(&fBoosted);
+   KVKinematicalFrame* p(nullptr), *r(nullptr);
+   while ((p = (KVKinematicalFrame*)it())) {
+      if (!_frame.CompareTo(p->GetName(), TString::kIgnoreCase)) return F;
+      // look for subframe
+      if ((r = p->GetParticle()->get_parent_frame(_frame, p))) return r;
    }
-
-   //copy all information on particle
-   this->Copy(*tmp);
-   //transform to boosted frame
-   (*tmp) *= rot.Inverse();
+   return nullptr;
 }
+
 
 //___________________________________________________________________________//
 
-void KVParticle::SetFrame(const Char_t* frame, const TRotation& rot)
+void KVParticle::SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform& ft)
 {
-   //Define a rotated frame in which to calculate the particle's momentum and energy.
-   //
-   //E.g. if you want to define a new frame whose coordinate axes are rotated with respect
-   //to the original axes, you can set up a TRotation like so:
-   //
-   //      TRotation rot;
-   //      TVector3 newX, newY, newZ; // the new coordinate axes
-   //      rot.RotateAxes(newX, newY, newZ);
-   //
-   //If you are using one of the two global variables which calculate the event tensor
-   //(KVTensP and KVTensPCM) you can obtain the transformation to the tensor frame
-   //using:
-   //
-   //      TRotation rot;
-   //      KVTensP* tens_gv;// pointer to tensor global variable
-   //      tens_gv->GetTensor()->GetRotation(rot);// see KVTenseur3::GetRotation
-   //
-   //N.B. you do not need to invert the transformation matrix (cf. TRotation), this is handled by
-   //SetFrame(const Char_t* frame, TLorentzRotation& rot)
-   //
-   //The new frame will have the name given in the string "frame", which can then be used to
-   //access the kinematics of the particle in different frames using GetFrame().
-   //
-   //In order to access the kinematics of the particle in the new frame:
-   //
-   //      my_part->GetFrame("my_frame")->GetTransverseEnergy();// transverse energy in "my_frame"
+   // Define new kinematical frame by transformation from existing frame
+   // See SetFrame(const Char_t*,const KVFrameTransform&) for details on
+   // defining kinematically-transformed frames.
 
-   //set up corresponding TLorentzRotation
-   TLorentzRotation tmp(rot);
-   SetFrame(frame, tmp);
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* frame, const TVector3& boost,
-                          TRotation& rot, Bool_t beta)
-{
-   //Define a Lorentz-boosted and rotated frame in which to calculate the particle's momentum and energy.
-   //
-   //The new frame will have the name given in the string "frame", which can then be used to
-   //access the kinematics of the particle in different frames using GetFrame().
-   //
-   //E.g. if you want to define a new frame whose coordinate axes are rotated with respect
-   //to the original axes, you can set up a TRotation like so:
-   //
-   //      TRotation rot;
-   //      TVector3 newX, newY, newZ; // the new coordinate axes
-   //      rot.RotateAxes(newX, newY, newZ);
-   //
-   //If you are using one of the two global variables which calculate the event tensor
-   //(KVTensP and KVTensPCM) you can obtain the transformation to the tensor frame
-   //using:
-   //
-   //      TRotation rot;
-   //      KVTensP* tens_gv;// pointer to tensor global variable
-   //      tens_gv->GetTensor()->GetRotation(rot);// see KVTenseur3::GetRotation
-   //
-   //N.B. you do not need to invert the transformation matrix (cf. TRotation), this is handled by
-   //SetFrame(const Char_t* frame, TLorentzRotation& rot)
-   //
-   //The boost velocity vector is that of the boosted frame with respect to the original frame of the particles in the event.
-   //The velocity vector can be given either in cm/ns units (default) or in units of 'c' (beta=kTRUE).
-   //
-   //E.g. to define a frame moving at 0.1c in the +ve z-direction with respect to the original
-   //event frame:
-   //
-   //      (...supposing a valid pointer KVParticle* my_part...)
-   //      TVector3 vframe(0,0,0.1);
-   //      my_part->SetFrame("my_frame", vframe, kTRUE);
-   //
-   //In order to access the kinematics of the particle in the new frame:
-   //
-   //      my_part->GetFrame("my_frame")->GetTransverseEnergy();// transverse energy in "my_frame"
-
-   //set up corresponding TLorentzRotation
-   TLorentzRotation tmp(rot);
-   if (beta) {
-      tmp.Boost(boost);
-   } else {
-      tmp.Boost(boost.X() / kSpeedOfLight, boost.Y() / kSpeedOfLight,
-                boost.Z() / kSpeedOfLight);
+   KVKinematicalFrame* f = get_frame(oldframe);
+   if (!f) {
+      Error("SetFrame(newframe,oldframe)", "oldframe=%s does not exist!", oldframe);
+      return;
    }
-   SetFrame(frame, tmp);
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                          const TVector3& boost, Bool_t beta)
-{
-   GetFrame(oldframe)->SetFrame(newframe, boost, beta);
-   //Duplicate the transformed particle to access by the method GetFrame("newframe")
-   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-   //Specially usefull if the new frame is used in KVVarGlob derived classes
-   KVParticle* tmp = (KVParticle*)this->IsA()->New();
-   tmp->SetBit(kCanDelete);
-   tmp->SetFrameName(newframe);
-   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-   GetListOfFrames()->Add(tmp);
-
-}
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                          const TLorentzRotation& rot)
-{
-   GetFrame(oldframe)->SetFrame(newframe, rot);
-   //Duplicate the transformed particle to access by the method GetFrame("newframe")
-   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-   //Specially usefull if the new frame is used in KVVarGlob derived classes
-   KVParticle* tmp = (KVParticle*)this->IsA()->New();
-   tmp->SetBit(kCanDelete);
-   tmp->SetFrameName(newframe);
-   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-   GetListOfFrames()->Add(tmp);
-
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                          const TRotation& rot)
-{
-
-   GetFrame(oldframe)->SetFrame(newframe, rot);
-   //Duplicate the transformed particle to access by the method GetFrame("newframe")
-   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-   //Specially usefull if the new frame is used in KVVarGlob derived classes
-   KVParticle* tmp = (KVParticle*)this->IsA()->New();
-   tmp->SetBit(kCanDelete);
-   tmp->SetFrameName(newframe);
-   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-   GetListOfFrames()->Add(tmp);
-
-}
-
-//___________________________________________________________________________//
-
-void KVParticle::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                          const TVector3& boost, TRotation& rot, Bool_t beta)
-{
-
-   GetFrame(oldframe)->SetFrame(newframe, boost, rot, beta);
-   //Duplicate the transformed particle to access by the method GetFrame("newframe")
-   //without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
-   //Specially usefull if the new frame is used in KVVarGlob derived classes
-   KVParticle* tmp = (KVParticle*)this->IsA()->New();
-   tmp->SetBit(kCanDelete);
-   tmp->SetFrameName(newframe);
-   GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
-   GetListOfFrames()->Add(tmp);
-
+   f->GetParticle()->SetFrame(newframe, ft);
 }
 
 //___________________________________________________________________________//
@@ -853,4 +1012,18 @@ void KVParticle::SetVelocity(const TVector3& vel)
    Double_t gamma = 1. / kSpeedOfLight / sqrt(1 - (vel.Mag2() / pow(kSpeedOfLight, 2)));
    TVector3 p = GetMass() * gamma * vel;
    SetMomentum(p);
+}
+
+void KVParticle::Streamer(TBuffer& R__b)
+{
+   // Stream an object of class KVParticle.
+   // When reading: If parameter "frameName" is set, use it to set non-persistent
+   // fFrameName member (used by GetFrame)
+
+   if (R__b.IsReading()) {
+      R__b.ReadClassBuffer(KVParticle::Class(), this);
+      if (GetParameters()->HasStringParameter("frameName")) fFrameName = GetParameters()->GetStringValue("frameName");
+   } else {
+      R__b.WriteClassBuffer(KVParticle::Class(), this);
+   }
 }

@@ -33,7 +33,7 @@ public:
    KVIDChIoCsI();
    virtual ~ KVIDChIoCsI()
    {
-   };
+   }
    virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
    {
       // Used for filtering simulations

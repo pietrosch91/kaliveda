@@ -707,7 +707,8 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta, Double_t phi)
    else
       knuc = sim_evt->GetParticleWithName("PROJ");
 
-   knuc->SetPxPyPzE(ptot.X(), ptot.Y(), ptot.Z(), etot);
+   TLorentzVector q(ptot, etot);
+   knuc->Set4Mom(q);
 
    ((TH2F*)lhisto->FindObject("ek_theta"))->Fill(knuc->GetTheta(), knuc->GetKE());
 

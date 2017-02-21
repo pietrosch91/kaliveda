@@ -81,6 +81,24 @@ RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 RawAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
+# analysis of TTree containing KVEvent objects using KVEventSelector
++DataAnalysisTask:     SimEventAnalysis
+SimEventAnalysis.DataAnalysisTask.Title:     Analysis of simulated events in tree
+SimEventAnalysis.DataAnalysisTask.Prereq:     sim
+SimEventAnalysis.DataAnalysisTask.Analyser:     SimDirAnalyser
+SimEventAnalysis.DataAnalysisTask.UserClass:     yes
+SimEventAnalysis.DataAnalysisTask.UserClass.Base:     EventSelector/TSelector
+SimEventAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+
+# filtering of TTree containing KVEvent objects using KVEventFiltering
++DataAnalysisTask:     SimEventFilter
+SimEventFilter.DataAnalysisTask.Title:     Filter simulated events in tree
+SimEventFilter.DataAnalysisTask.Prereq:     sim
+SimEventFilter.DataAnalysisTask.Analyser:     SimDirAnalyser
+SimEventFilter.DataAnalysisTask.UserClass:     no
+SimEventFilter.DataAnalysisTask.UserClass.Base:     EventFilter/TSelector
+SimEventFilter.DataAnalysisTask.StatusUpdateInterval:     20000
+
 +DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
@@ -129,13 +147,21 @@ Xterm.BatchSystem.JobScript: "KaliVedaAnalysis -b -n"&
 Linux.BatchSystem.Title:    Execute task in background with output stored in log file
 Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
++BatchSystem:    PROOFLite
+PROOFLite.BatchSystem.Title:  Use PROOFLite
+PROOFLite.BatchSystem.JobSubCmd:  root
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootBatch(const Char_t*)"
 +Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDetanalysis    "KVLinuxBatch(const Char_t*)"
++Plugin.KVBatchSystem:    PROOFLite    KVPROOFLiteBatch     KVMultiDetanalysis    "KVPROOFLiteBatch(const Char_t*)"
 
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
+
++Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
++Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer

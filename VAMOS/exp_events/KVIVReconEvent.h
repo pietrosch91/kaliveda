@@ -107,9 +107,9 @@ public:
       fVAMOSev->ResetGetNextNucleus();
    }
 
-   void  IdentAndCalibVAMOSEvent()
+   void  IdentAndCalibVAMOSEvent(KVVAMOSDataCorrection* data_corr)
    {
-      fVAMOSev->IdentAndCalibEvent();
+      fVAMOSev->IdentAndCalibEvent(data_corr);
    }
 
    void  ReconstructVAMOSEvent(KVMultiDetArray* mda, KVDetectorEvent* kvde)

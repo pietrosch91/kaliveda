@@ -9,7 +9,6 @@
 #include "KVDBRun.h"
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
-#include "KVDataRepositoryManager.h"
 #include "KVGeoNavigator.h"
 
 ClassImp(KVEventFiltering)
@@ -112,13 +111,14 @@ Bool_t KVEventFiltering::Analysis()
    // procedures as for experimental data.
 
    if (fTransformKinematics) {
-      if (fNewFrame = "proj")   GetEvent()->SetFrame("lab", fProjVelocity);
+      if (fNewFrame == "proj")   GetEvent()->SetFrame("lab", fProjVelocity);
       else                    GetEvent()->SetFrame("lab", fCMVelocity);
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
    } else {
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
    }
    fReconEvent->SetNumber(fEVN++);
+   fReconEvent->SetFrameName("lab");
    fTree->Fill();
 
    /*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
@@ -130,9 +130,6 @@ Bool_t KVEventFiltering::Analysis()
 
 void KVEventFiltering::EndAnalysis()
 {
-   // Write file containing filtered data to disk.
-   //fFile->Write();
-   //delete fFile;
 }
 
 void KVEventFiltering::EndRun()
@@ -156,10 +153,12 @@ void KVEventFiltering::InitAnalysis()
    // 'ReconEvent'. The class used for reconstructed events depends on the dataset,
    // it is given by KVDataSet::GetReconstructedEventClassName().
 
+   if (fDisableCreateTreeFile) return; //when running with PROOF, only execute on workers
+
    TString dataset = GetOpt("Dataset").Data();
    if (!gDataSetManager) {
-      new KVDataRepositoryManager;
-      gDataRepositoryManager->Init();
+      gDataSetManager = new KVDataSetManager;
+      gDataSetManager->Init();
    }
    gDataSetManager->GetDataSet(dataset)->cd();
 
@@ -167,24 +166,24 @@ void KVEventFiltering::InitAnalysis()
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);
    KV2Body* tb = 0;
 
-   Bool_t justcreated=kFALSE;
-	if (sys) tb =  sys->GetKinematics();
+   Bool_t justcreated = kFALSE;
+   if (sys) tb =  sys->GetKinematics();
    else if (system) {
       tb = new KV2Body(system);
       tb->CalculateKinematics();
-   	justcreated = kTRUE;
-	}
+      justcreated = kTRUE;
+   }
 
    fCMVelocity = (tb ? tb->GetCMVelocity() : TVector3(0, 0, 0));
    fCMVelocity *= -1.0;
 
-	fProjVelocity = (tb ? tb->GetNucleus(1)->GetVelocity() : TVector3(0, 0, 0));
+   fProjVelocity = (tb ? tb->GetNucleus(1)->GetVelocity() : TVector3(0, 0, 0));
    fProjVelocity *= -1.0;
-	
-	if (justcreated)
-		delete tb;
-	
-	Int_t run = 0;
+
+   if (justcreated)
+      delete tb;
+
+   Int_t run = 0;
    if (IsOptGiven("Run")) run = GetOpt("Run").Atoi();
    if (!run && sys) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
 
@@ -221,11 +220,24 @@ void KVEventFiltering::InitAnalysis()
       Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
    }
 
-
+   if (!gDataSet->HasCalibIdentInfos()) {
+      TString fullpath;
+      if (KVBase::SearchKVFile("IdentificationBilan.dat", fullpath, gDataSet->GetName())) {
+         Info("InitAnalysis", "Setting identification bilan...");
+         TString sysname = sys->GetBatchName();
+         KVIDTelescope::OpenIdentificationBilan(fullpath);
+         TIter next(gMultiDetArray->GetListOfIDTelescopes());
+         KVIDTelescope* idt;
+         while ((idt = (KVIDTelescope*)next())) {
+            idt->CheckIdentificationBilan(sysname);
+         }
+      }
+   }
+   gMultiDetArray->PrintStatusOfIDTelescopes();
 
    OpenOutputFile(sys, run);
-   if (sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle(), sys->GetName()));
-   else fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle()));
+   if (sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data(), gMultiDetArray->GetTitle(), sys->GetName()));
+   else fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data(), gMultiDetArray->GetTitle()));
 
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();

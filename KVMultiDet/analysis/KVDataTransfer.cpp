@@ -178,31 +178,31 @@ void KVDataTransfer::Run()
    //make 'source' repository the 'active' repository
    fSourceRep->cd();
 
-   fMenus = kTRUE;
-   fQuit = kFALSE;
-   fChoozDataSet = kTRUE;
-   fChoozSystem = kFALSE;
-   fChoozTask = kFALSE;
-   fChoozRuns = kFALSE;
-   fSubmit = kFALSE;
+   SetMenus();
+   SetQuit(kFALSE);
+   SetChooseDataSet();
+   SetChooseSystem(kFALSE);
+   SetChooseTask(kFALSE);
+   SetChooseRuns(kFALSE);
+   SetSubmit(kFALSE);
 
-   fDataSet = 0;
-   fDataType = "";
-   fRunList.Clear();
-   fSystem = 0;
+   set_dataset_pointer(nullptr);
+   SetDataType("");
+   ClearRunList();
+   SetSystem(nullptr);
 
    //choose dataset, data type, system, runs
-   while (!fQuit) {
+   while (!IsQuit()) {
 
-      if (fChoozDataSet)
+      if (IsChooseDataSet())
          ChooseDataSet();
-      else if (fChoozTask)
+      else if (IsChooseTask())
          ChooseDataType();
-      else if (fChoozSystem)
+      else if (IsChooseSystem())
          ChooseSystem();
-      else if (fChoozRuns)
+      else if (IsChooseRuns())
          ChooseRuns();
-      else if (fSubmit)
+      else if (IsSubmit())
          TransferRuns();
 
    }
@@ -217,24 +217,24 @@ void KVDataTransfer::TransferRuns()
    //Any missing directories in the target repository are created beforehand.
    //After transfer, the available runlist for the target repository is updated
 
-   fSubmit = kFALSE;
+   SetSubmit(kFALSE);
 
-   if (!fDataSet) {
+   if (!GetDataSet()) {
       Error("KVDataTransfer::Transfer",
             "No dataset defined for transfer. Choose dataset first.");
-      fChoozDataSet = kTRUE;
+      SetChooseDataSet();
       return;
    }
-   if (fDataType == "") {
+   if (GetDataType() == "") {
       Error("KVDataTransfer::Transfer",
             "No data type defined for transfer. Choose type of data to transfer first.");
-      fChoozTask = kTRUE;
+      SetChooseTask();
       return;
    }
-   if (fRunList.IsEmpty()) {
+   if (GetRunList().IsEmpty()) {
       Error("KVDataTransfer::Transfer",
             "No runlist defined for transfer. Choose runs to transfer first.");
-      fChoozRuns = kTRUE;
+      SetChooseRuns();
       return;
    }
 
@@ -248,11 +248,10 @@ void KVDataTransfer::TransferRuns()
    if (fCmdFile != "") gSystem->Unlink(fCmdFile.Data());
 
    //update available run list for target repository
-   fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->
-   UpdateAvailableRuns(fDataType.Data());
+   fTargetRep->GetDataSetManager()->GetDataSet(GetDataSet()->GetName())->UpdateAvailableRuns(GetDataType());
 
    //force user to choose new system
-   fChoozSystem = kTRUE;
+   SetChooseSystem();
 }
 
 //_________________________________________________________________
@@ -264,17 +263,14 @@ void KVDataTransfer::CheckTargetRepository()
    //If not, we create the new dataset/subdir.
 
    Bool_t update = kFALSE;
-   if (!fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->
-         IsAvailable()) {
+   if (!fTargetRep->GetDataSetManager()->GetDataSet(GetDataSet()->GetName())->IsAvailable()) {
       //add dataset directory to target repository
-      fTargetRep->MakeSubdirectory(fDataSet);
+      fTargetRep->MakeSubdirectory(GetDataSet());
       update = kTRUE;
    }
-   if (!fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->
-         HasDataType(fDataType.Data())) {
+   if (!fTargetRep->GetDataSetManager()->GetDataSet(GetDataSet()->GetName())->HasDataType(GetDataType())) {
       //add subdirectory for new data type to dataset directory
-      fTargetRep->MakeSubdirectory(fDataSet,
-                                   fDataType.Data());
+      fTargetRep->MakeSubdirectory(GetDataSet(), GetDataType());
       update = kTRUE;
    }
    if (update) {
@@ -292,13 +288,13 @@ void KVDataTransfer::init()
 
 //_________________________________________________________________
 
-void KVDataTransfer::SetDataSet(const Char_t* name)
+void KVDataTransfer::set_dataset_name(const Char_t* name)
 {
    //Set dataset to be analysed.
    //If 'name' is not the name of a valid and available dataset
    //in the 'source' data repository an error message is printed.
 
-   fDataSet = 0;
+   _set_dataset_pointer(nullptr);
    KVDataSet* ds = fSourceRep->GetDataSetManager()->GetDataSet(name);
    if (!ds) {
       Error("SetDataSet", "Unknown dataset %s", name);
@@ -309,7 +305,7 @@ void KVDataTransfer::SetDataSet(const Char_t* name)
 
 //_________________________________________________________________
 
-void KVDataTransfer::SetDataSet(KVDataSet* ds)
+void KVDataTransfer::set_dataset_pointer(KVDataSet* ds)
 {
    //Set dataset to be used for transfer.
    //If the chosen dataset is not available, an error message is printed
@@ -319,20 +315,19 @@ void KVDataTransfer::SetDataSet(KVDataSet* ds)
    //repository.
 
    //allow user to reset dataset pointer to 0
-   fDataSet = ds;
+   _set_dataset_pointer(ds);
    if (!ds)
       return;
 
    //check repository
    if (ds->GetRepository() != fSourceRep) {
-      fDataSet =
-         fSourceRep->GetDataSetManager()->GetDataSet(ds->GetName());
+      _set_dataset_pointer(fSourceRep->GetDataSetManager()->GetDataSet(ds->GetName()));
    }
    //check availablility
    if (!ds->IsAvailable()) {
       Error("SetDataSet",
             "Dataset %s is not available for analysis", ds->GetName());
-      fDataSet = 0;
+      _set_dataset_pointer(nullptr);
    }
 
 }

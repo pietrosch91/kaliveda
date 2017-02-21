@@ -10,12 +10,14 @@ $Date: 2007/11/15 14:59:45 $
 #include "KVBase.h"
 #include "KVINDRAReconDataAnalyser.h"
 #include "KVINDRADBRun.h"
+#include "KVINDRADB.h"
 #include "KVDataAnalysisTask.h"
 #include "KVDataSet.h"
 #include "TChain.h"
 #include "TObjString.h"
 #include "TChain.h"
 #include "KVAvailableRunsFile.h"
+#include "KVINDRA.h"
 
 using namespace std;
 
@@ -25,14 +27,10 @@ ClassImp(KVINDRAReconDataAnalyser)
 //
 ////////////////////////////////////////////////////////////////////////////////
 KVINDRAReconDataAnalyser::KVINDRAReconDataAnalyser()
+   : fDataSelector("none"), fSelector(nullptr), fOldSelector(nullptr), theChain(nullptr),
+     theRawData(nullptr), theGeneData(nullptr),
+     ParVal(nullptr), ParNum(nullptr), parList(nullptr)
 {
-   //Default constructor
-   fDataSelector = "none";
-   theChain = 0;
-   theRawData = 0;
-   ParVal = 0;
-   ParNum = 0;
-   fSelector = 0;
 }
 
 void KVINDRAReconDataAnalyser::Reset()
@@ -40,11 +38,13 @@ void KVINDRAReconDataAnalyser::Reset()
    //Reset task variables
    KVDataAnalyser::Reset();
    fDataSelector = "none";
-   theChain = 0;
-   theRawData = 0;
-   ParVal = 0;
-   ParNum = 0;
-   fSelector = 0;
+   theChain = nullptr;
+   theRawData = nullptr;
+   theGeneData = nullptr;
+   ParVal = nullptr;
+   ParNum = nullptr;
+   fSelector = nullptr;
+   fOldSelector = nullptr;
    TotalEntriesToRead = 0;
 }
 
@@ -54,6 +54,7 @@ KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
    if (ParVal) delete [] ParVal;
    if (ParNum) delete [] ParNum;
    SafeDelete(fSelector);
+   SafeDelete(fOldSelector);
 }
 
 //_________________________________________________________________
@@ -69,11 +70,11 @@ Bool_t KVINDRAReconDataAnalyser::CheckTaskVariables()
    }
 
    cout << "============> Analysis summary <=============" << endl;
-   cout << "Analysis of runs " << fRunList.
-        GetList() << " with the KVSelector ";
+   cout << "Analysis of runs " << GetRunList().
+        GetList() << " with the class ";
    cout << "\"" << GetUserClass() << "\"." << endl;
-   if (nbEventToRead) {
-      cout << nbEventToRead << " events will be processed." << endl;
+   if (GetNbEventToRead()) {
+      cout << GetNbEventToRead() << " events will be processed." << endl;
    } else {
       cout << "All events will be processed." << endl;
    }
@@ -90,29 +91,30 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 
    //make the chosen dataset the active dataset ( = gDataSet; note this also opens database
    //and positions gDataBase & gIndraDB).
-   fDataSet->cd();
-   fSelector = 0;
+   GetDataSet()->cd();
+   fSelector = nullptr;
+   fOldSelector = nullptr;
 
    theChain = new TChain("ReconstructedEvents");
    theChain->SetDirectory(0); // we handle delete
 
-   fRunList.Begin();
+   GetRunList().Begin();
    Int_t run;
 
    // open and add to TChain all required files
    // we force the opening of the files to avoid problems with xrootd which sometimes
    // seems to have a little difficulty
-   while (!fRunList.End()) {
-      run = fRunList.Next();
-      TString fullPathToRunfile = gDataSet->GetFullPathToRunfile(fDataType.Data(), run);
+   while (!GetRunList().End()) {
+      run = GetRunList().Next();
+      TString fullPathToRunfile = gDataSet->GetFullPathToRunfile(GetDataType(), run);
       cout << "Opening file " << fullPathToRunfile << endl;
-      TFile* f = (TFile*)gDataSet->OpenRunfile(fDataType.Data(), run);
+      TFile* f = (TFile*)gDataSet->OpenRunfile(GetDataType(), run);
       cout << "Adding file " << fullPathToRunfile;
       cout << " to the TChain." << endl;
-      theChain->Add(fullPathToRunfile);
+      dynamic_cast<TChain*>(theChain)->Add(fullPathToRunfile);
       if (f && !f->IsZombie()) {
          // update run infos in available runs file if necessary
-         KVAvailableRunsFile* ARF = gDataSet->GetAvailableRunsFile(fDataType.Data());
+         KVAvailableRunsFile* ARF = gDataSet->GetAvailableRunsFile(GetDataType());
          if (ARF->InfosNeedUpdate(run, gSystem->BaseName(fullPathToRunfile))) {
             if (!((TTree*)f->Get("ReconstructedEvents"))) {
                Error("SubmitTask", "No tree named ReconstructedEvents is present in the current file");
@@ -137,28 +139,49 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
 
+   // Add the total run list in option
+   if (!(option.IsNull())) option += ",";
+   option += Form("FullRunList=%s", GetFullRunList().GetList());
+
    // Add any user-defined options
    if (GetUserClassOptions() != "") {
       option += ",";
       option += GetUserClassOptions();
    }
 
-   fSelector = (KVSelector*)GetInstanceOfUserClass();
+   //debug
+   //Info("SubmitTask", "Option=%s", option.Data());
 
-   if (!fSelector || !fSelector->InheritsFrom("TSelector")) {
+
+   // for backwards compatibility, we allow user class to inherit from
+   // KVOldINDRASelector instead of KVINDRAEventSelector
+   TObject* new_selector = GetInstanceOfUserClass("KVOldINDRASelector");
+
+   if (!new_selector || !new_selector->InheritsFrom("TSelector")) {
       cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
       cout << "Process aborted." << endl;
+      SafeDelete(new_selector);
    } else {
-      SafeDelete(fSelector);
+      SafeDelete(new_selector);
       Info("SubmitTask", "Beginning TChain::Process...");
-      if (nbEventToRead) {
-         theChain->Process(GetUserClass(), option.Data(), nbEventToRead);
+#ifdef WITH_CPP11
+      if (GetProofMode() != KVDataAnalyser::EProofMode::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
+#else
+      if (GetProofMode() != KVDataAnalyser::None) dynamic_cast<TChain*>(theChain)->SetProof(kTRUE);
+#endif
+      TString analysis_class;
+      if (GetAnalysisTask()->WithUserClass()) analysis_class.Form("%s%s", GetUserClassImp().Data(), GetACliCMode());
+      else analysis_class = GetUserClass();
+
+      if (GetNbEventToRead()) {
+         theChain->Process(analysis_class, option.Data(), GetNbEventToRead());
       } else {
-         theChain->Process(GetUserClass(), option.Data());
+         theChain->Process(analysis_class, option.Data());
       }
    }
    delete theChain;
-   fSelector = 0; //deleted by TChain/TTreePlayer
+   fSelector = nullptr; //deleted by TChain/TTreePlayer
+   fOldSelector = nullptr; //deleted by TChain/TTreePlayer
 }
 
 //_________________________________________________________________
@@ -181,13 +204,15 @@ void KVINDRAReconDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t s
    //If save=kTRUE (default), write the information in a file whose name is given by ".jobname"
    //where 'jobname' is the name of the job as given to the batch system.
 
-   KVDataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
+   KVDataSetAnalyser::WriteBatchEnvFile(jobname, kFALSE);
    if (fDataSelector != "none" && fDataSelector != "") {
-      fBatchEnv->SetValue("KVDataSelector", fDataSelector.Data());
-      if (fDataSelectorImp != "") fBatchEnv->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
-      if (fDataSelectorDec != "") fBatchEnv->SetValue("KVDataSelectorDec", fDataSelectorDec.Data());
+      GetBatchInfoFile()->SetValue("KVDataSelector", fDataSelector.Data());
+      if (fDataSelectorImp != "") GetBatchInfoFile()->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
+      if (fDataSelectorDec != "") GetBatchInfoFile()->SetValue("KVDataSelectorDec", fDataSelectorDec.Data());
    }
-   if (save) fBatchEnv->SaveLevel(kEnvUser);
+   // backwards-compatible fix for old KVSelector analysis classes
+   GetBatchInfoFile()->SetValue("UserClassAlternativeBaseClass", "KVOldINDRASelector");
+   if (save) GetBatchInfoFile()->SaveLevel(kEnvUser);
 }
 
 //_________________________________________________________________
@@ -200,15 +225,15 @@ Bool_t KVINDRAReconDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
 
    Bool_t ok = kFALSE;
 
-   if (!KVDataAnalyser::ReadBatchEnvFile(filename)) return ok;
+   if (!KVDataSetAnalyser::ReadBatchEnvFile(filename)) return ok;
 
-   fDataSelector = fBatchEnv->GetValue("KVDataSelector", "");
+   fDataSelector = GetBatchInfoFile()->GetValue("KVDataSelector", "");
    if (fDataSelector != "" && fDataSelector != "none") {
       //if names of source files for selector are known, and if current working directory
       //is not the same as the launch directory, we have to copy the user's files here
-      fDataSelectorImp = fBatchEnv->GetValue("KVDataSelectorImp", "");
-      fDataSelectorDec = fBatchEnv->GetValue("KVDataSelectorDec", "");
-      TString launchDir = fBatchEnv->GetValue("LaunchDirectory", gSystem->WorkingDirectory());
+      fDataSelectorImp = GetBatchInfoFile()->GetValue("KVDataSelectorImp", "");
+      fDataSelectorDec = GetBatchInfoFile()->GetValue("KVDataSelectorDec", "");
+      TString launchDir = GetBatchInfoFile()->GetValue("LaunchDirectory", gSystem->WorkingDirectory());
       if ((fDataSelectorImp != "") && (launchDir != gSystem->WorkingDirectory())) {
          TString path_src, path_trg;
          //copy user's implementation file
@@ -245,11 +270,11 @@ const Char_t* KVINDRAReconDataAnalyser::ExpandAutoBatchName(const Char_t* format
    //  $Date   : current date and time
    //  $System  :  name of system to be analysed
    //  $User  :  name of user
-   //  $UserClass or $Selector :  name of user's analysis class (KVSelector)
+   //  $UserClass or $Selector :  name of user's analysis class
    //  $DataSelector  :  name of user's data selector (KVDataSelector)
 
    static KVString tmp;
-   tmp = KVDataAnalyser::ExpandAutoBatchName(format);
+   tmp = KVDataSetAnalyser::ExpandAutoBatchName(format);
    tmp.ReplaceAll("$Selector", GetUserClass());
    tmp.ReplaceAll("$DataSelector", GetKVDataSelector());
    return tmp.Data();
@@ -262,14 +287,14 @@ KVNumberList KVINDRAReconDataAnalyser::PrintAvailableRuns(KVString& datatype)
    //Returns list containing all run numbers
 
    KVNumberList all_runs =
-      fDataSet->GetRunList(datatype.Data(), fSystem);
+      GetDataSet()->GetRunList(datatype.Data(), GetSystem());
    KVINDRADBRun* dbrun;
 
    //first read list and find what triggers are available
    vector<int> triggers;
    all_runs.Begin();
    while (!all_runs.End()) {
-      dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
       if (triggers.size() == 0
             || std::find(triggers.begin(), triggers.end(), dbrun->GetTrigger()) != triggers.end()) {
          triggers.push_back(dbrun->GetTrigger());
@@ -282,7 +307,7 @@ KVNumberList KVINDRAReconDataAnalyser::PrintAvailableRuns(KVString& datatype)
       cout << " ---> Trigger M>" << *it << endl;
       all_runs.Begin();
       while (!all_runs.End()) {
-         dbrun = (KVINDRADBRun*)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
          if (dbrun->GetTrigger() == *it) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
             cout << Form("\t(%7d events)", dbrun->GetEvents());
@@ -306,13 +331,22 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
    // Note that at this stage we are not analysing a given run, so the parameters
    // of the array are not set (they will be set in preInitRun()).
 
-   if (!gIndra) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
+   if (!gIndra) KVMultiDetArray::MakeMultiDetector(GetDataSet()->GetName());
 }
 
 
+void KVINDRAReconDataAnalyser::SetSelectorCurrentRun(KVINDRADBRun* CurrentRun)
+{
+   if (fSelector) {
+      fSelector->SetCurrentRun(CurrentRun);
+   } else {
+      fOldSelector->SetCurrentRun(CurrentRun);
+   }
+}
+
 void KVINDRAReconDataAnalyser::preInitRun()
 {
-   // Called by currently-processed KVSelector when a new file in the TChain is opened.
+   // Called by currently-processed TSelector when a new file in the TChain is opened.
    // We call gIndra->SetParameters for the current run.
    // We connect the acquisition parameter objects to the branches of the raw data tree.
    // Infos on currently read file/tree are printed.
@@ -320,11 +354,41 @@ void KVINDRAReconDataAnalyser::preInitRun()
 
    Int_t run = GetRunNumberFromFileName(theChain->GetCurrentFile()->GetName());
    gIndra->SetParameters(run);
+   KVINDRADBRun* CurrentRun = gIndraDB->GetRun(run);
+   SetSelectorCurrentRun(CurrentRun);
+   cout << endl << " ===================  New Run  =================== " <<
+        endl << endl;
+
+   CurrentRun->Print();
+   if (CurrentRun->GetSystem()) {
+      if (CurrentRun->GetSystem()->GetKinematics())
+         CurrentRun->GetSystem()->GetKinematics()->Print();
+   }
+
+   cout << endl << " ================================================= " <<
+        endl << endl;
+
    ConnectRawDataTree();
+   ConnectGeneDataTree();
    PrintTreeInfos();
+   Info("preInitRun", "Data written with series %s, release %d", GetDataSeries().Data(),
+        GetDataReleaseNumber());
    fRustines.InitializePatchList(GetDataSet()->GetName(), GetDataType(), run, GetDataSeries(),
                                  GetDataReleaseNumber(), theChain->GetCurrentFile()->GetStreamerInfoCache());
    fRustines.Print();
+}
+
+Long64_t KVINDRAReconDataAnalyser::GetRawEntryNumber()
+{
+   Long64_t rawEntry = (fSelector ? fSelector->GetEventNumber() - 1
+                        : fOldSelector->GetEventNumber() - 1);
+
+   return rawEntry;
+}
+
+KVReconstructedEvent* KVINDRAReconDataAnalyser::GetReconstructedEvent()
+{
+   return (fSelector ? fSelector->GetEvent() : fOldSelector->GetEvent());
 }
 
 void KVINDRAReconDataAnalyser::preAnalysis()
@@ -334,7 +398,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    if (!theRawData) return;
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
-   Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+   Long64_t rawEntry = GetRawEntryNumber();
 
    gIndra->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
 
@@ -348,7 +412,8 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 
    // as rustines often depend on a knowledge of the original raw data,
    // we apply them after it has been read in
-   if (fRustines.HasActivePatches()) fRustines.Apply(fSelector->GetEvent());
+   KVINDRAReconEvent* event = (KVINDRAReconEvent*)GetReconstructedEvent();
+   if (fRustines.HasActivePatches()) fRustines.Apply(event);
 }
 
 void KVINDRAReconDataAnalyser::ConnectRawDataTree()
@@ -376,6 +441,21 @@ void KVINDRAReconDataAnalyser::ConnectRawDataTree()
    theRawData->SetBranchAddress("ParVal", ParVal);
    Info("ConnectRawDataTree", "Connected raw data parameters");
    Entry = 0;
+}
+
+void KVINDRAReconDataAnalyser::ConnectGeneDataTree()
+{
+   // Called by preInitRun().
+   // When starting to read a new run (=new file), we look for the TTree "GeneData" in the
+   // current file (it should have been created by KVINDRARawDataReconstructor).
+
+   theGeneData = (TTree*)theChain->GetCurrentFile()->Get("GeneData");
+   if (!theGeneData) {
+      cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
+   } else {
+      cout << "  --> Pulser & laser data tree contains " << theGeneData->GetEntries()
+           << " events" << endl << endl;
+   }
 }
 
 TEnv* KVINDRAReconDataAnalyser::GetReconDataTreeInfos() const
@@ -421,4 +501,18 @@ void KVINDRAReconDataAnalyser::PrintTreeInfos()
       fDataSeries = "";
       fDataReleaseNum = -1;
    }
+}
+
+void KVINDRAReconDataAnalyser::CloneRawAndGeneTrees()
+{
+   if (theRawData) theRawData->CloneTree(-1, "fast"); //copy raw data tree to file
+   if (theGeneData) theGeneData->CloneTree(-1, "fast"); //copy pulser & laser (gene) tree to file
+}
+
+Bool_t KVINDRAReconDataAnalyser::CheckIfUserClassIsValid(const KVString&)
+{
+   // Override KVDataAnalyser method, for backwards compatibility
+   // User class may derive from KVOldINDRASelector (aka KVSelector)
+   // instead of KVINDRAEventSelector
+   return KVDataAnalyser::CheckIfUserClassIsValid("KVOldINDRASelector");
 }

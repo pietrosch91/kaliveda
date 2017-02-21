@@ -560,10 +560,10 @@ void KVEvent::DefineGroup(const Char_t* groupname, KVParticleCondition* cond, co
 
 //______________________________________________________________________________________________
 
-void KVEvent::SetFrame(const Char_t* frame, const TVector3& boost, Bool_t beta)
+void KVEvent::SetFrame(const Char_t* frame, const KVFrameTransform& ft)
 {
-   //Define a Lorentz-boosted frame for all "ok" particles in the event.
-   //See KVParticle (method KVParticle::SetFrame()) for details.
+   //Define a Lorentz-boosted and/or rotated frame for all "ok" particles in the event.
+   //See KVParticle::SetFrame() for details.
    //
    //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
    //individual particles (see KVParticle::GetFrame()).
@@ -574,83 +574,22 @@ void KVEvent::SetFrame(const Char_t* frame, const TVector3& boost, Bool_t beta)
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(frame, boost, beta);
-   }
-}
-
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* frame, const TLorentzRotation& rot)
-{
-   //Define a Lorentz-rotated frame for all "ok" particles in the event.
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()).
-   //
-   //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
-
-   KVParticle* nuc;
-   ResetGetNextParticle();
-   while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(frame, rot);
-   }
-}
-
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* frame, const TRotation& rot)
-{
-   //Define a rotated coordinate frame for all "ok" particles in the event.
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()).
-   //
-   //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
-
-   KVParticle* nuc;
-   ResetGetNextParticle();
-   while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(frame, rot);
-   }
-}
-
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* frame, const TVector3& boost,
-                       TRotation& rot, Bool_t beta)
-{
-   //Define a rotated and Lorentz-boosted coordinate frame for all "ok" particles in the event.
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()).
-   //
-   //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
-
-   KVParticle* nuc;
-   ResetGetNextParticle();
-   while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(frame, boost, rot, beta);
+      nuc->SetFrame(frame, ft);
    }
 }
 
 //______________________________________________________________________________________________
 
-void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                       const TVector3& boost, Bool_t beta)
+void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe, const KVFrameTransform& ft)
 {
    //Define a Lorentz-boosted frame "newframe" for all "ok" particles in the event.
    //The transformation is applied to the particle coordinates in the existing frame "oldframe"
    //
-   //See KVParticle (method KVParticle::SetFrame()) for details.
+   //See KVParticle::SetFrame() for details.
    //
    //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()) twice :
+   //individual particles in either of these ways :
+   //      KVParticle* newframe = particle->GetFrame("newframe");
    //      KVParticle* newframe = particle->GetFrame("oldframe")->GetFrame("newframe");
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
@@ -659,23 +598,17 @@ void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(newframe, oldframe, boost, beta);
+      nuc->SetFrame(newframe, oldframe, ft);
    }
 }
 
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                       const TLorentzRotation& rot)
+void KVEvent::ChangeFrame(const KVFrameTransform& ft, const KVString& name)
 {
-   //Define a Lorentz-rotated frame "newframe" for all "ok" particles in the event.
-   //The transformation is applied to the particle coordinates in the existing frame "oldframe"
+   //Permanently change the reference frame used for particle kinematics in the event.
+   //The transformation is applied to all "ok" particles in the event.
+   //You can optionally set the name of this new default kinematical reference frame.
    //
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()) twice :
-   //      KVParticle* newframe = particle->GetFrame("oldframe")->GetFrame("newframe");
+   //See KVParticle::ChangeFrame() and KVParticle::SetFrame() for details.
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
    //OVER THE EVENT USING GETNEXTPARTICLE() !!!
@@ -683,24 +616,18 @@ void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(newframe, oldframe, rot);
+      nuc->ChangeFrame(ft, name);
    }
-
+   if (name != "") SetParameter("defaultFrame", name);
 }
 
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                       const TRotation& rot)
+void KVEvent::ChangeDefaultFrame(const Char_t* newdef, const Char_t* defname)
 {
-   //Define a rotated coordinate frame "newframe" for all "ok" particles in the event.
-   //The transformation is applied to the particle coordinates in the existing frame "oldframe"
+   // Make existing reference frame 'newdef' the new default frame for particle kinematics.
+   // The current default frame will then be accessible from the list of frames
+   // using its name (previously set with SetFrameName). You can change this name with 'defname'.
    //
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()) twice :
-   //      KVParticle* newframe = particle->GetFrame("oldframe")->GetFrame("newframe");
+   //See KVParticle::ChangeDefaultFrame() and KVParticle::SetFrame() for details.
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
    //OVER THE EVENT USING GETNEXTPARTICLE() !!!
@@ -708,23 +635,17 @@ void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(newframe, oldframe, rot);
+      nuc->ChangeDefaultFrame(newdef, defname);
    }
+   SetParameter("defaultFrame", newdef);
 }
 
-//___________________________________________________________________________//
-
-void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
-                       const TVector3& boost, TRotation& rot, Bool_t beta)
+void KVEvent::UpdateAllFrames()
 {
-   //Define a rotated and Lorentz-boosted coordinate frame "newframe" for all "ok" particles in the event.
-   //The transformation is applied to the particle coordinates in the existing frame "oldframe"
+   // If the kinematics of particles in their default reference frame have been modified,
+   // call this method to update the kinematics in all defined reference frames.
    //
-   //See KVParticle (method KVParticle::SetFrame()) for details.
-   //
-   //In order to access the kinematics in the boosted frame, use the GetFrame() method of the
-   //individual particles (see KVParticle::GetFrame()) twice :
-   //      KVParticle* newframe = particle->GetFrame("oldframe")->GetFrame("newframe");
+   //See KVParticle::UpdateAllFrames() for details.
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
    //OVER THE EVENT USING GETNEXTPARTICLE() !!!
@@ -732,7 +653,7 @@ void KVEvent::SetFrame(const Char_t* newframe, const Char_t* oldframe,
    KVParticle* nuc;
    ResetGetNextParticle();
    while ((nuc = GetNextParticle("ok"))) {
-      nuc->SetFrame(newframe, oldframe, boost, rot, beta);
+      nuc->UpdateAllFrames();
    }
 }
 
@@ -747,7 +668,7 @@ void KVEvent::FillArraysP(Int_t& mult, Int_t* Z, Int_t* A, Double_t* px, Double_
    KVNucleus* nuc;
    Int_t i = 0;
    while ((nuc = GetNextParticle(selection))) {
-      nuc = (KVNucleus*)nuc->GetFrame(frame);
+      nuc = (KVNucleus*)nuc->GetFrame(frame, kFALSE);
       Z[i] = nuc->GetZ();
       A[i] = nuc->GetA();
       px[i] = nuc->Px();
@@ -833,7 +754,7 @@ void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_
    KVNucleus* nuc;
    Int_t i = 0;
    while ((nuc = GetNextParticle(selection))) {
-      nuc = (KVNucleus*)nuc->GetFrame(frame);
+      nuc = (KVNucleus*)nuc->GetFrame(frame, kFALSE);
       Z[i] = nuc->GetZ();
       A[i] = nuc->GetA();
       vx[i] = nuc->GetVelocity().X();
@@ -856,7 +777,7 @@ void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, 
    KVNucleus* nuc;
    Int_t i = 0;
    while ((nuc = GetNextParticle(selection))) {
-      nuc = (KVNucleus*)nuc->GetFrame(frame);
+      nuc = (KVNucleus*)nuc->GetFrame(frame, kFALSE);
       Z[i] = nuc->GetZ();
       A[i] = nuc->GetA();
       E[i] = nuc->GetEnergy();
@@ -880,7 +801,7 @@ void KVEvent::FillArraysPtRapPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* Pt, 
    KVNucleus* nuc;
    Int_t i = 0;
    while ((nuc = GetNextParticle(selection))) {
-      nuc = (KVNucleus*)nuc->GetFrame(frame);
+      nuc = (KVNucleus*)nuc->GetFrame(frame, kFALSE);
       Z[i] = nuc->GetZ();
       A[i] = nuc->GetA();
       Pt[i] = nuc->Pt();
@@ -1031,6 +952,26 @@ KVEvent* KVEvent::Factory(const char* plugin)
       return (KVEvent*)ph->ExecPlugin(0);
    }
    return nullptr;
+}
+
+void KVEvent::SetFrameName(const KVString& name)
+{
+   // Set name of default frame for all particles in event
+   // After using this method, calls to
+   //    KVParticle::GetFrame(name)
+   // will return the address of the particle in question, i.e.
+   // its default kinematics
+   // The default frame name is stored as a parameter "defaultFrame"
+
+#ifdef WITH_CPP11
+   for (KVEvent::Iterator it = std::begin(*this); it != std::end(*this); ++it)
+#else
+   for (KVEvent::Iterator it = begin(); it != end(); ++it)
+#endif
+   {
+      (*it).SetFrameName(name);
+   }
+   SetParameter("defaultFrame", name);
 }
 
 ClassImp(KVEvent::Iterator)

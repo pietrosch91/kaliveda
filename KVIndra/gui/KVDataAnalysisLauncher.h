@@ -20,13 +20,15 @@
 #include "TApplication.h"
 
 #include "KVNumberList.h"
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "KVListView.h"
 #include "KVConfig.h"
 
 #define USE_KVTIMEENTRY
 #ifdef USE_KVTIMEENTRY
 #include "KVTimeEntry.h"
+
+#include <KVDBSystem.h>
 #endif
 
 class KVGFileList : public TGTransientFrame {
@@ -127,7 +129,7 @@ protected:
    Bool_t       selAll;
    unique_ptr<TList> list_of_runs;
 
-   KVDataAnalyser* ia;
+   KVDataSetAnalyser* ia;
    TGCompositeFrame* cfAnalysis;
    //TGTextEntry   *teSelector;
    TGComboBox* cbUserClass;
@@ -163,7 +165,7 @@ protected:
    Bool_t         checkCompilation;
    Bool_t withBatchParams;
    Bool_t noSystems;
-   KVDataAnalyser* GetDataAnalyser(KVDataAnalysisTask* task = 0);
+   KVDataSetAnalyser* GetDataAnalyser(KVDataAnalysisTask* task = 0);
 
    TList* UserClassNames; // list of user classes present in working directory
    void FillListOfUserClasses();

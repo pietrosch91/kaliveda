@@ -1056,8 +1056,8 @@ KVNucleus KVNucleus::operator+(const KVNucleus& rhs)
 
    Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-   CN.SetVect(ptot);
-   CN.SetT(etot);
+   TLorentzVector q(ptot, etot);
+   CN.Set4Mom(q);
 
    return CN;
 
@@ -1087,8 +1087,8 @@ KVNucleus KVNucleus::operator-(const KVNucleus& rhs)
       return RES;
    } else {
       KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
-      RES.SetVect(pres);
-      RES.SetT(eres);
+      TLorentzVector q(pres, eres);
+      RES.Set4Mom(q);
       return RES;
    }
 }

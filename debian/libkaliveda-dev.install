@@ -76,6 +76,7 @@
 /usr/include/kaliveda/KVElasticCountRates.h
 /usr/include/kaliveda/KVSimReader.h
 /usr/include/kaliveda/KVTestEvent.h
+/usr/include/kaliveda/KVSimReader_ELIE_asym.h
 /usr/include/kaliveda/KVElasticScatter.h
 /usr/include/kaliveda/KVBreakUp.h
 /usr/include/kaliveda/KVPartitionGenerator.h
@@ -122,6 +123,7 @@
 /usr/include/kaliveda/KVZboundAv.h
 /usr/include/kaliveda/KVZVtot.h
 /usr/include/kaliveda/KVTensP.h
+/usr/include/kaliveda/KVRotatedTensor.h
 /usr/include/kaliveda/KVRawDataReader.h
 /usr/include/kaliveda/GTOneScaler.h
 /usr/include/kaliveda/GTGanilData.h
@@ -159,9 +161,11 @@
 /usr/include/kaliveda/KVParticleCondition.h
 /usr/include/kaliveda/KVLifeTime.h
 /usr/include/kaliveda/KVParticle.h
+/usr/include/kaliveda/KVFrameTransform.h
 /usr/include/kaliveda/KVSimNucleus.h
 /usr/include/kaliveda/KVChargeRadiusTable.h
 /usr/include/kaliveda/KVMassExcess.h
+/usr/include/kaliveda/KVKinematicalFrame.h
 /usr/include/kaliveda/KVTrieurTranche.h
 /usr/include/kaliveda/KVTrieurLin.h
 /usr/include/kaliveda/KVTrieur.h
@@ -191,6 +195,7 @@
 /usr/include/kaliveda/KVDataPatchList.h
 /usr/include/kaliveda/KVGausGumDistribution.h
 /usr/include/kaliveda/KVGumbelDistribution.h
+/usr/include/kaliveda/KVPROOFLiteBatch.h
 /usr/include/kaliveda/KVImpactParameter.h
 /usr/include/kaliveda/KVDatime.h
 /usr/include/kaliveda/KVPartition.h

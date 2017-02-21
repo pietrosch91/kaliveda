@@ -3,9 +3,12 @@
 
 #include "KVIDZAFromZGrid.h"
 #include "TMultiGraph.h"
+#include "KVIDZALine.h"
 #include "TCanvas.h"
 
 ClassImp(KVIDZAFromZGrid)
+ClassImp(interval)
+ClassImp(interval_set)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -42,7 +45,7 @@ of identification.
   <li>     KVIDZAGrid::kICODE1,                   Z ok, slight ambiguity of A, which could be larger</li>
   <li>     KVIDZAGrid::kICODE2,                   Z ok, slight ambiguity of A, which could be smaller</li>
     <li>   KVIDZAGrid::kICODE3,                   Z ok, slight ambiguity of A, which could be larger or smaller</li>
-   <li>    KVIDZAGrid::kICODE4,                   point is in between two isotopes of different Z, too far from either to be considered well-identified</li>
+   <li>    KVIDZAGrid::kICODE4,                   point out of mass identification intervals, strong ambiguity of A</li>
   <li>     KVIDZAGrid::kICODE5,                   point is in between two isotopes of different Z, too far from either to be considered well-identified</li>
    <li>    KVIDZAGrid::kICODE6,                   (x,y) is below first line in grid</li>
    <li>    KVIDZAGrid::kICODE7,                   (x,y) is above last line in grid</li>
@@ -75,6 +78,7 @@ KVIDZAFromZGrid::KVIDZAFromZGrid()
    // Default constructor
 //    Info("KVIDZAFromZGrid","called...");
    init();
+   fTables.SetOwner(kTRUE);
 }
 
 KVIDZAFromZGrid::~KVIDZAFromZGrid()
@@ -97,11 +101,6 @@ void KVIDZAFromZGrid::Copy(TObject& obj) const
    //KVIDZAFromZGrid& CastedObj = (KVIDZAFromZGrid&)obj;
 }
 
-//void KVIDZAFromZGrid::ReadAsciiFile(const Char_t* filename)
-//{
-//   fPIDRange = kFALSE;
-//   KVIDGraph::ReadAsciiFile(filename);
-//}
 
 void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
 {
@@ -146,11 +145,10 @@ void KVIDZAFromZGrid::LoadPIDRanges()
       KVString mes = GetParameters()->GetStringValue(Form("PIDRANGE%d", zz));
       if (mes.IsWhitespace()) continue;
       int type = (mes.Contains(",") ? 2 : 1);
-      interval* itv = new interval(zz, type);
+      interval_set* itv = new interval_set(zz, type);
+      itv->SetName(GetName());
       mes.Begin("|");
-      while (!mes.End())
-
-      {
+      while (!mes.End()) {
          KVString tmp = mes.Next();
          tmp.Begin(":");
          int aa = tmp.Next().Atoi();
@@ -168,24 +166,57 @@ void KVIDZAFromZGrid::LoadPIDRanges()
       }
       fTables.Add(itv);
    }
-//    PrintPIDLimits();
+   //    PrintPIDLimits();
+}
+
+interval_set* KVIDZAFromZGrid::GetIntervalSet(int zint)
+{
+   interval_set* itv = 0;
+   TIter it(&fTables);
+   while ((itv = (interval_set*)it())) if (itv->GetZ() == zint) return itv;
+   return 0;
 }
 
 void KVIDZAFromZGrid::PrintPIDLimits()
 {
-   for (int zz = fZminInt; zz <= fZmaxInt; zz++) {
-      Info("PrintPIDLimits", "Z=%2d    [%.4lf  %.4lf]", zz, ((interval*)fTables.At(zz - fZminInt))->fPIDmins.at(0),
-           ((interval*)fTables.At(zz - fZminInt))->fPIDmaxs.at(((interval*)fTables.At(zz - fZminInt))->fNPIDs - 1));
-   }
+//    ((interval_set*)fTables.At(12))->fIntervals.ls();
+
+//   for (int zz = fZminInt; zz <= fZmaxInt; zz++) {
+//      Info("PrintPIDLimits", "Z=%2d    [%.4lf  %.4lf]", zz, ((interval_set*)fTables.At(zz - fZminInt))->fPIDmins.at(0),
+//           ((interval_set*)fTables.At(zz - fZminInt))->fPIDmaxs.at(((interval_set*)fTables.At(zz - fZminInt))->fNPIDs - 1));
+//   }
 }
 
 bool KVIDZAFromZGrid::is_inside(double pid)
 {
    int zint = TMath::Nint(pid);
-   if (fTables.At(zint - fZminInt)) return ((interval*)fTables.At(zint - fZminInt))->is_inside(pid);
+   interval_set* it = GetIntervalSet(zint);
+   if (it) return it->is_inside(pid);
    else return kFALSE;
 }
 
+void KVIDZAFromZGrid::Initialize()
+{
+   // General initialisation method for identification grid.
+   // This method MUST be called once before using the grid for identifications.
+   // The ID lines are sorted.
+   // The natural line widths of all ID lines are calculated.
+   // The line with the largest Z (Zmax line) is found.
+
+   KVIDGrid::Initialize();
+   // Zmax should be Z of last line in sorted list
+
+   TIter it(GetIdentifiers());
+   KVIDentifier* id = 0;
+
+   fZMax = 0;
+   while ((id = (KVIDentifier*)it())) {
+      if (!id->InheritsFrom("KVIDZALine")) continue;
+      int zz = ((KVIDZALine*)id)->GetZ();
+      if (zz > fZMax) fZMax = zz;
+   }
+
+}
 
 void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
 {
@@ -213,113 +244,55 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
    // (usual case), then particles between the two lines can have "real" masses
    // between 7.5 and 8.5, but their integer A will be =7 or =9, never 8.
    //
+
    idr->IDOK = kFALSE;
    if (!const_cast<KVIDZAFromZGrid*>(this)->FindFourEmbracingLines(x, y, "above")) {
-      //no lines corresponding to point were found
       const_cast < KVIDZAFromZGrid* >(this)->fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
       idr->IDquality = kICODE8;
       idr->SetComment("no identification: (x,y) out of range covered by grid");
       return;
    }
-   if (OnlyZId()) {
-      Double_t Z;
-      const_cast < KVIDZAFromZGrid* >(this)->IdentZ(x, y, Z);
-      idr->IDquality = fICode;
-      if (fICode < kICODE4 || fICode == kICODE7) {
-         idr->Zident = kTRUE;
-      }
-      if (fICode < kICODE4) {
-         idr->IDOK = kTRUE;
-      }
-      idr->Z = Zint;
-      idr->PID = Z;
-      idr->A = Aint;
-      idr->Aident = kFALSE;
 
-      if ((fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > 0) && !fHasMassCut && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z))) ||
-            (fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z >= fZminInt - 1) && fHasMassCut && GetIdentifier("MassID")->IsInside(x, y))) {
-         const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr);
-         if (idr->IDquality < kICODE4) {
-            idr->Aident = kTRUE;
-            idr->IDOK = kTRUE;
-         }
+   Double_t Z;
+   const_cast < KVIDZAFromZGrid* >(this)->IdentZ(x, y, Z);
+   idr->IDquality = fICode;
+   if (fICode < kICODE4 || fICode == kICODE7) {
+      idr->Zident = kTRUE;
+   }
+   if (fICode < kICODE4) {
+      idr->IDOK = kTRUE;
+   }
+   idr->Z = Zint;
+   idr->PID = Z;
+   idr->Aident = kFALSE;
 
-
-//         pid = 0;
-//         idr->PID = std::abs(pid);
-//         idr->A = TMath::Nint(pid);
-//         idr->Aident = kTRUE;
-//         if (pid > 0) {
-//            idr->IDquality = kICODE0;
-//            idr->SetComment("ok");
-//         } else {
-//            idr->IDquality = kICODE3;
-//            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
-//         }
-      } else {
-         switch (fICode) {
-
-            case kICODE0:
-               idr->SetComment("ok");
-               break;
-            case kICODE1:
-               idr->SetComment("slight ambiguity of Z, which could be larger");
-               break;
-            case kICODE2:
-               idr->SetComment("slight ambiguity of Z, which could be smaller");
-               break;
-            case kICODE3:
-               idr->SetComment("slight ambiguity of Z, which could be larger or smaller");
-               break;
-            case kICODE4:
-               idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
-               break;
-            case kICODE5:
-               idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
-               break;
-            case kICODE6:
-               idr->SetComment("(x,y) is below first line in grid");
-               break;
-            case kICODE7:
-               idr->SetComment("(x,y) is above last line in grid");
-               break;
-            default:
-               idr->SetComment("no identification: (x,y) out of range covered by grid");
-         }
-      }
-   } else {
-      Int_t Z;
-      Double_t A;
-      const_cast < KVIDZAFromZGrid* >(this)->IdentZA(x, y, Z, A);
-      idr->IDquality = fICode;
-      idr->Z = Z;
-      idr->PID = A;
-      if (fICode < kICODE4 || fICode == kICODE7) {
-         idr->Zident = kTRUE;
-      }
-      idr->A = Aint;
-      if (fICode < kICODE4) {
+   if ((fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > fZminInt - 1) && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z)))
+         && ((!fHasMassCut) || (fHasMassCut && GetIdentifier("MassID")->IsInside(x, y)))) {
+//       Info("Identify","try mass ID..");
+      const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr); // IDQuality and comments assigned here
+      if (idr->IDquality < kICODE4) { // should always be true: to be verified...
          idr->Aident = kTRUE;
          idr->IDOK = kTRUE;
-      }
+      } else if (idr->IDquality == kICODE4) idr->IDquality = kICODE3;
+   } else {
       switch (fICode) {
          case kICODE0:
             idr->SetComment("ok");
             break;
          case kICODE1:
-            idr->SetComment("slight ambiguity of A, which could be larger");
+            idr->SetComment("slight ambiguity of Z, which could be larger");
             break;
          case kICODE2:
-            idr->SetComment("slight ambiguity of A, which could be smaller");
+            idr->SetComment("slight ambiguity of Z, which could be smaller");
             break;
          case kICODE3:
-            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+            idr->SetComment("slight ambiguity of Z, which could be larger or smaller");
             break;
          case kICODE4:
-            idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified");
+            idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
             break;
          case kICODE5:
-            idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified");
+            idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified");
             break;
          case kICODE6:
             idr->SetComment("(x,y) is below first line in grid");
@@ -338,11 +311,14 @@ double KVIDZAFromZGrid::DeduceAfromPID(KVIdentificationResult* idr)
 {
    int zint = idr->Z;
    double res = 0.;
-   if (fTables.At(zint - fZminInt)) res = ((interval*)fTables.At(zint - fZminInt))->eval(idr);
+   interval_set* it = GetIntervalSet(zint);
+   if (it) res = it->eval(idr);
    return res;
 }
 
-double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
+
+
+double interval_set::eval(KVIdentificationResult* idr)
 {
    double pid = idr->PID;
    if (pid < 0.5) return 0.;
@@ -351,77 +327,85 @@ double KVIDZAFromZGrid::interval::eval(KVIdentificationResult* idr)
 
    if (fType == KVIDZAFromZGrid::kIntType) {
       for (int ii = 0; ii < fNPIDs; ii++) {
-         if (pid > fPIDmins.at(ii) && pid < fPIDmaxs.at(ii)) {
-            ares = fAs.at(ii);
+//         if (pid > ((interval*)fIntervals.At(ii))->GetPIDmin() && pid < ((interval*)fIntervals.At(ii))->GetPIDmax()) {
+         if (((interval*)fIntervals.At(ii))->is_inside(pid)) {
+            ares = ((interval*)fIntervals.At(ii))->GetA();
             break;
          }
       }
       if (ares != 0) {
          idr->A = ares;
          idr->PID = res;
-         idr->IDquality = kICODE0;
+         idr->IDquality = KVIDZAGrid::kICODE0;
          idr->SetComment("ok");
-//            Info("eval","A id ok -> code0");
       } else {
-//            Info("eval","A id outside interval -> code3");
          ares = TMath::Nint(res);
          idr->A = ares;
          idr->PID = res;
-         if (ares > fAs.at(0) && ares < fAs.at(fNPIDs - 1)) {
-            idr->IDquality = kICODE3;
+         if (pid > ((interval*)fIntervals.At(0))->GetPIDmin() && pid < ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) {
+            idr->IDquality = KVIDZAGrid::kICODE3;
             idr->SetComment("slight ambiguity of A, which could be larger or smaller");
          } else {
-            idr->IDquality = kICODE3;
-            idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+            idr->IDquality = KVIDZAGrid::kICODE4;
+            idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
          }
       }
    } else {
       ares = TMath::Nint(res);
       idr->A = ares;
       idr->PID = res;
-      if (ares > fAs.at(0) && ares < fAs.at(fNPIDs - 1)) {
-         idr->IDquality = kICODE0;
+      if (ares > fPIDs.GetX()[0] && ares < fPIDs.GetX()[fNPIDs - 1]) {
+         idr->IDquality = KVIDZAGrid::kICODE0;
          idr->SetComment("ok");
       } else {
-         idr->IDquality = kICODE3;
-         idr->SetComment("slight ambiguity of A, which could be larger or smaller");
+         idr->IDquality = KVIDZAGrid::kICODE4;
+         idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
       }
    }
    return res;
 }
 
-bool KVIDZAFromZGrid::interval::is_inside(double pid)
+bool interval_set::is_inside(double pid)
 {
    if (fType != KVIDZAFromZGrid::kIntType) return kTRUE;
-   if (pid > fPIDmins.at(0) && pid < fPIDmaxs.at(fNPIDs - 1)) return kTRUE;
+
+//   Info("is_inside","min: %d max:%d npids:%d", ((interval*)fIntervals.At(0))->GetA(), ((interval*)fIntervals.At(fNPIDs-1))->GetA(), fNPIDs);
+
+   if (pid > ((interval*)fIntervals.At(0))->GetPIDmin() && pid < ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) return kTRUE;
    else return kFALSE;
 }
 
 
-KVIDZAFromZGrid::interval::interval(int zz, int type)//:TNamed(Form("interval%d",zz),Form("interval%d",zz))
+const char* interval_set::GetListOfMasses()
+{
+   if (!GetNPID()) return "-";
+   KVNumberList alist;
+   for (int ii = 0; ii < GetNPID(); ii++) alist.Add(((interval*)fIntervals.At(ii))->GetA());
+   return alist.AsString();
+}
+
+interval_set::interval_set(int zz, int type)
 {
    fType = type;
    fZ = zz;
    fNPIDs = 0;
+   fIntervals.SetOwner(kTRUE);
 }
 
-void KVIDZAFromZGrid::interval::add(int aa, double pid, double pidmin, double pidmax)
+void interval_set::add(int aa, double pid, double pidmin, double pidmax)
 {
-   if (fNPIDs && pid < fPIDs.GetX()[fNPIDs - 1]) {
-      Error("add", "Please give me peaks in the right order for Z=%d and A=%d...", fZ, aa);
-      return;
-   }
+//   if (fNPIDs && pid < fPIDs.GetX()[fNPIDs - 1]) {
+//      Error("add", "Please give me peaks in the right order for Z=%d and A=%d...", fZ, aa);
+//      return;
+//   }
    if (fType == KVIDZAFromZGrid::kIntType && !(pid > pidmin && pid < pidmax)) {
-      Error("add", "Wrong interval for Z=%d and A=%d: [%.4lf  %.4lf  %.4lf]", fZ, aa, pidmin, pid, pidmax);
+      Error("add", "Wrong interval for Z=%d and A=%d: [%.4lf  %.4lf  %.4lf] (%s)", fZ, aa, pidmin, pid, pidmax, GetName());
       return;
    }
 
    fPIDs.SetPoint(fNPIDs, pid, aa);
    if (fType == KVIDZAFromZGrid::kIntType) {
-      fAs.push_back(aa);
-      fPIDmins.push_back(pidmin);
-      fPIDmaxs.push_back(pidmax);
-      if (!(pid > pidmin && pid < pidmax)) Error("add", "Wrong interval for Z=%d and A=%d: [%.4lf  %.4lf  %.4lf]", fZ, aa, pidmin, pid, pidmax);
+      if (pid) fIntervals.AddLast(new interval(fZ, aa, pid, pidmin, pidmax));
    }
    fNPIDs++;
 }

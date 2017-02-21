@@ -46,6 +46,11 @@ public:
    virtual void Clear(Option_t* t = "");
    void Print(Option_t* option = "") const;
    virtual void Identify();
+
+   virtual Bool_t CoherencySi(KVIdentificationResult& theID);
+   virtual Bool_t CoherencySiSi(KVIdentificationResult& theID);
+   virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
+
    virtual void Calibrate();
 
    Float_t GetEnergySI1()

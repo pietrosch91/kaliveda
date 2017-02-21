@@ -41,8 +41,7 @@ public:
 
    virtual ~ KVGVList(void);   // destructeur
 
-   virtual void Init(void);     // methode d'initialisation des
-   // variables globales
+   virtual void Init(void);     // methode d'initialisation des variables globales
    virtual void Reset(void);    // Remise a zero avant le
 
    virtual void Fill(KVNucleus* c);

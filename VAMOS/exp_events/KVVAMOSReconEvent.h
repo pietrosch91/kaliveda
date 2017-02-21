@@ -6,6 +6,7 @@
 
 #include "KVReconstructedEvent.h"
 #include "KVVAMOSCodes.h"
+#include "KVVAMOSDataCorrection.h"
 
 class KVVAMOSReconNuc;
 class KVDetectorEvent;
@@ -39,7 +40,7 @@ public:
    KVVAMOSReconNuc*    GetNucleus(Int_t n_nuc) const;
    virtual void     IdentifyEvent_A();
    virtual void     IdentifyEvent_Z();
-   virtual void     IdentAndCalibEvent();
+   virtual void     IdentAndCalibEvent(KVVAMOSDataCorrection*);
    virtual Bool_t   IsOK();
    virtual void     Print(Option_t* option = "") const;
    virtual void     ReconstructEvent(KVMultiDetArray*, KVDetectorEvent* kvde);

@@ -67,7 +67,18 @@ void KVSimFile::Copy(TObject& obj) const
    //    CastedObj.SetToto( GetToto() );
 
    KVBase::Copy(obj);
-   //KVSimFile& CastedObj = (KVSimFile&)obj;
+   KVSimFile& CastedObj = (KVSimFile&)obj;
+   CastedObj.fSimDir = fSimDir;
+   CastedObj.fFiltered = fFiltered;
+   CastedObj.fEvents = fEvents;
+   CastedObj.fDataSet = fDataSet;
+   CastedObj.fSystem = fSystem;
+   CastedObj.fRunNumber = fRunNumber;
+   CastedObj.fGeoType = fGeoType;
+   CastedObj.fTreeName = fTreeName;
+   CastedObj.fBranchName = fBranchName;
+   CastedObj.fOrigFile = fOrigFile;
+   CastedObj.fFiltType = fFiltType;
 }
 
 void KVSimFile::ls(Option_t*) const

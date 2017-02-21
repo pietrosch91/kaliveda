@@ -65,6 +65,6 @@ void KVZboundAv::Fill(KVNucleus* c)
 //
 // Routine de remplissage
 //
-   if (c->GetFrame(fFrame.Data())->GetVpar() > 0 && c->GetZ() >= zmin)
+   if (c->GetFrame(fFrame.Data(), kFALSE)->GetVpar() > 0 && c->GetZ() >= zmin)
       FillVar(c->GetZ());
 }

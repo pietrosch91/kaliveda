@@ -13,14 +13,16 @@
 #pragma link C++ class KVBatchSystemManager;
 #pragma link C++ class KVBatchJob;
 #pragma link C++ class KVGEBatchJob;
-#pragma link C++ class KV_CCIN2P3_BQS;
 #pragma link C++ class KV_CCIN2P3_GE;
 #pragma link C++ class KVRootBatch;
 #pragma link C++ class KVLinuxBatch;
+#pragma link C++ class KVPROOFLiteBatch;
 #pragma link C++ class KVDataAnalyser+;
+#pragma link C++ class KVDataSetAnalyser+;
 #pragma link C++ class KVDataPatch+;
 #pragma link C++ class KVDataPatchList+;
 #pragma link C++ class KVEventSelector+;
+#pragma link C++ class KVSimDirAnalyser+;
 #pragma link C++ class KVAutoFit;
 #pragma link C++ class KVGaus1D;
 #pragma link C++ class KVGaus2D;
@@ -31,7 +33,6 @@
 #pragma link C++ class KVGaxis+;
 #pragma link C++ class KVDataTransfer+;
 #pragma link C++ class KVDataTransferSFTP+;
-#pragma link C++ class KVDataTransferBBFTP+;
 #pragma link C++ class KVDataTransferXRD+;
 #pragma link C++ class KVImpactParameter;
 #pragma link C++ class KVClust3D;

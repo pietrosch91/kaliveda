@@ -82,6 +82,8 @@ class KVSimDirGUI : public KVBase {
    TEnv fGuirc;
 
    Bool_t fWithPROOF;//=kTRUE when running with PROOF-lite
+protected:
+   void SetFilterOptions();
 
 public:
    KVSimDirGUI();
@@ -98,8 +100,7 @@ public:
 
    void EnableEventNumberEntry(Bool_t);
    void SelectAnalysisClass();
-   void RunAnalysis();
-   TChain* BuildChain(TList*);
+   void RunAnalysis(const TString& type);
 
    void SelectDataSet(const char*);
    void SelectSystem(const char*);
@@ -118,7 +119,6 @@ public:
    }
    //void ChangeOutputDirectory();
    void Run();
-   void RunFilter();
    void EnableProof()
    {
 //      if (fWithPROOF) return;

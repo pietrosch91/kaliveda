@@ -44,26 +44,8 @@ ClassImp(KVZVtot)
 //
 // The vector (TVector3) can be used by calling the GetTVector3() method.
 //
-// Here are examples on how obtaining values.
-//
-// KVZVtot *ZVtot_ptr=new KVZVtot();
-// KVZVtot ZVtot;
-// ...
-// Double_t r=zvtot_ptr->GetValue();  |
-//          r=zvtot_ptr->GetValue(0); |--> z component of ZVtot
-//          r=zvtot("Z");             |
-// Double_t zvx=zvtot("X");---------> X component of total Z*v
-// Double_t zvtottrans=zvtot_ptr->GetTVector3().GetPerp();--> Sum of Z*v_trans
-// Double_t *values=.GetValuePtr();
-//          zvz=values[0];   --> z component of Sum(Z*v)
-//          zvx=values[1];   --> x component of Sum(Z*v)
-//          zvy=values[2];   --> y component of Sum(Z*v)
-//
-//
-// Look at KVVarGlob class to have an example of use.
-//
-//
-/* */
+// If you want to normalize the values e.g. to the product Z*v of the projectile
+// in the laboratory frame, set the parameter "Normalization"
 Int_t KVZVtot::nb = 0;
 Int_t KVZVtot::nb_crea = 0;
 Int_t KVZVtot::nb_dest = 0;
@@ -186,5 +168,5 @@ void KVZVtot::Fill(KVNucleus* c)
 //
 // Routine de remplissage
 //
-   ptot += (c->GetZ() * c->GetFrame(fFrame.Data())->GetVelocity());
+   ptot += ((c->GetZ() / fNorm) * c->GetFrame(fFrame.Data(), kFALSE)->GetVelocity());
 }

@@ -490,9 +490,9 @@ void KV2Body::CalculateKinematics()
    BCM = VCM.Mag() / WLT;
 
    VCM *= (1. / WLT) * KVParticle::C();
-   Nuc1->SetFrame("CM", VCM, kFALSE);
+   Nuc1->SetFrame("CM", KVFrameTransform(VCM, kFALSE));
    if (Nuc2)
-      Nuc2->SetFrame("CM", VCM, kFALSE);
+      Nuc2->SetFrame("CM", KVFrameTransform(VCM, kFALSE));
 
    //total energy in CM
    WCT = (GetCMGamma() > 0.0 ? WLT / GetCMGamma() : 0.);
@@ -1113,7 +1113,7 @@ Double_t KV2Body::GetSphereDureReactionXSec(Double_t r0)
    Double_t A2third = pow(((KVNucleus*)fNuclei[2])->GetA(), 1. / 3.);
 
    Double_t Xsec = TMath::Pi() * pow(r0, 2) *
-                   pow(A1third + A2third , 2);
+                   pow(A1third + A2third, 2);
 
    return Xsec / 100.;
 }

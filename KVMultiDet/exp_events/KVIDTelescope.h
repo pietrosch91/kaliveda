@@ -34,6 +34,8 @@ class TH2;
 
 class KVIDTelescope: public KVBase {
 
+   static TEnv* fgIdentificationBilan;
+
 protected:
    KVList* fDetectors;          //->list of detectors in telescope
    KVGroup* fGroup;             //group to which telescope belongs
@@ -104,13 +106,7 @@ public:
    virtual TGraph* MakeIDLine(KVNucleus* nuc, Double_t Emin, Double_t Emax,
                               Double_t Estep = 0.0);
 
-   virtual void Initialize(void)
-   {
-      // Default initialisation for ID telescopes. kReadyForID is set to kFALSE.
-      // To implement identification, make a class derived from KVIDTelescope
-      // and set kReadyForID to kTRUE in Initialize() method of derived class.
-      ResetBit(kReadyForID);
-   };
+   virtual void Initialize(void);
 
    virtual Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
 
@@ -243,6 +239,10 @@ public:
 
       return (GetSize() == 1 || (GetSize() == 2 && GetDetector(1)->GetNode()->GetNTraj() == 1));
    }
+
+   static void OpenIdentificationBilan(const TString& path);
+   void CheckIdentificationBilan(const TString& system);
+
    ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };
 

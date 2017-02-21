@@ -8,6 +8,7 @@
 #include "KVDataAnalysisTask.h"
 #include "KVGEBatchJob.h"
 #include "KVDataRepository.h"
+#include "KVDataSetAnalyser.h"
 
 using namespace std;
 
@@ -25,15 +26,17 @@ end_html
 */
 ////////////////////////////////////////////////////////////////////////////////
 KV_CCIN2P3_GE::KV_CCIN2P3_GE(const Char_t* name)
-   : KVBatchSystem(name)
+   : KVBatchSystem(name), fMultiJobs(kTRUE)
 {
    //Default constructor
    //Sets default job time, memory and disk space as defined in $KVROOT/KVFiles/.kvrootrc
 
-   fDefJobTime = gEnv->GetValue("GE.BatchSystem.DefaultJobTime", 4000);
-   fDefJobMem = gEnv->GetValue("GE.BatchSystem.DefaultJobMemory", "256M");
-   fDefJobDisk = gEnv->GetValue("GE.BatchSystem.DefaultJobDisk", "100M");
+   fDefJobTime = gEnv->GetValue("GE.BatchSystem.DefaultJobTime", "5:00");
+   fDefJobMem = gEnv->GetValue("GE.BatchSystem.DefaultJobMemory", "2G");
+   fDefJobDisk = gEnv->GetValue("GE.BatchSystem.DefaultJobDisk", "50M");
    fTimeSet = fDiskSet = fMemSet = kFALSE;
+   //default number of runs per job in multi jobs mode (default=1)
+   SetRunsPerJob(gEnv->GetValue("GE.BatchSystem.RunsPerJob", 1));
 }
 
 //_______________________________________________________________________________//
@@ -43,6 +46,7 @@ void KV_CCIN2P3_GE::Clear(Option_t* opt)
    //Clear previously set parameters in order to create a new job submission command
    KVBatchSystem::Clear(opt);
    fTimeSet = fDiskSet = fMemSet = kFALSE;
+   fMultiJobs = kTRUE;
 }
 
 //_______________________________________________________________________________//
@@ -52,30 +56,14 @@ KV_CCIN2P3_GE::~KV_CCIN2P3_GE()
    //Destructor
 }
 
-void KV_CCIN2P3_GE::SetJobTime(Int_t ss, Int_t mm, Int_t hh)
-{
-   //Set CPU time for batch job.
-   //      SetJobTime(0) => use default time
-   //      SetJobTime(100) => 100 seconds
-   //      SetJobTime(30,2)        => 2 minutes 30 seconds
-   //      SetJobTime(0,30,5)      => 5 hours 30 minutes (0 seconds)
-
-   KVString tmp = "";
-   if (hh)
-      tmp.Form("%d:%02d:%02d", hh, mm, ss);
-   else if (mm)
-      tmp.Form("%d:%02d", mm, ss);
-   else if (ss)
-      tmp.Form("%d", ss);
-   SetJobTimeString(tmp.Data());
-}
-
-void KV_CCIN2P3_GE::SetJobTimeString(const Char_t* time)
+void KV_CCIN2P3_GE::SetJobTime(const Char_t* time)
 {
    //Set CPU time for batch job.
    //      SetJobTime() => use default time
    KVString tmp(time);
-   if (tmp == "") tmp = Form("%d", fDefJobTime);
+   if (tmp == "") tmp = fDefJobTime;
+   //time given as either "hh:mm:ss" or "ss" but NOT "mm:ss"!
+   if (tmp.GetNValues(":") == 2) tmp.Prepend("0:");
    fParList.SetValue("-l ct=", tmp);
    fTimeSet = kTRUE;
 }
@@ -133,17 +121,10 @@ void KV_CCIN2P3_GE::ChooseJobTime()
    cout.flush();
    tmp.ReadToDelim(cin);
    if (!tmp.Length()) {
-      SetJobTimeString();
+      SetJobTime();
       return;
-   }
-   Int_t sec = tmp.Atoi();
-   Int_t i = 0;
-   while ((i = tmp.Index(":")) > 0) {
-      sec *= 60;
-      tmp.Remove(0, i + 1);
-      sec += tmp.Atoi();
-   }
-   SetJobTime(sec);
+   } else
+      SetJobTime(tmp);
 }
 
 void KV_CCIN2P3_GE::ChooseJobMemory()
@@ -166,19 +147,19 @@ void KV_CCIN2P3_GE::ChooseJobDisk()
    SetJobDisk(tmp.Data());
 }
 
-const Char_t* KV_CCIN2P3_GE::GetJobTime(void)
+const Char_t* KV_CCIN2P3_GE::GetJobTime(void) const
 {
 // returns the parameter string corresponding to the job CPU time
    return fParList.GetStringValue("-l ct=");
 }
 
-const Char_t* KV_CCIN2P3_GE::GetJobMemory(void)
+const Char_t* KV_CCIN2P3_GE::GetJobMemory(void) const
 {
 // returns the parameter string corresponding to the job Memory
    return fParList.GetStringValue("-l vmem=");
 }
 
-const Char_t* KV_CCIN2P3_GE::GetJobDisk(void)
+const Char_t* KV_CCIN2P3_GE::GetJobDisk(void) const
 {
 // returns the parameter string corresponding to the job Disk
    return fParList.GetStringValue("-l fsize=");
@@ -191,6 +172,8 @@ void KV_CCIN2P3_GE::WriteBatchEnvFile(TEnv* env)
    //Store any useful information on batch system in the TEnv
    //(this method is used by KVDataAnalyser::WriteBatchEnvFile)
    KVBatchSystem::WriteBatchEnvFile(env);
+   env->SetValue("BatchSystem.MultiJobs", MultiJobsMode());
+   if (MultiJobsMode()) env->SetValue("BatchSystem.CurrentRunList", fCurrJobRunList.AsString());
    env->SetValue("BatchSystem.Time", GetJobTime());
    env->SetValue("BatchSystem.Memory", GetJobMemory());
    env->SetValue("BatchSystem.Disk", GetJobDisk());
@@ -203,7 +186,9 @@ void KV_CCIN2P3_GE::ReadBatchEnvFile(TEnv* env)
    //Read any useful information on batch system from the TEnv
    //(this method is used by KVDataAnalyser::ReadBatchEnvFile)
    KVBatchSystem::ReadBatchEnvFile(env);
-   SetJobTimeString(env->GetValue("BatchSystem.Time", ""));
+   SetMultiJobsMode(env->GetValue("BatchSystem.MultiJobs", kFALSE));
+   if (MultiJobsMode()) fCurrJobRunList.SetList(env->GetValue("BatchSystem.CurrentRunList", ""));
+   SetJobTime(env->GetValue("BatchSystem.Time", ""));
    SetJobMemory(env->GetValue("BatchSystem.Memory", ""));
    SetJobDisk(env->GetValue("BatchSystem.Disk", ""));
 }
@@ -216,8 +201,8 @@ void KV_CCIN2P3_GE::Print(Option_t* option) const
    //if option="all", print detailed info on batch system
    if (!strcmp(option, "log")) {
       KVBatchSystem::Print(option);
-      cout << "* DISK_REQ:                 " << const_cast<KV_CCIN2P3_GE*>(this)->GetJobDisk() << "                            *" << endl;
-      cout << "* MEM_REQ:         " << const_cast<KV_CCIN2P3_GE*>(this)->GetJobMemory() << "                             *" << endl;
+      cout << "* DISK_REQ:                 " << GetJobDisk() << "                            *" << endl;
+      cout << "* MEM_REQ:         " << GetJobMemory() << "                             *" << endl;
    } else
       KVBatchSystem::Print(option);
 }
@@ -240,7 +225,7 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
    //
    KVBatchSystem::ChangeDefJobOpt(da);
    KVString taskname = da->GetAnalysisTask()->GetName();
-   KVString rootdir = gDataRepository->GetRootDirectory();
+   KVString rootdir = da->GetRootDirectoryOfDataToAnalyse();
    Bool_t repIsSPS = rootdir.BeginsWith("/sps/");
 
    KVString wrkdir(gSystem->WorkingDirectory());
@@ -258,7 +243,7 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 }
 
 
-void KV_CCIN2P3_GE::SanitizeJobName()
+void KV_CCIN2P3_GE::SanitizeJobName() const
 {
    // Batch-system dependent sanitization of jobnames
    // Grid Engine does not allow:
@@ -390,4 +375,113 @@ void KV_CCIN2P3_GE::SetSendMailAddress(const char* email)
 {
    // set email address for notifications
    fParList.SetValue("-M ", email);
+}
+
+void KV_CCIN2P3_GE::Run()
+{
+   //Processes the job requests for the batch system.
+   //In normal mode, this submits one job for the data analyser fAnalyser
+   //In multijobs mode, this submits one job for each run in the runlist associated to fAnalyser
+
+   if (!CheckJobParameters()) return;
+
+   if (MultiJobsMode() && fAnalyser->InheritsFrom("KVDataSetAnalyser")) {
+      //submit jobs for every GetRunsPerJob() runs in runlist
+      KVDataSetAnalyser* ana = dynamic_cast<KVDataSetAnalyser*>(fAnalyser);
+      KVNumberList runs = ana->GetRunList();
+      runs.Begin();
+      Int_t remaining_runs = runs.GetNValues();
+      fCurrJobRunList.Clear();
+      while (remaining_runs && !runs.End()) {
+         Int_t run = runs.Next();
+         remaining_runs--;
+         fCurrJobRunList.Add(run);
+         if ((fCurrJobRunList.GetNValues() == GetRunsPerJob()) || runs.End()) {
+            // submit job for GetRunsPerJob() runs (or less if we have reached end of runlist 'runs')
+            ana->SetRuns(fCurrJobRunList, kFALSE);
+            ana->SetFullRunList(runs);
+            SubmitJob();
+            fCurrJobRunList.Clear();
+         }
+      }
+      ana->SetRuns(runs, kFALSE);
+   } else {
+      SubmitJob();
+   }
+
+}
+
+const Char_t* KV_CCIN2P3_GE::GetJobName() const
+{
+   //Returns name of batch job, either during submission of batch jobs or when an analysis
+   //task is running in batch mode (access through gBatchSystem global pointer).
+   //
+   //In multi-job mode, the job name is generated from the base name set by SetJobName()
+   //plus the extension "_Rxxxx-yyyy" with "xxxx" and "yyyy" the number of the first and last run
+   //which will be analysed by the current job.
+   //
+   // Depending on the batch system, some sanitization of the jobname may be required
+   // e.g. to remove "illegal" characters from the jobname. This is done by SanitizeJobName()
+   // before the jobname is returned.
+
+   if (!fAnalyser) {
+      //stand-alone batch submission ?
+      fCurrJobName = fJobName;
+   } else {
+      //replace any special symbols with their current values
+      fCurrJobName = fAnalyser->ExpandAutoBatchName(fJobName.Data());
+      if (MultiJobsMode() && !fAnalyser->BatchMode()) {
+         KVString tmp;
+         if (fCurrJobRunList.GetNValues() > 1)
+            tmp.Form("_R%d-%d", fCurrJobRunList.First(), fCurrJobRunList.Last());
+         else
+            tmp.Form("_R%d", fCurrJobRunList.First());
+         fCurrJobName += tmp;
+      }
+   }
+   SanitizeJobName();
+   return fCurrJobName.Data();
+}
+
+void KV_CCIN2P3_GE::GetBatchSystemParameterList(KVNameValueList& nl)
+{
+   // Fill the list with all relevant parameters for batch system,
+   // set to their default values.
+   //
+   // Parameters defined here are:
+   //   JobTime        [string]
+   //   JobMemory      [string]
+   //   JobDisk        [string]
+   //   MultiJobsMode  [bool]
+   //   RunsPerJob     [int]
+   //   EMailOnStart   [bool]
+   //   EMailOnEnd     [bool]
+   //   EMailAddress   [string]
+
+   KVBatchSystem::GetBatchSystemParameterList(nl);
+   nl.SetValue("JobTime", fDefJobTime);
+   nl.SetValue("JobMemory", fDefJobMem);
+   nl.SetValue("JobDisk", fDefJobDisk);
+   nl.SetValue("MultiJobsMode", MultiJobsMode());
+   nl.SetValue("RunsPerJob", fRunsPerJob);
+   nl.SetValue("EMailOnStart", kFALSE);
+   nl.SetValue("EMailOnEnd", kFALSE);
+   TString email = gSystem->GetFromPipe("email");
+   if (email.Index('=') > -1) email.Remove(0, email.Index('=') + 2);
+   nl.SetValue("EMailAddress", email);
+}
+
+void KV_CCIN2P3_GE::SetBatchSystemParameters(const KVNameValueList& nl)
+{
+   // Use the parameters in the list to set all relevant parameters for batch system.
+
+   KVBatchSystem::SetBatchSystemParameters(nl);
+   SetJobTime(nl.GetStringValue("JobTime"));
+   SetJobMemory(nl.GetStringValue("JobMemory"));
+   SetJobDisk(nl.GetStringValue("JobDisk"));
+   SetMultiJobsMode(nl.GetBoolValue("MultiJobsMode"));
+   SetRunsPerJob(nl.GetIntValue("RunsPerJob"));
+   if (nl.GetBoolValue("EMailOnStart")) SetSendMailOnJobStart();
+   if (nl.GetBoolValue("EMailOnEnd")) SetSendMailOnJobEnd();
+   SetSendMailAddress(nl.GetStringValue("EMailAddress"));
 }

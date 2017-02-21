@@ -137,7 +137,7 @@ namespace BackTrack {
       }
       //Define center of mass frame
       ptot *= 1. / etot;
-      cold->SetFrame("CM", ptot, kTRUE);
+      cold->SetFrame("CM", KVFrameTransform(ptot, kTRUE));
       fcal->SetFrame("CM");
 
 

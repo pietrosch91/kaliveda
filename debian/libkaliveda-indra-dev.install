@@ -51,9 +51,11 @@
 /usr/include/kaliveda/KVINDRAIdentRoot.h
 /usr/include/kaliveda/KVINDRADstToRootTransfert.h
 /usr/include/kaliveda/KVDataPatch_INDRA_camp5_PHDcorrection.h
+/usr/include/kaliveda/KVINDRAEventSelector.h
 /usr/include/kaliveda/KVINDRAGeneDataAnalyser.h
 /usr/include/kaliveda/KVINDRAGeneDataSelector.h
 /usr/include/kaliveda/KVDataSelector.h
+/usr/include/kaliveda/KVOldINDRASelector.h
 /usr/include/kaliveda/KVDBElasticPeak.h
 /usr/include/kaliveda/KVINDRAUpDater_e475s.h
 /usr/include/kaliveda/KVINDRADB_e503.h

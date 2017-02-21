@@ -113,6 +113,7 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 # Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 +Plugin.KVMultiDetArray:  INDRA_e503   KVINDRA_VAMOS     VAMOSexp_events  "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:  INDRA_e494s  KVINDRA_VAMOS     VAMOSexp_events  "KVINDRA_VAMOS()"
++Plugin.KVVAMOSDataCorrection:   INDRA_e503   KVVAMOSDataCorrection_e503   VAMOSexp_events   "KVVAMOSDataCorrection_e503()" 
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -259,6 +260,13 @@ INDRA_e503.KVVAMOSCodes.ACQParamListForToF: TSI_HF
 
 # File with list of files containing the coefficients of the functions used for the trajectory reconstruction in VAMOS
 KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
+
+# Run list file containing run, brho, theta_vamos, DT, scalers_indra used for event normalisation in VAMOS
+INDRA_e503.KVVAMOSWeightFinder.RunListFile:  e503_runlist.dat
+INDRA_e503.KVVAMOSWeightFinder.TransCoefFileList:  e503_transcoef.list
+
+# File with list of files containing cuts for Mass:Charge ratio duplication correction
+INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI:  VAMOSDuplicationSiCsICuts.list
 
 # Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent".
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS

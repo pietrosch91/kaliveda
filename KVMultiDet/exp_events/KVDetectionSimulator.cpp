@@ -69,7 +69,7 @@ void KVDetectionSimulator::DetectEvent(KVEvent* event, const Char_t* detection_f
    KVNucleus* part;
    while ((part = event->GetNextParticle())) {  // loop over particles
 
-      KVNucleus* _part = (KVNucleus*)part->GetFrame(detection_frame);
+      KVNucleus* _part = (KVNucleus*)part->GetFrame(detection_frame, kFALSE);
 
       KVNameValueList det_stat, nvl;
       Double_t eLostInTarget = 0;

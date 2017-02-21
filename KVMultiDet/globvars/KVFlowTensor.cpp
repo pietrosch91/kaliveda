@@ -339,7 +339,7 @@ void KVFlowTensor::Fill(KVNucleus* n)
    // (this is for the case where e.g. only forward hemisphere particles are included)
 
    Double_t W;
-   KVParticle* frame = n->GetFrame(GetFrame());
+   const KVParticle* frame = n->GetFrame(GetFrame(), kFALSE);
    switch (weight) {
       case kONE:
          W = 1;

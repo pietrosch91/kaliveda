@@ -222,16 +222,6 @@ void KVBase::InitEnvironment()
 
    if (!fEnvIsInit) {//test if environment already initialised
 
-      ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
-      ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
-             GetKVVersion(), GetKVBuildDate());
-#ifdef WITH_BZR_INFOS
-      ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
-             bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
-#endif
-#ifdef WITH_GIT_INFOS
-      ::Info("KVBase::InitEnvironment", "(git : %s@%s)", gitBranch(), gitCommit());
-#endif
       // Add path to kaliveda libraries to dynamic loader path
       // This is needed to find plugins
       // and also to be able to compile with kaliveda in the interpreter
@@ -520,7 +510,6 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ifstream& file, const Cha
    }
    return kFALSE;
 }
-
 //________________________________________________________________________________//
 
 Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ofstream& file, const Char_t* kvsubdir, KVLockfile* locks)
@@ -1208,5 +1197,42 @@ const Char_t* KVBase::GetExampleFilePath(const Char_t* library, const Char_t* na
    return path.Data();
 }
 
+void KVBase::PrintSplashScreen()
+{
+   // Prints welcome message and infos on version etc.
 
+   cout << "***********************************************************" <<
+        endl;
+   cout << "*                    HI COQUINE !!!                       *" <<
+        endl;
+   cout << "*                                                         *" <<
+        endl;
+   cout << "*         W E L C O M E     to     K A L I V E D A        *" <<
+        endl;
+   cout << "*                                                         *" <<
+        endl;
+   printf("* Version: %-10s                   Built: %-10s *\n", KVBase::GetKVVersion(), KVBase::GetKVBuildDate());
+#ifdef WITH_BZR_INFOS
+   TString bzrinfo;
+   bzrinfo.Form("%s@%d", bzrBranchNick(), bzrRevisionNumber());
+   printf("* bzr: %50s *\n", bzrinfo.Data());
+#endif
+#ifdef WITH_GIT_INFOS
+   TString gitinfo;
+   gitinfo.Form("%s@%s", gitBranch(), gitCommit());
+   printf("* git: %-50s *\n", gitinfo.Data());
+#endif
+   cout << "*                                                         *" <<
+        endl;
+   cout << "*               For help, read the doc on :               *" <<
+        endl;
+   cout << "*           http://indra.in2p3.fr/KaliVedaDoc             *" <<
+        endl;
+   cout << "*                                                         *" <<
+        endl;
+   cout << "*                          ENJOY !!!                      *" <<
+        endl;
+   cout << "***********************************************************" <<
+        endl << endl;
+}
 

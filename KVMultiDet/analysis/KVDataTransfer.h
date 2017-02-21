@@ -10,12 +10,12 @@ $Date: 2007/01/04 16:38:50 $
 #ifndef __KVDATATRANSFER_H
 #define __KVDATATRANSFER_H
 
-#include "KVDataAnalyser.h"
+#include "KVDataSetAnalyser.h"
 #include "TString.h"
 
 class KVDataRepository;
 
-class KVDataTransfer: public KVDataAnalyser {
+class KVDataTransfer: public KVDataSetAnalyser {
 protected:
    KVDataRepository* fSourceRep;        // repository containing source files
    KVDataRepository* fTargetRep;        // repository where files will be copied
@@ -25,15 +25,13 @@ protected:
    virtual void SetTransferExec(const Char_t* path)
    {
       fTransferExec = path;
-   };
+   }
    virtual void ChooseAnalysisTask()
    {
-      ;
-   };
+   }
    virtual void SubmitTask()
    {
-      ;
-   };
+   }
 
    virtual void ExecuteCommand() = 0;
    virtual void WriteTransferScript() = 0;
@@ -42,6 +40,8 @@ protected:
 
    virtual void init();
    Bool_t fOK;                  //may be set to kFALSE by init(), in which case Run() will abort
+   virtual void set_dataset_pointer(KVDataSet* ds);
+   virtual void set_dataset_name(const Char_t* name);
 
 public:
 
@@ -49,8 +49,6 @@ public:
    virtual ~ KVDataTransfer();
    virtual void Run();
    virtual void TransferRuns();
-   virtual void SetDataSet(KVDataSet* ds);
-   virtual void SetDataSet(const Char_t* name);
 
    static KVDataTransfer* NewTransfer(const Char_t* source_rep,
                                       const Char_t* target_rep);
