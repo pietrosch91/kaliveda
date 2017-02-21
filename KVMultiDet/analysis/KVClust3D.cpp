@@ -295,7 +295,7 @@ void KVClust3D::Clusterize()
                   }
                   //au moins une cellule voisine non nulle
                   //
-                  if (ncv > 1) {
+                  if (ncv >= 1) {
                      //les cellules voisines sont associees a un ou plusieur cluster
                      if (nl.GetNValues() >= 1) {
                         //on prend le premier cluster qui vient
@@ -421,12 +421,12 @@ void KVClust3D::Clusterize()
    }
 
    //on reordonne les clusters, liste possible avec des clusters vides
-   //on reprend l indexage en partant de 0 jusqu a nclust-1
+   //on reprend l indexage en partant de 1 jusqu a nclust
    // pour avoir en sortie les contenus suivants dans hclust :
-   // -1 la cellule appartient a aucun cluster
-   // contenu ii>=0, la cellule appartient a iieme cluster
+   // <=0 la cellule appartient a aucun cluster
+   // contenu ii>0, la cellule appartient a iieme cluster
    //
-   Int_t nreel = 0;
+   Int_t nreel = 1;
    for (Int_t ii = 0; ii <= Ntemp; ii += 1) {
       if (fNcells->At(ii) > 0) {
          for (Int_t nx = 1; nx <= GetNbinsX(); nx += 1) {
@@ -444,8 +444,8 @@ void KVClust3D::Clusterize()
       }
    }
 
-   if (nreel != fNclusters)
-      printf("pb de coherence %d %d\n", nreel, fNclusters);
+   if (nreel != fNclusters + 1)
+      printf("pb de coherence %d %d\n", nreel, fNclusters + 1);
 
 }
 

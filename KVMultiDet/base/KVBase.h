@@ -51,42 +51,54 @@ public:
    KVBase(const KVBase&);
    virtual ~ KVBase();
 
-   inline void SetType(const Char_t* str) {
+   inline void SetType(const Char_t* str)
+   {
       SetTitle(str);
    };
-   const Char_t* GetType() const {
+   const Char_t* GetType() const
+   {
       return GetTitle();
    };
-   static const Char_t* WorkingDirectory() {
+   static const Char_t* WorkingDirectory()
+   {
       return fWorkingDirectory.Data();
    }
-   virtual Bool_t IsType(const Char_t* typ) const {
+   virtual Bool_t IsType(const Char_t* typ) const
+   {
       // Returns true if GetType() returns the given type name
       return (fTitle == typ);
    };
-   virtual Bool_t IsCalled(const Char_t* name) const {
+   virtual Bool_t IsCalled(const Char_t* name) const
+   {
       // Returns true if object has given name (test value returned by GetName())
       return !strcmp(GetName(), name);
    }
-   void SetLabel(const Char_t* lab) {
+   void SetLabel(const Char_t* lab)
+   {
       fLabel = lab;
    }
-   const Char_t* GetLabel() const {
+   const Char_t* GetLabel() const
+   {
       return fLabel;
    }
-   Bool_t HasLabel() const {
+   Bool_t HasLabel() const
+   {
       return fLabel.Length();
    }
    virtual void Print(Option_t* option = "") const;
-   virtual void List() {
+   virtual void List()
+   {
    }
-   virtual void SetNumber(UInt_t num) {
+   virtual void SetNumber(UInt_t num)
+   {
       fNumber = num;
    }
-   UInt_t GetNumber() const {
+   UInt_t GetNumber() const
+   {
       return fNumber;
    }
-   UInt_t GetNumberOfObjects() const {
+   UInt_t GetNumberOfObjects() const
+   {
       return fNbObj;
    }
    virtual void Clear(Option_t* opt = "");
@@ -138,7 +150,8 @@ public:
    static const Char_t* GetWORKDIRFilePath(const Char_t* namefile = "");
    static const Char_t* GetTEMPLATEDIRFilePath(const Char_t* namefile = "");
    static const Char_t* GetExampleFilePath(const Char_t* library, const Char_t* namefile);
-   static bool is_gnuinstall() {
+   static bool is_gnuinstall()
+   {
       // return true if built with option -Dgnuinstall=yes
       // i.e. GNU-style installation directories, any generated files
       // stored in user's working directory i.e. not in installation path

@@ -427,7 +427,7 @@ void KVDataSetAnalyser::ChooseRuns(KVDBSystem* system,
       }
       //cout << "CHECKED RUNLIST : " <<  endl; fRunList.PrintLimits();
       if (fRunList.IsEmpty()) {
-         Error("ChooseRuns" ,
+         Error("ChooseRuns",
                "None of the runs you chose appear in the list");
          //we force the user to choose again
          fChoozRuns = kTRUE;

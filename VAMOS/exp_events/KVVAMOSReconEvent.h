@@ -16,7 +16,8 @@ class KVVAMOSReconEvent : public KVReconstructedEvent {
 private:
 
    KVVAMOSCodes* fCodeMask; //!codes accepted for "good" VAMOS nucleus (IsOK)
-   inline KVVAMOSCodes* GetCodeMask() {
+   inline KVVAMOSCodes* GetCodeMask()
+   {
       if (!fCodeMask)
          fCodeMask = new KVVAMOSCodes;
       return fCodeMask;
@@ -45,7 +46,8 @@ public:
    virtual void     ReconstructEvent(KVMultiDetArray*, KVDetectorEvent* kvde);
 
 
-   inline Bool_t CheckCodes(KVVAMOSCodes& code) {
+   inline Bool_t CheckCodes(KVVAMOSCodes& code)
+   {
       //returns kTRUE if "code" is compatible with VAMOS event's code mask.
       //If no code mask set for event, returns kTRUE in all cases
       if (!fCodeMask)
@@ -53,7 +55,8 @@ public:
       return ((*fCodeMask) & code);
    }
 
-   inline void ResetGetNextNucleus() {
+   inline void ResetGetNextNucleus()
+   {
       ResetGetNextParticle();
    }
 

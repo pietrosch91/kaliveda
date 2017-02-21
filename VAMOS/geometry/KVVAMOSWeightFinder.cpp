@@ -419,7 +419,7 @@ Float_t KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle_deg, Float_t delta,
       return -666.;
    }
 
-   Int_t ndelta = GetNValue(delta, line.at(1), line.at(2) , line.at(3));
+   Int_t ndelta = GetNValue(delta, line.at(1), line.at(2), line.at(3));
    Int_t ntheta = GetNValue(thetaI_rad, line.at(5), line.at(6), line.at(7));
    //Int_t ntot_delta = line.at(4)+1;
    Int_t ntot_delta = line.at(4);

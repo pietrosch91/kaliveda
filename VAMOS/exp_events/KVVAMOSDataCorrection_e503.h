@@ -34,7 +34,8 @@ public:
    virtual void Init();
    virtual void ApplyCorrections(KVVAMOSReconNuc*);
 
-   virtual void SetVerbose(Bool_t status = kTRUE) {
+   virtual void SetVerbose(Bool_t status = kTRUE)
+   {
       fkverbose = status;
    }
 

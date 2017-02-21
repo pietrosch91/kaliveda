@@ -227,6 +227,19 @@ public:
    {
       return GetTransverseEnergy();
    };
+
+   Double_t GetLongitudinalEnergy() const
+   {
+      Double_t elong = TMath::Cos(Theta());
+      elong = TMath::Power(elong, 2.0);
+      elong *= GetKE();
+      return elong;
+   };
+   Double_t GetElong() const
+   {
+      return GetLongitudinalEnergy();
+   };
+
    Double_t GetRTransverseEnergy() const
    {
       Double_t etran = Mt() - GetMass();
