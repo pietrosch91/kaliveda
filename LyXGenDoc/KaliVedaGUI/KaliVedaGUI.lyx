@@ -1,7 +1,9 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \use_default_options true
 \maintain_unincluded_children false
@@ -9,16 +11,16 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
-
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -28,15 +30,24 @@
 \use_hyperref false
 \papersize default
 \use_geometry false
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
 \cite_engine basic
+\cite_engine_type default
+\biblio_style plain
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 1
 \index Index
 \shortcut idx
@@ -60,7 +71,7 @@
 \begin_body
 
 \begin_layout Title
-KaliVedaGUI Data Analysis Launcher
+KaliVeda Analysis Launcher
 \end_layout
 
 \begin_layout Standard
@@ -70,6 +81,14 @@ LatexCommand tableofcontents
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+This GUI can be used to run user analyses of data stored in different data
+ repositories, either on the local machine or in some remote site (such
+ as the IN2P3 computing centre).
+ Analyses can be run interactively, or using different batch systems, including
+ PROOFLite on a machine with several CPU.
 \end_layout
 
 \begin_layout Section
@@ -100,7 +119,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 The KaliVedaGUI graphical interface
@@ -185,6 +204,27 @@ The 'Runlist' button can be used to enter a list of runs in the form
 \end_layout
 
 \begin_layout Subsection
+Number of events to read
+\end_layout
+
+\begin_layout Standard
+Putting '
+\family typewriter
+0
+\family default
+' (zero) in the 'Events' box means 'read all events in each file (run)'.
+ Any non-zero value will limit the number of events analysed, as can be
+ useful for a quick interactive test before batch job submission.
+ Remember to put '
+\family typewriter
+0
+\family default
+' (zero) before submitting a production job! (as this is a common mistake,
+ if you try to submit a batch job with a non-zero number of events to read,
+ a dialogue box will open asking you to confirm this).
+\end_layout
+
+\begin_layout Subsection
 User analysis class
 \end_layout
 
@@ -221,6 +261,23 @@ $EDITOR
 \end_layout
 
 \begin_layout Subsubsection
+Generate a new analysis class
+\end_layout
+
+\begin_layout Standard
+At the end of the list of analysis classes is the entry '[NEW]'.
+ Selecting this entry will open a dialogue box requiring you to enter a
+ new analysis class name.
+ A fully-working example analysis class with this name will be generated
+ in the working directory and the source files opened in your favourite
+ text editor (defined by the shell variable 
+\family typewriter
+$EDITOR
+\family default
+) for you to adapt it to your needs.
+\end_layout
+
+\begin_layout Subsubsection
 User class options
 \end_layout
 
@@ -228,7 +285,7 @@ User class options
 Optional parameters can be supplied to classes for analysis of reconstructed
  data (derived from 
 \family typewriter
-KVSelector
+KVEvenSelector
 \family default
 ) using the 'User class options' text box.
  These are given in the form of a comma-separated list of 'name=value' pairs
@@ -242,7 +299,7 @@ reference "fig:The-KaliVedaGUI-graphical"
 .
  These parameters can be manipulated in the analysis class using the 
 \family typewriter
-KVSelector
+KVEventSelector
 \family default
  methods
 \end_layout
@@ -256,9 +313,9 @@ KVString& GetOpt(const Char_t* name)
 \end_layout
 
 \begin_layout Standard
-For example, in the example shown, part of the 
+For example, in the example shown, part of the selected 
 \family typewriter
-CheckEtalonModules
+DataAnalysis
 \family default
  analysis class could use the following code:
 \end_layout
@@ -388,41 +445,6 @@ IsOptGiven(name)
 \end_layout
 
 \begin_layout Subsection
-Data selector
-\end_layout
-
-\begin_layout Standard
-The use of the KVDataSelector class to select and analyse subsets of data
- is deprecated, and should be replaced in the near future by an alternative
- which is suitable for use with 
-\family typewriter
-PROOF
-\family default
-.
-\end_layout
-
-\begin_layout Subsection
-Number of events to read
-\end_layout
-
-\begin_layout Standard
-Putting '
-\family typewriter
-0
-\family default
-' (zero) means 'read all events in each file (run)'.
- Any non-zero value will limit the number of events analysed, as can be
- useful for a quick interactive test before batch job submission.
- Remember to put '
-\family typewriter
-0
-\family default
-' (zero) before submitting a production job! (as this is a common mistake,
- if you try to submit a batch job with a non-zero number of events to read,
- a dialogue box will open asking you to confirm this).
-\end_layout
-
-\begin_layout Subsection
 User libraries
 \end_layout
 
@@ -430,7 +452,7 @@ User libraries
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Float figure
@@ -448,7 +470,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Select user libraries
@@ -488,7 +510,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Select user include directory
@@ -516,7 +538,7 @@ name "fig:Select-user-include"
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Select user libraries and include directories
@@ -587,21 +609,13 @@ KaliVedaGUI
 \end_layout
 
 \begin_layout Subsection
-Running Mode : Now!
+Batch Mode
 \end_layout
 
 \begin_layout Standard
-Selecting 'Now!' means your analysis will start as soon as you click on
- the 'Process' button.
- 'Batch' parameters are inactive.
-\end_layout
-
-\begin_layout Subsection
-Running Mode: Batch
-\end_layout
-
-\begin_layout Standard
-Select 'Batch' in order to submit your analysis as a batch job.
+Click on the button to turn 'Batch Mode' on or off.
+ When on, you can click on 'Batch Parameters' in order to open a window
+ where you can set the parameters of your batch job(s).
  The batch system used depends on the currently-defined default batch system
  (see variable 
 \family typewriter
@@ -612,75 +626,136 @@ Default.BatchSystem
 .kvrootrc
 \family default
  configuration file).
- Selecting 'Batch' will activate the batch parameter widgets.
 \end_layout
 
 \begin_layout Subsubsection
-Runs per batch job
+PROOFLite
 \end_layout
 
 \begin_layout Standard
-The default value of '1' means that a batch job will be submitted for each
- selected run.
- Increasing this value to 
-\begin_inset Formula $N$
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Use PROOFLite_005.png
+	clip
+
 \end_inset
 
- will decrease the number of batch jobs, by submitting a job for every 
-\begin_inset Formula $N$
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Batch parameters GUI for PROOFLite
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Batch-parametersPROOF"
+
 \end_inset
 
- runs to analyse.
+
 \end_layout
 
-\begin_layout Subsubsection
-Batch name
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-If 'Auto' is unchecked, enter the name you want for your job in the 'Batch
- name' window.
- If 'Auto' is checked, enter a formatted name in the 'Batch name format'
- window, which may use one of the special 'variables':
+\begin_layout Plain Layout
+
 \end_layout
 
-\begin_layout LyX-Code
-$User (user login)
-\end_layout
+\end_inset
 
-\begin_layout LyX-Code
-$Date (current date and time)
-\end_layout
 
-\begin_layout LyX-Code
-$UserClass (name of user analysis class)
-\end_layout
-
-\begin_layout LyX-Code
-$System (name of system analysed)
 \end_layout
 
 \begin_layout Standard
-These variables will be replaced in the batch jobname by their values (see
- example in figure 
+The default batch system on a multi-processor PC is PROOFLite (OK, not really
+ a batch system, but it does allow to massively increase the speed of your
+ analysis).
+ The batch parameters GUI is shown in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:The-KaliVedaGUI-graphical"
+reference "fig:Batch-parametersPROOF"
 
 \end_inset
 
-).
+.
+ You can either manually enter a job name or select 'AutoJobName' and enter
+ a name format in the 'AutoJobNameFormat' box.
+ Hovering over this box will bring up a tooltip showing the valid special
+ variable names you can use (such as 
+\family typewriter
+$UserClass
+\family default
+ in the Figure).
 \end_layout
 
 \begin_layout Subsubsection
-CCIN2P3 Grid Engine batch system
+CC-IN2P3 Grid Engine batch system
 \end_layout
 
 \begin_layout Standard
-On CCIN2P3 machines, the default batch system defined for KaliVeda is Grid
- Engine (GE).
- In this case three extra windows at the bottom of the GUI are available
- to define the required limits of memory (RAM), scratch disk, and CPU time.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Use Grid Engine batch system_003.png
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Batch parameters GUI for Grid Engine at CC-IN2P3
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Batch-parametersGE"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On CCIN2P3 machines, the default batch system is Grid Engine (GE).
+ The batch parameters GUI is shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Batch-parametersGE"
+
+\end_inset
+
+.
+ In addition to the job name parameters which are common to both PROOFLite
+ and GE, extra parameters are required to define the required limits of
+ 'JobMemory' (RAM), 'JobDisk' space (for writing the results of your analysis),
+ and CPU 'JobTime'.
  Note that the units must be given for memory and scratch disk, which are
  '
 \family typewriter
@@ -699,7 +774,7 @@ G
 T
 \family default
 ' (for kilo-, mega-, giga-, and tera- byte, respectively).
- Job time may be given as 
+ 'JobTime' may be given as 
 \family typewriter
 seconds
 \family default
@@ -714,13 +789,44 @@ hours:minutes:seconds
 .
 \end_layout
 
+\begin_layout Subsubsection
+MultiJobsMode
+\end_layout
+
+\begin_layout Standard
+If more than one run has been selected for analysis, the 'MultiJobsMode'
+ will be available and active by default.
+ The 'RunsPerJob' parameter is by default set to '1', meaning that a separate
+ batch job will be submitted for each selected run.
+ Increasing this value to 
+\begin_inset Formula $N$
+\end_inset
+
+ (limited to the number of selected runs) will decrease the number of batch
+ jobs, by submitting a job for every 
+\begin_inset Formula $N$
+\end_inset
+
+ runs to analyse.
+\end_layout
+
+\begin_layout Subsubsection
+E-mail notifications
+\end_layout
+
+\begin_layout Standard
+You can choose to receive e-mail notifications at the start and/or end of
+ the submitted jobs, by selecting 'EMailOnStart' and/or 'EMailOnEnd'.
+ In this case, make sure that 'EMailAddress' contains a valid address.
+\end_layout
+
 \begin_layout Subsection
 Validation of user class
 \end_layout
 
 \begin_layout Standard
-Whether in batch or live mode, clicking on 'Process' will first launch the
- compilation of your analysis class (if one is given).
+Whether in batch or interactive mode, clicking on 'Process' will first launch
+ the compilation of your analysis class (if one is given).
  If compilation is unsuccessful, the source files of your class will be
  automatically opened in your favourite text editor (defined by the shell
  variable 
@@ -730,106 +836,6 @@ $EDITOR
 ) so that you can correct any mistakes.
  When the correction is finished, you can close the editor and try 'Process'
  again.
-\end_layout
-
-\begin_layout Subsection
-Monitoring of batch jobs (CCIN2P3-GE)
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename kvbatchsystem.png
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-
-\family typewriter
-KVBatchSystemGUI
-\family default
- batch job monitoring interface
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:KVBatchSystemGUI-batch-job"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-If jobs are submitted to the Grid Engine batch system, a window will open
- which allows to monitor their progress (see figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:KVBatchSystemGUI-batch-job"
-
-\end_inset
-
-).
- The display automatically updates according to the variables
-\end_layout
-
-\begin_layout LyX-Code
-KVBatchSystemGUI.AutoUpdate
-\end_layout
-
-\begin_layout LyX-Code
-KVBatchSystemGUI.RefreshInterval
-\end_layout
-
-\begin_layout Standard
-in 
-\family typewriter
-.kvrootrc
-\family default
- configuration file.
- The interface can be used to kill or alter the batch properties of selected
- jobs.
- If you exit 
-\family typewriter
-KaliVedaGUI
-\family default
- the batch monitor GUI will disappear also.
- If you want to monitor your batch jobs independently of 
-\family typewriter
-KaliVedaGUI
-\family default
-, you can open the GUI by typing
-\end_layout
-
-\begin_layout LyX-Code
-root[0] new KVBatchSystemGUI
-\end_layout
-
-\begin_layout Standard
-in a ROOT session.
 \end_layout
 
 \end_body
