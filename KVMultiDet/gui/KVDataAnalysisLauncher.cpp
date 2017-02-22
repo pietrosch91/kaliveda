@@ -1578,8 +1578,10 @@ void KVDataAnalysisLauncher::UserClassSelected(char* class_name)
    SetResource("UserClass", class_name);
    teUserOptions->SetText(GetSavedResource("UserClassOptions", ""));
    SetResource("UserClassOptions", teUserOptions->GetText());
-   if (strcmp("", class_name)) btEditClass->SetEnabled(kTRUE);
-   else btEditClass->SetEnabled(kFALSE);
+   if (strcmp("", class_name)) {
+      btEditClass->SetEnabled(kTRUE);
+      GetDataAnalyser()->SetUserClass(class_name, kFALSE);
+   } else btEditClass->SetEnabled(kFALSE);
    checkCompilation = kTRUE;
 }
 
@@ -1618,7 +1620,6 @@ void KVDataAnalysisLauncher::GenerateNewUserClass()
 void KVDataAnalysisLauncher::SetUserClass(const Char_t* class_name)
 {
    // Sets selected user class in combo box according to e.g. a previously stored resource value.
-   // Updates batch name if 'auto batch name' is selected.
    // We update the resource corresponding to the current state of the interface.
 
    // look for user class in list
