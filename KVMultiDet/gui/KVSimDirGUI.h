@@ -59,6 +59,8 @@ class KVSimDirGUI : public KVBase {
    KVString fDataset;
    KVString fSystem;
    KVString fRun;
+   TGRadioButton* kaliveda_geom;
+   TGRadioButton* root_geom;
    enum {
       kFTGeo = 1,
       kFTSeuils,
