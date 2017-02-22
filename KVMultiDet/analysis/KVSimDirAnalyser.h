@@ -15,6 +15,9 @@ class KVSimDirAnalyser : public KVDataAnalyser {
    TChain* fAnalysisChain;//!    TChain for analysis
    KVSimDir* fSimDir;//!         used for batch analysis
 
+private:
+   void DeleteSimFilesListIfOurs();
+
 protected:
    void BuildChain();
    virtual Bool_t NeedToChooseWhatToAnalyse() const
@@ -42,8 +45,6 @@ public:
    Bool_t ReadBatchEnvFile(const Char_t*);
 
    ClassDef(KVSimDirAnalyser, 1) //Analysis of trees containing simulated events
-private:
-   void DeleteSimFilesListIfOurs();
 };
 
 #endif
