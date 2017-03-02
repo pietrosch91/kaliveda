@@ -124,8 +124,6 @@ void KVExcitedState::computeWidth()
    if (np >= 2) ugam = tmp.Next().Data();
 //   if (np >= 3) dgam = tmp.Next().Atof();
 
-   dgam *= 1; // just to avoid 'set-but-not-used' warning
-
    fWidth = gam;
 
    ugam.ToUpper();
