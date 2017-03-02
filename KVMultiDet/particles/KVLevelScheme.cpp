@@ -328,7 +328,7 @@ void KVLevelScheme::Draw(Option_t* option)
 
    double max = GetLevelEnergy(GetNLevels() - 1);
    if (hh) delete hh;
-   hh = new TH2F("dumhist", "", (ncol + 10), 0, (ncol + 10)*dx + 0.5 * dx, 100, -200, max + 200);
+   hh = new TH2F("dumhist", "", (ncol + 10), 0, (ncol + 10)*dx + 0.5 * dx, 1000, -200, max + 200);
 
    TString opt = option;
    gStyle->SetOptStat(0);
