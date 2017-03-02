@@ -49,4 +49,6 @@
 #pragma link C++ class KVDataAnalysisLauncher;
 #pragma link C++ class KVGFileList;
 #pragma link C++ class KVGDirectoryList;
+#pragma link C++ class KVPIDIntervalPainter;
+#pragma link C++ class KVItvFinderDialog;
 #endif
