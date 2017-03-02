@@ -17,13 +17,10 @@ ClassImp(KVGVList)
 //
 //   This class allows to process in a single call many KVVargGlob instances. This list
 // can be managed by using standard KVList methods. The methods used to initiate, reset
-// and fill such a liste are:
+// and fill such a list are:
 //
-//      virtual void Init(void)                 initiates the global variables
-//      virtual void Reset(void)                resets the global variables before the treatment
-//      virtual void Fill(KVNucleus *c)         compute all the 1-body global variables
-//      virtual void Fill2(KVNucleus *n1, KVNucleus *n2)         compute all the 2-body global variables
-//      virtual void FillN(KVEvent* e)         compute all the N-body global variables
+//      void Init(void)                             initiates the global variables (call once)
+//      void CalculateGlobalVariables(KVEvent *e)   compute all global variables for the event
 //
 // By default the KVGVList does not own the objects it contains (they may be on the stack).
 // User's responsibility in this case to delete heap-based objects after use.
@@ -36,25 +33,22 @@ ClassImp(KVGVList)
 // KVEkin *Sekin=new KVEkin("SEkin");
 // KVZmean zmean;
 // KVZmax  zmax;
-// KVGVList *gvlist=new KVGVList();
-// gvlist->Add(Sekin);
-// gvlist->Add(&zmean);
-// gvlist->Add(&zmax);
-// gvlist->Init();
+// KVGVList gvlist;
+// gvlist.Add(Sekin);
+// gvlist.Add(&zmean);
+// gvlist.Add(&zmax);
+// gvlist.Init();
 //
 // ...
 // // Treatment loop for each event called for each event
 // ...
-// gvlist->Reset();
-// KVINDRAReconNuc *part = 0;
-// while( (part = GetEvent()->GetNextParticle("ok")) ){//loop over particles with correct codes
-//  gvlist->Fill(part);
-// }
+// gvlist.CalculateGlobalVariables(event); // with KVEvent* event pointer
+//
 // cout << "Total kinetic energy : " << Sekin->GetValue() << endl;
 // cout << "Mean charge          : " << zmean() << endl;
 // cout << "Standard deviation   : " << zmean("RMS") << endl;
 // cout << "Charge of the heaviest   : " << zmax() << endl;
-// cout << "Vpar of the heaviest     : " << ((KVNucleus *)zmax.GetObject()).GetVpar() << endl;
+// cout << "Vpar of the heaviest     : " << zmax.GetZmax(0)->GetVpar() << endl;
 // ...
 //
 //////////////////////////////////////////////////////////////////////////////////

@@ -34,6 +34,9 @@ protected:
    TList fVG1; // one-body variables
    TList fVG2; // two-body variables
    TList fVGN; // N-body variables
+   void Fill(KVNucleus* c);
+   void Fill2(KVNucleus* c1, KVNucleus* c2);
+   void FillN(KVEvent* e);
 
 public:
    KVGVList(void);             // constructeur par defaut
@@ -41,12 +44,9 @@ public:
 
    virtual ~ KVGVList(void);   // destructeur
 
-   virtual void Init(void);     // methode d'initialisation des variables globales
-   virtual void Reset(void);    // Remise a zero avant le
+   void Init(void);     // methode d'initialisation des variables globales
+   void Reset(void);    // Remise a zero avant le
 
-   virtual void Fill(KVNucleus* c);
-   virtual void Fill2(KVNucleus* c1, KVNucleus* c2);
-   virtual void FillN(KVEvent* e);
    void CalculateGlobalVariables(KVEvent* e);
 
    KVVarGlob* GetGV(const Char_t* nom);         //find global variable with name 'nom'
@@ -78,8 +78,8 @@ public:
 
    TObject** GetGVRef(const Char_t* name);
 
-   virtual void MakeBranches(TTree*);
-   virtual void FillBranches();
+   void MakeBranches(TTree*);
+   void FillBranches();
 
    ClassDef(KVGVList, 3)       // List of global variables
 };
