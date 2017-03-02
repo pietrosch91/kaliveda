@@ -161,7 +161,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)
          0
       };
       int spacing[] = {
-         450 / 5. + 450 / 10. - 15,
+         120,
          0,
          0
       };
