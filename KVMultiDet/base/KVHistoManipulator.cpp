@@ -1750,6 +1750,41 @@ TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
 }
 
 //______________________________________________________________________________________________
+TGraph* KVHistoManipulator::ComputeNewGraphFrom(TGraph* g0, TGraph* g1, TString formula)
+{
+   Int_t npoints = g0->GetN();
+   if (g1->GetN() != npoints) {
+      Error("ComputeNewGraphFrom", "Graphs must have same number of points %d != %d", npoints, g1->GetN());
+      return 0;
+   }
+
+   TF1* f1 = new TF1("func_ComputeNewGraphFrom", formula, 0, 1);
+   if (f1->IsZombie() || f1->GetNpar() != 2) {
+      Error("ComputeNewGraphFrom", "formula %s for the operation is not valid or has not 2 parameters", formula.Data());
+      return 0;
+   }
+
+   TGraph* gfinal = new TGraph();
+   gfinal->SetName(Form("from_%s_%s", g0->GetName(), g1->GetName()));
+   Double_t* x0 = g0->GetX();
+   Double_t* y0 = g0->GetY();
+
+   Double_t* x1 = g1->GetX();
+   Double_t* y1 = g1->GetY();
+
+   for (Int_t ii = 0; ii < npoints; ii++) {
+      f1->SetParameters(y0[ii], y1[ii]);
+      if (x1[ii] != x0[ii])
+         Warning("ComputeNewGraphFrom", "X values are different for the same point %d : %lf %lf", ii, x0[ii], x1[ii]);
+      Double_t result = f1->Eval(x0[ii]);
+      gfinal->SetPoint(ii, x0[ii], result);
+   }
+
+   delete f1;
+   return gfinal;
+}
+
+//______________________________________________________________________________________________
 Double_t* KVHistoManipulator::GetLimits(TGraph* G1)
 {
    /*

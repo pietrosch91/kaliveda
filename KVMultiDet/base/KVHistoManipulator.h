@@ -124,6 +124,7 @@ public:
    Double_t GetLikelihood(TH1* h1, TF1* f1, Bool_t norm = kTRUE, Double_t* para = 0);
 
    TGraph* DivideGraphs(TGraph* G1, TGraph* G2);
+   TGraph* ComputeNewGraphFrom(TGraph* g0, TGraph* g1, TString formula);
    Double_t* GetLimits(TGraph* G1);
    Double_t* GetLimits(TProfile* G1);
    Double_t* GetLimits(TMultiGraph* mgr);
