@@ -192,7 +192,7 @@ void KVEventFiltering::InitAnalysis()
 
    TString geo = GetOpt("Geometry").Data();
    if (geo == "ROOT") {
-      gMultiDetArray->SetROOTGeometry(kTRUE);
+      gMultiDetArray->CheckROOTGeometry();
       Info("InitAnalysis", "Filtering with ROOT geometry");
       Info("InitAnalysis", "Navigator detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
    } else {
