@@ -176,11 +176,7 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
             TString branch_classname = branch->GetClassName();
             TClass* branch_class = TClass::GetClass(branch_classname, kFALSE, kTRUE);
             if (branch_class && branch_class->InheritsFrom("KVEvent")) {
-               if (branch_class->InheritsFrom("KVSimEvent")) {
-                  fSimData.Add(new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName()));
-                  delete file;
-                  return;
-               } else if (branch_class->InheritsFrom("KVReconstructedEvent")) {
+               if (branch_class->InheritsFrom("KVReconstructedEvent")) {
                   // filtered data. there must be TNamed called 'Dataset', 'System', & 'Run' in the file.
                   TNamed* ds = (TNamed*)file->Get("Dataset");
                   TNamed* orig = (TNamed*)file->Get("Origin");
@@ -208,6 +204,10 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
                   delete sys;
                   delete r;
                   delete f;
+                  return;
+               } else {
+                  fSimData.Add(new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName()));
+                  delete file;
                   return;
                }
             }
