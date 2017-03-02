@@ -39,6 +39,7 @@ protected:
    TPaveText* fInfo;
    KVCanvas* fCanvas;
    TVirtualPad* fPad;
+   KVNucleus* fCurrentNuc;
 
    void update_pad()
    {
@@ -57,6 +58,11 @@ public:
 
    void Draw(Option_t* option = "");
    void ShowNucleusInfo(KVNucleus* nuc);
+   void ShowLevelScheme(const char* decays); // *MENU*
+   void SetCurrentNuc(KVNucleus* nuc)
+   {
+      fCurrentNuc = nuc;
+   }
 
    Int_t GetShowSymbol()
    {

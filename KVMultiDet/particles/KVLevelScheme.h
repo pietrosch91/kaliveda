@@ -88,7 +88,7 @@ public:
 
    void SetDrawStyle(double deMin = 300., double fullWidth = 1.3, double lineWidth = 0.6, int textSize = 22);
    void Draw(Option_t* option = "");
-   void DrawThreshold(const char* symb, double ex = 0. /*in keV*/);
+   void DrawThreshold(const char* symb, Option_t* option = "", double ex = 0. /*in keV*/);
 
    ClassDef(KVLevelScheme, 1) //tool to simulate nucleus multi-particle decay
 };

@@ -328,7 +328,7 @@ void KVLevelScheme::Draw(Option_t* option)
 
    double max = GetLevelEnergy(GetNLevels() - 1);
    if (hh) delete hh;
-   hh = new TH2F("dumhist", "", (ncol + 10), 0, (ncol + 10)*dx + 0.5 * dx, 1000, -200, max + 200);
+   hh = new TH2F(Form("dumhist%s", fCompNuc->GetSymbol()), "", (ncol + 10), 0, (ncol + 10)*dx + 0.5 * dx, 1000, -200, max + 200);
 
    TString opt = option;
    gStyle->SetOptStat(0);
@@ -398,36 +398,65 @@ void KVLevelScheme::Draw(Option_t* option)
    hh->GetXaxis()->SetRangeUser(0, dx * (ncol + 1));
 }
 
-void KVLevelScheme::DrawThreshold(const char* symb, double ex)
+void KVLevelScheme::DrawThreshold(const char* symb, Option_t* option, double ex)
 {
+   TString opt = option;
    ncol++;
    KVNucleus a(symb);
-   a.SetExcitEnergy(ex / 1000.);
 
    KVNucleus tmp = *fCompNuc - a;
    double qa = tmp.GetExcitEnergy() * -1.;
 
-//    TLine* lq = new TLine(0.5,qa*1000,0.5+dx*(ncol-1),qa*1000);
-//    lq->SetLineColor(kGray);
-//    lq->SetLineStyle(7);
-//    lq->Draw();
+   TLatex* tte = 0;
+   TLine* lq = 0;
 
-   TLine* lq = new TLine(0.5 + dx * (ncol - 1), qa * 1000, 0.5 + ddx + dx * (ncol - 1), qa * 1000);
+   TString decay = Form("^{%d}%s + ^{%d}%s", a.GetA(), a.GetSymbol("EL"), tmp.GetA(), tmp.GetSymbol("EL"));
+   tte = new TLatex(0.5 + (0.5 * ddx) + dx * (ncol - 1), qa * 1000 - 100, decay.Data());
+   tte->SetTextAlign(23);
+   tte->SetTextFont(133);
+   tte->SetTextSize(txs);
+   tte->Draw();
+
+
+   if (opt.Contains("l")) {
+      lq = new TLine(0.5, qa * 1000, 0.5 + dx * (ncol - 1), qa * 1000);
+      lq->SetLineColor(kGray);
+      lq->SetLineStyle(7);
+      lq->Draw();
+   }
+
+   lq = new TLine(0.5 + dx * (ncol - 1), qa * 1000, 0.5 + ddx + dx * (ncol - 1), qa * 1000);
    lq->Draw();
 
-   TLatex* tte = new TLatex(ddx + .6 + dx * (ncol - 1), qa * 1000, Form("%d", TMath::Nint(1000 * qa)));
+   tte = new TLatex(ddx + .6 + dx * (ncol - 1), qa * 1000, Form("%d", TMath::Nint(1000 * qa)));
    tte->SetTextAlign(12);
    tte->SetTextFont(133);
    tte->SetTextSize(txs);
    tte->Draw();
 
-   TString decay = Form("^{%d}%s + ^{%d}%s", a.GetA(), a.GetSymbol("EL"), tmp.GetA(), tmp.GetSymbol("EL"));
+   if (ex > 0) {
+      a.SetExcitEnergy(ex / 1000.);
+      tmp = *fCompNuc - a;
+      qa = tmp.GetExcitEnergy() * -1.;
 
-   tte = new TLatex(0.5 + (0.5 * ddx) + dx * (ncol - 1), qa * 1000 - 100, decay.Data());
-   tte->SetTextAlign(23);
-   tte->SetTextFont(133);
-   tte->SetTextSize(txs);
-   if (ex == 0) tte->Draw();
+      if (opt.Contains("l")) {
+         lq = new TLine(0.5, qa * 1000, 0.5 + dx * (ncol - 1), qa * 1000);
+         lq->SetLineColor(kGray);
+         lq->SetLineStyle(7);
+         lq->Draw();
+      }
+
+      lq = new TLine(0.5 + dx * (ncol - 1), qa * 1000, 0.5 + ddx + dx * (ncol - 1), qa * 1000);
+      lq->Draw();
+      tte = new TLatex(ddx + .6 + dx * (ncol - 1), qa * 1000, Form("%d", TMath::Nint(1000 * qa)));
+      tte->SetTextAlign(12);
+      tte->SetTextFont(133);
+      tte->SetTextSize(txs);
+      tte->Draw();
+   }
+
+
+
 
    cc->SetWindowSize((ncol) * (dx) * 0.35 * 400, 800);
    hh->GetXaxis()->SetRangeUser(0, dx * (ncol + 1));
