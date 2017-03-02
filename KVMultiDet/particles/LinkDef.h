@@ -27,4 +27,6 @@
 #pragma link C++ class KVMassExcessTable+;
 #pragma link C++ class KVElementDensityTable+;
 #pragma link C++ class KVChargeRadiusTable+;
+#pragma link C++ class KVExcitedState+;
+#pragma link C++ class KVLevelScheme+;
 #endif
