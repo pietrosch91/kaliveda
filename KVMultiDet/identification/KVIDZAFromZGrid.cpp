@@ -184,7 +184,15 @@ void KVIDZAFromZGrid::PrintPIDLimits()
 //   for (int zz = fZminInt; zz <= fZmaxInt; zz++) {
 //      Info("PrintPIDLimits", "Z=%2d    [%.4lf  %.4lf]", zz, ((interval_set*)fTables.At(zz - fZminInt))->fPIDmins.at(0),
 //           ((interval_set*)fTables.At(zz - fZminInt))->fPIDmaxs.at(((interval_set*)fTables.At(zz - fZminInt))->fNPIDs - 1));
-//   }
+   //   }
+}
+
+void KVIDZAFromZGrid::ClearPIDIntervals()
+{
+   if (fPar->HasParameter("PIDRANGE")) fPar->RemoveParameter("PIDRANGE");
+   for (int ii = 1; ii < 30; ii++) {
+      if (fPar->HasParameter(Form("PIDRANGE%d", ii))) fPar->RemoveParameter(Form("PIDRANGE%d", ii));
+   }
 }
 
 bool KVIDZAFromZGrid::is_inside(double pid)

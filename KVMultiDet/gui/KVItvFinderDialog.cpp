@@ -378,16 +378,20 @@ void KVItvFinderDialog::Identify()
 
 void KVItvFinderDialog::SaveGrid()
 {
+   fGrid->ClearPIDIntervals();
    KVNumberList pids;
    interval_set* itvs = 0;
    TIter npid(fGrid->GetIntervalSets());
-   while ((itvs = (interval_set*)npid())) pids.Add(itvs->GetZ());
+   while ((itvs = (interval_set*)npid())) {
+      if (!itvs->GetNPID()) continue;
+      pids.Add(itvs->GetZ());
+   }
    fGrid->GetParameters()->SetValue("PIDRANGE", pids.AsString());
 
    itvs = 0;
    TIter next(fGrid->GetIntervalSets());
    while ((itvs = (interval_set*)next())) {
-      pids.Add(itvs->GetZ());
+      if (!itvs->GetNPID()) continue;
       KVString par = Form("PIDRANGE%d", itvs->GetZ());
       KVString val = "";
       interval* itv = 0;
