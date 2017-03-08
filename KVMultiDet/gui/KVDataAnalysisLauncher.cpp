@@ -1203,6 +1203,9 @@ void KVDataAnalysisLauncher::SetBatchParameters()
    // use saved values of batch parameters
    fBatchParameters.SetFromEnv(GUIenv, "KVDataAnalysisLauncher");
    Bool_t cancel;
+   // make sure runlist is set in analyser (controls multijobs mode)
+   GetDataAnalyser()->SetDataSet(gDataSet);
+   GetDataAnalyser()->SetRuns(listOfRuns, kFALSE);
    new KVBatchSystemParametersGUI(this, &fBatchParameters, GetDataAnalyser(), &cancel);
    if (!cancel) {
       // update saved batch parameter resources
