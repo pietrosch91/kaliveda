@@ -150,6 +150,7 @@ public:
    Double_t GetNaturalA(Int_t zz = -1) const ;
 
    Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
+   Double_t GetLiquidDropBindingEnergy(Int_t z = -1, Int_t a = -1) const;
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
 
    KVNumberList GetKnownARange(Int_t z = -1, Double_t tmin = 0) const;
