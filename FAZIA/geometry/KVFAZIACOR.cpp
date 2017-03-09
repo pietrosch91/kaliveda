@@ -133,7 +133,7 @@ void KVFAZIACOR::SetNameOfDetectors(KVEnv& env)
 {
 
    KVFAZIA::SetNameOfDetectors(env);
-//   env.SetValue("RUTH_SI_1", "SI1-RUTH");
-//   env.SetValue("RUTH_SI_2", "SI2-RUTH");
+   env.SetValue("RUTH_SI_1", "SI1-RUTH");
+   env.SetValue("RUTH_SI_2", "SI2-RUTH");
 
 }
