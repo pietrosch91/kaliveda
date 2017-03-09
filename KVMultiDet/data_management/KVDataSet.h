@@ -16,12 +16,12 @@ $Author: franklan $
 #include "TFile.h"
 #include "TEnv.h"
 #include "TSystem.h"
+#include "KVDataAnalysisTask.h"
 
 class KVDataBase;
 class KVDataSetManager;
 class KVDataRepository;
 class KVDBSystem;
-class KVDataAnalysisTask;
 class TObjArray;
 class KVDBRun;
 class KVAvailableRunsFile;
@@ -63,6 +63,7 @@ protected:
    };
    const Char_t* GetDBName() const;
    const Char_t* GetFullPathToDB() const;
+   void SetDataSetSpecificTaskParameters(KVDataAnalysisTask*) const;
 
 public:
 
