@@ -12,6 +12,7 @@ $Author: franklan $
 #include <TString.h>
 #include <TArrayI.h>
 #include <TObject.h>
+#include <TList.h>
 
 typedef std::vector<Int_t> IntArray;
 typedef std::vector<Int_t>::iterator IntArrayIter;
@@ -127,7 +128,7 @@ public:
    KVNumberList operator-(const KVNumberList&);
    KVNumberList GetComplementaryList() const;
    KVNumberList GetSubList(Int_t vinf, Int_t vsup) const;
-
+   TList* CutInSubList(Int_t number);
    /* MISCELLANEOUS */
    /* Generate TTree::Draw selection string */
    TString GetLogical(const Char_t* observable) const;
