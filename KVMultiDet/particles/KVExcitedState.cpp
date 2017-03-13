@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include "TF1.h"
 #include "Riostream.h"
+using namespace std;
 
 ClassImp(KVExcitedState)
 
@@ -106,11 +107,12 @@ void KVExcitedState::computeSpin()
 
 void KVExcitedState::computeWidth()
 {
-   Double_t gam, dgam;
+   Double_t gam;
+//   Double_t dgam;
    TString  ugam;
 
    gam  = -1;
-   dgam = -1;
+//   dgam = -1;
    ugam = "";
 
    KVString tmp = fGamma;
@@ -120,7 +122,7 @@ void KVExcitedState::computeWidth()
 
    if (np >= 1) gam = tmp.Next().Atof();
    if (np >= 2) ugam = tmp.Next().Data();
-   if (np >= 3) dgam = tmp.Next().Atof();
+//   if (np >= 3) dgam = tmp.Next().Atof();
 
    fWidth = gam;
 

@@ -12,12 +12,7 @@ $Author: franklan $
 #include "KVList.h"
 #include "KVString.h"
 
-class KVDataSet;
-
 class KVDataAnalysisTask: public KVBase {
-
-
-   friend class KVDataSet;
 
    KVString fPrereq;           //prerequisite data directory i.e. data on which analysis task is performed
    KVString fAnalyser;         //name of KVDataAnalyser class used to perform analysis
@@ -29,8 +24,6 @@ class KVDataAnalysisTask: public KVBase {
    KVString fPluginBase;       //known base class extended by plugin library
    KVString fExtraAClicIncludes;  //to be added to AClic include paths before compilation
    Int_t    fStatusUpdateInterval;//interval (number of events) after which batch job progress and status are updated
-
-   virtual void SetParametersForDataSet(KVDataSet*);
 
 public:
 
@@ -89,6 +82,10 @@ public:
    }
 
    virtual Bool_t CheckUserBaseClassIsLoaded();
+   void SetExtraAClicIncludes(const KVString& list)
+   {
+      fExtraAClicIncludes = list;
+   }
 
    ClassDef(KVDataAnalysisTask, 0)      //A data analysis task
 };

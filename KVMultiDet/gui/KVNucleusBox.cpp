@@ -139,6 +139,7 @@ void KVNucleusBox::ExecuteEvent(Int_t event, Int_t px, Int_t py)
    if (event == kButton1Double) {
       fNuclearChart->ShowNucleusInfo(fNucleus);
    } else if (event == kButton3Down) {
+      fNuclearChart->SetCurrentNuc(fNucleus);
       KVCanvas* cc = fNuclearChart->GetCanvas();
       cc->GetContextMenu()->Popup(px, py, fNuclearChart, cc, cc->cd());
       return;

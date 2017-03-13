@@ -10,6 +10,7 @@
 #include "TLine.h"
 #include "TString.h"
 #include "TLatex.h"
+#include "KVLevelScheme.h"
 
 ClassImp(KVNuclearChart)
 
@@ -264,6 +265,16 @@ void KVNuclearChart::ShowNucleusInfo(KVNucleus* nuc)
    fSymbol->Draw("same");
    update_pad();
 
+}
+
+void KVNuclearChart::ShowLevelScheme(const char* decays)
+{
+   KVLevelScheme* lvs = new KVLevelScheme(fCurrentNuc->GetSymbol());
+   lvs->Draw();
+
+   KVString dec = decays;
+   dec.Begin(",");
+   while (!dec.End()) lvs->DrawThreshold(dec.Next());
 }
 
 void KVNuclearChart::SetShowSymbol(Int_t value)
