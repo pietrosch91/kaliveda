@@ -49,6 +49,7 @@ private:
    TList* fWorkDirInit;//list of files in working directory before task runs
    TList* fWorkDirEnd;//list of files in working directory after task runs
    static Bool_t fCleanAbort;//flag to force abort of processing
+   Bool_t fUseBaseClassSubmitTask;
 
 protected:
    void ScanWorkingDirectory(TList**);
@@ -306,6 +307,10 @@ public:
       return "";
    }
    virtual const Char_t* GetRecognisedAutoBatchNameKeywords() const;
+   void UseBaseClassSubmitTask()
+   {
+      fUseBaseClassSubmitTask = kTRUE;
+   }
 
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
       ia = new KVDataAnalyser;
    ia->SetBatchMode();
    ia->SetBatchName(batchName.Data());
+   ia->UseBaseClassSubmitTask();//see comments in KVDataAnalyser::Run()
    ia->Run();
 
    //delete batch env files
