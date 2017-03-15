@@ -997,7 +997,9 @@ void KVDataAnalysisLauncher::Process(void)
       }
    }
    // check batch parameters have been set
-   if (IsBatch() && !fBatchParameters.GetNpar()) SetBatchParameters();
+   if (IsBatch() && !fBatchParameters.GetNpar()) {
+      if (!SetBatchParameters()) return; //abort analysis if user pressed cancel
+   }
    datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
    SetResource("RunsList", listOfRuns.AsString());
    SetResource("UserClassOptions", teUserOptions->GetText());
@@ -1197,8 +1199,11 @@ void KVDataAnalysisLauncher::SetBatch()
    GUIenv->SaveLevel(kEnvUser);
 }
 
-void KVDataAnalysisLauncher::SetBatchParameters()
+Bool_t KVDataAnalysisLauncher::SetBatchParameters()
 {
+   // Open dialog to set batch parameters for job
+   // returns kFALSE if cancel is pressed
+
    gBatchSystem->GetBatchSystemParameterList(fBatchParameters);
    // use saved values of batch parameters
    fBatchParameters.SetFromEnv(GUIenv, "KVDataAnalysisLauncher");
@@ -1212,6 +1217,7 @@ void KVDataAnalysisLauncher::SetBatchParameters()
       fBatchParameters.WriteToEnv(GUIenv, "KVDataAnalysisLauncher");
       GUIenv->SaveLevel(kEnvUser);
    }
+   return !cancel;
 }
 
 

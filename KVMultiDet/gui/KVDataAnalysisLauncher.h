@@ -190,7 +190,7 @@ public:
       return withBatch->IsDown();
    }
    void SetBatch();
-   void SetBatchParameters();
+   Bool_t SetBatchParameters();
 
    virtual void SetUserLibraries(void);
    virtual void SetUserIncludes(void);
