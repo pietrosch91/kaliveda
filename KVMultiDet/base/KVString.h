@@ -106,6 +106,8 @@ public:
 
    void RandomLetterSequence(Int_t length);
 
+   void Capitalize();
+
    ClassDef(KVString, 1)//TString wrapper compatible with ROOT versions 3.10/02 onwards
 };
 
