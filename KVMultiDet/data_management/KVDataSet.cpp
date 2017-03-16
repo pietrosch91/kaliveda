@@ -956,8 +956,9 @@ void KVDataSet::DeleteRunfile(const Char_t* type, Int_t run, Bool_t confirm)
       return;
    }
    //delete file
-   //add a safety condition for raw files
-   if (!strcmp(type, "raw") || !strcmp(type, "dst")) {
+   //prevent accidental deletion of certain types of runfiles
+   KVString doNotDelete = GetDataSetEnv("DataSet.RunFile.DoNotDelete", "all");
+   if (doNotDelete == "all" || doNotDelete.Contains(type)) {
       Error("DeleteRunFile", "%s files cannot be deleted", type);
       return;
    }

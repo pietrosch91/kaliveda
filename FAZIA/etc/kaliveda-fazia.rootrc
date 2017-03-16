@@ -52,6 +52,7 @@ LNS_2014.DataSet.RunFileClass.raw:    TFile
 LNS_2014.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 LNS_2014.KVDataSet.DataType.Subdir.recon:  recon
 LNS_2014.KVDataSet.DataType.Subdir.root:  root
+LNS_2014.DataSet.RunFile.DoNotDelete: bin
 
 +DataSet:   FAZIASYM
 FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
@@ -62,6 +63,7 @@ FAZIASYM.DataSet.RunFileClass.raw:    TFile
 FAZIASYM.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 FAZIASYM.KVDataSet.DataType.Subdir.recon:  recon
 FAZIASYM.KVDataSet.DataType.Subdir.root:  root
+FAZIASYM.DataSet.RunFile.DoNotDelete: bin
 
 +DataSet:   ISOFAZIA
 ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
@@ -72,6 +74,7 @@ ISOFAZIA.DataSet.RunFileClass.raw:    TFile
 ISOFAZIA.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 ISOFAZIA.KVDataSet.DataType.Subdir.recon:  recon
 ISOFAZIA.KVDataSet.DataType.Subdir.root:  root
+ISOFAZIA.DataSet.RunFile.DoNotDelete: bin
 
 +DataSet:   FAZIANFS
 FAZIANFS.DataSet.Title:    Neutron detection efficiency at NFS (2017-)
@@ -82,6 +85,7 @@ FAZIANFS.DataSet.RunFileClass.raw:    TFile
 FAZIANFS.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 FAZIANFS.KVDataSet.DataType.Subdir.recon:  recon
 FAZIANFS.KVDataSet.DataType.Subdir.root:  root
+FAZIANFS.DataSet.RunFile.DoNotDelete: bin
 
 +DataSet:   LNS_2016
 LNS_2016.DataSet.Title:   Test done at LNS during July 2016
@@ -92,6 +96,7 @@ LNS_2016.DataSet.RunFileClass.raw:    TFile
 LNS_2016.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 LNS_2016.KVDataSet.DataType.Subdir.recon:  recon
 LNS_2016.KVDataSet.DataType.Subdir.root:  root
+LNS_2016.DataSet.RunFile.DoNotDelete: bin
 
 +DataSet:   FAZIACOR
 FAZIACOR.DataSet.Title:   Test done at LNS during July 2016
@@ -102,6 +107,7 @@ FAZIACOR.DataSet.RunFileClass.raw:    TFile
 FAZIACOR.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 FAZIACOR.KVDataSet.DataType.Subdir.recon:  recon
 FAZIACOR.KVDataSet.DataType.Subdir.root:  root
+FAZIACOR.DataSet.RunFile.DoNotDelete: bin
 
 #DataBase
 
