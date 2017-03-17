@@ -292,6 +292,7 @@ private:
    Bool_t fInlineAllMethods;//kTRUE if all (non-ctor) method implementations written in header
    Bool_t fInlineAllCtors;//kTRUE if all ctor implementations written in header
    KVString fClassPath;//directory in which to write source files, if not working directory
+   Bool_t fInheritAllCtors;//kTRUE if all ctor from base class should be inherited
 
 protected:
 
@@ -348,7 +349,7 @@ public:
    void AddMethod(const KVClassMethod& kvcm);
    void AddMethodArgument(const Char_t* method_name, const Char_t* argument_type,
                           const Char_t* argument_name = "", const Char_t* default_value = "");
-   void AddMethodBody(const Char_t* method_name, KVString& body);
+   void AddMethodBody(const Char_t* method_name, const KVString& body);
 
    void AddHeaderIncludeFile(const Char_t* filename);
    void AddImplIncludeFile(const Char_t* filename);
@@ -461,7 +462,13 @@ public:
       return fClassPath;
    }
 
-   ClassDef(KVClassFactory, 4) //Factory for generating KaliVeda skeleton classes
+   void SetInheritAllConstructors(Bool_t yes = kTRUE)
+   {
+      // Call with kFALSE to prevent class inheriting all constructors from base class
+      fInheritAllCtors = yes;
+   }
+
+   ClassDef(KVClassFactory, 5) //Factory for generating KaliVeda skeleton classes
 };
 
 #endif
