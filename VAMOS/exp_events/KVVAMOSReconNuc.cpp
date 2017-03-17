@@ -644,23 +644,6 @@ void KVVAMOSReconNuc::IdentifyQandA()
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::MakeDetectorList()
-{
-   // Protected method, called when required to fill fDetList with pointers to
-   // the detectors whose names are stored in fDetNames.
-   // If gVamos=0x0, fDetList list will be empty.
-
-   fDetList.Clear();
-   if (gVamos) {
-      fDetNames.Begin("/");
-      while (!fDetNames.End()) {
-         KVDetector* det = gVamos->GetDetector(fDetNames.Next(kTRUE));
-         if (det) fDetList.Add(det);
-      }
-   }
-}
-//________________________________________________________________
-
 void KVVAMOSReconNuc::ReconstructTrajectory()
 {
    //Reconsturction of the trajectory at the focal plane and then at

@@ -82,6 +82,7 @@ public:
       fImport_ThetaMax = tmax;
       fImport_ThetaMin = tmin;
    }
+   void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
 
    ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up
 };

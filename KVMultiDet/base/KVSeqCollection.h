@@ -157,7 +157,7 @@ public:
    virtual void RecursiveRemove(TObject* obj);
    virtual Int_t GetSize() const
    {
-      return fCollection->GetSize();
+      return fCollection ? fCollection->GetSize() : 0;
    }
    virtual void SetOwner(Bool_t enable = kTRUE)
    {

@@ -1298,3 +1298,4 @@ Bool_t KVVAMOS::IsUsedToMeasure(const Char_t* type, KVVAMOSDetector* det)
    i = types->Index(Form(":%s,", type));
    return i >= 0;
 }
+

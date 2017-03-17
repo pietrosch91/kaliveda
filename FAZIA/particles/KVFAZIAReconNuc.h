@@ -32,8 +32,6 @@ protected:
    Float_t fESI1;//si1 contribution to energy
    Float_t fESI2;//si2 contribution to energy
 
-   virtual void MakeDetectorList();
-
 public:
 
    KVFAZIAReconNuc();

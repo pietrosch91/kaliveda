@@ -600,13 +600,7 @@ void KVReconstructedNucleus::MakeDetectorList()
    // If gMultiDetArray=0x0, fDetList list will be empty.
 
    fDetList.Clear();
-   if (gMultiDetArray) {
-      fDetNames.Begin("/");
-      while (!fDetNames.End()) {
-         KVDetector* det = gMultiDetArray->GetDetector(fDetNames.Next(kTRUE));
-         if (det) fDetList.Add(det);
-      }
-   }
+   if (gMultiDetArray) gMultiDetArray->FillDetectorList(this, &fDetList, fDetNames);
 }
 
 void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)

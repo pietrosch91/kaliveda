@@ -310,6 +310,7 @@ public:
    void FillHistogramsForAllIDTelescopes(KVSeqCollection* list);
 
    void SetDetectorTransparency(Char_t);
+   virtual void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };
