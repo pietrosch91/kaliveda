@@ -54,6 +54,7 @@ private:
    KVList* fIDTelescopes;       //->list of ID telescopes to which detector belongs
    KVList* fIDTelAlign;         //->list of ID telescopes made of this detector and all aligned detectors placed in front of it
    TList* fIDTele4Ident;  //!list of ID telescopes used for particle ID
+   TString fNameOfArray;//! name of multidetector array this detector is part of
 
    enum {
       kIsAnalysed = BIT(14),    //for reconstruction of particles
@@ -460,6 +461,15 @@ public:
       return fSingleLayer;
    }
    Bool_t HasSameStructureAs(const KVDetector*) const;
+   void SetNameOfArray(const TString& n)
+   {
+      fNameOfArray = n;
+   }
+   const Char_t* GetNameOfArray() const
+   {
+      // Return name of multidetector array this detector belongs to
+      return fNameOfArray;
+   }
 
    ClassDef(KVDetector, 10)      //Base class for the description of detectors in multidetector arrays
 };

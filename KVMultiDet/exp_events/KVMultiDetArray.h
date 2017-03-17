@@ -135,6 +135,7 @@ public:
       kFilterType_Full
    };
    KVMultiDetArray();
+   KVMultiDetArray(const Char_t* name, const Char_t* type = "");
    virtual ~KVMultiDetArray();
 
    void SetFilterType(Int_t t)

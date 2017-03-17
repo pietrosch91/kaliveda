@@ -32,11 +32,10 @@ ClassImp(KVFAZIA)
 ////////////////////////////////////////////////////////////////////////////////
 KVFAZIA* gFazia;
 
-KVFAZIA::KVFAZIA()
+KVFAZIA::KVFAZIA(const Char_t* title)
+   : KVMultiDetArray("FAZIA", title)
 {
    // Default constructor
-   SetName("FAZIA");
-   SetTitle(ClassName());
    fStartingBlockNumber = 0;
    gFazia = this;
    fDetectorLabels = "";

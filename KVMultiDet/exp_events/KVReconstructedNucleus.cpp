@@ -306,7 +306,7 @@ void KVReconstructedNucleus::Reconstruct(KVDetector* kvd)
    //particle reconstruction.
 
    fNSegDet = 0;
-
+   SetParameter("ARRAY", kvd->GetNameOfArray());
    //get list of detectors through which particle passed
    if (kvd->GetGroup()) {
       TList* aligned = kvd->GetAlignedDetectors();

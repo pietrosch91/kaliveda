@@ -46,7 +46,7 @@ protected:
 
 public:
 
-   KVFAZIA();
+   KVFAZIA(const Char_t* title = "");
    virtual ~KVFAZIA();
    void AddDetectorLabel(const Char_t* label);
 
