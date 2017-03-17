@@ -281,6 +281,10 @@ public:
    {
       return TMath::RadToDeg() * Theta();
    };
+   Double_t GetCosTheta() const
+   {
+      return TMath::Cos(Theta());
+   }
    Double_t GetPhi() const
    {
       Double_t phi = TMath::RadToDeg() * Phi();
