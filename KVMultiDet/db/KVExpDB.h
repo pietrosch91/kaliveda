@@ -83,10 +83,10 @@ public:
    const Char_t* GetCalibFileName(const Char_t* type) const
    {
       return GetDBEnv(type);
-   };
+   }
 
-   virtual void WriteObjects(TFile*) {};
-   virtual void ReadObjects(TFile*) {};
+   virtual void WriteObjects(TFile*) {}
+   virtual void ReadObjects(TFile*) {}
    virtual void PrintRuns(KVNumberList&) const;
 
    ClassDef(KVExpDB, 1) //base class to describe database of an experiment
