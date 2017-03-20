@@ -178,7 +178,7 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVIDTelescope:    ^ISOFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si-CsI$                 KVFAZIAIDSiCsI_FAZIASYM            FAZIAidentification           "KVFAZIAIDSiCsI_FAZIASYM()"
-+Plugin.KVIDTelescope:    ^FAZIASYM.Si-Si$                 KVFAZIAIDSiSi_FAZIACOR            FAZIAidentification           "KVFAZIAIDSiSi_FAZIACOR()"
++Plugin.KVIDTelescope:    ^FAZIACOR.Si-Si$                 KVFAZIAIDSiSi_FAZIACOR            FAZIAidentification           "KVFAZIAIDSiSi_FAZIACOR()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^LNS_2014.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
