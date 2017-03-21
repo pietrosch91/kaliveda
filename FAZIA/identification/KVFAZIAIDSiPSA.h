@@ -12,8 +12,8 @@
 
 class KVFAZIAIDSiPSA : public KVFAZIAIDTelescope {
 
-   TGraph* fRearThreshold;//! Z-dependent threshold extracted from published article
-   // to be updated with G.Pastore NIMA 2017
+   static TGraph* fZThreshold;//! threshold for Z identification from NIM A 701, 145 (2013)
+   static TGraph* fAThreshold;//! threshold for A identification from NIM A ?,? (2017)
 
    KVIDZAGrid* IGrid;    //! telescope's Imax E grid
    KVIDZAGrid* QGrid;    //! telescope's Qrise E grid
@@ -34,6 +34,7 @@ public:
    virtual void Initialize();
 
    Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
+   void SetIdentificationStatus(KVReconstructedNucleus*);
 
    ClassDef(KVFAZIAIDSiPSA, 1) //PSA identification in first silicon of FAZIA telescopes
 };

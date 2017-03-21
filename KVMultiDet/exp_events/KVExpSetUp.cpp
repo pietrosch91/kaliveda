@@ -4,6 +4,7 @@
 #include "KVExpSetUp.h"
 #include "KVDataSetManager.h"
 #include "TClass.h"
+#include "KVReconstructedNucleus.h"
 
 #include <KVGroup.h>
 #include <KVRangeTableGeoNavigator.h>
@@ -123,5 +124,23 @@ void KVExpSetUp::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetL
    while ((mda = (KVMultiDetArray*)next_array())) {
       mda->FillDetectorList(rnuc, DetList, DetNames);
       if (!DetList->IsEmpty()) break;
+   }
+}
+
+void KVExpSetUp::AcceptParticleForAnalysis(KVReconstructedNucleus* NUC) const
+{
+   // Overrides KVMultiDetArray method
+   // We use the "ARRAY" parameter of the reconstructed particle (if set)
+   // to know which array of the setup detected it.
+
+   if (NUC->GetParameters()->HasStringParameter("ARRAY")) {
+      KVMultiDetArray* whichArray = GetArray(NUC->GetParameters()->GetStringValue("ARRAY"));
+      if (whichArray) {
+         whichArray->AcceptParticleForAnalysis(NUC);
+      } else
+         Warning("AcceptParticleForAnalysis", "ReconstructedNucleus has ARRAY=%s but no KVMultiDetArray with this name in set-up",
+                 NUC->GetParameters()->GetStringValue("ARRAY"));
+   } else {
+      Warning("AcceptParticleForAnalysis", "ReconstructedNucleus has no ARRAY parameter: cannot determine correct KVMultiDetArray");
    }
 }

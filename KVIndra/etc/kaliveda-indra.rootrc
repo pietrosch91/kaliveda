@@ -459,6 +459,11 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndraexp_events    "KVIN
 +Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA     KVIndraexp_events    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s_woVAMOS    KVINDRA     KVIndraexp_events  "KVINDRA()"
 
+# Acceptable identification & energy codes for INDRA reconstructed particles
+# Dataset-dependent values can be set with [Dataset].INDRA.ReconstructedNuclei.Accept[ID/E]Codes
+INDRA.ReconstructedNuclei.AcceptIDCodes: 2-4,6
+INDRA.ReconstructedNuclei.AcceptECodes: 1-2
+
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
 # By default, this is assumed to be in file $KVROOT/db/name_of_dataset/[value of DataSet.DatabaseFile]

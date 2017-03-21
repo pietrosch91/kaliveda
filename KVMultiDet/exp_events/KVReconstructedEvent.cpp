@@ -95,6 +95,8 @@ void KVReconstructedEvent::Streamer(TBuffer& R__b)
             if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
                if (par->GetGroup())
                   KVReconstructedNucleus::AnalyseParticlesInGroup(par->GetGroup());
+            // apply identification & calibration code selection
+            gMultiDetArray->AcceptParticleForAnalysis(par);
          }
       }
    } else {

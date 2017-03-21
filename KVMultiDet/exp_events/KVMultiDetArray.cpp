@@ -503,8 +503,7 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
                   if (round > 1) idtelstop->SetIDCode(recon_nuc, idtelstop->GetCoherencyIDCode());
                   recon_nuc->SetIsIdentified();
                   recon_nuc->SetIsCalibrated();
-                  recon_nuc->SetZMeasured();
-                  recon_nuc->SetAMeasured();
+                  idtelstop->SetIdentificationStatus(recon_nuc);
                   break;
                } else {
                   Int_t nseg = recon_nuc->GetNSegDet();
@@ -1056,9 +1055,11 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   // for particles which are apprently well-identified, we
                   // check that they are in fact sufficiently energetic to be identified
                   if (!part->BelongsToGroup("INCOMPLETE")
-                        && !idt->CheckTheoreticalIdentificationThreshold((KVNucleus*)part->GetFrame(detection_frame, kFALSE))) part->AddGroup("INCOMPLETE");
+                        && !idt->CheckTheoreticalIdentificationThreshold((KVNucleus*)part->GetFrame(detection_frame, kFALSE)))
+                     part->AddGroup("INCOMPLETE");
                   if (!part->BelongsToGroup("INCOMPLETE")) {
                      idt->SetIDCode(recon_nuc, idt->GetIDCode());
+                     idt->SetIdentificationStatus(recon_nuc);
                   } else {
                      idt->SetIDCode(recon_nuc, idt->GetZminCode());
                   }
@@ -1679,6 +1680,11 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
       // or KVMultiDetArray.ROOTGeometry = yes), turn it on
       mda->fROOTGeometry = KVDataSet::GetDataSetEnv(dataset_name, "KVMultiDetArray.ROOTGeometry", kFALSE);
       if (mda->fROOTGeometry) mda->CheckROOTGeometry();
+      // set dataset-dependent lists of acceptable ID/E codes for reconstructed nuclei
+      KVString codes = KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptIDCodes", mda->GetName()), "");
+      if (codes != "") mda->fAcceptIDCodes.Set(codes);
+      codes = KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptECodes", mda->GetName()), "");
+      if (codes != "") mda->fAcceptECodes.Set(codes);
    } else {
       mda = gMultiDetArray;
       // database creation may not have set the right run
@@ -2195,10 +2201,12 @@ void KVMultiDetArray::SetDetectorThicknesses()
 void KVMultiDetArray::SetGeometry(TGeoManager* g)
 {
    // Define the geometry of the array with a valid ROOT geometry (TGeoManager instance)
-   // The name and title of the TGeoManager object will be used for the array.
+   // If no name and/or title are defined for the array, the name and title of the TGeoManager
+   // object will be used for the array.
    // ROOT geometry will be used by default from now on.
-   //fGeoManager = g;
-   SetNameTitle(g->GetName(), g->GetTitle());
+
+   if (!strcmp(GetName(), "")) SetName(g->GetName());
+   if (!strcmp(GetTitle(), "")) SetTitle(g->GetTitle());
    SetROOTGeometry();
 }
 
@@ -2765,4 +2773,22 @@ void KVMultiDetArray::FillDetectorList(KVReconstructedNucleus*, KVHashList* DetL
       KVDetector* det = GetDetector(DetNames.Next(kTRUE));
       if (det) DetList->Add(det);
    }
+}
+
+void KVMultiDetArray::AcceptParticleForAnalysis(KVReconstructedNucleus* NUC) const
+{
+   // Set status (IsOK) of particle by comparing its identification/calibration codes
+   // with those set as acceptable in fAcceptIDCodes and fAcceptECodes.
+   // The default lists are defined in variables of the form
+   //   [DataSet].[name].ReconstructedNuclei.AcceptIDCodes:  [list]
+   //   [DataSet].[name].ReconstructedNuclei.AcceptECodes:  [list]
+   // where DataSet is an optional dataset name for dataset-specific lists
+   //       name is the name of the multidetector array
+   //       list is a numeric list (KVNumberList format)
+   // If either list is empty, no selection is made for the corresponding code
+
+   Bool_t ok = kTRUE;
+   if (!fAcceptIDCodes.IsEmpty()) ok = fAcceptIDCodes.Contains(NUC->GetIDCode());
+   if (!fAcceptECodes.IsEmpty()) ok = ok && fAcceptECodes.Contains(NUC->GetECode());
+   NUC->SetIsOK(ok);
 }

@@ -1161,6 +1161,23 @@ Bool_t KVIDTelescope::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, Do
    return (ION->GetEnergy() > emin);
 }
 
+void KVIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
+{
+   // For filtering simulations
+   // Set the n->IsZMeasured() and n->IsAMeasured() status of the particle
+   // In principle this depends on whether this telescope provides mass
+   // identification or not, but this may depend on the particle's energy.
+   // If A was not measured, it will be replaced with a value calculated
+   // from whatever mass formula is used for the particle.
+
+   n->SetZMeasured();
+   if (!HasMassID()) {
+      n->SetAMeasured(kFALSE);
+      n->SetZ(n->GetZ());// use mass formula for A
+   } else
+      n->SetAMeasured();
+}
+
 void KVIDTelescope::OpenIdentificationBilan(const TString& path)
 {
    // Open IdentificationBilan.dat file with given path

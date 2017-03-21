@@ -142,14 +142,14 @@ public:
    void SetHasMassID(Bool_t yes = kTRUE)
    {
       SetBit(kMassID, yes);
-   };
+   }
 
    // Returns kTRUE if this telescope is capable of identifying particles' mass (A)
    // as well as their charge (Z).
    Bool_t HasMassID() const
    {
       return TestBit(kMassID);
-   };
+   }
 
    static KVIDTelescope* MakeIDTelescope(const Char_t* name);
 
@@ -229,6 +229,7 @@ public:
       // dE-E telescopes used to identify charged ions.
       return (Z > 0);
    }
+   virtual void SetIdentificationStatus(KVReconstructedNucleus*);
    Bool_t IsIndependent() const
    {
       // Returns kTRUE is this identification can be made independently of any

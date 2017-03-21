@@ -22,6 +22,12 @@ public:
 
    void SetParameters(UShort_t n);
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
+   virtual KVMultiDetArray* GetArray(const Char_t* name) const
+   {
+      // Return pointer to array in set up with given name
+      return (KVMultiDetArray*)fMDAList.FindObject(name);
+   }
+   virtual void AcceptParticleForAnalysis(KVReconstructedNucleus*) const;
 
    ClassDef(KVExpSetUp, 1) //Describe an experimental set-up made of several KVMultiDetArray objects
 };

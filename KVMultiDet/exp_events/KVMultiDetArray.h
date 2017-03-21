@@ -69,6 +69,9 @@ protected:
 
    KVUniqueNameList fTrajectories;//! list of all possible trajectories through detectors of array
 
+   KVNumberList fAcceptIDCodes;//! list of acceptable identification codes for reconstructed nuclei
+   KVNumberList fAcceptECodes;//! list of acceptable calibration codes for reconstructed nuclei
+
    virtual void RenumberGroups();
    virtual void BuildGeometry() {
       AbstractMethod("BuildGeometry");
@@ -289,6 +292,21 @@ public:
 
    void SetDetectorTransparency(Char_t);
    virtual void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
+
+   virtual void AcceptParticleForAnalysis(KVReconstructedNucleus*) const;
+   const KVNumberList& GetAcceptedIDCodes() const
+   {
+      return fAcceptIDCodes;
+   }
+   const KVNumberList& GetAcceptedECodes() const
+   {
+      return fAcceptECodes;
+   }
+
+   virtual KVMultiDetArray* GetArray(const Char_t*) const
+   {
+      return const_cast<KVMultiDetArray*>(this);
+   }
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };
