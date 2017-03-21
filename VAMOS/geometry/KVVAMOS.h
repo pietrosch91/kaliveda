@@ -11,7 +11,7 @@
 #include "TGeoMatrix.h"
 #include "KVReconstructedNucleus.h"
 #include "KVMacros.h" // 'UNUSED' macro
-#include "KVZGOUBIInverseMatrix.h"
+#include "KVZGOUBIReconstruction.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ class KVVAMOSReconGeoNavigator;
 class KVVAMOSWeightFinder;
 class KVReconstructedNucleus;
 class KVBasicVAMOSFilter;
-class KVZGOUBIInverseMatrix;
+class KVZGOUBIReconstruction;
 
 class KVVAMOS : public KVMultiDetArray {
 
@@ -56,7 +56,7 @@ protected:
    KVVAMOSReconGeoNavigator* fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
    KVVAMOSTransferMatrix* fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
    KVVAMOSWeightFinder* fWeightFinder;//!Weight computation for VAMOS events
-   KVZGOUBIInverseMatrix* fZGOUBIMatrix;//!Transfer matrix for the reconstruction LAB<-->FP using ZGOUBI
+   KVZGOUBIReconstruction* fZGOUBIReconstruction;//!Transfer matrix for the reconstruction LAB<-->FP using ZGOUBI
    KVList*      fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
    TGeoVolume*  fVAMOSvol;    //!TGeoVolume of VAMOS
    KVList*      fVCalibrators;//->References to calibrator belonging to VAMOS
@@ -101,7 +101,7 @@ public:
    virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
    KVVAMOSReconGeoNavigator* GetReconNavigator();
    KVVAMOSTransferMatrix* GetTransferMatrix();
-   KVZGOUBIInverseMatrix* GetZGOUBIInverseMatrix();
+   KVZGOUBIReconstruction* GetZGOUBIReconstruction();
    KVVAMOSWeightFinder* GetWeightFinder();
    virtual void     Initialize();
    static  KVVAMOS* MakeVAMOS(const Char_t* name);
@@ -111,7 +111,7 @@ public:
    void     SetStripFoil(KVMaterial* foil, Double_t pos = 0);
    void     SetStripFoil(const Char_t* material, const Float_t area_density, Double_t pos);
    void     SetTransferMatrix(KVVAMOSTransferMatrix* mat);
-   void     SetZGOUBIInverseMatrix(KVZGOUBIInverseMatrix* mat);
+   void     SetZGOUBIReconstruction(KVZGOUBIReconstruction* mat);
    void     TargetToFocal(const Double_t* target, Double_t* focal);
    void     TargetToFocalVect(const Double_t* target, Double_t* focal);
    virtual void     UpdateGeometry();
@@ -149,33 +149,27 @@ public:
 
    static UInt_t    CalculateUniqueID(KVBase* param, KVVAMOSDetector* det = NULL);
    static UChar_t   GetACQParamTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
-   static UChar_t   GetACQParamTypeIdxFromID(UInt_t id)
-   {
+   static UChar_t   GetACQParamTypeIdxFromID(UInt_t id) {
       return (id / 1000) % 10;
    }
-   static KVString& GetACQParamTypes()
-   {
+   static KVString& GetACQParamTypes() {
       return fACQParamTypes;
    }
    static UChar_t   GetPositionTypeIdx(const Char_t* type, KVVAMOSDetector* det = NULL);
-   static UChar_t   GetPositionTypeIdxFromID(UInt_t id)
-   {
+   static UChar_t   GetPositionTypeIdxFromID(UInt_t id) {
       return (id / 10000) % 10;
    }
-   static KVString& GetPositionTypes()
-   {
+   static KVString& GetPositionTypes() {
       return fPositionTypes;
    }
    static Bool_t    IsUsedToMeasure(const Char_t* type, KVVAMOSDetector* det = NULL);
 
-   void ShowECalibPar()
-   {
+   void ShowECalibPar() {
       cout << "par0= " << fECalibPar[0] << endl;
       cout << "par1= " << fECalibPar[1] << endl;
       cout << "par2= " << fECalibPar[2] << endl;
       cout << "par3= " << fECalibPar[3] << endl;
    }
-
    ClassDef(KVVAMOS, 1) //VAMOS: variable mode spectrometer at GANIL
 };
 

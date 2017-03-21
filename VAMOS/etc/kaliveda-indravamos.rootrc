@@ -14,7 +14,6 @@ INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e503.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
 INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e503.ReconstructedEventClassName:   KVIVReconEvent
-INDRA_e503.DataSet.RunFile.DoNotDelete: raw
 
 # We must protect Mark Boisjoli's work from being overwritten. Therefore we make
 # the default recon and ident directories recon3/ident3 instead of the
@@ -36,7 +35,6 @@ INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
 INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.ReconstructedEventClassName:   KVIVReconEvent
-INDRA_e494s.DataSet.RunFile.DoNotDelete: raw
 
 # New data reduction November 2016
 INDRA_e494s.KVDataSet.DataType.Subdir.ident:  ident4
@@ -274,9 +272,20 @@ INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationCutListSiCsI:  VAMOSDuplication
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS
 
 # ZGOUBI Database
-+INDRA_e503.KVZGOUBIInverseMatrix.ZGOUBIDatabase:  ZGOUBI_database
-+INDRA_e494s.KVZGOUBIInverseMatrix.ZGOUBIDatabase:  ZGOUBI_database
+INDRA_e503.KVZGOUBIReconstruction.ZGOUBIDatabase4D:  ZGOUBI_database
+INDRA_e494s.KVZGOUBIReconstruction.ZGOUBIDatabase4D:  ZGOUBI_database
+INDRA_e503.KVZGOUBIReconstruction.ZGOUBIDatabase2D:  ZGOUBI_database
+INDRA_e494s.KVZGOUBIReconstruction.ZGOUBIDatabase2D:  ZGOUBI_database
+
+
+# ZGOUBI Database local
+INDRA_e503.KVZGOUBIReconstruction.ZGOUBIDatabase_local4D:  
+INDRA_e494s.KVZGOUBIReconstruction.ZGOUBIDatabase_local4D:
+INDRA_e503.KVZGOUBIReconstruction.ZGOUBIDatabase_local2D:  
+INDRA_e494s.KVZGOUBIReconstruction.ZGOUBIDatabase_local2D:
+
+INDRA_e494s.KVZGOUBIInverseMatrix.ZGOUBIDatabase_local:
 
 # Reconstruction method for ReconstructLabTraj: Polynomial or Zgoubi
-+INDRA_e503.KVVAMOSReconNuc.ReconstructLabTrajMethod:  Zgoubi
-+INDRA_e494s.KVVAMOSReconNuc.ReconstructLabTrajMethod:  Zgoubi
+INDRA_e503.KVVAMOSReconNuc.ReconstructLabTrajMethod:  Zgoubi
+INDRA_e494s.KVVAMOSReconNuc.ReconstructLabTrajMethod:  Zgoubi

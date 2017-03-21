@@ -644,6 +644,23 @@ void KVVAMOSReconNuc::IdentifyQandA()
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::MakeDetectorList()
+{
+   // Protected method, called when required to fill fDetList with pointers to
+   // the detectors whose names are stored in fDetNames.
+   // If gVamos=0x0, fDetList list will be empty.
+
+   fDetList.Clear();
+   if (gVamos) {
+      fDetNames.Begin("/");
+      while (!fDetNames.End()) {
+         KVDetector* det = gVamos->GetDetector(fDetNames.Next(kTRUE));
+         if (det) fDetList.Add(det);
+      }
+   }
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::ReconstructTrajectory()
 {
    //Reconsturction of the trajectory at the focal plane and then at
@@ -896,14 +913,14 @@ Bool_t KVVAMOSReconNuc::ReconstructLabTraj()
       Warning("ReconstructLabTraj()", "No method defined. Should be given by %s.KVVAMOSReconNuc.ReconstructLabTrajMethod", gDataSet->GetName());
       return false;
    } else if (filename == "Zgoubi") {
-      KVZGOUBIInverseMatrix* tm = gVamos->GetZGOUBIInverseMatrix();
+      KVZGOUBIReconstruction* tm = gVamos->GetZGOUBIReconstruction();
       return tm->ReconstructFPtoLab(&fRT);
    } else if (filename == "Polynomial") {
       KVVAMOSTransferMatrix* tm = gVamos->GetTransferMatrix();
       return tm->ReconstructFPtoLab(&fRT);
    } else {
       Warning("ReconstructLabTraj()", "Method not valid, should be Polynomial or Zgoubi. Should be given by %s.KVVAMOSReconNuc.ReconstructLabTrajMethod. Zgoubi will be used.", gDataSet->GetName());
-      KVZGOUBIInverseMatrix* tm = gVamos->GetZGOUBIInverseMatrix();
+      KVZGOUBIReconstruction* tm = gVamos->GetZGOUBIReconstruction();
       return tm->ReconstructFPtoLab(&fRT);
    }
 }
