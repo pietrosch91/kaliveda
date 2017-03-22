@@ -6,8 +6,12 @@
 
 #include "KVIDTelescope.h"
 #include "KVReconstructedNucleus.h"
+#include "TF1.h"
 
 class KVFAZIAIDTelescope : public KVIDTelescope {
+
+protected:
+   static TF1* fMassIDProb;
 
 public:
    enum {                       //determine identification code
@@ -22,6 +26,7 @@ public:
    virtual ~KVFAZIAIDTelescope();
    virtual void AddDetector(KVDetector* d);
    static const Char_t* GetNewName(KVString oldname);
+   void SetIdentificationStatus(KVReconstructedNucleus* n);
 
    ClassDef(KVFAZIAIDTelescope, 1) //Identification for FAZIA array
 };

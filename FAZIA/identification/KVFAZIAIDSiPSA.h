@@ -8,12 +8,12 @@
 #include "KVIDZAGrid.h"
 #include "KVFAZIADetector.h"
 #include "KVIDCutLine.h"
-#include "TGraph.h"
+#include "TF1.h"
 
 class KVFAZIAIDSiPSA : public KVFAZIAIDTelescope {
 
-   static TGraph* fZThreshold;//! threshold for Z identification from NIM A 701, 145 (2013)
-   static TGraph* fAThreshold;//! threshold for A identification from NIM A ?,? (2017)
+   static TF1* fZThreshold;//! empirical threshold for Z identification
+   static TF1* fAThreshold;//! empirical threshold for A identification
 
    KVIDZAGrid* IGrid;    //! telescope's Imax E grid
    KVIDZAGrid* QGrid;    //! telescope's Qrise E grid

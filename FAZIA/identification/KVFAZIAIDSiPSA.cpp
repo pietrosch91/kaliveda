@@ -15,8 +15,8 @@ ClassImp(KVFAZIAIDSiPSA)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-TGraph* KVFAZIAIDSiPSA::fZThreshold = 0;
-TGraph* KVFAZIAIDSiPSA::fAThreshold = 0;
+TF1* KVFAZIAIDSiPSA::fZThreshold = 0;
+TF1* KVFAZIAIDSiPSA::fAThreshold = 0;
 
 KVFAZIAIDSiPSA::KVFAZIAIDSiPSA()
 {
@@ -24,29 +24,26 @@ KVFAZIAIDSiPSA::KVFAZIAIDSiPSA()
 
    if (!fZThreshold) {
       // Threshold for Z identification by PSA
-      // Data from NIM A 701, 145 (2013)
-      fZThreshold = new TGraph(8);
-      fZThreshold->SetPoint(0, 2.919586798, 1.505566588);
-      fZThreshold->SetPoint(1, 4.968677141, 2.393311626);
-      fZThreshold->SetPoint(2, 5.963949593, 2.837184146);
-      fZThreshold->SetPoint(3, 9.945039402, 4.733730365);
-      fZThreshold->SetPoint(4, 14.9799471, 5.984643828);
-      fZThreshold->SetPoint(5, 20.0148548, 7.840838);
-      fZThreshold->SetPoint(6, 25.10830794, 9.858440361);
-      fZThreshold->SetPoint(7, 30.0846702, 14.21646146);
+      // Data from NIM A ?, ? (2017)
+//      Double_t Z[] = {3,6,9,12,15,18,21,24,27,30};
+//      Double_t E[] = {10,30,65,105,155,220,310,420,520,590};
+//      Double_t dE = 5;// +/- 5 MeV for all points
+//      fZThreshold = new TGraphErrors(10,Z,E);
+//      for(int i=0;i<10;++i) fZThreshold->SetPointError(i,0,dE);
+      fZThreshold = new TF1("FAZIAIDSiPSA-ZSEUIL", "pol2", 0, 100);
+      fZThreshold->SetParameters(12.261900, -1.767320, 0.765392);
    }
+
    if (!fAThreshold) {
       // Threshold for A identification by PSA
       // Data from NIM A ?, ? (2017)
-      fAThreshold = new TGraph(8);
-      fAThreshold->SetPoint(0, 2.919586798, 2 * 1.505566588);
-      fAThreshold->SetPoint(1, 4.968677141, 2 * 2.393311626);
-      fAThreshold->SetPoint(2, 5.963949593, 2 * 2.837184146);
-      fAThreshold->SetPoint(3, 9.945039402, 2 * 4.733730365);
-      fAThreshold->SetPoint(4, 14.9799471, 2 * 5.984643828);
-      fAThreshold->SetPoint(5, 20.0148548, 2 * 7.840838);
-      fAThreshold->SetPoint(6, 25.10830794, 2 * 9.858440361);
-      fAThreshold->SetPoint(7, 30.0846702, 2 * 14.21646146);
+//      int i=0; fZmaxAID=3;
+//      Double_t E[] = {15,22.5,37.5,67.5,97.5,112.5,140,172.5,202.5,247.5,277.5,322.5,375,410,487.5,530,612.5};
+//      Double_t Z[17]; for(int i=0;i<17;++i) Z[i] = i+3;
+//      Double_t dE[17]; for(int i=0;i<11;++i) dE[i] = 15; for(int i=11;i<17;++i) dE[i] = 25;
+//      fAThreshold = new TGraphErrors(17,Z,E,0,dE);
+      fAThreshold = new TF1("FAZIAIDSiPSA-ASEUIL", "pol2", 0, 100);
+      fAThreshold->SetParameters(-5.14823, 2.03461, 1.55798);
    }
    SetType("SiPSA");
 }
@@ -112,7 +109,10 @@ void KVFAZIAIDSiPSA::Initialize()
    } else {
       ResetBit(kReadyForID);
    }
-   if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+   if (!gDataSet->HasCalibIdentInfos()) { // for filtering simulations
+      SetBit(kReadyForID, fSi->IsLabelled("SI1"));// only activate PSA for SI1
+      // if not, no particles are identified in SI1-SI2
+   }
 }
 
 Bool_t KVFAZIAIDSiPSA::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, Double_t)
@@ -122,10 +122,9 @@ Bool_t KVFAZIAIDSiPSA::CheckTheoreticalIdentificationThreshold(KVNucleus* ION, D
    // using pulse shape discrimination and DeltaE-E methods between front and rear injection in
    // silicon detector" NIM A 701, 145 (2013) (FAZIA collaboration).
    // Thresholds used are those for rear-injection (red curve, lowest values).
-   // **to be updated with G.Pastore NIMA 2017**
 
    Double_t seuil = fZThreshold->Eval(ION->GetZ());
-   return (ION->GetEnergyPerNucleon() > seuil);
+   return (ION->GetEnergy() >= seuil);
 }
 
 void KVFAZIAIDSiPSA::SetIdentificationStatus(KVReconstructedNucleus* n)
@@ -137,7 +136,9 @@ void KVFAZIAIDSiPSA::SetIdentificationStatus(KVReconstructedNucleus* n)
    // the mass formula for the particle
 
    n->SetZMeasured();
-   if (n->GetEnergyPerNucleon() > fAThreshold->Eval(n->GetZ())) {
+   Bool_t okmass = (n->GetZ() < 20) || (n->GetZ() < 26 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
+   okmass = okmass && (n->GetEnergy() >= fAThreshold->Eval(n->GetZ()));
+   if (okmass) {
       n->SetAMeasured();
    } else
       n->SetZ(n->GetZ());

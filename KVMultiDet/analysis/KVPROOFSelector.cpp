@@ -18,13 +18,18 @@ ClassImp(KVPROOFSelector)
 <h4>General purpose class for running parallel tasks with PROOF</h4>
 <!-- */
 // --> END_HTML
-// Use this TSelector with PROOF in order to run tasks in parallel:
+// Generate a class derived from this one using static method
+//
+//    KVPROOFSelector::Make("MySelector");
+//
+// then you can use PROOF in order to run tasks in parallel:
 //
 //    TProof::Open("");           // open PROOFLite session
 //    gProof->Process("MySelector.cpp+", [ncycles], "[options]");
 //
-// will execute MySelector::Process(Long64_t) ncycles times.
+// This will execute MySelector::Process(Long64_t) ncycles times.
 //
+// USING TREES & HISTOGRAMS TO SAVE DATA
 // - declare any histograms with method AddHisto(TH1*)
 // e.g. in InitAnalysis:
 // void MySelector::InitAnalysis()

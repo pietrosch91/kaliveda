@@ -5,6 +5,7 @@
 #include <Riostream.h>
 #include "KVError.h"
 #include "TMath.h"
+#include "TRandom.h"
 
 ClassImp(KVNumberList)
 //////////////////////////////////////////////
@@ -736,6 +737,12 @@ const Char_t* KVNumberList::AsString(Int_t maxlen) const
       }
    }
    return tmp.Data();
+}
+
+Int_t KVNumberList::GetRandom() const
+{
+   // Draw number at random from list
+   return At(gRandom->Integer(GetEntries()));
 }
 
 //____________________________________________________________________________________________//

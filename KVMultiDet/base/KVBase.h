@@ -85,6 +85,11 @@ public:
    {
       return fLabel.Length();
    }
+   Bool_t IsLabelled(const Char_t* l) const
+   {
+      // return true if object label is "l"
+      return fLabel == l;
+   }
    virtual void Print(Option_t* option = "") const;
    virtual void List()
    {

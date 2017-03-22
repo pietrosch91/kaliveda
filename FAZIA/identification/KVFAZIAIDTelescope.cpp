@@ -4,6 +4,8 @@
 #include "KVFAZIAIDTelescope.h"
 #include "KVFAZIADetector.h"
 
+TF1* KVFAZIAIDTelescope::fMassIDProb = 0;
+
 ClassImp(KVFAZIAIDTelescope)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +20,10 @@ ClassImp(KVFAZIAIDTelescope)
 KVFAZIAIDTelescope::KVFAZIAIDTelescope()
 {
    // Default constructor
+   if (!fMassIDProb) {
+      fMassIDProb = new TF1("FAZIA-MassIDProb", "1./(exp((x-[0])/[1])+1)", 0, 100);
+      fMassIDProb->SetParameters(22.5, .5);
+   }
 }
 
 KVFAZIAIDTelescope::~KVFAZIAIDTelescope()
@@ -74,4 +80,21 @@ const Char_t* KVFAZIAIDTelescope::GetNewName(KVString oldname)
 
    return newname.Data();
 
+}
+
+void KVFAZIAIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
+{
+   // For filtering simulations
+   // Mass identification is OK for all Z<20,
+   // for 20<=Z<=25 mass identification probability is given by
+   // the Fermi distribution KVFAZIAIDTelescope::fMassIDProb
+   // Otherwise, we just set n->IsZMeasured(kTRUE) and use the A given by
+   // the mass formula for the particle
+
+   n->SetZMeasured();
+   Bool_t okmass = (n->GetZ() < 20) || (n->GetZ() < 26 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
+   if (okmass) {
+      n->SetAMeasured();
+   } else
+      n->SetZ(n->GetZ());
 }

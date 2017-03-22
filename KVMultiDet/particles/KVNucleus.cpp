@@ -1048,11 +1048,10 @@ void KVNucleus::AddGroup_Withcondition(const Char_t* groupname, KVParticleCondit
 KVNucleus& KVNucleus::operator=(const KVNucleus& rhs)
 {
    //KVNucleus assignment operator.
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   rhs.Copy(*this);
-#else
-   ((KVNucleus&) rhs).Copy(*this);
-#endif
+
+   if (&rhs != this) {
+      rhs.Copy(*this);
+   }
    return *this;
 }
 

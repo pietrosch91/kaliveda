@@ -52,16 +52,19 @@ public:
    virtual ~ KVNumberList();
 
    virtual void     SetName(const char* name);
-   virtual const char* GetName() const {
+   virtual const char* GetName() const
+   {
       return fName.Data();
    }
 
    /* LIST MODIFIERS */
    /* Set the number list */
-   void Set(const TString& l) {
+   void Set(const TString& l)
+   {
       SetList(l);
    }
-   void Set(Int_t min, Int_t max, Int_t pas = 1) {
+   void Set(Int_t min, Int_t max, Int_t pas = 1)
+   {
       SetMinMax(min, max, pas);
    }
    void SetList(const TString&);
@@ -93,10 +96,12 @@ public:
    Int_t First() const;
    Int_t Last() const;
    Int_t GetNValues() const;
-   Int_t GetEntries() const {
+   Int_t GetEntries() const
+   {
       return GetNValues();
    };
-   Bool_t IsEmpty() const {
+   Bool_t IsEmpty() const
+   {
       if (!fIsParsed) ParseList();
       return (fNValues == 0);
    };
@@ -109,11 +114,13 @@ public:
    const Char_t* GetList() const;
    const Char_t* GetExpandedList() const;
    const Char_t* AsString(Int_t maxchars = 0) const;
+   Int_t GetRandom() const;
 
    /* LIST ITERATORS */
    Int_t Next(void) const;
    void Begin(void) const;
-   Bool_t End(void) const {
+   Bool_t End(void) const
+   {
       return (fIterIndex == fEndList);
    };
 
@@ -127,7 +134,8 @@ public:
    /* Generate TTree::Draw selection string */
    TString GetLogical(const Char_t* observable) const;
    /* Convert to c-string */
-   operator const char* () const {
+   operator const char* () const
+   {
       return GetList();
    }
    /* Print list properties */

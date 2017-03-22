@@ -103,5 +103,8 @@ void KVFAZIAIDSiCsI::Initialize()
    } else {
       ResetBit(kReadyForID);
    }
-   if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+   if (!gDataSet->HasCalibIdentInfos()) {// for filtering simulations
+      SetBit(kReadyForID);
+      SetHasMassID();// in principle mass identification always possible
+   }
 }
