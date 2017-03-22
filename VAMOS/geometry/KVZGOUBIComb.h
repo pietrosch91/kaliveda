@@ -9,16 +9,16 @@
 
 class KVZGOUBIComb : public KVBase {
 protected:
-   std::vector<std::vector<int>> N1;
-   std::vector<std::vector<int>> N2;
-   std::vector<std::vector<int>> N3;
-   std::vector<std:: vector<int>> N4;
-   std::vector<std:: vector<int>> N5;
-   std::vector<std:: vector<int>> N6;
-   std::vector<std::vector<int>> N7;
-   std::vector<std::vector<int>> N8;
-   std::vector<std::vector<int>> N9;
-   std::vector<std::vector<int>> N10;
+   std::vector<std::vector<int> > N1;
+   std::vector<std::vector<int> > N2;
+   std::vector<std::vector<int> > N3;
+   std::vector<std:: vector<int> > N4;
+   std::vector<std:: vector<int> > N5;
+   std::vector<std:: vector<int> > N6;
+   std::vector<std::vector<int> > N7;
+   std::vector<std::vector<int> > N8;
+   std::vector<std::vector<int> > N9;
+   std::vector<std::vector<int> > N10;
 
 public:
    KVZGOUBIComb();
@@ -27,9 +27,9 @@ public:
 
    virtual ~KVZGOUBIComb();
    virtual void Copy(TObject&) const;
-   std::vector<std::vector<int>> comb(int N, int K);
-   std::vector<std::vector<int>> allcomb(int N);
-   std::vector<std::vector<int>> GetComb(int N);
+   std::vector<std::vector<int> > comb(int N, int K);
+   std::vector<std::vector<int> > allcomb(int N);
+   std::vector<std::vector<int> > GetComb(int N);
 
    ClassDef(KVZGOUBIComb, 1) //Class used to access one ZGOUBI Trajectory
 };

@@ -2,6 +2,7 @@
 //Author: Patrick St-Onge,,,
 
 #include "KVZGOUBIComb.h"
+#include <algorithm>
 
 ClassImp(KVZGOUBIComb)
 
@@ -77,10 +78,10 @@ void KVZGOUBIComb::Copy(TObject& obj) const
 }
 //____________________________________________________________________________//
 
-std::vector<std::vector<int>> KVZGOUBIComb::comb(int N, int K)
+std::vector<std::vector<int> > KVZGOUBIComb::comb(int N, int K)
 {
    std::vector<int> vectorcombination;
-   std::vector<std::vector<int>> allcombinations;
+   std::vector<std::vector<int> > allcombinations;
    std::string bitmask(K, 1);
    bitmask.resize(N, 0);
    do {
@@ -93,10 +94,10 @@ std::vector<std::vector<int>> KVZGOUBIComb::comb(int N, int K)
    return allcombinations;
 }
 
-std::vector<std::vector<int>> KVZGOUBIComb::allcomb(int N)
+std::vector<std::vector<int> > KVZGOUBIComb::allcomb(int N)
 {
-   std::vector<std::vector<int>> allcombinations_forN;
-   std::vector<std::vector<int>> allcombinations;
+   std::vector<std::vector<int> > allcombinations_forN;
+   std::vector<std::vector<int> > allcombinations;
    for (int i = 1; i <= N; i++) {
       allcombinations = comb(N, i);
       allcombinations_forN.insert(allcombinations_forN.end(), allcombinations.begin(), allcombinations.end());
@@ -104,7 +105,7 @@ std::vector<std::vector<int>> KVZGOUBIComb::allcomb(int N)
    return allcombinations_forN;
 }
 
-std::vector<std::vector<int>> KVZGOUBIComb::GetComb(int N)
+std::vector<std::vector<int> > KVZGOUBIComb::GetComb(int N)
 {
    if (N == 10) {
       return N10;
@@ -129,7 +130,7 @@ std::vector<std::vector<int>> KVZGOUBIComb::GetComb(int N)
    } else if (N == 9) {
       return N9;
    } else {
-      std::vector<std::vector<int>> empty;
+      std::vector<std::vector<int> > empty;
       return empty;
    }
 }
