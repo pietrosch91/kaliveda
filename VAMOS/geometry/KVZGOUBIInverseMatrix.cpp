@@ -756,7 +756,7 @@ std::vector<Float_t> KVZGOUBIInverseMatrix::testGetResults_weight(Float_t XFt, F
 std::vector<Float_t> KVZGOUBIInverseMatrix::testGetResults_weight_comb(Float_t XFt, Float_t ThetaFt, Float_t YFt, Float_t PhiFt, Int_t nblines)
 {
    std::vector<Int_t> linenbs = GetNearestLinenbs(XFt, ThetaFt, YFt, PhiFt, nblines);
-   std::vector<std::vector<int>> listofcomb = comb.GetComb((int) linenbs.size());
+   std::vector<std::vector<int> > listofcomb = comb.GetComb((int) linenbs.size());
    std::vector<Float_t> results(10, -1);
    std::vector<Float_t> Distance;
 
