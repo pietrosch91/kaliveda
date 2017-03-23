@@ -108,3 +108,20 @@ void KVFAZIAIDSiCsI::Initialize()
       SetHasMassID();// in principle mass identification always possible
    }
 }
+
+void KVFAZIAIDSiCsI::SetIdentificationStatus(KVReconstructedNucleus* n)
+{
+   // For filtering simulations
+   //
+   // Z-dependence of A identification:
+   //    all ok if Z<=14, decreasing probability for 15<=Z<=18
+   //    no A identification for Z>18
+
+   n->SetZMeasured();
+   fMassIDProb->SetParameters(16.5, .4);
+   Bool_t okmass = (n->GetZ() <= 14) || (n->GetZ() < 19 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
+   if (okmass) {
+      n->SetAMeasured();
+   } else
+      n->SetZ(n->GetZ());
+}

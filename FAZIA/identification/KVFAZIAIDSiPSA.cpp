@@ -134,9 +134,14 @@ void KVFAZIAIDSiPSA::SetIdentificationStatus(KVReconstructedNucleus* n)
    // n->IsAMeasured(kTRUE) (and n->IsZMeasured(kTRUE)).
    // Otherwise, we just set n->IsZMeasured(kTRUE) and use the A given by
    // the mass formula for the particle
+   //
+   // Z-dependence of A identification:
+   //    all ok above threshold if Z<=16, decreasing probability for 17<=Z<=21
+   //    no A identification for Z>21
 
    n->SetZMeasured();
-   Bool_t okmass = (n->GetZ() < 20) || (n->GetZ() < 26 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
+   fMassIDProb->SetParameters(18.5, .4);
+   Bool_t okmass = (n->GetZ() < 17) || (n->GetZ() < 22 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    okmass = okmass && (n->GetEnergy() >= fAThreshold->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();

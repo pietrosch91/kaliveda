@@ -85,14 +85,14 @@ const Char_t* KVFAZIAIDTelescope::GetNewName(KVString oldname)
 void KVFAZIAIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
 {
    // For filtering simulations
-   // Mass identification is OK for all Z<20,
-   // for 20<=Z<=25 mass identification probability is given by
-   // the Fermi distribution KVFAZIAIDTelescope::fMassIDProb
-   // Otherwise, we just set n->IsZMeasured(kTRUE) and use the A given by
-   // the mass formula for the particle
+   //
+   // Z-dependence of A identification:
+   //    all ok if Z<=20, decreasing probability for 21<=Z<25
+   //    no A identification for Z>=25
 
    n->SetZMeasured();
-   Bool_t okmass = (n->GetZ() < 20) || (n->GetZ() < 26 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
+   fMassIDProb->SetParameters(22.5, .4);
+   Bool_t okmass = (n->GetZ() <= 20) || (n->GetZ() < 25 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
    } else
