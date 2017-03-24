@@ -223,6 +223,11 @@ public:
       // V.E. Viola, Jr., Nucl. Data Sect. A1, 391 (1966)
       return (0.1071 * Z * Z / pow(A, THIRD) + 22.3);
    }
+   Double_t GetFullDampingTKE() const
+   {
+      // Returns total kinetic energy of completely relaxed events in strongly damped collisions
+      return ASYMMFISSIONTKE;
+   }
    static Double_t NLDSurfaceTensionCoefficient(Int_t Z, Int_t A)
    {
       // Nuclear liquid-drop surface-tension coefficient

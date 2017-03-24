@@ -1252,7 +1252,7 @@ Double_t KVNucleus::GetRelativeVelocity(KVNucleus* nuc)
    return (GetVelocity() - nuc->GetVelocity()).Mag();
 }
 
-Double_t KVNucleus::GetFissionTKE(KVNucleus* nuc, Int_t formula)
+Double_t KVNucleus::GetFissionTKE(const KVNucleus* nuc, Int_t formula) const
 {
    // Average or most probable Total Kinetic Energy [MeV] expected for fission based on various systematics
    // for fission of highly-excited nuclei produced in heavy-ion reactions.

@@ -72,7 +72,8 @@ public:
    static Double_t e2;    // e^2/(4.pi.epsilon_0) in MeV.fm
 
    inline void SetMassFormula(UChar_t mt);
-   inline Int_t GetMassFormula() const {
+   inline Int_t GetMassFormula() const
+   {
       return (Int_t)fMassFormula;
    }
 
@@ -92,7 +93,8 @@ public:
    virtual void Copy(TObject&);
 #endif
 
-   Bool_t IsSortable() const {
+   Bool_t IsSortable() const
+   {
       return kTRUE;
    };
    Int_t Compare(const TObject* obj) const;
@@ -122,13 +124,16 @@ public:
    Int_t GetA() const;
    Int_t GetN() const;
 
-   Double_t GetAsurZ() const {
+   Double_t GetAsurZ() const
+   {
       return Double_t(GetA()) / GetZ();
    }
-   Double_t GetNsurZ() const {
+   Double_t GetNsurZ() const
+   {
       return Double_t(GetN()) / GetZ();
    }
-   Double_t GetChargeAsymetry() const {
+   Double_t GetChargeAsymetry() const
+   {
       //The charge asymertry  = (neutrons-protons)/nucleons
       //
       return Double_t(GetN() - GetZ()) / GetA();
@@ -161,13 +166,15 @@ public:
 
    void SetExcitEnergy(Double_t e);
 
-   Double_t GetExcitEnergy() const {
+   Double_t GetExcitEnergy() const
+   {
       // Return the excitation energy of the nucleus in MeV.
       // This is the difference between the (relativistic) rest mass
       // and the ground state mass of the nucleus
       return GetMass() - GetMassGS();
    }
-   Double_t GetMassGS() const {
+   Double_t GetMassGS() const
+   {
       // Return the ground state mass of the nucleus in MeV.
       return (kAMU * GetA() + GetMassExcess());
    }
@@ -192,7 +199,7 @@ public:
    // TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
    Double_t DeduceEincFromBrho(Double_t Brho, Int_t ChargeState = 0);
    Double_t GetRelativeVelocity(KVNucleus* nuc);
-   Double_t GetFissionTKE(KVNucleus* nuc = 0, Int_t formula = kDefaultFormula);
+   Double_t GetFissionTKE(const KVNucleus* nuc = 0, Int_t formula = kDefaultFormula) const;
    Double_t GetQFasymTKE(KVNucleus* target);
    Double_t GetFissionVelocity(KVNucleus* nuc = 0, Int_t formula = kDefaultFormula);
 
@@ -202,10 +209,12 @@ public:
    static Double_t TKE_Itkis1998(Double_t z, Double_t a);
    static Double_t TKE_Kozulin2014(Double_t zp, Double_t zt, Double_t ap, Double_t at);
 
-   Bool_t IsElement(Int_t Z) const {
+   Bool_t IsElement(Int_t Z) const
+   {
       return GetZ() == Z;
    }
-   Bool_t IsIsotope(Int_t Z, Int_t A) const {
+   Bool_t IsIsotope(Int_t Z, Int_t A) const
+   {
       return (GetZ() == Z && GetA() == A);
    }
 
