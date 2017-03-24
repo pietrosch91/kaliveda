@@ -102,6 +102,15 @@ SimEventFilter.DataAnalysisTask.UserClass:     no
 SimEventFilter.DataAnalysisTask.UserClass.Base:     EventFilter/TSelector
 SimEventFilter.DataAnalysisTask.StatusUpdateInterval:     20000
 
+# analysis of TTree containing filtered simulation using KVEventSelector
++DataAnalysisTask:     SimEventFilterAnalysis
+SimEventFilterAnalysis.DataAnalysisTask.Title:     Analysis of filtered events in tree
+SimEventFilterAnalysis.DataAnalysisTask.Prereq:     sim
+SimEventFilterAnalysis.DataAnalysisTask.Analyser:     SimDirFilterAnalyser
+SimEventFilterAnalysis.DataAnalysisTask.UserClass:     yes
+SimEventFilterAnalysis.DataAnalysisTask.UserClass.Base:     EventSelector/TSelector
+SimEventFilterAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+
 +DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
@@ -162,6 +171,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootB
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
++Plugin.KVDataAnalyser:   SimDirFilterAnalyser         KVSimDirFilterAnalyser        KVMultiDetexp_events   "KVSimDirFilterAnalyser()"
 
 +Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
 +Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"

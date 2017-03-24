@@ -27,6 +27,7 @@
 #pragma link C++ class KVGANILDataReader+;
 #pragma link C++ class KVRawDataAnalyser+;
 #endif
+#pragma link C++ class KVSimDirFilterAnalyser+;
 #pragma link C++ class KVExpSetUp+;
 #pragma link C++ class KVMultiDetArray+;
 #pragma link C++ class KVASMultiDetArray+;
