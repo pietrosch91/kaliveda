@@ -18,6 +18,7 @@
 #include "TSystem.h"
 #include "TChain.h"
 #include <KVDataAnalyser.h>
+#include <KVSimDirFilterAnalyser.h>
 #include <KVSimReader.h>
 #include <iostream>
 using namespace std;
@@ -152,25 +153,11 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(change_class, new TGLayoutHints(kLHintsCenterY | kLHintsRight, 2, 2, 2, 2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandY, 2, 2, 2, 2));
    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
-//   lab = new TGLabel(hf, "Events : ");
-//   hf->AddFrame(lab, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
-//   fCBAllEvents = new TGCheckButton(hf, "all");
-//   hf->AddFrame(fCBAllEvents, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
-//   fNENumberEvents = new TGNumberEntry(hf, 1, 10, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMin, 1);
-//   hf->AddFrame(fNENumberEvents, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
-//   proof_analysis_ana = new TGPictureButton(hf, gClient->GetPicture("proof_base.xpm"));
-//   proof_analysis_ana->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
-//   proof_analysis_ana->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
-//   proof_analysis_ana->SetToolTipText("Enable PROOF");
-//   proof_analysis_ana->Resize(40, 40);
-//   proof_analysis_ana->AllowStayDown(kTRUE);
-//   hf->AddFrame(proof_analysis_ana, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 400, 2, 2, 2));
-//   TGPictureButton* launch_analysis = new TGPictureButton(hf, gClient->GetPicture("query_submit.xpm"));
-////   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunAnalysis()");
-//   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "Run()");
-//   launch_analysis->SetToolTipText("Run analysis");
-//   launch_analysis->Resize(40, 40);
-//   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 5, 2, 2, 2));
+
+   TGTextButton* new_filt_class = new TGTextButton(hf, "New filtered analysis class");
+   new_filt_class->Connect("Clicked()", "KVSimDirGUI", this, "NewFilteredAnalysisClass()");
+   hf->AddFrame(new_filt_class, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
+
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandY, 2, 2, 2, 2));
 //   fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
 //   fCBAllEvents->SetState(kButtonDown, kTRUE);
@@ -773,3 +760,42 @@ void KVSimDirGUI::ImportSimulation()
       }
    }
 }
+
+void KVSimDirGUI::NewFilteredAnalysisClass()
+{
+   // Get name of new class
+   TString classname;
+   Bool_t ok;
+   new KVInputDialog(MainFrame, "Enter name of new analysis class", &classname, &ok, "Enter name of new analysis class");
+   // check new classname is not name of existing class
+   KVString impfile, decfile;
+   if (KVBase::FindClassSourceFiles(classname, impfile, decfile)) {
+      ok = ok && WarningBox("Replacing existing class",
+                            Form("%s is the name of an existing class defined in [%s,%s].\nDo you want to overwrite this class?\n(All existing code will be lost)",
+                                 classname.Data(), decfile.Data(), impfile.Data()),
+                            kTRUE);
+   }
+   if (ok) {
+      KVSimDirFilterAnalyser::Make(classname);
+   }
+}
+
+//__________________________________________
+Bool_t KVSimDirGUI::WarningBox(const char* title, const char* msg, Bool_t confirm)
+{
+   // Warning box in case of problems
+   // if confirm=kTRUE we ask for a yes/no answer from the user:
+   //     if 'yes' is pressed, we return kTRUE, if 'no', kFALSE.
+   // by default, only a 'dismiss' button is shown, and this method always returns kTRUE.
+
+   Bool_t reply = kTRUE;
+   if (!confirm)
+      new TGMsgBox(gClient->GetRoot(), MainFrame, title, msg, kMBIconExclamation);
+   else {
+      Int_t ret_code = 0;
+      new TGMsgBox(gClient->GetRoot(), MainFrame, title, msg, kMBIconExclamation, kMBYes | kMBNo, &ret_code);
+      reply = (ret_code & kMBYes);
+   }
+   return reply;
+}
+

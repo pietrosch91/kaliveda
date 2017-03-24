@@ -237,6 +237,6 @@ void KVFAZIAReconDataAnalyser::preInitRun()
 
    Info("preInitRun", "Appel");
    gMultiDetArray->SetParameters(fRunNumber);
-
+   gMultiDetArray->SetMinimumOKMultiplicity(fEventSelector->GetEvent());
 }
 

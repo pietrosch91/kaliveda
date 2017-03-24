@@ -13,6 +13,7 @@ $Date: 2007/05/31 09:59:22 $
 #include "KVDataSetAnalyser.h"
 #include "TSelector.h"
 #include <KVDataPatchList.h>
+#include <KVEventSelector.h>
 class TChain;
 
 class KVFAZIAReconDataAnalyser: public KVDataSetAnalyser {
@@ -22,8 +23,14 @@ protected:
    TTree* theTree;//tree to be analysed
    Int_t fRunNumber;             //run number of current file
    Bool_t fLinkRawData;
+   KVEventSelector* fEventSelector;
 
 public:
+
+   void RegisterUserClass(TObject* o)
+   {
+      fEventSelector = dynamic_cast<KVEventSelector*>(o);
+   }
 
    KVFAZIAReconDataAnalyser();
    virtual ~ KVFAZIAReconDataAnalyser();

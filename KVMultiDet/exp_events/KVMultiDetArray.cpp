@@ -2792,3 +2792,13 @@ void KVMultiDetArray::AcceptParticleForAnalysis(KVReconstructedNucleus* NUC) con
    if (!fAcceptECodes.IsEmpty()) ok = ok && fAcceptECodes.Contains(NUC->GetECode());
    NUC->SetIsOK(ok);
 }
+
+void KVMultiDetArray::SetMinimumOKMultiplicity(KVEvent* e) const
+{
+   // Set the minimum number of particles which are "OK" in the event
+   // (usually a KVReconstructedEvent) for it to be retained for analysis.
+   // This could, for example, depend on the experimental multiplicity trigger
+   // used during the run.
+   // This default version sets a minimum of 1 "OK" particle
+   e->SetMinimumOKMultiplicity(1);
+}

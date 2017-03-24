@@ -286,6 +286,8 @@ public:
    void ResetEnergies();
 
    virtual Bool_t IsOK();
+   void SetMinimumOKMultiplicity(Int_t);
+   Int_t GetMinimumOKMultiplicity() const;
 
    void CustomStreamer()
    {

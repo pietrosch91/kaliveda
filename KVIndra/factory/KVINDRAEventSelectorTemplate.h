@@ -9,10 +9,10 @@ public:
    virtual ~KVINDRAEventSelectorTemplate() {};
 
    virtual void InitRun();
-   virtual void EndRun();
+   virtual void EndRun() {}
    virtual void InitAnalysis();
    virtual Bool_t Analysis();
-   virtual void EndAnalysis();
+   virtual void EndAnalysis() {}
 
    ClassDef(KVINDRAEventSelectorTemplate, 0);
 };

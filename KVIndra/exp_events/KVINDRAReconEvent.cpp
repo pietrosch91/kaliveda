@@ -106,15 +106,21 @@ KVINDRAReconNuc* KVINDRAReconEvent::AddParticle()
 /////////////////////////////////////////////////////////////////////////////
 void KVINDRAReconEvent::Streamer(TBuffer& R__b)
 {
-   //Stream an object of class KVINDRAReconEvent.
-   //We loop over the newly-read particles in order to set their
-   //IsOK() status by comparison with the event's code mask.
+   // Stream an object of class KVINDRAReconEvent.
+   // If acceptable ID/E codes have been set with methods AcceptIDCodes()/
+   // AcceptECodes(), we loop over the newly-read particles in order to set
+   // their IsOK() status according to these choices.
+   // If not, it will have already been set according to the default code
+   // selection (defined by [DataSet].INDRA.ReconstructedNuclei.AcceptID/ECodes)
+   // in KVReconstructedNucleus::Streamer
 
    if (R__b.IsReading()) {
       R__b.ReadClassBuffer(KVINDRAReconEvent::Class(), this);
-      KVINDRAReconNuc* par;
-      while ((par = GetNextParticle())) {
-         par->SetIsOK(CheckCodes(par->GetCodes()));
+      if (fCodeMask && !fCodeMask->IsNull()) {
+         KVINDRAReconNuc* par;
+         while ((par = GetNextParticle())) {
+            par->SetIsOK(CheckCodes(par->GetCodes()));
+         }
       }
    } else {
       R__b.WriteClassBuffer(KVINDRAReconEvent::Class(), this);
@@ -160,25 +166,6 @@ KVINDRAReconNuc* KVINDRAReconEvent::GetNextParticle(Option_t* opt)
 
 //______________________________________________________________________________________________
 
-Bool_t KVINDRAReconEvent::IsOK()
-{
-   //Returns kTRUE if event is acceptable for analysis.
-   //This means that the multiplicity of particles with IsOK()=kTRUE (having good ID codes etc.)
-   //is at least equal to the multiplicity trigger of the (experimental) event.
-
-   if (gIndra) {
-      if (gIndra->GetTrigger())
-         return (GetMult("ok") >= gIndra->GetTrigger());
-      else
-         return (GetMult("ok") > 0);
-   } else {
-      return (KVEvent::IsOK());
-   }
-   return kTRUE;
-}
-
-//______________________________________________________________________________________________
-
 void KVINDRAReconEvent::AcceptIDCodes(UShort_t code)
 {
    //Define the identification codes that you want to include in your analysis.
@@ -189,7 +176,8 @@ void KVINDRAReconEvent::AcceptIDCodes(UShort_t code)
    //although it is easier to loop over all 'correct' particles using:
    //   while ( particle = GetNextParticle("ok") ){ // ... analysis ... }
    //
-   //To remove any previously defined acceptable identification codes, use AcceptIDCodes(0)
+   //To remove any previously defined acceptable identification codes,
+   // use AcceptIDCodes(0)
    //
    //N.B. : this method is preferable to using directly the KVINDRACodeMask pointer
    //as the 'IsOK' status of all particles of the current event are automatically updated
@@ -215,6 +203,9 @@ void KVINDRAReconEvent::AcceptECodes(UChar_t code)
    //i.e.  if( particle.IsOK() ) { // ... analysis ... }
    //although it is easier to loop over all 'correct' particles using:
    //   while ( particle = GetNextParticle("ok") ){ // ... analysis ... }
+   //
+   //To remove any previously defined acceptable identification codes,
+   // use AcceptECodes(0)
    //
    //N.B. : this method is preferable to using directly the KVINDRACodeMask pointer
    //as the 'IsOK' status of all particles of the current event are automatically updated

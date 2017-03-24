@@ -30,6 +30,8 @@ public:
    void preInitAnalysis();
    void preInitRun();
 
+   static void Make(const Char_t* kvsname = "MyFilteredAnalysis");
+
    ClassDef(KVSimDirFilterAnalyser, 1) //Analysis of filtered simulations
 };
 

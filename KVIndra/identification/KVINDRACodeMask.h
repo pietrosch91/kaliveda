@@ -105,6 +105,12 @@ public:
       TObject::Clear();
    };
 
+   Bool_t IsNull() const
+   {
+      // Returns kTRUE if no mask is set
+      return (!fIDMask && !fEMask);
+   }
+
    ClassDef(KVINDRACodeMask, 1);        //Handles setting and testing code masks for particle calibration quality control
 };
 

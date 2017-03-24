@@ -494,10 +494,29 @@ void KVEvent::ResetGetNextParticle()
 
 Bool_t KVEvent::IsOK()
 {
-   //Returns kTRUE if the event is OK for analysis.
-   //This means there must be at least one particle with IsOK()=kTRUE.
+   // Returns kTRUE if the event is OK for analysis.
+   // This means there must be at least MOKmin particles with IsOK()=kTRUE,
+   // where MOKmin is set by calling SetMinimumOKMultiplicity(Int_t)
+   // (value stored in parameter MIN_OK_MULT)
 
-   return (GetMult("ok") > 0);
+   return (GetMult("ok") >= GetMinimumOKMultiplicity());
+}
+
+void KVEvent::SetMinimumOKMultiplicity(Int_t x)
+{
+   // Set minimum number of particles with IsOK()=kTRUE in event for
+   // it to be considered 'good' for analysis
+   SetParameter("MIN_OK_MULT", x);
+}
+
+Int_t KVEvent::GetMinimumOKMultiplicity() const
+{
+   // Get minimum number of particles with IsOK()=kTRUE in event for
+   // it to be considered 'good' for analysis
+   // NB: if no minimum has been set, we return 1
+   Int_t x = GetParameters()->GetIntValue("MIN_OK_MULT");
+   if (x == -1) return 1;
+   return x;
 }
 
 //__________________________________________________________________________________________

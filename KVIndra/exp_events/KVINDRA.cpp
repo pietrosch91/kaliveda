@@ -502,10 +502,9 @@ KVLayer* KVINDRA::GetChIoLayer(void)
 
 void KVINDRA::SetTrigger(UChar_t trig)
 {
-   //
-   //Define multiplicity trigger used for acquisition and filter.
-   //Events with multipicity >= trig are OK.
-   //
+   // Define multiplicity trigger used for acquisition and filter.
+   // Events with multipicity >= trig are OK.
+
    fTrigger = trig;
 }
 
@@ -928,6 +927,15 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
    } else {
       KVMultiDetArray::SetROOTGeometry(on);
    }
+}
+
+void KVINDRA::SetMinimumOKMultiplicity(KVEvent* e) const
+{
+   // Set minimum OK multiplicity for (reconstructed) event
+   // This is the multiplicity trigger used for the current run (if known)
+
+   Info("SetMinimumOKMultiplicity", "Trigger for run = %d", (int)GetTrigger());
+   if (GetTrigger()) e->SetMinimumOKMultiplicity(GetTrigger());
 }
 
 

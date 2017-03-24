@@ -56,7 +56,7 @@ public:
 
    virtual void Print(Option_t* option = "") const;
 
-   inline Bool_t CheckCodes(KVINDRACodeMask& code)
+   Bool_t CheckCodes(KVINDRACodeMask& code)
    {
       //returns kTRUE if "code" is compatible with event's code mask
       //if no code mask set for event, returns kTRUE in all cases
@@ -67,8 +67,6 @@ public:
 
    void AcceptIDCodes(UShort_t code);
    void AcceptECodes(UChar_t code);
-
-   virtual Bool_t IsOK();
 
    void IdentifyEvent();
    void ChangeFragmentMasses(UChar_t mass_formula);

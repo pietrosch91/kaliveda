@@ -2,6 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVSimDirFilterAnalyser.h"
+#include <KVClassFactory.h>
 #include <KVDataSetManager.h>
 #include <KVExpDB.h>
 #include "KVMultiDetArray.h"
@@ -59,6 +60,19 @@ void KVSimDirFilterAnalyser::preInitRun()
    }
    KVString run = fAnalysisClass->GetOpt("Run");
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), run.Atoi());
+   gMultiDetArray->SetMinimumOKMultiplicity(fAnalysisClass->GetEvent());
+}
+
+void KVSimDirFilterAnalyser::Make(const Char_t* kvsname)
+{
+   // Generate a new filtered analysis selector class
+
+   KVClassFactory cf(kvsname, "Analysis of filtered simulated events", "",
+                     kTRUE, "FilteredEventAnalysisTemplate");
+   cf.AddImplIncludeFile("KVReconstructedNucleus.h");
+   cf.AddImplIncludeFile("KVBatchSystem.h");
+
+   cf.GenerateCode();
 }
 
 //____________________________________________________________________________//

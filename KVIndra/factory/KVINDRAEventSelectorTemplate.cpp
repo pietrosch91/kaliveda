@@ -65,11 +65,14 @@ void KVINDRAEventSelectorTemplate::InitRun(void)
    // Initialisations for each run
    // Called at the beginning of each run
 
-   // You need to define here the correct identification/calibration codes for particles
-   // which will be used in your analysis. The following is the standard definition for
-   // INDRA data. See classes KVINDRACodes/KVINDRACodeMask for more details.
-   GetEvent()->AcceptIDCodes(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//particle identification codes
-   GetEvent()->AcceptECodes(kECode1 | kECode2);                         //particle calibration codes
+   // You no longer need to define the correct identification/calibration codes for particles
+   // which will be used in your analysis, they are automatically selected using the default
+   // values in variables INDRA.ReconstructedNuclei.AcceptID/ECodes.
+   // However, if you want to change the default settings, it can be done here.
+   // The following example is the standard definition for INDRA data.
+   // See classes KVINDRACodes/KVINDRACodeMask for more details.
+   //GetEvent()->AcceptIDCodes(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//particle identification codes
+   //GetEvent()->AcceptECodes(kECode1 | kECode2);                         //particle calibration codes
 
    // You can also perform more fine-grained selection of particles using class KVParticleCondition.
    // For example:
@@ -91,7 +94,8 @@ Bool_t KVINDRAEventSelectorTemplate::Analysis(void)
    // The current event can be accessed by a call to method GetEvent().
    // See KVINDRAReconEvent documentation for the available methods.
 
-   // Do not remove the following line
+   // Do not remove the following line - reject events with less identified particles than
+   // the acquisition multiplicity trigger
    if (!GetEvent()->IsOK()) return kTRUE;
 
    GetGVList()->FillBranches(); // update values of all global variable branches
@@ -115,18 +119,3 @@ Bool_t KVINDRAEventSelectorTemplate::Analysis(void)
    return kTRUE;
 }
 
-//_____________________________________
-void KVINDRAEventSelectorTemplate::EndRun(void)
-{
-   // Called at the end of each run
-   //
-   // Enter your code here if required
-}
-
-//_____________________________________
-void KVINDRAEventSelectorTemplate::EndAnalysis(void)
-{
-   // Called at the end of the analysis
-   //
-   // Enter your code here if required
-}
