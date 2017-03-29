@@ -148,6 +148,7 @@ public:
 
    void ImportSimulation();
    void NewFilteredAnalysisClass();
+   void NewSimulatedAnalysisClass();
    Bool_t WarningBox(const char* title, const char* msg, Bool_t confirm);
 
    ClassDef(KVSimDirGUI, 0) //GUI for simulated data

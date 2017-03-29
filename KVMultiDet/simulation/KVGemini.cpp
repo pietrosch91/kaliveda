@@ -57,8 +57,8 @@ void KVGemini::DecaySingleNucleus(KVSimNucleus& toDecay, KVSimEvent* decayProduc
    // If there is a problem with the decay of the nucleus,
    // we throw an exception of type gemini_bad_decay
 
-   CNucleus CN(toDecay.GetZ(), toDecay.GetA(), toDecay.GetExcitEnergy(),
-               toDecay.GetAngMom().Mag());
+   CNucleus CN(toDecay.GetZ(), toDecay.GetA());
+   CN.setCompoundNucleus(toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
    // set velocity
    CN.setVelocityCartesian(toDecay.GetVelocity().X(), toDecay.GetVelocity().Y(), toDecay.GetVelocity().Z());
 
@@ -74,10 +74,10 @@ void KVGemini::DecaySingleNucleus(KVSimNucleus& toDecay, KVSimEvent* decayProduc
       throw gemini_bad_decay();
    }
 
-   int np = CN.getNumberOfProducts();
-   for (int i = 0; i < np; i++) {
+   CNucleus* nuc = CN.getProducts(0);
 
-      CNucleus* nuc = CN.getProducts(i);
+   while (nuc) {
+
       KVNucleus* N = decayProducts->AddParticle();
       N->SetZ(nuc->iZ);
       N->SetA(nuc->iA);
@@ -85,6 +85,7 @@ void KVGemini::DecaySingleNucleus(KVSimNucleus& toDecay, KVSimEvent* decayProduc
       float* v = nuc->getVelocityVector();
       TVector3 vv(v);
       N->SetVelocity(vv);
+      nuc = CN.getProducts();
 
    }
 

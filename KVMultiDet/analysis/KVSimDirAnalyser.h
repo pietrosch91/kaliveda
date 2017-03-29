@@ -44,6 +44,8 @@ public:
    void WriteBatchEnvFile(const Char_t*, Bool_t sav = kTRUE);
    Bool_t ReadBatchEnvFile(const Char_t*);
 
+   static void Make(const Char_t* kvsname = "MySimulatedAnalysis");
+
    ClassDef(KVSimDirAnalyser, 1) //Analysis of trees containing simulated events
 };
 

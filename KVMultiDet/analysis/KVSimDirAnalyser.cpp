@@ -5,6 +5,7 @@
 #include "KVDataAnalysisTask.h"
 #include <KVSimFile.h>
 #include <KVSimDir.h>
+#include <KVClassFactory.h>
 #include "TSystem.h"
 
 ClassImp(KVSimDirAnalyser)
@@ -170,3 +171,15 @@ void KVSimDirAnalyser::BuildChain()
    }
 }
 
+
+void KVSimDirAnalyser::Make(const Char_t* kvsname)
+{
+   // Generate a new simulated analysis selector class
+
+   KVClassFactory cf(kvsname, "Analysis of simulated events", "",
+                     kTRUE, "SimulatedEventAnalysisTemplate");
+   cf.AddImplIncludeFile("KVSimNucleus.h");
+   cf.AddImplIncludeFile("KVBatchSystem.h");
+
+   cf.GenerateCode();
+}

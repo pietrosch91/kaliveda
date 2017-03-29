@@ -154,6 +154,9 @@ KVSimDirGUI::KVSimDirGUI()
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandY, 2, 2, 2, 2));
    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
 
+   TGTextButton* new_anal_class = new TGTextButton(hf, "New simulated analysis class");
+   new_anal_class->Connect("Clicked()", "KVSimDirGUI", this, "NewSimulatedAnalysisClass()");
+   hf->AddFrame(new_anal_class, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 10));
    TGTextButton* new_filt_class = new TGTextButton(hf, "New filtered analysis class");
    new_filt_class->Connect("Clicked()", "KVSimDirGUI", this, "NewFilteredAnalysisClass()");
    hf->AddFrame(new_filt_class, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
@@ -777,6 +780,25 @@ void KVSimDirGUI::NewFilteredAnalysisClass()
    }
    if (ok) {
       KVSimDirFilterAnalyser::Make(classname);
+   }
+}
+
+void KVSimDirGUI::NewSimulatedAnalysisClass()
+{
+   // Get name of new class
+   TString classname;
+   Bool_t ok;
+   new KVInputDialog(MainFrame, "Enter name of new analysis class", &classname, &ok, "Enter name of new analysis class");
+   // check new classname is not name of existing class
+   KVString impfile, decfile;
+   if (KVBase::FindClassSourceFiles(classname, impfile, decfile)) {
+      ok = ok && WarningBox("Replacing existing class",
+                            Form("%s is the name of an existing class defined in [%s,%s].\nDo you want to overwrite this class?\n(All existing code will be lost)",
+                                 classname.Data(), decfile.Data(), impfile.Data()),
+                            kTRUE);
+   }
+   if (ok) {
+      KVSimDirAnalyser::Make(classname);
    }
 }
 
