@@ -142,6 +142,7 @@
 /usr/include/kaliveda/KVMultiDetArray.h
 /usr/include/kaliveda/KVUpDater.h
 /usr/include/kaliveda/KVGeoImport.h
+/usr/include/kaliveda/KVSimDirFilterAnalyser.h
 /usr/include/kaliveda/KVReconstructedNucleus.h
 /usr/include/kaliveda/KVEventFiltering.h
 /usr/include/kaliveda/KVRawDataAnalyser.h
@@ -192,6 +193,7 @@
 /usr/include/kaliveda/KVRootBatch.h
 /usr/include/kaliveda/KVDataSetAnalyser.h
 /usr/include/kaliveda/KVGaus2D.h
+/usr/include/kaliveda/KVPROOFSelector.h
 /usr/include/kaliveda/KVGumGumDistribution.h
 /usr/include/kaliveda/KVGEBatchJob.h
 /usr/include/kaliveda/KVDataPatchList.h

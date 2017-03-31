@@ -22,6 +22,7 @@
 /usr/include/kaliveda/KVHarpeeSi.h
 /usr/include/kaliveda/KVBasicVAMOSFilter.h
 /usr/include/kaliveda/KVVAMOSCodes.h
+/usr/include/kaliveda/KVZGOUBIReconstruction.h
 /usr/include/kaliveda/KVVAMOS.h
 /usr/include/kaliveda/KVSpectroDetector.h
 /usr/include/kaliveda/KVChargeStateDistrib.h
@@ -32,6 +33,7 @@
 /usr/include/kaliveda/KVHarpeeCsI.h
 /usr/include/kaliveda/KVZGOUBITrajectory.h
 /usr/include/kaliveda/KVZGOUBIInverseMatrix.h
+/usr/include/kaliveda/KVZGOUBIComb.h
 /usr/include/kaliveda/KVSeD.h
 /usr/include/kaliveda/KVDriftChamber.h
 /usr/include/kaliveda/KVSeDPositionCal.h

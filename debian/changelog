@@ -1,8 +1,14 @@
-kaliveda (1.10.14-0ubuntu1) UNRELEASED; urgency=medium
+kaliveda (1.10.15-0ubuntu1) UNRELEASED; urgency=medium
+
+  * New release v1.10/15
+
+ -- John Frankland <frankland@ganil.fr>  Fri, 31 Mar 2017 12:48:15 +0200
+
+kaliveda (1.10.14-0ubuntu1) yakkety; urgency=medium
 
   * New release v1.10/14
 
- -- John Frankland <frankland@ganil.fr>  Thu, 09 Mar 2017 14:50:04 +0100
+ -- John Frankland <frankland@ganil.fr>  Fri, 31 Mar 2017 12:48:14 +0200
 
 kaliveda (1.10.13-0ubuntu2) yakkety; urgency=medium
 
