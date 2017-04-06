@@ -640,10 +640,10 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose a simulated data file to filter!", kMBIconExclamation);
          return;
       }
-      if (selected_sim_runs->GetEntries() > 1) {
-         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
-         return;
-      }
+//       if (selected_sim_runs->GetEntries() > 1) {
+//          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
+//          return;
+//       }
       runs_to_analyse = selected_sim_runs.get();
       analysis_task = "filter simulated";
    }
