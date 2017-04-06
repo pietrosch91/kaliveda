@@ -145,7 +145,7 @@ KVMultiDetArray::~KVMultiDetArray()
       fTarget = 0;
    }
    if (gMultiDetArray == this)
-      gMultiDetArray = 0;
+      gMultiDetArray = nullptr;
 
    if (fStatusIDTelescopes) {
       fStatusIDTelescopes->Delete();
@@ -158,8 +158,15 @@ KVMultiDetArray::~KVMultiDetArray()
       fCalibStatusDets = 0;
    }
 
-//   SafeDelete(fGeoManager);
-   SafeDelete(fNavigator);
+   if (fNavigator) {
+      if (gGeoManager) {
+         Info("~KVMultiDetArray()", "Deleting ROOT geometry");
+         delete gGeoManager;
+         gGeoManager = nullptr;
+      }
+      delete fNavigator;
+      fNavigator = nullptr;
+   }
    SafeDelete(fUpDater);
 
    // Detectors belong to multidetector array. Our responsibility to delete.
@@ -1653,12 +1660,12 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
 
    if (gMultiDetArray) {
       printf("Info in <KVMultiDetArray::MakeMultiDetector>: Deleting existing array %s\n", gMultiDetArray->GetName());
-      delete gMultiDetArray;
-      gMultiDetArray = nullptr;
       if (gIDGridManager) {
          delete gIDGridManager;
          gIDGridManager = nullptr;
       }
+      delete gMultiDetArray;
+      gMultiDetArray = nullptr;
    }
    if (!gDataSet || gDataSet != gDataSetManager->GetDataSet(dataset_name))
       gDataSetManager->GetDataSet(dataset_name)->cd();

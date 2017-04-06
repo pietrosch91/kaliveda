@@ -46,6 +46,8 @@ KVFAZIA::KVFAZIA(const Char_t* title)
 KVFAZIA::~KVFAZIA()
 {
    // Destructor
+
+   if (gFazia == this) gFazia = nullptr;
 }
 
 void KVFAZIA::AddDetectorLabel(const Char_t* label)
