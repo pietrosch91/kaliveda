@@ -292,9 +292,9 @@ void KVTestIDGridDialog::TestGrid()
 
    Int_t hnmin = ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->First())->GetA() - ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->First())->GetZ() - 1.0;
    Int_t hnmax = ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->Last())->GetA() - ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->Last())->GetZ() + 1.0;
-   if (fSelectedGrid->InheritsFrom("KVIDZAFromZGrid")) {
+   if (fSelectedGrid->InheritsFrom("KVIDZAFromZGrid") && (!fSelectedGrid->IsOnlyZId())) {
       interval* itv = (interval*)((interval_set*)((KVIDZAFromZGrid*)fSelectedGrid)->GetIntervalSets()->Last())->GetIntervals()->Last();
-      hnmax = itv->GetA() - itv->GetZ();
+      if (itv) hnmax = itv->GetA() - itv->GetZ();
    }
 
    TH2F* hdata = (TH2F*) gROOT->FindObject(fNameData.Data());
