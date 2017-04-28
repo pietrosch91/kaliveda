@@ -113,7 +113,7 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 # Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 +Plugin.KVMultiDetArray:  INDRA_e503   KVINDRA_VAMOS     VAMOSexp_events  "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:  INDRA_e494s  KVINDRA_VAMOS     VAMOSexp_events  "KVINDRA_VAMOS()"
-+Plugin.KVVAMOSDataCorrection:   INDRA_e503   KVVAMOSDataCorrection_e503   VAMOSexp_events   "KVVAMOSDataCorrection_e503()" 
++Plugin.KVVAMOSDataCorrection:   INDRA_e503   KVVAMOSDataCorrection_e503   VAMOSexp_events   "KVVAMOSDataCorrection_e503(Int_t)" 
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -271,7 +271,10 @@ INDRA_e503.KVVAMOSDataCorrection_e503.HFCutListSiCsI:  VAMOSHFCutListSiCsI.list
 # Time of flight correction to apply to correct ToF duplication (in ns)
 INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationToFOffset: 1.2
 # Time of flight offset to apply to correct AoQ=2 misalignments (in ns)
-INDRA_e503.KVVAMOSDataCorrection_e503.ToFOffset: -0.5
+#INDRA_e503.KVVAMOSDataCorrection_e503.ToFOffset: -0.5
+INDRA_e503.KVVAMOSDataCorrection_e503.ToFOffset: 5
+# Path offset to apply to correct AoQ=2 misalignments (in cm)
+INDRA_e503.KVVAMOSDataCorrection_e503.PathOffset: 10.
 
 # Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent".
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS

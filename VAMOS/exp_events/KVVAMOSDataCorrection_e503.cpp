@@ -22,12 +22,11 @@ ClassImp(KVVAMOSDataCorrection_e503)
 ////////////////////////////////////////////////////////////////////////////////
 
 //____________________________________________________________________________//
-KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503(Int_t run_number = -1)
+KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503(Int_t run_number = -1) : KVVAMOSDataCorrection(run_number)
 {
    // Default constructor
    fkverbose   = kFALSE;
    fkIsInit    = kFALSE;
-   fRunNumber  = run_number;
 
    // HF frequency correction
    flist_HFcuts_sicsi = new KVHashList;
@@ -124,7 +123,7 @@ void KVVAMOSDataCorrection_e503::Init()
 
          //Global ToF offset for AoQ=2 misalignments
          ftof_offset = -666.;
-         ReadAdditionalToFOffsetInDataSet();
+         ReadAdditionalToFAndPathOffsetsInDataSet();
 
          Info("Init", "... initiliasing of correction class done ...");
          fkIsInit = kTRUE;
@@ -311,7 +310,7 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationCutFilesListInDataSet()
    }
    std::ifstream ifile0;
    if (gDataSet->OpenDataSetFile(filename0.Data(), ifile0)) {
-      Info("ReadDuplicationCutFileListInDataSet", "list of Si-CsI cut files in: '%s' ", filename0.Data());
+      Info("ReadDuplicationCutFilesListInDataSet", "list of Si-CsI cut files in: '%s' ", filename0.Data());
       ReadDuplicationCutFileList(ifile0, 0);
       ifile0.close();
    }
@@ -413,7 +412,6 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationCutFileList(std::ifstream& file,
 
                         if (type == 0) {
                            KVHashList* ll0 = (KVHashList*) flist_aoq_cut_sicsi->At(nSi - 1);
-                           ll0->ls();
                            assert(ll0);
                            ll0->Add(copy_cut);
                         }
@@ -454,17 +452,18 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationToFOffsetsInDataSet()
 }
 
 //____________________________________________________________________________//
-void KVVAMOSDataCorrection_e503::ReadAdditionalToFOffsetInDataSet()
+void KVVAMOSDataCorrection_e503::ReadAdditionalToFAndPathOffsetsInDataSet()
 {
-   //Find in '$KVROOT/KVFiles/VAMOS/etc/.kvrootrc' the values of a general ToF offset
-   //to apply to correct AoQ=2 misalignments.
-   //All data will be applied this ToF offset
+   //Find in '$KVROOT/KVFiles/VAMOS/etc/.kvrootrc' the values of general ToF offset
+   //and also Path offset to apply to correct AoQ=2 misalignments.
+   //All data will be applied these ToF and Path offsets.
    //
    //NOTE: these corrections are applied AFTER HF corrections and AFTER ToF duplication
    //corrections
    //
 
-   ftof_offset = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.ToFOffset", 0.); //in ns
+   ftof_offset  = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.ToFOffset", 0.);  //in ns
+   fpath_offset = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.PathOffset", 0.); //in cm
 }
 
 //____________________________________________________________________________//
@@ -501,7 +500,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
    }
 
    //AoQ=2 misalignment corrections
-   Bool_t koffset = ApplyToFOffset(nuc);
+   Bool_t koffset = ApplyToFAndPathOffset(nuc);
 
    if (kCsI_HFcorr || kCsI_DUcorr || kSi_HFcorr || kSi_DUcorr  || koffset) return kTRUE;
    else return kFALSE;
@@ -664,7 +663,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyToFDuplicationCorrections(KVVAMOSReconNu
 }
 
 //____________________________________________________________________________//
-Bool_t KVVAMOSDataCorrection_e503::ApplyToFOffset(KVVAMOSReconNuc* nuc)
+Bool_t KVVAMOSDataCorrection_e503::ApplyToFAndPathOffset(KVVAMOSReconNuc* nuc)
 {
    //Apply a general ime of flight offset to correct AoQ=2 misalignments
    //
@@ -678,7 +677,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyToFOffset(KVVAMOSReconNuc* nuc)
 
    //debug
    if (fkverbose) {
-      Info("ApplyToFOffset", "... before ToF duplication corrections ...\nIDCode=%d, \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+      Info("ApplyToFAndPathOffset", "... before ToF and Path corrections ...\nIDCode=%d, \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
            nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
            nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
    }
@@ -688,7 +687,9 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyToFOffset(KVVAMOSReconNuc* nuc)
    //and after ToF duplication corrections, we modify here the former
    //corrected ToF
    Float_t corr_tof = nuc->GetCorrectedToF();
+   Float_t corr_path = nuc->GetCorrectedPath();
    nuc->SetCorrectedToF(corr_tof + ftof_offset);
+   nuc->SetCorrectedPath(corr_path + fpath_offset);
 
    Double_t AoQ = nuc->GetBrho() * KVParticle::C() * 10. / nuc->GetCorrectedBeta() / nuc->GetCorrectedGamma() / KVNucleus::u();
    Double_t AE  = nuc->GetEnergyBeforeVAMOS() / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
@@ -699,7 +700,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyToFOffset(KVVAMOSReconNuc* nuc)
 
    //debug
    if (fkverbose) {
-      Info("ApplyToFOffset", "... after ToF duplication corrections ...\nIDCode=%d, \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+      Info("ApplyToFOffset", "... after ToF and Path corrections ...\nIDCode=%d, \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
            nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
            nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
    }
@@ -713,57 +714,71 @@ void KVVAMOSDataCorrection_e503::PrintInitInfos()
    //--------HF frequency corrections--------
    printf("###### HF frequency corrections ######\n");
    printf("->Si-CsI:\n");
-   Int_t ii = 0;
-   TCutG* cut = NULL;
-   for (std::vector<Int_t>::iterator it = fvec_nHF_sicsi.begin() ; it != fvec_nHF_sicsi.end(); ++it) {
-      Int_t nHF = *it;
-      cut       = (TCutG*) flist_HFcuts_sicsi->At(ii);
-      assert(cut);
-      printf("nHF=%d\n", nHF);
-      cut->Print();
-      printf("\n");
-      ii++;
+   printf("%d cuts set\n", GetNCutHFSiCsI());
+   if (fkverbose) {
+      printf("list of Si-CsI HF cuts follow:\n");
+      Int_t ii = 0;
+      TCutG* cut = NULL;
+      for (std::vector<Int_t>::iterator it = fvec_nHF_sicsi.begin() ; it != fvec_nHF_sicsi.end(); ++it) {
+         Int_t nHF = *it;
+         cut       = (TCutG*) flist_HFcuts_sicsi->At(ii);
+         assert(cut);
+         printf("nHF=%d\n", nHF);
+         cut->Print();
+         printf("\n");
+         ii++;
+      }
    }
 
-   printf("->IC-Si:\n");
-   ii = 0;
-   for (std::vector<Int_t>::iterator it = fvec_nHF_icsi.begin() ; it != fvec_nHF_icsi.end(); ++it) {
-      Int_t nHF = *it;
-      cut       = (TCutG*) flist_HFcuts_icsi->At(ii);
-      assert(cut);
-      printf("nHF=%d\n", nHF);
-      cut->Print();
-      printf("\n");
-      ii++;
+   printf("\n->IC-Si:\n");
+   printf("%d cuts set\n", GetNCutHFICSi());
+   if (fkverbose) {
+      printf("list of IC-Si HF cuts follow:\n");
+      Int_t ii = 0;
+      TCutG* cut = NULL;
+      for (std::vector<Int_t>::iterator it = fvec_nHF_icsi.begin() ; it != fvec_nHF_icsi.end(); ++it) {
+         Int_t nHF = *it;
+         cut       = (TCutG*) flist_HFcuts_icsi->At(ii);
+         assert(cut);
+         printf("nHF=%d\n", nHF);
+         cut->Print();
+         printf("\n");
+         ii++;
+      }
    }
 
    //-------ToF duplication corrections--------
    printf("###### ToF duplication corrections ######\n");
    printf("-> Si-CsI:\n");
    printf("tof_corr=%lf\n", ftof_corr_sicsi);
-   flist_aoq_cut_sicsi->ls();
-   printf("list of cuts follows:\n");
+   if (fkverbose) {
+      flist_aoq_cut_sicsi->ls();
+      printf("list of cuts follows:\n");
 
-   KVHashList* ll0 = NULL;
-   TIter it0(flist_aoq_cut_sicsi);
-   while ((ll0 = (KVHashList*) it0.Next())) {
-      ll0->ls();
-      ll0->Print();
+      KVHashList* ll0 = NULL;
+      TIter it0(flist_aoq_cut_sicsi);
+      while ((ll0 = (KVHashList*) it0.Next())) {
+         ll0->ls();
+         ll0->Print();
+      }
    }
 
    printf("\n-> IC-Si:\n");
    printf("tof_corr=%lf\n", ftof_corr_icsi);
-   flist_aoq_cut_icsi->ls();
-   printf("list of cuts follows:\n");
+   if (fkverbose) {
+      flist_aoq_cut_icsi->ls();
+      printf("list of cuts follows:\n");
 
-   KVHashList* ll1 = NULL;
-   TIter it1(flist_aoq_cut_icsi);
-   while ((ll1 = (KVHashList*) it1.Next())) {
-      ll1->ls();
-      ll1->Print();
+      KVHashList* ll1 = NULL;
+      TIter it1(flist_aoq_cut_icsi);
+      while ((ll1 = (KVHashList*) it1.Next())) {
+         ll1->ls();
+         ll1->Print();
+      }
    }
 
    //-------Global ToF offset to correct AoQ=2 misalignments-------
-   printf("###### AoQ=2 misalignment ToF correction ######\n");
-   printf("tof_offset=%lf\n", ftof_offset);
+   printf("###### AoQ=2 misalignment ToF and Path corrections ######\n");
+   printf("ToF Offset = %lf ns\n", ftof_offset);
+   printf("Path Offset = %lf cm\n", fpath_offset);
 }
