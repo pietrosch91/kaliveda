@@ -320,7 +320,10 @@ void KVFAZIAReconNuc::Calibrate()
       return;
    Bool_t punch_through = kFALSE;
    Bool_t incoherency = kFALSE;
+   Bool_t pileup = kFALSE;
+   Bool_t check_error = kFALSE;
 
+   double error_si1 = 0, error_si2 = 0; // error_csi=0;
    Double_t* eloss = new Double_t[ntot];
    for (Int_t ii = 0; ii < ntot; ii += 1) eloss[ii] = 0;
    TIter next(GetDetectorList());
@@ -355,20 +358,29 @@ void KVFAZIAReconNuc::Calibrate()
          Double_t chi2 = 0;
          avatar.SetZAandE(GetZ(), GetA(), GetKE());
          for (Int_t nn = ntot - 1; nn >= 0; nn -= 1) {
-            Double_t temp = GetDetector(nn)->GetELostByParticle(&avatar);
+            det = (KVFAZIADetector*)GetDetector(nn);
+            Double_t temp = det->GetELostByParticle(&avatar);
             etot_avatar += temp;
-            chi2 += TMath::Power(eloss[ntot - 1 - nn] - temp, 2.);
+            chi2 += TMath::Power((eloss[ntot - 1 - nn] - temp) / eloss[ntot - 1 - nn], 2.);
             avatar.SetKE(avatar.GetKE() - temp);
+            if (det->GetIdentifier() == KVFAZIADetector::kSI1)      error_si1 = (fESI1 - temp) / fESI1;
+            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) error_si2 = (fESI2 - temp) / fESI2;
+//                else if (det->GetIdentifier() == KVFAZIADetector::kCSI) error_csi = (fECSI-temp)/fECSI;
          }
-         if (avatar.GetKE() > 0) {
 
+         chi2 /= ndet;
+         if (avatar.GetKE() > 0) {
             //Warning("Calibrate", "Incoherence energie residuelle %lf (PUNCH THROUGH) %s", avatar.GetKE(),GetStoppingDetector()->GetName());
             punch_through = kTRUE;
-         } else if (TMath::Abs(etot - etot_avatar) > 1e-3) {
+            //         } else if (TMath::Abs(etot - etot_avatar) > 1e-3) {
+         } else if (chi2 > 10.) {
             //Warning("Calibrate", "Incoherence %lf != %lf", etot, etot_avatar);
             incoherency = kTRUE;
+         } else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
+            if (StoppedInCSI() && (fECSI / etot) < 0.03) pileup = kTRUE;
+            else check_error = kTRUE;
          } else {
-            chi2 /= ndet;
+            //            chi2 /= ndet;
          }
       }
 
@@ -384,6 +396,8 @@ void KVFAZIAReconNuc::Calibrate()
       SetECode(0);
       if (punch_through)   SetECode(2);
       if (incoherency)     SetECode(3);
+      if (check_error)    SetECode(5); //
+      if (pileup)           SetECode(4); //
 
       SetIsCalibrated();
    } else {
