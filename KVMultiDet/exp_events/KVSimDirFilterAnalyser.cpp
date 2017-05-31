@@ -60,6 +60,13 @@ void KVSimDirFilterAnalyser::preInitRun()
    }
    KVString run = fAnalysisClass->GetOpt("Run");
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), run.Atoi());
+}
+
+void KVSimDirFilterAnalyser::preAnalysis()
+{
+   // Called by KVEventSelector just after reading new event and just before
+   // calling user analysis.
+   // Set minimum acceptable multiplicity for event.
    gMultiDetArray->SetMinimumOKMultiplicity(fAnalysisClass->GetEvent());
 }
 

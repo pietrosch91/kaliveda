@@ -270,7 +270,6 @@ void KVINDRAReconDataAnalyser::preInitRun()
 
    Int_t run = GetRunNumberFromFileName(theChain->GetCurrentFile()->GetName());
    gIndra->SetParameters(run);
-   gIndra->SetMinimumOKMultiplicity(GetReconstructedEvent());
    KVINDRADBRun* CurrentRun = gIndraDB->GetRun(run);
    SetSelectorCurrentRun(CurrentRun);
    cout << endl << " ===================  New Run  =================== " <<
@@ -326,6 +325,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
          par->SetData(ParVal[i]);
       }
    }
+   gIndra->SetMinimumOKMultiplicity(GetReconstructedEvent());
 
    // as rustines often depend on a knowledge of the original raw data,
    // we apply them after it has been read in

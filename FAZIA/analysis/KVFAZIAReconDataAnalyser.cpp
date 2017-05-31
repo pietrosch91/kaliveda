@@ -237,6 +237,13 @@ void KVFAZIAReconDataAnalyser::preInitRun()
 
    Info("preInitRun", "Appel");
    gMultiDetArray->SetParameters(fRunNumber);
+}
+
+void KVFAZIAReconDataAnalyser::preAnalysis()
+{
+   // Called by currently-processed KVFAZIASelector after reading a new event
+   // and just before calling user analysis
+   // Set acquisition trigger multiplicity as minimum multiplicity for acceptable event
    gMultiDetArray->SetMinimumOKMultiplicity(fEventSelector->GetEvent());
 }
 

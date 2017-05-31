@@ -29,6 +29,7 @@ public:
 
    void preInitAnalysis();
    void preInitRun();
+   void preAnalysis();
 
    static void Make(const Char_t* kvsname = "MyFilteredAnalysis");
 

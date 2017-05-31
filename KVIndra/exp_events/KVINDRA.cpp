@@ -934,8 +934,7 @@ void KVINDRA::SetMinimumOKMultiplicity(KVEvent* e) const
    // Set minimum OK multiplicity for (reconstructed) event
    // This is the multiplicity trigger used for the current run (if known)
 
-   Info("SetMinimumOKMultiplicity", "Trigger for run = %d", (int)GetTrigger());
-   if (GetTrigger()) e->SetMinimumOKMultiplicity(GetTrigger());
+   if (GetTrigger() > 0) e->SetMinimumOKMultiplicity(GetTrigger());
 }
 
 

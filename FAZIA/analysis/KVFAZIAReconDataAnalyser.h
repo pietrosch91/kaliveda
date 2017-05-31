@@ -37,6 +37,7 @@ public:
 
    virtual void preInitAnalysis();
    virtual void preInitRun();
+   virtual void preAnalysis();
 
    void SubmitTask();
    void ProcessRun();
