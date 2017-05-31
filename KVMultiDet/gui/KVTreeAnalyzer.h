@@ -176,6 +176,7 @@ private:
    TGPopupMenu* fMenuSelections;//!
    TGPopupMenu* fSelCombMenu;//!
    TGPopupMenu* fOptionMenu;//!
+   TGPopupMenu* fSelGenerate;//!
    enum {
       MH_OPEN_FILE,
       MH_OPEN_CHAIN,
@@ -189,7 +190,8 @@ private:
       SEL_COMB_AND,
       SEL_COMB_OR,
       SEL_UPDATE,
-      SEL_DELETE
+      SEL_DELETE,
+      SEL_GEN_CONST_XSEC
    };
    void HistoFileMenu_Open();
    void OpenChain();
@@ -547,7 +549,7 @@ public:
    }
 
    void MakeAbsoluteIPScale(const char* name, Double_t sigmaTot);
-   void GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin);
+   void GenerateConstantXSecSelections(const char* name, Double_t sigmaTot, Double_t sigmaBin);// *MENU*
 
    void HandleOptionsMenu(Int_t opt);
    void OpenAnyFriendFile(const Char_t* filepath);

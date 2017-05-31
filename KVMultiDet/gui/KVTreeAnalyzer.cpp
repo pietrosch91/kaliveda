@@ -612,6 +612,9 @@ void KVTreeAnalyzer::OpenGUI()
    fMenuSelections->AddEntry("Update", SEL_UPDATE);
    fMenuSelections->AddEntry("Delete", SEL_DELETE);
    fMenuSelections->DisableEntry(SEL_DELETE);
+   fSelGenerate = new TGPopupMenu(gClient->GetRoot());
+   fSelGenerate->AddEntry("Constant X-sections", SEL_GEN_CONST_XSEC);
+   fMenuSelections->AddPopup("Generate...", fSelGenerate);
    fMenuSelections->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleSelectionsMenu(Int_t)");
    fOptionMenu = new TGPopupMenu(gClient->GetRoot());
    fOptionMenu->AddEntry("PROOF", OPT_PROOF);
@@ -1432,6 +1435,8 @@ void KVTreeAnalyzer::DeleteSelections()
          TEntryList* el = (TEntryList*)fSelectedSelections->At(i);
          if (!el) continue;
          fSelections.Remove(el);
+         // if current selection, disable
+         if (fChain->GetEntryList() == el) fChain->SetEntryList(nullptr);
          delete el;
          SetAnalysisModifiedSinceLastSave(kTRUE);
       }
@@ -2413,6 +2418,10 @@ void KVTreeAnalyzer::HandleSelectionsMenu(Int_t id)
 
       case SEL_UPDATE:
          UpdateEntryLists();
+         break;
+
+      case SEL_GEN_CONST_XSEC:
+         KVBase::OpenContextMenu("GenerateConstantXSecSelections", this);
          break;
 
       default:
