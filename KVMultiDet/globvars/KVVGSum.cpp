@@ -54,8 +54,11 @@ ClassImp(KVVGSum)
 //
 //    vgs->SetOption("args", "3, \"string argument\", 0");
 //
-//The method used must be defined in class KVNucleus or one of
-//its base classes.
+//By default, the method used must be defined in class KVNucleus or one of
+//its base classes. If you need to access methods in some derived class,
+//use the "class" option:
+//
+//    vgs->SetOption("class", "MyOwnParticleClass");
 //
 //SETTING THE PARTICLE SELECTION CRITERIA
 //Use a KVParticleCondition to set some selection criteria, then
@@ -188,8 +191,12 @@ void KVVGSum::Init()
    Info("Init", "mode=%s", GetOptionString("mode").Data());
 
    //SET UP METHOD CALL
-   fClass = TClass::GetClass("KVNucleus");
+   if (IsOptionGiven("class")) fClass = TClass::GetClass(GetOptionString("class"));
+   else fClass = TClass::GetClass("KVNucleus");
    fMethod = 0;
+   if (!fClass) {
+      Fatal("Init", "Failed to load class requested as option: %s", GetOptionString("class").Data());
+   }
    if (IsOptionGiven("method")) {
       if (IsOptionGiven("args"))
          fMethod = new TMethodCall(fClass, GetOptionString("method").Data(), GetOptionString("args").Data());
