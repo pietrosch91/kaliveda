@@ -36,6 +36,8 @@ protected:
    Int_t nevt;
    KVString tree_name, tree_title, branch_name, root_file_name;
    Bool_t kmode;
+   Bool_t fMultiFiles;
+   Int_t fFileIndex;
 
    //infos ou objets specifiques a une simulation
    //
@@ -51,6 +53,15 @@ public:
    virtual ~KVSimReader();
 
    void CleanAll();
+
+   void SetMultiFiles(Bool_t on = kTRUE)
+   {
+      fMultiFiles = on;
+   }
+   void SetFileIndex(Int_t i)
+   {
+      fFileIndex = i;
+   }
 
    virtual KVString GetDate()
    {
@@ -72,7 +83,7 @@ public:
    {
       kmode = mode;
    }
-   virtual void DeclareTree(KVString filename, Option_t* option);
+   virtual void DeclareTree(Option_t* option);
    TTree* GetTree()
    {
       return tree;
@@ -86,7 +97,7 @@ public:
       return kmode;
    }
    virtual void SaveTree();
-   void Run(KVString filename = "Output.root", Option_t* option = "recreate");
+   void Run(Option_t* option = "recreate");
 
    //------------------
    KVList* GetLinkedObjects();
