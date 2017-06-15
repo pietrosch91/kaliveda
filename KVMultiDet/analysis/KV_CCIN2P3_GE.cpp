@@ -427,6 +427,7 @@ void KV_CCIN2P3_GE::Run()
                ana->SetFileList(&cur_file_list);
                SubmitJob();
                fCurrJobRunList.Clear();
+               cur_file_list.Clear();
             }
          }
          ana->SetFileList(file_list);
