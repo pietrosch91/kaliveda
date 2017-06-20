@@ -287,7 +287,6 @@ public:
    void SetCorrectedRealA(Float_t realA);
    void SetIsCorrectedQandAidentified();
    void SetIsCorrectedQandAunidentified();
-   void SetIsDataCorrected(Bool_t);
 
    //Final ID results
    virtual void     SetECode(UChar_t code_mask);
