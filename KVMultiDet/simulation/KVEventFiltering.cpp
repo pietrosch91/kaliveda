@@ -11,6 +11,8 @@
 #include "KVDataSetManager.h"
 #include "KVGeoNavigator.h"
 
+#include <KVGemini.h>
+
 ClassImp(KVEventFiltering)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,10 +44,15 @@ ClassImp(KVEventFiltering)
 //                        of the selected System to transform events into the detector (laboratory) frame.
 //                         if "lab" no transformation is performed: simulated events are already in laboratory frame.
 //
-// The following is an optional option:
+// The following are optional options:
 //
 //    Run:        run number to use for detector status, setup, parameters, etc.
 //                if not given, first run of the given experimental system is used.
+//    PhiRot:     by default, a random rotation around the beam axis will be performed before
+//                simulating detection of the event. If you don't want this to happen,
+//                give option PhiRot=no
+//    Gemini:     if option Gemini=yes, then each event will be "decayed" with Gemini++,
+//                if KaliVeda has been compiled with Gemini++ support.
 //
 // The filtered data will be written in the directory given as option "OutputDir".
 // The filename is built up from the original simulation filename and the values
@@ -63,6 +70,8 @@ KVEventFiltering::KVEventFiltering()
    // Default constructor
    fTransformKinematics = kTRUE;
    fNewFrame = "";
+   fRotate = kTRUE;
+   fGemini = kFALSE;
 }
 
 //________________________________________________________________
@@ -97,9 +106,20 @@ void KVEventFiltering::Copy(TObject& obj) const
    //    CastedObj.SetToto( GetToto() );
 
    KVEventSelector::Copy(obj);
-   //KVEventFiltering& CastedObj = (KVEventFiltering&)obj;
+   KVEventFiltering& CastedObj = (KVEventFiltering&)obj;
+   CastedObj.fRotate = fRotate;
+   CastedObj.fGemini = fGemini;
 }
 
+void KVEventFiltering::RandomRotation(const TString& frame_name) const
+{
+   // do random phi rotation around z-axis
+   // if frame_name is given, apply rotation to that frame
+   TRotation r;
+   r.RotateZ(gRandom->Uniform(TMath::TwoPi()));
+   if (frame_name != "") GetEvent()->SetFrame("rotated_frame", frame_name, r);
+   else GetEvent()->SetFrame("rotated_frame", r);
+}
 
 Bool_t KVEventFiltering::Analysis()
 {
@@ -110,12 +130,30 @@ Bool_t KVEventFiltering::Analysis()
    // then the reconstructed detected event is treated by the same identification and calibration
    // procedures as for experimental data.
 
+   KVEvent* to_be_detected = GetEvent();
+   if (fGemini) {
+#ifdef WITH_GEMINI
+      KVGemini g;
+      g.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
+      to_be_detected = &fGemEvent;
+#endif
+   }
    if (fTransformKinematics) {
-      if (fNewFrame == "proj")   GetEvent()->SetFrame("lab", fProjVelocity);
-      else                    GetEvent()->SetFrame("lab", fCMVelocity);
-      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
+      if (fNewFrame == "proj")   to_be_detected->SetFrame("lab", fProjVelocity);
+      else                    to_be_detected->SetFrame("lab", fCMVelocity);
+      if (fRotate) {
+         RandomRotation("lab");
+         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
+      } else {
+         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "lab");
+      }
    } else {
-      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
+      if (fRotate) {
+         RandomRotation();
+         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
+      } else {
+         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent);
+      }
    }
    fReconEvent->SetNumber(fEVN++);
    fReconEvent->SetFrameName("lab");
@@ -234,6 +272,16 @@ void KVEventFiltering::InitAnalysis()
       Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
    }
 
+   if (IsOptGiven("PhiRot")) {
+      if (GetOpt("PhiRot") == "no") fRotate = kFALSE;
+   }
+   if (fRotate) Info("InitAnalysis", "Random phi rotation around beam axis performed for each event");
+#ifdef WITH_GEMINI
+   if (IsOptGiven("Gemini")) {
+      if (GetOpt("Gemini") == "yes") fGemini = kTRUE;
+   }
+   if (fGemini) Info("InitAnalysis", "Statistical decay with Gemini++ for each event before detection");
+#endif
    if (!gDataSet->HasCalibIdentInfos()) {
       TString fullpath;
       if (KVBase::SearchKVFile("IdentificationBilan.dat", fullpath, gDataSet->GetName())) {

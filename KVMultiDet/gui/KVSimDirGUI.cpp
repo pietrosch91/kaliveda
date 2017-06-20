@@ -246,6 +246,7 @@ KVSimDirGUI::KVSimDirGUI()
    root_geom = new TGRadioButton(bgroup, "ROOT");
    bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "GeoType(Int_t)");
    root_geom->SetState(kButtonDown);
+   kaliveda_geom->SetEnabled(kFALSE);
    fGeoType = kGTROOT;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop | kLHintsLeft, 20, 2, 2, 2));
    bgroup = new TGButtonGroup(hf, "Kinematics");
@@ -528,13 +529,19 @@ void KVSimDirGUI::SelectDataSet(const char* name)
       fSystem = "";
       fRun = "";
       ds->cd();
-      // disable filtering with KaliVeda geometry if multidetector has default ROOT geometry
-      if (ds->GetDataSetEnv("KVMultiDetArray.ROOTGeometry", kFALSE)) {
+      // use ROOT geometry if available
+      if (ds->GetDataSetEnv("KVMultiDetArray.ROOTGeometry", kTRUE)) {
+         root_geom->SetEnabled(kTRUE);
+         kaliveda_geom->SetEnabled(kTRUE);
          kaliveda_geom->SetState(kButtonUp);
          root_geom->SetState(kButtonDown);
          kaliveda_geom->SetEnabled(kFALSE);
       } else {
+         root_geom->SetEnabled(kTRUE);
          kaliveda_geom->SetEnabled(kTRUE);
+         kaliveda_geom->SetState(kButtonDown);
+         root_geom->SetState(kButtonUp);
+         root_geom->SetEnabled(kFALSE);
       }
       KVSeqCollection* systems = 0;
       if (gDataBase && gDataBase->GetTable("Systems")) systems = gDataBase->GetTable("Systems")->GetRecords();
