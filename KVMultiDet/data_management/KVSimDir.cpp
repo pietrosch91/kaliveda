@@ -197,8 +197,15 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
                   TString filter;
                   if (f) filter = f->GetTitle();
                   Int_t run_number = run.Atoi();
-                  fFiltData.Add(new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
-                                              dataset, system, run_number, geometry, origin, filter));
+                  KVSimFile* fff = new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
+                                                 dataset, system, run_number, geometry, origin, filter);
+                  fFiltData.Add(fff);
+                  TNamed* gem = (TNamed*)file->Get("Gemini++");
+                  if (gem) {
+                     if (!strcmp(gem->GetTitle(), "yes")) fff->SetGemini();
+                     delete gem;
+                  }
+
                   delete file;
                   delete ds;
                   delete sys;
