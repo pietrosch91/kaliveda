@@ -111,14 +111,14 @@ void KVEventFiltering::Copy(TObject& obj) const
    CastedObj.fGemini = fGemini;
 }
 
-void KVEventFiltering::RandomRotation(const TString& frame_name) const
+void KVEventFiltering::RandomRotation(KVEvent* to_rotate, const TString& frame_name) const
 {
    // do random phi rotation around z-axis
    // if frame_name is given, apply rotation to that frame
    TRotation r;
    r.RotateZ(gRandom->Uniform(TMath::TwoPi()));
-   if (frame_name != "") GetEvent()->SetFrame("rotated_frame", frame_name, r);
-   else GetEvent()->SetFrame("rotated_frame", r);
+   if (frame_name != "") to_rotate->SetFrame("rotated_frame", frame_name, r);
+   else to_rotate->SetFrame("rotated_frame", r);
 }
 
 Bool_t KVEventFiltering::Analysis()
@@ -142,14 +142,14 @@ Bool_t KVEventFiltering::Analysis()
       if (fNewFrame == "proj")   to_be_detected->SetFrame("lab", fProjVelocity);
       else                    to_be_detected->SetFrame("lab", fCMVelocity);
       if (fRotate) {
-         RandomRotation("lab");
+         RandomRotation(to_be_detected, "lab");
          gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
       } else {
          gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "lab");
       }
    } else {
       if (fRotate) {
-         RandomRotation();
+         RandomRotation(to_be_detected);
          gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
       } else {
          gMultiDetArray->DetectEvent(to_be_detected, fReconEvent);
@@ -321,7 +321,7 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    // The filename is built up from the original simulation filename and the values
    // of various options:
    //
-   //       [simfile]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
+   //       [simfile]_[Gemini]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
    //
    // In addition, informations on the filtered data are stored in the file as
    // TNamed objects. These can be read by KVSimDir::AnalyseFile:
@@ -332,10 +332,14 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    // KEY: TNamed Geometry;1  title=[geometry-type]
    // KEY: TNamed Filter;1 title=[filter-type]
    // KEY: TNamed Origin;1 title=[name of simulation file]
+   // KEY: TNamed RandomPhi;1 title=[yes/no, random rotation about beam axis]
+   // KEY: TNamed Gemini++;1 title=[yes/no, Gemini++ decay before detection]
    //
    TString basefile = GetOpt("SimFileName");
    basefile.Remove(basefile.Index(".root"), 5);
-   TString outfile = basefile + "_geo=";
+   TString outfile = basefile;
+   if (fGemini) outfile += "_Gemini";
+   outfile += "_geo=";
    outfile += GetOpt("Geometry");
    outfile += "_filt=";
    outfile += GetOpt("Filter");
@@ -383,5 +387,7 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    }
    (new TNamed("Filter", GetOpt("Filter").Data()))->Write();
    (new TNamed("Origin", (basefile + ".root").Data()))->Write();
+   (new TNamed("RandomPhi", (fRotate ? "yes" : "no")))->Write();
+   (new TNamed("Gemini++", (fGemini ? "yes" : "no")))->Write();
    curdir->cd();
 }

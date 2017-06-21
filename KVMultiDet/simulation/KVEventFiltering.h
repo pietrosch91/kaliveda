@@ -17,7 +17,7 @@ class KVEventFiltering : public KVEventSelector {
    Bool_t fGemini;//true if Gemini++ decay should be performed before detection [default: no]
    KVSimEvent fGemEvent;//event after decay with Gemini
 
-   void RandomRotation(const TString& frame_name = "") const;
+   void RandomRotation(KVEvent* to_rotate, const TString& frame_name = "") const;
 public:
    KVEventFiltering();
    KVEventFiltering(const KVEventFiltering&) ;
