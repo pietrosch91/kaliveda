@@ -156,7 +156,7 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
    // two criteria is found (it is assumed that in each file there is only one TTree containing
    // either simulated or filtered data).
 
-   Info("AnalyseFile", "Analysing file %s...", filename);
+   //Info("AnalyseFile", "Analysing file %s...", filename);
    TString fullpath;
    AssignAndDelete(fullpath, gSystem->ConcatFileName(GetDirectory(), filename));
    TFile* file = TFile::Open(fullpath);

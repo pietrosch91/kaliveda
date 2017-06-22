@@ -661,9 +661,12 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
    gDataAnalyser = KVDataAnalyser::GetAnalyser(anTask->GetDataAnalyser());
    gDataAnalyser->SetAnalysisTask(anTask);
    gDataAnalyser->SetFileList(runs_to_analyse);
-   if (anTask->WithUserClass())
+   if (anTask->WithUserClass()) {
       gDataAnalyser->SetUserClass(fAnalClassName);
-   else if (strcmp(anTask->GetUserBaseClass(), ""))
+      if (!gDataAnalyser->IsUserClassValid()) {
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Compilation failed. Correct mistakes and try again!", kMBIconExclamation);
+      }
+   } else if (strcmp(anTask->GetUserBaseClass(), ""))
       gDataAnalyser->SetUserClass(anTask->GetUserBaseClass(), kFALSE);//task with default "user" class
    Bool_t all_events = fCBAllEvents->IsDown();
    if (!all_events)
