@@ -85,7 +85,7 @@ Double_t KVRandomizor::GetPosition(Int_t idx)
 }
 
 //-------------------------
-Double_t  KVRandomizor::ComputeValue(Double_t* pos)
+Double_t  KVRandomizor::ComputeValue(Double_t*)
 //-------------------------
 {
 
