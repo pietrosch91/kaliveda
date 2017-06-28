@@ -28,7 +28,7 @@ KVRandomizorCor::~KVRandomizorCor()
 
 //____________________________________________________________________________//
 
-Double_t KVRandomizorCor::ComputeValue(Double_t* pos)
+Double_t KVRandomizorCor::ComputeValue(Double_t*)
 {
 
    Double_t prod = 1;
