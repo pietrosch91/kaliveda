@@ -244,3 +244,35 @@ TGraph* KVImpactParameter::GetXSecEvolution(TH2* obscor, TString moment, TString
    return gr;
 }
 
+std::vector<Double_t> KVImpactParameter::SliceXSec(Int_t nslices, Double_t totXsec)
+{
+   // Generate vector of observable values which can be used to select nslices
+   // of constant cross-section. Each slice will correspond to a cross-section
+   //    totXsec/nslices.
+   // Note that the vector will contain (nslices-1) values
+   //
+   // Example:
+   //     KVImpactParameter ip(data);    // histo containing observable distribution
+   //     ip.MakeAbsoluteScale(100,ip.GetIPFromXSec(data->Integral()))
+   //     std::vector<Double_t> slices = ip.SliceXSec(5, Xsec);
+   //     if(obs > slices[0]){
+   //            // most central events (observable increases when b decreases)
+   //            // with cross-section Xsec/5
+   //     } else if(obs > slices[1]){
+   //            // next most central events, cross-section=Xsec/5
+   //     }
+   //      ...
+   //     } else if(obs > slices[3]){
+   //            // next-to-most-peripheral events
+   //     } else {
+   //            // most peripheral events (obs < slices[3])
+   //     }
+
+   Double_t xsecSlice = totXsec / double(nslices);
+   std::vector<Double_t> slices(nslices - 1);
+   for (int i = 0; i < nslices - 1; ++i) {
+      slices[i] = GetObservableXSec((i + 1) * xsecSlice);
+   }
+   return slices;
+}
+

@@ -9,6 +9,7 @@
 #include "TGraph.h"
 #include "TF1.h"
 #include "KVHistoManipulator.h"
+#include <vector>
 
 class KVImpactParameter : public KVBase {
    TH1* fData; // histogram containing distribution of ip-related observable
@@ -52,7 +53,7 @@ public:
    };
    TF1* GetXSecTransFunc() const
    {
-      // return pointer to function giving croos section for any value of observable
+      // return pointer to function giving cross section for any value of observable
       return fObsTransformXSec;
    };
    Double_t GetImpactParameter(Double_t obs)
@@ -92,6 +93,7 @@ public:
       // returns impact parameter in [fm] corresponding to cross-section in [mb]
       return pow(xsec / 10. / TMath::Pi(), 0.5);
    }
+   std::vector<Double_t> SliceXSec(Int_t nslices, Double_t totXsec);
 
    ClassDef(KVImpactParameter, 2) //Impact parameter analysis tools
 };

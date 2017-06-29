@@ -1954,29 +1954,27 @@ void KVTreeAnalyzer::GenerateConstantXSecSelections(const char* name, Double_t s
    // using histogram with name
 
    MakeAbsoluteIPScale(name, sigmaTot);
+   std::vector<Double_t> slices = ipscale->SliceXSec(sigmaTot / sigmaBin, sigmaTot);
    TH1* histo = GetHistogram(name);
    if (!histo) return;
    TString histotit = histo->GetTitle();
    KVString ipvar, ipsel, ipweight;
    KVHistogram::ParseHistoTitle(histotit.Data(), ipvar, ipsel, ipweight);
 
-   Double_t sigma_old = 0;
-   Double_t sigma = sigmaBin;
    bool integer_values = (name[0] == 'I');
-   while (sigma < sigmaTot) {
-      Double_t varCut = ipscale->GetObservableXSec(sigma);
+
+   for (unsigned int i = 0; i < slices.size(); ++i) {
+      Double_t varCut = slices[i];
       if (integer_values) varCut = TMath::Nint(varCut);
-      Double_t varCutold = ipscale->GetObservableXSec(sigma_old);
+      Double_t varCutold = (i > 0 ? slices[i - 1] : 0.);
       if (integer_values) varCutold = TMath::Nint(varCutold);
       TString selection;
-      if (sigma_old > 0) selection.Form("%s>=%f && %s<%f", ipvar.Data(), varCut, ipvar.Data(), varCutold);
+      if (i > 0) selection.Form("%s>=%f && %s<%f", ipvar.Data(), varCut, ipvar.Data(), varCutold);
       else selection.Form("%s>=%f", ipvar.Data(), varCut);
       TEntryList* save_elist = fChain->GetEntryList();
       SetSelection(ipsel);
       MakeSelection(selection);
       SetEntryList(save_elist);
-      sigma_old = sigma;
-      sigma += sigmaBin;
    }
 }
 
