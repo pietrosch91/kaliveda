@@ -11,6 +11,8 @@ INDRAFAZIA.ExpSetUp.Updater.INDRA: INDRA_camp1
 INDRAFAZIA.ExpSetUp.Updater.FAZIA: FAZIASYM
 INDRAFAZIA.HasCalibIdentInfos:   no
 INDRAFAZIA.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
+INDRAFAZIA.SI-CSI.MassID: yes
+INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
 
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
 +Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndradb   "KVINDRADB(const Char_t*)"
