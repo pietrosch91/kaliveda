@@ -281,7 +281,7 @@ void KVParticleCondition::Optimize()
    /* check that the same condition has not already been optimized */
    fOptimal = (KVParticleCondition*)fgOptimized.FindObject(GetName());
    if (fOptimal) {
-      Info("Optimize", "Using existing optimized condition %p", fOptimal);
+      //Info("Optimize", "Using existing optimized condition %p", fOptimal);
       fOptimal->fNUsing++;
       fOptOK = kTRUE;
       return;

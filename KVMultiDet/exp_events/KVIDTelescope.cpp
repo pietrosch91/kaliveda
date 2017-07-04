@@ -35,6 +35,7 @@ Author : $Author: franklan $
 #include "TMath.h"
 #include "TClass.h"
 #include "TH2.h"
+#include "KVParticleCondition.h"
 
 using namespace std;
 
@@ -115,10 +116,11 @@ void KVIDTelescope::init()
    //default init
    fDetectors = new KVList(kFALSE);
    fDetectors->SetCleanup(kTRUE);
-   fGroup = 0;
+   fGroup = nullptr;
    fIDGrids = new KVList(kFALSE);
    fIDGrids->SetCleanup(kTRUE);
    fVarX = fVarY = "";
+   fMassIDValidity = nullptr;
 }
 
 void KVIDTelescope::Initialize(void)
@@ -128,11 +130,37 @@ void KVIDTelescope::Initialize(void)
    // has been declared to have no associated identification/calibration parameters,
    // in which case kReadyForID is by default set to kTRUE (for filtering simulations).
    //
+   // In order to enable mass identification for certain telescopes without a dedicated
+   // implementation (e.g. for simulating array response), put the following lines
+   // in your .kvrootrc:
+   //
+   //   [dataset].[telescope label].MassID:   yes
+   //
+   // If you want to limit mass identification to certain values of Z and/or A,
+   // add the following line:
+   //
+   //   [dataset].[telescope label].MassID.Validity:    [expression]
+   //
+   // where [expression] is some valid C++ boolean expression involving Z and/or A,
+   // for example
+   //
+   //   [dataset].[telescope label].MassID.Validity:  (Z>3)&&(A<20)
+   //
    // To implement identification, make a class derived from KVIDTelescope
    // and set kReadyForID to kTRUE in Initialize() method of derived class if
    // necessary conditions for identification are met (has an ID grid etc.).
    ResetBit(kReadyForID);
    if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+
+   if (gDataSet) {
+      SetHasMassID(gDataSet->GetDataSetEnv(Form("%s.MassID", GetLabel()), kFALSE));
+      TString valid;
+      if ((valid = gDataSet->GetDataSetEnv(Form("%s.MassID.Validity", GetLabel()), "")) != "") {
+         valid.ReplaceAll("Z", "_NUC_->GetZ()");
+         valid.ReplaceAll("A", "_NUC_->GetA()");
+         fMassIDValidity = new KVParticleCondition(valid);
+      }
+   }
 }
 
 KVIDTelescope::~KVIDTelescope()
@@ -146,6 +174,7 @@ KVIDTelescope::~KVIDTelescope()
    fGroup = 0;
    fIDGrids->Clear();
    SafeDelete(fIDGrids);
+   SafeDelete(fMassIDValidity);
 }
 
 //___________________________________________________________________________________________
@@ -1169,13 +1198,34 @@ void KVIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
    // identification or not, but this may depend on the particle's energy.
    // If A was not measured, it will be replaced with a value calculated
    // from whatever mass formula is used for the particle.
+   //
+   // In order to enable mass identification for certain telescopes without a dedicated
+   // implementation (e.g. for simulating array response), put the following lines
+   // in your .kvrootrc:
+   //
+   //   [dataset].[telescope label].MassID:   yes
+   //
+   // If you want to limit mass identification to certain values of Z and/or A,
+   // add the following line:
+   //
+   //   [dataset].[telescope label].MassID.Validity:    [expression]
+   //
+   // where [expression] is some valid C++ boolean expression involving Z and/or A,
+   // for example
+   //
+   //   [dataset].[telescope label].MassID.Validity:  (Z>3)&&(A<20)
+   //
+   // Then this expression will be tested here in order to determine particle
+   // identification status
 
    n->SetZMeasured();
    if (!HasMassID()) {
       n->SetAMeasured(kFALSE);
       n->SetZ(n->GetZ());// use mass formula for A
-   } else
-      n->SetAMeasured();
+   } else {
+      if (fMassIDValidity) n->SetAMeasured(fMassIDValidity->Test(n)); // test expression for mass ID validity
+      else n->SetAMeasured();   // no expression set; all nuclei are identified in mass
+   }
 }
 
 void KVIDTelescope::OpenIdentificationBilan(const TString& path)

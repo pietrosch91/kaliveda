@@ -31,6 +31,7 @@ class KVIDGrid;
 class KVMultiDetArray;
 class KVIdentificationResult;
 class TH2;
+class KVParticleCondition;
 
 class KVIDTelescope: public KVBase {
 
@@ -50,6 +51,8 @@ protected:
 
    KVString fVarX;
    KVString fVarY;
+
+   KVParticleCondition* fMassIDValidity;//! may be used to limit mass identification to certain Z and/or A range
 
 public:
 
