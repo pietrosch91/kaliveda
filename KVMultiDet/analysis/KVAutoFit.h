@@ -85,6 +85,8 @@ public:
 
    virtual void Save();
    virtual void Relecture(const Char_t* name);
+   virtual void ExtraDrawing() {}
+   virtual void HandleKey(Int_t) {}
 
    ClassDef(KVAutoFit, 1) //Manage SemiAutomatic Fits
 };

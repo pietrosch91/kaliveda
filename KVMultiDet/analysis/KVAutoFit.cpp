@@ -360,6 +360,10 @@ void KVAutoFit::GetInterval()
 
    Int_t event = gPad->GetEvent();
    TObject* select = gPad->GetSelected();
+
+//   cout << event << endl;
+   if (event == 24) HandleKey(gPad->GetEventY());
+
    if (!select) {}
    else {
       if (select->InheritsFrom("TPaveLabel"))
@@ -408,9 +412,11 @@ void KVAutoFit::GetInterval()
          if (!is2D) {
             hfit->Fit(f1Dfit, "0N", "", Xmin, Xmax);
             f1Dfit->Draw("same");
+            ExtraDrawing();
          } else {
             hfit->Fit(f2Dfit, "0N", "", Xmin, Xmax);
             f2Dfit->Draw("same,cont2");
+            ExtraDrawing();
          }
       }
       //-------------

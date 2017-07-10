@@ -5,6 +5,7 @@
 #include "TH2.h"
 #include "Riostream.h"
 #include "TMath.h"
+#include "TMarker.h"
 
 ClassImp(KVGaus2D)
 
@@ -124,4 +125,12 @@ Double_t KVGaus2D::f2D(Double_t* xx, Double_t* para)
 
    return P;
 
+}
+
+void KVGaus2D::ExtraDrawing()
+{
+   TMarker* m1 = new TMarker(f2Dfit->GetParameter(0), f2Dfit->GetParameter(2), 8);
+   m1->SetMarkerSize(0.7);
+
+   m1->Draw();
 }

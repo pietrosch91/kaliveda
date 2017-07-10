@@ -22,6 +22,7 @@ public:
    virtual ~KVGaus2D();
 
    ClassDef(KVGaus2D, 1) //Fit gaussien a deux dimensions
+   void ExtraDrawing();
 };
 
 #endif
