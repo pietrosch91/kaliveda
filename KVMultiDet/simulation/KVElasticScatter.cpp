@@ -342,7 +342,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
       //set random direction of outgoing projectile
 
       double th, ph;
-      th = ph = 0;
+      th = ph = 0.;
       fDetector->GetRandomAngles(th, ph);
       fProj->SetEnergy(fProj->GetEnergy());
       fProj->SetTheta(th);
