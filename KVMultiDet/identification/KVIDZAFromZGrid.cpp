@@ -137,6 +137,9 @@ void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
 
 void KVIDZAFromZGrid::LoadPIDRanges()
 {
+   fZminInt = 100000;
+   fZmaxInt = 0;
+
    KVIDentifier* id = 0;
    TIter it(GetIdentifiers());
    while ((id = (KVIDentifier*)it())) {
@@ -164,9 +167,18 @@ void KVIDZAFromZGrid::LoadPIDRanges()
 //            itv->add(aa, pid, pid-0.02, pid+0.02);
          }
       }
+      if (zz < fZminInt) fZminInt = zz;
+      if (zz > fZmaxInt) fZmaxInt = zz;
       fTables.Add(itv);
    }
+   fPIDRange = kTRUE;
    //    PrintPIDLimits();
+}
+
+void KVIDZAFromZGrid::ReloadPIDRanges()
+{
+   fTables.Clear("all");
+   LoadPIDRanges();
 }
 
 interval_set* KVIDZAFromZGrid::GetIntervalSet(int zint)
@@ -184,7 +196,7 @@ void KVIDZAFromZGrid::PrintPIDLimits()
 //   for (int zz = fZminInt; zz <= fZmaxInt; zz++) {
 //      Info("PrintPIDLimits", "Z=%2d    [%.4lf  %.4lf]", zz, ((interval_set*)fTables.At(zz - fZminInt))->fPIDmins.at(0),
 //           ((interval_set*)fTables.At(zz - fZminInt))->fPIDmaxs.at(((interval_set*)fTables.At(zz - fZminInt))->fNPIDs - 1));
-   //   }
+//      }
 }
 
 void KVIDZAFromZGrid::ClearPIDIntervals()

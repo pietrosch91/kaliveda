@@ -28,7 +28,7 @@ ClassImp(KVItvFinderDialog)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)
+KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7,1)
 {
    fGrid  = gg;
    fHisto = hh;
@@ -36,7 +36,6 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)
    fPoints  = new TGraph;
    fPoints->SetMarkerStyle(23);
    fNPoints = 0;
-
 
    gStyle->SetOptStat(0);
    gStyle->SetOptTitle(0);
@@ -215,12 +214,18 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)
    fMain->MapWindow();
 
    fCustomView->Display(((KVIDZAFromZGrid*)fGrid)->GetIntervalSets());
-   fCanvas->cd();
+   fPad->cd();
 
    LinearizeHisto(60);
    fLinearHisto->SetLineColor(kBlack);
    fLinearHisto->SetFillColor(kGreen + 1);
    fLinearHisto->Draw();
+
+   int tmp[30] = {3, 3, 3, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
+   for (int ii = 0; ii < 30; ii++) fNpeaks[ii] = tmp[ii];
+
+   fSig = 0.1;
+   fRat = 0.0001;
 
    DrawIntervals();
 
@@ -249,6 +254,7 @@ void KVItvFinderDialog::DisplayPIDint()
 
 void KVItvFinderDialog::SelectionITVChanged()
 {
+   fPad->cd();
    fItvPaint.Execute("HighLight", "0");
 
    if (fCurrentView->GetLastSelectedObject()) {
@@ -290,6 +296,7 @@ void KVItvFinderDialog::ZoomOnCanvas()
 
 void KVItvFinderDialog::DrawIntervals()
 {
+//    fCanvas->cd();
    interval_set* itvs = 0;
    TIter it(fGrid->GetIntervalSets());
    while ((itvs = (interval_set*)it())) {
@@ -299,6 +306,7 @@ void KVItvFinderDialog::DrawIntervals()
 
 void KVItvFinderDialog::DrawInterval(interval_set* itvs, bool label)
 {
+   fPad->cd();
    interval* itv = 0;
    TIter itt(itvs->GetIntervals());
    while ((itv = (interval*)itt())) {
@@ -327,12 +335,19 @@ void KVItvFinderDialog::ClearInterval(interval_set* itvs)
 void KVItvFinderDialog::LinearizeHisto(int nbins)
 {
    Double_t zmin  = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetPID() - 1.0;
-   Double_t zmax  = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID() + 1.0;
-   Int_t    zbins = (Int_t)(zmax - zmin) * nbins;
+   Double_t zmax = 0;
+
+   for (int iz = 1; iz < fGrid->GetIdentifiers()->GetSize() + 1; iz++)  {
+      KVIDentifier* tmp = (KVIDentifier*)fGrid->GetIdentifiers()->At(iz);
+      if (tmp && tmp->GetPID() > zmax) zmax = tmp->GetPID();
+   }
+
+   Int_t zbins = (Int_t)(zmax - zmin) * nbins;
 
    fLinearHisto = new TH1F("fLinearHisto", "fLinearHisto", zbins, zmin, zmax);
 
    KVIdentificationResult* idr = new KVIdentificationResult;
+   fGrid->SetOnlyZId(1);
 
    for (int i = 1; i <= fHisto->GetNbinsX(); i++) {
       for (int j = 1; j <= fHisto->GetNbinsY(); j++) {
@@ -353,9 +368,11 @@ void KVItvFinderDialog::LinearizeHisto(int nbins)
             x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
             y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
             if (fGrid->IsIdentifiable(x, y)) {
-               fGrid->KVIDZAGrid::Identify(x, y, idr);
-               Float_t PID = idr->PID;
-               fLinearHisto->Fill(PID, weight);
+               if (!fGrid->GetIdentifier("MassID") || (fGrid->GetIdentifier("MassID") && fGrid->GetIdentifier("MassID")->IsInside(x, y))) {
+                  fGrid->KVIDZAGrid::Identify(x, y, idr);
+                  Float_t PID = idr->PID;
+                  fLinearHisto->Fill(PID, weight);
+               }
             }
          }
       }
@@ -365,6 +382,16 @@ void KVItvFinderDialog::LinearizeHisto(int nbins)
 
 void KVItvFinderDialog::Identify()
 {
+//    KVBase::OpenContextMenu("Identify(double,double)",this);
+   Identify(0.1, 0.001);
+}
+
+void KVItvFinderDialog::Identify(double sigma, double ratio)
+{
+   fSig = sigma;
+   fRat = ratio;
+
+   fPad->cd();
    TList* list = fCustomView->GetSelectedObjects();
    if (!list->GetSize()) {
       ProcessIdentification(1, TMath::Min(fGrid->GetIdentifiers()->GetSize(), 25));
@@ -380,9 +407,40 @@ void KVItvFinderDialog::Identify()
    delete list;
    fCanvas->Modified();
    fCanvas->Update();
+
 }
 
 void KVItvFinderDialog::SaveGrid()
+{
+   ExportToGrid();
+
+   static TString dir(".");
+   const char* filetypes[] = {
+      "ID Grid files", "*.dat",
+      "All files", "*",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
+   if (fi.fFilename) {
+      TString filenam(fi.fFilename);
+      if (filenam.Contains("toto")) filenam.ReplaceAll("toto", fGrid->GetName());
+      if (!filenam.Contains('.')) filenam += ".dat";
+      fGrid->WriteAsciiFile(filenam.Data());
+   }
+   dir = fi.fIniDir;
+   fGrid->ReloadPIDRanges();
+
+   fCustomView->Display(((KVIDZAFromZGrid*)fGrid)->GetIntervalSets());
+   fCurrentView->RemoveAll();
+
+   fItvPaint.Clear("all");
+   DrawIntervals();
+}
+
+void KVItvFinderDialog::ExportToGrid()
 {
    fGrid->ClearPIDIntervals();
    KVNumberList pids;
@@ -408,23 +466,6 @@ void KVItvFinderDialog::SaveGrid()
       val.Remove(val.Length() - 1);
       fGrid->GetParameters()->SetValue(par.Data(), val.Data());
    }
-   static TString dir(".");
-   const char* filetypes[] = {
-      "ID Grid files", "*.dat",
-      "All files", "*",
-      0, 0
-   };
-   TGFileInfo fi;
-   fi.fFileTypes = filetypes;
-   fi.fIniDir = StrDup(dir);
-   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
-   if (fi.fFilename) {
-      TString filenam(fi.fFilename);
-      if (filenam.Contains("toto")) filenam.ReplaceAll("toto", fGrid->GetName());
-      if (!filenam.Contains('.')) filenam += ".dat";
-      fGrid->WriteAsciiFile(filenam.Data());
-   }
-   dir = fi.fIniDir;
 }
 
 void KVItvFinderDialog::NewInterval()
@@ -609,6 +650,16 @@ void KVItvFinderDialog::TestIdent()
 {
    fGrid->SetOnlyZId(0);
    fGrid->Initialize();
+   ExportToGrid();
+
+   fGrid->ReloadPIDRanges();
+
+   fCustomView->Display(((KVIDZAFromZGrid*)fGrid)->GetIntervalSets());
+   fCurrentView->RemoveAll();
+
+   fItvPaint.Clear("all");
+   DrawIntervals();
+
    new KVTestIDGridDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), 10, 10, fGrid, fHisto);
 }
 
@@ -640,7 +691,7 @@ void KVItvFinderDialog::FindPIDIntervals(Int_t zz)
    if (zz == 1) fLinearHisto->SetAxisRange(0.9, zz + 0.5, "X");
    else      fLinearHisto->SetAxisRange(zz - 0.5, zz + 0.5, "X");
 
-   int nfound = fSpectrum.Search(fLinearHisto, 0.1, "goff", ((zz == 2) ? 0.00001 : 0.0001));
+   int nfound = fSpectrum.Search(fLinearHisto, fSig, "goff", ((zz == 2) ? 0.1 * fRat : fRat));
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
    Double_t* xpeaks = fSpectrum.GetPositionX();
    Double_t* ypeaks = fSpectrum.GetPositionY();
@@ -648,6 +699,8 @@ void KVItvFinderDialog::FindPIDIntervals(Int_t zz)
    Float_t* xpeaks = fSpectrum.GetPositionX();
    Float_t* ypeaks = fSpectrum.GetPositionY();
 #endif
+
+   nfound = TMath::Min(fNpeaks[zz - 1], nfound);
 
    int idx[nfound];
    TMath::Sort(nfound, xpeaks, idx, 0);
@@ -675,10 +728,10 @@ void KVItvFinderDialog::FindPIDIntervals(Int_t zz)
       ff->SetParameter(3 * ii + 3, fPoints->GetY()[fPoints->GetN() - np + ii]);
    }
 
-   ff->SetNpx(2000);
-   fLinearHisto->Fit(ff, "QN", "", zz - 0.5, zz + 0.5);
-   fLinearHisto->Fit(ff, "QN", "", zz - 0.5, zz + 0.5);
-   ff->Draw("same");
+//   ff->SetNpx(2000);
+//   fLinearHisto->Fit(ff, "QN", "", zz - 0.5, zz + 0.5);
+//   fLinearHisto->Fit(ff, "QN", "", zz - 0.5, zz + 0.5);
+//   ff->Draw("same");
 
    for (int ii = 0; ii < np; ii++) {
       double pid = ff->GetParameter(3 * ii + 1);

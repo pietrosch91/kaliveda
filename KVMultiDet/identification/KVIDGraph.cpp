@@ -1230,7 +1230,7 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
    id_real_vs_e_res->Reset();
    Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
-   Float_t percent = 0., cumul = 10.;
+   Int_t percent = 0, cumul = 0;
    Bool_t zaMap = (!IsOnlyZId()) && (z_a_real);
 
    //loop over data in histo
@@ -1272,12 +1272,15 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
          }
          events_read += (Int_t) poids;
          percent = (1. * events_read / tot_events) * 100.;
-         Increment((Float_t) events_read);      //sends signal to GUI progress bar
-         if (percent >= cumul) {
-            //cout << (Int_t) percent << "\% processed" << endl;
-            cumul += 10;
+         if (percent > cumul) {
+            Increment((Float_t) events_read);      //sends signal to GUI progress bar
+            gSystem->ProcessEvents();
+            cumul = percent;
          }
-         gSystem->ProcessEvents();
+//         if (percent >= cumul) {
+//            //cout << (Int_t) percent << "\% processed" << endl;
+//            cumul += 10;
+//         }
       }
    }
 

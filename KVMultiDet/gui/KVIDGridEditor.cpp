@@ -15,6 +15,7 @@
 #include "KVTreeAnalyzer.h"
 #include <KVHistogram.h>
 #include "KVTestIDGridDialog.h"
+#include "KVItvFinderDialog.h"
 using namespace std;
 
 ClassImp(KVIDGridEditor)
@@ -2314,7 +2315,8 @@ void KVIDGridEditor::FindZALines()
 {
    if ((!TheHisto) || (!TheGrid)) return;
 
-   new KVZAFinderDialog(TheGrid, TheHisto);
+   if (TheGrid->InheritsFrom("KVIDZAFromZGrid")) new KVItvFinderDialog((KVIDZAFromZGrid*)TheGrid, TheHisto);
+   else                                         new KVZAFinderDialog(TheGrid, TheHisto);
    //   KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
    //   toto.SetAList(A);
    //   toto.SetNbinsByZ(binByZ);

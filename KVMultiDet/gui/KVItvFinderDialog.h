@@ -77,6 +77,9 @@ public:
    TGraph*   fPoints;
    Int_t     fNPoints;
    TList     fFunc;
+   Int_t     fNpeaks[30];
+
+   Double_t fSig, fRat;
 
 
 public:
@@ -101,7 +104,9 @@ public:
    void CloseWindow() {}
 
    void Identify();//{ProcessIdentification(1,25);}//{Info("SaveGrid","Not yet implemented");}
+   void Identify(double sigma, double ratio);//{ProcessIdentification(1,25);}//{Info("SaveGrid","Not yet implemented");}
    void SaveGrid();//{fGrid->GetIntervalSets()->ls(); fGrid->GetParameters()->ls();}
+   void ExportToGrid();
    void NewInterval();//{Info("NewInterval","Not yet implemented");}
    void RemoveInterval();//{Info("RemoveInterval","Not yet implemented");}
    void MassesUp();//{Info("ChangeMasses","Not yet implemented");}
