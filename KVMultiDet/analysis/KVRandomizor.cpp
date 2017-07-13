@@ -21,20 +21,15 @@ ClassImp(KVRandomizor)
 ////////////////////////////////////////////////////////////////////////////////
 
 //-------------------------
-KVRandomizor::KVRandomizor(Int_t ndim) : TNamed()
+KVRandomizor::KVRandomizor(Int_t ndim) : TNamed(),
+   fNd(ndim), fNdMax(6), fMin(ndim), fMax(ndim)
 //-------------------------
 {
    // Default constructor
-   fNdMax = 6;
    if (fNd > fNdMax) {
-      Warning("KVRandomizor", "To high dimensions (max : %d)", fNdMax);
-      //return;
+      Warning("KVRandomizor", "Too high dimensions (max : %d)", fNdMax);
+      //return; MAYBE THROW AN EXCEPTION?
    }
-
-   fNd = ndim;
-   fMin = new Double_t[fNd];
-   fMax = new Double_t[fNd];
-
 }
 
 //-------------------------
@@ -63,11 +58,11 @@ void KVRandomizor::SetRange(Double_t* min, Double_t* max)
 }
 
 //-------------------------
-Double_t* KVRandomizor::GetPosition()
+Double_t* KVRandomizor::GetPosition() // aiiieee!!!
 //-------------------------
 {
 
-   Double_t* pos = new Double_t[fNd];
+   Double_t* pos = new Double_t[fNd]; // aiiieee!!!
    for (Int_t ii = 0; ii < fNd; ii += 1) {
       pos[ii] = GetPosition(ii);
    }

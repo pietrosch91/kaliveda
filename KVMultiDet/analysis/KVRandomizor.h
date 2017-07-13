@@ -5,7 +5,7 @@
 #define __KVRandomizor_H
 
 #include "TNamed.h"
-
+#include <vector>
 class TRandom3;
 class TH1;
 
@@ -18,8 +18,8 @@ protected:
 
    Double_t fVmax;
    Double_t fVmin;
-   Double_t* fMin; //->
-   Double_t* fMax; //->
+   std::vector<Double_t> fMin;
+   std::vector<Double_t> fMax;
 
    TH1* FillHisto1D(Int_t);
    TH1* FillHisto2D(Int_t);
