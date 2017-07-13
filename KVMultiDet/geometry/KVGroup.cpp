@@ -212,8 +212,8 @@ Int_t KVGroup::CalculateReconstructionTrajectories()
    TIter nxtDel(&toRemove);
    while ((rnt = (KVGeoDNTrajectory*)nxtDel())) {
       fReconTraj.Remove(rnt);
-      delete rnt;
    }
+   toRemove.Delete();
 
    return fReconTraj.GetEntries();
 }
