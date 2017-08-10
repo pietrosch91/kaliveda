@@ -276,7 +276,7 @@ LNS_2016.IdentificationParameterFile.Si-Si:       SI-SI-Grids.dat
 LNS_2016.IdentificationParameterFile.Si-CsI:       SI-CSI-Grids.dat
 LNS_2016.ActiveIdentifications:         Si-CsI Si-Si
 
-FAZIACOR.IdentificationParameterFile.Si-Si:       ID_SI1_SI2_FAZIACOR.dat
+FAZIACOR.IdentificationParameterFile.Si-Si:       ID_SI1_SI2_FAZIACOR_AMI.dat
 #FAZIACOR.IdentificationParameterFile.CsI:
 FAZIACOR.IdentificationParameterFile.Si:       ID_SI1PSA_OnlyZ.dat
 FAZIACOR.IdentificationParameterFile.Si-CsI:       ID_SI2_CSI_FAZIACOR.dat
