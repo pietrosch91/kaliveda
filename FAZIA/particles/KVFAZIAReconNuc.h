@@ -32,6 +32,9 @@ protected:
    Float_t fESI1;//si1 contribution to energy
    Float_t fESI2;//si2 contribution to energy
 
+   Bool_t fCoherent;
+   Bool_t fPileup;
+
 public:
 
    KVFAZIAReconNuc();
