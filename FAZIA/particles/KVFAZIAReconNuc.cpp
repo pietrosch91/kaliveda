@@ -398,6 +398,13 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
       // gives something above 8He it is either incoherent (below 7Li) or 8Be + something else in ChIo-Si
       // (above 7Li).
       if (IDsicsi->IDOK) {
+
+         // priority to Si-CsI identification (if any) for Z>=5
+         if (IDsicsi->Z >= 5) {
+            theID = *IDsicsi;
+            return kTRUE;
+         }
+
          theID = *IDcsi;
          Int_t Zref = IDcsi->Z;
          Int_t Aref = IDcsi->A;
