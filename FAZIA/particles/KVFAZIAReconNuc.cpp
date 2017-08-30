@@ -28,6 +28,7 @@ $Id: KVFAZIAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "KVFAZIADetector.h"
 #include "KVIDZAGrid.h"
 #include "KVLightEnergyCsIFull.h"
+#include "KVLightEnergyCsI.h"
 #include "KVIDGCsI.h"
 
 using namespace std;
@@ -536,10 +537,17 @@ void KVFAZIAReconNuc::Calibrate()
 
       if (det->IsCalibrated()) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
-            KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
-            calib->SetZ(GetZ());
-            calib->SetA(GetA());
-            eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+            if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsIFull")) {
+               KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
+               calib->SetZ(GetZ());
+               calib->SetA(GetA());
+               eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+            } else if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsI")) {
+               KVLightEnergyCsI* calib = (KVLightEnergyCsI*)det->GetCalibrator("Channel-Energy");
+               calib->SetZ(GetZ());
+               calib->SetA(GetA());
+               eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+            }
          } else eloss[ntot - ndet - 1] = det->GetEnergy();
 
          if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
