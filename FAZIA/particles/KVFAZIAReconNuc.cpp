@@ -316,7 +316,7 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
    if (IDcsi->IDOK) {
       // gammas: if sicsi ok->sicsi; else keep csi id
       if (IDcsi->IDcode == 0) {
-         if (IDsicsi->OK && IDsicsi->Z > 0) theID = *IDsicsi;
+         if (IDsicsi->IDOK && IDsicsi->Z > 0) theID = *IDsicsi;
          else theID = *IDcsi;
          return kTRUE;
       }
