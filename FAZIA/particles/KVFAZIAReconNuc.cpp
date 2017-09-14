@@ -314,11 +314,19 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 
    // check coherency of CsI-R/L and Si-CsI identifications
    if (IDcsi->IDOK) {
-      // gammas
+      // gammas: if sicsi ok->sicsi; else keep csi id
       if (IDcsi->IDcode == 0) {
-         theID = *IDcsi;
+         if (IDsicsi->OK && IDsicsi->Z > 0) theID = *IDsicsi;
+         else theID = *IDcsi;
          return kTRUE;
       }
+
+      /*
+            if (IDcsi->IDcode == 0) {
+               theID = *IDcsi;
+               return kTRUE;
+            }
+      */
 
       // I don't know how to treat neutrons for now... two options:
       // - set a pedestal cut on Si-CsI matrices
