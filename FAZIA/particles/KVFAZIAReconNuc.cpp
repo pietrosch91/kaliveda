@@ -605,8 +605,8 @@ void KVFAZIAReconNuc::Calibrate()
       SetECode(0);
       if (punch_through)   SetECode(2);
       if (incoherency)     SetECode(3);
-      if (check_error)    SetECode(5); //
-      if (pileup)           SetECode(4); //
+      if (check_error)     SetECode(5); //
+      if (pileup)          SetECode(4); //
 
       SetIsCalibrated();
    } else {
