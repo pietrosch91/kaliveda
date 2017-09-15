@@ -319,118 +319,117 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
          theID = *IDcsi;
          return kTRUE;
       }
-   }
 
 
-   if (IDsicsi->IDOK) {
+      if (IDsicsi->IDOK) {
 
-      // priority to Si-CsI identification (if any) for Z>=5
-      if (IDsicsi->Z >= 5) {
-         theID = *IDsicsi;
-         return kTRUE;
-      }
+         // priority to Si-CsI identification (if any) for Z>=5
+         if (IDsicsi->Z >= 5) {
+            theID = *IDsicsi;
+            return kTRUE;
+         }
 
-      theID = *IDcsi;
-      Int_t Zref = IDcsi->Z;
-      Int_t Aref = IDcsi->A;
-      if (IDsicsi->Aident) { // Si-CsI provides mass identification
+         theID = *IDcsi;
+         Int_t Zref = IDcsi->Z;
+         Int_t Aref = IDcsi->A;
+         if (IDsicsi->Aident) { // Si-CsI provides mass identification
 
-         if (IDcsi->Z == 4 && IDcsi->A == 8) {
-            // traitement special 8Be
-            // if sicsi => 7Li, it is 8Be (2alpha)
-            // if sicsi => 8He, it is 8He
-            if (IDsicsi->Z < 2 || (IDsicsi->Z == 2 && IDsicsi->A < 7)) {
-               fCoherent = kFALSE;
-               IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-               return kTRUE;
-            } else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
-               // accept helium-7,8,9 as 8He
+            if (IDcsi->Z == 4 && IDcsi->A == 8) {
+               // traitement special 8Be
+               // if sicsi => 7Li, it is 8Be (2alpha)
+               // if sicsi => 8He, it is 8He
+               if (IDsicsi->Z < 2 || (IDsicsi->Z == 2 && IDsicsi->A < 7)) {
+                  fCoherent = kFALSE;
+                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+                  return kTRUE;
+               } else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
+                  // accept helium-7,8,9 as 8He
+                  theID = *IDsicsi;
+                  return kTRUE;
+               } else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
+                  fCoherent = kFALSE;
+                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+                  return kTRUE;
+               } else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
+                  // accept lithium-6,7,8 as 7Li
+                  return kTRUE;
+               } else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
+                  fPileup = kTRUE;
+                  IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
+                  return kTRUE;
+               }
+            }
+            // if CsI says A could be bigger and Si-CsI gives same Z and A+1, use Si-CsI
+            if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref + 1))
+                  && (IDcsi->IDquality == KVIDGCsI::kICODE1 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
                theID = *IDsicsi;
                return kTRUE;
-            } else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
+            }
+            // if CsI says A could be smaller and Si-CsI gives same Z and A-1, use Si-CsI
+            if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref - 1))
+                  && (IDcsi->IDquality == KVIDGCsI::kICODE2 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
+               theID = *IDsicsi;
+               return kTRUE;
+            }
+            // everything else - Z must be same, A +/- 1 unit
+            if (IDsicsi->Z == Zref && TMath::Abs(IDsicsi->A - Aref) < 2) {
+               return kTRUE;
+            } else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                return kTRUE;
-            } else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
-               // accept lithium-6,7,8 as 7Li
-               return kTRUE;
-            } else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
+            } else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
                fPileup = kTRUE;
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                return kTRUE;
             }
-         }
-         // if CsI says A could be bigger and Si-CsI gives same Z and A+1, use Si-CsI
-         if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref + 1))
-               && (IDcsi->IDquality == KVIDGCsI::kICODE1 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
-            theID = *IDsicsi;
-            return kTRUE;
-         }
-         // if CsI says A could be smaller and Si-CsI gives same Z and A-1, use Si-CsI
-         if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref - 1))
-               && (IDcsi->IDquality == KVIDGCsI::kICODE2 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
-            theID = *IDsicsi;
-            return kTRUE;
-         }
-         // everything else - Z must be same, A +/- 1 unit
-         if (IDsicsi->Z == Zref && TMath::Abs(IDsicsi->A - Aref) < 2) {
-            return kTRUE;
-         } else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
-            fCoherent = kFALSE;
-            IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-            return kTRUE;
-         } else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
-            fPileup = kTRUE;
-            IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
-            return kTRUE;
-         }
-      } else { // only Z identification from Si-CsI
-         if (IDcsi->Z == 4 && IDcsi->A == 8) {
-            // traitement special 8Be
-            // we ask for Z to be equal 3 in SiCsI, but with no mass identification
-            // we do not try for 8He identification
-            if (IDsicsi->Z < 3) {
+         } else { // only Z identification from Si-CsI
+            if (IDcsi->Z == 4 && IDcsi->A == 8) {
+               // traitement special 8Be
+               // we ask for Z to be equal 3 in SiCsI, but with no mass identification
+               // we do not try for 8He identification
+               if (IDsicsi->Z < 3) {
+                  fCoherent = kFALSE;
+                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+                  return kTRUE;
+               } else if (IDsicsi->Z == 3) {
+                  return kTRUE;
+               } else {
+                  fPileup = kTRUE;
+                  IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
+                  return kTRUE;
+               }
+            }
+            // everything else
+            if (IDsicsi->Z == Zref) {
+               return kTRUE;
+            } else if (IDsicsi->Z < Zref) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-               return kTRUE;
-            } else if (IDsicsi->Z == 3) {
                return kTRUE;
             } else {
                fPileup = kTRUE;
+
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                return kTRUE;
             }
          }
-         // everything else
-         if (IDsicsi->Z == Zref) {
-            return kTRUE;
-         } else if (IDsicsi->Z < Zref) {
-            fCoherent = kFALSE;
-            IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-            return kTRUE;
-         } else {
-            fPileup = kTRUE;
-
-            IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
-            return kTRUE;
-         }
       }
-   }
-   // in all other cases accept CsI identification
-   theID = *IDcsi;
-   return kTRUE;
-}
-return kFALSE;
-
-/*
-   if (IDsicsi && IDsicsi->IDOK)    {
-      theID = *IDsicsi;
-      return kTRUE;
-   } else if (IDcsi && IDcsi->IDOK) {
+      // in all other cases accept CsI identification
       theID = *IDcsi;
       return kTRUE;
-   } else return kFALSE;
-*/
+   }
+   return kFALSE;
+
+   /*
+      if (IDsicsi && IDsicsi->IDOK)    {
+         theID = *IDsicsi;
+         return kTRUE;
+      } else if (IDcsi && IDcsi->IDOK) {
+         theID = *IDcsi;
+         return kTRUE;
+      } else return kFALSE;
+   */
 }
 
 //_________________________________________________________________________________
