@@ -316,205 +316,121 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
    if (IDcsi->IDOK) {
       // gammas: if sicsi ok->sicsi; else keep csi id
       if (IDcsi->IDcode == 0) {
-         if (IDsicsi->IDOK && IDsicsi->Z > 0) theID = *IDsicsi;
-         else theID = *IDcsi;
+         theID = *IDcsi;
+         return kTRUE;
+      }
+   }
+
+
+   if (IDsicsi->IDOK) {
+
+      // priority to Si-CsI identification (if any) for Z>=5
+      if (IDsicsi->Z >= 5) {
+         theID = *IDsicsi;
          return kTRUE;
       }
 
-      /*
-            if (IDcsi->IDcode == 0) {
-               theID = *IDcsi;
-               return kTRUE;
-            }
-      */
+      theID = *IDcsi;
+      Int_t Zref = IDcsi->Z;
+      Int_t Aref = IDcsi->A;
+      if (IDsicsi->Aident) { // Si-CsI provides mass identification
 
-      // I don't know how to treat neutrons for now... two options:
-      // - set a pedestal cut on Si-CsI matrices
-      // - identify them due to the incoherency between calibration and identification
-
-      /*
-      // Neutrons have no energy loss in Si detector (pedestal), have a reaction in the CsI and create a Z=1
-      // or Z=2 which is identified in CsI R-L,  while they show up in Si-CsI maps as a horizontal
-      // band around the Si pedestal for low energies (energies where proton dE is significantly larger than
-      // the pedestal).
-      if ((IDcsi->Z == 1 || IDcsi->Z == 2) && GetSi()) {
-         if (IDsicsi->deltaEpedestal == KVIdentificationResult::deltaEpedestal_UNKNOWN) {
-            // no explicit treatment of 'neutron-like' particles with a cut in Si-CsI id grid
-            // First we check that we are in the domain where proton dE can be distinguished from pedestal.
-            // If so, if the measured dE is below [ped + factor*(dE_exp - ped)], then we label the particle as a neutron.
-            // 'factor' depends on the Si-CsI telescope: if it has mass identification, factor=0.3; if not, factor=0.1
-            // (these empirical values correspond to 5th campaign data)
-            KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType(IDsicsi->GetType());
-            if (idt) {
-               Double_t ped = idt->GetPedestalY();
-               Int_t status;
-               Double_t dE_exp = idt->GetMeanDEFromID(status, 1, 1);
-               if (status == KVIDTelescope::kMeanDE_OK) { // proton/Z=1 line exists, and we are in its energy range
-                  if (dE_exp > ped + 5.) { // arbitrary choice, must have expected dE at least 5 channels above pedestal
-
-                     // if Si-CsI has no isotopic identification, reduce factor
-                     Double_t factor = (idt->HasMassID() ? 0.3 : 0.1);
-                     if (idt->GetIDMapY() < (ped + factor * (dE_exp - ped))) {
-                        theID = *IDsicsi;
-                        theID.IDOK = kTRUE;
-                        theID.Zident = kTRUE;
-                        theID.Aident = kTRUE;
-                        theID.Z = 0;
-                        theID.A = 1;
-                        theID.IDcode = kIDCode1; // general code for neutrons
-                        return kTRUE;
-                     }
-                  }
-               }
-            }
-         } else if (IDsicsi->deltaEpedestal == KVIdentificationResult::deltaEpedestal_YES) {
-            // explicit treatment of 'neutron-like' particles with a cut in Si-CsI id grid
-            theID = *IDsicsi;
-            theID.IDOK = kTRUE;
-            theID.Zident = kTRUE;
-            theID.Aident = kTRUE;
-            theID.Z = 0;
-            theID.A = 1;
-            theID.IDcode = kIDCode1; // general code for neutrons
-            return kTRUE;
-         }
-      }
-      */
-
-      // We check the coherency of the mass and charge identifications
-      // If a successful Si-CsI identification is available we check:
-      //   if Si-CsI gives A & Z - must have same Z, A within +/-1 unit
-      //                                      if Z or A smaller => incoherency : pile-up of two particles in CsI ?
-      //                                               or bad signal from Si detector (dead zones) ?
-      //                                      if Z or A larger, CsI identification is good,
-      //                                      assume another particle stopped in Si (identify in ChIo-Si)
-      //   if Si-CsI gives just Z - must have same Z
-      //                                      if Z smaller => incoherency : pile-up of two particles in CsI ?
-      //                                               or bad signal from Si detector (dead zones) ?
-      //                                      if Z larger => CsI identification is good,
-      //                                      assume another particle stopped in Si (identify in ChIo-Si)
-      //
-      // If CsI identification gives code KVIDGCsI::kICode1 ou KVIDGCsI::kICode3 and the
-      // Si-CsI gives the same Z but A = Acsi + 1, we use the Si-CsI identification.
-      //
-      // If CsI identification gives code KVIDGCsI::kICode2 ou KVIDGCsI::kICode3 and the
-      // Si-CsI gives the same Z but A = Acsi - 1, we use the Si-CsI identification.
-      //
-      // N.B. if CsI-R/L identification gives "8Be" (2 alpha particles) then there are two correct possibilities:
-      //     1) Si-CsI identification gives 7Li => CsI identification is correct ("8Be")
-      //     2) Si-CsI identification gives 8He => the particle is 8He (falls on same R/L line as 2*alpha)
-      // Seeing the very low statistics for 8He compared to 8Be/2alpha, we assume that if Si-CsI id
-      // gives something above 8He it is either incoherent (below 7Li) or 8Be + something else in ChIo-Si
-      // (above 7Li).
-      if (IDsicsi->IDOK) {
-
-         // priority to Si-CsI identification (if any) for Z>=5
-         if (IDsicsi->Z >= 5) {
-            theID = *IDsicsi;
-            return kTRUE;
-         }
-
-         theID = *IDcsi;
-         Int_t Zref = IDcsi->Z;
-         Int_t Aref = IDcsi->A;
-         if (IDsicsi->Aident) { // Si-CsI provides mass identification
-
-            if (IDcsi->Z == 4 && IDcsi->A == 8) {
-               // traitement special 8Be
-               // if sicsi => 7Li, it is 8Be (2alpha)
-               // if sicsi => 8He, it is 8He
-               if (IDsicsi->Z < 2 || (IDsicsi->Z == 2 && IDsicsi->A < 7)) {
-                  fCoherent = kFALSE;
-                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-                  return kTRUE;
-               } else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
-                  // accept helium-7,8,9 as 8He
-                  theID = *IDsicsi;
-                  return kTRUE;
-               } else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
-                  fCoherent = kFALSE;
-                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-                  return kTRUE;
-               } else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
-                  // accept lithium-6,7,8 as 7Li
-                  return kTRUE;
-               } else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
-                  fPileup = kTRUE;
-                  IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
-                  return kTRUE;
-               }
-            }
-            // if CsI says A could be bigger and Si-CsI gives same Z and A+1, use Si-CsI
-            if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref + 1))
-                  && (IDcsi->IDquality == KVIDGCsI::kICODE1 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
-               theID = *IDsicsi;
-               return kTRUE;
-            }
-            // if CsI says A could be smaller and Si-CsI gives same Z and A-1, use Si-CsI
-            if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref - 1))
-                  && (IDcsi->IDquality == KVIDGCsI::kICODE2 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
-               theID = *IDsicsi;
-               return kTRUE;
-            }
-            // everything else - Z must be same, A +/- 1 unit
-            if (IDsicsi->Z == Zref && TMath::Abs(IDsicsi->A - Aref) < 2) {
-               return kTRUE;
-            } else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
+         if (IDcsi->Z == 4 && IDcsi->A == 8) {
+            // traitement special 8Be
+            // if sicsi => 7Li, it is 8Be (2alpha)
+            // if sicsi => 8He, it is 8He
+            if (IDsicsi->Z < 2 || (IDsicsi->Z == 2 && IDsicsi->A < 7)) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                return kTRUE;
-            } else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
+            } else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
+               // accept helium-7,8,9 as 8He
+               theID = *IDsicsi;
+               return kTRUE;
+            } else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
+               fCoherent = kFALSE;
+               IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+               return kTRUE;
+            } else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
+               // accept lithium-6,7,8 as 7Li
+               return kTRUE;
+            } else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
                fPileup = kTRUE;
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                return kTRUE;
             }
-         } else { // only Z identification from Si-CsI
-            if (IDcsi->Z == 4 && IDcsi->A == 8) {
-               // traitement special 8Be
-               // we ask for Z to be equal 3 in SiCsI, but with no mass identification
-               // we do not try for 8He identification
-               if (IDsicsi->Z < 3) {
-                  fCoherent = kFALSE;
-                  IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
-                  return kTRUE;
-               } else if (IDsicsi->Z == 3) {
-                  return kTRUE;
-               } else {
-                  fPileup = kTRUE;
-                  IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
-                  return kTRUE;
-               }
-            }
-            // everything else
-            if (IDsicsi->Z == Zref) {
-               return kTRUE;
-            } else if (IDsicsi->Z < Zref) {
+         }
+         // if CsI says A could be bigger and Si-CsI gives same Z and A+1, use Si-CsI
+         if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref + 1))
+               && (IDcsi->IDquality == KVIDGCsI::kICODE1 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
+            theID = *IDsicsi;
+            return kTRUE;
+         }
+         // if CsI says A could be smaller and Si-CsI gives same Z and A-1, use Si-CsI
+         if ((IDsicsi->Z == Zref) && (IDsicsi->A == (Aref - 1))
+               && (IDcsi->IDquality == KVIDGCsI::kICODE2 || IDcsi->IDquality == KVIDGCsI::kICODE3)) {
+            theID = *IDsicsi;
+            return kTRUE;
+         }
+         // everything else - Z must be same, A +/- 1 unit
+         if (IDsicsi->Z == Zref && TMath::Abs(IDsicsi->A - Aref) < 2) {
+            return kTRUE;
+         } else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
+            fCoherent = kFALSE;
+            IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+            return kTRUE;
+         } else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
+            fPileup = kTRUE;
+            IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
+            return kTRUE;
+         }
+      } else { // only Z identification from Si-CsI
+         if (IDcsi->Z == 4 && IDcsi->A == 8) {
+            // traitement special 8Be
+            // we ask for Z to be equal 3 in SiCsI, but with no mass identification
+            // we do not try for 8He identification
+            if (IDsicsi->Z < 3) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+               return kTRUE;
+            } else if (IDsicsi->Z == 3) {
                return kTRUE;
             } else {
                fPileup = kTRUE;
-
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                return kTRUE;
             }
          }
+         // everything else
+         if (IDsicsi->Z == Zref) {
+            return kTRUE;
+         } else if (IDsicsi->Z < Zref) {
+            fCoherent = kFALSE;
+            IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
+            return kTRUE;
+         } else {
+            fPileup = kTRUE;
+
+            IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
+            return kTRUE;
+         }
       }
-      // in all other cases accept CsI identification
+   }
+   // in all other cases accept CsI identification
+   theID = *IDcsi;
+   return kTRUE;
+}
+return kFALSE;
+
+/*
+   if (IDsicsi && IDsicsi->IDOK)    {
+      theID = *IDsicsi;
+      return kTRUE;
+   } else if (IDcsi && IDcsi->IDOK) {
       theID = *IDcsi;
       return kTRUE;
-   }
-   return kFALSE;
-
-   /*
-      if (IDsicsi && IDsicsi->IDOK)    {
-         theID = *IDsicsi;
-         return kTRUE;
-      } else if (IDcsi && IDcsi->IDOK) {
-         theID = *IDcsi;
-         return kTRUE;
-      } else return kFALSE;
-   */
+   } else return kFALSE;
+*/
 }
 
 //_________________________________________________________________________________
