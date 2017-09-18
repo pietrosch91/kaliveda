@@ -64,9 +64,13 @@ Bool_t KVIDGCsI::IsIdentifiable(Double_t x, Double_t y) const
    //Returns kFALSE for points below gamma line i.e. for gammas ;-)
    //If no gamma line defined, returns kTRUE for all points
 
+   bool gamma = kTRUE;
 
-   return (GammaLine ? GammaLine->
-           WhereAmI(x, y, "above") : kTRUE);
+   if (GammaLine)
+      if ((GammaLine->WhereAmI(x, y, "bellow")) && (GammaLine->WhereAmI(x, y, "right"))) gamma = kFALSE;
+
+   return gamma;
+//   return (GammaLine ? (GammaLine->WhereAmI(x, y, "above")) : kTRUE);
 }
 
 //_______________________________________________________________________________________________//
