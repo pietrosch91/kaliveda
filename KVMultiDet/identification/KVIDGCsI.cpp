@@ -66,7 +66,7 @@ Bool_t KVIDGCsI::IsIdentifiable(Double_t x, Double_t y) const
 
    if (!GammaLine) return kTRUE;
    else if ((x < GammaLine->GetX()[0]) && (x < GammaLine->GetX()[GammaLine->GetN() - 1])) return kTRUE;
-   else if (GammaLine->WhereAmI(x, y, "above")) return = kTRUE;
+   else if (GammaLine->WhereAmI(x, y, "above")) return kTRUE;
 
    return kFALSE;
 //   return (GammaLine ? (GammaLine->WhereAmI(x, y, "above")) : kTRUE);
