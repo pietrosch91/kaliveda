@@ -68,6 +68,15 @@ Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_
    //Bool_t OKproton = ((fBelowProton && fBelowProton->TestPoint(csi, si2)) || !fBelowProton);
    //Bool_t OKthreshold = ((fSiThreshold && fSiThreshold->TestPoint(csi, si2)) || !fSiThreshold);
    //if (OKproton && OKthreshold){
+
+
+   if (fBelowProton) {
+      if (fBelowProton->TestPoint(csi, si2)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
+      else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
+   } else {
+      idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
+   }
+
    if (TheGrid->IsIdentifiable(csi, si2)) {
       TheGrid->Identify(csi, si2, idr);
    } else {
@@ -97,7 +106,7 @@ void KVFAZIAIDSiCsI::Initialize()
    if (TheGrid) {
       SetHasMassID(TheGrid->IsOnlyZId());
       TheGrid->Initialize();
-      fBelowProton = (KVIDCutLine*)TheGrid->GetCut("below_proton");
+      fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
       SetBit(kReadyForID);
    } else {
