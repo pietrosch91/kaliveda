@@ -47,6 +47,10 @@ FAZIACOR.GeoType:        compact
 FAZIACOR.DistanceFAZIA:   80.3
 FAZIACOR.ThetaMinCompactGeo: 2.1
 
+FAZIAPRE.GeoType:        compact
+FAZIAPRE.DistanceFAZIA:   100
+FAZIAPRE.ThetaMinCompactGeo: 1
+
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
 LNS_2014.DataSet.RepositoryDir:   LNS_2014
@@ -113,6 +117,17 @@ FAZIACOR.KVDataSet.DataType.Subdir.recon:  recon
 FAZIACOR.KVDataSet.DataType.Subdir.root:  root
 FAZIACOR.DataSet.RunFile.DoNotDelete: bin
 
++DataSet:   TESTLNS17
+TESTLNS17.DataSet.Title:   Test done at LNS during July 2016
+TESTLNS17.DataSet.RepositoryDir:   TESTLNS17
+TESTLNS17.DataSet.RunFileName.raw:    run%06d.root
+TESTLNS17.ReconstructedEventClassName:	KVReconstructedEvent
+TESTLNS17.DataSet.RunFileClass.raw:    TFile
+TESTLNS17.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
+TESTLNS17.KVDataSet.DataType.Subdir.recon:  recon
+TESTLNS17.KVDataSet.DataType.Subdir.root:  root
+TESTLNS17.DataSet.RunFile.DoNotDelete: bin
+
 +DataSet:   FAZIADEM
 FAZIADEM.DataSet.Title:   FAZIA Demonstrator 12 Blocks
 FAZIADEM.DataSet.RepositoryDir:   FAZIADEM
@@ -134,6 +149,7 @@ FAZIADEM.ActiveIdentifications:      Si-Si Si-CsI Si CsI
 +Plugin.KVDataBase:    FAZIANFS    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    LNS_2016    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIACOR    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVDataBase:    TETLNS17    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 +Plugin.KVDataBase:    FAZIADEM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 
 # Default name for file containing runlist for each dataset.
@@ -151,6 +167,7 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVMultiDetArray:    FAZIANFS    KVFAZIANFS    FAZIAgeometry    "KVFAZIANFS()"
 +Plugin.KVMultiDetArray:    LNS_2016    KVFAZIALNS2016    FAZIAgeometry    "KVFAZIALNS2016()"
 +Plugin.KVMultiDetArray:    FAZIACOR    KVFAZIACOR    FAZIAgeometry    "KVFAZIACOR()"
++Plugin.KVMultiDetArray:    TESTLNS17    KVFAZIALNS17    FAZIAgeometry    "KVFAZIALNS17()"
 +Plugin.KVMultiDetArray:    FAZIADEM    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
 
 # Acceptable identification & energy codes for FAZIA reconstructed particles
@@ -169,6 +186,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVUpDater:    FAZIANFS    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 +Plugin.KVUpDater:    LNS_2016    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 +Plugin.KVUpDater:    FAZIACOR    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
++Plugin.KVUpDater:    TESTLNS17   KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 +Plugin.KVUpDater:    FAZIADEM    KVFAZIAUpDater     FAZIAdb    "KVFAZIAUpDater()"
 
 ############
@@ -179,6 +197,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVDetector:      KVFAZIANFS      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIALNS2016      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIACOR      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
++Plugin.KVDetector:      KVFAZIAPRE      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
 
 #gerer automatiquement par KVMultiDetArray::GetIDTelescopes
 +Plugin.KVIDTelescope:    ^ISOFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
@@ -220,6 +239,8 @@ LNS_2016.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2016.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 FAZIACOR.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIACOR.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
+TESTLNS17.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+TESTLNS17.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 FAZIADEM.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIADEM.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 
@@ -236,6 +257,8 @@ LNS_2016.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2016.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 FAZIACOR.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIACOR.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
+TESTLNS17.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+TESTLNS17.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 FAZIADEM.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIADEM.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 
@@ -251,6 +274,8 @@ LNS_2016.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 LNS_2016.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 FAZIACOR.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 FAZIACOR.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
+TESTLNS17.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
+TESTLNS17.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 FAZIADEM.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 FAZIADEM.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 +Plugin.KVDataAnalyser:   FAZIAReconData         KVFAZIAReconDataAnalyser     FAZIAanalysis "KVFAZIAReconDataAnalyser()"
