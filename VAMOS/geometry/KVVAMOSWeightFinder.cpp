@@ -27,6 +27,22 @@ KVVAMOSWeightFinder::KVVAMOSWeightFinder(Int_t run_number = -1) : KVBase("VAMOSW
    fkIsInit   = kFALSE;
    fkverbose  = kFALSE;
 
+   fktc_lim_set = kFALSE;
+   ftc_min = -666.;
+   ftc_max = -666.;
+
+   fchain = new TChain("tree");
+}
+//____________________________________________________________________________//
+
+KVVAMOSWeightFinder::KVVAMOSWeightFinder(Int_t run_number, Float_t tc_min, Float_t tc_max) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
+{
+   fRunNumber = run_number;
+   fkIsInit   = kFALSE;
+   fkverbose  = kFALSE;
+
+   SetTransCoefLimits(tc_min, tc_max);
+
    fchain = new TChain("tree");
 }
 //____________________________________________________________________________//
@@ -81,6 +97,7 @@ void KVVAMOSWeightFinder::cd()
 void KVVAMOSWeightFinder::SetRunList(KVNumberList& nl)
 {
    fRunList.Clear();
+   fInputRunList = nl;
    fRunList = nl;
    fCompRunList = nl;
 }
@@ -97,6 +114,7 @@ void KVVAMOSWeightFinder::Init()
       SortInfoVector();
       ReadTransCoefFileListInDataSet();
       if (CheckTransCoefSteps()) fkIsInit = kTRUE;
+      gVAMOSWeightFinder = this;
    } else fkIsInit = kFALSE;
 
    if (!fkIsInit) Warning("Init", "... problem in initialisation: runlist is empty OR/AND current run number<0 OR/AND run list doesn't contain the current run ...");
@@ -143,26 +161,33 @@ void KVVAMOSWeightFinder::ReadInformations(std::ifstream& file)
    Float_t vamos_angle;
    Float_t dt;
    Float_t scalers;
+   Float_t target_density;
 
    std::string newline;
    while (std::getline(file, newline)) {
       //Ignore comments in the file
       if (newline.compare(0, 1, "#") != 0) {
-         sscanf(newline.c_str(), "%f %f %f %f %f", &run, &brho, &vamos_angle, &dt, &scalers);
+         sscanf(newline.c_str(), "%f %f %f %f %f %f", &run, &brho, &vamos_angle, &dt, &scalers, &target_density);
 
-         if (fRunList.Contains((Int_t) run)) {
+         //run is in the run file of KaliVeda, we can use it
+         //We remove the OK run from the complementary list
+         if (fInputRunList.Contains((Int_t) run)) {
             std::vector<Float_t> line;
             line.push_back(run);
             line.push_back(brho);
             line.push_back(vamos_angle);
             line.push_back(dt);
             line.push_back(scalers);
+            line.push_back(target_density);
             fvec_infos.push_back(line);
 
             fCompRunList.Remove((Int_t) run);
          }
       }
    }
+
+   //now remove the not ok run to fRunList
+   fRunList.Remove(fCompRunList);
 
    //look at complementary list:
    //any run in this list doesn't exist in the
@@ -197,7 +222,8 @@ Bool_t KVVAMOSWeightFinder::SortVectors(const std::vector<Float_t>& vector1, con
       else return kFALSE;
    }
 
-   return kTRUE;
+   else return kFALSE;
+   return kFALSE;
 }
 //____________________________________________________________________________//
 
@@ -272,23 +298,29 @@ void KVVAMOSWeightFinder::ReadTransCoefListFile(std::ifstream& file)
 {
    //Read the trans. coef. list file. for the data set
    //For each file listed in this list file we:
-   //- save in 'fvec_TCfiles' a pair (VamosAngle, file_name) containing the VamosAngle and its associated file
+   //- save in 'fvec_TCfiles' triplet (VamosAngle, IDCode, file_name) containing the VamosAngle, the associated IDCode and its associated file
    //- read the file TEnv and save steps informations in 'fvec_TCsteps'
    //- Add the tree in fchain
+   //
+   //NOTE: for e503 ChIo-Si IDCode are 4 (above punch-through line) or 11 (below punch-through line)
+   //      the acceptance is the same for IDCode 4 or 11
 
    std::string newline;
    while (std::getline(file, newline)) {
       //Ignore comments in the file
       if (newline.compare(0, 1, "#") != 0) {
-
          TString ss(newline.c_str());
          TObjArray* obj_arr = ss.Tokenize(" ");
          obj_arr->ls();
 
          TString str_va = ((TObjString*) obj_arr->At(0))->GetString();
-         TString str_na = ((TObjString*) obj_arr->At(1))->GetString();
-
-         fvec_TCfiles.push_back(std::make_pair(str_va.Atof(), str_na));
+         TString str_id = ((TObjString*) obj_arr->At(1))->GetString();
+         TString str_na = ((TObjString*) obj_arr->At(2))->GetString();
+         std::vector<TString> vec;
+         vec.push_back(str_va);
+         vec.push_back(str_id);
+         vec.push_back(str_na);
+         fvec_TCfiles.push_back(vec);
 
          TString fullpath;
          TFile* file = NULL;
@@ -315,6 +347,12 @@ void KVVAMOSWeightFinder::ReadTransCoefListFile(std::ifstream& file)
                line.push_back(env->GetValue("thetaI_step_rad", (Float_t) - 1));
                line.push_back(env->GetValue("thetaI_Nstep_rad", (Float_t) - 1));
                line.push_back(env->GetValue("MonteCarlo_stat", (Float_t) - 1));
+
+               //IDCode case
+               KVNumberList buff_nl(env->GetValue("IDCode", (const Char_t*) ""));
+               if (buff_nl.Contains(3)) line.push_back(3);
+               else if (buff_nl.Contains(4))line.push_back(4);
+
                fvec_TCsteps.push_back(line);
 
                //add the TTree in fchain
@@ -388,7 +426,7 @@ Bool_t KVVAMOSWeightFinder::CheckTransCoefSteps()
 }
 
 //____________________________________________________________________________//
-std::pair<Float_t, Float_t> KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle_deg, Float_t delta, Float_t thetaI_rad)
+std::pair<Float_t, Float_t> KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle_deg, Int_t idc, Float_t delta, Float_t thetaI_rad)
 {
    //Find the trans. coef. for a given (ThetaVamos, delta, thetaI) triplet.
    //First find the path to the file coresponding to the given ThetaVamos
@@ -398,35 +436,37 @@ std::pair<Float_t, Float_t> KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle
    //
    //Return a pair of <trans. coef., trans. coef. variance>
 
-   //Find VamosAngle position in fvec_TCfiles
-   Int_t num_angle = 0;
-   Int_t nn = 0;
-   for (std::vector< std::pair<Float_t, TString> >::iterator it = fvec_TCfiles.begin(); it != fvec_TCfiles.end(); ++it) {
-      std::pair<Float_t, TString> par = *it;
-      Float_t angle = par.first;
-      TString path  = par.second;
+   //Find (VamosAngle, IDCode) position in fvec_TCfiles
+   Int_t pos = 0;
+   Int_t nn  = 0;
+   for (std::vector< std::vector<TString> >::iterator it = fvec_TCfiles.begin(); it != fvec_TCfiles.end(); ++it) {
+      std::vector<TString> par = *it;
+      Float_t angle   = (par.at(0)).Atof();
+      Int_t IDC       = (par.at(1)).Atoi();
+      TString path    = par.at(2);
 
-      if (TMath::Abs(VamosAngle_deg - angle) <= 0.1) {
-         num_angle = nn;
+      //Check the angle and IDCode
+      if ((TMath::Abs(VamosAngle_deg - angle) <= 0.1) && (idc == IDC)) {
+         pos = nn;
          if (fkverbose) {
-            Info("GetTransCoef", "... found VamosAngle (=%f) position in vector -> num_angle=%d ...\n",
-                 VamosAngle_deg, num_angle);
+            Info("GetTransCoef", "... found (VamosAngle (=%f), IDcode (=%d) ) position in vector -> position =%d ...\n",
+                 VamosAngle_deg, idc, pos);
          }
       }
 
       nn++;
    }
 
-   //Find, using the associated VamosAngle TEnv saved in fvec_TCsteps:
+   //Find, using the associated (VamosAngle, IDCode) TEnv saved in fvec_TCsteps:
    //- delta position in its range
    //- thetaI position in its range
    //- total number of delta
    //- total number of thetaI
-   //Also check if the VamosAngle is OK.
-   std::vector<Float_t> line = fvec_TCsteps.at(num_angle);
-   if (TMath::Abs(line.at(0) - VamosAngle_deg) > 0.1) {
-      if (fkverbose) Error("GetTransCoef", "... found VamosAngle in steps vector (=%f) is different from given angle (=%f) ...",
-                              line.at(0), VamosAngle_deg);
+   //Also check if the VamosAngle and IDCode are OK.
+   std::vector<Float_t> line = fvec_TCsteps.at(pos);
+   if ((TMath::Abs(line.at(0) - VamosAngle_deg) > 0.1) || (idc != (Int_t) line.at(10))) {
+      if (fkverbose) Error("GetTransCoef", "... found [VamosAngle(=%f), IDCode(=%d)] in steps vector is different from given [angle(=%f), IDCode(=%d)] ...",
+                              line.at(0), (Int_t) line.at(10),  VamosAngle_deg, idc);
       return std::make_pair(-666., -666.);
    }
 
@@ -445,7 +485,7 @@ std::pair<Float_t, Float_t> KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle
    //to the wanted trans. coef.
    if (ndelta >= 0 && ntheta >= 0 && ntot_delta > 0 && ntot_theta > 0) {
       Long64_t pos_tree = (ndelta * ntot_theta) + ntheta; //entry in the tree
-      Long64_t pos_chain = num_angle * (ntot_delta * ntot_theta) + pos_tree; //entry in the chain
+      Long64_t pos_chain = pos * (ntot_delta * ntot_theta) + pos_tree; //entry in the chain
 
       if (fkverbose) Info("GetTransCoef", "... found entry in tree (=%lli) and entry in chain (=%lli / %lli) ...", pos_tree, pos_chain, fchain->GetEntries());
 
@@ -458,8 +498,8 @@ std::pair<Float_t, Float_t> KVVAMOSWeightFinder::GetTransCoef(Float_t VamosAngle
 
       //debug
       if (fkverbose) {
-         Info("GetTransCoef", "... input: (VamosAngle=%f, delta=%f, thetaI=%f) | closest: (delta=%f, thetaI=%f) | chain_entry: (delta=%f, thetaI%f) ...",
-              VamosAngle_deg, delta, thetaI_rad, GetClosestValue(delta, line.at(3)), GetClosestValue(thetaI_rad, line.at(7)), dd, tt);
+         Info("GetTransCoef", "... input: (VamosAngle=%f, IDCode=%d, delta=%f, thetaI=%f) | closest: (delta=%f, thetaI=%f) | chain_entry: (delta=%f, thetaI=%f) ...",
+              VamosAngle_deg, idc, delta, thetaI_rad, GetClosestValue(delta, line.at(3)), GetClosestValue(thetaI_rad, line.at(7)), dd, tt);
       }
 
       return std::make_pair(tc, dtc);
@@ -501,12 +541,12 @@ void KVVAMOSWeightFinder::PrintRunInfoVector()
    //'Run   BrhoRef   ThetaVamos   DeadTime   Scalers_INDRA' for each run,
    //and used for weight computation.
 
-   Info("PrintRunInfoVector", "... printing list of available run infos ...\n(Run, BrhoRef ThetaVamos DeadTime Scalers_INDRA)\n\n");
+   Info("PrintRunInfoVector", "... printing list of available run infos ...\n(Run, BrhoRef ThetaVamos DeadTime Scalers_INDRA TargetDensity)\n\n");
 
    Int_t num = 0;
    for (std::vector< std::vector<Float_t> >::iterator it = fvec_infos.begin(); it != fvec_infos.end(); ++it) {
       std::vector<Float_t> line = *it;
-      printf("[%d] %d %f %f %f %d\n", num, (int) line.at(0), line.at(1), line.at(2), line.at(3), (int) line.at(4));
+      printf("[%d] %d %f %f %f %d %f\n", num, (int) line.at(0), line.at(1), line.at(2), line.at(3), (int) line.at(4), line.at(5));
       num++;
    }
 }
@@ -518,12 +558,12 @@ void KVVAMOSWeightFinder::PrintTransCoefInfoVector()
    //'VamosAngle   TransCoef_file' for each VamosAngle,
    //and used for weight computation.
 
-   Info("PrintTransCoefInfoVector", "... printing list of available transmission coefficients files infos ...\n\n");
+   Info("PrintTransCoefInfoVector", "... printing list of available transmission coefficients files infos ...\n");
 
    Int_t num = 0;
-   for (std::vector< std::pair<Float_t, TString> >::iterator it = fvec_TCfiles.begin(); it != fvec_TCfiles.end(); ++it) {
-      std::pair<Float_t, TString> line = *it;
-      printf("[%d] %f %s\n", num, line.first, (line.second).Data());
+   for (std::vector< std::vector<TString> >::iterator it = fvec_TCfiles.begin(); it != fvec_TCfiles.end(); ++it) {
+      std::vector<TString> line = *it;
+      printf("[%d] %s %s %s\n", num, (line.at(0)).Data(), (line.at(1)).Data(), (line.at(2)).Data());
       num++;
    }
 }
@@ -535,26 +575,26 @@ void KVVAMOSWeightFinder::PrintTransCoefStepVector()
    //'VamosAngle_deg   delta_min   delta_max   delta_step   Ndelta   theta_min   theta_max   theta_step  Ntheta',
    //for each VamosAngle and used for weight computation.
 
-   Info("PrintTransCoefStepVector", "... printing list of available trans. coef. infos  ...\n(VamosAngle_deg delta_min delta_max delta_step Ndelta theta_min theta_max theta_step Ntheta)\n\n");
+   Info("PrintTransCoefStepVector", "... printing list of available trans. coef. infos  ...\n(VamosAngle_deg  delta_min  delta_max  delta_step  Ndelta  theta_min  theta_max  theta_step  Ntheta MC_stat  IDCode)\n");
 
    Int_t num = 0;
    for (std::vector< std::vector<Float_t> >::iterator it = fvec_TCsteps.begin(); it != fvec_TCsteps.end(); ++it) {
       std::vector<Float_t> line = *it;
-      printf("[%d] %f %f %f %f %d %f %f %f %d\n",
-             num, line.at(0), line.at(1), line.at(2), line.at(3), (int) line.at(4), line.at(5), line.at(6), line.at(7), (int) line.at(8));
+      printf("[%d] %f %f %f %f %d %f %f %f %d %d %d\n",
+             num, line.at(0), line.at(1), line.at(2), line.at(3), (int) line.at(4), line.at(5), line.at(6), line.at(7), (int) line.at(8), (int)line.at(9), (int)line.at(10));
       num++;
    }
 }
 
 //____________________________________________________________________________//
-Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
+Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI, Int_t idcode)
 {
    //Compute the weight for a given experimental VAMOS event,
    //using the identified VAMOS nucleus informations, which means:
-   //(bro_exp, thetaI_rad) where 'brho' is the magnetic rigidity of the nucleus (in T.m),
-   //and 'thetaI' is the experimental theta angle in rad and in lab. ref. frame (in
-   //INDRA convention) of the nucleus (and also the current run number this events
-   //belongs to, set as an argument of the class constructor).
+   //(bro_exp, thetaI_rad) where 'brho' is the reconstructed magnetic rigidity of
+   //the nucleus (in T.m), and 'thetaI' is the experimental theta angle (in rad)
+   //in lab. ref. frame (in INDRA convention) of the nucleus (and also the current
+   //run number this events belongs to, set as an argument of the class constructor).
    //
    //The weight will be computed from:
    //- the chosen run list (see SetRunList() method) and the associated experimental
@@ -589,45 +629,50 @@ Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
    //    Scaler_i   = value of INDRA scalers for the run i
    //    theta_V    = rotation angle of VAMOS in theta around beam trajectory
 
-   if (fkverbose) Info("GetInverseWeight", "... starting weight computation for VAMOS event with (delta=%f, thetaI=%f, run=%d) ...", brho, thetaI, fRunNumber);
+   if (fkverbose) Info("GetWeight", "... starting weight computation for VAMOS event with (brho=%f [T.m], thetaI=%f [rad], IDCode=%d, run=%d) ...", brho, thetaI, idcode, fRunNumber);
 
    Float_t num     = 0.;
    Float_t denum   = 0.;
    Float_t dt_run  = GetDeadTime(fRunNumber); //default '-666.' value will be returned if not found
-   Float_t dt_corr = 1. / (1. - dt_run);
 
-   if (dt_run >= 0.) {//DT found from the event run_number
+   if (dt_run >= 0) {//DT found from the event run_number
       //Compute W(Brho, ThetaI) from runlist
       fRunList.Begin();
       while (!fRunList.End()) {
          Int_t next_run = fRunList.Next();
-
          Float_t brho_ref = GetBrhoRef(next_run);
          Float_t scaler   = GetScalerINDRA(next_run);
          Float_t thetav   = GetThetaVamos(next_run);
-         std::pair<Float_t, Float_t> pair_tc = GetTransCoef(thetav, brho / brho_ref, thetaI);
+         Float_t density  = GetTargetDensity(next_run);
+         std::pair<Float_t, Float_t> pair_tc = GetTransCoef(thetav, idcode, brho / brho_ref, thetaI);
          Float_t tc  = pair_tc.first; // trans. coef.
          Float_t dtc = pair_tc.second; //variance of trans. coef.
 
-         if ((brho_ref > 0) && (scaler > 0)) {//(brho_ref, scaler) is OK for the given run
-            if ((tc >= 0.)) { //trans. coef. exists for the given (ThetaVamos, delta, thetaI)
-               denum += scaler * tc;
-            }
-
+         if (scaler > 0) {
             //if trans. coef. doesn't exist for the given (ThetaVamos, delta, thetaI),
             //we still consider the scaler in the numerator (i.e tc=0.)
             num += scaler;
+
+            //if (brho_ref, scaler) is OK for the given run and trans. coef. exists for the given (ThetaVamos, delta, thetaI, IDCode)
+            if ((brho_ref > 0) && (tc > 0.) && (dtc > 0.) && (density > 0.)) {
+               //if limits on trans.coef. were set by the user
+               if (AreTransCoefLimitsSet()) {
+                  if ((tc > ftc_min) && (tc < ftc_max)) denum += scaler * tc * dt_run;
+               }
+               //no limits set
+               else  denum += scaler * tc * dt_run;
+            }
          }
 
          if (fkverbose) {
             Info("GetWeight", "... (next_run=%d, brho=%lf, thetaI=%lf) -> (brho_ref=%lf, thetav=%lf, scaler=%lf, tc=%lf, var_tc=%lf) ...",
                  next_run, brho, thetaI, brho_ref, thetav, scaler, tc, dtc);
-            Info("GetWeight", "... numerator=%lf, denumerator=%lf", num, denum);
+            Info("GetWeight", "... numerator=%lf, denumerator=%lf\n", num, denum);
          }
       }
 
       //return Weight
-      Float_t weight = (denum > 0 ? num / denum* dt_corr : -666.);
+      Float_t weight = (denum > 0. ? num / denum : -666.);
       return weight;
    }
 
@@ -640,4 +685,13 @@ Float_t KVVAMOSWeightFinder::GetWeight(Float_t brho, Float_t thetaI)
 
       return -666.;
    }
+}
+
+//____________________________________________________________________________//
+void KVVAMOSWeightFinder::SetTransCoefLimits(Float_t tc_min, Float_t tc_max)
+{
+   //can be used by the user for setting limits on trans. coef. values
+   fktc_lim_set = kTRUE;
+   ftc_min = tc_min;
+   ftc_max = tc_max;
 }

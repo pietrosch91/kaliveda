@@ -33,11 +33,15 @@ KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503(Int_t run_number = -1) : 
    // HF frequency correction
    flist_HFcuts_sicsi = new KVHashList;
    flist_HFcuts_sicsi->SetOwner(kTRUE);
+   flist_HFcuts_sicsi->Add(new KVHashList); //DeltaE-ToF cuts list
+   flist_HFcuts_sicsi->Add(new KVHashList); //AE_AoQ cuts list
 
    flist_HFcuts_icsi = new KVHashList;
    flist_HFcuts_icsi->SetOwner(kTRUE);
+   flist_HFcuts_icsi->Add(new KVHashList);
+   flist_HFcuts_icsi->Add(new KVHashList);
 
-   //ToF duplications corrections
+   // ToF duplications corrections
    flist_aoq_cut_sicsi = new KVHashList;
    flist_aoq_cut_sicsi->SetOwner(kTRUE);
    for (Int_t ii = 1; ii <= 18; ii++) {
@@ -57,12 +61,14 @@ KVVAMOSDataCorrection_e503::KVVAMOSDataCorrection_e503(Int_t run_number = -1) : 
    }
 
    fkfunc_ztof_sicsi_init = kFALSE;
-   ffunc_ztof_sicsi = new TF1("func_ztof_sicsi", "pol2", 0, 25);
+   ffunc_ztof_sicsi = new TF1("func_ztof_sicsi_IDCode3", "pol2", 0, 25);
    ffunc_ztof_sicsi->SetParameters(0., 0., 0.);
 
    fkfunc_ztof_icsi_init = kFALSE;
-   ffunc_ztof_icsi  = new TF1("func_ztof_icsi", "pol2", 0, 25);
-   ffunc_ztof_icsi->SetParameters(0., 0., 0.);
+   ffunc_ztof_icsi_11  = new TF1("func_ztof_icsi_IDCode11", "pol2", 0, 25);
+   ffunc_ztof_icsi_11->SetParameters(0., 0., 0.);
+   ffunc_ztof_icsi_4  = new TF1("func_ztof_icsi_IDCode4", "pol2", 0, 25);
+   ffunc_ztof_icsi_4->SetParameters(0., 0., 0.);
 }
 
 //____________________________________________________________________________//
@@ -94,9 +100,14 @@ KVVAMOSDataCorrection_e503::~KVVAMOSDataCorrection_e503()
       ffunc_ztof_sicsi = NULL;
    }
 
-   if (ffunc_ztof_icsi) {
-      delete ffunc_ztof_icsi;
-      ffunc_ztof_icsi = NULL;
+   if (ffunc_ztof_icsi_11) {
+      delete ffunc_ztof_icsi_11;
+      ffunc_ztof_icsi_11 = NULL;
+   }
+
+   if (ffunc_ztof_icsi_4) {
+      delete ffunc_ztof_icsi_4;
+      ffunc_ztof_icsi_4 = NULL;
    }
 #endif
 }
@@ -130,9 +141,14 @@ void KVVAMOSDataCorrection_e503::Init()
       if (fRunNumber != -1) {
          Info("Init", "... starting initiliasing correction class for run %d ...", fRunNumber);
 
+         //Global ToFF offset
+         ReadGlobalToFOffsetsInDataSet();
+
          //HF frequency corrections
-         fvec_nHF_sicsi.clear();
-         fvec_nHF_icsi.clear();
+         fvec_nHF_DE_ToF_sicsi.clear();
+         fvec_nHF_DE_ToF_icsi.clear();
+         fvec_nHF_AE_AoQ_sicsi.clear();
+         fvec_nHF_AE_AoQ_icsi.clear();
          ReadHFCutFilesListInDataSet();
 
          //AoQ duplication corrections
@@ -148,14 +164,24 @@ void KVVAMOSDataCorrection_e503::Init()
          fkIsInit = kTRUE;
 
          //debug
-         //if (fkverbose) {
          Info("Init", "... printing informations from initialisation ...\n");
          PrintInitInfos();
-         //}
       }
 
       else Error("Init", "... no run number set , will do nothing ...");
    }
+}
+
+//____________________________________________________________________________//
+void KVVAMOSDataCorrection_e503::ReadGlobalToFOffsetsInDataSet()
+{
+   //Find in '$KVROOT/KVFiles/VAMOS/etc/.kvrootrc' the values of the ToF offsets
+   //to apply to correct a possible global A/Q=2 misalignment
+   //
+   //NOTE: these corrections are applied BEFORE any other corrections
+
+   ftof_corr_sicsi_global = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.GlobalToFOffsetSiCsI", 0.);  // in ns
+   ftof_corr_icsi_global  = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.GlobalToFOffsetICCsI", -1.80);  //in ns
 }
 
 //____________________________________________________________________________//
@@ -183,13 +209,13 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFilesListInDataSet()
    //--------Si-CsI--------
    //Find the list file to use
    TString filename0 = gDataSet->GetDataSetEnv("KVVAMOSDataCorrection_e503.HFCutListSiCsI");
+
    if (filename0 == "") {
       Warning("ReadHFCutFileListInDataSet", "No filename defined for Si-CsI telescopes. It can be defined by %s.KVVAMOSDataCorrection_e503.HFCutListSiCsI", gDataSet->GetName());
-      return;
    }
    std::ifstream ifile0;
    if (gDataSet->OpenDataSetFile(filename0.Data(), ifile0)) {
-      Info("ReadHFCutFileListInDataSet", "list of cut files in: '%s' ", filename0.Data());
+      Info("ReadHFCutFileListInDataSet", "list of cut files for Si-CsI telescopes in: '%s' ", filename0.Data());
       ReadHFCutFileList(ifile0, 0);
       ifile0.close();
    }
@@ -199,11 +225,10 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFilesListInDataSet()
    TString filename1 = gDataSet->GetDataSetEnv("KVVAMOSDataCorrection_e503.HFCutListICSi");
    if (filename1 == "") {
       Warning("ReadHFCutFilesListInDataSet", "No filename defined for IC-SI telescopes. It can be defined by %s.KVVAMOSDataCorrection_e503.HFCutListICSi", gDataSet->GetName());
-      return;
    }
    std::ifstream ifile1;
    if (gDataSet->OpenDataSetFile(filename1.Data(), ifile1)) {
-      Info("ReadHFCutFileListInDataSet", "list of cut files in: '%s' ", filename1.Data());
+      Info("ReadHFCutFileListInDataSet", "list of cut files for IC-Si telescopes in: '%s' ", filename1.Data());
       ReadHFCutFileList(ifile1, 1);
       ifile1.close();
    }
@@ -218,13 +243,51 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFileList(std::ifstream& file, Int_t ty
    //- read the file TEnv and to access to the run range of the file
    //- if 'fRunNumber' is in the run range we save all associated cuts in
    //  'flist_HFcuts_type' list and stop the research.
-   //- if 'fRunNumber' is in the run range we also save the values of N=
-   //  number of time we add/remove the beam pulse in 'fvec_nHF_type'
+   //
+   //2 cases: i)  Si-CsI telescopes
+   //         ii) IC-Si telescopes
+   //i)  If 'fRunNumber' is in the run range we also save the values of N=
+   //    number of time we add/remove the beam pulse in 'fvec_nHF_type'
+   //
+   //ii) For IC-Si telescopes the situation is little bit more complicated
+   //    because of punch-through particles and average ToF longer than the Si-CsI case.
+   //    For the particles punching through, the corrected nHF
+   //    (see KVVAMOSReconNuc::CalculateCorrectedT_HF() method) is not correct. We then
+   //    separate particles above (IDCode==4) or below (IDCode==11) punch-through.
+   //    -For IDCode==1 (punch-through) we use the ToF directly from calibration function
+   //     so without corrections.
+   //    -For IDCode==4 we use the ToF from KVVAMOSReconNuc::CalculateCorrectedT_HF() method.
+   //
+   //    Another problem comes from the ToF longer than the beam frequency (which is the case
+   //    for a lot of particles identified in IC-Si telescopes). The chosen solution is to
+   //    use the "TINDRA_HF" in channel (=difference in time between the first detector hit
+   //    in INDRA and the same HF than the "TSI_HF" signal): long-time particles in VAMOS are
+   //    in general correlated to long-time particle in INDRA as they come from the same source.
+   //    We experimentaly see "domains" of TINDRA_HF corresponding to domains of long/short ToF,
+   //    we use these domains to de-correlate long and short ToF.
+   //    Finally, for IC-Si telescopes we save in 'fvec_nHF_type' a list of vectors for each cut with:
+   //    -the IDCode (to know if we use the calibration ToF (IDCode==11) or the already corrected
+   //     ToF from KVVAMOSReconNuc::CalculateCorrectedT_HF() method (IDCode==4))
+   //    -the domain of TINDRA_HF associated to the cut
+   //    -the number of time we add/remove the beam pulse for the cut
 
-   Bool_t found = kFALSE; //flag set to kTRUE as soon as we have found the good file
+   //Initialisation
+   Bool_t kDE_ToF_found    = kFALSE; //flag set to kTRUE as soon as we have found the good cut file for DE-ToF
+   Bool_t kAE_AoQ_found    = kFALSE; //flag set to kTRUE as soon as we have found the good cut file for AE-AoQ
+   Bool_t kfound           = kFALSE;
+   KVHashList* ll          = NULL;
+   KVHashList* sub_ll      = NULL;   //sublist of ll for either type="DeltaE-ToF" or type="AE_AoQ"
+   std::vector<Float_t>* vec;
 
+   //Si-CsI case
+   if (type == 0) ll = flist_HFcuts_sicsi;
+   //IC-Si case
+   else if (type == 1) ll = flist_HFcuts_icsi;
+   assert(ll);
+
+   //read the file
    std::string newline;
-   while ((std::getline(file, newline)) && (!found)) {
+   while ((std::getline(file, newline)) && (!kfound)) {
       //Ignore comments in the file
       if (newline.compare(0, 1, "#") != 0) {
 
@@ -239,7 +302,7 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFileList(std::ifstream& file, Int_t ty
                   file->ls();
                }
 
-               //find the TEnv and access to runlist and tof_corr values
+               //find the TEnv and access to runlist
                TEnv* env = (TEnv*) file->Get("TEnv");
                assert(env);
 
@@ -260,7 +323,25 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFileList(std::ifstream& file, Int_t ty
                   Info("ReadHFCutFileList", "... Run %d is in the runlist '%s' of the file '%s' ...",
                        fRunNumber, runlist, file->GetName());
 
-                  //exctract and set cuts list
+                  //extract the type of observables the cuts refer to
+                  //(either 'DeltaE-ToF' cut or 'AE_AoQ' cut)
+                  const Char_t* car_type = env->GetValue("type", "");
+                  TString ss_type(car_type);
+                  if (ss_type == "DeltaE_ToF") {
+                     kDE_ToF_found = kTRUE;
+                     sub_ll = (KVHashList*) ll->At(0);
+                     if (type == 0) vec = &fvec_nHF_DE_ToF_sicsi;
+                     else if (type == 1) vec = &fvec_nHF_DE_ToF_icsi;
+                  } else if (ss_type == "AE_AoQ") {
+                     kAE_AoQ_found = kTRUE;
+                     sub_ll = (KVHashList*) ll->At(1);
+                     if (type == 0) vec = &fvec_nHF_AE_AoQ_sicsi;
+                     else if (type == 1) vec = &fvec_nHF_AE_AoQ_icsi;
+                  }
+                  assert(sub_ll);
+                  assert(vec);
+
+                  //exctract and set cuts list for the specific type
                   TKey* key = NULL;
                   TList* list = file->GetListOfKeys();
                   assert(list);
@@ -269,35 +350,40 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFileList(std::ifstream& file, Int_t ty
                      if ((key->ReadObj())->InheritsFrom("TCutG")) {
                         const TCutG* cutg = (TCutG*) key->ReadObj();
                         TCutG* copy_cut = new TCutG(*cutg);
-                        if (type == 0) flist_HFcuts_sicsi->Add(copy_cut);
-                        else if (type == 1) flist_HFcuts_icsi->Add(copy_cut);
+                        sub_ll->Add(copy_cut);
 
                         //save associated nHF value
                         //it will work only if the cut saved in the file
-                        //has a name 'cut%d' (returned by GetName() method)
+                        //has a name of the form: "Cut%d_IDCode%d_nHF%f",ncut, idc, nHF
                         TString ss        = cutg->GetName();
-                        TObjArray* obj_ar = ss.Tokenize("cut");
-                        Int_t nn          = (((TObjString*) obj_ar->At(0))->String()).Atoi();
+                        TObjArray* obj_ar = ss.Tokenize("_");
 
-                        if (fkverbose) Info("ReadHFCutFileList", "... cut name = '%s' -> associated nHF found =%d ...", cutg->GetName(), nn);
+                        TString str_nn    = (((TObjString*) obj_ar->At(0))->String());
+                        TObjArray* obj_nn = str_nn.Tokenize("Cut");
+                        Int_t nn          = (((TObjString*) obj_nn->At(0))->String()).Atoi();
 
-                        if (type == 0) fvec_nHF_sicsi.push_back(nn);
-                        if (type == 1) fvec_nHF_icsi.push_back(nn);
+                        TString str_idc    = (((TObjString*) obj_ar->At(1))->String());
+                        TObjArray* obj_idc = str_idc.Tokenize("IDCode");
+                        Int_t idc          = (((TObjString*) obj_idc->At(0))->String()).Atoi();
+
+                        TString str_nhf    = (((TObjString*) obj_ar->At(2))->String());
+                        TObjArray* obj_nhf = str_nhf.Tokenize("nHF");
+                        Float_t    nhf     = (((TObjString*) obj_nhf->At(0))->String()).Atof();
+
+                        vec->push_back(nhf);
+
+                        if (fkverbose) Info("ReadHFCutFileList", "... [%s] cut name = '%s' -> (ncut=%d, idc=%d, nHF=%f) ...", ss_type.Data(), cutg->GetName(), nn, idc, nhf);
                      }
                   }
-
-                  found = kTRUE;
                }
 
-               else if (fkverbose) {
-                  Info("ReadHFCutFileList", "... Run %d is NOT in the runlist '%s' of the file '%s' ...",
-                       fRunNumber, runlist, file->GetName());
-               }
-
+               else if (fkverbose) Info("ReadHFCutFileList", "... Run %d is NOT in the runlist '%s' of the file '%s' ...", fRunNumber, runlist, file->GetName());
                file->Close();
             }//end of file is ok
          }//end of SearchKVFile
       }//end of line ok
+
+      if (kDE_ToF_found && kAE_AoQ_found) kfound = kTRUE;
    }//all lines read
 }
 
@@ -465,11 +551,11 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationToFOffsetsInDataSet()
    //
    //NOTE: these corrections are applied AFTER HF corrections
    //
-   //By default this offset is equal to 1.05 ns (value found from 40Ca+40Ca elastic
-   //duplicated pics).
+   //By default this offset is equal to 1.05 ns for Si-CsI telescopes
+   //(value found from 40Ca+40Ca elastic duplicated pics).
 
-   ftof_corr_sicsi = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationToFOffset", 1.05);  // in ns
-   ftof_corr_icsi  = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationToFOffset", 1.05);  //in ns
+   ftof_corr_sicsi = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationToFOffsetSiCsI", 1.05);  // in ns
+   ftof_corr_icsi  = gDataSet->GetDataSetEnv("INDRA_e503.KVVAMOSDataCorrection_e503.DuplicationToFOffsetICCsI", 0.);  //in ns
 }
 
 //____________________________________________________________________________//
@@ -546,6 +632,12 @@ void KVVAMOSDataCorrection_e503::ReadToFOffsetZFunctionFileList(std::ifstream& f
    //- read the TEnv in the file to access to the run range of the file
    //- if 'fRunNumber' is in the run range we create in 'ffunc_ztof_sicsi'
    //  the pol2 function with the parameters set in the TEnv and stop the research.
+   //
+   //UPDATE: a pol4 function is needed to correct IC-Si telescopes ToF, even when
+   //        we separate punch-through by TCutG and IDCode...
+   //        I guess it is because all the ToF calibrations were done using
+   //        Si-CsI experimental points, so the values are not as good as expected for
+   //        IC-Si telescopes... nonetheless a correction of less than 4.5 ns is usually needed...
 
    Bool_t found = kFALSE; //flag set to kTRUE as soon as we have found the good file
 
@@ -588,23 +680,36 @@ void KVVAMOSDataCorrection_e503::ReadToFOffsetZFunctionFileList(std::ifstream& f
                   Info("ReadToFOffsetZFunctionFileList", "... Run %d is in the runlist '%s' of the file '%s' ...",
                        fRunNumber, runlist, file->GetName());
 
-
-                  //exctract pol2 coefficients from TEnv
-                  Double_t xmin = env->GetValue("xmin", 0.);
-                  Double_t xmax = env->GetValue("xmax", 25.);
-                  Double_t p0   = env->GetValue("p0", 0.);
-                  Double_t p1   = env->GetValue("p1", 0.);
-                  Double_t p2   = env->GetValue("p2", 0.);
-
                   if (type == 0) {
+                     //exctract pol2 coefficients from TEnv
+                     Double_t xmin = env->GetValue("xmin", 0.);
+                     Double_t xmax = env->GetValue("xmax", 25.);
+                     Double_t p0   = env->GetValue("p0", 0.);
+                     Double_t p1   = env->GetValue("p1", 0.);
+                     Double_t p2   = env->GetValue("p2", 0.);
+
                      ffunc_ztof_sicsi->SetRange(xmin, xmax);
                      ffunc_ztof_sicsi->SetParameters(p0, p1, p2);
                      fkfunc_ztof_sicsi_init = kTRUE;
                   }
 
                   else if (type == 1) {
-                     ffunc_ztof_icsi->SetRange(xmin, xmax);
-                     ffunc_ztof_sicsi->SetParameters(p0, p1, p2);
+                     //exctract pol2 coefficients from TEnv
+                     Double_t xmin    = env->GetValue("xmin", 0.);
+                     Double_t xmax    = env->GetValue("xmax", 25.);
+                     Double_t p0_11   = env->GetValue("p0_11", 0.);
+                     Double_t p1_11   = env->GetValue("p1_11", 0.);
+                     Double_t p2_11   = env->GetValue("p2_11", 0.);
+                     Double_t p0_4    = env->GetValue("p0_4", 0.);
+                     Double_t p1_4    = env->GetValue("p1_4", 0.);
+                     Double_t p2_4    = env->GetValue("p2_4", 0.);
+
+                     ffunc_ztof_icsi_11->SetRange(xmin, xmax);
+                     ffunc_ztof_icsi_11->SetParameters(p0_11, p1_11, p2_11);
+
+                     ffunc_ztof_icsi_4->SetRange(xmin, xmax);
+                     ffunc_ztof_icsi_4->SetParameters(p0_4, p1_4, p2_4);
+
                      fkfunc_ztof_icsi_init = kTRUE;
                   }
 
@@ -629,19 +734,60 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
    assert(nuc);
    Int_t IDCode = nuc->GetIDCode();
 
+   if (fkverbose) {
+      printf("\n\n_________________________________________________________________\n");
+      Info("ApplyCorrections", "... trying to apply e503 corrections to a new nucleus (IDCode=%d) ...", IDCode);
+   }
+
    //First set all corrected values equal to the values found with the
    //basic (KVVAMOSReconNuc::IdentifyQandA()) identification routine.
    //We will then only modify the wanted one and all informations
    //for ID will be available in corrected observables
-   nuc->SetCorrectedToF(nuc->GetBasicToF());
-   nuc->SetCorrectedPath(nuc->GetBasicPath());
-   nuc->SetCorrectedRealAE(nuc->GetBasicRealAE());
-   Float_t aq = nuc->GetBasicRealAoverQ();
-   nuc->SetCorrectedRealAoverQ(aq);
+   if (IDCode == 3 || IDCode == 4) {
+      nuc->SetCorrectedToF(nuc->GetBasicToF());
+      nuc->SetCorrectedPath(nuc->GetBasicPath());
+      nuc->SetCorrectedRealAE(nuc->GetBasicRealAE());
+      nuc->SetCorrectedRealAoverQ(nuc->GetBasicRealAoverQ());
 
-   if (fkverbose) {
-      printf("\n\n_________________________________________________________________\n");
-      Info("ApplyCorrections", "... trying to apply e503 corrections to a new nucleus (IDCode=%d) ...", IDCode);
+      if (fkverbose) Info("ApplyCorrections", "... initialisation: idc=%d, initialisation of corrected observables done ...", IDCode);
+   }
+
+   //For IDCode==11 (point below punch-trough line) for IC-Si IDTelesopes, the
+   //ToF must be set to the calibrated one (not the basic one which already passed by
+   //HF beam frequency estimation during recon->ident step)
+   else if (nuc->GetIDCode() == 11) {
+      //------Find the CalibT value------
+      KVVAMOSDetector* det(NULL);
+      KVIDTelescope* idt = nuc->GetIdentifyingTelescope();
+      assert(idt);
+      if (idt->InheritsFrom("KVIDHarpeeICSi_e503")) {
+         KVIDHarpeeICSi_e503* icsi = static_cast<KVIDHarpeeICSi_e503*>(idt);
+
+         //stopping detector
+         KVVAMOSDetector* resi_det = static_cast<KVVAMOSDetector*>(icsi->GetDetector(2));
+         TList* det_list = resi_det->GetAlignedDetectors(KVGroup::kBackwards);
+         //iteration over detector list in REVERSE order
+         TIter next_det(det_list);
+         while ((det = static_cast<KVVAMOSDetector*>(next_det()))) {
+            const Char_t* tof_name = "TSI_HF";
+            Double_t calibT = 0.;
+            const Char_t* t_type = tof_name + 1;
+            if (det->IsStartForT(t_type)) {
+               if ((det->IsStartForT(t_type) && (calibT = det->GetCalibT(t_type)) > 0)) {
+                  nuc->SetCorrectedToF(calibT);
+                  nuc->SetCorrectedPath(nuc->GetBasicPath());
+                  if (fkverbose) Info("ApplyCorrections", "... initialisation: idc=%d, initialisation of corrected observables done by changing ToF(=%lf) to CalibT(=%lf) ...", IDCode, nuc->GetBasicToF(), calibT);
+
+                  Double_t AoQ = nuc->GetBrho() * KVParticle::C() * 10. / nuc->GetCorrectedBeta() / nuc->GetCorrectedGamma() / KVNucleus::u();
+                  Double_t AE  = nuc->GetCorrectedEnergy() / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
+
+                  nuc->SetCorrectedRealAoverQ(AoQ);
+                  nuc->SetCorrectedRealAE(AE);
+                  nuc->SetCorrected(kTRUE);
+               }
+            }
+         }
+      }
    }
 
    //-----Re-calculate energy-----
@@ -660,7 +806,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
    Double_t EbfVAMOSnew;
    CalibrateFromDetList(nuc, KEnew, EbfVAMOSnew);
 
-   if (EbfVAMOSnew >= 0. && KEnew >= 0.) {
+   if ((EbfVAMOSnew >= 0.) && (KEnew >= 0.)) {
       Double_t AE  = KEnew / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
       nuc->SetCorrectedRealAE(AE);
       nuc->SetCorrectedEnergyBeforeVAMOS(EbfVAMOSnew);
@@ -674,32 +820,39 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
       printf("AFTER:  IsCorrected=%d, EbfVAMOS=%lf MeV, KE=%lf MeV, CorrAE=%lf\n", (int) nuc->IsCorrected(), nuc->GetCorrectedEnergyBeforeVAMOS(), nuc->GetCorrectedEnergy(), nuc->GetCorrectedRealAE());
    }
 
-   //-----AoQ - ToF corrections-----
+   //-----ToF corrections-----
    //Apply ToF duplications/offset corrections using
    //corrected AoQ obervable, as it is only dependant of ToF
    //(considering path and brho are OK, which is more or less sure...)
    //Si-CsI telescopes corrections
+   Bool_t kCsI_Global_corr = kFALSE;
    Bool_t kCsI_HFcorr   = kFALSE;
    Bool_t kCsI_DUcorr   = kFALSE;
    Bool_t kCsI_ZToFfunc = kFALSE;
    if (IDCode == 3) {
-      kCsI_HFcorr = ApplyHFCorrections(nuc, flist_HFcuts_sicsi, fvec_nHF_sicsi);
+      kCsI_Global_corr = ApplyGlobalToFCorrection(nuc, ftof_corr_sicsi_global);
+      kCsI_HFcorr = ApplyHFCorrections(nuc);
       kCsI_DUcorr = ApplyToFDuplicationCorrections(nuc, flist_aoq_cut_sicsi, ftof_corr_sicsi);
       if (fkfunc_ztof_sicsi_init) kCsI_ZToFfunc = ApplyToFOffsetZFunctionCorrections(nuc, ffunc_ztof_sicsi);
    }
 
    //IC-Si telescopes corrections
+   Bool_t kSi_Global_corr = kFALSE;
    Bool_t kSi_HFcorr   = kFALSE;
    Bool_t kSi_DUcorr   = kFALSE;
    Bool_t kSi_ZToFfunc = kFALSE;
-   if (IDCode == 4) {
-      kSi_HFcorr = ApplyHFCorrections(nuc, flist_HFcuts_icsi, fvec_nHF_icsi);
+   if (IDCode == 4 || IDCode == 11) {
+      kSi_Global_corr = ApplyGlobalToFCorrection(nuc, ftof_corr_icsi_global);
+      kSi_HFcorr = ApplyHFCorrections(nuc);
       kSi_DUcorr = ApplyToFDuplicationCorrections(nuc, flist_aoq_cut_icsi, ftof_corr_icsi);
-      if (fkfunc_ztof_icsi_init) kSi_ZToFfunc = ApplyToFOffsetZFunctionCorrections(nuc, ffunc_ztof_icsi);
+      if (fkfunc_ztof_icsi_init) {
+         if (IDCode == 4) kSi_ZToFfunc = ApplyToFOffsetZFunctionCorrections(nuc, ffunc_ztof_icsi_4);
+         else kSi_ZToFfunc = ApplyToFOffsetZFunctionCorrections(nuc, ffunc_ztof_icsi_11);
+      }
    }
 
    //Save corrections status
-   if (kCsI_HFcorr || kCsI_DUcorr || kCsI_ZToFfunc || kSi_HFcorr || kSi_DUcorr || kSi_ZToFfunc) nuc->SetCorrected(kTRUE);
+   if (kCsI_Global_corr || kCsI_HFcorr || kCsI_DUcorr || kCsI_ZToFfunc || kSi_Global_corr || kSi_HFcorr || kSi_DUcorr || kSi_ZToFfunc) nuc->SetCorrected(kTRUE);
 
    //-----Identification with grids-----
    //Use KVIDQA grids on previously corrected
@@ -711,11 +864,11 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
       kidentOK = IdentifyCorrectedNucleus(nuc);
       if (fkverbose) {
          if (kidentOK)  printf("identification with grids was success\n");
-         else printf("identification with grids was failure");
+         else printf("identification with grids was failure\n");
       }
    }
 
-   //-----Re-calculate-----
+   //-----Re-calculate energy using all the applied corrections-----
    //At this step: -all corrections were applied
    //              -energy re-computation was applied
    //              -QA ID grids were used on corrected 'AE vs AoQ' data to
@@ -761,61 +914,171 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyCorrections(KVVAMOSReconNuc* nuc)
 }
 
 //____________________________________________________________________________//
-Bool_t KVVAMOSDataCorrection_e503::ApplyHFCorrections(KVVAMOSReconNuc* nuc, KVHashList* cut_list, std::vector<Int_t> nHF_vec)
+Bool_t KVVAMOSDataCorrection_e503::ApplyGlobalToFCorrection(KVVAMOSReconNuc* nuc, Float_t tof_offset)
 {
-   //Check if the provided nucleus, identified by either a KVIDHarpeeSiCsI_e503 or
-   //a KVIDHarpeeICSi_e503 telescope, needs to be corrected in ToF,
-   //by adding/removing N times the beam pulse period.
-   //
-   //To do so, it will use EMeV:ToF TCutG* objects set in 'flist_hfcuts', where:
-   //-EMeV is the energy loss in the DeltaE detector of the identifying telescope
-   //-ToF is the not corrected time of Flight of the VAMOS nucleus found during
-   // the IdentifyQandA() call in recon->ident
-   //
-   //If the nucleus EMeV and ToF values are in a defined cut, then its
-   //time of flight will be modified by adding/removing N times the beam
-   //period, where N is found by looking at the 'fvec_nHF' associated vector.
-   //(see ReadHFCutFilesListInDataSet() and ReadHFCutFileList() methods).
-   //
-   //We then re-calculate the nucleus corrected AE and AoQ taking the new ToF into
-   //account. For AE, we also consider the new energy estimation with 'ecorr'
+   //Apply a global ToF correction over the data to correct AoQ=2 possible misalignments due to
+   //a bad calibration of the ToF (for example wrong ToF offset 'T_0')
 
-   //some checks
-   assert(nuc);
-   assert(cut_list);
-   Int_t list_size = cut_list->GetEntries();
-   Int_t vec_size  = static_cast<int>(nHF_vec.size());
-   if (list_size != vec_size) {
-      Error("ApplyHFCorrections", "... list size(=%d) != nHF_vec size(=%d) ...", list_size, vec_size);
+   if (tof_offset == 0.) {
+      if (fkverbose) Info("ApplyGlobalToFCorrection", "... ToF global correction is null, will do nothing");
       return kFALSE;
    }
 
-   //find basic infos
-   Float_t basic_tof    = nuc->GetBasicToF();
-   Float_t basic_deltae = -666.;
-   KVIDTelescope* idt   = nuc->GetIdentifyingTelescope();
-   assert(idt);
-   if (idt->InheritsFrom("KVIDHarpeeSiCsI_e503")) {
-      KVIDHarpeeSiCsI_e503* sicsi = static_cast<KVIDHarpeeSiCsI_e503*>(idt);
-      basic_deltae = sicsi->GetIDMapY();
-      if (fkverbose) Info("ApplyHFCorrection_e503", "Si-CsI: BasicTof=%lf, DeltaE=%lf", basic_tof, basic_deltae);
+   //debug
+   if (fkverbose) {
+      Info("ApplyGlobalToFCorrection", "... before ToF global corrections ...\nIDCode=%d \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+           nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
+           nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
    }
 
-   if (idt->InheritsFrom("KVIDHarpeeICSi_e503")) {
-      KVIDHarpeeICSi_e503* icsi = static_cast<KVIDHarpeeICSi_e503*>(idt);
-      basic_deltae = icsi->GetIDMapY();
-      if (fkverbose) Info("ApplyHFCorrection_e503", "IC-Si: BasicTof=%lf, DeltaE=%lf", basic_tof, basic_deltae);
+   Float_t corr_tof = nuc->GetCorrectedToF();
+   nuc->SetCorrectedToF(corr_tof + tof_offset);
+
+   Double_t AoQ = nuc->GetBrho() * KVParticle::C() * 10. / nuc->GetCorrectedBeta() / nuc->GetCorrectedGamma() / KVNucleus::u();
+   Double_t AE  = nuc->GetCorrectedEnergy() / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
+
+   nuc->SetCorrectedRealAoverQ(AoQ);
+   nuc->SetCorrectedRealAE(AE);
+   nuc->SetCorrected(kTRUE);
+
+   //debug
+   if (fkverbose) {
+      Info("ApplyGlobalToFCorrection", "... after ToF global corrections ...\nIDCode=%d \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+           nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
+           nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
+   }
+
+   return kTRUE;
+}
+
+//____________________________________________________________________________//
+Bool_t KVVAMOSDataCorrection_e503::ApplyHFCorrections(KVVAMOSReconNuc* nuc)
+{
+   //Correct the ToF by adding/removing HF beam frequencies
+   //Two corrections are applied here:
+   //
+   //->First step: we use pre-defined cuts on 'DeltaE vs ToF' plots where:
+   //  - 'DeltaE=ICEMeV+SiEMeV' with: 'ICEMeV' the energy measured in ChIo and
+   //    'SiEMeV' the energy measured in Si (both in MeV).
+   //  - 'ToF' is:   - the (basic) ToF from recon->ident for IDCode==3 or IDCode==4 (above punch-through),
+   //                  so a HF corrections has already been attempted using energy losses.
+   //                  (see KVVAMOSReconNuc::CalculateCorrectedT_HF() method)
+   //                - the calibrated ToF (CalibT) for IDCode==11 (below punch-through), so the ToF
+   //                  not corrected of HF (before KVVAMOSReconNuc::CalculateCorrectedT_HF() call).
+   //                  Indeed the HF corrections is not expected to work in this case because the
+   //                  energy is wrong because of punch-through...
+   //    Remind that in both ToF cases the global offset of ToF from method ApplyGlobalToFCorrection
+   //    must be taken into account !!!
+   //  In this kind of plots we can clearly see points which need to be added/removed
+   //  HF beam frequency (works better for IDCode==3)
+   //
+   //->Second step: we use pre-defined cuts on 'AE vs AoQ' plots where:
+   //  - 'AE' is the estimated mass using energy conservation law (see KVVAMOSReconNuc::CalculateRealAE())
+   //     and using the corrected ToF from First step
+   //  - 'AoQ' is the estimated mass:charge ratio (see see KVVAMOSReconNuc::CalculateRealAoverQ())
+   //     and also using the corrected ToF from First step
+   //  This kind of plots works better for IDCode==4 or IDCode==11
+
+   assert(nuc);
+
+   //First step
+   Bool_t ok1 = ApplyHFCorrectionsDeltaE_ToF(nuc);
+
+   //Second step
+   Bool_t ok2 = ApplyHFCorrectionsAE_AoverQ(nuc);
+
+   if (ok1 || ok2) return kTRUE;
+   else return kFALSE;
+}
+
+//____________________________________________________________________________//
+Bool_t KVVAMOSDataCorrection_e503::ApplyHFCorrectionsDeltaE_ToF(KVVAMOSReconNuc* nuc)
+{
+   //Initialisation
+   Int_t idc = nuc->GetIDCode();
+
+   KVHashList* ll = NULL;
+   std::vector<Float_t>* vec = NULL;
+   if (idc == 3) {
+      ll = (KVHashList*) flist_HFcuts_sicsi->At(0);
+      vec = &fvec_nHF_DE_ToF_sicsi;
+   }
+
+   else {
+      if (idc == 4 || idc == 11) {
+         ll = (KVHashList*) flist_HFcuts_icsi->At(0);
+         vec = &fvec_nHF_DE_ToF_icsi;
+      }
+
+      else {
+         if (fkverbose) Info("ApplyHFCorrections_DeltaE_ToF", "... IDCode=%d, no corrections will be applied ...", idc);
+         return kFALSE;
+      }
+   }
+
+   assert(ll);
+   assert(vec);
+
+   Int_t list_size = ll->GetEntries();
+   Int_t vec_size  = static_cast<int>(vec->size());
+   if (list_size != vec_size) {
+      Error("ApplyHFCorrections_DeltaE_ToF", "... list size(=%d) != nHF_vec size(=%d) ...", list_size, vec_size);
+      return kFALSE;
+   }
+
+   //find DeltaE and ToF
+   Float_t tof    = nuc->GetCorrectedToF(); //tof already re-defined before applying correction
+   Float_t deltae = 0.;
+   KVIDTelescope* idt = nuc->GetIdentifyingTelescope();
+   assert(idt);
+
+   if (idt->InheritsFrom("KVIDHarpeeSiCsI_e503") || idt->InheritsFrom("KVIDHarpeeICSi_e503")) {
+      KVVAMOSDetector* resi_det = static_cast<KVVAMOSDetector*>(nuc->GetStoppingDetector());
+      TList* det_list = resi_det->GetAlignedDetectors(KVGroup::kBackwards);
+
+      //iteration over detector list in REVERSE order
+      TIter next_det(det_list);
+      KVVAMOSDetector* det = NULL;
+      Float_t ice = 0.;
+      Float_t sie = 0.;
+      while ((det = static_cast<KVVAMOSDetector*>(next_det()))) {
+         //ChIo energy
+         if (det->InheritsFrom("KVHarpeeIC")) {
+            ice = det->GetCalibE();
+            deltae += ice;
+         }
+
+         //Si energy
+         if (det->InheritsFrom("KVHarpeeSi")) {
+            sie = det->GetCalibE();
+            deltae += sie;
+         }
+      }
+
+      if (fkverbose) Info("ApplyHFCorrections_DeltaE_ToF", "... ICE=%lf MeV, SiE=%lf MeV, DeltaE=%lf MeV ...", ice, sie, deltae);
    }
 
    //check if inside a defined cut
    Int_t nn = 0;
-   TIter next_cut(cut_list);
+   TIter next_cut(ll);
    TCutG* cut = NULL;
    while ((cut = dynamic_cast<TCutG*>(next_cut.Next()))) {
-      if (cut->IsInside(basic_tof, basic_deltae)) {//inside a cut, apply corrections
+      TString ss        = cut->GetName();
+      TObjArray* obj_ar = ss.Tokenize("_");
+      TString str_idc    = (((TObjString*) obj_ar->At(1))->String());
+      TObjArray* obj_idc = str_idc.Tokenize("IDCode");
+      Int_t IDCode          = (((TObjString*) obj_idc->At(0))->String()).Atoi();
 
-         Int_t nHF =  nHF_vec.at(nn);
-         nuc->SetCorrectedToF(basic_tof - nHF * gVamos->GetBeamPeriod());
+      if (cut->IsInside(tof, deltae) && IDCode == idc) { //inside an associated cut, apply corrections
+         //debug
+         if (fkverbose) {
+            Info("ApplyHFCorrectionsDeltaE_ToF", "... before ToF HF corrections ...\nIDCode=%d \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+                 nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
+                 nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
+         }
+
+         Float_t nHF = vec->at(nn);
+         nuc->SetCorrectedToF(tof + nHF * gVamos->GetBeamPeriod());
 
          Double_t AoQ = nuc->GetBrho() * KVParticle::C() * 10. / nuc->GetCorrectedBeta() / nuc->GetCorrectedGamma() / KVNucleus::u();
          Double_t AE  = nuc->GetCorrectedEnergy() / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
@@ -825,19 +1088,104 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyHFCorrections(KVVAMOSReconNuc* nuc, KVHa
          nuc->SetCorrected(kTRUE);
 
          if (fkverbose) {
-            Info("ApplyHFCorrection_e503", "... HF corrections applied with cut '%s' ...\nIDCode=%d \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
-                 cut->GetName(), nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
-                 nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
+            Info("ApplyHFCorrections_DeltaE_ToF", "... after HF ToF corrections applied with cut '%s' ...\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+                 cut->GetName(), nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
          }
 
          return kTRUE;
       }
 
-      else if (fkverbose) Info("ApplyHFCorrection_e503", "... HF corrections not applied with cut '%s' ...", cut->GetName());
+      else if (fkverbose) Info("ApplyHFCorrections_DeltaE_ToF", "... HF corrections not applied with cut '%s' (idc=%d) ...", cut->GetName(), IDCode);
       nn++;
    }
 
-   if (fkverbose) Info("ApplyHFCorrections", "... finished ToF HF corrections, did nothing ...");
+   if (fkverbose) Info("ApplyHFCorrections_DeltaE_ToF", "... finished ToF HF corrections, did nothing ...");
+   return kFALSE; //no correction needed
+}
+
+//____________________________________________________________________________//
+Bool_t KVVAMOSDataCorrection_e503::ApplyHFCorrectionsAE_AoverQ(KVVAMOSReconNuc* nuc)
+{
+   //Initialisation
+   Int_t idc = nuc->GetIDCode();
+
+   KVHashList* ll = NULL;
+   std::vector<Float_t>* vec = NULL;
+   if (idc == 3) {
+      ll = (KVHashList*) flist_HFcuts_sicsi->At(1);
+      vec = &fvec_nHF_AE_AoQ_sicsi;
+   }
+
+   else {
+      if (idc == 4 || idc == 11) {
+         ll = (KVHashList*)flist_HFcuts_icsi->At(1);
+         vec = &fvec_nHF_AE_AoQ_icsi;
+      }
+
+      else {
+         if (fkverbose) Info("ApplyHFCorrectionsAE_AoverQ", "... IDCode=%d, no corrections will be applied ...", idc);
+         return kFALSE;
+      }
+   }
+
+   assert(ll);
+   assert(vec);
+
+   Int_t list_size = ll->GetEntries();
+   Int_t vec_size  = static_cast<int>(vec->size());
+   if (list_size != vec_size) {
+      Error("ApplyHFCorrectionsAE_AoverQ", "... list size(=%d) != nHF_vec size(=%d) ...", list_size, vec_size);
+      return kFALSE;
+   }
+
+   //find AE and AoverQ
+   Float_t ae    = nuc->GetCorrectedRealAE();
+   Float_t aoq   = nuc->GetCorrectedRealAoverQ();
+   Float_t tof   = nuc->GetCorrectedToF();
+
+   //check if inside a defined cut
+   Int_t nn = 0;
+   TIter next_cut(ll);
+   TCutG* cut = NULL;
+   while ((cut = dynamic_cast<TCutG*>(next_cut.Next()))) {
+      TString ss        = cut->GetName();
+      TObjArray* obj_ar = ss.Tokenize("_");
+      TString str_idc    = (((TObjString*) obj_ar->At(1))->String());
+      TObjArray* obj_idc = str_idc.Tokenize("IDCode");
+      Int_t IDCode          = (((TObjString*) obj_idc->At(0))->String()).Atoi();
+
+      if (cut->IsInside(aoq, ae) && IDCode == idc) { //inside an associated cut, apply corrections
+         Float_t nHF = vec->at(nn);
+
+         //debug
+         if (fkverbose) {
+            Info("ApplyHFCorrectionsAE_AoverQ", "... before ToF HF corrections ...\nIDCode=%d \nBasicTof=%lf, BasicPath=%lf, BasicAE=%lf, BasicAoQ=%lf\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+                 nuc->GetIDCode(), nuc->GetBasicToF(), nuc->GetBasicPath(), nuc->GetBasicRealAE(), nuc->GetBasicRealAoverQ(),
+                 nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
+         }
+
+         nuc->SetCorrectedToF(tof + nHF * gVamos->GetBeamPeriod());
+
+         Double_t AoQ = nuc->GetBrho() * KVParticle::C() * 10. / nuc->GetCorrectedBeta() / nuc->GetCorrectedGamma() / KVNucleus::u();
+         Double_t AE  = nuc->GetCorrectedEnergy() / ((nuc->GetCorrectedGamma() - 1.) * KVNucleus::u());
+
+         nuc->SetCorrectedRealAoverQ(AoQ);
+         nuc->SetCorrectedRealAE(AE);
+         nuc->SetCorrected(kTRUE);
+
+         if (fkverbose) {
+            Info("ApplyHFCorrectionsAE_AoverQ", "... after ToF HF corrections applied with cut '%s' ...\nCorrToF=%lf, CorrPath=%lf, CorrAE=%lf, CorrAoQ=%lf",
+                 cut->GetName(), nuc->GetCorrectedToF(), nuc->GetCorrectedPath(), nuc->GetCorrectedRealAE(), nuc->GetCorrectedRealAoverQ());
+         }
+
+         return kTRUE;
+      }
+
+      else if (fkverbose) Info("ApplyHFCorrectionsAE_AoverQ", "... HF corrections not applied with cut '%s' (idc=%d)...", cut->GetName(), IDCode);
+      nn++;
+   }
+
+   if (fkverbose) Info("ApplyHFCorrectionsAE_AoverQ", "... finished ToF HF corrections, did nothing ...");
    return kFALSE; //no correction needed
 }
 
@@ -918,7 +1266,7 @@ Bool_t KVVAMOSDataCorrection_e503::ApplyToFDuplicationCorrections(KVVAMOSReconNu
          return kTRUE;
       }
 
-      else Info("ApplyToFDuplicationCorrections", "... ToF duplication corrections not applied with cut '%s' ...", cut->GetName());
+      else if (fkverbose) Info("ApplyToFDuplicationCorrections", "... ToF duplication corrections not applied with cut '%s' ...", cut->GetName());
    }
 
    if (fkverbose) Info("ApplyToFDuplicationCorrections", "... finished ToF duplication corrections, did nothing ...");
@@ -1227,14 +1575,18 @@ void KVVAMOSDataCorrection_e503::CalibrateFromDetList(KVVAMOSReconNuc* nuc, Doub
 
    //-----Final corrections to the energy for the strip foil and the target-----
    //strip foil
-   absorber_eloss = gVamos->GetStripFoilEnergyLossCorrection(nuc);
+   KVMaterial strip_foil(20.*KVUnits::ug, "C");
+
+   absorber_eloss = strip_foil.GetDeltaEFromERes(sim_nucleus.GetZ(), sim_nucleus.GetA(), total_energy);
    total_energy += absorber_eloss;
    if (fkverbose) Info("CalibrateFromDetList", "... strip foil correction: absorber_eloss=%lf, etot=%lf ...", absorber_eloss, total_energy);
 
    //target
    if (gMultiDetArray->GetTarget()) {
-      absorber_eloss = gMultiDetArray->GetTargetEnergyLossCorrection(nuc);
+      KVTarget* target(gMultiDetArray->GetTarget());
+      absorber_eloss = target->GetDeltaEFromERes(sim_nucleus.GetZ(), sim_nucleus.GetA(), total_energy);
       total_energy += absorber_eloss;
+
       if (fkverbose) Info("CalibrateFromDetList", "... target corrections: absorber_eloss=%lf, etot=%lf ...", absorber_eloss, total_energy);
    } else if (fkverbose) Warning("CalibrateFromDetList", "... target corrections can't be applied, target not found ...");
 
@@ -1288,7 +1640,7 @@ Bool_t KVVAMOSDataCorrection_e503::IdentifyCorrectedNucleus(KVVAMOSReconNuc* nuc
             Bool_t idt_ok = kFALSE;
 
             if ((nuc->GetIDCode() == 3) && (name.Contains("VID_QA_CSI"))) idt_ok = kTRUE;
-            else if ((nuc->GetIDCode() == 4) && (name.Contains("VID_QA_CSI"))) idt_ok = kTRUE;
+            else if (((nuc->GetIDCode() == 4) || (nuc->GetIDCode() == 11)) && (name.Contains("VID_QA_SI"))) idt_ok = kTRUE;
 
             //Corresponding KVIDQA found
             if (idt_ok) {
@@ -1326,9 +1678,8 @@ Bool_t KVVAMOSDataCorrection_e503::IdentifyCorrectedNucleus(KVVAMOSReconNuc* nuc
                      nuc->SetCorrectedRealA(aa);
                      ok = kTRUE;
                      if (fkverbose) {
-                        printf("AFTER: CorrRealAoQ=%lf \nCorrRealQ=%lf, CorrQ=%d, CorrRealA=%lf, CorrA=%d\n",
-                               nuc->GetCorrectedRealAoverQ(),
-                               nuc->GetCorrectedRealQ(), nuc->GetCorrectedQ(), nuc->GetCorrectedRealA(), nuc->GetCorrectedA());
+                        printf("AFTER: CorrRealAoQ=%lf, CorrRealQ=%lf, CorrQ=%d, CorrRealA=%lf, CorrA=%d\n",
+                               nuc->GetCorrectedRealAoverQ(), nuc->GetCorrectedRealQ(), nuc->GetCorrectedQ(), nuc->GetCorrectedRealA(), nuc->GetCorrectedA());
                      }
                   }
                }
@@ -1346,19 +1697,44 @@ Bool_t KVVAMOSDataCorrection_e503::IdentifyCorrectedNucleus(KVVAMOSReconNuc* nuc
 //____________________________________________________________________________//
 void KVVAMOSDataCorrection_e503::PrintInitInfos()
 {
+   //--------Global ToF corrections--------
+   printf("###### Global ToF corrections ######\n");
+   printf("-> Si-CsI:\n");
+   printf("tof_corr=%lf ns\n", ftof_corr_sicsi_global);
+   printf("-> IC-Si:\n");
+   printf("tof_corr=%lf ns\n", ftof_corr_icsi_global);
+
    //--------HF frequency corrections--------
    printf("###### HF frequency corrections ######\n");
    printf("->Si-CsI:\n");
-   printf("%d cuts set\n", GetNCutHFSiCsI());
+   printf("%d DeltaE-ToF cuts set\n", GetNCutHFSiCsI_DeltaE_ToF());
    if (fkverbose) {
-      printf("list of Si-CsI HF cuts follow:\n");
+      KVHashList* ll = (KVHashList*) flist_HFcuts_sicsi->At(0);
+      printf("list of cuts follow:\n\n");
       Int_t ii = 0;
       TCutG* cut = NULL;
-      for (std::vector<Int_t>::iterator it = fvec_nHF_sicsi.begin() ; it != fvec_nHF_sicsi.end(); ++it) {
-         Int_t nHF = *it;
-         cut       = (TCutG*) flist_HFcuts_sicsi->At(ii);
+      for (std::vector<Float_t>::iterator it = fvec_nHF_DE_ToF_sicsi.begin(); it != fvec_nHF_DE_ToF_sicsi.end(); ++it) {
+         Float_t nHF = *it;
+         cut       = (TCutG*) ll->At(ii);
          assert(cut);
-         printf("nHF=%d\n", nHF);
+         printf("cut_name='%s' -> nHF=%lf\n", cut->GetName(), nHF);
+         cut->Print();
+         printf("\n");
+         ii++;
+      }
+   }
+
+   printf("%d AE-AoQ cuts set\n", GetNCutHFSiCsI_AE_AoverQ());
+   if (fkverbose) {
+      KVHashList* ll = (KVHashList*) flist_HFcuts_sicsi->At(1);
+      printf("list of cuts follow:\n\n");
+      Int_t ii = 0;
+      TCutG* cut = NULL;
+      for (std::vector<Float_t>::iterator it = fvec_nHF_AE_AoQ_sicsi.begin(); it != fvec_nHF_AE_AoQ_sicsi.end(); ++it) {
+         Float_t nHF = *it;
+         cut       = (TCutG*) ll->At(ii);
+         assert(cut);
+         printf("cut_name='%s' -> nHF=%lf\n", cut->GetName(), nHF);
          cut->Print();
          printf("\n");
          ii++;
@@ -1366,30 +1742,48 @@ void KVVAMOSDataCorrection_e503::PrintInitInfos()
    }
 
    printf("\n->IC-Si:\n");
-   printf("%d cuts set\n", GetNCutHFICSi());
+   printf("%d DeltaE-ToF cuts set\n", GetNCutHFICSi_DeltaE_ToF());
    if (fkverbose) {
-      printf("list of IC-Si HF cuts follow:\n");
+      KVHashList* ll = (KVHashList*) flist_HFcuts_icsi->At(0);
+      printf("list of cuts follow:\n\n");
       Int_t ii = 0;
       TCutG* cut = NULL;
-      for (std::vector<Int_t>::iterator it = fvec_nHF_icsi.begin() ; it != fvec_nHF_icsi.end(); ++it) {
-         Int_t nHF = *it;
-         cut       = (TCutG*) flist_HFcuts_icsi->At(ii);
+      for (std::vector<Float_t>::iterator it = fvec_nHF_DE_ToF_icsi.begin(); it != fvec_nHF_DE_ToF_icsi.end(); ++it) {
+         Float_t nHF = *it;
+         cut       = (TCutG*) ll->At(ii);
          assert(cut);
-         printf("nHF=%d\n", nHF);
+         printf("cut_name='%s' -> nHF=%lf\n", cut->GetName(), nHF);
          cut->Print();
          printf("\n");
          ii++;
       }
    }
 
+   printf("%d AE-AoQ cuts set\n", GetNCutHFICSi_AE_AoverQ());
+   if (fkverbose) {
+      KVHashList* ll = (KVHashList*) flist_HFcuts_icsi->At(1);
+      printf("list of cuts follow:\n\n");
+      Int_t ii = 0;
+      TCutG* cut = NULL;
+      for (std::vector<Float_t>::iterator it = fvec_nHF_AE_AoQ_icsi.begin(); it != fvec_nHF_AE_AoQ_icsi.end(); ++it) {
+         Float_t nHF = *it;
+         cut       = (TCutG*) ll->At(ii);
+         assert(cut);
+         printf("cut_name='%s' -> nHF=%lf\n", cut->GetName(), nHF);
+         cut->Print();
+         printf("\n");
+         ii++;
+      }
+   }
+
+
    //-------ToF duplication corrections--------
    printf("###### ToF duplication corrections ######\n");
    printf("-> Si-CsI:\n");
-   printf("tof_corr=%lf\n", ftof_corr_sicsi);
-   printf("%d cuts set\n", flist_aoq_cut_sicsi->GetEntries());
+   printf("tof_corr=%lf ns\n", ftof_corr_icsi);
+   printf("%d cuts set\n", flist_aoq_cut_icsi->GetEntries());
    if (fkverbose) {
-      flist_aoq_cut_sicsi->ls();
-      printf("list of cuts follows:\n");
+      printf("list of cuts follows:\n\n");
 
       KVHashList* ll0 = NULL;
       TIter it0(flist_aoq_cut_sicsi);
@@ -1400,11 +1794,10 @@ void KVVAMOSDataCorrection_e503::PrintInitInfos()
    }
 
    printf("\n-> IC-Si:\n");
-   printf("tof_corr=%lf\n", ftof_corr_icsi);
+   printf("tof_corr=%lf ns\n", ftof_corr_icsi);
    printf("%d cuts set\n", flist_aoq_cut_icsi->GetEntries());
    if (fkverbose) {
-      flist_aoq_cut_icsi->ls();
-      printf("list of cuts follows:\n");
+      printf("list of cuts follows:\n\n");
 
       KVHashList* ll1 = NULL;
       TIter it1(flist_aoq_cut_icsi);
@@ -1424,6 +1817,8 @@ void KVVAMOSDataCorrection_e503::PrintInitInfos()
    printf("-> IC-Si:\n");
 
    printf("Initialised = %d\n", (int) fkfunc_ztof_icsi_init);
-   ffunc_ztof_icsi->Print();
-   printf("p0=%lf \np1=%f \np2=%f\n", ffunc_ztof_icsi->GetParameter(0), ffunc_ztof_icsi->GetParameter(1), ffunc_ztof_icsi->GetParameter(2));
+   ffunc_ztof_icsi_11->Print();
+   printf("p0=%lf \np1=%f \np2=%f\n", ffunc_ztof_icsi_11->GetParameter(0), ffunc_ztof_icsi_11->GetParameter(1), ffunc_ztof_icsi_11->GetParameter(2));
+   ffunc_ztof_icsi_4->Print();
+   printf("p0=%lf \np1=%f \np2=%f\n", ffunc_ztof_icsi_4->GetParameter(0), ffunc_ztof_icsi_4->GetParameter(1), ffunc_ztof_icsi_4->GetParameter(2));
 }

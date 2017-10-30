@@ -156,8 +156,8 @@ void KVVAMOSReconNuc::init()
 
    fA_CsI        = -666;
 
-   fkIsCorrected   = kFALSE;
-   fkIsCorrQandAID = kFALSE;
+   fkIsCorrected    = kFALSE;
+   fkIsCorrQandAID  = kFALSE;
    fkIsBasicQandAID = kFALSE;
 
    fdebug = kFALSE;
@@ -1068,7 +1068,7 @@ void KVVAMOSReconNuc::SetBasicQandAIdentification(const Char_t* tof_name, Float_
    SetRealA(GetBasicRealA());
    SetEnergy(E);
 
-   if (GetBasicQ() > 0 && GetBasicA() > 0) SetIsBasicQandAidentified();
+   SetIsBasicQandAidentified();
 }
 //________________________________________________________________
 void KVVAMOSReconNuc::SetCorrectedQandAIdentification()
@@ -1077,23 +1077,49 @@ void KVVAMOSReconNuc::SetCorrectedQandAIdentification()
    //KVDataCorrection (see ApplyCorrection() method)
    //as final results.
    //
-   //Corrected observables must be set in the KVVAMOSDataCorrection inherited
-   //class set in 'fDataCorr' pointer.
+   //Also set the energy and angles (so momentum) of the nucleus
    //
-   //Here we only modify the mass of the nucleus from the corrected
-   //values...
+   //Corrected observables must be set in the KVVAMOSDataCorrection inherited
+   //class set to 'fDataCorr' pointer.
+   //
+   //To do so we can either: 1) use energy losses and identified mass
+   //                        2) use velocity from ToF and identified mass (better resolution)
 
-   //Since changing mass is done by leaving momentum unchanged, the kinetic
-   //energy is changed too.
-   //Keep its value and set it again at the end.
-   Double_t KE = GetCorrectedEnergy();
-   SetA(GetCorrectedA());
+
+//   //1)-----Set energy from energy losses (deprecated)-----
+//   //Since changing mass is done by leaving momentum unchanged, the kinetic
+//   //energy is changed too.
+//   //Keep its value and set it again at the end.
+//    Double_t KE = GetCorrectedEnergy();
+//    SetRealA(GetCorrectedRealA());
+//    SetA(GetCorrectedA());
+//    SetEnergy(KE);
+//    SetTheta(GetThetaI());
+//    SetPhi(GetPhiI());
+//    SetRealQ(GetCorrectedRealQ());
+//    SetQ(GetCorrectedQ());
+
+   //2)-----Set energy from velocity (ToF measurement)-----
+   //first set mass (so GetMass() returns the expected mass)
+   SetAMeasured(kTRUE);
    SetRealA(GetCorrectedRealA());
-   SetEnergy(KE);
+   SetA(GetCorrectedA());
+   SetQMeasured(kTRUE);
    SetRealQ(GetCorrectedRealQ());
    SetQ(GetCorrectedQ());
+   //then set momentum from velocity in cartesian coordinates
+   Double_t gamma_new = 1. / KVParticle::C() *  GetCorrectedGamma();
+   Double_t vx = GetCorrectedVelocity() * TMath::Sin(GetThetaI() * TMath::DegToRad()) * TMath::Cos(GetPhiI() * TMath::DegToRad());
+   Double_t vy = GetCorrectedVelocity() * TMath::Sin(GetThetaI() * TMath::DegToRad()) * TMath::Sin(GetPhiI() * TMath::DegToRad());
+   Double_t vz = GetCorrectedVelocity() * TMath::Cos(GetThetaI() * TMath::DegToRad());
+   TVector3 vvec(vx, vy, vz);
+   TVector3 pvec = GetMass() * gamma_new * vvec;
+   SetMomentum(pvec);
 
-   if (GetCorrectedQ() > 0 && GetCorrectedA() > 0) SetIsCorrectedQandAidentified();
+   //debug
+   //Info("SetCorrectedQandAidentification", "Velocity=%lf, KE=%lf, new_Velocity=%lf, newKE=%lf", GetCorrectedVelocity(), GetCorrectedEnergy(), GetVelocity().Mag(), GetEnergy());
+
+   SetIsCorrectedQandAidentified();
 }
 //________________________________________________________________
 
@@ -1164,6 +1190,7 @@ Bool_t KVVAMOSReconNuc::CalculateCorrFlightDistanceAndTime(Double_t& dist, Doubl
    //  - the distance between the two detectors.
 
    dist = tof = 0.;
+   nHF = 0;
 
    KVACQParam* par = gVamos->GetVACQParam(tof_name);
    if (!par) {
@@ -1223,7 +1250,7 @@ Bool_t KVVAMOSReconNuc::CalculateCorrFlightDistanceAndTime(Double_t& dist, Doubl
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::CalculateCorrectedT_HF(Double_t tof, Double_t dist, Int_t nHF) const
+Double_t KVVAMOSReconNuc::CalculateCorrectedT_HF(Double_t tof, Double_t dist, Int_t& nHF) const
 {
    // Returns the corrected time of flight obtained from beam pulse HF, by
    // removing or adding N times the beam pulse period. N is fitted by
@@ -1267,7 +1294,8 @@ Int_t  KVVAMOSReconNuc::CalculateNBeamPeriod(Double_t tof, Double_t dist) const
    //Returns the number of time we add/remove the beam pulse period to
    //the time of flight obtained from beam pulse HF
 
-   Double_t alpha = 1. / (GetEnergy() / GetMass() + 1.);
+   //Double_t alpha = 1. / (GetEnergy() / GetMass() + 1.);
+   Double_t alpha = (GetEnergy() / GetMass() + 1.);
    Double_t delta_t = (dist / (C() * TMath::Sqrt(1. - alpha * alpha))) - tof;
    Int_t nn = TMath::Nint(delta_t / gVamos->GetBeamPeriod());
 
