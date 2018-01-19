@@ -675,7 +675,7 @@ TH1*  KVHistoManipulator::GetDerivative(TH1* hh, Int_t order)
 
 //###############################################################################################################
 //-------------------------------------------------
-TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2* hh, TString momentx, TString momenty, TString axis)
+TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2* hh, TString momentx, TString momenty, TString axis, Double_t stat_min)
 {
 //-------------------------------------------------
    // Renvoie un TGraph
@@ -739,7 +739,7 @@ TGraphErrors*  KVHistoManipulator::GetMomentEvolution(TH2* hh, TString momentx, 
       Double_t stat = 0;
       if (axis == "Y") stat = ((TH1D*)hh->ProjectionY(fmt_histo.Data(), nn, nn))->Integral();
       else           stat = ((TH1D*)hh->ProjectionX(fmt_histo.Data(), nn, nn))->Integral();
-      if (stat > 0) {
+      if (stat > stat_min) {
          npts += 1;
          lbins.Add(nn);
       }

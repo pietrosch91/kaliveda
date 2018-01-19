@@ -75,7 +75,7 @@ public:
    TH1*  CumulatedHisto(TH1* hh, Double_t xmin, Double_t xmax, TString direction = "C", Option_t* norm = "surf");
    TH1*  GetDerivative(TH1* hh, Int_t order);
 
-   TGraphErrors* GetMomentEvolution(TH2* hh, TString momentx, TString momenty, TString axis = "Y");
+   TGraphErrors* GetMomentEvolution(TH2* hh, TString momentx, TString momenty, TString axis = "Y", Double_t stat_min = 0);
    Double_t GetCorrelationFactor(TH2* hh);
    TGraph* LinkGraphs(TGraph* grx, TGraph* gry);
 
