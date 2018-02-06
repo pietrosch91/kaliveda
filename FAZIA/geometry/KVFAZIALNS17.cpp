@@ -35,7 +35,7 @@ void KVFAZIALNS17::GetGeometryParameters()
    //Defined number of blocks, the distance from the target and the minimum polar angle
    fNblocks = 6;
    fFDist = 100.;
-   fFThetaMin = 1.;
+   fFThetaMin = 1.65;
 }
 
 void KVFAZIALNS17::RutherfordTelescope()
