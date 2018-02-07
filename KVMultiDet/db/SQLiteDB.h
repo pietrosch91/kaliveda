@@ -303,7 +303,7 @@ namespace KVSQLite {
       bool fIsValid;
       TString fSelectedColumns;
 
-      void PrintResults(TSQLResult* tabent) const;
+      void PrintResults(TSQLResult* tabent, int column_width = 20) const;
       unique_ptr<TSQLResult> SelectRowsFromTable(
          const TString& table,
          const TString& columns = "*",
@@ -402,6 +402,7 @@ namespace KVSQLite {
       void add_missing_columns(const TString& table, const KVNameValueList& l);
 
       void copy_table_data(const TString& source, const TString& destination, const TString& columns = "*", const TString& selection = "");
+      void print_selection(const TString& table, const TString& columns, const TString& condition, int column_width = 20) const;
 
       ClassDef(database, 0) //Interface to ROOT SQLite database backend
    };

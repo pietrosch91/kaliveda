@@ -10,6 +10,7 @@
 #include <KVString.h>
 #include <iostream>
 #include "KVError.h"
+#include <iomanip>
 
 ClassImp(KVSQLite::database)
 
@@ -92,7 +93,7 @@ namespace KVSQLite {
       read_table_infos();
    }
 
-   void database::PrintResults(TSQLResult* tabent) const
+   void database::PrintResults(TSQLResult* tabent, int column_width) const
    {
       int nfields = tabent->GetFieldCount();
       unique_ptr<TSQLRow> row(nullptr);
@@ -100,15 +101,14 @@ namespace KVSQLite {
          if (r > -1) {
             row.reset(tabent->Next());
             if (row.get() == nullptr) break;
-            std::cout << "\t" << r;
+            std::cout << std::setw(6) << r;
          }
          for (int f = 0; f < nfields; ++f) {
-            std::cout << "\t";
             if (r < 0) {
-               if (f == 0) std::cout << "#" << "\t";
-               std::cout << tabent->GetFieldName(f) << "\t\t\t";
+               if (f == 0) std::cout << std::setw(6) << "#";
+               std::cout << "|" << std::setw(column_width) << tabent->GetFieldName(f) ;
             } else {
-               std::cout << row->GetField(f) << "\t\t";
+               std::cout << "|" << std::setw(column_width) << row->GetField(f) ;
             }
          }
          std::cout << "\n";
@@ -129,6 +129,14 @@ namespace KVSQLite {
          unique_ptr<TSQLResult> tabent = SelectRowsFromTable(o->GetName());
          PrintResults(tabent.get());
       }
+      std::cout << std::endl;
+   }
+   void database::print_selection(const TString& table, const TString& columns, const TString& condition, int column_width) const
+   {
+      // Print on stdout contents of database
+
+      unique_ptr<TSQLResult> tabent = SelectRowsFromTable(table, columns, condition);
+      PrintResults(tabent.get(), column_width);
       std::cout << std::endl;
    }
 
