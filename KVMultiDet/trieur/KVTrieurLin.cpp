@@ -118,17 +118,17 @@ void KVTrieurLin::SetNomsCases(void)
 //
 // On affecte les noms aux cases
 //
-   Char_t nomt[80];
+   TString nomt;
    if (noms_cases) {
       Double_t xpas = (xmax - xmin) / nb_cases;
       for (Int_t i = 0; i < nb_cases; i++) {
          if (i == 0) {
-            sprintf(nomt, "%s < %f", nom_var, xmin + (i + 1) * xpas);
+            nomt.Form("%s < %f", nom_var, xmin + (i + 1) * xpas);
          } else if (i == nb_cases - 1) {
-            sprintf(nomt, "%f #leq %s", xmin + i * xpas, nom_var);
+            nomt.Form("%f #leq %s", xmin + i * xpas, nom_var);
          } else {
-            sprintf(nomt, "%f #leq %s < %f", xmin + i * xpas, nom_var,
-                    xmin + (i + 1) * xpas);
+            nomt.Form("%f #leq %s < %f", xmin + i * xpas, nom_var,
+                      xmin + (i + 1) * xpas);
          }
          TNamed* nom = (TNamed*) noms_cases->At(i);
          nom->SetTitle(nomt);
@@ -142,16 +142,15 @@ KVTrieurLin::KVTrieurLin(void): KVTrieur()
 //
 // Createur par default
 //
-   Char_t* nom = new Char_t[80];
+   TString nom;
 
    initKVTrieurLin();
-   sprintf(nom, "KVTrieurLin_%d", nb_crea);
+   nom.Form("KVTrieurLin_%d", nb_crea);
    SetName(nom);
    SetTitle(nom);
 #ifdef DEBUG_KVTrieurLin
    cout << nb << " crees...(defaut) " << endl;
 #endif
-   delete[]nom;
 }
 
 //_____________________________________________________

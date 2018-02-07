@@ -130,12 +130,10 @@ void KVTrieurBloc::SetNomsCases(void)
 //
 // On affecte les noms des cases
 //
-   Char_t nomt[80];
    if (noms_cases) {
       for (Int_t i = 0; i < nb_cases; i++) {
-         sprintf(nomt, "%f #leq %s #leq %f", xmin(i), nomVar, xmax(i));
          TNamed* nom = (TNamed*) noms_cases->At(i);
-         nom->SetTitle(nomt);
+         nom->SetTitle(Form("%f #leq %s #leq %f", xmin(i), nomVar, xmax(i)));
       }
    }
 }
@@ -146,16 +144,15 @@ KVTrieurBloc::KVTrieurBloc(void): KVTrieur()
 //
 // Createur par default
 //
-   Char_t* nom = new Char_t[80];
+   TString nom;
 
    initKVTrieurBloc();
-   sprintf(nom, "KVTrieurBloc_%d", nb_crea);
+   nom.Form("KVTrieurBloc_%d", nb_crea);
    SetName(nom);
    SetTitle(nom);
 #ifdef DEBUG_KVTrieurBloc
    cout << nb << " crees...(defaut) " << endl;
 #endif
-   delete[]nom;
 }
 
 //_____________________________________________________

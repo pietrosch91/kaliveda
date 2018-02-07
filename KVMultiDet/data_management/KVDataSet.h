@@ -185,6 +185,7 @@ public:
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
 
    virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
+   TString GetFullPathToDataSetFile(const Char_t* filename);
 
    virtual Bool_t DataBaseNeedsUpdate() const;
 

@@ -1556,6 +1556,15 @@ Bool_t KVDataSet::OpenDataSetFile(const Char_t* filename, ifstream& file)
    return SearchAndOpenKVFile(filename, file, GetName());
 }
 
+TString KVDataSet::GetFullPathToDataSetFile(const Char_t* filename)
+{
+   TString fullpath;
+   if (!SearchKVFile(filename, fullpath, GetName())) {
+      Warning("GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, GetName());
+   }
+   return fullpath;
+}
+
 //___________________________________________________________________________
 
 KVDataAnalysisTask* KVDataSet::GetAnalysisTaskAny(const Char_t* keywords) const

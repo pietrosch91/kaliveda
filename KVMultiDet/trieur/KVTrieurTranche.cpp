@@ -128,13 +128,11 @@ void KVTrieurTranche::SetNomsCases(void)
 //
 // On affecte les noms des cases
 //
-   Char_t nomt[80];
    if (noms_cases) {
       for (Int_t i = 0; i < nb_cases; i++) {
-         sprintf(nomt, "%f #leq %s < %f", xtranches(i), nomVar,
-                 xtranches(i + 1));
          TNamed* nom = (TNamed*) noms_cases->At(i);
-         nom->SetTitle(nomt);
+         nom->SetTitle(Form("%f #leq %s < %f", xtranches(i), nomVar,
+                            xtranches(i + 1)));
       }
    }
 }
@@ -145,16 +143,15 @@ KVTrieurTranche::KVTrieurTranche(void): KVTrieur()
 //
 // Createur par default
 //
-   Char_t* nom = new Char_t[80];
+   TString nom;
 
    initKVTrieurTranche();
-   sprintf(nom, "KVTrieurTranche_%d", nb_crea);
+   nom.Form("KVTrieurTranche_%d", nb_crea);
    SetName(nom);
    SetTitle(nom);
 #ifdef DEBUG_KVTrieurTranche
    cout << nb << " crees...(defaut) " << endl;
 #endif
-   delete[]nom;
 }
 
 //_____________________________________________________

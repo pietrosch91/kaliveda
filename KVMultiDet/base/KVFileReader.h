@@ -20,7 +20,7 @@ private:
    }
 
 protected:
-   unique_ptr<TObjArray> toks;
+   unique_ptr<TObjArray> toks;//!
    KVString reading_line, file_name;
    Int_t nline;
    Bool_t status;
