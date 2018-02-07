@@ -88,6 +88,13 @@ KVNamedParameter::KVNamedParameter(const char* nom, Bool_t val)
    SetType(kIsBool);
 }
 
+KVNamedParameter::KVNamedParameter(const char* nom, const KVNamedParameter& p)
+   : TNamed(nom, p.GetTitle()), fNumber(p.fNumber)
+{
+   // Create parameter with given name "nom", and the type & value of "p"
+   SetType(p.GetType());
+}
+
 void KVNamedParameter::Set(const char* name, Int_t val)
 {
    SetNameTitle(name, "Int_t");
@@ -100,6 +107,14 @@ void KVNamedParameter::Set(const char* name, Bool_t val)
    SetNameTitle(name, "Bool_t");
    SetType(kIsBool);
    fNumber = val;
+}
+
+void KVNamedParameter::Set(const char* nom, const KVNamedParameter& p)
+{
+   // Set parameter name "nom" with the type & value of "p"
+   SetNameTitle(nom, p.GetTitle());
+   fNumber = p.fNumber;
+   SetType(p.GetType());
 }
 
 void KVNamedParameter::Set(Int_t val)
@@ -116,16 +131,16 @@ void KVNamedParameter::Set(Bool_t val)
    fNumber = val;
 }
 
-void KVNamedParameter::Set(const KVNamedParameter& p)
-{
-   // Set name, type & value of parameter according to type & value of 'p'
+//void KVNamedParameter::Set(const KVNamedParameter& p)
+//{
+//   // Set name, type & value of parameter according to type & value of 'p'
 
-   if (p.IsString()) Set(p.GetName(), p.GetString());
-   else if (p.IsInt()) Set(p.GetName(), p.GetInt());
-   else if (p.IsDouble()) Set(p.GetName(), p.GetDouble());
-   else if (p.IsBool()) Set(p.GetName(), p.GetBool());
-   else Warning("Set(const KVNamedParameter&)", "Unknown type of parameter argument");
-}
+//   if (p.IsString()) Set(p.GetName(), p.GetString());
+//   else if (p.IsInt()) Set(p.GetName(), p.GetInt());
+//   else if (p.IsDouble()) Set(p.GetName(), p.GetDouble());
+//   else if (p.IsBool()) Set(p.GetName(), p.GetBool());
+//   else Warning("Set(const KVNamedParameter&)", "Unknown type of parameter argument");
+//}
 
 void KVNamedParameter::Set(TEnv* e, const TString& p)
 {
@@ -166,13 +181,13 @@ const Char_t* KVNamedParameter::GetString() const
    return convert.Data();
 }
 
-const TString& KVNamedParameter::GetTString() const
+TString KVNamedParameter::GetTString() const
 {
    // Returns value of parameter as a TString, whatever the type
    // (integer or floating values are converted to a string)
 
    if (IsString()) return fTitle;
-   static TString convert = "";
+   TString convert;
    if (IsDouble())
       convert.Form("%lf", fNumber);
    else if (IsBool())
@@ -235,7 +250,15 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
    // Test for equality between two parameters
    // Returns kTRUE if both the name, the type, and the value of the parameters are identical
 
-   if ((other.fName != fName) || other.GetType() != GetType()) return kFALSE;
+   if ((other.fName != fName)) return kFALSE;
+   return HasSameValueAs(other);
+}
+
+Bool_t KVNamedParameter::HasSameValueAs(const KVNamedParameter& other) const
+{
+   // Returns kTRUF if the two parameters have the same type and the
+   // same value (don't care about parameter names)
+   if (other.GetType() != GetType()) return kFALSE;
    switch (GetType()) {
       case kIsString:
          if (fTitle == other.fTitle) return kTRUE;
@@ -330,4 +353,24 @@ void KVNamedParameter::WriteToEnv(TEnv* e, const TString& p)
    if (IsInt()) e->SetValue(name, GetInt());
    else if (IsDouble()) e->SetValue(name, GetDouble());
    else e->SetValue(name, GetString());
+}
+
+const Char_t* KVNamedParameter::GetSQLType() const
+{
+   // Returns type of parameter for use in SQLite database
+   // "INTEGER", "REAL", or "TEXT"
+
+   static TString sql_type;
+   switch (GetType()) {
+      case kIsString:
+         sql_type = "TEXT";
+         break;
+      case kIsDouble:
+         sql_type = "REAL";
+         break;
+      case kIsInt:
+      case kIsBool:
+         sql_type = "INTEGER";
+   }
+   return sql_type.Data();
 }
