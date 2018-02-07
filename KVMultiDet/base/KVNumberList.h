@@ -48,6 +48,7 @@ public:
    KVNumberList();
    KVNumberList(const KVNumberList&);
    KVNumberList(const Char_t*);
+   KVNumberList(Int_t);
    KVNumberList(Int_t deb, Int_t fin, Int_t pas);
    virtual ~ KVNumberList();
 
@@ -99,12 +100,12 @@ public:
    Int_t GetEntries() const
    {
       return GetNValues();
-   };
+   }
    Bool_t IsEmpty() const
    {
       if (!fIsParsed) ParseList();
       return (fNValues == 0);
-   };
+   }
    Bool_t IsFull(Int_t vinf = -1, Int_t vsup = -1) const;
 
    /* LIST MEMBER ACCESS */
@@ -122,7 +123,7 @@ public:
    Bool_t End(void) const
    {
       return (fIterIndex == fEndList);
-   };
+   }
 
    /* LIST ARITHMETIC OPERATIONS */
    KVNumberList operator+(const KVNumberList&);
@@ -133,6 +134,7 @@ public:
    /* MISCELLANEOUS */
    /* Generate TTree::Draw selection string */
    TString GetLogical(const Char_t* observable) const;
+   TString GetSQL(const Char_t* column) const;
    /* Convert to c-string */
    operator const char* () const
    {
@@ -141,6 +143,9 @@ public:
    /* Print list properties */
    void Print(Option_t* = "") const;
    void PrintLimits() const;
+   /* tests for equality */
+   bool operator==(const KVNumberList&) const;
+   bool operator!=(const KVNumberList&) const;
 
    ClassDef(KVNumberList, 3)    //Strings used to represent a set of ranges of values
 };
