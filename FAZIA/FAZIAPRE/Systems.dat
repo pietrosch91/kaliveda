@@ -1,0 +1,20 @@
+#################################################
+# Systems for FAZIAPRE
+#
+# for info: Target List used in experiment
+#   Number     Target      Thickness [ug/cm2]
+#
+#  tu be filled...
+#
+#
+#
+#
+# Exact beam energies (from machine):
+#   40Ca@25 MeV/A : ????
+#   48Ca@25 MeV/A : ????
+#   40Ca@50 MeV/A : ????
+#   48Ca@50 MeV/A : ????
+#
+##################################################
++Cosmic Rays
+1-9
