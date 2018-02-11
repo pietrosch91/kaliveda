@@ -10,7 +10,8 @@
 // kaliveda[0] .L db_sqlite_examples.C+
 // kaliveda[1] sqlite_example()
 //
-
+#include "KVConfig.h"
+#ifdef WITH_RSQLITE
 #include "SQLiteDB.h"
 #include <KVNumberList.h>
 
@@ -160,3 +161,4 @@ void sqlite_example()
              << std::endl;  // prints 0 (all NULL values were replaced)
 
 }
+#endif
