@@ -107,7 +107,7 @@ namespace KVSQLite {
          TSQLColumnInfo* colin;
          while ((colin = (TSQLColumnInfo*)it_col())) t.add_column(colin->GetName(), colin->GetTypeName());
 
-         fTables.insert(std::pair<TString, KVSQLite::table>(o->GetName(), t));
+         fTables.insert(std::pair<std::string, KVSQLite::table>(o->GetName(), t));
       }
 
    }
@@ -119,7 +119,7 @@ namespace KVSQLite {
 #ifdef WITH_CPP11
       for (auto it = fTables.begin();
 #else
-      for (std::map<TString, KVSQLite::table>::const_iterator it = fTables.begin();
+      for (std::map<std::string, KVSQLite::table>::const_iterator it = fTables.begin();
 #endif
             it != fTables.end(); ++it) {
          std::cout << "\t" << it->first << std::endl;
@@ -213,7 +213,7 @@ namespace KVSQLite {
       command += ")";
       //std::cout << command << std::endl;
       if (fDBserv->Exec(command))
-         fTables.insert(std::pair<TString, KVSQLite::table>(t.name(), t));
+         fTables.insert(std::pair<std::string, KVSQLite::table>(t.name(), t));
    }
 
    bool database::prepare_data_insertion(const TString& table)
