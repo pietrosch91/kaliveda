@@ -5,8 +5,6 @@
 #include "KVDMS.h"
 #include "KVDataRepository.h"
 #include "KVDataSet.h"
-#include "KVDataBase.h"
-#include "KVDBTable.h"
 #include "KVDBRun.h"
 #include "KVUniqueNameList.h"
 #include "TClass.h"
@@ -88,7 +86,6 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
-   KVDBTable* run_table = GetDataSet()->GetDataBase()->GetTable("Runs");
    KVNumberList lnewruns;  //list containing run with a valid file but not store  in database
    while ((objs = (DMSFile_t*) next())) {      // loop over all entries in directory
 
@@ -98,7 +95,7 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
          KVDatime filedate;
-         KVDBRun* run = (KVDBRun*) run_table->GetRecord(run_num);
+         KVDBRun* run = GetDataSet()->GetDataBase()->GetDBRun(run_num);
          if (run) {
             //runfile exists in repository
             //check in case it is possible to extract a date from the name of the file
