@@ -50,7 +50,7 @@ void KVSimDirFilterAnalyser::preInitRun()
    // and build experimental set-up
 
    KVString system = fAnalysisClass->GetOpt("System");
-   KVDBSystem* sys = ((KVExpDB*)gDataBase)->GetSystem(system);
+   KVDBSystem* sys = gExpDB->GetSystem(system);
    if (sys) {
       fKinematics = sys->GetKinematics();
    } else {

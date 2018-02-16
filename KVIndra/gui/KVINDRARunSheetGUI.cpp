@@ -542,7 +542,7 @@ void KVINDRARunSheetGUI::UpdateList()
    Int_t read = fReader.ReadAllRunSheets() ;
    cout << "Read " << read << " runsheets" << endl;
    cout << "fReader.IsMakeTree()=" << fReader.IsMakeTree() << endl;
-   gDataBase->Save("Runlist");
+   gExpDB->Save("Runlist");
    ClearListOfRuns();
    gDataSet->UpdateAvailableRuns("raw");
    FillListOfRuns();
@@ -718,7 +718,7 @@ void KVINDRARunSheetGUI::UnsetSystem()
          }
       }
    }
-   gDataBase->Save("Systems");
+   gExpDB->Save("Systems");
    UpdateListOfRuns();
 }
 

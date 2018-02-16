@@ -22,8 +22,6 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
 #include "TPluginManager.h"
 #include "KVNumberList.h"
 
-KVDataBase* gDataBase = nullptr;
-
 using namespace std;
 
 ClassImp(KVDataBase)
@@ -160,8 +158,6 @@ KVDataBase::KVDataBase(const Char_t* name)
 KVDataBase::~KVDataBase()
 {
    //reset global database pointer if it was pointing to this DB
-   if (gDataBase == this)
-      gDataBase = 0;
    gROOT->GetRootFolder()->Remove(this);
    gROOT->GetListOfCleanups()->Remove(this);
    Info("~KVDataBase", "%s", GetName());
