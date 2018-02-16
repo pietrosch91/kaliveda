@@ -142,7 +142,7 @@ KVDataBase::KVDataBase(const Char_t* name, const Char_t* title)
 {
    gROOT->GetRootFolder()->Add(this);
    SetOwner(kTRUE);
-   fDataSet = name;
+   fFolderName = name;
 }
 
 //_______________________________________________________________________
@@ -151,7 +151,7 @@ KVDataBase::KVDataBase(const Char_t* name)
 {
    gROOT->GetRootFolder()->Add(this);
    SetOwner(kTRUE);
-   fDataSet = name;
+   fFolderName = name;
 }
 
 //_______________________________________________________________________
@@ -177,7 +177,7 @@ Bool_t KVDataBase::AddTable(KVDBTable* tab)
       return kFALSE;
 
    Add(tab);
-   tab->SetFullPath(Form("//root/%s/%s", fDataSet.Data(), tab->GetName()));
+   tab->SetFullPath(Form("//root/%s/%s", fFolderName.Data(), tab->GetName()));
    return kTRUE;
 }
 
@@ -195,19 +195,8 @@ KVDBTable* KVDataBase::AddTable(const Char_t* name, const Char_t* title,
 
    KVDBTable* table = new KVDBTable(name, title, unique);
    Add(table);
-   table->SetFullPath(Form("//root/%s/%s", fDataSet.Data(), name));
+   table->SetFullPath(Form("//root/%s/%s", fFolderName.Data(), name));
    return table;
-}
-
-//__________________________________________________________________________
-void KVDataBase::Build()
-{
-//  Methode that builds the DataBase from the parameter files
-//  It does nothing here. Must be derived for each Database.
-//
-//
-   AbstractMethod("Build");
-
 }
 
 //__________________________________________________________________________
@@ -245,59 +234,4 @@ void KVDataBase::Print(Option_t*) const
         endl;
 }
 
-
-//_________________________________________________________________________________
-
-KVDataBase* KVDataBase::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
-{
-   //Static function which will create and 'Build' the database object corresponding to 'name'
-   //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
-   //
-   //      Plugin.KVDataBase:    INDRA_camp1    KVDataBase1     KVIndra    "KVDataBase1()"
-   //      +Plugin.KVDataBase:    INDRA_camp2    KVDataBase2     KVIndra    "KVDataBase2()"
-   //      +Plugin.KVDataBase:    INDRA_camp4    KVDataBase4     KVIndra    "KVDataBase4()"
-   //      +Plugin.KVDataBase:    INDRA_camp5    KVDataBase5     KVIndra5    "KVDataBase5()"
-   //
-   //The 'name' ("INDRA_camp1" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
-   //This name is stored in member variable fDataSet.
-   //The constructors/macros used have arguments (const Char_t* name)
-
-   //does plugin exist for given name ?
-   TPluginHandler* ph;
-   if (!(ph = KVBase::LoadPlugin("KVDataBase", name))) {
-      return 0;
-   }
-   //execute constructor/macro for database
-   KVDataBase* mda = (KVDataBase*) ph->ExecPlugin(1, name);
-   mda->SetDataSetDir(datasetdir);
-   //call Build() method
-   mda->Build();
-   return mda;
-}
-
-//______________________________________________________________________________
-
-void KVDataBase::WriteObjects(TFile*)
-{
-   // Abstract method. Can be overridden in child classes.
-   // When the database is written to disk (by the currently active dataset, see
-   // KVDataSet::WriteDBFile) any associated objects (histograms, trees, etc.)
-   // can be written using this method.
-   // The pointer to the file being written is passed as argument.
-
-   AbstractMethod("WriteObjects");
-}
-
-//______________________________________________________________________________
-
-void KVDataBase::ReadObjects(TFile*)
-{
-   // Abstract method. Can be overridden in child classes.
-   // When the database is read from disk (by the currently active dataset, see
-   // KVDataSet::OpenDBFile) any associated objects (histograms, trees, etc.)
-   // stored in the file can be read using this method.
-   // The pointer to the file being read is passed as argument.
-
-   AbstractMethod("ReadObjects");
-}
 
