@@ -17,8 +17,8 @@ $Author: franklan $
 #include "TEnv.h"
 #include "TSystem.h"
 #include "KVDataAnalysisTask.h"
+#include "KVExpDB.h"
 
-class KVDataBase;
 class KVDataSetManager;
 class KVDataRepository;
 class KVDBSystem;
@@ -37,10 +37,10 @@ protected:
    KVList fTasks;                //possible data analysis tasks for this dataset
    TString fCalibDir;           //directory containing database, calibration, identification parameters etc. for dataset
    Bool_t fDBBuild;             //has the database been built by us ?
-   mutable TFile* fDBase;               //file containing database
+   mutable unique_ptr<TFile> fDBase;               //file containing database
    TString fDBName;             //name of database
    TString fDBFileName;         //name of file in which database is stored on disk
-   mutable KVDataBase* fDataBase;       //pointer to dataset's database
+   mutable KVExpDB* fDataBase;       //pointer to dataset's database
    mutable KVList fAvailableRuns;       //!list of KVAvailableRunsFile objects used to read infos on available runs
    enum {
       kAvailable = BIT(14)     //flag set if this dataset is physically present on local machine
@@ -55,12 +55,12 @@ protected:
    void SetDBFileName(const Char_t* name)
    {
       fDBFileName = name;
-   };
+   }
    const Char_t* GetDBFileName() const;
    void SetDBName(const Char_t* name)
    {
       fDBName = name;
-   };
+   }
    const Char_t* GetDBName() const;
    const Char_t* GetFullPathToDB() const;
    void SetDataSetSpecificTaskParameters(KVDataAnalysisTask*) const;
@@ -70,44 +70,44 @@ public:
    KVAvailableRunsFile* GetAvailableRunsFile(const Char_t* type) const;
 
    KVDataSet();
-   virtual ~ KVDataSet();
+   virtual ~ KVDataSet() {}
 
    virtual Bool_t CheckUserCanAccess();
 
    virtual void SetDataPathSubdir(const Char_t* s)
    {
       SetLabel(s);
-   };
+   }
    // Returns name of top-level directory in data repository used to store data files for this dataset
    virtual const Char_t* GetDataPathSubdir() const
    {
       return GetLabel();
-   };
+   }
    const Char_t* GetDataTypeSubdir(const Char_t* type) const
    {
       // returns name to be used for subdirectory corresponding to given data type
       KVString snom;
       snom.Form("KVDataSet.DataType.Subdir.%s", type);
       return GetDataSetEnv(snom.Data(), type);
-   };
+   }
    virtual const Char_t* GetAvailableDataTypes() const
    {
       return fDatatypes.Data();
-   };
+   }
    virtual void AddAvailableDataType(const Char_t*);
    virtual void SetUserGroups(const Char_t* groups)
    {
       fUserGroups = groups;
-   };
+   }
    // Returns kTRUE if this dataset is available for analysis, i.e. if any associated data files are stored in the data repository
    virtual Bool_t IsAvailable() const
    {
       return TestBit(kAvailable);
-   };
+   }
    virtual void SetAvailable(Bool_t yes = kTRUE)
    {
       SetBit(kAvailable, yes);
-   };
+   }
    virtual void CheckAvailable();
 
    virtual Bool_t HasDataType(const Char_t* data_type) const
@@ -116,7 +116,7 @@ public:
       KVString _dt = data_type;
       _dt.Remove(TString::kBoth, ' ');
       return fDatatypes.Contains(_dt);
-   };
+   }
 
    virtual void ls(Option_t* opt = "") const;
    virtual void Print(Option_t* opt = "") const;
@@ -138,7 +138,7 @@ public:
    void SetName(const char* name);
 
 
-   KVDataBase* GetDataBase(Option_t* opt = "") const;
+   KVExpDB* GetDataBase(Option_t* opt = "") const;
    virtual void SaveDataBase() const;
 
    const Char_t* GetDataSetEnv(const Char_t* type, const Char_t* defval = "") const;

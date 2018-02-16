@@ -10,7 +10,6 @@ $Author: franklan $
 #include "KVDataRepository.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataSetManager.h"
-#include "KVDataBase.h"
 #include "TSystem.h"
 #include "TObjArray.h"
 #include "TObjString.h"
@@ -210,18 +209,8 @@ KVDataSet* gDataSet;
 KVDataSet::KVDataSet()
 {
    //Default constructor
-   fDBase = 0;
-   fRepository = 0;
-   fDataBase = 0;
-}
-
-KVDataSet::~KVDataSet()
-{
-   if (fDBase) {
-      delete fDBase;
-      fDBase = 0;
-   }
-   fTasks.Delete();
+   fRepository = nullptr;
+   fDataBase = nullptr;
 }
 
 KVAvailableRunsFile* KVDataSet::GetAvailableRunsFile(const Char_t* type) const
@@ -266,21 +255,16 @@ void KVDataSet::OpenDBFile(const Char_t* full_path_to_dbfile) const
 {
    //Open the database from a file on disk.
 
-   if (fDBase) {
-      delete fDBase;
-      fDBase = 0;
-   }
-
    TDirectory* work_dir = gDirectory;   //keep pointer to current directory
-   fDBase = new TFile(full_path_to_dbfile, "READ");
+   fDBase.reset(new TFile(full_path_to_dbfile, "READ"));
 
    if (fDBase->IsOpen()) {
-      fDataBase = (KVDataBase*) fDBase->Get(GetDBName());
+      fDataBase = dynamic_cast<KVExpDB*>(fDBase->Get(GetDBName()));
       if (!fDataBase) {
          Error("OpenDBFile", "%s not found in file %s", GetDBName(),
                GetDBFileName());
       } else {
-         fDataBase->ReadObjects(fDBase);   // read any associated objects
+         fDataBase->ReadObjects(fDBase.get());   // read any associated objects
       }
       work_dir->cd();           //back to initial working directory
    }
@@ -381,25 +365,21 @@ void KVDataSet::WriteDBFile(const Char_t* full_path_to_dbfile) const
    //Set permissions to rw for user & group
 
    TDirectory* work_dir = gDirectory;   //keep pointer to current directory
-   if (fDBase) {
-      delete fDBase;
-      fDBase = 0;
-   }
    if (!fDataBase) {
       Error("WriteDBFile", "Database has not been built");
       return;
    }
-   fDBase = new TFile(full_path_to_dbfile, "recreate");
+   fDBase.reset(new TFile(full_path_to_dbfile, "recreate"));
    fDBase->cd();                //set as current directory (maybe not necessary)
    fDataBase->Write(GetDBName());    //write database to file with given name
-   fDataBase->WriteObjects(fDBase);   //write any associated objects
+   fDataBase->WriteObjects(fDBase.get());   //write any associated objects
    fDBase->Write();        // write file header etc.
    fDBase->Close();         // close file
    gSystem->Chmod(full_path_to_dbfile, 0664); // set permissions to rw-rw-r--
    work_dir->cd();              //back to initial working directory
 }
 
-KVDataBase* KVDataSet::GetDataBase(Option_t* opt) const
+KVExpDB* KVDataSet::GetDataBase(Option_t* opt) const
 {
    //Returns pointer to database associated with this dataset.
    //Opens, updates or creates database file if necessary
@@ -449,18 +429,14 @@ void KVDataSet::OpenDataBase(Option_t* opt) const
       //check if it is the currently active database (gDataBase),
       //in which case we must 'cd()' to it after rebuilding
       Info("OpenDataBase", "Updating database file");
-      is_glob_db = (fDataBase == gDataBase);
+      is_glob_db = (fDataBase == gExpDB);
       if (fDataBase) {
          delete fDataBase;
          fDataBase = 0;
       }
-      if (fDBase) {
-         delete fDBase;
-         fDBase = 0;
-      }
       // make sure gDataSet is set & points to us
       gDataSet = const_cast<KVDataSet*>(this);
-      fDataBase = KVDataBase::MakeDataBase(GetDBName(), GetDataSetDir());
+      fDataBase = (KVExpDB*)KVDataBase::MakeDataBase(GetDBName(), GetDataSetDir());
       if (!fDataBase) {
          // no database defined for dataset
          Info("OpenDataBase", "No database defined for dataset");
@@ -706,7 +682,7 @@ void KVDataSet::cd() const
 
    gDataSet = const_cast<KVDataSet*>(this);
    if (fRepository) fRepository->cd();
-   KVDataBase* db = GetDataBase();
+   KVExpDB* db = GetDataBase();
    if (db) db->cd();
 }
 

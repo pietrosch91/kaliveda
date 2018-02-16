@@ -22,7 +22,7 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
 #include "TPluginManager.h"
 #include "KVNumberList.h"
 
-KVDataBase* gDataBase;
+KVDataBase* gDataBase = nullptr;
 
 using namespace std;
 
