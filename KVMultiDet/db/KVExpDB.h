@@ -89,7 +89,12 @@ public:
    virtual void ReadObjects(TFile*) {}
    virtual void PrintRuns(KVNumberList&) const;
 
+   void cd();
+
    ClassDef(KVExpDB, 1) //base class to describe database of an experiment
 };
+
+//........ global variable
+R__EXTERN KVExpDB* gExpDB;
 
 #endif

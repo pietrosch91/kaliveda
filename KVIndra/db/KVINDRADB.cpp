@@ -102,7 +102,7 @@ KVINDRADB::KVINDRADB(): KVExpDB("KVINDRADB",
 void KVINDRADB::cd()
 {
 
-   KVDataBase::cd();
+   KVExpDB::cd();
    gIndraDB = this;
 }
 

@@ -9,6 +9,8 @@
 #include <iostream>
 using namespace std;
 
+KVExpDB* gExpDB = nullptr;
+
 ClassImp(KVExpDB)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +62,7 @@ KVExpDB::KVExpDB(const Char_t* name, const Char_t* title)
 KVExpDB::~KVExpDB()
 {
    // Destructor
+   if (gExpDB == this) gExpDB = nullptr;
 }
 
 //____________________________________________________________________________//
@@ -371,4 +374,10 @@ void KVExpDB::PrintRuns(KVNumberList& nl) const
              run->GetNumber(), (run->GetSystem() ? run->GetSystem()->GetName() : "            "), run->GetTriggerString(),
              run->GetEvents(), run->GetComments());
    }
+}
+
+void KVExpDB::cd()
+{
+   gExpDB = this;
+   KVDataBase::cd();
 }

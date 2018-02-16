@@ -5,6 +5,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ global gDataBase;
+#pragma link C++ global gExpDB;
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedefs;
 #pragma link C++ class KV2Body+;

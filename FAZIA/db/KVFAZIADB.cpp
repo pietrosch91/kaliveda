@@ -64,7 +64,7 @@ KVFAZIADB::~KVFAZIADB()
 //___________________________________________________________________________
 void KVFAZIADB::cd()
 {
-   KVDataBase::cd();
+   KVExpDB::cd();
    gFaziaDB = this;
 
 }
