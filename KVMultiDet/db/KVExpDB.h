@@ -94,7 +94,7 @@ public:
    virtual void ReadObjects(TFile*) {}
    virtual void PrintRuns(KVNumberList&) const;
 
-   void cd();
+   virtual void cd();
 
    ClassDef(KVExpDB, 1) //base class to describe database of an experiment
 };

@@ -379,5 +379,4 @@ void KVExpDB::PrintRuns(KVNumberList& nl) const
 void KVExpDB::cd()
 {
    gExpDB = this;
-   KVDataBase::cd();
 }

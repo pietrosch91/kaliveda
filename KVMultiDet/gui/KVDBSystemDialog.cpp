@@ -259,7 +259,7 @@ void KVDBSystemDialog::SaveSystems()
 {
    //Write new Systems.dat file.
    //The list of file versions for the 'Undo' is updated
-   gDataBase->Save("Systems");
+   gExpDB->Save("Systems");
    SetNeedSave(0);
    fUndo->Update();
    fCurrentSystemsFile = gDataSet->GetDataSetEnv("INDRADB.Systems");
