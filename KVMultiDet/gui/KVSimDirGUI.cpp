@@ -583,7 +583,7 @@ void KVSimDirGUI::SelectDataSet(const char* name)
 
 void KVSimDirGUI::SelectSystem(const char* sysname)
 {
-   KVDBSystem* sys = (KVDBSystem*)gDataBase->GetRecord("Systems", sysname);
+   KVDBSystem* sys = gExpDB->GetSystem(sysname);
    if (sys) {
       fSystem = sysname;
       fRun = "";
