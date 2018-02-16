@@ -5,7 +5,6 @@
 #include "KVDataSetManager.h"
 #include "KVBatchSystemManager.h"
 #include "KVDataSet.h"
-#include "KVDataBase.h"
 #include "KVDBSystem.h"
 #include "KVDBRun.h"
 #include "KVSimFile.h"

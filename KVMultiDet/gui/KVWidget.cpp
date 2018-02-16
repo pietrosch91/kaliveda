@@ -22,8 +22,6 @@ $Id: KVWidget.cpp,v 1.7 2006/10/19 14:32:43 franklan Exp $
 #include "KVDetector.h"
 #include "KVMaterial.h"
 #include "KVList.h"
-#include "KVDBTable.h"
-#include "KVDataBase.h"
 
 using namespace std;
 
