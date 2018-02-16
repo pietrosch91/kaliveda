@@ -436,7 +436,7 @@ void KVDataSet::OpenDataBase(Option_t* opt) const
       }
       // make sure gDataSet is set & points to us
       gDataSet = const_cast<KVDataSet*>(this);
-      fDataBase = (KVExpDB*)KVDataBase::MakeDataBase(GetDBName(), GetDataSetDir());
+      fDataBase = KVExpDB::MakeDataBase(GetDBName(), GetDataSetDir());
       if (!fDataBase) {
          // no database defined for dataset
          Info("OpenDataBase", "No database defined for dataset");

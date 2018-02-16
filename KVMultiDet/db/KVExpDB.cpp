@@ -42,7 +42,7 @@ KVExpDB::KVExpDB()
 //____________________________________________________________________________//
 
 KVExpDB::KVExpDB(const Char_t* name)
-   : KVDataBase(name)
+   : KVDataBase(name), fDataSet(name)
 {
    // Constructor inherited from KVDataBase
    init();
@@ -51,7 +51,7 @@ KVExpDB::KVExpDB(const Char_t* name)
 //____________________________________________________________________________//
 
 KVExpDB::KVExpDB(const Char_t* name, const Char_t* title)
-   : KVDataBase(name, title)
+   : KVDataBase(name, title), fDataSet(name)
 {
    // Constructor inherited from KVDataBase
    init();
@@ -64,8 +64,6 @@ KVExpDB::~KVExpDB()
    // Destructor
    if (gExpDB == this) gExpDB = nullptr;
 }
-
-//____________________________________________________________________________//
 
 //_____________________________________________________________________
 void KVExpDB::LinkRecordToRunRange(KVDBRecord* rec, UInt_t first_run,
@@ -380,3 +378,33 @@ void KVExpDB::cd()
 {
    gExpDB = this;
 }
+
+//_________________________________________________________________________________
+
+KVExpDB* KVExpDB::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
+{
+   //Static function which will create and 'Build' the database object corresponding to 'name'
+   //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
+   //
+   //      Plugin.KVExpDB:    INDRA_camp1    KVDataBase1     KVIndra    "KVDataBase1()"
+   //      +Plugin.KVExpDB:    INDRA_camp2    KVDataBase2     KVIndra    "KVDataBase2()"
+   //      +Plugin.KVExpDB:    INDRA_camp4    KVDataBase4     KVIndra    "KVDataBase4()"
+   //      +Plugin.KVExpDB:    INDRA_camp5    KVDataBase5     KVIndra5    "KVDataBase5()"
+   //
+   //The 'name' ("INDRA_camp1" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
+   //This name is stored in member variable fDataSet.
+   //The constructors/macros used have arguments (const Char_t* name)
+
+   //does plugin exist for given name ?
+   TPluginHandler* ph;
+   if (!(ph = KVBase::LoadPlugin("KVExpDB", name))) {
+      return 0;
+   }
+   //execute constructor/macro for database
+   KVExpDB* mda = (KVExpDB*) ph->ExecPlugin(1, name);
+   mda->SetDataSetDir(datasetdir);
+   //call Build() method
+   mda->Build();
+   return mda;
+}
+

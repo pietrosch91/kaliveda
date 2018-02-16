@@ -475,17 +475,17 @@ INDRA.ReconstructedNuclei.AcceptECodes: 1-2
 # directory, using the class indicated here.
 # There must be an entry here for each dataset
 # Syntax:
-# Plugin.KVDataBase:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndradb    "KVINDRADB1(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_camp2    KVINDRADB2     KVIndradb    "KVINDRADB2(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_camp4    KVINDRADB4     KVIndradb   "KVINDRADB4(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e416a    KVINDRADB_e416a     KVIndradb    "KVINDRADB_e416a(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndradb    "KVINDRADB_e475s(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e613    KVINDRADB_e613     KVIndradb    "KVINDRADB_e613(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_camp5    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e494s_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e503_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
+# Plugin.KVExpDB:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVExpDB:    INDRA_camp1    KVINDRADB1     KVIndradb    "KVINDRADB1(const Char_t*)"
++Plugin.KVExpDB:    INDRA_camp2    KVINDRADB2     KVIndradb    "KVINDRADB2(const Char_t*)"
++Plugin.KVExpDB:    INDRA_camp4    KVINDRADB4     KVIndradb   "KVINDRADB4(const Char_t*)"
++Plugin.KVExpDB:    INDRA_e416a    KVINDRADB_e416a     KVIndradb    "KVINDRADB_e416a(const Char_t*)"
++Plugin.KVExpDB:    INDRA_e475s    KVINDRADB_e475s     KVIndradb    "KVINDRADB_e475s(const Char_t*)"
++Plugin.KVExpDB:    INDRA_e613    KVINDRADB_e613     KVIndradb    "KVINDRADB_e613(const Char_t*)"
++Plugin.KVExpDB:    INDRA_camp5    KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVExpDB:    t10_02   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
++Plugin.KVExpDB:    INDRA_e494s_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
++Plugin.KVExpDB:    INDRA_e503_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.

@@ -119,8 +119,8 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:             e494s_Volt2MeV.dat
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
-+Plugin.KVDataBase:  INDRA_e494s  KVIVDB  VAMOSdb  "KVIVDB(const  Char_t*)"
-+Plugin.KVDataBase:  INDRA_e503   KVIVDB_e503  VAMOSdb  "KVIVDB_e503(const  Char_t*)"
++Plugin.KVExpDB:  INDRA_e494s  KVIVDB  VAMOSdb  "KVIVDB(const  Char_t*)"
++Plugin.KVExpDB:  INDRA_e503   KVIVDB_e503  VAMOSdb  "KVIVDB_e503(const  Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.

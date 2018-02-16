@@ -28,11 +28,7 @@ class KVNumberList;
 
 class KVDataBase: public TFolder {
 
-
-protected:
-
-   TString fDataSet;//the name of the dataset to which this database is associated
-   TString fDataSetDir;//the directory containing the dataset files
+   TString fFolderName;
 
 public:
    KVDataBase();
@@ -47,30 +43,9 @@ public:
                                Bool_t unique = kFALSE);
    virtual KVDBRecord* GetRecord(const Char_t* table_name,
                                  const Char_t* rec_name) const;
-   virtual void Build();
    virtual void Print(Option_t* option = "") const;
 
-   static KVDataBase* MakeDataBase(const Char_t* name, const Char_t* datasetdir);
-
-   virtual void Save(const Char_t*)
-   {
-      ;
-   }
-
-   virtual void WriteObjects(TFile*);
-   virtual void ReadObjects(TFile*);
-
-   const Char_t* GetDataSetDir() const
-   {
-      return fDataSetDir;
-   }
-   void SetDataSetDir(const Char_t* d)
-   {
-      fDataSetDir = d;
-   }
-
-
-   ClassDef(KVDataBase, 2)     // Base Class for a database of parameters
+   ClassDef(KVDataBase, 3)     // Base Class for a database of parameters
 };
 
 KVDBTable* KVDataBase::GetTable(const Char_t* table) const

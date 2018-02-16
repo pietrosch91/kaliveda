@@ -155,15 +155,15 @@ FAZIADEM.ActiveIdentifications:      Si-Si Si-CsI Si CsI
 
 #DataBase
 
-+Plugin.KVDataBase:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    FAZIANFS    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    LNS_2016    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    FAZIACOR    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    FAZIAPRE    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    TETLNS17    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
-+Plugin.KVDataBase:    FAZIADEM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    LNS_2014    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    FAZIASYM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    ISOFAZIA    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    FAZIANFS    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    LNS_2016    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    FAZIACOR    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    FAZIAPRE    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    TETLNS17    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:    FAZIADEM    KVFAZIADB     FAZIAdb    "KVFAZIADB(const Char_t*)"
 
 # Default name for file containing runlist for each dataset.
 FAZIADB.Runlist:     runlist.dat
