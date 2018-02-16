@@ -74,6 +74,11 @@ public:
    {
       fSystems->AddRecord(r);
    }
+   void RemoveSystem(KVDBSystem* s)
+   {
+      fSystems->RemoveRecord(s);
+   }
+
    void WriteSystemsFile() const;
    void WriteRunListFile() const;
 

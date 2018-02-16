@@ -722,7 +722,7 @@ void KVSimDirGUI::SelectDataSet(const char* name)
          GeoType(kGTKaliVeda);
       }
       KVSeqCollection* systems = 0;
-      if (gDataBase && gDataBase->GetTable("Systems")) systems = gDataBase->GetTable("Systems")->GetRecords();
+      if (gExpDB) systems = gExpDB->GetSystems();
       fCBsystem->RemoveAll();
       fCBsystem->AddEntry("Choose system...", 0);
       if (systems) {
