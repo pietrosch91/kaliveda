@@ -3,7 +3,6 @@
 
 #include "KVEventFiltering.h"
 #include "KVMultiDetArray.h"
-#include "KVDataBase.h"
 #include "KV2Body.h"
 #include "KVDBSystem.h"
 #include "KVDBRun.h"

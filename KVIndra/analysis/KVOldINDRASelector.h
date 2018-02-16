@@ -19,8 +19,6 @@
 #include "TStopwatch.h"
 #include "TEventList.h"
 #include "KVDataSelector.h"
-#include "KVDataSet.h"
-#include "KVDataBase.h"
 #include "KVParticleCondition.h"
 #include "KVString.h"
 #include "KVLockfile.h"
