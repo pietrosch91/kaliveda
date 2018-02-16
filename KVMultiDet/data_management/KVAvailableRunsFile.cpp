@@ -8,7 +8,6 @@ $Date: 2009/03/12 14:01:02 $
 //Author: franklan
 
 #include "KVAvailableRunsFile.h"
-#include "KVDataBase.h"
 #include "KVDBRun.h"
 #include "TObjArray.h"
 #include "TObjString.h"
@@ -303,20 +302,19 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
-   KVDBTable* run_table = 0;
-   KVDataBase* db = fDataSet->GetDataBase();
+   unique_ptr<KVExpDB> db_garbage;
+   KVExpDB* db = fDataSet->GetDataBase();
    if (!db) {
-      db = new KVDataBase();
-      db->AddTable("Runs", "List of Runs");
+      db = new KVExpDB();
+      db_garbage.reset(db);//clean up
    }
-   run_table = db->GetTable("Runs");
    while ((objs = (KVBase*) next())) {      // loop over all entries in directory
 
       Int_t run_num;
       //is this the correct name of a run in the repository ?
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
-         KVDBRun* run = (KVDBRun*) run_table->GetRecord(run_num);
+         KVDBRun* run = db->GetDBRun(run_num);
          if (run) {
             FileStat_t fs;
             //get file modification date
@@ -602,11 +600,11 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
    Int_t fRunNumber;
    TDatime fDatime;
    TString kvversion, username, filename;
-   KVDBTable* runs_table = 0;
-   if (!fDataSet->GetDataBase()) {
-      runs_table = new KVDBTable("Runs");
-   } else {
-      runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+   KVExpDB* db = fDataSet->GetDataBase();
+   unique_ptr<KVExpDB> garbage_db;
+   if (!db) {
+      db = new KVExpDB;
+      garbage_db.reset(db);//clean up
    }
 
    while (fRunlist.good()) {
@@ -634,7 +632,7 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
                username = ((TObjString*) toks->At(4))->GetString();
             }
 
-            KVDBRun* a_run = (KVDBRun*) runs_table->GetRecord(fRunNumber);
+            KVDBRun* a_run = db->GetDBRun(fRunNumber);
 
             KVDBSystem* sys = 0;
             if (a_run) {
@@ -1021,15 +1019,12 @@ KVNumberList KVAvailableRunsFile::GetRunList(const KVDBSystem* sys)
    fLine.ReadLine(fRunlist);
 
    Int_t fRunNumber;
-   KVDBTable* runs_table = 0;
-   KVDataBase* db = fDataSet->GetDataBase();
+   KVExpDB* db = fDataSet->GetDataBase();
+   unique_ptr<KVExpDB> garbage_db;
    if (!db) {
-      db = new KVDataBase();
-      db->AddTable("Runs", "List of Runs");
+      db = new KVExpDB;
+      garbage_db.reset(db);
    }
-   runs_table = db->GetTable("Runs");
-
-   //KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
 
    while (fRunlist.good()) {
 
@@ -1040,7 +1035,7 @@ KVNumberList KVAvailableRunsFile::GetRunList(const KVDBSystem* sys)
 
       if (sys) {
          // check run is from right system
-         KVDBRun* a_run = (KVDBRun*) runs_table->GetRecord(fRunNumber);
+         KVDBRun* a_run = db->GetDBRun(fRunNumber);
          if (a_run) {
             if (a_run->GetSystem() == sys)
                runs.Add(fRunNumber);
