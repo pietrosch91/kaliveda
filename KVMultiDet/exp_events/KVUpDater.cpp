@@ -14,7 +14,7 @@ $Author: franklan $
 #include "KVIDGridManager.h"
 #include "KVDetector.h"
 #include "KVCalibrator.h"
-#include "KVDataBase.h"
+#include "KVExpDB.h"
 
 using namespace std;
 
@@ -68,10 +68,10 @@ void KVUpDater::SetParameters(UInt_t run)
    //      set calibration parameters for the run
    //      set identification parameters for the run
 
-   if (!gDataBase) return;
+   if (!gExpDB) return;
    cout << "Setting parameters of multidetector array for run " << run << ":" <<
         endl;
-   KVDBRun* kvrun = dynamic_cast<KVDBRun*>(gDataBase->GetTable("Runs")->GetRecord(run));
+   KVDBRun* kvrun = gExpDB->GetDBRun(run);
    if (!kvrun) {
       Error("SetParameters(UInt_t)", "Run %u not found in database!", run);
       return;
@@ -147,7 +147,7 @@ void KVUpDater::SetCalibrationParameters(UInt_t run)
 
    cout << "Setting calibration parameters of multidetector array for run " << run << ":" <<
         endl;
-   KVDBRun* kvrun = dynamic_cast<KVDBRun*>(gDataBase->GetTable("Runs")->GetRecord(run));
+   KVDBRun* kvrun = gExpDB->GetDBRun(run);
    if (!kvrun) {
       Error("SetParameters(UInt_t)", "Run %u not found in database!", run);
       return;

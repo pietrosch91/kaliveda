@@ -949,44 +949,6 @@ KVNumberList KVAvailableRunsFile::CheckMultiRunfiles()
 {
    //Returns a list with all runs which occur more than once in the available runs file.
 
-//    //does runlist exist ?
-//    if (!OpenAvailableRunsFile()) {
-//       Error("CheckMultiRunfiles", "Cannot open available runs file");
-//       return 0;
-//    }
-//
-//    TString fLine;
-//    TList *run_list = new TList;
-//    fLine.ReadLine(fRunlist);
-//
-//    KVNumberList multiruns;
-//
-//    Int_t fRunNumber;
-//    KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
-//
-//    while (fRunlist.good()) {
-//
-//       TObjArray *toks = fLine.Tokenize('|');    // split into fields
-//       KVString kvs(((TObjString *) toks->At(0))->GetString());
-//       fRunNumber = kvs.Atoi();
-//       delete toks;
-//
-//       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
-//
-//       if (!run_list->Contains(a_run)) {
-//          //first time that run appears
-//          run_list->Add(a_run);
-//       } else {
-//          //run appears >1 times
-//          multiruns.Add(fRunNumber);
-//       }
-//
-//       fLine.ReadLine(fRunlist);
-//    }
-//    delete run_list;
-//    CloseAvailableRunsFile();
-//
-//    return multiruns;
    ReadFile();
    KVNumberList multiruns;
    TIter next(fAvailableRuns);

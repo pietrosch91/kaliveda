@@ -92,9 +92,8 @@ $Date: 2009/01/16 14:55:20 $
 
 #include "Riostream.h"
 #include "KVDataSet.h"
-#include "KVDBTable.h"
 #include "KVDBSystem.h"
-#include "KVDataBase.h"
+#include "KVExpDB.h"
 #include "KVNucleus.h"
 #include "KVMaterial.h"
 #include "KVTarget.h"
@@ -176,7 +175,7 @@ void KVDBSystemDialog::DeleteSystem()
    //unassociate all runs from system
    fSystem->RemoveAllRuns();
    //remove system from database
-   gDataBase->GetTable("Systems")->RemoveRecord(fSystem);
+   gExpDB->RemoveSystem(fSystem);
    //delete system
    delete fSystem;
    fSystem = 0;
@@ -244,7 +243,7 @@ void KVDBSystemDialog::CreateNewSystem()
          fSystem->SetAtarget(sys_name.Atoi());
       }
       //add system to database
-      gDataBase->GetTable("Systems")->AddRecord(fSystem);
+      gExpDB->AddSystem(fSystem);
       //update list of systems
       FillSystemList();
       //select the new system
@@ -318,7 +317,7 @@ void KVDBSystemDialog::FillSystemList()
    fComboBox1476->Select(-1);
 
    Int_t index_selected = 0;
-   KVSeqCollection* syslist = gDataBase->GetTable("Systems")->GetRecords();
+   KVSeqCollection* syslist = gExpDB->GetSystems();
    syslist->ls();
    TIter itsys(syslist);
    TObject* o;
@@ -336,7 +335,7 @@ void KVDBSystemDialog::SelectSystem(Int_t index)
 {
    //Called when a new system is selected in fComboBox1476
    if (index < fComboBox1476->GetNumberOfEntries() - 1) {
-      fSystem = (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecords()->At(index);
+      fSystem = (KVDBSystem*)gExpDB->GetSystems()->At(index);
       fCreateSystem->SetEnabled(kFALSE);
       fSetRuns->SetEnabled(!fRuns.IsEmpty());
    } else {
