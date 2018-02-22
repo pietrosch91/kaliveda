@@ -307,7 +307,7 @@ namespace KVSQLite {
       unique_ptr<TSQLResult> SelectRowsFromTable(
          const TString& table,
          const TString& columns = "*",
-         const TString& condition = nullptr) const;
+         const TString& condition = "") const;
 
       void read_table_infos();
 

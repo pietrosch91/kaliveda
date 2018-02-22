@@ -87,7 +87,7 @@ namespace KVSQLite {
 
       TString query;
       query.Form("SELECT %s FROM '%s'", columns.Data(), table.Data());
-      if (condition) query += Form(" WHERE %s", condition.Data());
+      if (condition != "") query += Form(" WHERE %s", condition.Data());
       return unique_ptr<TSQLResult>(fDBserv->Query(query));
    }
 
