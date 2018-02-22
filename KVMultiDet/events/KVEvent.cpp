@@ -227,7 +227,7 @@ KVNucleus* KVEvent::GetParticle(const Char_t* group_name) const
 
 //__________________________________________________________________________________
 
-Int_t KVEvent::GetMult(Option_t* opt)
+Int_t KVEvent::GetMult(Option_t* opt) const
 {
    //Returns multiplicity (number of particles) of event.
    //If opt = "" (default), returns number of particles in TClonesArray* fParticles
@@ -246,6 +246,10 @@ Int_t KVEvent::GetMult(Option_t* opt)
       //get total multiplicity of event
       return fParticles->GetEntriesFast();
    } else {
+      if (fIter.IsIterating()) {
+         Error("GetMult", "Do not call this method while a GetNextParticle() iteration is in progress!");
+         return 0;
+      }
       KVNucleus* tmp = 0;
       ResetGetNextParticle();
       while ((tmp = GetNextParticle(opt)))
@@ -446,7 +450,7 @@ void KVEvent::GetMultiplicities(Int_t mult[], const TString& species)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-KVNucleus* KVEvent::GetNextParticle(Option_t* opt)
+KVNucleus* KVEvent::GetNextParticle(Option_t* opt) const
 {
    // Use this method to iterate over the list of particles in the event
    // After the last particle GetNextParticle() returns a null pointer and
@@ -494,7 +498,7 @@ KVNucleus* KVEvent::GetNextParticle(Option_t* opt)
 
 //__________________________________________________________________________________________________
 
-void KVEvent::ResetGetNextParticle()
+void KVEvent::ResetGetNextParticle() const
 {
    // Reset iteration over event particles so that next call
    // to GetNextParticle will begin a new iteration (possibly with

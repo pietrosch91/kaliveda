@@ -10,6 +10,7 @@
 #include "TGeoManager.h"
 #include "KVNucleus.h"
 #include "KVDetector.h"
+#include "KVGroupReconstructor.h"
 
 #include <KVGeoDNTrajectory.h>
 class KVIDGraph;
@@ -82,11 +83,13 @@ protected:
    KVNumberList fAcceptIDCodes;//! list of acceptable identification codes for reconstructed nuclei
    KVNumberList fAcceptECodes;//! list of acceptable calibration codes for reconstructed nuclei
 
+   TString fPartSeedCond;//! condition for seeding new reconstructed particles
+
    virtual void RenumberGroups();
    virtual void BuildGeometry()
    {
       AbstractMethod("BuildGeometry");
-   };
+   }
    virtual void MakeListOfDetectors();
    virtual void SetACQParams();
 
@@ -173,7 +176,7 @@ public:
 
    virtual KVTelescope* GetTelescope(const Char_t* name) const;
    virtual KVGroup* GetGroupWithDetector(const Char_t*);
-   virtual KVGroup* GetGroup(const Char_t*);
+   virtual KVGroup* GetGroup(const Char_t*) const;
    virtual KVGroup* GetGroupWithAngles(Float_t /*theta*/, Float_t /*phi*/)
    {
       return 0;
@@ -377,11 +380,27 @@ public:
    }
 
    virtual void SetMinimumOKMultiplicity(KVEvent*) const;
+   void RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniqueNameList& tried_trajectories, KVUniqueNameList& multitraj_nodes, KVUniqueNameList& detectors_of_group);
+   virtual const Char_t* GetPartSeedCond() const
+   {
+      // get condition used to seed reconstructed particles
+      return fPartSeedCond;
+   }
+   virtual void SetPartSeedCond(const Char_t* cond)
+   {
+      // set condition used to seed reconstructed particles
+      fPartSeedCond = cond;
+   }
+   virtual KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
+   Int_t GetNumberOfGroups() const
+   {
+      unique_ptr<KVSeqCollection> glist(GetStructureTypeList("GROUP"));
+      return glist->GetEntries();
+   }
 
    Bool_t HandleRawDataEvent(KVRawDataReader*);
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
-   void RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniqueNameList& tried_trajectories, KVUniqueNameList& multitraj_nodes, KVUniqueNameList& detectors_of_group);
 };
 
 //................  global variable

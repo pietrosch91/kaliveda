@@ -1717,6 +1717,8 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
       if (codes != "") mda->fAcceptIDCodes.Set(codes);
       codes = KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptECodes", mda->GetName()), "");
       if (codes != "") mda->fAcceptECodes.Set(codes);
+      // set dataset-dependent condition for seeding reconstructed nuclei
+      mda->SetPartSeedCond(KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.ParticleSeedCond", mda->GetName()), ""));
    }
    else {
       mda = gMultiDetArray;
@@ -2829,6 +2831,23 @@ void KVMultiDetArray::RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniq
          }
       }
    }
+}
+
+KVGroupReconstructor* KVMultiDetArray::GetReconstructorForGroup(const KVGroup* g) const
+{
+   // Create and return pointer to new KVGroupReconstructor for reconstructing particles
+   // in the given group. Returns nullptr if group is not part of this array.
+   //
+   // Plugins for specific arrays can be defined as plugins using the name of the array:
+   // +Plugin.KVGroupReconstructor: my_array my_group_reconstructor my_lib "my_group_reconstructor()"
+
+   KVGroupReconstructor* gr(nullptr);
+   if (GetGroup(g->GetName())) {
+      // look for plugin
+      gr = KVGroupReconstructor::Factory(GetName());
+      if (!gr) gr = new KVGroupReconstructor;
+   }
+   return gr;
 }
 
 void KVMultiDetArray::DeduceGroupsFromTrajectories()
