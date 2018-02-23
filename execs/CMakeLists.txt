@@ -12,8 +12,10 @@ set(build_targets
         KaliVedaGUI
 )
 if(USE_INDRA)
-   list(APPEND build_targets KVDataBaseGUI)
+   list(APPEND build_targets KVDataBaseGUI test_reconstruction)
 endif()
+
+set(test_reconstruction_SRC test_reconstruction.C)
 
 set(kaliveda_SRC kaliveda.cpp)
 
@@ -42,7 +44,7 @@ foreach(t ${build_targets})
 endforeach()
 
 #---install built executables
-install(TARGETS ${build_targets} EXPORT ${CMAKE_PROJECT_NAME}Exports RUNTIME DESTINATION bin)
+install(TARGETS ${build_targets} EXPORT ${CMAKE_PROJECT_NAME}Exports RUNTIME DESTINATION bin) 
 
 #---install shell scripts
 set(scripts KVA KaliVeda)
