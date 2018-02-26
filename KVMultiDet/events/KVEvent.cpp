@@ -927,6 +927,7 @@ void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
       while ((n = e->GetNextParticle())) {
          n->Copy(*AddParticle());
       }
+      GetParameters()->Merge(*(e->GetParameters()));
       e->Clear(opt);
    }
 }
