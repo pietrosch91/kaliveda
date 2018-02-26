@@ -16,6 +16,7 @@ if(USE_INDRA)
 endif()
 
 set(test_reconstruction_SRC test_reconstruction.C)
+set(test_reconstruction_LIB ${KVIndra_LIB_LIST})
 
 set(kaliveda_SRC kaliveda.cpp)
 
