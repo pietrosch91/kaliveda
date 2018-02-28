@@ -285,7 +285,7 @@ User class options
 Optional parameters can be supplied to classes for analysis of reconstructed
  data (derived from 
 \family typewriter
-KVEvenSelector
+KVEventSelector
 \family default
 ) using the 'User class options' text box.
  These are given in the form of a comma-separated list of 'name=value' pairs

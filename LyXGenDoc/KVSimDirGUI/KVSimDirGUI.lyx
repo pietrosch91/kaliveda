@@ -1,7 +1,9 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \use_default_options true
 \maintain_unincluded_children false
@@ -9,16 +11,16 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
-
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -28,15 +30,24 @@
 \use_hyperref false
 \papersize default
 \use_geometry false
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
 \cite_engine basic
+\cite_engine_type default
+\biblio_style plain
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 1
 \index Index
 \shortcut idx
@@ -60,7 +71,7 @@
 \begin_body
 
 \begin_layout Title
-KVSimDirGUI - Filtering & Analysing Simulated Data using PROOF
+kaliveda-sim - Filtering & Analysing Simulated Data
 \end_layout
 
 \begin_layout Standard
@@ -79,78 +90,21 @@ Overview
 \begin_layout Standard
 
 \emph on
-\begin_inset CommandInset href
-LatexCommand href
-name "KVSimDirGUI"
-target "../KVSimDirGUI.html"
-
-\end_inset
-
-
+kaliveda-sim
 \emph default
  is a graphical interface which allows to manage simulated and filtered
  simulated data.
  It can be used to filter existing simulations with any known detector set-up,
  and to analyse both 'raw' and filtered simulations.
- It is based on the classes 
-\emph on
-
-\begin_inset CommandInset href
-LatexCommand href
-name "KVSimDir"
-target "../KVSimDir.html"
-
-\end_inset
-
-
-\emph default
- and 
-\begin_inset CommandInset href
-LatexCommand href
-name "KVSimFile"
-target "../KVSimFile.html"
-
-\end_inset
-
-, which handle the directories containing the data.
-\end_layout
-
-\begin_layout Standard
-Different datasets can be managed, each one corresponding to a different
- directory containing data in ROOT trees.
+ In fact it can handle any data which is stored in a branch in a TTree containin
+g objects of a class derived from KVEvent.
+ Different datasets can be managed, each one corresponding to a different
+ disk directory containing data in ROOT trees.
  ROOT files in the dataset directories are automatically scanned to find
- TTrees with a branch containing objects either of a 
-\begin_inset CommandInset href
-LatexCommand href
-name "KVSimEvent"
-target "../KVSimEvent.html"
-
-\end_inset
-
--derived class or of a 
-\begin_inset CommandInset href
-LatexCommand href
-name "KVReconstructedEvent"
-target "../KVReconstructedEvent.html"
-
-\end_inset
-
--derived class.
+ TTrees with a branch containing objects either of a KVEvent-derived class
+ or of a KVReconstructedEvent-derived class.
  The former files will be considered as simulated data, and the latter as
  filtered simulated data.
- See 
-\emph on
-
-\begin_inset CommandInset href
-LatexCommand href
-name "KVSimDir"
-target "../KVSimDir.html"
-
-\end_inset
-
-
-\emph default
- for more details.
 \end_layout
 
 \begin_layout Standard
@@ -170,7 +124,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Overview of KVSimDirGUI
@@ -202,11 +156,11 @@ Opening the GUI
 \end_layout
 
 \begin_layout Standard
-In a ROOT interactive session, type
+To launch the application from the command line, type
 \end_layout
 
 \begin_layout LyX-Code
-root[0] new KVSimDirGUI
+$ kaliveda-sim
 \end_layout
 
 \begin_layout Standard
@@ -226,7 +180,7 @@ Adding a dataset
 
 \begin_layout Standard
 A dataset is a directory containing ROOT files with simulated and/or filtered
- simulated data.
+ simulated data contained in TTrees.
  
 \end_layout
 
@@ -267,7 +221,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 File dialogue to choose new dataset directory
@@ -314,7 +268,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Dialogue box to enter name of new dataset
@@ -334,15 +288,39 @@ name "fig:Dialogue-box-name"
 
 \end_inset
 
-The new dataset appears in the list of datasets, the lists of associated
- simulated and/or filtered data are displayed in the respective lists (Fig.
+The new dataset appears in the list of datasets, any existing simulated
+ and/or filtered data in the directory are displayed in the respective lists.
+\end_layout
+
+\begin_layout Section
+Importing simulated data
+\end_layout
+
+\begin_layout Standard
+To add a new simulation to a dataset, select the dataset in question and
+ press the 'Import simulation' button (see Fig.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:New-dataset-appears"
+reference "fig:Overview-of-GUI"
 
 \end_inset
 
 ).
+ After selecting the file you want to import, a dialog box will open asking
+ you to select the kind of simulation data (see Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:simu-kind"
+
+\end_inset
+
+).
+ For each model there are two types of event: 'primary' events corresponding
+ to results of collisions before secondary decay (model name with no suffix)
+ and 'asymptotic' events after full secondary decay and propagation towards
+ the detectors (model name with '_asym' suffix).
 \end_layout
 
 \begin_layout Standard
@@ -353,8 +331,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Untitled window_015.png
-	scale 75
+	filename choose_model.png
+	clip
 
 \end_inset
 
@@ -362,13 +340,13 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-New dataset appears in GUI
+Dialog box to select kind of simulation data
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:New-dataset-appears"
+name "fig:simu-kind"
 
 \end_inset
 
@@ -413,15 +391,7 @@ reference "fig:choose-analysis-class"
 ) navigate to the directory containing your analysis class files and select
  the appropriate header ('.h') file.
  Note that in order to analyse simulated data, your analysis class must
- derive from 
-\begin_inset CommandInset href
-LatexCommand href
-name "KVEventSelector"
-target "../KVEventSelector.html"
-
-\end_inset
-
-.
+ derive from class KVEventSelector.
 \end_layout
 
 \begin_layout Standard
@@ -441,7 +411,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Dialogue box for choosing analysis class header file
@@ -491,12 +461,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Tab for filtering simulated data.
- In the bottom right-hand corner are the 'Enable PROOF' and 'Run filter'
- buttons.
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Tab-for-filtering"
@@ -576,6 +544,8 @@ Full -
 Full simulation of array response, inverted calibrations are used to generate
  pseudo-experimental raw data, which is then identified and calibrated using
  exactly the same experimental procedures.
+ This is only possible for datasets which were entirely calibrated using
+ KaliVeda.
 \end_layout
 
 \begin_layout Standard
@@ -727,7 +697,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Analysis tab showing 

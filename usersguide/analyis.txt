@@ -1,0 +1,21 @@
+% KaliVeda User's Guide
+
+# Data Analysis #
+
+Here are some guidelines for analysing data. Data can either be raw experimental
+data, reconstructed experimental data (of
+types `recon`, `ident` or `root`), or simulated data, either filtered with a
+given experimental setup (in which case it is again reconstructed data) or not.
+
+Two graphical interfaces are provided for analysing such data: [`KaliVedaGUI`][KaliVedaGUI] and
+[`kaliveda-sim`][KaliVedaSim]. Both interfaces are capable of generating example analysis classes for the
+data you want to analyse. This is the recommended method for creating a new analysis class, which you can
+then modify according to your needs.
+
+> N.B. In the case of experimental data, the exact inheritance required for your analysis class to work
+> may depend on the dataset being analysed. This is handled automatically when generating a new class
+> with [`KaliVedaGUI`][KaliVedaGUI]
+
+
+[KaliVedaGUI]: ../KaliVedaGUIDoc/KaliVedaGUI.html
+[KaliVedaSim]: ../KVSimDirGUIDoc/KVSimDirGUI.html

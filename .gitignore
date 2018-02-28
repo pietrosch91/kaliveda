@@ -8,3 +8,4 @@ upload.batch
 userguide_TOC.html
 usersguide/html
 *.LyXconv
+*~

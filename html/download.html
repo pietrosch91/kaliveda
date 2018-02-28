@@ -26,8 +26,7 @@
       <div class="news">
         <p class="newsText">
         KaliVeda is available to download and build from source from our 
-        <a href="https://github.com/kaliveda-dev/kaliveda">Github repository</a>,
-        or you can install pre-compiled <a href="#ubuntu">Ubuntu packages</a> for the most recent Ubuntu versions.
+        <a href="https://github.com/kaliveda-dev/kaliveda">Github repository</a>.
         </p>
         <br>
         <h3 class="newsTitle">Source code<a name="source"></a></h3>
@@ -64,43 +63,6 @@ $ git pull
         <p class="newsText">
         Once you have downloaded the source tree, you need to <a href="build.html">Build & Install</a> the toolkit.
         </p>
-        <br>
-        <h3 class="newsTitle">Ubuntu packages<a name="ubuntu"></a><br>
-        </h3>
-        <p class="newsText">
-        Ubuntu packages are available for either released versions or daily builds from the latest Github
-        revision. Choose one or the other,
-        if you add both repositories to your system there may be conflicts. Note that these packages depend on
-        the installation of the ROOT Ubuntu packages: if they are not already installed, installing KaliVeda packages
-        will trigger the installation of ROOT packages first. If you have "hand-built" ROOT installation(s)
-        already on your system, this will probably lead to some weird conflicts in the future, so you should
-        first remove any trace of ROOT from your system (other than the packaged version) before using these
-        packages.</p>
-        <p class="newsText">
-        See <a href="https://github.com/kaliveda-dev/kaliveda/wiki/Software-Packaging#debianubuntu-packaging">here</a> for more details on these Ubuntu packages.
-        <dl>
-        <dt>Release packages</dt>
-        <dd>
-        Packages for releases are available from the PPA archive
-        <a href="https://code.launchpad.net/~kaliveda-dev/+archive/ubuntu/ppa-kaliveda">ppa-kaliveda</a>.
-        To add this repository to your system, do the following (requires 'sudo' permissions):
-<div class="code">$ sudo add-apt-repository ppa:kaliveda-dev/ppa-kaliveda
-$ sudo apt-get update</div>
-        </dd>
-        <dt>Daily builds</dt>
-        <dd>
-        Packages for the latest Github version are available from the PPA archive
-        <a href="https://code.launchpad.net/~kaliveda-dev/+archive/ubuntu/ppa-kaliveda-daily">ppa-kaliveda-daily</a>.
-        To add this repository to your system, do the following (requires 'sudo' permissions):
-<div class="code">$ sudo add-apt-repository ppa:kaliveda-dev/ppa-kaliveda-daily
-$ sudo apt-get update</div>
-        </dd>
-        </dl>
-        After adding one of the repositories as shown above, you can install the main KaliVeda packages
-        like this:
-<div class="code">$ sudo apt-get install kaliveda</div>        
-        There are other packages corresponding to run-time libraries for specific experiments.
-        </p> 
         <br>
       </div>
     </div>
