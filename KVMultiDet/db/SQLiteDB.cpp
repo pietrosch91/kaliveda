@@ -13,6 +13,8 @@
 #include <iomanip>
 
 ClassImp(KVSQLite::database)
+ClassImp(KVSQLite::table)
+ClassImp(KVSQLite::column)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -70,10 +72,6 @@ ClassImp(KVSQLite::database)
 //
 // For more details on use (also for inserting data), see example db_sqlite_examples.C
 ////////////////////////////////////////////////////////////////////////////////
-
-ClassImp(KVSQLite::table)
-
-
 
 namespace KVSQLite {
 
