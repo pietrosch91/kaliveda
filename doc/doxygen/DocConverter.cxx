@@ -70,11 +70,12 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
 }
 
 
-void write_class_description(KVString& group, int& last_non_code_line, ofstream& output_file, vector<KVString>& class_description, vector<KVString>& classname, queue<KVString>& output)
+void write_class_description(KVString& group, int& last_non_code_line, ofstream& output_file, vector<KVString>& class_description, vector<KVString>& classname, queue<KVString>& output, int& LLW)
 {
    // spit out everything read so far up to and including the last non-code line
    for (int i = 1; i <= last_non_code_line; ++i) {
       output_file << output.front() << endl;
+      ++LLW;
       output.pop();
    }
    KVString briefdesc;
@@ -140,12 +141,14 @@ void DocConverter(const KVString& file)
 
    KVString source_line;
    int line_no = 0;
+   int last_line_writ=0;
    int brace_count = 0; //number of open '{'
    int ns_count = 0; // number of open '{' associated with namespaces
    bool look_for_comments = kFALSE;
    vector<KVString> comments;
    source_line.ReadToDelim(source_file, '\n');
    queue<KVString> output;
+   vector<KVString> output_vector;
    bool found_first_method = false;
    bool found_first_ns = false;
    int last_non_code_line = 0;
@@ -157,6 +160,7 @@ void DocConverter(const KVString& file)
    bool in_class_desc = false;
    bool in_a_ifdef = false;
    bool in_a_ifdefelse = false;
+   bool separator_comment=false;
 
    while (source_file.good()) {
       ++line_no;
@@ -169,6 +173,10 @@ void DocConverter(const KVString& file)
       line_is_comment = false;
       if (source_line.BeginsWith("//") || multiline_comment
           || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
+      if(line_is_comment)
+      {
+         separator_comment = source_line.BeginsWith("//______");
+      }
       if (!in_a_method && (source_line.IsWhitespace() || source_line.BeginsWith("/")))
          last_non_code_line = line_no;
       if (in_a_method && !source_line.IsWhitespace() && !line_is_comment) in_method_code = true;
@@ -177,10 +185,11 @@ void DocConverter(const KVString& file)
          if (source_line.BeginsWith("//////////////")) in_class_desc = false;
          else class_description.push_back(original_line);
       } else if (source_line.BeginsWith("//////////////")) in_class_desc = true;
-      if (found_first_method && !in_a_method && line_is_comment) {}
-      else
+//        if (found_first_method && !in_a_method && separator_comment) {}
+//        else{
          output.push(original_line);
-
+         output_vector.push_back(source_line);
+//      }
       if (look_for_comments) {
          if (line_is_comment) comments.push_back(source_line);
          else if (in_method_code) look_for_comments = kFALSE;
@@ -234,7 +243,8 @@ void DocConverter(const KVString& file)
          // we just opened a namespace
          // class description has to go before
          found_first_ns=true;
-         if(!found_first_method) write_class_description(group, last_non_code_line, output_file, class_description, classname, output);
+         if(!found_first_method) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
+            last_line_writ);
       }
       if (brace_count == 1 && delta_brace == 1) {
          //cout << "Method body begins line " << line_no << endl;
@@ -244,7 +254,8 @@ void DocConverter(const KVString& file)
          in_a_method = true;
          if (!found_first_method) {
             found_first_method = true;
-            if(!found_first_ns) write_class_description(group, last_non_code_line, output_file, class_description, classname, output);
+            if(!found_first_ns) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
+               last_line_writ);
             else
             {
                // write everything we read since namespace definition (including the namespace definition)
@@ -253,6 +264,7 @@ void DocConverter(const KVString& file)
                while (n) {
                   KVString toto = output.front();
                   output_file << toto << endl;
+                  ++last_line_writ;
                   output.pop();
                   --n;
                }
@@ -260,9 +272,39 @@ void DocConverter(const KVString& file)
          }
       }
       else if (brace_count == 0 && delta_brace == -1) {
-         //cout << "Method body ends line " << line_no << endl;
+         cout << endl;
+         cout << "Method body ends line " << line_no << endl;
+         cout << "Last written line " << last_line_writ << endl;
+         cout << "Last non-code line " << last_non_code_line << endl;
+         cout << "output stack:" << endl;
+         for(int m=last_line_writ+1; m<=line_no; ++m) cout << m << ":" << output_vector[m-1] << endl;
+         
          in_a_method = false;
          // spit out entire method with added doxygen comments at start
+         // first output upto last non-code line, skip any 'separator' comments: //_________
+         for(int m=last_line_writ+1; m<=last_non_code_line; ++m)
+         {
+            if(!output_vector[m-1].BeginsWith("//___"))
+            {
+               KVString toto = output.front();
+               output_file << toto << endl;
+            }
+            ++last_line_writ;
+            output.pop();
+         }
+         // in principle the next line is the beginning of the method declaration
+         // however, if it is a preprocessor #if we need to output it straight away
+         // before the comments
+         if(output_vector[last_non_code_line].BeginsWith("#if"))
+         {
+               KVString toto = output.front();
+               output_file << toto << endl;
+               ++last_line_writ;
+               output.pop();
+         }
+         output_file << endl;
+               
+         
          output_file << "///////////////////////////////////////////////////////////////////" << endl;
          KVString prefix = "///";
          for (auto comment : comments) {
@@ -286,7 +328,8 @@ void DocConverter(const KVString& file)
          output_file << endl;
          while (!output.empty()) {
             KVString toto = output.front();
-            if (!toto.IsWhitespace()) output_file << toto << endl;
+            output_file << toto << endl;
+            ++last_line_writ;
             output.pop();
          }
          output_file << endl;
@@ -295,12 +338,13 @@ void DocConverter(const KVString& file)
    }
    // if no methods defined in file (template class defined in header)
    if (!found_first_method && !found_first_ns)
-      write_class_description(group, last_non_code_line, output_file, class_description, classname, output);
+      write_class_description(group, last_non_code_line, output_file, class_description, classname, output,last_line_writ);
    else
    {
       while (!output.empty()) {
          KVString toto = output.front();
-         if (!toto.IsWhitespace()) output_file << toto << endl;
+         output_file << toto << endl;
+         ++last_line_writ;
          output.pop();
       }
       output_file << endl;

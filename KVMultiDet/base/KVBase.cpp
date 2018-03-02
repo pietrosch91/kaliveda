@@ -1224,9 +1224,9 @@ void KVBase::PrintSplashScreen()
 #endif
    cout << "*                                                         *" <<
         endl;
-   cout << "*               For help, read the doc on :               *" <<
+   cout << "*               For help, see the website :               *" <<
         endl;
-   cout << "*           http://indra.in2p3.fr/KaliVedaDoc             *" <<
+   cout << "*             http://indra.in2p3.fr/kaliveda              *" <<
         endl;
    cout << "*                                                         *" <<
         endl;
@@ -1236,3 +1236,17 @@ void KVBase::PrintSplashScreen()
         endl << endl;
 }
 
+/** \example base_kvbase.C
+# Example of use of the KVBase class
+
+This is the base class of most classes in the KaliVeda framework.
+It provides information on the version & installation layout of
+KaliVeda, plus various general "utility" methods.
+
+To execute this function, do:
+
+    $ kaliveda
+    kaliveda[0] .L base_kvbase.C+
+    kaliveda[1] kvbase_example()
+
+*/
