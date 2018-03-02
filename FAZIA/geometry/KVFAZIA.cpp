@@ -190,15 +190,15 @@ void KVFAZIA::Build(Int_t run)
    }
 }
 
-void KVFAZIA::SortIDTelescopes()
-{
-   KVDetector* det = 0;
-   TIter next(GetDetectors());
-   while ((det = (KVDetector*)next())) {
-      ((KVFAZIADetector*)det)->SortIDTelescopes();
-   }
+//void KVFAZIA::SortIDTelescopes()
+//{
+//   KVDetector* det = 0;
+//   TIter next(GetDetectors());
+//   while ((det = (KVDetector*)next())) {
+//      ((KVFAZIADetector*)det)->SortIDTelescopes();
+//   }
 
-}
+//}
 
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
 {
