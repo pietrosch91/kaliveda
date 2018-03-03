@@ -9,7 +9,6 @@ if [ ! -d ./kaliveda.git ]; then
    git clone --single-branch -b $BRANCH git@github.com:kaliveda-dev/kaliveda.git kaliveda.git
 else
    cd ./kaliveda.git
-   git reset --hard HEAD
    git pull
    cd ..
 fi
@@ -26,8 +25,8 @@ git reset --hard $(git rev-list --max-parents=0 --abbrev-commit HEAD)
 kaliveda -b -q
 
 export KALIVEDA_VERSION=$(kaliveda-config --version)
-export INPUT_DIR=kaliveda.git
-doxygen $DOXYFILE
+cp kaliveda.git/README.md kaliveda.doxygen/
+export INPUT_DIR=kaliveda.doxygen && doxygen $DOXYFILE
 
 # commit and push
 cd html

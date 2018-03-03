@@ -49,7 +49,7 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
             // this is brief description
             briefdesc = l;
             just_got_classname = false;
-            l = "";
+            l="";
          } else {
             // transform to markdown titie
             l.Prepend("#### ");
@@ -122,13 +122,30 @@ void DocConverter(const KVString& file)
    KVString _file = gSystem->ExpandPathName(file.Data());
    KVString group = gSystem->BaseName(gSystem->DirName(_file));
    group.Capitalize();
+   KVString root_dir=gSystem->DirName(gSystem->DirName(gSystem->DirName(_file)));
+   KVString _output_file=_file;
+   _output_file.ReplaceAll(root_dir,"kaliveda.doxygen");
+   KVString output_dir=gSystem->DirName(_output_file);
+   gSystem->mkdir(output_dir,true);
+   KVString filename = gSystem->BaseName(_file);
+   if(filename.Index(".cpp"))
+   {
+      filename.Remove(filename.Index(".cpp"));
+      filename+=".h";
+      KVString input_dir = gSystem->DirName(_file);
+      input_dir+="/";
+      input_dir+=filename;
+      KVString output_header=gSystem->DirName(_output_file);
+      output_header+="/";
+      output_header+=filename;
+      gSystem->CopyFile(input_dir,output_header,true);
+   }
+   
    vector<KVString> classname;
 
-   KVString backup = _file + ".bck";
-   gSystem->CopyFile(_file, backup, kTRUE);
-   ifstream source_file(backup.Data());
+   ifstream source_file(_file.Data());
    ofstream output_file;
-   output_file.open(_file.Data());
+   output_file.open(_output_file.Data());
 
    // put group definition in first file of group
    if (!modules.HasParameter(group)) {
@@ -272,12 +289,12 @@ void DocConverter(const KVString& file)
          }
       }
       else if (brace_count == 0 && delta_brace == -1) {
-         cout << endl;
-         cout << "Method body ends line " << line_no << endl;
-         cout << "Last written line " << last_line_writ << endl;
-         cout << "Last non-code line " << last_non_code_line << endl;
-         cout << "output stack:" << endl;
-         for(int m=last_line_writ+1; m<=line_no; ++m) cout << m << ":" << output_vector[m-1] << endl;
+//          cout << endl;
+//          cout << "Method body ends line " << line_no << endl;
+//          cout << "Last written line " << last_line_writ << endl;
+//          cout << "Last non-code line " << last_non_code_line << endl;
+//          cout << "output stack:" << endl;
+//         for(int m=last_line_writ+1; m<=line_no; ++m) cout << m << ":" << output_vector[m-1] << endl;
          
          in_a_method = false;
          // spit out entire method with added doxygen comments at start
@@ -350,9 +367,6 @@ void DocConverter(const KVString& file)
       output_file << endl;
    }
 
-   //cout << " " << line_no << " lines" << endl;
-   //gSystem->CopyFile(backup, _file, kTRUE);
-   gSystem->Unlink(backup);
 }
 
 void ConvertDocIn(const KVString& path)
@@ -376,7 +390,7 @@ void ConvertAllModules(const KVString& path)
 
    KVString _path = gSystem->ExpandPathName(path.Data());
    _path.Append("/");
-   KVString modlist = "analysis,calibration,daq_cec,data_management,examples,globvars,identification,simulation,trieur";
+   KVString modlist = "analysis,calibration,daq_cec,data_management,globvars,identification,simulation,trieur";
    modlist += ",base,db,events,exp_events,geometry,gui,particles,stopping";
 
    modlist.Begin(",");
