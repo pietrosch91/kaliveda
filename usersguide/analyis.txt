@@ -7,15 +7,48 @@ data, reconstructed experimental data (of
 types `recon`, `ident` or `root`), or simulated data, either filtered with a
 given experimental setup (in which case it is again reconstructed data) or not.
 
-Two graphical interfaces are provided for analysing such data: [`KaliVedaGUI`][KaliVedaGUI] and
-[`kaliveda-sim`][KaliVedaSim]. Both interfaces are capable of generating example analysis classes for the
-data you want to analyse. This is the recommended method for creating a new analysis class, which you can
-then modify according to your needs.
+Two graphical interfaces are provided for analysing such data: [KaliVedaGUI] and
+[kaliveda-sim]. Both interfaces are capable of generating example analysis classes for the
+data you want to analyse. This is the recommended method for creating a new analysis class, which you can then modify according to your needs.
 
 > N.B. In the case of experimental data, the exact inheritance required for your analysis class to work
 > may depend on the dataset being analysed. This is handled automatically when generating a new class
 > with [`KaliVedaGUI`][KaliVedaGUI]
 
+## Generating a new analysis class
+
+ - With [KaliVedaGUI]:
+    - select the data you want to analyse, then in the drop-down `User Class` list select `[NEW]`. You will be asked to provide a name for your new analysis class, then the newly-generated template files will be opened in your favourite text editor.
+ - With [kaliveda-sim]:
+    - click on either `New simulated analysis class` or `New filtered analysis class`, depending on which kind of data you want to analyse. You will be asked to provide a name for your new analysis class, which you can then open in your favourite text editor (it isn't automatic).
+
+
+## Structure of the analysis class
+
+Whatever kind of data you wish to analyse, you will now have a more-or-less complete example of an analysis class contained in the files `MyClass.h` and `MyClass.cpp` (assuming you replied `MyClass` when asked for a name for the class). The exact heritage of this class will depend on the kind of data being analysed, but in all cases it will have the following 5 methods:
+
+~~~~~~~{.cpp}
+   void InitAnalysis();
+   void InitRun();
+   Bool_t Analysis();
+   void EndRun();
+   void EndAnalysis();
+~~~~~~~
+
+`InitAnalysis()` and `EndAnalysis()` are executed once only at the beginning and end, respectively, of the analysis. `InitRun()` and `EndRun()` are called at the beginning and end, respectively, of each data file which is being analysed. `Analysis()` is called for each and every event read from the files. Each of these methods in your `MyClass.cpp` file should contain useful comments and/or examples of use.
+
+It should be noted that for all except `raw` data analysis (i.e. for all data stored in ROOT trees), the analysis classes inherit from [KVEventSelector] which allows them to be used with PROOF on multi-core machines. It is important to read the guidelines given in the [KVEventSelector] class reference for this to work.
+
+### `InitAnalysis()`
+
+This is the place to create/open any ROOT files, histograms, trees etc. you require in order to store the output of your analysis. Also the place to define any global variables needed for the analysis.
+
+If you are analysing reconstructed experimental/simulated data, do **not** try to access the experimental set-up (`gMultiDetArray`, etc.) associated with the data you want to analyse here - it will not be defined until `InitRun()`.
+
+### `InitRun()`
+
+Called once at the beginning of each new data file. In case of reconstructed data you can access the experimental set-up (`gMultiDetArray`, system being analysed, run number, etc.) associated with the data here if you need to.
 
 [KaliVedaGUI]: ../KaliVedaGUIDoc/KaliVedaGUI.html
-[KaliVedaSim]: ../KVSimDirGUIDoc/KVSimDirGUI.html
+[kaliveda-sim]: ../KVSimDirGUIDoc/KVSimDirGUI.html
+[KVEventSelector]: http://kaliveda-dev.github.io/kaliveda/classKVEventSelector.html

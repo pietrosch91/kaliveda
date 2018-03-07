@@ -105,7 +105,7 @@ nuc->GetFrame("CM")->GetFrame("tensor2")->GetPhi();
 
 ## Storing/retrieving *ad hoc* information with particles #
 
-[KVParticle]: http://indra.in2p3.fr/KaliVedaDoc/KVParticle.html
-[KVTensPCM]: http://indra.in2p3.fr/KaliVedaDoc/KVTensPCM.html
-[KVEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVEvent.html
-[KVSelector]: http://indra.in2p3.fr/KaliVedaDoc/KVSelector.html
+[KVParticle]: http://kaliveda-dev.github.io/kaliveda/classKVParticle.html
+[KVTensPCM]: http://kaliveda-dev.github.io/kaliveda/classKVTensPCM.html
+[KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
+[KVSelector]: http://kaliveda-dev.github.io/kaliveda/classKVSelector.html

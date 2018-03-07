@@ -166,13 +166,13 @@ MyClassName* myvg = (MyClassName*)AddGV("MyClassName", "myVarGlob");
 ~~~~~~~
 
 
-[KVEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVEvent.html
-[KVNucleus]: http://indra.in2p3.fr/KaliVedaDoc/KVNucleus.html
-[KVVarGlob]: http://indra.in2p3.fr/KaliVedaDoc/KVVarGlob.html
-[KVVarGlob1]: http://indra.in2p3.fr/KaliVedaDoc/KVVarGlob1.html
-[KVVarGlobMean]: http://indra.in2p3.fr/KaliVedaDoc/KVVarGlobMean.html
-[KVVGSum]: http://indra.in2p3.fr/KaliVedaDoc/KVVGSum.html
-[KVGVList]: http://indra.in2p3.fr/KaliVedaDoc/KVGVList.html
-[KVSelector]: http://indra.in2p3.fr/KaliVedaDoc/KVSelector.html
-[KVEventSelector]: http://indra.in2p3.fr/KaliVedaDoc/KVEventSelector.html
-[KVTensP]: http://indra.in2p3.fr/KaliVedaDoc/KVTensP.html
+[KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
+[KVNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVNucleus.html
+[KVVarGlob]: http://kaliveda-dev.github.io/kaliveda/classKVVarGlob.html
+[KVVarGlob1]: http://kaliveda-dev.github.io/kaliveda/classKVVarGlob1.html
+[KVVarGlobMean]: http://kaliveda-dev.github.io/kaliveda/classKVVarGlobMean.html
+[KVVGSum]: http://kaliveda-dev.github.io/kaliveda/classKVVGSum.html
+[KVGVList]: http://kaliveda-dev.github.io/kaliveda/classKVGVList.html
+[KVSelector]: http://kaliveda-dev.github.io/kaliveda/classKVSelector.html
+[KVEventSelector]: http://kaliveda-dev.github.io/kaliveda/classKVEventSelector.html
+[KVTensP]: http://kaliveda-dev.github.io/kaliveda/classKVTensP.html

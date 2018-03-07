@@ -81,7 +81,7 @@ qiksearch_menu_gen();
 //function used by 'Search KaliVeda website' form
 function send_data(formname)
 	{
-		formname.q.value+=" site:indra.in2p3.fr inurl:KaliVedaDoc";
+		formname.q.value+=" site:indra.in2p3.fr inurl:kaliveda";
 		return true;
 	}
    

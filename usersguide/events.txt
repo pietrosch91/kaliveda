@@ -1,0 +1,138 @@
+% KaliVeda User's Guide
+
+# Multi-body Events #
+
+The main business of KaliVeda is the analysis of multi-body events produced in heavy-ion reactions,
+therefore it is no surprise that a central role is played by the class [KVEvent] which can be thought of as a container class for particles and nuclei (see [Particles & Nuclei]).
+In fact there are two more event containers which are derived from [KVEvent], the full list is:
+
+ - [KVEvent]: base class for multi-body events (container for [KVNucleus] objects);
+ - [KVSimEvent]: base class for simulated multi-body events (container for [KVSimNucleus] objects);
+ - [KVReconstructedEvent]: base class for reconstructed multi-body events, either experimental data or the result of ["filtering"][Filter] some simulated data (container for [KVReconstructedNucleus] objects);
+
+In addition to containing a list of particles/nuclei, each event class also has in common the following functionality:
+
+ - an associated list of parameters, accessible through the `GetParameters()` and `SetParameter()` methods;
+ - iterators for looping over all or a subset of the particles of the event;
+ - methods for defining named subsets ('groups') of particles according to various selection criteria;
+ - methods for defining/modifying different relativistic reference frames in which to 'view' the particles of the event
+
+Let us mention in passing the associated [KVEventViewer] class which can be used to produce 3D images of events using the ROOT OpenGL backend.
+
+
+## Iterating over particles in events
+
+### Using `KVEvent::Iterator` iterators
+
+Just as for STL containers, [KVEvent] provides `begin()` and `end()` methods which can be used to iterate over the particles of the event. The iterator class is [KVEvent::Iterator]:
+
+~~~~~~~~~{.cpp}
+for(KVEvent::Iterator it = event.begin(); it != event.end(); ++it){
+   (*it).Print();
+}
+
+// with C++11 or later:
+for(auto& n : event){
+   n.Print();
+}
+~~~~~~~~~
+
+The basic iterator shown above will iterate over all particles of the event. As [KVEvent::Iterator] is fully STL-compliant, you can use it with the (non-modifying) functions defined in the [std::algorithm library], as well as in a [range-based for loop] (from C++11 onwards).
+
+#### Iterators for derived classes
+
+The iterator dereference operator, i.e. `(*it)` in the previous example, returns a `KVNucleus&` reference (this is also the type of the `auto` variable `n` in the C++11 version). This is also the case for iterators of derived classes, e.g. although you can write
+
+~~~~~~~~~{.cpp}
+for(KVReconstructedEvent::Iterator it = reconEvent.begin(); it != reconEvent.end(); ++it){
+~~~~~~~~~
+
+assuming that `reconEvent` is a `KVReconstructedEvent` object, the iterator `it` will in fact be no different to a `KVEvent::Iterator` and `*it` will not return a `KVReconstructedNucleus&` reference.
+
+In order to access methods which are specific to derived particle classes you can use the following methods which return a pointer or reference of the desired type:
+
+~~~~~~~~~{.cpp}
+// e.g. with KVReconstructedEvent reconEvent:
+for(KVEvent::Iterator it = reconEvent.begin(); it != reconEvent.end(); ++it){
+   it.pointer<KVReconstructedNucleus>()->GetStoppingDetector(); // call KVReconstructedNucleus method
+}
+
+// e.g. with KVSimEvent simulEvent:
+for(KVEvent::Iterator it = simulEvent.begin(); it != reconEvent.end(); ++it){
+   it.reference<KVSimNucleus>().GetSpin(); // call KVSimNucleus method
+}
+~~~~~~~~~
+
+
+#### Example of nested loop
+
+~~~~~~~~~{.cpp}
+// Nested loops over N*(N-1)/2 distinct pairs of particles
+for (KVEvent::Iterator it = event.begin(); it != event.end(); ++it) {
+   KVEvent::Iterator it2(it);
+   for (++it2; it2 != event.end(); ++it2) {
+      cout << (*it).GetZ() << "-" << (*it2).GetZ() << " ";
+   }
+   cout << endl;
+}
+
+// possible output:
+0-1 0-2 0-3 0-4 0-5 0-6 0-7 0-8 0-9
+1-2 1-3 1-4 1-5 1-6 1-7 1-8 1-9
+2-3 2-4 2-5 2-6 2-7 2-8 2-9
+3-4 3-5 3-6 3-7 3-8 3-9
+4-5 4-6 4-7 4-8 4-9
+5-6 5-7 5-8 5-9
+6-7 6-8 6-9
+7-8 7-9
+8-9
+~~~~~~~~~
+
+#### Iterating over particles which are "OK"
+
+When analysing reconstructed data it is usually required to limit the iteration to only those particles which are considered to be correctly identified/calibrated, i.e. those for which the method
+`KVParticle::IsOK()` returns `true` (see [Particles & Nuclei]).
+
+~~~~~~~~~{.cpp}
+for(KVEvent::Iterator it = OKEventIterator(event).begin(); it != event.end(); ++it){
+   (*it).Print();
+}
+
+// with C++11 or later:
+for(auto& n : OKEventIterator(event)){
+   n.Print();
+}
+~~~~~~~~~
+
+#### Iterating over particles belonging to a group
+
+If one is only interested in particles which have been previously assigned to some named group, use a `GroupEventIterator`:
+
+~~~~~~~~~{.cpp}
+// iterate over particles in group "toto"
+for(KVEvent::Iterator it = GroupEventIterator(event,"toto").begin(); it != event.end(); ++it){
+   (*it).Print();
+}
+
+// with C++11 or later:
+for(auto& n : GroupEventIterator(event,"toto")){
+   n.Print();
+}
+~~~~~~~~~
+
+### [deprecated] Using `KVEvent::GetNextParticle()`
+
+This method is kept for backwards compatibility only, you should use the `KVEvent::Iterator` iterators presented above. This method has a dangerous flaw: it uses a global (internal) iterator which means that it is not possible (or desirable) to perform two or more iterations at the same time on the same event (for example, the nested loops iteration in the examples above). 
+
+[KVNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVNucleus.html
+[KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
+[KVEventViewer]: http://kaliveda-dev.github.io/kaliveda/classKVEventViewer.html
+[KVSimNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVSimNucleus.html
+[KVSimEvent]: http://kaliveda-dev.github.io/kaliveda/classKVSimEvent.html
+[KVReconstructedNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVReconstructedNucleus.html
+[KVReconstructedEvent]: http://kaliveda-dev.github.io/kaliveda/classKVReconstructedEvent.html
+[Particles & Nuclei]: kinematics.html
+[Filter]: filter.html
+[KVEvent::Iterator]: http://kaliveda-dev.github.io/kaliveda/classKVEvent_1_1Iterator.html
+[std::algorithm library]: http://en.cppreference.com/w/cpp/algorithm
+[range-based for loop]: http://en.cppreference.com/w/cpp/language/range-for
