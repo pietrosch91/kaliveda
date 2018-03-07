@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <KVSystemDirectory.h>
 #include <KVSystemFile.h>
+#include <TClass.h>
+#include <TDataMember.h>
 using namespace std;
 
 KVNameValueList modules;
@@ -82,14 +84,14 @@ void write_class_description(KVString& group, int& last_non_code_line, ofstream&
    if (class_description.size()) {
       ClassDescriptionConverter(classname, briefdesc, class_description);
       if(briefdesc=="") {
-         auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : no brief\n"; };
-         std::for_each(classname.begin(),classname.end(),errmess);
+//         auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : no brief\n"; };
+//         std::for_each(classname.begin(),classname.end(),errmess);
       }
    }
    else
    {
-      auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : ***NO DESC***\n"; };
-      std::for_each(classname.begin(),classname.end(),errmess);
+//      auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : ***NO DESC***\n"; };
+//      std::for_each(classname.begin(),classname.end(),errmess);
    }
 
    if(classname.size()){
@@ -117,6 +119,100 @@ void write_class_description(KVString& group, int& last_non_code_line, ofstream&
    class_description.clear();
 }
 
+void HeaderConverter(const KVString& in_header, const KVString& out_header)
+{
+   ifstream source_file(in_header.Data());
+   ofstream output_file;
+   output_file.open(out_header.Data());
+
+   KVString current_classname;
+   TClass* current_class=nullptr;
+
+   KVString source_line;
+   source_line.ReadToDelim(source_file, '\n');
+
+   bool multiline_comment(false),line_is_comment(false),in_a_ifdef(false),in_a_ifdefelse(false);
+
+   while (source_file.good()) {
+
+      KVString original_line = source_line;
+
+      source_line.RemoveAllExtraWhiteSpace();
+      if (source_line.BeginsWith("/*")) multiline_comment = true;
+      if (source_line.Contains("*/")) multiline_comment = false;
+      line_is_comment = false;
+      if (source_line.BeginsWith("//") || multiline_comment
+          || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
+      if(in_a_ifdef)
+      {
+         //#if...#else...#endif may contain two different versions of a brace-opening piece of
+         //code, i.e. method or for-loop. We arbitrarily ignore any brace-opening or closing
+         //in the #else...#endif part
+         if(source_line.BeginsWith("#else")) in_a_ifdefelse=true;
+         else if(source_line.BeginsWith("#endif")){
+            in_a_ifdef=in_a_ifdefelse=false;
+         }
+      }
+      else if(source_line.BeginsWith("#if"))
+      {
+         in_a_ifdef=true;
+      }
+
+      if(!line_is_comment){
+         if(source_line.Contains("class"))
+         {
+            // check for beginning of class declaration
+            source_line.Begin(" :{");
+            while(!source_line.End())
+            {
+               KVString next = source_line.Next(true);
+               if(next=="class")
+               {
+                  next = source_line.Next(true);
+                  if(next.EndsWith(";")) break; // forward declaration
+                  TClass* cl=TClass::GetClass(next);
+                  if(!cl) break;
+                  current_classname=next;
+                  current_class=cl;
+                  //cout << gSystem->BaseName(in_header) << " : Found class " << current_classname << " (" << current_class << ")" << endl;
+               }
+            }
+         }
+         if(current_class){
+            //look for member variables
+            auto ind = source_line.Index(";//");
+            if(ind<0) ind=source_line.Index("; //");
+            if(ind>0){
+               source_line.Remove(ind);
+               source_line.Begin(" ");
+               KVString varname=source_line.Next();
+               while(!source_line.End()) varname=source_line.Next();
+               TDataMember* var = current_class->GetDataMember(varname);
+               if(var){
+                  KVString comments = var->GetTitle();
+                  comments.RemoveAllExtraWhiteSpace();
+                  if(comments.BeginsWith("!")) {comments.Remove(0,1);comments.RemoveAllExtraWhiteSpace();}
+                  if(comments.BeginsWith("->")) {comments.Remove(0,2);comments.RemoveAllExtraWhiteSpace();}
+                  comments.Prepend(";///< ");
+                  source_line.Prepend("    ");
+                  output_file << source_line << comments << endl;
+               }
+               else
+                  output_file << original_line << endl;
+            }
+            else
+               output_file << original_line << endl;
+         }
+         else
+            output_file << original_line << endl;
+      }
+      else
+         output_file << original_line << endl;
+      source_line.ReadToDelim(source_file, '\n');
+   }
+
+}
+
 void DocConverter(const KVString& file)
 {
    KVString _file = gSystem->ExpandPathName(file.Data());
@@ -138,7 +234,8 @@ void DocConverter(const KVString& file)
       KVString output_header=gSystem->DirName(_output_file);
       output_header+="/";
       output_header+=filename;
-      gSystem->CopyFile(input_dir,output_header,true);
+      //gSystem->CopyFile(input_dir,output_header,true);
+      HeaderConverter(input_dir,output_header);
    }
    
    vector<KVString> classname;
@@ -184,7 +281,7 @@ void DocConverter(const KVString& file)
       KVString original_line = source_line;
       //cout << line_no << ":" << original_line << endl;
 
-      source_line = source_line.StripAllExtraWhiteSpace();
+      source_line.RemoveAllExtraWhiteSpace();
       if (source_line.BeginsWith("/*")) multiline_comment = true;
       if (source_line.Contains("*/")) multiline_comment = false;
       line_is_comment = false;
