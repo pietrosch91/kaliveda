@@ -72,6 +72,24 @@ which should be used whenever it is required to stock KVEvent-derived objects in
 /////////////////////////////////////////////////////////////////////////////://
 
 
+KVEvent::Iterator KVEvent::GetNextParticleIterator(Option_t* opt) const
+{
+   // Provide correct iterator using same options as for GetNextParticle() method:
+   //
+   //  - if opt="" (default) => iterator over all particles
+   //  - if opt="ok"/"OK" => iterator for all "OK" particles
+   //  - if opt!="" && opt!="ok"/"OK" => iterator for all particles in group with name given by opt (case-insensitive)
+
+   TString Opt(opt);
+   Opt.ToUpper();
+   Bool_t ok_iter = (Opt == "OK");
+   Bool_t grp_iter = (!ok_iter && Opt.Length());
+   KVEvent& event = const_cast<KVEvent&>(*this);
+   if (ok_iter) return OKEventIterator(event).begin();
+   else if (grp_iter) return GroupEventIterator(event, Opt).begin();
+   return EventIterator(event).begin();
+}
+
 KVEvent::KVEvent(Int_t mult, const char* classname)
    : fParameters("EventParameters", "Parameters associated with an event")
 {
@@ -162,11 +180,19 @@ KVNucleus* KVEvent::AddParticle()
 
 //________________________________________________________________________________
 
-void KVEvent::Clear(Option_t*)
+void KVEvent::Clear(Option_t* opt)
 {
-   //Reset the event to zero ready for new event.
+   // Reset the event to zero ready for new event.
+   // Any option string is passed on to the Clear() method of the particle
+   // objects in the TClonesArray fParticles.
 
-   fParticles->Clear("C");
+   if (strcmp(opt, "")) {
+      // pass options to particle class Clear() method
+      TString Opt = Form("C+%s", opt);
+      fParticles->Clear(Opt);
+   }
+   else
+      fParticles->Clear("C");
    fParameters.Clear();
    ResetGetNextParticle();
 }
@@ -178,14 +204,10 @@ void KVEvent::Print(Option_t* t) const
    //Print a list of all particles in the event with some characteristics.
    //Optional argument t can be used to select particles (="ok", "groupname", ...)
 
-   cout << "\nKVEvent with " << ((KVEvent*) this)->GetMult(t) << " particles :" << endl;
+   cout << "\nKVEvent with " << GetMult(t) << " particles :" << endl;
    cout << "------------------------------------" << endl;
    fParameters.Print();
-   KVNucleus* frag = 0;
-   const_cast<KVEvent*>(this)->ResetGetNextParticle();
-   while ((frag = ((KVEvent*) this)->GetNextParticle(t))) {
-      frag->Print();
-   }
+   for (Iterator it = GetNextParticleIterator(t); it != end(); ++it)(*it).Print();
 }
 
 //________________________________________________________________________________
@@ -203,46 +225,32 @@ KVNucleus* KVEvent::GetParticleWithName(const Char_t* name) const
 
 KVNucleus* KVEvent::GetParticle(const Char_t* group_name) const
 {
-   //Find particle using groups it is belonging
-   //In case more than one particle belongs to the same group, the first one found is returned.
-   //
-   //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   // Find first particle in event belonging to group with name "group_name"
 
-   const_cast < KVEvent* >(this)->ResetGetNextParticle();
-   KVNucleus* tmp = const_cast < KVEvent* >(this)->GetNextParticle(group_name);
-   const_cast < KVEvent* >(this)->ResetGetNextParticle();
-   if (tmp)
-      return tmp;
-   Warning("GetParticle", "Particle not found: %s", group_name);
-   return 0;
+   Iterator it = GetNextParticleIterator(group_name);
+   KVNucleus* tmp = it.pointer<KVNucleus>();
+   if (!tmp) Warning("GetParticle", "Particle not found: %s", group_name);
+   return tmp;
 }
 
 //__________________________________________________________________________________
 
-Int_t KVEvent::GetMult(Option_t* opt)
+Int_t KVEvent::GetMult(Option_t* opt) const
 {
    //Returns multiplicity (number of particles) of event.
    //If opt = "" (default), returns number of particles in TClonesArray* fParticles
    // i.e. the value of fParticles->GetEntriesFast() (we assume there are no gaps
    // in the list)
    //If opt = "ok" only particles with IsOK()==kTRUE are included.
-   //If opt = "name" only particles with GetName()=="name" are included.
-   //
-   //IN THE LATTER TWO CASES, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   //If opt = "name" only particles belonging to group "name" are included.
 
-   TString Opt(opt);
-   Opt.ToUpper();
    Int_t fMultOK = 0;
-   if (Opt == "") {
+   if (TString(opt) == "") {
       //get total multiplicity of event
       return fParticles->GetEntriesFast();
-   } else {
-      KVNucleus* tmp = 0;
-      ResetGetNextParticle();
-      while ((tmp = GetNextParticle(opt)))
-         fMultOK++;
+   }
+   else {
+      for (Iterator it = GetNextParticleIterator(opt); it != end(); ++it) ++fMultOK;
    }
    return fMultOK;
 }
@@ -257,30 +265,26 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, Option_t* opt)
    //of particles in the current event
    //
    //If opt = "ok" only particles with IsOK()==kTRUE are considered.
-   //If opt = "name" only particles with GetName()=="name" are considered.
-   //
-   //IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   //If opt = "name" only particles belonging to group "name" are considered.
 
-   TString Opt(opt);
-   Opt.ToUpper();
    Double_t fSum = 0;
    TMethodCall mt;
    mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, "");
 
    if (mt.IsValid()) {
-      ResetGetNextParticle();
+      Iterator it = GetNextParticleIterator(opt);
       if (mt.ReturnType() == TMethodCall::kLong) {
          Long_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, "", ret);
             fSum += ret;
          }
-      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+      }
+      else if (mt.ReturnType() == TMethodCall::kDouble) {
          Double_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, "", ret);
             fSum += ret;
          }
@@ -297,30 +301,26 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, const Char_t* method_pr
    // e.g. args="2,4")
    //
    //If opt = "ok" only particles with IsOK()==kTRUE are considered.
-   //If opt = "name" only particles with GetName()=="name" are considered.
-   //
-   //IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+   //If opt = "name" only particles belonging to group "name" are considered.
 
-   TString Opt(opt);
-   Opt.ToUpper();
    Double_t fSum = 0;
    TMethodCall mt;
    mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, method_prototype);
 
    if (mt.IsValid()) {
-      ResetGetNextParticle();
+      Iterator it = GetNextParticleIterator(opt);
       if (mt.ReturnType() == TMethodCall::kLong) {
          Long_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, args, ret);
             fSum += ret;
          }
-      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+      }
+      else if (mt.ReturnType() == TMethodCall::kDouble) {
          Double_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, args, ret);
             fSum += ret;
          }
@@ -333,34 +333,31 @@ Double_t KVEvent::GetSum(const Char_t* KVNucleus_method, const Char_t* method_pr
 void KVEvent::FillHisto(TH1* h, const Char_t* KVNucleus_method, Option_t* opt)
 {
    // Fill histogram with values of the observable given by the indicated KVNucleus_method.
-   // For example: if  the method is called this way - GetSum("GetZ") - it fills histogram
+   // For example: if  the method is called this way - FillHisto(h,"GetZ") - it fills histogram
    // with the charge of all particles in the current event.
    //
    // If opt = "ok" only particles with IsOK()==kTRUE are considered.
-   // If opt = "name" only particles with GetName()=="name" are considered.
-   //
-   // IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   // OVER THE EVENT USING GETNEXTPARTICLE() !!!
-   TString Opt(opt);
-   Opt.ToUpper();
+   // If opt = "name" only particles belonging to group "name" are considered.
+
    TMethodCall mt;
    mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, "");
 
    if (mt.IsValid()) {
-      ResetGetNextParticle();
+      Iterator it = GetNextParticleIterator(opt);
       if (mt.ReturnType() == TMethodCall::kLong) {
          Long_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, "", ret);
             h->Fill((Double_t)ret);
          }
-      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+      }
+      else if (mt.ReturnType() == TMethodCall::kDouble) {
          Double_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, "", ret);
-            h->Fill(ret);
+            h->Fill((Double_t)ret);
          }
       }
    }
@@ -372,28 +369,25 @@ void KVEvent::FillHisto(TH1* h, const Char_t* KVNucleus_method, const Char_t* me
    // e.g. args="2,4") for each particle in event.
    //
    // If opt = "ok" only particles with IsOK()==kTRUE are considered.
-   // If opt = "name" only particles with GetName()=="name" are considered.
-   //
-   // IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   // OVER THE EVENT USING GETNEXTPARTICLE() !!!
-   TString Opt(opt);
-   Opt.ToUpper();
+   // If opt = "name" only particles belonging to group "name" are considered.
+
    TMethodCall mt;
    mt.InitWithPrototype(KVNucleus::Class(), KVNucleus_method, method_prototype);
 
    if (mt.IsValid()) {
-      ResetGetNextParticle();
+      Iterator it = GetNextParticleIterator(opt);
       if (mt.ReturnType() == TMethodCall::kLong) {
          Long_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, args, ret);
             h->Fill((Double_t)ret);
          }
-      } else if (mt.ReturnType() == TMethodCall::kDouble) {
+      }
+      else if (mt.ReturnType() == TMethodCall::kDouble) {
          Double_t ret;
-         KVNucleus* tmp;
-         while ((tmp = GetNextParticle(Opt))) {
+         for (; it != end(); ++it) {
+            KVNucleus* tmp = it.pointer<KVNucleus>();
             mt.Execute(tmp, args, ret);
             h->Fill(ret);
          }
@@ -407,7 +401,7 @@ Int_t KVEvent::GetMultiplicity(Int_t Z, Int_t A, Option_t* opt)
    // or of nuclei with given Z & A (if given)
    //
    //If opt = "ok" only particles with IsOK()==kTRUE are considered.
-   //If opt = "name" only particles with GetName()=="name" are considered.
+   //If opt = "name" only particles belonging to group "name" are considered.
 
    if (A > 0) return (Int_t)GetSum("IsIsotope", "int,int", Form("%d,%d", Z, A), opt);
    return (Int_t)GetSum("IsElement", "int", Form("%d", Z), opt);
@@ -425,7 +419,7 @@ void KVEvent::GetMultiplicities(Int_t mult[], const TString& species)
    //
    // N.B. the species name must correspond to that given by KVNucleus::GetSymbol
 
-   TObjArray* spec = species.Tokenize(", ");// remove any spaces
+   unique_ptr<TObjArray> spec(species.Tokenize(", "));// remove any spaces
    Int_t nspec = spec->GetEntries();
    memset(mult, 0, nspec * sizeof(Int_t)); // set multiplicities to zero
    KVNucleus* nuc;
@@ -434,12 +428,11 @@ void KVEvent::GetMultiplicities(Int_t mult[], const TString& species)
          if (((TObjString*)(*spec)[i])->String() == nuc->GetSymbol()) mult[i] += 1;
       }
    }
-   delete spec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-KVNucleus* KVEvent::GetNextParticle(Option_t* opt)
+KVNucleus* KVEvent::GetNextParticle(Option_t* opt) const
 {
    // Use this method to iterate over the list of particles in the event
    // After the last particle GetNextParticle() returns a null pointer and
@@ -487,7 +480,7 @@ KVNucleus* KVEvent::GetNextParticle(Option_t* opt)
 
 //__________________________________________________________________________________________________
 
-void KVEvent::ResetGetNextParticle()
+void KVEvent::ResetGetNextParticle() const
 {
    // Reset iteration over event particles so that next call
    // to GetNextParticle will begin a new iteration (possibly with
@@ -715,7 +708,8 @@ void KVEvent::Streamer(TBuffer& R__b)
    if (R__b.IsReading()) {
       Clear();
       R__b.ReadClassBuffer(KVEvent::Class(), this);
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVEvent::Class(), this);
    }
 }
@@ -955,17 +949,29 @@ const Char_t* KVEvent::GetPartitionName()
    return partition.Data();
 }
 
-void KVEvent::MergeEventFragments(TCollection* events)
+void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
 {
    // Merge all events in the list into one event (this one)
-   // First we clear this event, then all particles in each event
-   // in the list are moved into this one.
+   // We also merge/sum the parameter lists of the events
+   // First we clear this event, then we fill it with copies of each particle in each event
+   // in the list.
+   // If option "opt" is given, it is given as argument to each call to
+   // KVEvent::Clear() - this option is then passed on to the Clear()
+   // method of each particle in each event.
    // NOTE: the events in the list will be empty and useless after this!
 
-   Clear();
+   Clear(opt);
    TIter it(events);
    KVEvent* e;
-   while ((e = (KVEvent*)it())) fParticles->AbsorbObjects(e->fParticles);
+   while ((e = (KVEvent*)it())) {
+      KVNucleus* n;
+      e->ResetGetNextParticle();
+      while ((n = e->GetNextParticle())) {
+         n->Copy(*AddParticle());
+      }
+      GetParameters()->Merge(*(e->GetParameters()));
+      e->Clear(opt);
+   }
 }
 
 KVEvent* KVEvent::Factory(const char* plugin)

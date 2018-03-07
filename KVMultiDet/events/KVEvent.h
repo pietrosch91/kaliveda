@@ -108,9 +108,9 @@ public:
       {}
 
 #ifdef WITH_CPP11
-      Iterator(const KVEvent* e, Type t = Type::All, TString grp = "")
+      Iterator(const KVEvent* e, Type t = Type::All, const TString& grp = "")
 #else
-      Iterator(const KVEvent* e, Type t = All, TString grp = "")
+      Iterator(const KVEvent* e, Type t = All, const TString& grp = "")
 #endif
          : fIter(e->fParticles), fType(t), fIterating(kTRUE), fGroup(grp)
       {
@@ -129,9 +129,9 @@ public:
       }
 
 #ifdef WITH_CPP11
-      Iterator(const KVEvent& e, Type t = Type::All, TString grp = "")
+      Iterator(const KVEvent& e, Type t = Type::All, const TString& grp = "")
 #else
-      Iterator(const KVEvent& e, Type t = All, TString grp = "")
+      Iterator(const KVEvent& e, Type t = All, const TString& grp = "")
 #endif
          : fIter(e.fParticles), fType(t), fIterating(kTRUE), fGroup(grp)
       {
@@ -154,6 +154,16 @@ public:
          // Returns reference to current particle in iteration
 
          return *(current());
+      }
+      template<typename PointerType>
+      PointerType* pointer() const
+      {
+         return dynamic_cast<PointerType*>(current());
+      }
+      template<typename ReferenceType>
+      ReferenceType& reference() const
+      {
+         return dynamic_cast<ReferenceType&>(*current());
       }
       Bool_t operator!= (const Iterator& it) const
       {
@@ -234,7 +244,8 @@ public:
       ClassDef(Iterator, 0) //Iterator class for KVEvent
    };
 protected:
-   Iterator fIter;//! internal iterator used by GetNextParticle()
+   mutable Iterator fIter;//! internal iterator used by GetNextParticle()
+   Iterator GetNextParticleIterator(Option_t* opt) const;
 
 public:
    KVNameValueList* GetParameters() const
@@ -253,7 +264,7 @@ public:
 
    KVNucleus* AddParticle();
    KVNucleus* GetParticle(Int_t npart) const;
-   virtual Int_t GetMult(Option_t* opt = "");
+   virtual Int_t GetMult(Option_t* opt = "") const;
    Int_t GetMultiplicity(Int_t Z, Int_t A = 0, Option_t* opt = "");
    void GetMultiplicities(Int_t mult[], const TString& species);
    Double_t GetSum(const Char_t* KVNucleus_method, Option_t* opt = "");
@@ -280,8 +291,8 @@ public:
       return Iterator::End();
    }
 
-   KVNucleus* GetNextParticle(Option_t* opt = "");
-   void ResetGetNextParticle();
+   KVNucleus* GetNextParticle(Option_t* opt = "") const;
+   void ResetGetNextParticle() const;
 
    void ResetEnergies();
 
@@ -325,7 +336,7 @@ public:
       tree->Branch(branchname, classname, event, bufsize, 0)->SetAutoDelete(kFALSE);
    }
 
-   void MergeEventFragments(TCollection*);
+   virtual void MergeEventFragments(TCollection*, Option_t* opt = "");
    static KVEvent* Factory(const char*);
    void SetFrameName(const KVString&);
    template<typename ValType> void SetParameter(const Char_t* name, ValType value) const
@@ -347,9 +358,9 @@ public:
 struct EventIterator {
    KVEvent::Iterator it;
 #ifdef WITH_CPP11
-   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::Type::All, TString grp = "")
+   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::Type::All, const TString& grp = "")
 #else
-   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::All, TString grp = "")
+   EventIterator(KVEvent& event, KVEvent::Iterator::Type t = KVEvent::Iterator::All, const TString& grp = "")
 #endif
       : it(event, t, grp)
    {}
@@ -363,4 +374,23 @@ struct EventIterator {
    }
 };
 
+struct OKEventIterator : public EventIterator {
+   OKEventIterator(KVEvent& event) :
+#ifdef WITH_CPP11
+      EventIterator(event, KVEvent::Iterator::Type::OK)
+#else
+      EventIterator(event, KVEvent::Iterator::OK)
+#endif
+   {}
+};
+
+struct GroupEventIterator : public EventIterator {
+   GroupEventIterator(KVEvent& event, const TString& grp) :
+#ifdef WITH_CPP11
+      EventIterator(event, KVEvent::Iterator::Type::Group, grp)
+#else
+      EventIterator(event, KVEvent::Iterator::Group, grp)
+#endif
+   {}
+};
 #endif
