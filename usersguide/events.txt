@@ -123,6 +123,17 @@ for(auto& n : GroupEventIterator(event,"toto")){
 ### [deprecated] Using `KVEvent::GetNextParticle()`
 
 This method is kept for backwards compatibility only, you should use the `KVEvent::Iterator` iterators presented above. This method has a dangerous flaw: it uses a global (internal) iterator which means that it is not possible (or desirable) to perform two or more iterations at the same time on the same event (for example, the nested loops iteration in the examples above). 
+If you want to easily replace use of this method in old code, you can use new method `KVEvent::GetNextParticleIterator()`:
+
+~~~~~~~~~{.cpp}
+/* old code:
+ *   KVNucleus* nuc;
+ *   while( (nuc = event.GetNextParticle(opt)) ) {
+ *
+ * replaced with: */
+for(KVEvent::Iterator it = event.GetNextParticleIterator(opt); it!=event.end(); ++it) {
+   KVNucleus* nuc = it.pointer<KVNucleus>();
+~~~~~~~~~
 
 [KVNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVNucleus.html
 [KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
