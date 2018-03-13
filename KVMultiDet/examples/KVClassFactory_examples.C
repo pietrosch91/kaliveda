@@ -16,7 +16,6 @@
 // root[1] make_examples()
 
 #include "TSystem.h"
-#include "THtml.h"
 #include "KVClassFactory.h"
 #include "KVNameValueList.h"
 
@@ -122,12 +121,4 @@ void make_examples()
       gSystem->CompileMacro(cl->GetName());
 
    }
-   // Generate HTML doc for all classes
-   THtml html;
-   html.SetProductName("KVClassFactory Examples");
-   html.MakeIndex();
-   html.MakeAll();
-
-   // Open Html doc in default web browser
-   gSystem->Exec("xdg-open htmldoc/ClassIndex.html");
 }

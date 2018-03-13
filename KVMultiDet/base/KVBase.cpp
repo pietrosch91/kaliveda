@@ -74,7 +74,7 @@ to test whether an object is derived from KVBase, using the bit
 
 This class also provides a number of general utilities, often as static
 (stand-alone) methods.
-      
+
 <h3>KaliVeda build/installation information</h3>
 
 The static methods
@@ -84,14 +84,14 @@ The static methods
     KVBase::GetKVBuildType()
     KVBase::GetKVBuildUser()
     KVBase::GetKVVersion()
-    
+
 give info on the sources, when and where they were built, and by whom.
 
 <h3>Initialisation</h3>
 
 The entire KaliVeda framework is initialised by the static method KVBase::InitEnvironment()
- 
-    
+
+
 <h3>Finding/opening files</h3>
 
 Static methods for easily locating and/or opening files within the
@@ -99,13 +99,13 @@ KaliVeda installation tree are given:
 
     KVBase::SearchKVFile(...)
     KVBase::SearchAndOpenKVFile(...)
-    
+
 Note that in the second case, two methods exist: one for reading, the
 other for writing the (ascii) files. A global function for searching
 files is also defined:
 
     Bool_t SearchFile(const Char_t* name, TString&amp; fullpath, int ndirs, ...)
-    
+
 This will search for a
 file in an arbitrary number of locations, return kTRUE if file is found
 and put full path to file in 'fullpath':
@@ -121,7 +121,7 @@ The remaining arguments are the names of 'ndirs' paths to search in,
 Source files for a class can be found using static method
 
     KVBase::FindClassSourceFiles(...)
-    
+
 It will look for appropriately-named files corresponding to the header
 and implementation file of a class, testing several popular suffixes
 in each case.
@@ -132,14 +132,14 @@ To find an executable in the current user's 'PATH' (or elsewhere), use
 static method
 
     KVBase::FindExecutable(...)
-    
+
 <h3>Temporary files</h3>
 
 The static methods
 
     KVBase::GetTempFileName(...)
     KVBase::OpenTempFile(...)
-    
+
 can generate and handle uniquely-named temporary (ascii) files.
 
 <h3>Backing-up files</h3>
@@ -147,7 +147,7 @@ can generate and handle uniquely-named temporary (ascii) files.
 The static method
 
     KVBase::BackupFileWithDate(...)
-    
+
 can be used to create a dated backup of an existing file before it is
 replaced with a new version.
 
@@ -159,7 +159,7 @@ utilities for handling them are defined. They are static methods
 
     KVBase::LoadPlugin(...)
     KVBase::GetPluginURI(...)
-    
+
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,8 +252,6 @@ void KVBase::InitEnvironment()
    //~~~~~~~~~
    // in configuration file `.kvrootrc`.
    //`[directory]` must be an absolute pathname, but can use shell variables like <code>\$(HOME)</code>.
-
-#endif
 
    if (!fEnvIsInit) {//test if environment already initialised
 
@@ -600,7 +598,7 @@ void KVBase::BackupFileWithDate(const Char_t* path)
    //    KVBase::BackupFileWithDate("$(HOME)/toto.txt")
    //
    //The file `toto.txt` will be renamed `toto.txt.2007-05-02_16:22:37`
-  
+
    KVString fullpath = path;
    gSystem->ExpandPathName(fullpath);
    if (!gSystem->AccessPathName(fullpath.Data())) {//does the file exist ?
