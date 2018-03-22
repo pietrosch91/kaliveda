@@ -29,6 +29,7 @@ class KVFlowTensor: public KVVarGlob {
    Bool_t fCalculated;
    enum {
       kFlowAngle,
+      kSphericity,
       kKinFlowRatio13,
       kKinFlowRatio23,
       kPhiReacPlane,
@@ -40,6 +41,7 @@ class KVFlowTensor: public KVVarGlob {
    TRotation fFlowReacPlane;//!rotate XZ to reaction plane, then align Z with flow axis
    Double_t fSqueezeAngle;//!Gutbrod squeeze angle
    Double_t fSqOutRatio;//!Gutbrod squeeze-out ratio
+   Double_t fSphericity;//!
    Int_t fNParts;//! number of particles included in tensor
 
 protected:

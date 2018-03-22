@@ -200,6 +200,10 @@ Double_t KVFlowTensor::getvalue_int(Int_t index)
          return TMath::RadToDeg() * e(1).Theta();
          break;
 
+      case kSphericity:
+         return fSphericity;
+         break;
+
       case kKinFlowRatio13: {
             if (f(3) <= 0.) return -1.;
             if (f(1) <= 0.) return -1.;
@@ -294,6 +298,13 @@ void KVFlowTensor::Calculate()
    if (inPlane <= 0.) fSqOutRatio = -1.;
    else fSqOutRatio = TMath::Min(1.e+03, outOfPlane / inPlane);
 
+   // calculate sphericity
+   Double_t sum_val_prop = f(1) + f(2) + f(3);
+   if (sum_val_prop > .1) {
+      fSphericity = 3. * (1. - f(1) / sum_val_prop) / 2.;
+   } else
+      fSphericity = -1;
+
    fCalculated = kTRUE;
 }
 
@@ -322,6 +333,7 @@ void KVFlowTensor::init_KVFlowTensor()
    fTensor.Zero();
 
    SetNameIndex("FlowAngle", kFlowAngle);
+   SetNameIndex("Sphericity", kSphericity);
    SetNameIndex("KinFlowRatio13", kKinFlowRatio13);
    SetNameIndex("KinFlowRatio23", kKinFlowRatio23);
    SetNameIndex("PhiReacPlane", kPhiReacPlane);
