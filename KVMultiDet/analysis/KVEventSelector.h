@@ -262,4 +262,14 @@ public:
    ClassDef(KVEventSelector, 0)//General purpose analysis class for TTrees containing KVEvent objects
 };
 
+//! Use with TTree pointer to avoid repetitive strain injury when defining branches
+///
+/// tree->AddVar(Mult,I);  => tree->Branch("Mult", &Mult, "Mult/I");
+/// tree->AddVarBranch(Mult,multiplicity,I);  => tree->Branch("multiplicity", &Mult, "multiplicity/I");
+#define AddVar(var,type) Branch(dadastr(var), &var, didixstr(duduvartype(var,type)))
+#define AddVarBranch(var,branch,type) Branch(dadastr(branch), &var, didixstr(duduvartype(branch,type)))
+#define duduvartype(var,type) var/type
+#define didixstr(s) dadastr(s)
+#define dadastr(s) #s
+
 #endif
