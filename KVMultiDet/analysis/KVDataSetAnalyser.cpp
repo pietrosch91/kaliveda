@@ -687,6 +687,13 @@ const Char_t* KVDataSetAnalyser::GetRecognisedAutoBatchNameKeywords() const
    return tmp;
 }
 
+const KV2Body* KVDataSetAnalyser::GetKinematics() const
+{
+   // Return pointer to kinematics of analysed system if defined
+   if (fSystem) return fSystem->GetKinematics();
+   return nullptr;
+}
+
 Int_t KVDataSetAnalyser::GetRunNumberFromFileName(const Char_t* fileName)
 {
    // Get the run number from the filename

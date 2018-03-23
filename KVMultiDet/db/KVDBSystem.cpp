@@ -86,7 +86,7 @@ KV2Body* KVDBSystem::GetKinematics()
    //
    // If no projectile and/or target are defined for the system, we return 0x0.
 
-   if (GetZbeam()*GetZtarget() == 0) return 0;
+   if (GetZbeam()*GetZtarget() == 0) return nullptr;
 
    if (!fCinema) {
       fCinema = new KV2Body();

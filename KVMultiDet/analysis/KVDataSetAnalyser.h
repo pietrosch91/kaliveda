@@ -136,6 +136,8 @@ public:
    KVString GetRootDirectoryOfDataToAnalyse() const;
    const Char_t* GetRecognisedAutoBatchNameKeywords() const;
 
+   const KV2Body* GetKinematics() const;
+
    ClassDef(KVDataSetAnalyser, 1) //Analysis of data in datasets
 };
 
