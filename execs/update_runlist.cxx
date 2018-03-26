@@ -23,6 +23,8 @@ int main(int argc, char** argv)
       cout << "Executable for updating available runlists for different KaliVeda datasets" << endl;
       cout << "Usage:" << endl << endl;
       cout << "\tupdate_runlist [data repository name] [dataset name] [data type]" << endl << endl;
+      cout << "Example:" << endl;
+      cout << "\tupdate_runlist fazia_irods FAZIAPRE raw" << endl << endl;
       return 0;
    }
 

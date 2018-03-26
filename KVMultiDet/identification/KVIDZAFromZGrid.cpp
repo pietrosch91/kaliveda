@@ -302,7 +302,7 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
 //       Info("Identify","try mass ID..");
       const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr); // IDQuality and comments assigned here
       if (idr->IDquality < kICODE4) { // should always be true: to be verified...
-         idr->Aident = kTRUE;
+         if (const_cast < KVIDZAFromZGrid* >(this)->GetIntervalSet(idr->Z)->GetNPID() > 1) idr->Aident = kTRUE;
          idr->IDOK = kTRUE;
       } else if (idr->IDquality == kICODE4) idr->IDquality = kICODE3;
    } else {
