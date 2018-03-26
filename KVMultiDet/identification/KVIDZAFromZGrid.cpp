@@ -207,12 +207,23 @@ void KVIDZAFromZGrid::ClearPIDIntervals()
    }
 }
 
-bool KVIDZAFromZGrid::is_inside(double pid)
+int KVIDZAFromZGrid::is_inside(double pid)
 {
    int zint = TMath::Nint(pid);
    interval_set* it = GetIntervalSet(zint);
-   if (it) return it->is_inside(pid);
-   else return kFALSE;
+   if (it) {
+      if (it->is_inside(pid)) return zint;
+      else if (it->is_above(pid)) {
+
+         it = GetIntervalSet(zint + 1);
+         if (it && it->is_inside(pid)) return zint + 1;
+         else return 0;
+      } else {
+         it = GetIntervalSet(zint - 1);
+         if (it && it->is_inside(pid)) return zint - 1;
+         else return 0;
+      }
+   } else return 0;
 }
 
 void KVIDZAFromZGrid::Initialize()
@@ -329,7 +340,9 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
 
 double KVIDZAFromZGrid::DeduceAfromPID(KVIdentificationResult* idr)
 {
-   int zint = idr->Z;
+   int zint = is_inside(idr->PID);
+   if (zint != idr->Z) idr->Z = zint;
+
    double res = 0.;
    interval_set* it = GetIntervalSet(zint);
    if (it) res = it->eval(idr);
@@ -347,7 +360,6 @@ double interval_set::eval(KVIdentificationResult* idr)
 
    if (fType == KVIDZAFromZGrid::kIntType) {
       for (int ii = 0; ii < fNPIDs; ii++) {
-//         if (pid > ((interval*)fIntervals.At(ii))->GetPIDmin() && pid < ((interval*)fIntervals.At(ii))->GetPIDmax()) {
          if (((interval*)fIntervals.At(ii))->is_inside(pid)) {
             ares = ((interval*)fIntervals.At(ii))->GetA();
             break;
@@ -392,6 +404,14 @@ bool interval_set::is_inside(double pid)
 //   Info("is_inside","min: %d max:%d npids:%d", ((interval*)fIntervals.At(0))->GetA(), ((interval*)fIntervals.At(fNPIDs-1))->GetA(), fNPIDs);
 
    if (pid > ((interval*)fIntervals.At(0))->GetPIDmin() && pid < ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) return kTRUE;
+   else return kFALSE;
+}
+
+bool interval_set::is_above(double pid)
+{
+   if (fType != KVIDZAFromZGrid::kIntType) return kTRUE;
+
+   if (pid > ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) return kTRUE;
    else return kFALSE;
 }
 

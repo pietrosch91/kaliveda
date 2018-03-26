@@ -53,7 +53,7 @@ public:
 
    void Initialize();
 protected:
-   bool is_inside(double pid);
+   int is_inside(double pid);
 
 
    ClassDef(KVIDZAFromZGrid, 1) //Compute Z and A only from Z lines...
@@ -158,6 +158,7 @@ public:
    void   add(int aa, double pid, double pidmin = -1., double pidmax = -1.);
    double eval(KVIdentificationResult* idr);
    bool is_inside(double pid);
+   bool is_above(double pid);
 
    ClassDef(interval_set, 1) //
 };
