@@ -20,6 +20,7 @@ fi
 # remove history from gh-pages
 cd html
 git reset --hard $(git rev-list --max-parents=0 --abbrev-commit HEAD)
+cd ..
 
 # reformat comments
 kaliveda -b -q
