@@ -65,3 +65,14 @@ void KVINDRAEventSelector::Make(const Char_t* kvsname)
    cf.GenerateCode();
 }
 
+/** \example ExampleINDRAAnalysis.cpp
+# Example analysis class for INDRA data
+
+This example for analysis of fully calibrated and identified data shows how to
+ - define global variables for the analysis;
+ - define a TTree to store the global variables and other user variables;
+ - perform fine-grained selection of the particles retained for the analysis;
+ - retrieve informations on the currently analysed run/system and associated kinematics.
+
+\include ExampleINDRAAnalysis.h
+ */

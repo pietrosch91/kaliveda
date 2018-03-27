@@ -1,15 +1,3 @@
-//# Examples of use of the KVZmax global variable
-//
-// KVZmax sorts nuclei in an event as a function of decreasing Z
-//
-// To execute this function, do:
-//
-// $ kaliveda
-// kaliveda[0] .L globvars_kvzmax.C+
-// kaliveda[1] zmax_example1()
-// kaliveda[2] zmax_example2()
-//
-
 #include "TTree.h"
 #include "TCanvas.h"
 #include "KVZmax.h"

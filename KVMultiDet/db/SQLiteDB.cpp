@@ -894,3 +894,15 @@ namespace KVSQLite {
    //____________________________________________________________________________//
 
 }
+
+/**
+  \example db_sqlite_examples.C
+# Examples of use of KVSQLite interface to sqlite databases
+
+To execute this function, do
+
+    $ kaliveda
+    kaliveda[0] .L db_sqlite_examples.C+
+    kaliveda[1] sqlite_example()
+
+*/

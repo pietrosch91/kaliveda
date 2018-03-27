@@ -1,15 +1,3 @@
-//# Examples of use of KVSQLite interface to sqlite databases
-//
-// This is the base class of most classes in the KaliVeda framework.
-// It provides information on the version & installation layout of
-// KaliVeda, plus various general "utility" methods.
-//
-// To execute this function, do
-//
-// $ kaliveda
-// kaliveda[0] .L db_sqlite_examples.C+
-// kaliveda[1] sqlite_example()
-//
 #include "KVConfig.h"
 #ifdef WITH_RSQLITE
 #include "SQLiteDB.h"

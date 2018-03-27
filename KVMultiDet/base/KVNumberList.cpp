@@ -9,49 +9,58 @@
 
 ClassImp(KVNumberList)
 //////////////////////////////////////////////
-//KVNumberList
-//
-//Handles lists of positive numbers such as "1-12 14 15-17" or "345,356-390'
-//Strings with this format are handled and analysed by this class.
-//
-//Examples:
-//
-//Create a new list with the constructor:
-//
-//KVNumberList a("1-20, 51, 52-56")
-//
-//Change an existing list:
-//
-//a.SetList("1001 1003-1005,1010")
-//
-//Get first and last values of ranges in list (i.e. largest and smallest included values)
-//
-//a.First()   (would give 1001 for previous example)
-//a.Last()   (would give 1010 for previous example)
-//
-//Get an array filled with all values corresponding to ranges defined in list:
-//
-//Int_t n
-//Int_t* val = a.GetArray(n)
-//
-//val[0] is same value as 'a.First()'
-//val[n-1] is same value as 'a.Last()
-//
-//Use AsString() or GetList() method to obtain list in its most compact form, using the "1-20, 51, 52-56" format.
-//
-//IsEmpty() returns kTRUE if the list is empty ;-p
-//
-//Iterating over all numbers in the list:
-//
-//Initialise first by calling Begin(), then loop until End() returns kTRUE:
-//
-// KVNumberList r("1-10");
-// r.Begin();
-// while( !r.End() ){
-//    Int_t next_val = r.Next();
-//    ...
-// }
-//If list is empty, End() always returns kTRUE and Next() returns -1.
+/*
+<h2>KVNumberList</h2>
+<h4>Strings used to represent a set of ranges of values</h4>
+
+Handles lists of positive numbers such as `"15-17 1-12 14"` or `"345,356-390"`.
+Strings with this format can be handled and analysed by this class.
+They can also be iterated over. Note that the numbers in the initializing string
+do not have to be in ascending order, or indeed unique. The resulting KVNumberList
+will contain only the unique values in ascending order.
+
+### Examples
+
+Create a new list with the constructor:
+
+    KVNumberList a("1-20, 51, 52-56")
+
+Change an existing list:
+
+    a.SetList("1001 1003-1005,1010")
+
+Get first and last values of ranges in list (i.e. largest and smallest included values)
+
+    a.First()   (would give 1001 for previous example)
+    a.Last()   (would give 1010 for previous example)
+
+Get an array filled with all values corresponding to ranges defined in list:
+
+    Int_t n
+    Int_t* val = a.GetArray(n)
+
+`val[0]` is same value as `a.First()`.
+
+`val[n-1]` is same value as `a.Last()`.
+
+Use AsString() or GetList() method to obtain list in its most compact form, using the "1-20, 51, 52-56" format.
+
+IsEmpty() returns kTRUE if the list is empty ;-p
+
+#### Iterating over all numbers in the list
+
+Initialise first by calling Begin(), then loop until End() returns kTRUE:
+
+    KVNumberList r("1-10");
+    r.Begin();
+    while( !r.End() ){
+       Int_t next_val = r.Next();
+       ...
+    }
+
+If list is empty, End() always returns kTRUE and Next() returns -1.
+*/
+//////////////////////////////////////////////////////////////////////////////
 
 //____________________________________________________________________________________________//
 
@@ -905,3 +914,16 @@ TList* KVNumberList::CutInSubList(Int_t number)
    return list;
 
 }
+
+/** \example base_kvnumberlist.C
+# Examples of use of the KVNumberList class
+
+KVNumberList provides many tools for handling discontinuous ranges of integers.
+
+To execute this function, do:
+
+    $ kaliveda
+    kaliveda[0] .L base_kvnumberlist.C+
+    kaliveda[1] test_kvnumberlist()
+
+*/

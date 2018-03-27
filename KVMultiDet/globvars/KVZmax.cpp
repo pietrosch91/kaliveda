@@ -8,22 +8,31 @@
 
 ClassImp(KVZmax)
 //////////////////////////////////////////////////////////////////////////////////
-//  Global variable returning the charge of the (i+1)th heaviest fragment
-//  and the pointer to the (i+1)th heaviest fragment, where i=0,1,...,M-1
-//  with M = total multiplicity of event.
-//
-//  All nuclei of the event are sorted in descending order according to their charge
-//  (Z(0) > Z(1) > Z(2) > ... > Z(M-1)) .
-//
-//  Simple interface "GetValue()" returns Z of heaviest fragment
-//  and "GetObject" returns pointer to this fragment.
-//
-//  All other fragments accessible via "GetValue(i)" and "GetZmax(i)", i ranging
-//  from 0 to M-1 (M=total multiplicity)
-//  (the latter method returns a KVNucleus pointer directly).
-//
-//  Also GetValue("Zmax1"), GetValue("Zmax2"), ..., GetValue("Zmax50")
-//  can be used to obtain Z of 50 heaviest nuclei.
+/*
+<h2>KVZMax</h2>
+<h4>Global variable used to sort particles in order of decreasing atomic number</h4>
+
+  Global variable returning the charge of the `(i+1)`-th heaviest fragment
+  and the pointer to the `(i+1)`-th heaviest fragment, where `i=0,1,...,M-1`
+  with `M =` total multiplicity of event.
+
+  All nuclei of the event are sorted in descending order according to their charge
+  (`Z(0)` > `Z(1)` > `Z(2)` > ... > `Z(M-1)`) .
+
+  Simple interface GetValue() returns Z of heaviest fragment
+  and GetObject returns pointer to this fragment.
+
+  All other fragments accessible via GetValue(i) and GetZmax(i), `i` ranging
+  from 0 to `M-1` (`M`=total multiplicity)
+  (the latter method returns a KVNucleus pointer directly).
+
+  Also GetValue(`"Zmax1"`), GetValue(`"Zmax2"`), ..., GetValue(`"Zmax50"`)
+  can be used to obtain Z of 50 heaviest nuclei.
+
+  By default when used in a KVGVList global variable list and automatic TTree branch creation is used
+  (see method KVGVList::MakeBranches and the example given below), the first 3 largest Z will be stored.
+  You can change this with method SetMaxNumBranches().
+*/
 ///////////////////////////////////////////////////////////////////////////////////
 
 Int_t KVZmax::nb = 0;
@@ -228,3 +237,18 @@ Double_t* KVZmax::GetValuePtr(void)
       v[u] = GetValue(u);
    return v;
 }
+
+/**
+ \example globvars_kvzmax.C
+# Examples of use of the KVZmax global variable
+
+ KVZmax sorts nuclei in an event as a function of decreasing Z.
+
+ To execute this function, do:
+
+    $ kaliveda
+    kaliveda[0] .L globvars_kvzmax.C+
+    kaliveda[1] zmax_example1()
+    kaliveda[2] zmax_example2()
+
+*/

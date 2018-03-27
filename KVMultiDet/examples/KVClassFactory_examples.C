@@ -1,20 +1,3 @@
-//# Example of class source code generation using KVClassFactory
-//
-// KVClassFactory can be used to generate skeleton class source files
-//
-// To execute this function, either do
-//
-// $ kaliveda
-// kaliveda[0] .L KVClassFactory_examples.C+
-// kaliveda[1] make_examples()
-//
-// or
-//
-// $ root
-// root[0] KVBase::InitEnvironment()
-// root[0] .L KVClassFactory_examples.C+
-// root[1] make_examples()
-
 #include "TSystem.h"
 #include "KVClassFactory.h"
 #include "KVNameValueList.h"

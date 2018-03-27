@@ -8,22 +8,6 @@ using namespace std;
 
 ClassImp(ClassTraj)
 
-////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
-<h2>ClassTraj</h2>
-<h4>Classical trajectory for heavy ion collisions</h4>
-
-Friction parameter
-==================
-alpha=240 gives maximum fusion X-section for 40Ca+60Ni@6MeV/u (bfus<=5.25fm: 866mb)
-
-alpha=750 gives 66mb of fusion for 84Kr(605 MeV)+238U
-   - measured fusion-fission Xsec from PRL 33, 502 (1974): 55+/-15 mb
-<!-- */
-// --> END_HTML
-////////////////////////////////////////////////////////////////////////////////
-
 ClassTraj::ClassTraj(const KVNucleus& proj, const KVNucleus& targ, Bool_t viz)
    : KVRungeKutta(8), fWilcke(proj, targ), fVisualization(viz)
 {

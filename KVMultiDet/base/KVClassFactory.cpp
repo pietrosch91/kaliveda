@@ -1625,3 +1625,15 @@ KVClassMember::KVClassMember(const Char_t* name, const Char_t* type, const Char_
    // New class member variable
    SetAccess(access);
 }
+
+/** \example KVClassFactory_examples.C
+# Example of class source code generation using KVClassFactory
+
+KVClassFactory can be used to generate skeleton class source files
+
+To execute this function, do
+
+    $ kaliveda
+    kaliveda[0] .L KVClassFactory_examples.C+
+    kaliveda[1] make_examples()
+*/

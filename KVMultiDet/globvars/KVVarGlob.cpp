@@ -13,7 +13,8 @@
 ClassImp(KVVarGlob)
 /////////////////////////////////////////////////////////////////////////////////
 /*
-BEGIN_HTML<h1>Global variables base class</h1>END_HTML
+<h2>KVVarGlob</h2>
+<h4>Base class for global variables</h4>
 
 This class is a base class for the management of global variables.
 A global variable is an analysis tool for condensing the information in a multibody event into one or a few
@@ -27,64 +28,74 @@ inherits from KVNucleus.
 
 Global variable objects are used in the following schematic way:
 
-creation & initialisation:
+#### Creation & initialisation:
 
+~~~~~~~~~~~~
       KVVarGlob* VG = new KV...;
       VG->Init(); // perform any necessary initialisations
+~~~~~~~~~~~~
 
-treatment of 1 event:
+#### Treatment of 1 event:
 
+~~~~~~~~~~~~
       VG->Reset(); // reinitialise prior to analysis
       while( [loop over particles in event] ){
 
           VG->Fill( [particle] ); // calculate contribution of particle to variable
       }
       Double_t valueOfVG = VG->GetValue(); // retrieve value of global variable for event
+~~~~~~~~~~~~
 
 Global variables can be of different types:
 
-     One-body global variable     (type = KVVarGlob::kOneBody)
-        - the variable is computed by performing a loop over all particles in an event
-          and calling the overridden Fill(KVNucleus*) method for each particle in turn.
-     Two-body global variable     (type = KVVarGlob::kTwoBody)
-        - the variable is computed by performing a loop over all pairs of particles in an event
-          and calling the overridden Fill2(KVNucleus*,KVNucleus*) method for each pair in turn.
-     N-body global variable     (type = KVVarGlob::kNBody)
-        - the variable is computed from the full list of particles of the event, by defining
-          the overridden FillN(KVEvent*) method.
+ - One-body global variable  (type = `KVVarGlob::kOneBody`)
+    - the variable is computed by performing a loop over all particles in an event
+      and calling the overridden Fill(KVNucleus*) method for each particle in turn.
+ - Two-body global variable  (type = `KVVarGlob::kTwoBody`)
+    - the variable is computed by performing a loop over all pairs of particles in an event
+      and calling the overridden Fill2(KVNucleus*,KVNucleus*) method for each pair in turn.
+ - N-body global variable (type = `KVVarGlob::kNBody`)
+    - the variable is computed from the full list of particles of the event, by defining
+      the overridden FillN(KVEvent*) method.
 
-Derived global variable classes of 2-body or N-body type must set the fType member variable
-to the appropriate type (kTwoBody or kNBody) and define the Fill2(KVNucleus*,KVNucleus*)
+Derived global variable classes of 2-body or N-body type must set the `fType` member variable
+to the appropriate type (`kTwoBody` or `kNBody`) and define the Fill2(KVNucleus*,KVNucleus*)
 method (for 2-body variables) or the FillN(KVEvent*) method (for N-body variables).
+
 This is handled semi-automatically when using method
-   MakeClass(const Char_t * classname, const Char_t * classdesc, int type)
+
+~~~~~~~~~~~~
+     MakeClass(const Char_t * classname, const Char_t * classdesc, int type)
+~~~~~~~~~~~~
+
 to generate a skeleton '.h' and '.cpp' file for the implementation of a new global variable class.
+
 By default, global variables are 1-body and must define the Fill(KVNucleus*) method.
 
-begin_html<h2>Global variable lists</h2>end_html
+## Global variable lists
 The KVGVList class handles a list of global variables. A list can be used in the following
 schematic way to calculate several global variables at once:
 
-creation & initialisation:
+#### Creation & initialisation
 
+~~~~~~~~~~~~
       KVVGList* VGlist = new KVGVList;
       VGlist->Add( new KV...("var1") ); // add variable
       VGlist->Add( new KV...("var2") ); // add variable
       VGlist->Add( new KV...("var3") ); // add variable
       ...
       VGlist->Init(); // initialise all variables
+~~~~~~~~~~~~
 
-treatment of 1 event:
+#### Treatment of 1 event
 
-      VGlist->Reset(); // reinitialise all variables prior to analysis
-      while( [loop over particles in event] ){
-
-          VGlist->Fill( [particle] ); // calculate contribution of particle to each variable
-      }
+~~~~~~~~~~~~
+      VGlist->CalculateGlobalVariables( [event] ); // calculate contribution of each particle to each variable
       Double_t valueOfvar1 = VGlist->GetGV("var1")->GetValue(); // retrieve value of "var1" for event
+~~~~~~~~~~~~
 
-begin_html<h2>Options, parameters, reference frames, particle selection, etc.</h2>
-<h3>Particle selection</h3>end_html
+## Options, parameters, reference frames, particle selection, etc.
+### Particle selection
 The selection of particles which are taken into account can be handled by the variable
 itself. Define a selection using class KVParticleCondition and then set it by calling
 method SetSelection(KVParticleCondition&). Then, in your treatment loop for each event,
@@ -94,33 +105,39 @@ If you have a list of global variable objects (KVGVList), the KVGVList::Fill met
 automatically calls FillWithCondition for each KVVarGlob in the list (variables for which
 no particle selection is defined include all particles).
 
-begin_html<h3>Options and parameters</h3>end_html
+### Options and parameters
 In order to give greater flexibility to global variable classes without the need to add
 member variables and the associated Get/Set methods, we provide methods to handle
 generic 'options' and 'parameters' for all variables.
 
 An 'option' is a name-value pair, the value is a character string. Methods to use are:
 
-   void      SetOption(const Char_t* option, const Char_t* value)
-   Bool_t    IsOptionGiven(const Char_t* option)
-   KVString& GetOptionString(const Char_t* option) const
-   void      UnsetOption(const Char_t* opt)
+~~~~~~~~~~~
+     void      SetOption(const Char_t* option, const Char_t* value)
+     Bool_t    IsOptionGiven(const Char_t* option)
+     KVString& GetOptionString(const Char_t* option) const
+     void      UnsetOption(const Char_t* opt)
+~~~~~~~~~~~
 
 A 'parameter' is a name-value pair, the value is a double-precision float value. Methods to use are:
 
-   void     SetParameter(const Char_t* par, Double_t value)
-   Bool_t   IsParameterSet(const Char_t* par)
-   Double_t GetParameter(const Char_t* par)
-   void     UnsetParameter(const Char_t* par)
+~~~~~~~~~~~
+     void     SetParameter(const Char_t* par, Double_t value)
+     Bool_t   IsParameterSet(const Char_t* par)
+     Double_t GetParameter(const Char_t* par)
+     void     UnsetParameter(const Char_t* par)
+~~~~~~~~~~~
 
-begin_html<h3>Kinematical reference frames</h3>end_html
+### Kinematical reference frames
 For global variables which use kinematical properties of particles, it can be useful to be
 able to calculate the same variable in different Lorentz reference frames (see KVParticle::SetFrame
 and KVEvent::SetFrame for how to define and access different frames). Therefore we
 provide the methods
 
-   void           SetFrame(const Char_t*)
-   const Char_t*  GetFrame()
+~~~~~~~~~~~
+     void           SetFrame(const Char_t*)
+     const Char_t*  GetFrame()
+~~~~~~~~~~~
 
 which allow to change the reference frame used for the calculation of the variable
 (depending on the implementation of the specific class).

@@ -70,8 +70,6 @@ public:
       return (fVGN.GetEntries() > 0);
    }
 
-   TObject** GetGVRef(const Char_t* name);
-
    void MakeBranches(TTree*);
    void FillBranches();
 

@@ -12,36 +12,30 @@ ClassImp(KVRungeKutta)
 <h2>KVRungeKutta</h2>
 <h4>Adaptive step-size 4th order Runge-Kutta ODE integrator from Numerical Recipes</h4>
 To use, implement a class which inherits from KVRungeKutta and which has AT LEAST
-the following methods:<br>
-<pre>
-<code>
-MyClass::MyClass(Int_t N) : KVRungeKutta(N)
-</code>
-</pre>
+the following methods:
+
+    MyClass::MyClass(Int_t N) : KVRungeKutta(N)
+
 i.e. a constructor which has at least one argument, the number of ODE to be integrated,
-which is passed to the <code>KVRungeKutta(Int_t, Double_t, Double_t)</code> constructor
-(this number is stored in the member variable Int_t KVRungeKutta::nvar).
+which is passed to the `KVRungeKutta(Int_t, Double_t, Double_t)` constructor
+(this number is stored in the member variable `Int_t KVRungeKutta::nvar`).
 In this case the default values of precision and minimum step size will be used.
-<pre>
-<code>
-void MyClass::CalcDerivs(Double_t X, Double_t* Y, Double_t* DYDX)
-</code>
-</pre>
-This method must calculate and store the values of the derivatives DYDX[nvar]
-given the value of X and of the Y[nvar] independent variables.
+
+    void MyClass::CalcDerivs(Double_t X, Double_t* Y, Double_t* DYDX)
+
+This method must calculate and store the values of the derivatives `DYDX[nvar]`
+given the value of `X` and of the `Y[nvar]` independent variables.
 This method will be called many times during each step of the integration.
-The member variable fInitialDeriv is set to kTRUE when the method is called for the
+The member variable `fInitialDeriv` is set to `kTRUE` when the method is called for the
 first time of each step.
-<br>
-Then, after filling an array ystart[nvar] with the initial values of the independent variables,
-perform the integration from x1 to x2 like this:<br>
-<pre>
-<code>
-MyClass RKex(10); // integrate 10 0DE's
-RKex.Integrate(ystart, x1, x2, 0.01); // example initial step-size guess
-</code>
-</pre>
-<!-- */
+
+Then, after filling an array `ystart[nvar]` with the initial values of the independent variables,
+perform the integration from `x1` to `x2` like this:
+
+    MyClass RKex(10); // integrate 10 0DE's
+    RKex.Integrate(ystart, x1, x2, 0.01); // example initial step-size guess
+
+*/
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -230,3 +224,16 @@ void KVRungeKutta::rkck(Double_t h)
       yerr[i] = h * (dc1 * dydx[i] + dc3 * ak3[i] + dc4 * ak4[i] + dc5 * ak5[i] + dc6 * ak6[i]);
 }
 
+/** \example ClassTraj.cpp
+# Example of use of the KVRungeKutta class
+
+Implementation of a classical trajectory calculation for heavy ion collisions
+
+### Friction parameter
+`alpha=240` gives maximum fusion X-section for 40Ca+60Ni@6MeV/u (bfus<=5.25fm: 866mb)
+
+`alpha=750` gives 66mb of fusion for 84Kr(605 MeV)+238U
+   - measured fusion-fission Xsec from PRL 33, 502 (1974): 55+/-15 mb
+
+\include ClassTraj.h
+*/

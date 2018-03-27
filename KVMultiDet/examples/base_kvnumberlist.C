@@ -1,21 +1,3 @@
-//# Examples of use of the KVNumberList class
-//
-// KVNumberList provides many tools for handling
-// discontinuous ranges of integers.
-//
-// To execute this function, either do
-//
-// $ kaliveda
-// root[0] .L base_kvnumberlist.C+
-// root[1] test_kvnumberlist()
-//
-// or
-//
-// $ root
-// root[0] KVBase::InitEnvironment()
-// root[1] .L base_kvnumberlist.C+
-// root[2] test_kvnumberlist()
-
 #include "TStopwatch.h"
 #include "KVNumberList.h"
 #include "Riostream.h"

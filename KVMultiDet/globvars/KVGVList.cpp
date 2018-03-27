@@ -1,3 +1,6 @@
+// Author: Daniel Cussol
+//
+// 17/02/2004
 #include "Riostream.h"
 #include "KVGVList.h"
 
@@ -5,48 +8,43 @@
 
 ClassImp(KVGVList)
 //////////////////////////////////////////////////////////////////////////////////
-//    List of global variables
-//
-// Author: Daniel Cussol
-//
-// 17/02/2004
-//
-//   This class allows to process in a single call many KVVargGlob instances. This list
-// can be managed by using standard KVList methods. The methods used to initiate, reset
-// and fill such a list are:
-//
-//      void Init(void)                             initializes the global variables (call once)
-//      void CalculateGlobalVariables(KVEvent *e)   compute all global variables for the event
-//
-// By default the KVGVList does not own the objects it contains (they may be on the stack).
-// User's responsibility in this case to delete heap-based objects after use.
-//
-// Here is a short example of use:
-//
-//==================================================================================================
-// // Declarations and initialisations
-// ...
-// KVEkin *Sekin=new KVEkin("SEkin");
-// KVZmean zmean;
-// KVZmax  zmax;
-// KVGVList gvlist;
-// gvlist.Add(Sekin);
-// gvlist.Add(&zmean);
-// gvlist.Add(&zmax);
-// gvlist.Init();
-//
-// ...
-// // Treatment loop for each event called for each event
-// ...
-// gvlist.CalculateGlobalVariables(event); // with KVEvent* event pointer
-//
-// cout << "Total kinetic energy : " << Sekin->GetValue() << endl;
-// cout << "Mean charge          : " << zmean() << endl;
-// cout << "Standard deviation   : " << zmean("RMS") << endl;
-// cout << "Charge of the heaviest   : " << zmax() << endl;
-// cout << "Vpar of the heaviest     : " << zmax.GetZmax(0)->GetVpar() << endl;
-// ...
-//
+/*
+<h2>KVGVList</h2>
+<h4>List of global variables</h4>
+
+This class allows to process in a single call many KVVargGlob instances.
+The methods used to initialize and fill variables in such a list are:
+
+~~~~~~~~~~~~
+    void Init(void);                             // initializes the global variables (call once)
+    void CalculateGlobalVariables(KVEvent *e);   // compute all global variables for the event
+~~~~~~~~~~~~
+
+By default the KVGVList does not own the objects it contains (they may be on the stack).
+User's responsibility in this case to delete heap-based objects after use.
+
+~~~~~~~~~~~~
+    // Declarations and initialisations
+    KVEkin *Sekin=new KVEkin("SEkin");
+    KVZmean zmean;
+    KVZmax  zmax;
+    KVGVList gvlist;
+    gvlist.Add(Sekin);
+    gvlist.Add(&zmean);
+    gvlist.Add(&zmax);
+    gvlist.Init();
+
+    // Treatment loop for each event called for each event
+    gvlist.CalculateGlobalVariables(event); // with KVEvent* pointer to event to analyse
+
+    cout << "Total kinetic energy : " << Sekin->GetValue() << endl;
+    cout << "Mean charge          : " << zmean() << endl;
+    cout << "Standard deviation   : " << zmean("RMS") << endl;
+    cout << "Charge of the heaviest   : " << zmax() << endl;
+    cout << "Vpar of the heaviest     : " << zmax.GetZmax(0)->GetVpar() << endl;
+~~~~~~~~~~~~
+
+*/
 //////////////////////////////////////////////////////////////////////////////////
 
 //_________________________________________________________________
@@ -91,9 +89,9 @@ void KVGVList::Reset(void)
 //_________________________________________________________________
 void KVGVList::Fill(KVNucleus* c)
 {
-   // Calls Fill(KVNucleus*) method of all one-body variables in the list
+   // Calls KVVarGlob::Fill(KVNucleus*) method of all one-body variables in the list
    // for all KVNucleus satisfying the KVParticleCondition given to
-   // SetSelection (if no selection given, all nuclei are used).
+   // KVVarGlob::SetSelection() (if no selection given, all nuclei are used).
 
    fVG1.R__FOR_EACH(KVVarGlob, FillWithCondition)(c);
 }
@@ -102,9 +100,9 @@ void KVGVList::Fill(KVNucleus* c)
 //_________________________________________________________________
 void KVGVList::Fill2(KVNucleus* c1, KVNucleus* c2)
 {
-   // Calls Fill(KVNucleus*,KVNucleus*) method of all two-body variables in the list
+   // Calls KVVarGlob::Fill(KVNucleus*,KVNucleus*) method of all two-body variables in the list
    // for all pairs of KVNucleus (c1,c2) satisfying the KVParticleCondition given to
-   // SetSelection (if no selection given, all nuclei are used).
+   // KVVarGlob::SetSelection() (if no selection given, all nuclei are used).
 
    fVG2.R__FOR_EACH(KVVarGlob, Fill2WithCondition)(c1, c2);
 }
@@ -112,7 +110,7 @@ void KVGVList::Fill2(KVNucleus* c1, KVNucleus* c2)
 //_________________________________________________________________
 void KVGVList::FillN(KVEvent* r)
 {
-   // Calls FillN(KVEvent*) method of all N-body variables in the list
+   // Calls KVVarGlob::FillN(KVEvent*) method of all N-body variables in the list
    TObjLink* lnk = fVGN.FirstLink();
    while (lnk) {
       KVVarGlob* vg = (KVVarGlob*) lnk->GetObject();
@@ -182,12 +180,12 @@ void KVGVList::Add(TObject* obj)
 {
    // Overrides KVUniqueNameList::Add(TObject*) so that global variable pointers are sorted
    // between the 3 lists used for 1-body, 2-body & N-body variables.
+   //
    // We also print a warning in case the user tries to add a global variable with the
    // same name as one already in the list. In the case we retain only the first global variable,
    // any others with the same name are ignored
 
-   // add object to main list, check duplicates
-   KVUniqueNameList::Add(obj);
+   KVUniqueNameList::Add(obj);   // add object to main list, check duplicates
    if (!ObjectAdded()) {
       Warning("Add", "You tried to add a global variable with the same name as one already in the list");
       Warning("Add", "Only the first variable added to the list will be used: name=%s class=%s",
@@ -208,49 +206,17 @@ void KVGVList::Add(TObject* obj)
 
 //_________________________________________________________________
 
-TObject** KVGVList::GetGVRef(const Char_t* name)
-{
-   // Returns pointer to pointer holding address of GV in list with given name.
-   // This can be used in order to store global variables used in a KVSelector in a TTree:
-   //
-   // [ in MySelector::InitAnalysis... ]
-   //    AddGV("KVZmax", "zmax");
-   //    TTree* tree = new TTree(...);
-   //    tree->Branch("zmax", "KVZmax", GetGVList()->GetGVRef("zmax"));
-   //
-   // This will create a leaf called "zmax" containing the global variable for each event.
-   // In the Tree Viewer you can plot the values of this leaf variable in the same way as
-   // you would with any simple variable.
-   //
-   // Note that if you want to store all of the global variables in the tree, you just need to
-   // do the following:
-   //
-   // [in MySelector::InitAnalysis... ]
-   //    AddGV("KVZmax", "zmax");
-   //    AddGV("KVZtot", "ztot");
-   //    AddGV("KVEtrans", "etrans");
-   //    etc. etc.
-   //    TTree* tree = new TTree(...);
-   //    tree->Branch(GetGVList());
-   //
-   // This will create a leaf for each global variable in the list.
-
-   TObject* obj = FindObject(name);
-   if (obj) return GetObjectRef(obj);
-   return 0;
-}
-
-//_________________________________________________________________
-
 void KVGVList::MakeBranches(TTree* tree)
 {
    // Create a branch in the TTree for each global variable in the list.
    // A leaf with the name of each global variable will be created to hold the
-   // value of the variable (result of GetValue() method).
+   // value of the variable (result of KVVarGlob::GetValue() method).
    // For multi-valued global variables we add a branch for each value with name
-   //   GVname.ValueName
-   // Any variable for which KVVarGlob::SetMaxNumBranches(0) was called will not
-   // be added to the TTree.
+   //
+   //    `GVname.ValueName`
+   //
+   // Any variable for which KVVarGlob::SetMaxNumBranches() was called with argument `0`
+   // will not be added to the TTree.
 
    if (!tree) return;
    if (fNbIBranch >= MAX_CAP_BRANCHES && fNbBranch >= MAX_CAP_BRANCHES) return;
@@ -295,7 +261,7 @@ void KVGVList::FillBranches()
    // Use this method ONLY if you first use MakeBranches(TTree*) in order to
    // automatically create branches for your global variables.
    // Call this method for each event in order to put the values of the variables
-   // in the branches ready for TTree::Fill to be called (note that Fill() is not
+   // in the branches ready for TTree::Fill to be called (note that TTree::Fill is not
    // called in this method: you should do it after this).
 
    if (!fNbBranch && !fNbIBranch) return;  // MakeBranches has not been called
