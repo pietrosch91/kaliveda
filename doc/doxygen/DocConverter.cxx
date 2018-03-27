@@ -30,15 +30,14 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
          l.ReplaceAll("<h2>", "");
          l.ReplaceAll("</h2>", "");
          l.Begin(",");
-         while(!l.End()){
-            if (std::find(classname.begin(),classname.end(),l.Next(kTRUE))!=classname.end()) {
+         while (!l.End()) {
+            if (std::find(classname.begin(), classname.end(), l.Next(kTRUE)) != classname.end()) {
                l = ""; //no need for class name title
                just_got_classname = true;
                break;
             }
          }
-         if(!just_got_classname)
-         {
+         if (!just_got_classname) {
             // transform to markdown title
             l.Prepend("## ");
             l.Append(" ##");
@@ -51,7 +50,7 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
             // this is brief description
             briefdesc = l;
             just_got_classname = false;
-            l="";
+            l = "";
          } else {
             // transform to markdown titie
             l.Prepend("#### ");
@@ -83,18 +82,16 @@ void write_class_description(KVString& group, int& last_non_code_line, ofstream&
    KVString briefdesc;
    if (class_description.size()) {
       ClassDescriptionConverter(classname, briefdesc, class_description);
-      if(briefdesc=="") {
+      if (briefdesc == "") {
 //         auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : no brief\n"; };
 //         std::for_each(classname.begin(),classname.end(),errmess);
       }
-   }
-   else
-   {
+   } else {
 //      auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : ***NO DESC***\n"; };
 //      std::for_each(classname.begin(),classname.end(),errmess);
    }
 
-   if(classname.size()){
+   if (classname.size()) {
       output_file << "/** \\class " << classname[0] << endl;
       output_file << "\\ingroup " << group << endl;
       if (briefdesc != "") output_file << "\\brief " << briefdesc << endl;
@@ -105,11 +102,10 @@ void write_class_description(KVString& group, int& last_non_code_line, ofstream&
       }
       output_file << "*/" << endl;
    }
-   if(classname.size()>1)
-   {
-      auto it = classname.begin(); ++it;
-      for(;it!=classname.end();++it)
-      {
+   if (classname.size() > 1) {
+      auto it = classname.begin();
+      ++it;
+      for (; it != classname.end(); ++it) {
          output_file << "/** \\class " << *it << endl;
          output_file << "\\ingroup " << group << endl;
          output_file << "\\copydoc " << classname[0] << endl;
@@ -126,12 +122,12 @@ void HeaderConverter(const KVString& in_header, const KVString& out_header)
    output_file.open(out_header.Data());
 
    KVString current_classname;
-   TClass* current_class=nullptr;
+   TClass* current_class = nullptr;
 
    KVString source_line;
    source_line.ReadToDelim(source_file, '\n');
 
-   bool multiline_comment(false),line_is_comment(false),in_a_ifdef(false),in_a_ifdefelse(false);
+   bool multiline_comment(false), line_is_comment(false), in_a_ifdef(false), in_a_ifdefelse(false);
 
    while (source_file.good()) {
 
@@ -142,71 +138,67 @@ void HeaderConverter(const KVString& in_header, const KVString& out_header)
       if (source_line.Contains("*/")) multiline_comment = false;
       line_is_comment = false;
       if (source_line.BeginsWith("//") || multiline_comment
-          || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
-      if(in_a_ifdef)
-      {
+            || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
+      if (in_a_ifdef) {
          //#if...#else...#endif may contain two different versions of a brace-opening piece of
          //code, i.e. method or for-loop. We arbitrarily ignore any brace-opening or closing
          //in the #else...#endif part
-         if(source_line.BeginsWith("#else")) in_a_ifdefelse=true;
-         else if(source_line.BeginsWith("#endif")){
-            in_a_ifdef=in_a_ifdefelse=false;
+         if (source_line.BeginsWith("#else")) in_a_ifdefelse = true;
+         else if (source_line.BeginsWith("#endif")) {
+            in_a_ifdef = in_a_ifdefelse = false;
          }
-      }
-      else if(source_line.BeginsWith("#if"))
-      {
-         in_a_ifdef=true;
+      } else if (source_line.BeginsWith("#if")) {
+         in_a_ifdef = true;
       }
 
-      if(!line_is_comment){
-         if(source_line.Contains("class"))
-         {
+      if (!line_is_comment) {
+         if (source_line.Contains("class")) {
             // check for beginning of class declaration
             source_line.Begin(" :{");
-            while(!source_line.End())
-            {
+            while (!source_line.End()) {
                KVString next = source_line.Next(true);
-               if(next=="class")
-               {
+               if (next == "class") {
                   next = source_line.Next(true);
-                  if(next.EndsWith(";")) break; // forward declaration
-                  TClass* cl=TClass::GetClass(next);
-                  if(!cl) break;
-                  current_classname=next;
-                  current_class=cl;
+                  if (next.EndsWith(";")) break; // forward declaration
+                  TClass* cl = TClass::GetClass(next);
+                  if (!cl) break;
+                  current_classname = next;
+                  current_class = cl;
                   //cout << gSystem->BaseName(in_header) << " : Found class " << current_classname << " (" << current_class << ")" << endl;
                }
             }
          }
-         if(current_class){
+         if (current_class) {
             //look for member variables
             auto ind = source_line.Index(";//");
-            if(ind<0) ind=source_line.Index("; //");
-            if(ind>0){
+            if (ind < 0) ind = source_line.Index("; //");
+            if (ind > 0) {
                source_line.Remove(ind);
                source_line.Begin(" ");
-               KVString varname=source_line.Next();
-               while(!source_line.End()) varname=source_line.Next();
+               KVString varname = source_line.Next();
+               while (!source_line.End()) varname = source_line.Next();
                TDataMember* var = current_class->GetDataMember(varname);
-               if(var){
+               if (var) {
                   KVString comments = var->GetTitle();
                   comments.RemoveAllExtraWhiteSpace();
-                  if(comments.BeginsWith("!")) {comments.Remove(0,1);comments.RemoveAllExtraWhiteSpace();}
-                  if(comments.BeginsWith("->")) {comments.Remove(0,2);comments.RemoveAllExtraWhiteSpace();}
+                  if (comments.BeginsWith("!")) {
+                     comments.Remove(0, 1);
+                     comments.RemoveAllExtraWhiteSpace();
+                  }
+                  if (comments.BeginsWith("->")) {
+                     comments.Remove(0, 2);
+                     comments.RemoveAllExtraWhiteSpace();
+                  }
                   comments.Prepend(";///< ");
                   source_line.Prepend("    ");
                   output_file << source_line << comments << endl;
-               }
-               else
+               } else
                   output_file << original_line << endl;
-            }
-            else
+            } else
                output_file << original_line << endl;
-         }
-         else
+         } else
             output_file << original_line << endl;
-      }
-      else
+      } else
          output_file << original_line << endl;
       source_line.ReadToDelim(source_file, '\n');
    }
@@ -218,26 +210,25 @@ void DocConverter(const KVString& file)
    KVString _file = gSystem->ExpandPathName(file.Data());
    KVString group = gSystem->BaseName(gSystem->DirName(_file));
    group.Capitalize();
-   KVString root_dir=gSystem->DirName(gSystem->DirName(gSystem->DirName(_file)));
-   KVString _output_file=_file;
-   _output_file.ReplaceAll(root_dir,"kaliveda.doxygen");
-   KVString output_dir=gSystem->DirName(_output_file);
-   gSystem->mkdir(output_dir,true);
+   KVString root_dir = gSystem->DirName(gSystem->DirName(gSystem->DirName(_file)));
+   KVString _output_file = _file;
+   _output_file.ReplaceAll(root_dir, "kaliveda.doxygen");
+   KVString output_dir = gSystem->DirName(_output_file);
+   gSystem->mkdir(output_dir, true);
    KVString filename = gSystem->BaseName(_file);
-   if(filename.Index(".cpp"))
-   {
+   if (filename.Index(".cpp")) {
       filename.Remove(filename.Index(".cpp"));
-      filename+=".h";
+      filename += ".h";
       KVString input_dir = gSystem->DirName(_file);
-      input_dir+="/";
-      input_dir+=filename;
-      KVString output_header=gSystem->DirName(_output_file);
-      output_header+="/";
-      output_header+=filename;
+      input_dir += "/";
+      input_dir += filename;
+      KVString output_header = gSystem->DirName(_output_file);
+      output_header += "/";
+      output_header += filename;
       //gSystem->CopyFile(input_dir,output_header,true);
-      HeaderConverter(input_dir,output_header);
+      HeaderConverter(input_dir, output_header);
    }
-   
+
    vector<KVString> classname;
 
    ifstream source_file(_file.Data());
@@ -255,7 +246,7 @@ void DocConverter(const KVString& file)
 
    KVString source_line;
    int line_no = 0;
-   int last_line_writ=0;
+   int last_line_writ = 0;
    int brace_count = 0; //number of open '{'
    int ns_count = 0; // number of open '{' associated with namespaces
    bool look_for_comments = kFALSE;
@@ -274,7 +265,7 @@ void DocConverter(const KVString& file)
    bool in_class_desc = false;
    bool in_a_ifdef = false;
    bool in_a_ifdefelse = false;
-   bool separator_comment=false;
+   bool separator_comment = false;
 
    while (source_file.good()) {
       ++line_no;
@@ -286,9 +277,8 @@ void DocConverter(const KVString& file)
       if (source_line.Contains("*/")) multiline_comment = false;
       line_is_comment = false;
       if (source_line.BeginsWith("//") || multiline_comment
-          || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
-      if(line_is_comment)
-      {
+            || (!source_line.Contains("/*") && source_line.Contains("*/"))) line_is_comment = true;
+      if (line_is_comment) {
          separator_comment = source_line.BeginsWith("//______");
       }
       if (!in_a_method && (source_line.IsWhitespace() || source_line.BeginsWith("/")))
@@ -301,64 +291,58 @@ void DocConverter(const KVString& file)
       } else if (source_line.BeginsWith("//////////////")) in_class_desc = true;
 //        if (found_first_method && !in_a_method && separator_comment) {}
 //        else{
-         output.push(original_line);
-         output_vector.push_back(source_line);
+      output.push(original_line);
+      output_vector.push_back(source_line);
 //      }
       if (look_for_comments) {
          if (line_is_comment) comments.push_back(source_line);
          else if (in_method_code) look_for_comments = kFALSE;
       }
 
-      if(source_line.BeginsWith("ClassImp")){
+      if (source_line.BeginsWith("ClassImp")) {
          KVString tutu = source_line;
-         tutu.ReplaceAll(")","(");
+         tutu.ReplaceAll(")", "(");
          tutu.Begin("(");
          tutu.Next();
          classname.push_back(tutu.Next());
       }
 
-      if(in_a_ifdef)
-      {
+      if (in_a_ifdef) {
          //#if...#else...#endif may contain two different versions of a brace-opening piece of
          //code, i.e. method or for-loop. We arbitrarily ignore any brace-opening or closing
          //in the #else...#endif part
-         if(source_line.BeginsWith("#else")) in_a_ifdefelse=true;
-         else if(source_line.BeginsWith("#endif")){
-            in_a_ifdef=in_a_ifdefelse=false;
+         if (source_line.BeginsWith("#else")) in_a_ifdefelse = true;
+         else if (source_line.BeginsWith("#endif")) {
+            in_a_ifdef = in_a_ifdefelse = false;
          }
-      }
-      else if(source_line.BeginsWith("#if"))
-      {
-         in_a_ifdef=true;
+      } else if (source_line.BeginsWith("#if")) {
+         in_a_ifdef = true;
       }
 
 
-      int delta_brace = 0; int delta_ns=0;
+      int delta_brace = 0;
+      int delta_ns = 0;
       if (!line_is_comment) {
          delta_brace = (in_a_ifdefelse ? 0 : (source_line.CountChar('{') - source_line.CountChar('}')));
-         if(delta_brace!=0){
-            if(source_line.BeginsWith("namespace"))
-            {
+         if (delta_brace != 0) {
+            if (source_line.BeginsWith("namespace")) {
                ns_count += delta_brace;
-               delta_ns=delta_brace;
-               delta_brace=0;
-            }
-            else if(delta_brace<0 && brace_count==0){
+               delta_ns = delta_brace;
+               delta_brace = 0;
+            } else if (delta_brace < 0 && brace_count == 0) {
                ns_count += delta_brace;
-               delta_ns=delta_brace;
-               delta_brace=0;
-            }
-            else
+               delta_ns = delta_brace;
+               delta_brace = 0;
+            } else
                brace_count += delta_brace;
          }
       }
-      if(ns_count == 1 && delta_ns==1)
-      {
+      if (ns_count == 1 && delta_ns == 1) {
          // we just opened a namespace
          // class description has to go before
-         found_first_ns=true;
-         if(!found_first_method) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
-            last_line_writ);
+         found_first_ns = true;
+         if (!found_first_method) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
+                  last_line_writ);
       }
       if (brace_count == 1 && delta_brace == 1) {
          //cout << "Method body begins line " << line_no << endl;
@@ -368,13 +352,12 @@ void DocConverter(const KVString& file)
          in_a_method = true;
          if (!found_first_method) {
             found_first_method = true;
-            if(!found_first_ns) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
-               last_line_writ);
-            else
-            {
+            if (!found_first_ns) write_class_description(group, last_non_code_line, output_file, class_description, classname, output,
+                     last_line_writ);
+            else {
                // write everything we read since namespace definition (including the namespace definition)
                // upto but notincludgin the method declaration
-               int n = last_non_code_line-line_no+output.size();
+               int n = last_non_code_line - line_no + output.size();
                while (n) {
                   KVString toto = output.front();
                   output_file << toto << endl;
@@ -384,22 +367,19 @@ void DocConverter(const KVString& file)
                }
             }
          }
-      }
-      else if (brace_count == 0 && delta_brace == -1) {
+      } else if (brace_count == 0 && delta_brace == -1) {
 //          cout << endl;
 //          cout << "Method body ends line " << line_no << endl;
 //          cout << "Last written line " << last_line_writ << endl;
 //          cout << "Last non-code line " << last_non_code_line << endl;
 //          cout << "output stack:" << endl;
 //         for(int m=last_line_writ+1; m<=line_no; ++m) cout << m << ":" << output_vector[m-1] << endl;
-         
+
          in_a_method = false;
          // spit out entire method with added doxygen comments at start
          // first output upto last non-code line, skip any 'separator' comments: //_________
-         for(int m=last_line_writ+1; m<=last_non_code_line; ++m)
-         {
-            if(!output_vector[m-1].BeginsWith("//___"))
-            {
+         for (int m = last_line_writ + 1; m <= last_non_code_line; ++m) {
+            if (!output_vector[m - 1].BeginsWith("//___")) {
                KVString toto = output.front();
                output_file << toto << endl;
             }
@@ -409,16 +389,15 @@ void DocConverter(const KVString& file)
          // in principle the next line is the beginning of the method declaration
          // however, if it is a preprocessor #if we need to output it straight away
          // before the comments
-         if(output_vector[last_non_code_line].BeginsWith("#if"))
-         {
-               KVString toto = output.front();
-               output_file << toto << endl;
-               ++last_line_writ;
-               output.pop();
+         if (output_vector[last_non_code_line].BeginsWith("#if")) {
+            KVString toto = output.front();
+            output_file << toto << endl;
+            ++last_line_writ;
+            output.pop();
          }
          output_file << endl;
-               
-         
+
+
          output_file << "///////////////////////////////////////////////////////////////////" << endl;
          KVString prefix = "///";
          for (auto comment : comments) {
@@ -452,9 +431,8 @@ void DocConverter(const KVString& file)
    }
    // if no methods defined in file (template class defined in header)
    if (!found_first_method && !found_first_ns)
-      write_class_description(group, last_non_code_line, output_file, class_description, classname, output,last_line_writ);
-   else
-   {
+      write_class_description(group, last_non_code_line, output_file, class_description, classname, output, last_line_writ);
+   else {
       while (!output.empty()) {
          KVString toto = output.front();
          output_file << toto << endl;
@@ -478,7 +456,7 @@ void ConvertDocIn(const KVString& path)
    KVSystemFile* f;
    while ((f = (KVSystemFile*)next())) {
       KVString name = f->GetName();
-      if (name.EndsWith(".cpp")||name.EndsWith(".cxx")||name.EndsWith(".C")) DocConverter(_path + name);
+      if (name.EndsWith(".cpp") || name.EndsWith(".cxx") || name.EndsWith(".C")) DocConverter(_path + name);
    }
 }
 void ConvertAllModules(const KVString& path)
@@ -488,7 +466,7 @@ void ConvertAllModules(const KVString& path)
    KVString _path = gSystem->ExpandPathName(path.Data());
    _path.Append("/");
    KVString modlist = "analysis,calibration,daq_cec,data_management,globvars,identification,simulation,trieur";
-   modlist += ",base,db,events,exp_events,geometry,gui,particles,stopping";
+   modlist += ",base,db,events,exp_events,geometry,gui,particles,stopping,minimiser,montecarlo,weights,signals";
 
    modlist.Begin(",");
    while (!modlist.End()) {
