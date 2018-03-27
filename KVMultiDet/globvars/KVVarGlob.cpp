@@ -151,7 +151,7 @@ void KVVarGlob::init(void)
 }
 
 //_________________________________________________________________
-KVVarGlob::KVVarGlob(void): KVBase()
+KVVarGlob::KVVarGlob(void): KVBase(), nameList("IndexList", "Correspondance variable name<->index")
 {
 //
 // Createur par default
@@ -169,7 +169,7 @@ KVVarGlob::KVVarGlob(void): KVBase()
 }
 
 //_________________________________________________________________
-KVVarGlob::KVVarGlob(const Char_t* nom): KVBase(nom)
+KVVarGlob::KVVarGlob(const Char_t* nom): KVBase(nom), nameList("IndexList", "Correspondance variable name<->index")
 {
 //
 // Constructeur avec un nom
@@ -497,6 +497,45 @@ void KVVarGlob::SetSelection(const KVParticleCondition& sel)
    //See KVParticleCondition class.
    if (!fSelection) fSelection = new KVParticleCondition(sel);
    else *fSelection = sel;
+}
+
+void KVVarGlob::Print(Option_t*) const
+{
+   printf("Global variable class=%s name=%s [", ClassName(), GetName());
+   switch (fType) {
+      case kOneBody:
+         printf("One-body variable]\n");
+         break;
+      case kTwoBody:
+         printf("Two-body variable]\n");
+         break;
+      case kNBody:
+         printf("N-body variable]\n");
+         break;
+      default:
+         printf("Variable type unknown!]\n");
+   }
+   if (nameList.GetNpar()) {
+      printf("- Multi-valued variable:\n");
+      nameList.Print();
+   }
+   printf("- Kinematics calculated in ");
+   if (fFrame != "") printf("%s", fFrame.Data());
+   else printf("laboratory");
+   printf(" frame\n");
+   if (fOptions.GetNpar()) {
+      printf("- List of options:\n");
+      fOptions.Print();
+   }
+   if (fParameters.GetNpar()) {
+      printf("- List of parameters:\n");
+      fParameters.Print();
+   }
+   if (fSelection) {
+      printf("- Particle selection criteria:\n");
+      fSelection->Print();
+   }
+   printf("- Number of branches added to TTree: %d\n", GetNumberOfBranches());
 }
 
 //_________________________________________________________________

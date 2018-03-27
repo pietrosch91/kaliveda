@@ -9,26 +9,20 @@
 #ifndef KVGVList_h
 #define KVGVList_h
 #include "KVVarGlob.h"
-#include "KVList.h"
+#include "KVUniqueNameList.h"
 #include "TTree.h"
 
 //#define DEBUG_KVGVList
 
 #define MAX_CAP_BRANCHES 100
 
-class KVGVList: public KVList {
+class KVGVList: public KVUniqueNameList {
 
    Double_t fBranchVar[MAX_CAP_BRANCHES];//! used for automatic creation & filling of TTree branches
    Int_t fIBranchVar[MAX_CAP_BRANCHES];//! used for automatic creation & filling of TTree branches
    Int_t fNbBranch;
    Int_t fNbIBranch;
 
-public:
-// Champs Statiques:
-   static Int_t nb;
-   static Int_t nb_crea;
-   static Int_t nb_dest;
-// Methodes
 protected:
    void init_KVGVList(void);
    TList fVG1; // one-body variables
@@ -42,7 +36,7 @@ public:
    KVGVList(void);             // constructeur par defaut
    KVGVList(const KVGVList& a);        // constructeur par Copy
 
-   virtual ~ KVGVList(void);   // destructeur
+   virtual ~ KVGVList(void) {}
 
    void Init(void);     // methode d'initialisation des variables globales
    void Reset(void);    // Remise a zero avant le
@@ -55,26 +49,26 @@ public:
    KVVarGlob* GetGVType(const Char_t* class_name)
    {
       return (KVVarGlob*)FindObjectByClass(class_name);
-   };
+   }
    virtual void      Add(TObject* obj) ;
 
    // returns kTRUE if list contains 1-body variables
    Bool_t Has1BodyVariables()
    {
       return (fVG1.GetEntries() > 0);
-   };
+   }
 
    // returns kTRUE if list contains 2-body variables
    Bool_t Has2BodyVariables()
    {
       return (fVG2.GetEntries() > 0);
-   };
+   }
 
    // returns kTRUE if list contains N-body variables
    Bool_t HasNBodyVariables()
    {
       return (fVGN.GetEntries() > 0);
-   };
+   }
 
    TObject** GetGVRef(const Char_t* name);
 

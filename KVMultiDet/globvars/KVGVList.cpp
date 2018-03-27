@@ -1,11 +1,3 @@
-//
-//Author: Daniel Cussol
-//
-// 17/02/2004
-// Creation d'une classe Liste de  Variables Globales
-// Elle est utilisee dans les analyses KaliVeda.
-//
-
 #include "Riostream.h"
 #include "KVGVList.h"
 
@@ -15,11 +7,15 @@ ClassImp(KVGVList)
 //////////////////////////////////////////////////////////////////////////////////
 //    List of global variables
 //
+// Author: Daniel Cussol
+//
+// 17/02/2004
+//
 //   This class allows to process in a single call many KVVargGlob instances. This list
 // can be managed by using standard KVList methods. The methods used to initiate, reset
 // and fill such a list are:
 //
-//      void Init(void)                             initiates the global variables (call once)
+//      void Init(void)                             initializes the global variables (call once)
 //      void CalculateGlobalVariables(KVEvent *e)   compute all global variables for the event
 //
 // By default the KVGVList does not own the objects it contains (they may be on the stack).
@@ -52,65 +48,27 @@ ClassImp(KVGVList)
 // ...
 //
 //////////////////////////////////////////////////////////////////////////////////
-Int_t KVGVList::nb = 0;
-Int_t KVGVList::nb_crea = 0;
-Int_t KVGVList::nb_dest = 0;
 
 //_________________________________________________________________
 void KVGVList::init_KVGVList(void)
 {
-//
-// Initialisation des champs de KVGVList
-// Cette methode privee n'est appelee par les createurs
-//
-   nb++;
-   nb_crea++;
-
-   KVList::SetOwner(kFALSE);
    fNbBranch = 0;
    fNbIBranch = 0;
 }
 
 //_________________________________________________________________
-KVGVList::KVGVList(void): KVList()
+KVGVList::KVGVList(void): KVUniqueNameList()
 {
-//
-// Createur par default
-//
    init_KVGVList();
-#ifdef DEBUG_KVGVList
-   cout << nb << " crees...(defaut) " << endl;
-#endif
 }
 
 
 //_________________________________________________________________
-KVGVList::KVGVList(const KVGVList& a) : KVList()
+KVGVList::KVGVList(const KVGVList& a) : KVUniqueNameList()
 {
-//
-// Contructeur par Copy
-//
    init_KVGVList();
    a.Copy(*this);
-#ifdef DEBUG_KVGVList
-   cout << nb << " crees...(Copy) " << endl;
-#endif
 }
-
-//_________________________________________________________________
-KVGVList::~KVGVList(void)
-{
-//
-// Destructeur
-//
-#ifdef DEBUG_KVGVList
-   cout << "Destruction de " << GetName() << "..." << endl;
-#endif
-   nb--;
-
-   nb_dest++;
-}
-
 
 //_________________________________________________________________
 void KVGVList::Init(void)
@@ -222,9 +180,23 @@ KVVarGlob* KVGVList::GetGV(const Char_t* nom)
 //_________________________________________________________________
 void KVGVList::Add(TObject* obj)
 {
-   // Overrides TList::Add(TObject*) so that global variable pointers are sorted
+   // Overrides KVUniqueNameList::Add(TObject*) so that global variable pointers are sorted
    // between the 3 lists used for 1-body, 2-body & N-body variables.
+   // We also print a warning in case the user tries to add a global variable with the
+   // same name as one already in the list. In the case we retain only the first global variable,
+   // any others with the same name are ignored
 
+   // add object to main list, check duplicates
+   KVUniqueNameList::Add(obj);
+   if (!ObjectAdded()) {
+      Warning("Add", "You tried to add a global variable with the same name as one already in the list");
+      Warning("Add", "Only the first variable added to the list will be used: name=%s class=%s",
+              GetGV(obj->GetName())->GetName(), GetGV(obj->GetName())->ClassName());
+      Warning("Add", "The following global variable (the one you tried to add) will be ignored:");
+      printf("\n");
+      obj->Print();
+      return;
+   }
    if (obj->InheritsFrom("KVVarGlob")) {
       // put global variable pointer in appropriate list
       KVVarGlob* vg = (KVVarGlob*)obj;
@@ -232,8 +204,6 @@ void KVGVList::Add(TObject* obj)
       else if (vg->IsTwoBody()) fVG2.Add(vg);
       else if (vg->IsNBody()) fVGN.Add(vg);
    }
-   // add object to main list
-   KVList::Add(obj);
 }
 
 //_________________________________________________________________

@@ -24,10 +24,15 @@ ClassImp(KVUniqueNameList)
 //
 // By default, if an object with the same name is already in the list, the
 // 'new' object is not added (no warning, no error).
+//
 // If option 'replace' is used, then adding an object with the same name
 // as an existing object will replace the previous object with the new one.
+//
 // In addition, if the list owns its objects and 'replace' is used, the previous
 // object will be deleted as well as being replaced.
+//
+// After calling Add(TObject*), you can use method ObjectAdded() to know if the object
+// was effectively added to the list or not.
 //
 // ============== EXAMPLES ===============
 //

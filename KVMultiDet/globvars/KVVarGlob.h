@@ -286,6 +286,7 @@ public:
       // be created for this variable.
       fMaxNumBranches = (n < GetNumberOfValues() ? n : -1);
    }
+   void Print(Option_t* = "") const;
 
    ClassDef(KVVarGlob, 5)      // Base class for global variables
 };
