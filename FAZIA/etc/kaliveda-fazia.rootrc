@@ -331,6 +331,10 @@ FAZIACOR.IdentificationParameterFile.Si:       ID_SI1PSA_ZandA.dat
 FAZIACOR.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIACOR_ZA8.dat
 FAZIACOR.ActiveIdentifications:                CsI Si-CsI Si-Si Si
 
+FAZIAPRE.IdentificationParameterFile.Si-Si:    ID_SI1_SI2_FAZIAPRE.dat
+FAZIAPRE.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIAPRE.dat
+FAZIAPRE.ActiveIdentifications:                Si-CsI Si-Si
+
 # file which gather all calibration files
 FAZIADB.CalibrationFiles:     CalibrationFiles.dat
 #comments associated with runs
