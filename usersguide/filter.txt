@@ -199,7 +199,7 @@ Geometric filter
 [KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
 [KVNameValueList]: http://kaliveda-dev.github.io/kaliveda/classKVNameValueList.html
 
-[Kinematics]: kinematics.html#defining-kinematical-reference-frames
-[ParticleGroups]: kinematics.html#labelling-sorting-particles-groups
-[ParticleParams]: kinematics.html#storingretrieving-ad-hoc-information-with-particles
+[Kinematics]: http://kaliveda-dev.github.io/kaliveda/classKVParticle.html
+[ParticleGroups]: http://kaliveda-dev.github.io/kaliveda/classKVParticle.html
+[ParticleParams]: http://kaliveda-dev.github.io/kaliveda/classKVParticle.html
 [CheckIdentificationThreshold]: http://kaliveda-dev.github.io/kaliveda/classKVIDTelescope.html

@@ -3,7 +3,7 @@
 # Multi-body Events #
 
 The main business of KaliVeda is the analysis of multi-body events produced in heavy-ion reactions,
-therefore it is no surprise that a central role is played by the class [KVEvent] which can be thought of as a container class for particles and nuclei (see [Particles & Nuclei]).
+therefore it is no surprise that a central role is played by the class [KVEvent] which can be thought of as a container class for particles and nuclei (see [Particles] & [Nuclei]).
 In fact there are two more event containers which are derived from [KVEvent], the full list is:
 
  - [KVEvent]: base class for multi-body events (container for [KVNucleus] objects);
@@ -19,6 +19,45 @@ In addition to containing a list of particles/nuclei, each event class also has 
 
 Let us mention in passing the associated [KVEventViewer] class which can be used to produce 3D images of events using the ROOT OpenGL backend.
 
+## Notes on usage
+
+### Object ownership
+
+Events are built up by repeated calls to the `AddParticle()` method which creates a new particle object (derived from `KVNucleus`), adds it to the event, and returns a pointer to the new particle.
+All particles in an event __belong__ to the event and are destroyed by the `KVEvent` destructor.
+
+Therefore a `KVEvent` cannot be used to store references to particles in another `KVEvent` object,
+for example if one wants to handle a subset of the particles in the event. This is why the iterators
+allow to iterate only over selected subsets of particles if required.
+
+### Storing references to particles in an event
+
+If you really need to store a list of references to some particles in an event, you can use an STL container, `TCollection` or [KVSeqCollection] collection class to store the particle pointers, as long as the collection does not try to delete the objects when it goes out of scope (e.g. don't use [KVList] which owns its objects by default).
+
+### Making a copy of all or part of an event
+
+You can if you wish copy all or part of an event, as long as you understand that the particles in the copy will be new independent objects; they will not change if you change the original event after the copy (there may also be unwanted side-effects especially for [KVReconstructedNucleus] particles).
+
+
+~~~~~~~~~{.cpp}
+// 'event' is a KVEvent we want to copy into new event 'event2'
+KVEvent event2;
+for(KVEvent::Iterator it = event.begin(); it != event.end(); ++it){
+   (*it).Copy( *(event2.AddParticle()) );
+}
+~~~~~~~~~
+
+### Merging several events into one
+
+Although it is difficult/unwise to separate events into subevents, on the other hand it is possible to merge several event fragments into one single event:
+
+~~~~~~~~~{.cpp}
+// 'event_list' is a TList (for example) containing KVEvent objects to merge
+KVEvent merged_event;
+merged_event.MergeEventFragments(&event_list);
+~~~~~~~~~
+
+**WARNING** after merging, the subevents in the list will be empty and useless. Do not try to use them after merging!
 
 ## Iterating over particles in events
 
@@ -91,7 +130,7 @@ for (KVEvent::Iterator it = event.begin(); it != event.end(); ++it) {
 #### Iterating over particles which are "OK"
 
 When analysing reconstructed data it is usually required to limit the iteration to only those particles which are considered to be correctly identified/calibrated, i.e. those for which the method
-`KVParticle::IsOK()` returns `true` (see [Particles & Nuclei]).
+`KVNucleus::IsOK()` returns `true` (see [Nuclei]).
 
 ~~~~~~~~~{.cpp}
 for(KVEvent::Iterator it = OKEventIterator(event).begin(); it != event.end(); ++it){
@@ -135,6 +174,8 @@ for(KVEvent::Iterator it = event.GetNextParticleIterator(opt); it!=event.end(); 
    KVNucleus* nuc = it.pointer<KVNucleus>();
 ~~~~~~~~~
 
+[KVSeqCollection]: http://kaliveda-dev.github.io/kaliveda/classKVSeqCollection.html
+[KVList]: http://kaliveda-dev.github.io/kaliveda/classKVList.html
 [KVNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVNucleus.html
 [KVEvent]: http://kaliveda-dev.github.io/kaliveda/classKVEvent.html
 [KVEventViewer]: http://kaliveda-dev.github.io/kaliveda/classKVEventViewer.html
@@ -142,7 +183,8 @@ for(KVEvent::Iterator it = event.GetNextParticleIterator(opt); it!=event.end(); 
 [KVSimEvent]: http://kaliveda-dev.github.io/kaliveda/classKVSimEvent.html
 [KVReconstructedNucleus]: http://kaliveda-dev.github.io/kaliveda/classKVReconstructedNucleus.html
 [KVReconstructedEvent]: http://kaliveda-dev.github.io/kaliveda/classKVReconstructedEvent.html
-[Particles & Nuclei]: kinematics.html
+[Particles]: http://kaliveda-dev.github.io/kaliveda/classKVParticle.html
+[Nuclei]: http://kaliveda-dev.github.io/kaliveda/classKVNucleus.html
 [Filter]: filter.html
 [KVEvent::Iterator]: http://kaliveda-dev.github.io/kaliveda/classKVEvent_1_1Iterator.html
 [std::algorithm library]: http://en.cppreference.com/w/cpp/algorithm
