@@ -33,196 +33,369 @@ using namespace std;
 ClassImp(KVParticle)
 
 ////////////////////////////////////////////////////////////////////////////
-//KVParticle
-//
-//A general base class for massive particles.
-//Implements all kinematical manipulations necessary for obtaining angles, kinetic energies, transverse energies etc. etc.
-//
-//Unless otherwise stated,
-//      - all energies are in MeV
-//      - all velocities are in cm/ns
-//      - all angles are in degrees (polar angles between 0 and 180 degrees; azimuthal angles between 0 and 360 degrees).
-//      - all momenta are in MeV/c
-//
-//This class derives from TLorentzVector - a particle is basically a Lorentz 4-vector with added attributes - and therefore
-//any methods which are not documented here will be found in that class [N.B. most 'Set'ter methods of TLorentzVector
-//should not be used directly and have been made 'private' in KVParticle in order to prevent their use].
-//This also means that all particles and kinematics are relativistic in KaliVeda.
-//
-//Methods defined/redefined in this class:
-//
-//      GetMass()       return mass of particle in MeV/c**2 (same as TLorentzVector::M())
-//      GetMomentum()   returns momentum 3-vector (TVector3) of particle (units MeV/c) (same as TLorentzVector::Vect())
-//      GetKE()/GetEnergy()     returns kinetic energy in MeV (same as TLorentzVector::E()-TLorentzVector::M())
-//      GetTransverseEnergy()/GetEtran()        see below
-//      GetRTransverseEnergy()/GetREtran()      see below
-//      GetVelocity()/GetV()    returns velocity 3-vector (TVector3) of particle (units cm/ns)
-//      GetVpar()       returns velocity component in beam (z) direction (cm/ns) (same as GetV().Z())
-//      GetVperp()      same as GetV().Perp(), but sign is same as y-component of velocity, GetV().Y()
-//      GetTheta()      same as TLorentzVector::Theta() but in degrees, not radians
-//      GetPhi()        same as TLorentzVector::Phi() but in degrees, not radians, and always positive, between 0 and TMath::TwoPi()
-//
-//Particle properties can be defined either using one of the constructors :
-//
-//      KVParticle part(Double_t m, TVector3 & p);                              // rest mass and momentum 3-vector
-//      KVParticle part(Double_t m, Double_t px, Double_t py, Double_t pz);     // rest mass and Cartesian components of momentum 3-vector
-//
-//or with the usual 'Set' methods:
-//
-//      part.SetMass(Double_t m);                                               // changes rest mass, leaves momentum unchanged
-//      part.SetEnergy(Double_t e);                                             // set kinetic energy (in MeV)
-//      part.SetMomentum(const TVector3 & v);                                   // changes momentum, leaves rest mass unchanged
-//      part.SetMomentum(const TVector3 * v);
-//
-//      part.SetMomentum(Double_t px, Double_t py, Double_t pz, Option_t * opt ="cart");
-//              // set momentum 3-vector, leaving rest mass unchanged, with :
-//              // if opt = "cart" or "cartesian" : using cartesian components (px,py,pz)
-//              // if opt = "spher" or "spherical" : set momentum 3-vector using spherical coordinates,
-//              //                                   in this case px = magnitude, py = theta [degrees], pz = phi [degrees].
-//
-//      part.SetMomentum(Double_t T, TVector3 dir);                             // set kinetic energy to T [MeV] and direction given by 'dir' unit vector
-//
-//      part.SetRandomMomentum(Double_t T, Double_t thmin, Double_t thmax, Double_t phmin, Double_t phmax, Option_t * opt = "isotropic");
-//              // a handy tool for giving random momenta to particles.
-//
-//"Transverse energy"
-//---------------------
-//      GetEtran()/GetTransverseEnergy() return the "transverse energy" defined as the kinetic energy multiplied by the squared sinus of the polar angle:
-//              Etran = KE * sin(theta) * sin(theta)
-//      where 'theta' is the polar angle of the particle measured with respect to the beam (z-) axis
-//
-//      GetREtran()/GetRTransverseEnergy() return the "relativistic transverse energy" which is frame invariant
-//
-//"Definition of groups"
-//---------------------
-//      AddGroup() and BelongsToGroup() methods allow to store and access to information about particles
-//      such as belonging to the QP, to the backward of events or as to be taken into account in the
-//      calorimetry
-//      For KVNucleus and derived classes group can be defined using KVParticleCondition.
-//      For the same particle, number of groups is unlimited.
-//      All these groups are stored in the fGroups pointeur (KVUniqueNameList of TObjString objects)
-//
-//      The name of the frame which particle as been created via the SetFrame() method is now stored
-//      in the non persistent field fFrameName
-//      Two WARNINGS :
-//            - SetName and GetName Methods now are related to the fName field which is the name of the particle
-//            - All group names are not case sensitive
-//             Ex : KVNucleus nn; nn.AddGroup("forward"); nn.BelongsToGroup("ForWaRD") -> return kTRUE
-//      When new KVParticle is defined using SetFrame() Method, the list of group names is already stored in it
-//      In the same way, when some change is made on the "principal" KVParticle, if some "secondary" particles
-//      have been already stored in fBoosted list, the change is also apply
-//      On the contrary if some change is made in the following way :
-//      par->GetFrame(framename).AddGroup(groupname)
-//      the group groupname is only stored for "par->GetFrame(framename) particle"
-//      ie :   par->BelongsToGroup(groupname) = kFALSE
-//        and  par->GetFrame(framename).BelongsToGroup(groupname) = kTRUE
-//
-//KINEMATICAL REFERENCE FRAMES
-//1. Accessing particle kinematics in different frames
-//Particle kinematics in different frames can be accessed with InFrame(const KVFrameTransform&).
-//This method does not modify the particle's kinematics or default reference frame (see 2 below).
-//If you want to access lots of information from this frame, it is probably more efficient to
-//define and store it in the particle's list of reference frames (see 3 below).
-//
-// Ex.) inspect kinematics of particle (accessed through pointer KVParticle* p)
-//       - in a frame moving at 5 cm/ns in the beam direction:
-//
-//            p->InFrame(TVector3(0,0,5)).GetVpar();
-//
-//       - in a frame rotated by 90° clockwise around the +ve beam direction:
-//
-//            TRotation rot;
-//            rot.RotateZ(TMath::PiOver2());
-//            p->InFrame(rot).GetPhi();
-//
-//       - in a frame moving at 0.1c in the beam direction:
-//
-//            p->InFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE)).GetKE();
-//
-//       [note that in this case you have to explicitly use the KVFrameTransform constructor]
-//
-//2. Modifying particle kinematics
-//Particle kinematics can be modified using method ChangeFrame(const KVFrameTransform&):
-//
-// Ex.) change kinematics of particle (accessed through pointer KVParticle* p)
-//       - to a frame moving at 5 cm/ns in the beam direction:
-//
-//            p->ChangeFrame(TVector3(0,0,5));
-//
-//       - to a frame rotated by 90° clockwise around the +ve beam direction:
-//
-//            TRotation rot;
-//            rot.RotateZ(TMath::PiOver2());
-//            p->ChangeFrame(rot);
-//
-//       - to a frame moving at 0.1c in the beam direction:
-//
-//            p->ChangeFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE));
-//
-//       [note that in this case you have to explicitly use the KVFrameTransform constructor]
-//
-//3. Using several reference frames
-//Rather than changing the reference frame of the particle, you can define and use several
-//different reference frames while keeping the original kinematics as the default. Each
-//frame can be used independently, and new frames can be defined based on any of the
-//existing frames:
-//
-// Ex.) for a particle accessed through pointer KVParticle* p:
-//        - define a new frame moving at 5 cm/ns in the beam direction:
-//
-//            p->SetFrame("moving_frame", TVector3(0,0,5));
-//
-//        - define a rotated coordinate frame in the "moving_frame",
-//          rotated by 90° clockwise around the +ve beam direction:
-//
-//            TRotation rot;
-//            rot.RotateZ(TMath::PiOver2());
-//            p->SetFrame("rotated_moving_frame", "moving_frame", rot);
-//
-//        [Note that the same frame can be defined directly from the original
-//         particle by using a combined boost-then-rotation transform:
-//
-//            p->SetFrame("rotated_moving_frame", KVFrameTransform(TVector3(0,0,5),rot));
-//
-//         In this case the KVFrameTransform constructor has to be called explicitly.]
-//
-//        - define a similarly rotated coordinate frame in the original
-//          (default) reference frame:
-//
-//            p->SetFrame("rotated_frame", rot);
-//
-//        - access kinematical information in any of these frames:
-//
-//            p->GetFrame("moving_frame")->GetVpar();
-//            p->GetFrame("rotated_frame")->GetPhi();
-//            p->GetFrame("rotated_moving_frame")->GetTransverseEnergy();
-//
-//If you call KVParticle::SetFrame several times with the same frame name
-//[note that frame names are case insensitive], the existing reference frame will
-//be updated to use the new transformation, which will be applied to the kinematics
-//of the particle in the 'parent' frame used to define the frame. Any frames which
-//were defined based on the frame will be updated too:
-//
-// Ex.) for the previous particle & frame definitions
-//
-//        - change the angle of rotation in the moving rotated frame:
-//
-//           rot.RotateZ(-TMath::PiOver4());
-//           p->SetFrame("rotated_moving_frame", rot);
-//
-//        - change the velocity of the moving frame to 0.1c:
-//
-//           p->SetFrame("moving_frame", KVFrameTransform(TVector3(0,0,0.1),kTRUE));
-//
-//          [Note that in this case, the "rotated_moving_frame" will be updated
-//           automatically to take account of the new velocity of "moving_frame"]
-//
-//If you change the kinematics of the particle in its original (default) frame,
-//you can update the kinematics in all defined frames by calling the method
-//
-//           p->UpdateAllFrames();
-//
-//[it does not occur automatically].
+/*
+<h2>KVParticle</h2>
+<h4>A general base class for relativistic kinematics of massive particles</h4>
+
+Implements all kinematical manipulations necessary for obtaining angles, kinetic energies, transverse energies etc. etc.,
+defining and changing relativistic reference frames.
+
+Unless otherwise stated,
+      - all energies are in MeV
+      - all velocities are in cm/ns
+      - all angles are in degrees (polar angles between 0 and \f$180^o\f$; azimuthal angles between 0 and \f$360^o\f$).
+      - all momenta are in MeV/c
+
+This class derives from [TLorentzVector](https://root.cern.ch/doc/master/classTLorentzVector.html) - a particle is basically a Lorentz 4-vector with added attributes - and therefore
+any methods which are not documented here will be found in that class
+  - [**N.B.** most 'Set'ter methods of TLorentzVector should not be used directly and have been made 'private' in KVParticle in order to prevent their use].
+
+This also means that all particles and kinematics are relativistic in KaliVeda.
+
+Methods defined/redefined in this class:
+
+~~~~~~~~~~~~~~~~~~
+      GetMass()       return mass of particle in MeV/c**2 (same as TLorentzVector::M())
+      GetMomentum()   returns momentum 3-vector (TVector3) of particle (units MeV/c) (same as TLorentzVector::Vect())
+      GetKE()/GetEnergy()     returns kinetic energy in MeV (same as TLorentzVector::E()-TLorentzVector::M())
+      GetTransverseEnergy()/GetEtran()        see below
+      GetRTransverseEnergy()/GetREtran()      see below
+      GetVelocity()/GetV()    returns velocity 3-vector (TVector3) of particle (units cm/ns)
+      GetVpar()       returns velocity component in beam (z) direction (cm/ns) (same as GetV().Z())
+      GetVperp()      same as GetV().Perp(), but sign is same as y-component of velocity, GetV().Y()
+      GetTheta()      same as TLorentzVector::Theta() but in degrees, not radians
+      GetPhi()        same as TLorentzVector::Phi() but in degrees, not radians, and always positive, between 0 and TMath::TwoPi()
+~~~~~~~~~~~~~~~~~~
+
+Particle properties can be defined either using one of the constructors :
+
+~~~~~~~~~~~~~~~~~~
+      KVParticle(Double_t m, TVector3 & p);                              // rest mass and momentum 3-vector
+      KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz);     // rest mass and Cartesian components of momentum 3-vector
+~~~~~~~~~~~~~~~~~~
+
+or with the usual 'Set' methods:
+
+~~~~~~~~~~~~~~~~~~
+      SetMass(Double_t m);                                               // changes rest mass, leaves momentum unchanged
+      SetEnergy(Double_t e);                                             // set kinetic energy (in MeV)
+      SetMomentum(const TVector3 & v);                                   // changes momentum, leaves rest mass unchanged
+      SetMomentum(const TVector3 * v);
+~~~~~~~~~~~~~~~~~~
+
+or, for the following method:
+
+~~~~~~~~~~~~~~~~~~
+      SetMomentum(Double_t px, Double_t py, Double_t pz, Option_t * opt ="cart");
+~~~~~~~~~~~~~~~~~~
+
+Set momentum 3-vector, leaving rest mass unchanged, with :
+  - if `opt = "cart"` or `"cartesian"`  : using cartesian components `(px,py,pz)`
+  - if `opt = "spher"` or `"spherical"` : set momentum 3-vector using spherical coordinates
+      - in this case `px` = magnitude, `py` = theta [degrees], `pz` = phi [degrees].
+
+ Other methods:
+
+~~~~~~~~~~~~~~~~~~
+      SetMomentum(Double_t T, TVector3 dir);  // set kinetic energy to T [MeV] and direction given by 'dir' unit vector
+
+      SetRandomMomentum(Double_t T, Double_t thmin, Double_t thmax, Double_t phmin, Double_t phmax, Option_t * opt = "isotropic");
+              // a handy tool for giving random momenta to particles.
+~~~~~~~~~~~~~~~~~~
+
+GetEtran() and GetTransverseEnergy() return the non-relativistic transverse energy defined as the kinetic energy multiplied by the squared sinus of the polar angle:
+i.e. \f$E_{tran} = E\sin^2(\theta)\f$ where \f$\theta\f$ is the polar angle of the particle measured with respect to the beam (z-) axis.
+
+GetREtran() and GetRTransverseEnergy() return the relativistic transverse energy which is frame invariant.
+
+## Kinematical reference frames
+### 1. Accessing particle kinematics in different frames
+Particle kinematics in different frames can be accessed with InFrame(const KVFrameTransform&).
+This method does not modify the particle's kinematics or default reference frame (see 2 below).
+If you want to access lots of information from this frame, it is probably more efficient to
+define and store it in the particle's list of reference frames (see 3 below).
+
+__Example:__ inspect kinematics of particle (accessed through pointer `KVParticle* p`)
+ - in a frame moving at 5 cm/ns in the beam direction (velocities/boosts are described by [TVector3](https://root.cern.ch/doc/master/classTVector3.html) objects):
+
+~~~~~~~~~~~~~~~~~~
+            p->InFrame(TVector3(0,0,5)).GetVpar();
+~~~~~~~~~~~~~~~~~~
+
+ - in a frame rotated by \f$90^o\f$ clockwise around the +ve beam direction (rotations are described by [TRotation](https://root.cern.ch/doc/master/classTRotation.html) objects):
+
+~~~~~~~~~~~~~~~~~~
+            TRotation rot;
+            rot.RotateZ(TMath::PiOver2());
+            p->InFrame(rot).GetPhi();
+~~~~~~~~~~~~~~~~~~
+
+ - in a frame moving at \f$0.1c\f$ in the beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            p->InFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE)).GetKE();
+
+            // the following only works with C++11 and later
+            p->InFrame({{0,0,0.1},kTRUE}).GetKE();
+~~~~~~~~~~~~~~~~~~
+
+In this case we need to pass two arguments to the KVFrameTransform(const TVector3&, Bool_t = kFALSE) constructor;
+before C++11, this required an explicit call to the constructor.
+
+### 2. Modifying particle kinematics
+Particle kinematics can be modified using method ChangeFrame(const KVFrameTransform&):
+
+__Example:__ change kinematics of particle (accessed through pointer `KVParticle* p`)
+ - to a frame moving at 5 cm/ns in the beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            p->ChangeFrame(TVector3(0,0,5));
+~~~~~~~~~~~~~~~~~~
+
+ - to a frame rotated by \f$90^o\f$ clockwise around the +ve beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            TRotation rot;
+            rot.RotateZ(TMath::PiOver2());
+            p->ChangeFrame(rot);
+~~~~~~~~~~~~~~~~~~
+
+ - to a frame moving at \f$0.1c\f$ in the beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            p->ChangeFrame(KVFrameTransform(TVector3(0,0,0.1),kTRUE));
+
+            // the following only works with C++11 and later
+            p->ChangeFrame({{0,0,0.1},kTRUE});
+~~~~~~~~~~~~~~~~~~
+
+### 3. Using several reference frames
+Rather than changing the reference frame of the particle, you can define and use several
+different reference frames while keeping the original kinematics as the default. Each
+frame can be used independently, and new frames can be defined based on any of the
+existing frames:
+
+__Example:__ (for a particle accessed through pointer `KVParticle* p`):
+ - define a new frame moving at 5 cm/ns in the beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            p->SetFrame("moving_frame", TVector3(0,0,5));
+~~~~~~~~~~~~~~~~~~
+
+ - define a rotated coordinate frame in the "moving_frame", rotated by \f$90^o\f$ clockwise around the +ve beam direction:
+
+~~~~~~~~~~~~~~~~~~
+            TRotation rot;
+            rot.RotateZ(TMath::PiOver2());
+            p->SetFrame("rotated_moving_frame", "moving_frame", rot);
+~~~~~~~~~~~~~~~~~~
+
+  Note that the same frame can be defined directly from the original particle by using a combined boost-then-rotation transform:
+
+~~~~~~~~~~~~~~~~~~
+            p->SetFrame("rotated_moving_frame", KVFrameTransform(TVector3(0,0,5),rot));
+
+            // the following only works with C++11 and later
+            p->SetFrame("rotated_moving_frame", {{0,0,5},rot});
+~~~~~~~~~~~~~~~~~~
+
+ - define a similarly rotated coordinate frame in the original (default) reference frame:
+
+~~~~~~~~~~~~~~~~~~
+            p->SetFrame("rotated_frame", rot);
+~~~~~~~~~~~~~~~~~~
+
+ - access kinematical information in any of these frames:
+
+~~~~~~~~~~~~~~~~~~
+            p->GetFrame("moving_frame")->GetVpar();
+            p->GetFrame("rotated_frame")->GetPhi();
+            p->GetFrame("rotated_moving_frame")->GetTransverseEnergy();
+~~~~~~~~~~~~~~~~~~
+
+Note that the frame `"rotated_moving_frame"` is directly accessible even if it is defined in two
+steps as a rotation of the `"moving_frame"`.
+
+### 4. Changing the default kinematics
+Let us consider a particle for which the different reference frames in the previous paragraph have been defined.
+For an example, imagine that the default kinematics are that of particle with rest mass 939 MeV moving with
+a momentum of 250 MeV/c at an angle of \f$45^o\f$ to the +ve z-direction:
+
+~~~~~~~~~~~~~~~~~~
+KVParticle p(939,0,0,250);
+p.SetTheta(45);
+
+p.SetFrame("moving_frame", TVector3(0,0,5));
+TRotation rot;
+rot.RotateZ(TMath::PiOver2());
+p.SetFrame("rotated_moving_frame", "moving_frame", rot);
+p.SetFrame("rotated_frame", rot);
+~~~~~~~~~~~~~~~~~~
+
+Calling Print() will show all reference frames defined for the particle:
+
+~~~~~~~~~~~~~~~~~~
+p.Print()
+
+KVParticle mass=939 Theta=45 Phi=0 KE=32.7103 Vpar=5.45392
+         moving_frame:  Theta=85.1751 Phi=0 KE=16.6117 Vpar=0.468125
+                 rotated_moving_frame:  Theta=85.1751 Phi=270 KE=16.6117 Vpar=0.468125
+         rotated_frame:  Theta=45 Phi=270 KE=32.7103 Vpar=5.45392
+~~~~~~~~~~~~~~~~~~
+
+Indentation indicates the relationships between frames: `"rotated_moving_frame"` is a child frame of `"moving_frame"`.
+The first line is the default kinematics. As yet it has no name:
+
+~~~~~~~~~~~~~~~~~~
+p.SetFrameName("lab");
+~~~~~~~~~~~~~~~~~~
+
+Now if we want to change the default kinematical frame for this particle:
+
+~~~~~~~~~~~~~~~~~~
+p.ChangeDefaultFrame("rotated_moving_frame");
+
+p.Print();
+
+KVParticle mass=939 Theta=85.1751 Phi=270 KE=16.6117 Vpar=0.468125
+         moving_frame:  Theta=85.1751 Phi=0 KE=16.6117 Vpar=0.468125
+                 lab:  Theta=45 Phi=0 KE=32.7103 Vpar=5.45392
+                         rotated_frame:  Theta=45 Phi=270 KE=32.7103 Vpar=5.45392
+KVNameValueList::ParticleParameters : Parameters associated with a particle in an event (0x7f5a1ff8b1b8)
+ <frameName=rotated_moving_frame>
+~~~~~~~~~~~~~~~~~~
+
+Note that the name of the default kinematics is stored as a parameter `"frameName"` and can be retrieved with GetFrameName().
+Note also how the relationships between frames are preserved, i.e. if we present the frames as graphs:
+
+~~~~~~~~~~~~~~~~~~
+with "lab" as default frame:
+
+          lab
+           |
+           +--moving_frame
+           |        |
+           |        +--rotated_moving_frame
+           |
+           +--rotated_frame
+
+with "rotated_moving_frame" as default frame:
+
+   rotated_moving_frame
+           |
+           +--moving_frame
+                    |
+                    +--lab
+                        |
+                        +--rotated_frame
+~~~~~~~~~~~~~~~~~~
+
+
+### 5. Updating stored kinematical frames
+If you call SetFrame() several times with the same frame name
+[note that frame names are **case insensitive**], the existing reference frame will
+be updated to use the new transformation, which will be applied to the kinematics
+of the particle in the 'parent' frame used to define the frame. Any frames which
+were defined based on the frame will be updated too.
+
+__Example:__ for the previous particle & frame definitions, after resetting the default kinematics:
+
+~~~~~~~~~~~~~~~~~~
+           p.ChangeDefaultFrame("lab");
+~~~~~~~~~~~~~~~~~~
+
+ - change the angle of rotation in the moving rotated frame:
+
+~~~~~~~~~~~~~~~~~~
+           rot.RotateZ(-TMath::PiOver4());
+           p.SetFrame("rotated_moving_frame", rot);
+           p.Print();
+
+KVParticle mass=939 Theta=45 Phi=0 KE=32.7103 Vpar=5.45392
+         rotated_frame:  Theta=45 Phi=270 KE=32.7103 Vpar=5.45392
+         moving_frame:  Theta=85.1751 Phi=0 KE=16.6117 Vpar=0.468125
+                 rotated_moving_frame:  Theta=45 Phi=315 KE=32.7103 Vpar=5.45392
+KVNameValueList::ParticleParameters : Parameters associated with a particle in an event (0x7faae41241b8)
+ <frameName=lab>
+~~~~~~~~~~~~~~~~~~
+
+ - change the velocity of the moving frame to \f$0.1c\f$:
+
+~~~~~~~~~~~~~~~~~~
+           p.SetFrame("moving_frame", KVFrameTransform(TVector3(0,0,0.1),kTRUE));
+
+           // the following only works with C++11 and later
+           p.SetFrame("moving_frame", {{0,0,0.1},kTRUE});
+
+           p.Print();
+KVParticle mass=939 Theta=45 Phi=0 KE=32.7103 Vpar=5.45392
+         rotated_frame:  Theta=45 Phi=270 KE=32.7103 Vpar=5.45392
+         moving_frame:  Theta=65.6491 Phi=0 KE=19.8389 Vpar=2.50151
+                 rotated_moving_frame:  Theta=65.6491 Phi=315 KE=19.8389 Vpar=2.50151
+KVNameValueList::ParticleParameters : Parameters associated with a particle in an event (0x7faae41241b8)
+ <frameName=lab>
+~~~~~~~~~~~~~~~~~~
+
+Note that in this case, the "rotated_moving_frame" is updated automatically to take account of the new velocity of "moving_frame".
+
+However, if you change the kinematics of the particle in its original (default) frame,
+you have to update the kinematics in all defined frames by hand, it does not occur automatically:
+
+~~~~~~~~~~~~~~~~~~
+p.SetTheta(30);
+p.Print();
+
+KVParticle mass=939 Theta=30 Phi=0 KE=32.7103 Vpar=6.67966
+         rotated_frame:  Theta=45 Phi=270 KE=32.7103 Vpar=5.45392
+         moving_frame:  Theta=65.6491 Phi=0 KE=19.8389 Vpar=2.50151
+                 rotated_moving_frame:  Theta=65.6491 Phi=315 KE=19.8389 Vpar=2.50151
+KVNameValueList::ParticleParameters : Parameters associated with a particle in an event (0x7faae41241b8)
+ <frameName=lab>
+
+p.UpdateAllFrames();
+p.Print();
+
+KVParticle mass=939 Theta=30 Phi=0 KE=32.7103 Vpar=6.67966
+         rotated_frame:  Theta=30 Phi=270 KE=32.7103 Vpar=6.67966
+         moving_frame:  Theta=46.1843 Phi=0 KE=15.8459 Vpar=3.76564
+                 rotated_moving_frame:  Theta=46.1843 Phi=315 KE=15.8459 Vpar=3.76564
+KVNameValueList::ParticleParameters : Parameters associated with a particle in an event (0x7faae41241b8)
+ <frameName=lab>
+~~~~~~~~~~~~~~~~~~
+
+## Definition of groups
+AddGroup() and BelongsToGroup() methods allow to sort particles in an event into subsets
+based on various criteria such as "emitted by QP", "backwards emitted", or "include in calorimetry".
+The group attribution can be done 'by hand' or using a KVParticleCondition object to define a selection.
+The number of such groups for a given particle is unlimited.
+
+Group names are case _insensitive_. Example:
+
+~~~~~~~~~~~~~~
+KVNucleus nn;
+nn.AddGroup("forward");
+nn.BelongsToGroup("ForWaRD");// -> return kTRUE
+~~~~~~~~~~~~~~
+
+ Any groups added to the particle are propagated to all existing kinematical frames. In other words, if a particle has a kinematical frame `"CM"` defined when it is
+ added to a group:
+
+~~~~~~~~~~~~~~~
+part.SetFrame("CM", [some transformation]);
+part.AddGroup("toto");
+part.BelongsToGroup("toto");// this returns kTRUE
+part.GetFrame("CM")->BelongsToGroup("toto");// this returns kTRUE also
+~~~~~~~~~~~~~~~
+
+On the contrary if some change is made in the following way :
+
+~~~~~~~~~~~~~~~
+part.GetFrame("CM")->AddGroup("titi");
+part.GetFrame("CM")->BelongsToGroup("titi");// this returns kTRUE
+part.BelongsToGroup("titi");// this returns kFALSE
+~~~~~~~~~~~~~~~
+
+*/
 ///////////////////////////////////////////////////////////////////////////
 
 KVParticle::KVParticle() : fParameters("ParticleParameters", "Parameters associated with a particle in an event")
@@ -853,7 +1026,7 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
    // Frame names are case insensitive: "CM" or "cm" or "Cm" are all good...
    //
    // By default, if no frame with the given name is found, we return nullptr and print a warning.
-   // If warn_and_return_null_if_unknown=kFALSE, we return the address of the particle itself,
+   // If `warn_and_return_null_if_unknown=kFALSE`, we return the address of the particle itself,
    // i.e. the original/default kinematics.
    // [Note that this is an inversion of the previous default behaviour]
    //
@@ -865,10 +1038,13 @@ KVParticle const* KVParticle::GetFrame(const Char_t* frame, Bool_t warn_and_retu
    // therefore you can use any KVParticle method in order to access the kinematics of the
    // particle in the boosted frame, e.g.
    //
+   //~~~~~~~~~~~~~~~~~~~~
    //      (...supposing a valid pointer KVParticle* my_part...)
    //      my_part->GetFrame("cm_frame")->GetVpar();// //el velocity in "cm_frame"
    //      my_part->GetFrame("QP_frame")->GetTheta();// polar angle in "QP_frame"
    //      etc. etc.
+   //~~~~~~~~~~~~~~~~~~~~
+   //
 
    if (!fFrameName.CompareTo(frame, TString::kIgnoreCase)) return (KVParticle const*)this;
    KVKinematicalFrame* f = get_frame(frame);

@@ -814,3 +814,23 @@ Bool_t KVEventSelector::Notify()
    if (gDataAnalyser) gDataAnalyser->postInitRun();
    return kTRUE;
 }
+
+/** \example ExampleSimDataAnalysis.cpp
+# Example of an analysis class for simulated data
+
+A simple example of analysis of simulated data, for use with kaliveda-sim
+
+\include ExampleSimDataAnalysis.h
+*/
+
+
+/** \example ExampleFilteredSimDataAnalysis.cpp
+# Example of an analysis class for filtered simulated data
+
+A simple example of analysis of filtered simulated data, for use with kaliveda-sim.
+Note that this class was written specially for filtering simulations with the
+future coupling of INDRA and FAZIA.
+
+\include ExampleFilteredSimDataAnalysis.h
+*/
+

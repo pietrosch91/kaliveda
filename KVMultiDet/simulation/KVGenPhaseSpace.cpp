@@ -18,9 +18,9 @@ ClassImp(KVGenPhaseSpace)
 // composed of the nuclei of the break-up channel with a given total kinetic
 // energy determined by energy balance.
 //
-// Example of use
-// ==============
+//### Example of use
 //
+//~~~~~~~~~~~~~~~~
 // // 3-alpha decay of 12C*
 //
 // KVNucleus CN(6,12);
@@ -54,6 +54,7 @@ ClassImp(KVGenPhaseSpace)
 //
 // h1->Draw();
 //
+//~~~~~~~~~~~~~~~~
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVGenPhaseSpace::init()

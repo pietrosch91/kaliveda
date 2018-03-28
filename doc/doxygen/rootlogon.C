@@ -1,5 +1,5 @@
 {
-   gROOT->ProcessLine(".L DocConverter.cxx++g");
+   gROOT->ProcessLine(".L DocConverter.cxx+");
    ConvertAllModules("kaliveda.git/KVMultiDet");
    ConvertAllModules("kaliveda.git/KVIndra");
    ConvertAllModules("kaliveda.git/VAMOS");
