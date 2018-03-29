@@ -16,79 +16,110 @@ ClassImp(KVEventSelector)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
-/* -->
+/*
 <h2>KVEventSelector</h2>
 <h4>General purpose analysis class for TTrees containing KVEvent objects</h4>
-<!-- */
-// --> END_HTML
-// Use this TSelector to analyse data in TTrees containing a branch with KVEvent-derived objects:
-//
-//    my_tree->Process("KVEventSelector", "[options]");
-//
-// where "[options]" is the list of options in the form "BranchName=toto, ...".
-//
-// The following options MUST be given:
-//
-//    BranchName:                name of branch containing the events
-//
-// The following is an optional option:
-//
-//    EventsReadInterval:     print info on analysis every N events instead of default value
-//
-// Any other options can be defined by the user and parsed in her analysis class
-// with methods IsOptGiven(const Char_t*) and GetOpt(const Char_t*)
-//
-// If the user needs to define new reference frames for the data which must exist before global variables
-// are automatically calculated in the analysis loop, she can do so by overriding the method
-// SetAnalysisFrame(), like so:
-// MyAnalysis::SetAnalysisFrame()
-// {
-//     static TVector3 cmvelocity(0,0,3.0);
-//     GetEvent()->SetFrame("CM", cmvelocity);
-// }
-//
-// *** USE WITH PROOF ***
-// In order to use a KVEventSelector with PROOF:
-//
-// - declare any histograms with method AddHisto(TH1*)
-// e.g. in InitAnalysis:
-// void MySelector::InitAnalysis()
-// {
-//     AddHisto( new TH2F("toto", "tata", 100, 0, 0, 500, 0, 0) );
-// }
-// Histograms can also be declared 'on the fly' in Analysis() method in
-// the same way;
-//
-// - for TTrees, first call CreateTreeFile("...") with name of file for TTree(s)
-// (by default, histograms and TTrees are written in different files - but see below),
-// then declare all trees using method AddTree(TTree*)
-// e.g. in InitAnalysis:
-// void MySelector::InitAnalysis()
-// {
-//     CreateTreeFile("MyTrees.root");
-//     TTree* aTree = new TTree("t1", "Some Tree");
-//     aTree->Branch(...) etc.
-//     AddTree(aTree);
-// }
-//
-// - if you want (not obligatory), you can use methods FillHisto(...) and
-//  FillTree(...) in your Analysis() method;
-//
-// - to save histograms to file in EndAnalysis(), call method
-//  SaveHistos(const Char_t* filename) in EndAnalysis()
-//
-// -  the file declared with CreateTreeFile will be automatically written
-// to disk at the end of the analysis.
-//
-// HISTOS & TREES IN SAME FILE
-// If you want all results of your analysis to be written in a single file
-// containing both histos and trees, put the following in the list of options:
-//      CombinedOutputFile=myResults.root
-// or call method SetCombinedOutputFile("myResults.root") in your InitAnalysis();
-// do not call SaveHistos() in EndAnalysis(), and make
-// sure you call CreateTreeFile() without giving a name (the
-// resulting intermediate file will have a default name
-// allowing it to be found at the end of the analysis)
+ Use this TSelector to analyse data in TTrees containing a branch with KVEvent-derived objects:
+
+~~~~~~~~~~~~~~~~
+    my_tree->Process("KVEventSelector", "[options]");
+~~~~~~~~~~~~~~~~
+
+ where `"[options]"` is the list of options in the form `"BranchName=toto, ..."`.
+
+ The following options MUST be given:
+
+~~~~~~~~~~~~~~~~
+    BranchName:                name of branch containing the events
+~~~~~~~~~~~~~~~~
+
+ The following is an optional option:
+
+~~~~~~~~~~~~~~~~
+    EventsReadInterval:     print info on analysis every N events instead of default value
+~~~~~~~~~~~~~~~~
+
+ Any other options can be defined by the user and parsed in her analysis class
+ with methods IsOptGiven() and GetOpt()
+
+## Usage
+### Global Variables
+Global variables for the analysis should be declared in InitAnalysis() using method AddGV().
+These variables are calculated automatically for each event __before__ user's Analysis()
+method is called.
+
+ If the user needs to define new reference frames for the data which must exist before global variables
+ are automatically calculated in the analysis loop, she can do so by overriding the method
+ SetAnalysisFrame(), like so:
+
+~~~~~~~~~~~~~~~~
+ MyAnalysis::SetAnalysisFrame()
+ {
+     static TVector3 cmvelocity(0,0,3.0);
+     GetEvent()->SetFrame("CM", cmvelocity);
+ }
+~~~~~~~~~~~~~~~~
+
+### Particle selection for global variables
+In order to control which particles are included in the calculation of global variables,
+define the selection using KVParticleCondition and set it by calling SetParticleConditions()
+in InitAnalysis() or InitRun().
+
+This selection also applies to any iteration over "OK" particles in Analysis().
+
+### Use with PROOF(lite)
+ In order to use a KVEventSelector with PROOF:
+  - declare any histograms with method AddHisto(TH1*)
+    e.g. in InitAnalysis() do:
+
+
+~~~~~~~~~~~~~~~~
+ void MySelector::InitAnalysis()
+ {
+     AddHisto( new TH2F("toto", "tata", 100, 0, 0, 500, 0, 0) );
+ }
+~~~~~~~~~~~~~~~~
+
+ Histograms can also be declared 'on the fly' in the Analysis() method in
+ the same way;
+
+ - for TTrees, first call CreateTreeFile() with name of file for TTree(s)
+ (by default, histograms and TTrees are written in different files - but see below),
+ then declare all trees using method AddTree(TTree*)
+ e.g. in InitAnalysis() do:
+
+~~~~~~~~~~~~~~~~
+ void MySelector::InitAnalysis()
+ {
+     CreateTreeFile("MyTrees.root");
+     TTree* aTree = new TTree("t1", "Some Tree");
+     aTree->Branch(...) etc.
+     AddTree(aTree);
+ }
+~~~~~~~~~~~~~~~~
+
+ - if you want (not obligatory), you can use methods FillHisto() and
+  FillTree() in your Analysis() method;
+
+ - to save histograms to file in EndAnalysis(), call method
+  SaveHistos() in EndAnalysis() with the name of the file to be created
+
+ -  the file declared with CreateTreeFile() will be automatically written
+ to disk at the end of the analysis.
+
+### Histograms & TTrees in the same output file
+ If you want all results of your analysis to be written in a single file
+ containing both histos and trees, put the following in the list of options:
+
+~~~~~~~~~~~~~~~~
+      CombinedOutputFile=myResults.root
+~~~~~~~~~~~~~~~~
+
+ or call method SetCombinedOutputFile() with the required filename in your InitAnalysis() method;
+
+ - do not call SaveHistos() in EndAnalysis(), and make sure you call CreateTreeFile() without giving a name (the
+ resulting intermediate file will have a default name allowing it to be found at the end of the analysis)
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVEventSelector::Begin(TTree* /*tree*/)
@@ -385,30 +416,33 @@ KVVarGlob* KVEventSelector::AddGV(const Char_t* class_name,
 {
    //Add a global variable to the list of variables for the analysis.
    //
-   //"class_name" must be the name of a valid class inheriting from KVVarGlob, e.g. any of the default global
-   //variable classes defined as part of the standard KaliVeda package (in libKVvVarGlob.so). See
-   //"Class Reference" page on website for the available classes (listed by category under "Global Variables: ...").
+   //`"class_name"` must be the name of a valid class inheriting from KVVarGlob, e.g. any of the default global
+   //variable classes defined as part of the standard KaliVeda package (see the [global variables module](group__Globvars.html)),
+   //or the name of a user-defined class (see below).
    //
-   //USER-DEFINED GLOBAL VARIABLES
+   //`"name"` is a unique name for the new global variable object which will be created and added to the internal
+   //list of global variables. This name can be used to retrieve the object (see GetGV()) in the user's analysis.
+   //
+   //Returns pointer to new global variable object in case more than the usual default initialisation is necessary.
+   //
+   //### User-defined global variables
    //The user may use her own global variables in an analysis class, without having to add them to the main libraries.
    //If the given class name is not known, it is assumed to be a user-defined class and we attempt to compile and load
    //the class from the user's source code. For this to work, the user must:
    //
-   //      (1) add to the ROOT macro path the directory where her class's source code is kept, e.g. in $HOME/.rootrc
-   //              add the following line:
+   //  1. add to the ROOT macro path the directory where her class's source code is kept, e.g. in `$HOME/.rootrc` add the following line:
    //
+   //~~~~~~~~~~~~~~~
    //              +Unix.*.Root.MacroPath:      $(HOME)/myVarGlobs
+   //~~~~~~~~~~~~~~~
    //
-   //      (2) for each user-defined class, add a line to $HOME/.kvrootrc to define a "plugin". E.g. for a class called MyNewVarGlob,
+   //  2. for each user-defined class, add a line to $HOME/.kvrootrc to define a "plugin". E.g. for a class called MyNewVarGlob,
    //
+   //~~~~~~~~~~~~~~~
    //              +Plugin.KVVarGlob:    MyNewVarGlob    MyNewVarGlob     MyNewVarGlob.cpp+   "MyNewVarGlob()"
+   //~~~~~~~~~~~~~~~
    //
-   //      It is assumed that MyNewVarGlob.h and MyNewVarGlob.cpp will be found in $HOME/myVarGlobs (in this example).
-   //
-   //"name" is a unique name for the new global variable object which will be created and added to the internal
-   //list of global variables. This name can be used to retrieve the object (see GetGV) in the user's analysis.
-   //
-   //Returns pointer to new global variable object in case more than the usual default initialisation is necessary.
+   //  It is assumed that `MyNewVarGlob.h` and `MyNewVarGlob.cpp` will be found in `$HOME/myVarGlobs` (in this example).
 
    KVVarGlob* vg = 0;
    TClass* clas = gROOT->GetClass(class_name);
@@ -719,6 +753,7 @@ Bool_t KVEventSelector::IsOptGiven(const Char_t* opt)
 TString KVEventSelector::GetOpt(const Char_t* opt) const
 {
    // Returns the value of the option
+   //
    // Only use after checking existence of option with IsOptGiven(const Char_t* opt)
 
    return fOptionList.GetTStringValue(opt);
@@ -736,11 +771,13 @@ void KVEventSelector::UnsetOpt(const Char_t* opt)
 void KVEventSelector::ParseOptions()
 {
    // Analyse comma-separated list of options given to TTree::Process
-   // and store all "option=value" pairs in fOptionList.
+   // and store all `"option=value"` pairs in fOptionList.
    // Options can then be accessed using IsOptGiven(), GetOptString(), etc.
    //
+   //~~~~~~~~~~~~~~~
    //     BranchName=xxxx  :  change name of branch in TTree containing data
    //     EventsReadInterval=N: print "+++ 12345 events processed +++" every N events
+   //~~~~~~~~~~~~~~~
    //
    // This method is called by SlaveBegin
    //

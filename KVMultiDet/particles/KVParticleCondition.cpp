@@ -21,28 +21,80 @@ using namespace std;
 ClassImp(KVParticleCondition)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
 <h2>KVParticleCondition</h2>
 <h4>Implements parser of particle selection criteria</h4>
-<!-- */
-// --> END_HTML
-//These must be valid C++ expressions using _NUC_ instead and in place of
-//a pointer to the particle to be tested. Note that the methods used in the selection
-//do not have to be limited to the KVNucleus class. The 'real' class of the object
-//passed to Test() will be used to cast the base (KVNucleus) pointer up to the
-//required pointer type at execution. In this case, you must call the method
-//SetParticleClassName() with the name of the class to use in the cast.
-//
-//Conditions can be combined using Boolean '&&' and '||' operators.
-//
-//EXAMPLES
-//    KVParticleCondition pc("_NUC_->GetZ()>2");
-//    pc.Set("_NUC_->GetTimeMarker()<110 && _NUC_->GetTimeMarker()>80");
-//    KVParticleCondition pc2 = "_NUC_->GetVpar()>=gIndra->GetSystem()->GetKinematics()->GetNucleus(1)->GetVpar()";
-//    KVParticleCondition pc3 = pc && pc2;
-//
-//WARNING: for pc2, see method AddExtraInclude
+
+These must be valid C++ expressions using _NUC_ instead and in place of
+a pointer to the particle to be tested. Note that the methods used in the selection
+do not have to be limited to the KVNucleus class. The 'real' class of the object
+passed to Test() will be used to cast the base pointer (KVNucleus*) up to the
+required pointer type at execution. In this case, you must call the method
+SetParticleClassName() with the name of the class to use in the cast.
+
+Conditions can be combined using Boolean '&&' and '||' operators.
+
+Note that the first time Test() is called we generate and compile a class derived
+from KVParticleCondition which implements the required test. For all subsequent
+calls it is this compiled code which is used, greatly increasing speed of
+execution.
+
+### EXAMPLES
+
+~~~~~~~~~~~~~~~~
+// select nuclei with Z>2
+KVParticleCondition pc("_NUC_->GetZ()>2");
+
+KVNucleus nuc("56Fe");
+pc.Test(&nuc);
+
+Info in <KVParticleCondition::Optimize>: Optimization of KVParticleCondition : _NUC_->GetZ()>2;
+<KVClassFactory::WriteClassHeader> : File KVParticleCondition_9594f66c.h generated.
+<KVClassFactory::WriteClassImp> : File KVParticleCondition_9594f66c.cpp generated.
+Info in <TUnixSystem::ACLiC>: creating shared library /./KVParticleCondition_9594f66c_cpp.so
+Info in <KVParticleCondition::Optimize>: fOptimal = 0x55add512d3a0
+Info in <KVParticleCondition::Optimize>: Success
+(bool) true
+
+pc.Test(&nuc);
+(bool) true
+
+// select simulated nuclei with spin>40hbar
+KVParticleCondition pc2 = "_NUC_->GetSpin().Mag()<40";
+
+KVSimNucleus p("56Fe");
+p.SetSpin(50,0,0);
+
+pc2.Test(&p);
+
+Info in <KVParticleCondition::Optimize>: Optimization of KVParticleCondition : _NUC_->GetSpin().Mag()>40;
+<KVClassFactory::WriteClassHeader> : File KVParticleCondition_b04461fe.h generated.
+<KVClassFactory::WriteClassImp> : File KVParticleCondition_b04461fe.cpp generated.
+Info in <TUnixSystem::ACLiC>: creating shared library /./KVParticleCondition_b04461fe_cpp.so
+In file included from input_line_11:9:
+././KVParticleCondition_b04461fe.cpp:43:16: error: no member named 'GetSpin' in 'KVNucleus'
+   return nuc->GetSpin().Mag()>40;
+          ~~~  ^
+Error in <ACLiC>: Dictionary generation failed!
+Error in <KVParticleCondition::Optimize>:  *** Optimization failed for KVParticleCondition : _NUC_->GetSpin().Mag()>40;
+Error in <KVParticleCondition::Optimize>:  *** Use method AddExtraInclude(const Char_t*) to give the names of all necessary header files for compilation of your condition.
+Fatal in <KVParticleCondition::Optimize>:  *** THIS CONDITION WILL BE EVALUATED AS kFALSE FOR ALL PARTICLES!!!
+aborting
+
+KVParticleCondition pc2 = "_NUC_->GetSpin().Mag()<40";
+pc2.SetParticleClassName("KVSimNucleus"); // GetSpin() only defined for KVSimNucleus class
+pc2.Test(&p);
+
+Info in <KVParticleCondition::Optimize>: Optimization of KVParticleCondition : _NUC_->GetSpin().Mag()>40;
+<KVClassFactory::WriteClassHeader> : File KVParticleCondition_16f09224.h generated.
+<KVClassFactory::WriteClassImp> : File KVParticleCondition_16f09224.cpp generated.
+Info in <TUnixSystem::ACLiC>: creating shared library /./KVParticleCondition_16f09224_cpp.so
+Info in <KVParticleCondition::Optimize>: fOptimal = 0x55cc657e1d90
+Info in <KVParticleCondition::Optimize>: Success
+(bool) true
+~~~~~~~~~~~~~~~~
+
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 KVHashList KVParticleCondition::fgOptimized;
@@ -92,6 +144,7 @@ KVParticleCondition::KVParticleCondition(const Char_t* cond)
 Bool_t KVParticleCondition::Test(KVNucleus* nuc)
 {
    //Evaluates the condition for the particle in question
+   //
    //If optimisation fails (see method Optimize()), the condition will always
    //be evaluated as 'kFALSE' for all particles
 
@@ -105,23 +158,18 @@ Bool_t KVParticleCondition::Test(KVNucleus* nuc)
 void KVParticleCondition::Set(const Char_t* cond)
 {
    //Set particle condition criteria.
+   //
    //These must be valid C++ expressions using _NUC_ instead and in place of
    //a pointer to the particle to be tested. Note that the methods used in the selection
    //do not have to be limited to the KVNucleus class. The 'real' class of the object
    //passed to Test() will be used to cast the base (KVNucleus) pointer up to the
    //required pointer type at execution.
-   //
-   //EXAMPLES
-   //    KVParticleCondition pc("_NUC_->GetZ()>2");
-   //    KVParticleCondition pc2;
-   //    pc2.Set("_NUC_->GetTimeMarker()<110 && _NUC_->GetTimeMarker()>80");
 
-   //we add a ";" if there isn't already
    fCondition = cond;
    Ssiz_t ind = fCondition.Index(";");
    if (ind < 0) {
       fCondition_raw = fCondition;
-      fCondition += ";";
+      fCondition += ";";    //we add a ";" if there isn't already
    } else {
       fCondition_raw = fCondition.Strip(TString::kTrailing, ';');
    }
@@ -230,7 +278,7 @@ void KVParticleCondition::AddExtraInclude(const Char_t* inc_file)
    //'#include' file to be added to the class implementation.
    //
    //Example:
-   //    KVParticleCondition p("_NUC_->GetVpar()>=gIndra->GetSystem()->GetKinematics()->GetNucleus(1)->GetVpar()");
+   //    KVParticleCondition p("_NUC_->GetVpar()>=gDataAnalyser->GetKinematics()->GetNucleus(1)->GetVpar()");
    //
    //Optimization will not work, as the 'gIndra' pointer is declared in KVINDRA.h, which
    //is not a default '#include' file when the optimised class is generated; similarly,
@@ -271,12 +319,18 @@ void KVParticleCondition::CreateClassFactory()
 
 void KVParticleCondition::Optimize()
 {
-   //Generate a new class which inherits from KVParticleCondition but having a Test
-   //method which tests explicitely the condition which is set by the user.
-   //The 'KVNucleus' pointer argument is casted to the type given to SetParticleClassName.
+   //Generate a new class which inherits from KVParticleCondition but having a Test()
+   //method which tests explicitly the condition which is set by the user.
+   //
+   //If needed, the KVNucleus pointer argument will be upcasted to the type given to SetParticleClassName().
+   //
    //The new class is added to the list of plugins of type KVParticleCondition,
-   //then an instance of the class is generated and a pointer to it stored in fOptimal.
-   //This object is then used in the Test method of this object to test the condition.
+   //then an instance of the class is generated and a pointer to it stored in
+   //member KVParticleCondition::fOptimal.
+   //
+   //This object is then used in the Test() method of this object to test the condition.
+   //
+   //If compilation fails, the condition will evaluate to kFALSE for all subsequent calls.
 
    /* check that the same condition has not already been optimized */
    fOptimal = (KVParticleCondition*)fgOptimized.FindObject(GetName());
