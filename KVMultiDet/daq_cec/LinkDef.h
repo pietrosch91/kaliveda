@@ -13,4 +13,7 @@
 #pragma link C++ class GTDataParameters+;
 #pragma link C++ class GTGanilData+;
 #endif
+#ifdef WITH_MFM
+#pragma link C++ class KVMFMDataFileReader+;
+#endif
 #endif

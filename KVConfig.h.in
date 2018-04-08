@@ -9,6 +9,7 @@
 #cmakedefine WITH_RANGE_YANEZ
 #cmakedefine WITH_MODIFIED_RANGE_YANEZ
 #cmakedefine WITH_GEMINI
+#cmakedefine WITH_MFM
 #cmakedefine WITH_OPENGL
 #cmakedefine WITH_RSQLITE
 #cmakedefine WITH_GRULIB
