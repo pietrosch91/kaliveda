@@ -94,6 +94,10 @@ void KVDataRepositoryManager::Init()
       cout <<
            "<KVDataRepositoryManager::Init> : no repositories defined in .kvrootrc"
            << endl;
+      // Initialise a repository-less dataset manager which will give access to
+      // all datasets regardless of data availability (which is unknowable)
+      gDataSetManager = new KVDataSetManager;
+      gDataSetManager->Init();
       return;
    }
    //split list
@@ -118,7 +122,8 @@ void KVDataRepositoryManager::Init()
       if (new_rep->Init()) {
          fRepositories.Add(new_rep);
          last_defined = new_rep;    //keep pointer to last defined repository
-      } else {
+      }
+      else {
          //problem with initialisation of data repository.
          //it is ignored.
          delete new_rep;
@@ -163,7 +168,8 @@ void KVDataRepositoryManager::Print(Option_t* opt) const
    while ((rep = (KVDataRepository*) nxt())) {
       if (_all) {
          rep->Print();
-      } else {
+      }
+      else {
          cout << "\t" << rep->GetName() << "  [";
          if (rep->IsRemote())
             cout << "REMOTE";
