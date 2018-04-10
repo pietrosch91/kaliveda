@@ -36,11 +36,11 @@ endif(Boost_FOUND)
 
 #--look for mfmlib library for GANIL MFM data
 set(WITH_MFM)
-find_package(mfmlib QUIET)
-if(mfmlib_FOUND)
-   include_directories(${mfmlib_INCLUDE_DIRS})
-   set(WITH_MFM yes)
-endif(mfmlib_FOUND)
+#find_package(mfmlib QUIET)
+#if(mfmlib_FOUND)
+#   include_directories(${mfmlib_INCLUDE_DIRS})
+#   set(WITH_MFM yes)
+#endif(mfmlib_FOUND)
 
 include(KaliVedaInstallDirs)
 
