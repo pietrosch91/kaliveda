@@ -194,7 +194,8 @@ void KVNumberList::ParseAndFindLimits(const TString& string, const Char_t delim)
          ParseAndFindLimits(tok, ' ');
       else if (tok.Contains('-')) {
          AddLimits(tok);
-      } else if (kvtok.IsDigit()) {
+      }
+      else if (kvtok.IsDigit()) {
          Int_t val = kvtok.Atoi();
          AddLimits(val, val);
       }
@@ -510,7 +511,8 @@ void KVNumberList::Inter(const KVNumberList& list)
    KVNumberList tampon(list);
    if (tampon.IsEmpty() || IsEmpty()) {
       SetList("");
-   } else {
+   }
+   else {
       TString tmp = "";
       tampon.Begin();
       while (!tampon.End()) {
@@ -558,11 +560,13 @@ const Char_t* KVNumberList::GetList() const
          //cout << "end of continuous range ?" << endl;
          if (min != max) {
             fString += Form("%d-%d ", min, max);
-         } else {
+         }
+         else {
             fString += Form("%d ", min);
          }
          min = max = val;
-      } else {
+      }
+      else {
          //cout << "continuous range" << endl;
          max = val;
       }
@@ -570,7 +574,8 @@ const Char_t* KVNumberList::GetList() const
    }
    if (min != max) {
       fString += Form("%d-%d", min, max);
-   } else {
+   }
+   else {
       fString += Form("%d", min);
    }
    return fString.Data();
@@ -629,7 +634,8 @@ TString KVNumberList::GetLogical(const Char_t* observable) const
       if (line.Contains("-")) {
          line.ReplaceAll("-", Form("<=%s&&%s<=", observable, observable));
          cond += line;
-      } else {
+      }
+      else {
          cond += Form("%s==", observable) + line;
       }
       if (ii != nt - 1) cond += "||";
@@ -662,7 +668,8 @@ TString KVNumberList::GetSQL(const Char_t* column) const
          cond += tmp2.Next();
          cond += " AND ";
          cond += tmp2.Next();
-      } else {
+      }
+      else {
          cond += (qcol + "=");
          cond += tmp2;
       }
@@ -753,7 +760,8 @@ Int_t KVNumberList::At(Int_t index) const
    Int_t n = -1;
    try {
       n = arr.at(index);
-   } catch (std::exception& e) {
+   }
+   catch (std::exception& e) {
       Warning(KV__ERROR(At), "Index out of bounds. -1 returned.");
    }
    return n;
@@ -784,21 +792,20 @@ const Char_t* KVNumberList::AsString(Int_t maxlen) const
    //the resulting string is 5 i.e. "6...0".
    //Returns empty string if list is empty.
 
-   static TString tmp;
-   tmp = GetList();
+   fTMPSTR = GetList();
    if (maxlen) {
       maxlen = TMath::Max(maxlen, 5);
-      if (tmp.Length() > maxlen) {
+      if (fTMPSTR.Length() > maxlen) {
          Int_t len_left = maxlen - 3; // 3 for "..."
          Int_t len_start = len_left / 2;
          Int_t len_end = len_left - len_start;
-         TString tmp2 = tmp(0, len_start);
+         TString tmp2 = fTMPSTR(0, len_start);
          tmp2 += "...";
-         tmp2 += tmp(tmp.Length() - len_end, tmp.Length() - 1);
-         tmp = tmp2;
+         tmp2 += fTMPSTR(fTMPSTR.Length() - len_end, fTMPSTR.Length() - 1);
+         fTMPSTR = tmp2;
       }
    }
-   return tmp.Data();
+   return fTMPSTR.Data();
 }
 
 Int_t KVNumberList::GetRandom() const
@@ -826,7 +833,8 @@ Bool_t KVNumberList::IsFull(Int_t vinf, Int_t vsup) const
    if ((vinf == -1) && (vsup == -1)) {
       Int_t total = Last() - First() + 1;
       return (total == GetNValues());
-   } else {
+   }
+   else {
       return GetSubList(vinf, vsup).IsFull();
    }
 }
@@ -904,7 +912,8 @@ TList* KVNumberList::CutInSubList(Int_t number)
       if (!nl) {
          nl = new KVNumberList();
          list->Add(nl);
-      } else if (nl->GetNValues() >= number) {
+      }
+      else if (nl->GetNValues() >= number) {
          nl = new KVNumberList();
          list->Add(nl);
       }

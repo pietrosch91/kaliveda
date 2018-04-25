@@ -29,6 +29,8 @@ class KVNumberList : public TObject {
    mutable Int_t fLastValue;            //largest value included in list
    mutable Int_t fNValues;              //total number of values included in ranges
 
+   mutable TString fTMPSTR;//! dummy string to compute AsString (non static)
+
    mutable IntArrayIter fIterIndex;//! used by Next() to iterate over list
    mutable IntArrayIter fEndList;//! used by Next() & End() to iterate over list
    mutable IntArray fValues;//! used by Next() to iterate over list
