@@ -723,11 +723,11 @@ Int_t KVNumberList::Next() const
    //If list is empty, End() always returns kTRUE and Next() returns -1.
 
    if (fValues.empty()) {
-      Warning(KV__ERROR(Next), "List is empty. -1 returned.");
+      Warning("Next", "List is empty. -1 returned.");
       return -1;
    }
    if (fIterIndex >= fEndList) {
-      Warning(KV__ERROR(Next), "Attempt to iterate beyond of list. -1 returned.");
+      Warning("Next", "Attempt to iterate beyond end of list. -1 returned.");
       return -1;
    }
    Int_t val = *(fIterIndex++);
