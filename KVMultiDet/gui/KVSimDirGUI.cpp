@@ -55,6 +55,7 @@ KVSimDirGUI::KVSimDirGUI()
    MainFrame = new TGMainFrame(gClient->GetRoot(), 10, 10, kMainFrame | kVerticalFrame);
    MainFrame->SetName("KaliVedaSim GUI");
    MainFrame->SetWindowName("KaliVedaSim GUI");
+   MainFrame->Connect("CloseWindow()", "KVSimDirGUI", this, "Exit()");
 
    TGHorizontalFrame* hftop = new TGHorizontalFrame(MainFrame, 10, 10, kHorizontalFrame);
 
@@ -490,7 +491,8 @@ void KVSimDirGUI::SelectSimDir(TGListTreeItem* simdir, Int_t)
       BremDir->SetEnabled();
       BimpSim->SetEnabled();
       BrefreshDir->SetEnabled();
-   } else {
+   }
+   else {
       BremDir->SetEnabled(kFALSE);
       BimpSim->SetEnabled(kFALSE);
       BrefreshDir->SetEnabled(kFALSE);
@@ -539,7 +541,8 @@ void KVSimDirGUI::SelectDataSet(const char* name)
       // use ROOT geometry if available
       if (ds->GetDataSetEnv("KVMultiDetArray.ROOTGeometry", kTRUE)) {
          GeoType(kGTROOT);
-      } else {
+      }
+      else {
          GeoType(kGTKaliVeda);
       }
       KVSeqCollection* systems = 0;
@@ -632,11 +635,13 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
       if (selected_sim_runs->GetEntries()) {
          runs_to_analyse = selected_sim_runs.get();
          analysis_task = "analysis simulated";
-      } else {
+      }
+      else {
          runs_to_analyse = selected_filt_runs.get();
          analysis_task = "analysis filtered";
       }
-   } else {
+   }
+   else {
       // filtering
       if (selected_filt_runs->GetEntries()) {
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Only simulated events can be filtered!", kMBIconExclamation);
@@ -666,7 +671,8 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
       if (!gDataAnalyser->IsUserClassValid()) {
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Compilation failed. Correct mistakes and try again!", kMBIconExclamation);
       }
-   } else if (strcmp(anTask->GetUserBaseClass(), ""))
+   }
+   else if (strcmp(anTask->GetUserBaseClass(), ""))
       gDataAnalyser->SetUserClass(anTask->GetUserBaseClass(), kFALSE);//task with default "user" class
    Bool_t all_events = fCBAllEvents->IsDown();
    if (!all_events)
@@ -774,12 +780,14 @@ void KVSimDirGUI::ImportSimulation()
             unique_ptr<KVSimReader> SR(KVSimReader::MakeSimReader(model));
             SR->SetOutputDirectory(fSelectedSimDir->GetDirectory());
             SR->ConvertAndSaveEventsInFile(fi.fFilename);
-         } else {
+         }
+         else {
             if (fi.fFileNamesList->GetEntries() == 1) {
                unique_ptr<KVSimReader> SR(KVSimReader::MakeSimReader(model));
                SR->SetOutputDirectory(fSelectedSimDir->GetDirectory());
                SR->ConvertAndSaveEventsInFile(fi.fFileNamesList->First()->GetName());
-            } else {
+            }
+            else {
                TIter it(fi.fFileNamesList);
                TObject* o;
                int i = 1;
@@ -795,7 +803,8 @@ void KVSimDirGUI::ImportSimulation()
 
          RefreshSimDir();
       }
-   } else if (fi.fMultipleSelection && fi.fFileNamesList) {
+   }
+   else if (fi.fMultipleSelection && fi.fFileNamesList) {
       fi.fFileNamesList->ls();
    }
 }

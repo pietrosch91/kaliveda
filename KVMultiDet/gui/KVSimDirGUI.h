@@ -15,6 +15,7 @@
 #include "TGButton.h"
 #include "TGComboBox.h"
 #include "RQ_OBJECT.h"
+#include "TApplication.h"
 #include "KVListView.h"
 #include "KVSimDir.h"
 class TChain;
@@ -94,6 +95,10 @@ public:
    KVSimDirGUI(const KVSimDirGUI&) ;
    virtual ~KVSimDirGUI();
    void Copy(TObject&) const;
+   void Exit()
+   {
+      gApplication->Terminate();
+   }
 
    void AddSimDir();
    void RemSimDir();
