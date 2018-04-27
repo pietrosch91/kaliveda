@@ -596,9 +596,16 @@ void KVSimDirGUI::SelectRun(const char* run)
 
 void KVSimDirGUI::Run()
 {
-//    Info("Run","current tab : '%d'",fAnalysisTabs->GetCurrent());
+   // Called when "Process" button is pressed to launch the analysis
+
    if (fAnalysisTabs->GetCurrent() == 0)      RunAnalysis("tree");
-   else if (fAnalysisTabs->GetCurrent() == 1) RunAnalysis("filter");
+   else if (fAnalysisTabs->GetCurrent() == 1) {
+      if (fDataset == "") { // Make sure a dataset has been chosen
+         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::Run", "First choose the dataset which describes the geometry!", kMBIconExclamation);
+         return;
+      }
+      RunAnalysis("filter");
+   }
 }
 
 // void KVSimDirGUI::ChangeOutputDirectory()
@@ -657,10 +664,6 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
 //       }
       runs_to_analyse = selected_sim_runs.get();
       analysis_task = "filter simulated";
-   }
-   if (!gDataSetManager) {
-      gDataSetManager = new KVDataSetManager;
-      gDataSetManager->Init();
    }
    KVDataAnalysisTask* anTask = gDataSetManager->GetAnalysisTaskAny(analysis_task);
    gDataAnalyser = KVDataAnalyser::GetAnalyser(anTask->GetDataAnalyser());
