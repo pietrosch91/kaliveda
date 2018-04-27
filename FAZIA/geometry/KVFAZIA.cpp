@@ -58,14 +58,21 @@ void KVFAZIA::AddDetectorLabel(const Char_t* label)
 
 void KVFAZIA::GenerateCorrespondanceFile()
 {
-   fDetectorLabels = "SI1,SI2,CSI";
+   // Look for the geometry object <-> detector name correspondance file in the dataset directory
+   //  If not found, we create it
+
+   fCorrespondanceFile = gDataSet->GetFullPathToDataSetFile(Form("%s.names", ClassName()));
+   if (fCorrespondanceFile != "") return;
+
 #ifdef WITH_GNU_INSTALL
-   fCorrespondanceFile.Form("%s/%s-%s.names", KVBase::WorkingDirectory(), gSystem->Getenv("USER"), ClassName());
+   fCorrespondanceFile.Form("%s/%s.names", KVBase::WorkingDirectory(), ClassName());
 #else
-   fCorrespondanceFile.Form("%s/%s-%s.names", KVBase::GetDATADIRFilePath(), gSystem->Getenv("USER"), ClassName());
+   fCorrespondanceFile.Form("%s/%s.names", gDataSet->GetDataSetDir(), ClassName());
 #endif
    Info("GenerateCorrespondanceFile", "Creation de %s", fCorrespondanceFile.Data());
    KVEnv env;
+
+   fDetectorLabels = "SI1,SI2,CSI";
 
    SetNameOfDetectors(env);
    if (env.GetTable() && env.GetTable()->GetEntries() > 0) {
@@ -180,6 +187,7 @@ void KVFAZIA::SortIDTelescopes()
    }
 
 }
+
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
 {
    // First step in event reconstruction based on current status of detectors in array.
@@ -212,11 +220,13 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
             if ((grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp)) {
                detev->AddGroup(grp);
             }
-         } else {
+         }
+         else {
             Error("GetDetectedEvent", "Unknown detector %s !!!", par->GetDetectorName());
          }
       }
-   } else {
+   }
+   else {
       KVMultiDetArray::GetDetectorEvent(detev, 0);
    }
 
@@ -275,7 +285,8 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine", sdet.Data()));
             det->SetI1SigmaBaseLine(val);
 
-         } else if (!strcmp(det->GetLabel(), "SI2")) {
+         }
+         else if (!strcmp(det->GetLabel(), "SI2")) {
 
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q2.FPGAEnergy", sdet.Data()));
             det->SetQ2FPGAEnergy(val);
@@ -298,7 +309,8 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
             det->SetI2BaseLine(val);
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", sdet.Data()));
             det->SetI2SigmaBaseLine(val);
-         } else if (!strcmp(det->GetLabel(), "CSI")) {
+         }
+         else if (!strcmp(det->GetLabel(), "CSI")) {
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAEnergy", sdet.Data()));
             det->SetQ3FPGAEnergy(val);
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAFastEnergy", sdet.Data()));
