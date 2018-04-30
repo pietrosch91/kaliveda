@@ -9,9 +9,13 @@
 #include "KVReconstructedEvent.h"
 #include <KVSimEvent.h>
 
+//#define DEBUG_FILTER 1
+
 class KVDBSystem;
 class KVEventFiltering : public KVEventSelector {
-   //KVClassMonitor memory_check;
+#ifdef DEBUG_FILTER
+   KVClassMonitor* memory_check;
+#endif
    Long64_t fEVN;//event number counter
    Bool_t fRotate;//true if random phi rotation should be applied [default: yes]
    Bool_t fGemini;//true if Gemini++ decay should be performed before detection [default: no]
