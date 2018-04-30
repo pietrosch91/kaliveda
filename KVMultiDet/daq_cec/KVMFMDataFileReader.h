@@ -6,13 +6,21 @@
 
 #include "KVRawDataReader.h"
 #include "MFMFileReader.h"
+#include "MFMMergeFrameManager.h"
+#include <KVHashList.h>
 
-class KVMFMDataFileReader : public KVRawDataReader {
-   MFMFileReader reader;//!
+class KVMFMDataFileReader : public KVRawDataReader, public MFMFileReader {
+
+   KVHashList fEBYEDATfired;//! list of fired parameters in EBYEDAT frames
+   MFMMergeFrameManager fMerge;//! for treating merged frames
+
+   void TreatFrame(MFMCommonFrame&);
+   void TreatEbyedatFrame(MFMCommonFrame&) {}
+   void TreatFaziaFrame(MFMCommonFrame&) {}
 
 public:
    KVMFMDataFileReader(const Char_t* filepath)
-      : reader(filepath)
+      : KVRawDataReader(), MFMFileReader(filepath)
    {}
    virtual ~KVMFMDataFileReader() {}
    Bool_t GetNextEvent();
