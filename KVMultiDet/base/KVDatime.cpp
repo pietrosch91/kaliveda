@@ -54,6 +54,16 @@ KVDatime::KVDatime(const Char_t* DateString, EKVDateFormat f)
    //Format of date string is:
    //      29-SEP-2005 09:42:17.00
    //
+   //if f = KVDatime::kGANACQ2010:
+   //Decodes GANIL acquisition runfile format date into a TDatime
+   //Format of date string is:
+   //      27Nov10_02h07m40s
+   //
+   //if f = KVDatime::kGANACQNarval:
+   //Decodes GANIL Narval acquisition runfile format date into a TDatime
+   //Format of date string is:
+   //      12-04-18_17h09m41s
+   //
    //if f = KVDatime::kSQL:
    //Decodes SQL format date into a TDatime (i.e. same format as returned
    //by TDatime::AsSQLString(): "2007-05-02 14:52:18")
@@ -77,6 +87,12 @@ KVDatime::KVDatime(const Char_t* DateString, EKVDateFormat f)
    switch (f) {
       case kGANACQ:
          SetGanacqDate(DateString);
+         break;
+      case kGANACQ2010:
+         SetGanacq2010Date(DateString);
+         break;
+      case kGANACQNarval:
+         SetGanacqNarvalDate(DateString);
          break;
       case kSQL:
          SetSQLDate(DateString);
@@ -164,6 +180,20 @@ void KVDatime::SetGanacq2010Date(const Char_t* GanacqDateString)
       if (mm) month = fmonths->IndexOf(mm) + 1;
       Y += 2000;
       Set(Y, month, D, H, M, S);
+   }
+}
+
+void KVDatime::SetGanacqNarvalDate(const Char_t* GanacqDateString)
+{
+   // Decodes dates in format of GANIL Narval acquisition
+   // run files, e.g. run_0058.dat.27-11-10_02h07m40s
+   Int_t Y, D, H, M, S, Month;
+   TString tmp(GanacqDateString);
+   tmp.ToUpper();
+   tmp.ReplaceAll("_", " ");
+   if (sscanf(tmp.Data(), "%02d-%02d-%02d %02dH%02dM%02dS", &D, &Month, &Y, &H, &M, &S) == 6) {
+      Y += 2000;
+      Set(Y, Month, D, H, M, S);
    }
 }
 
@@ -279,6 +309,20 @@ Bool_t KVDatime::IsGANACQ2010Format(const Char_t* date)
    tmp.ToUpper();
    tmp.ReplaceAll("_", " ");
    if (sscanf(tmp.Data(), "%02d%3s%02d %02dH%02dM%02dS", &D, Month, &Y, &H, &M, &S) == 6)
+      return kTRUE;
+   return kFALSE;
+}
+
+Bool_t KVDatime::IsGANACQNarvalFormat(const Char_t* date)
+{
+   // Static method, returns kTRUE if 'date' is in format of GANIL Narval acquisition
+   // run files, e.g. run_0058.dat.27-11-10_02h07m40s
+
+   Int_t Y, D, H, M, S, Month;
+   TString tmp(date);
+   tmp.ToUpper();
+   tmp.ReplaceAll("_", " ");
+   if (sscanf(tmp.Data(), "%02d-%02d-%02d %02dH%02dM%02dS", &D, &Month, &Y, &H, &M, &S) == 6)
       return kTRUE;
    return kFALSE;
 }

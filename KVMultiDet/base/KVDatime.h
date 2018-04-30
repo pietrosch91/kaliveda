@@ -27,7 +27,9 @@ public:
       kSQL,
       kSRB,
       kIRODS,
-      kDMY
+      kDMY,
+      kGANACQ2010,
+      kGANACQNarval
    };
 
    KVDatime();
@@ -62,6 +64,7 @@ public:
 
    void SetGanacqDate(const Char_t* GanacqDateString);
    void SetGanacq2010Date(const Char_t* GanacqDateString);
+   void SetGanacqNarvalDate(const Char_t* GanacqDateString);
    const Char_t* AsGanacqDateString() const;
    const Char_t* AsDMYDateString() const;
    void SetSQLDate(const Char_t* SQLDateString);
@@ -74,6 +77,7 @@ public:
    static Bool_t IsSQLFormat(const Char_t* date);
    static Bool_t IsGANACQFormat(const Char_t* date);
    static Bool_t IsGANACQ2010Format(const Char_t* date);
+   static Bool_t IsGANACQNarvalFormat(const Char_t* date);
    static Bool_t IsSRBFormat(const Char_t* date);
    static Bool_t IsIRODSFormat(const Char_t* date);
 
