@@ -4,9 +4,7 @@
 #include "KVMFMDataFileReader.h"
 #include "TSystem.h"
 #include "TError.h"
-#include "MFMMergeFrame.h"
-#include "MFMEbyedatFrame.h"
-#include "MFMFaziaFrame.h"
+#include "MFMXmlFileHeaderFrame.h"
 
 ClassImp(KVMFMDataFileReader)
 
@@ -22,45 +20,30 @@ This class is enabled if you build kaliveda with cmake option -DUSE_MFM=yes
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-void KVMFMDataFileReader::TreatFrame(MFMCommonFrame& f)
+KVMFMDataFileReader::KVMFMDataFileReader(const Char_t* filepath)
+   : KVRawDataReader(), MFMFileReader(filepath)
 {
-   switch (f.GetFrameType()) {
-      case MFM_MERGE_EN_FRAME_TYPE:
-      case MFM_MERGE_TS_FRAME_TYPE:
-         fMerge.SetMergeFrame(f);
-         while (fMerge.ReadNextFrame()) TreatFrame(fMerge.GetFrameRead());
-         break;
+   // Open the datafile with given path
+   // Read the first frame in the file (should be a MFMXmlFileHeaderFrame) and extract informations
 
-      case MFM_EBY_EN_FRAME_TYPE:
-      case MFM_EBY_TS_FRAME_TYPE:
-      case MFM_EBY_EN_TS_FRAME_TYPE:
-         TreatEbyedatFrame(f);
-         break;
-
-      case MFM_FAZIA_FRAME_TYPE:
-         TreatFaziaFrame(f);
-         break;
-
-      default:
-         break;
+   if (!ReadNextFrame()) {
+      Error("KVMFMDataFileReader", "Cannot read file %s", filepath);
+      MakeZombie();
+      return;
    }
-}
-
-Bool_t KVMFMDataFileReader::GetNextEvent()
-{
-   // Read next event from file. Return kFALSE if end of file reached.
-
-   if (ReadNextFrame()) {
-      TreatFrame(GetFrameRead());
-      return true;
+   if (GetFrameReadType() != MFM_XML_FILE_HEADER_FRAME_TYPE) {
+      Warning("KVMFMDataFileReader", "First frame in file is not MFM_XML_FILE_HEADER_FRAME_TYPE: type is %s",
+              GetFrameReadTypeSymbol().c_str());
    }
-   return false;
-}
-
-KVSeqCollection* KVMFMDataFileReader::GetFiredDataParameters() const
-{
-   // return list of fired parameters in frame with Ebyedat format
-   return (KVSeqCollection*)&fEBYEDATfired;
+   else {
+      GetFrameRead().Print();
+      fRunInfos.SetValue("ExperimentName", GetFrameRead<MFMXmlFileHeaderFrame>().GetExperimentName());
+      fRunInfos.SetValue("FileName", GetFrameRead<MFMXmlFileHeaderFrame>().GetFileName());
+      fRunInfos.SetValue("FileCreationTime", GetFrameRead<MFMXmlFileHeaderFrame>().GetFileCreationTime());
+      fRunInfos.SetValue("RunNumber", GetFrameRead<MFMXmlFileHeaderFrame>().GetRunNumber());
+      fRunInfos.SetValue("RunIndex", GetFrameRead<MFMXmlFileHeaderFrame>().GetRunIndex());
+      fRunInfos.SetValue("RunStartTime", GetFrameRead<MFMXmlFileHeaderFrame>().GetRunStartTime());
+   }
 }
 
 KVMFMDataFileReader* KVMFMDataFileReader::Open(const Char_t* filepath, Option_t*)
