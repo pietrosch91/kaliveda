@@ -32,6 +32,11 @@ public:
 
    static KVMFMDataFileReader* Open(const Char_t* filepath, Option_t* = "");
 
+   TString GetDataFormat() const
+   {
+      return "MFM";
+   }
+
    ClassDef(KVMFMDataFileReader, 0) //Read MFM format acquisition data
 };
 

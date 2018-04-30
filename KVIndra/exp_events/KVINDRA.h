@@ -161,6 +161,8 @@ public:
    virtual void SetROOTGeometry(Bool_t on = kTRUE);
    void SetMinimumOKMultiplicity(KVEvent*) const;
 
+   void HandleRawDataEvent(KVRawDataReader*);
+
    ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };
 

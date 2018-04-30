@@ -48,6 +48,11 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "KVGeoNavigator.h"
 #include <KVGeoImport.h>
 #include <KVRangeTableGeoNavigator.h>
+#include <KVRawDataReader.h>
+#ifdef WITH_MFM
+#include "KVMFMDataFileReader.h"
+#include "MFMEbyedatFrame.h"
+#endif
 
 using namespace std;
 
@@ -160,7 +165,8 @@ void KVINDRA::BuildGeometry()
             SearchKVFile(path.Data(), path2, "data");
             if (path2 == "") {
                Warning("BuildGeometry", "fichier %s inconnu", path.Data());
-            } else {
+            }
+            else {
                fStrucInfos.ReadFile(path2, kEnvChange);
             }
          }
@@ -299,7 +305,8 @@ void KVINDRA::FillTrajectoryIDTelescopeLists()
                // i.e. dE has to be immediately in front of E on the trajectory
                if (tr->GetNodeInFront(idt->GetDetector(2)->GetNode()) == idt->GetDetector(1)->GetNode())
                   tr->AccessIDTelescopeList()->Add(idt);
-            } else
+            }
+            else
                tr->AccessIDTelescopeList()->Add(idt);//single-detector telescope
          }
       }
@@ -551,19 +558,23 @@ KVINDRADetector* KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type)
       sprintf(nom_det, "CI_%02d%02d", cou, mod);
       det = (KVINDRADetector*) GetListOfChIo()->FindObject(nom_det);
       return det;
-   } else if (type >= Si_GG && type <= Si_T) {
+   }
+   else if (type >= Si_GG && type <= Si_T) {
       sprintf(nom_det, "SI_%02d%02d", cou, mod);
       det = (KVINDRADetector*) GetListOfSi()->FindObject(nom_det);
       return det;
-   } else if (type >= SiLi_GG && type <= SiLi_T) {
+   }
+   else if (type >= SiLi_GG && type <= SiLi_T) {
       sprintf(nom_det, "SILI_%02d", cou);
       det = (KVINDRADetector*) GetListOfSi()->FindObject(nom_det);
       return det;
-   } else if (type >= Si75_GG && type <= Si75_T) {
+   }
+   else if (type >= Si75_GG && type <= Si75_T) {
       sprintf(nom_det, "SI75_%02d", cou);
       det = (KVINDRADetector*) GetListOfSi()->FindObject(nom_det);
       return det;
-   } else if (type >= CsI_R && type <= CsI_T) {
+   }
+   else if (type >= CsI_R && type <= CsI_T) {
       sprintf(nom_det, "CSI_%02d%02d", cou, mod);
       det = (KVINDRADetector*) GetListOfCsI()->FindObject(nom_det);
       return det;
@@ -639,7 +650,8 @@ void KVINDRA::SetPinLasersForCsI()
          line.ReadLine(pila_file);
       }
       pila_file.close();
-   } else {
+   }
+   else {
       Info("SetPinLasersForCsI", "File %s not found. Correspondance Csi-PinLaser is unknown.",
            gDataSet->GetDataSetEnv("CsIPinCorr", ""));
    }
@@ -688,7 +700,8 @@ void KVINDRA::LinkToCodeurs()
             while ((rec = (TEnvRec*)it.Next())) {
                if (!strcmp(rec->GetName(), "type")) {
                   Info("LinkToCodeurs", "Module type %s", rec->GetValue());
-               } else {
+               }
+               else {
                   toks = TString(rec->GetValue()).Tokenize(",");
                   for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
                      idet = (KVINDRADetector*)gIndra->GetDetector(((TObjString*)toks->At(ii))->GetString().Data());
@@ -792,7 +805,8 @@ void KVINDRA::SetGGtoPGConversionFactors()
       Info("SetGGtoPGConversionFactors", "Cannot open file with parameters for conversion (%s).",
            gDataSet->GetDataSetEnv("INDRADB.GGtoPGFactors", ""));
       return;
-   } else {
+   }
+   else {
       Info("SetGGtoPGConversionFactors", "Reading parameters from file %s",
            gDataSet->GetDataSetEnv("INDRADB.GGtoPGFactors", ""));
 
@@ -809,7 +823,8 @@ void KVINDRA::SetGGtoPGConversionFactors()
             if (!det) {
                //no detector found with cou, mod and type
                Error("SetGGtoPGConversionFactors", "Unknown detector : %s", detname);
-            } else {
+            }
+            else {
                det->SetGGtoPGConversionFactors(a, b);
                //Info("SetGGtoPGConversionFactors", "%s : PG = %f + %f * GG", detname, a, b);
             }
@@ -924,7 +939,8 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
       INDRAGeometryBuilder igb;
       igb.Build(kFALSE, fCloseGeometryNow);
       CreateROOTGeometry();
-   } else {
+   }
+   else {
       KVMultiDetArray::SetROOTGeometry(on);
    }
 }
@@ -935,6 +951,37 @@ void KVINDRA::SetMinimumOKMultiplicity(KVEvent* e) const
    // This is the multiplicity trigger used for the current run (if known)
 
    if (GetTrigger() > 0) e->SetMinimumOKMultiplicity(GetTrigger());
+}
+
+void KVINDRA::HandleRawDataEvent(KVRawDataReader* rawdata)
+{
+   // Update acquisition parameters according to last event read by the KVRawDataReader object
+   // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method).
+
+   if (rawdata->GetDataFormat() == "EBYEDAT") {
+      Info("HandleRawDataEvent", "EBYEDAT data");
+   }
+#ifdef WITH_MFM
+   else if (rawdata->GetDataFormat() == "MFM") {
+      Info("HandleRawDataEvent", "MFM data");
+      KVMFMDataFileReader& mfmrdr = dynamic_cast<KVMFMDataFileReader&>(*rawdata);
+      if (mfmrdr.GetFrameReadClass() == "MFMEbyedatFrame") {
+         MFMEbyedatFrame& ebyf = mfmrdr.GetFrameRead<MFMEbyedatFrame>();
+         for (int i = 0; i < ebyf.GetNbItems(); ++i) {
+            uint16_t val;
+            string lab;
+            ebyf.GetDataItem(i, lab, val);
+            cout << lab << " = " << val << endl;
+         }
+      }
+      else {
+         Error("HandleRawDataEvent", "Unkown MFM frame type: %s", mfmrdr.GetFrameReadTypeSymbol().c_str());
+      }
+   }
+#endif
+   else {
+      Error("HandleRawDataEvent", "Unhandled raw data format: %s", rawdata->GetDataFormat().Data());
+   }
 }
 
 

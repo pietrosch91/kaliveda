@@ -28,6 +28,7 @@ class KVList;
 class KVGeoNavigator;
 class KVRangeTableGeoNavigator;
 class KVUpDater;
+class KVRawDataReader;
 
 class KVMultiDetArray : public KVGeoStrucElement {
 
@@ -348,6 +349,8 @@ public:
    }
 
    virtual void SetMinimumOKMultiplicity(KVEvent*) const;
+
+   virtual void HandleRawDataEvent(KVRawDataReader*);
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };
