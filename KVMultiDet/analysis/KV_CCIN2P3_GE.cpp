@@ -124,8 +124,7 @@ void KV_CCIN2P3_GE::ChooseJobTime()
    if (!tmp.Length()) {
       SetJobTime();
       return;
-   }
-   else
+   } else
       SetJobTime(tmp);
 }
 
@@ -205,8 +204,7 @@ void KV_CCIN2P3_GE::Print(Option_t* option) const
       KVBatchSystem::Print(option);
       cout << "* DISK_REQ:                 " << GetJobDisk() << "                            *" << endl;
       cout << "* MEM_REQ:         " << GetJobMemory() << "                             *" << endl;
-   }
-   else
+   } else
       KVBatchSystem::Print(option);
 }
 
@@ -328,8 +326,7 @@ KVList* KV_CCIN2P3_GE::GetListOfJobs()
             TString smem = ((TObjString*)(*bits)[7])->String();// xxx.xxxxM
             job->SetMemUsed(smem);
             delete bits;
-         }
-         else if (thisLine.BeginsWith("hard resource_list:")) {
+         } else if (thisLine.BeginsWith("hard resource_list:")) {
             TObjArray* bits = thisLine.Tokenize(": ");
             TString res = ((TObjString*)(*bits)[2])->String();//os=sl5,xrootd=1,irods=1,s_vmem=1024M,s_fsize=50M,s_cpu=36000
             res.ReplaceAll("s_vmem", "vmem");
@@ -344,12 +341,10 @@ KVList* KV_CCIN2P3_GE::GetListOfJobs()
                if (g.BeginsWith("ct=")) {
                   g.Remove(0, 3);
                   job->SetCPUmax(g.Atoi());
-               }
-               else if (g.BeginsWith("vmem=")) {
+               } else if (g.BeginsWith("vmem=")) {
                   g.Remove(0, 5);
                   job->SetMemMax(g);
-               }
-               else if (g.BeginsWith("fsize=")) {
+               } else if (g.BeginsWith("fsize=")) {
                   g.Remove(0, 6);
                   job->SetDiskMax(g);
                }
@@ -412,8 +407,7 @@ void KV_CCIN2P3_GE::Run()
             }
          }
          ana->SetRuns(runs, kFALSE);
-      }
-      else if (fAnalyser->InheritsFrom("KVSimDirAnalyser")) {
+      } else if (fAnalyser->InheritsFrom("KVSimDirAnalyser")) {
          // here we understand "run" to mean "file"
          KVSimDirAnalyser* ana = dynamic_cast<KVSimDirAnalyser*>(fAnalyser);
          TList* file_list = ana->GetFileList();
@@ -438,8 +432,7 @@ void KV_CCIN2P3_GE::Run()
          }
          ana->SetFileList(file_list);
       }
-   }
-   else {
+   } else {
       SubmitJob();
    }
 
@@ -461,8 +454,7 @@ const Char_t* KV_CCIN2P3_GE::GetJobName() const
    if (!fAnalyser) {
       //stand-alone batch submission ?
       fCurrJobName = fJobName;
-   }
-   else {
+   } else {
       //replace any special symbols with their current values
       fCurrJobName = fAnalyser->ExpandAutoBatchName(fJobName.Data());
       if (MultiJobsMode() && !fAnalyser->BatchMode()) {
@@ -501,9 +493,12 @@ void KV_CCIN2P3_GE::GetBatchSystemParameterList(KVNameValueList& nl)
    nl.SetValue("RunsPerJob", fRunsPerJob);
    nl.SetValue("EMailOnStart", kFALSE);
    nl.SetValue("EMailOnEnd", kFALSE);
-   //TString email = gSystem->GetFromPipe("email");
-   //if (email.Index('=') > -1) email.Remove(0, email.Index('=') + 2);
-   nl.SetValue("EMailAddress", "");
+   TString email = gSystem->GetFromPipe("email");
+   if (email.Index('=') > -1) {
+      email.Remove(0, email.Index('=') + 2);
+      nl.SetValue("EMailAddress", email);
+   } else
+      nl.SetValue("EMailAddress", "");
 }
 
 void KV_CCIN2P3_GE::SetBatchSystemParameters(const KVNameValueList& nl)
