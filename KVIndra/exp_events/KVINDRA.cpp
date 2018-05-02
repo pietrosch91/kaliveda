@@ -953,35 +953,4 @@ void KVINDRA::SetMinimumOKMultiplicity(KVEvent* e) const
    if (GetTrigger() > 0) e->SetMinimumOKMultiplicity(GetTrigger());
 }
 
-void KVINDRA::HandleRawDataEvent(KVRawDataReader* rawdata)
-{
-   // Update acquisition parameters according to last event read by the KVRawDataReader object
-   // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method).
-
-   if (rawdata->GetDataFormat() == "EBYEDAT") {
-      Info("HandleRawDataEvent", "EBYEDAT data");
-   }
-#ifdef WITH_MFM
-   else if (rawdata->GetDataFormat() == "MFM") {
-      Info("HandleRawDataEvent", "MFM data");
-      KVMFMDataFileReader& mfmrdr = dynamic_cast<KVMFMDataFileReader&>(*rawdata);
-      if (mfmrdr.GetFrameReadClass() == "MFMEbyedatFrame") {
-         MFMEbyedatFrame& ebyf = mfmrdr.GetFrameRead<MFMEbyedatFrame>();
-         for (int i = 0; i < ebyf.GetNbItems(); ++i) {
-            uint16_t val;
-            string lab;
-            ebyf.GetDataItem(i, lab, val);
-            cout << lab << " = " << val << endl;
-         }
-      }
-      else {
-         Error("HandleRawDataEvent", "Unkown MFM frame type: %s", mfmrdr.GetFrameReadTypeSymbol().c_str());
-      }
-   }
-#endif
-   else {
-      Error("HandleRawDataEvent", "Unhandled raw data format: %s", rawdata->GetDataFormat().Data());
-   }
-}
-
 

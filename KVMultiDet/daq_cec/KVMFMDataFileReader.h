@@ -6,19 +6,26 @@
 
 #include "KVRawDataReader.h"
 #include "MFMFileReader.h"
+#include "MFMMergeFrameManager.h"
 #include "KVNameValueList.h"
 
 class KVMFMDataFileReader : public KVRawDataReader, public MFMFileReader {
 
    KVNameValueList fRunInfos;//! informations on run extracted from XML header frame
+   MFMMergeFrameManager fMergeFrame;//! used to handle merged MFM frames
 
 public:
    KVMFMDataFileReader(const Char_t* filepath);
    virtual ~KVMFMDataFileReader() {}
 
+   /// Read next frame in file. Initialise merge manager if frame is a merge frame
    Bool_t GetNextEvent()
    {
-      return ReadNextFrame();
+      bool ok = ReadNextFrame();
+      if (ok) {
+         if (IsFrameReadMerge()) fMergeFrame.SetMergeFrame(GetFrameRead());
+      }
+      return ok;
    }
    KVSeqCollection* GetFiredDataParameters() const
    {
@@ -35,6 +42,10 @@ public:
    TString GetDataFormat() const
    {
       return "MFM";
+   }
+   const MFMMergeFrameManager& GetMergeManager() const
+   {
+      return fMergeFrame;
    }
 
    ClassDef(KVMFMDataFileReader, 0) //Read MFM format acquisition data

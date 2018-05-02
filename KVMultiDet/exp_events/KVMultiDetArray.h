@@ -12,7 +12,6 @@
 #include "KVDetector.h"
 
 #include <KVGeoDNTrajectory.h>
-
 class KVIDGraph;
 class KVTarget;
 class KVTelescope;
@@ -29,6 +28,13 @@ class KVGeoNavigator;
 class KVRangeTableGeoNavigator;
 class KVUpDater;
 class KVRawDataReader;
+class KVGANILDataReader;
+#ifdef WITH_MFM
+class MFMCommonFrame;
+class MFMMergeFrameManager;
+class KVMFMDataFileReader;
+class MFMEbyedatFrame;
+#endif
 
 class KVMultiDetArray : public KVGeoStrucElement {
 
@@ -55,6 +61,7 @@ protected:
    KVDetectorEvent* fHitGroups;          //!   list of hit groups in simulation
    KVSeqCollection* fIDTelescopes;       //->deltaE-E telescopes in groups
    KVSeqCollection* fACQParams;          //list of data acquisition parameters associated to detectors
+   KVHashList       fFiredACQParams;     //! list of fired acquisition parameters after reading raw data event
 
    TString fDataSet;            //!name of associated dataset, used with MakeMultiDetector()
    UInt_t fCurrentRun;          //Number of the current run used to call SetParameters
@@ -169,9 +176,18 @@ public:
    {
       return fACQParams;
    }
+
+   /// Returns list of acquisition parameters (KVACQData objects) fired in last read raw event
+   /// This list is filled when ebyedat format data has been read
+   const KVSeqCollection* GetFiredDataParameters() const
+   {
+      return &fFiredACQParams;
+   }
+
    KVACQParam* GetACQParam(const Char_t* name) const
    {
-      return fACQParams->get_object<KVACQParam>(name);
+      if (fACQParams) return fACQParams->get_object<KVACQParam>(name);
+      return nullptr;
    }
    virtual void SetArrayACQParams();
 
@@ -350,7 +366,14 @@ public:
 
    virtual void SetMinimumOKMultiplicity(KVEvent*) const;
 
-   virtual void HandleRawDataEvent(KVRawDataReader*);
+   virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
+   Bool_t HandleRawDataEvent(KVRawDataReader*);
+#ifdef WITH_MFM
+   virtual Bool_t handle_raw_data_event_mfmfile(KVMFMDataFileReader&);
+   virtual Bool_t handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager&);
+   virtual Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
+   virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
+#endif
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };

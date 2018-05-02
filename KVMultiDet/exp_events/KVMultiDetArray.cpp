@@ -42,6 +42,11 @@
 #include <TGLViewer.h>
 #include <TVirtualPad.h>
 #endif
+#include "KVGANILDataReader.h"
+#ifdef WITH_MFM
+#include "KVMFMDataFileReader.h"
+#include "MFMEbyedatFrame.h"
+#endif
 using namespace std;
 
 KVMultiDetArray* gMultiDetArray = 0x0;
@@ -2836,9 +2841,106 @@ void KVMultiDetArray::SetMinimumOKMultiplicity(KVEvent* e) const
    e->SetMinimumOKMultiplicity(1);
 }
 
-void KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
+Bool_t KVMultiDetArray::handle_raw_data_event_ebyedat(KVGANILDataReader&)
+{
+   // General method for reading raw data in old GANIL ebyedat format
+   // Values of all KVACQParam objects appearing in the event are updated
+   AbstractMethod("handle_raw_data_event_ebyedat");
+   return kFALSE;
+}
+
+Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
 {
    // Update array according to last event read using the KVRawDataReader object
    // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method)
-   AbstractMethod("HandleRawDataEvent");
+   //
+   // Return kTRUE if raw data was treated
+
+#ifdef WITH_MFM
+   if (rawdata->GetDataFormat() == "MFM") return handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
+   else
+#endif
+      if (rawdata->GetDataFormat() == "EBYEDAT") return handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
+   return kFALSE;
 }
+
+#ifdef WITH_MFM
+Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(KVMFMDataFileReader& mfmreader)
+{
+   // Update array according to last event read using the KVMFMDataFileReader object
+   // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method)
+   //
+   // Return kTRUE if raw data was treated
+   Info("handle_raw_data_event_mfmfile", "handling");
+   if (mfmreader.IsFrameReadMerge()) {
+      return handle_raw_data_event_mfmmergeframe(mfmreader.GetMergeManager());
+   }
+   else {
+      return handle_raw_data_event_mfmframe(mfmreader.GetFrameRead());
+   }
+   return kFALSE;
+}
+
+Bool_t KVMultiDetArray::handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager& mergeframe)
+{
+   // Method used to handle merged MFM frames
+   // We call handle_raw_data_event_mfmframe() for each frame contained in the merge
+   Info("handle_raw_data_event_mfmmergeframe", "handling %d frames", mergeframe.GetNumberOfFrames());
+   Bool_t ok = false;
+   while (mergeframe.ReadNextFrame()) {
+      Bool_t me = handle_raw_data_event_mfmframe(mergeframe.GetFrameRead());
+      ok = (ok || me);
+   }
+   return ok;
+}
+
+Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe)
+{
+   // Method used to treat raw data in MFM format read by KVMFMDataFileReader
+   // A generic method is provided to treat MFM-encapsulated ebyedat data
+   //   - see handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&)
+   // Treatment of other frame types will need to be implemented in child classes.
+   //
+   // Return kTRUE if raw data was treated
+   Info("handle_raw_data_event_mfmframe", "handling %x", mfmframe.GetFrameType());
+
+   // no (ebyedat) acquisition parameters defined for array
+   if (!fACQParams) return kFALSE;
+
+   if (mfmframe.GetFrameType() == MFM_EBY_EN_FRAME_TYPE
+         || mfmframe.GetFrameType() == MFM_EBY_TS_FRAME_TYPE
+         || mfmframe.GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE)
+      return handle_raw_data_event_mfmframe_ebyedat((const MFMEbyedatFrame&)mfmframe);
+   return kFALSE;
+}
+
+Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& ebyframe)
+{
+   // General method for reading raw data in MFM-encapsulated ebyedat format
+   // Values of all KVACQParam objects appearing in the event are updated
+   // (first set all parameter values to (UShort_t)-1).
+   // Fills list of hit acquisition parameters.
+   // Returns kTRUE if at least one parameter belonging to the array is present.
+
+   Info("handle_raw_data_event_mfmframe_ebyedat", "Handling event for %s", GetName());
+   uint16_t val;
+   string lab;
+   KVACQParam* acqpar;
+   Bool_t ok = false;
+
+   TIter it(GetACQParams());
+   while ((acqpar = (KVACQParam*)it())) acqpar->Clear();
+
+   fFiredACQParams.Clear();
+
+   for (int i = 0; i < ebyframe.GetNbItems(); ++i) {
+      ebyframe.GetDataItem(i, lab, val);
+      if ((acqpar = GetACQParam(lab.c_str()))) {
+         acqpar->SetData(val);
+         fFiredACQParams.Add(acqpar);
+         ok = kTRUE;
+      }
+   }
+   return ok;
+}
+#endif

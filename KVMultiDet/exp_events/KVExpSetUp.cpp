@@ -9,6 +9,10 @@
 #include <KVGroup.h>
 #include <KVRangeTableGeoNavigator.h>
 
+#ifdef WITH_MFM
+#include "KVMFMDataFileReader.h"
+#endif
+
 ClassImp(KVExpSetUp)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +85,8 @@ void KVExpSetUp::Build(Int_t run)
                Int_t group_number = group->GetNumber();
                group->SetNumber(group_number + group_offset);
             }
-         } else
+         }
+         else
             group_offset += groups->GetEntries();
 
          fMDAList.Add(tmp);
@@ -92,7 +97,8 @@ void KVExpSetUp::Build(Int_t run)
          // retrieve correspondance list node path<->detector
          gnl->AbsorbDetectorPaths(tmp->GetNavigator());
 
-      } else {
+      }
+      else {
          Error("Build", "NULL pointer returned by MakeMultiDetector");
       }
    }
@@ -137,10 +143,29 @@ void KVExpSetUp::AcceptParticleForAnalysis(KVReconstructedNucleus* NUC) const
       KVMultiDetArray* whichArray = GetArray(NUC->GetParameters()->GetStringValue("ARRAY"));
       if (whichArray) {
          whichArray->AcceptParticleForAnalysis(NUC);
-      } else
+      }
+      else
          Warning("AcceptParticleForAnalysis", "ReconstructedNucleus has ARRAY=%s but no KVMultiDetArray with this name in set-up",
                  NUC->GetParameters()->GetStringValue("ARRAY"));
-   } else {
+   }
+   else {
       Warning("AcceptParticleForAnalysis", "ReconstructedNucleus has no ARRAY parameter: cannot determine correct KVMultiDetArray");
    }
 }
+
+#ifdef WITH_MFM
+Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe)
+{
+   // Handle single (not merged) MFM frames of raw data. It is assumed
+   // that each frame type corresponds to a different detector array.
+   // Therefore as soon as one of them treats the data in the frame,
+   // we return kTRUE.
+   Info("handle_raw_data_event_mfmframe", "handling");
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      if (mda->handle_raw_data_event_mfmframe(mfmframe)) return kTRUE;
+   }
+   return kFALSE;
+}
+#endif

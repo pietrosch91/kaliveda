@@ -29,6 +29,10 @@ public:
    }
    virtual void AcceptParticleForAnalysis(KVReconstructedNucleus*) const;
 
+#ifdef WITH_MFM
+   Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
+#endif
+
    ClassDef(KVExpSetUp, 1) //Describe an experimental set-up made of several KVMultiDetArray objects
 };
 

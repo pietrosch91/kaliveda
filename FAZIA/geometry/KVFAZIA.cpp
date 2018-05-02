@@ -19,6 +19,9 @@
 
 #include <KVReconstructedNucleus.h>
 
+#ifdef WITH_MFM
+#include "MFMFaziaFrame.h"
+#endif
 
 ClassImp(KVFAZIA)
 
@@ -334,3 +337,14 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
    }
 }
 
+#ifdef WITH_MFM
+Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
+{
+   Info("handle_raw_data_event_mfmframe", "type=%x", f.GetFrameType());
+   if (f.GetFrameType() == MFM_FAZIA_FRAME_TYPE) {
+      Info("handle_raw_data_event_mfmframe", "Handling event for FAZIA");
+      return kTRUE;
+   }
+   return kFALSE;
+}
+#endif

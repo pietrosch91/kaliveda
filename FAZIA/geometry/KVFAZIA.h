@@ -84,6 +84,10 @@ public:
    }
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
 
+#ifdef WITH_MFM
+   Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
+#endif
+
    ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up
 };
 
