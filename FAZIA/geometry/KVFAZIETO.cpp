@@ -67,20 +67,20 @@ void KVFAZIETO::BuildFAZIA()
    for (Int_t bb = 0; bb < fNblocks; bb += 1) {
 
       //for FAZIASYM ordering
-      if (bb == 1)      centre.SetXYZ(dx     - centre_hole / 2, -dx    - centre_hole / 2,  distance_block_cible);
-      else if (bb == 2) centre.SetXYZ(dx     + centre_hole / 2, dx     - centre_hole / 2,  distance_block_cible);
-      else if (bb == 3) centre.SetXYZ(-dx    + centre_hole / 2, dx     + centre_hole / 2,  distance_block_cible);
-      else if (bb == 0) centre.SetXYZ(-dx    - centre_hole / 2, -dx    + centre_hole / 2,  distance_block_cible);
+      if (bb == 3)      centre.SetXYZ(-1 * (dx     - centre_hole / 2), 1 * (-dx    - centre_hole / 2),  distance_block_cible);
+      else if (bb == 2) centre.SetXYZ(-1 * (dx     + centre_hole / 2), 1 * (dx     - centre_hole / 2),  distance_block_cible);
+      else if (bb == 1) centre.SetXYZ(-1 * (-dx    + centre_hole / 2), 1 * (dx     + centre_hole / 2),  distance_block_cible);
+      else if (bb == 0) centre.SetXYZ(-1 * (-dx    - centre_hole / 2), 1 * (-dx    + centre_hole / 2),  distance_block_cible);
 
-      else if (bb == 4) centre.SetXYZ(3 * dx   - centre_hole / 2,  -dx   - centre_hole / 2,  distance_block_cible);
-      else if (bb == 5) centre.SetXYZ(dx     - centre_hole / 2,  -3 * dx - centre_hole / 2,  distance_block_cible);
-      else if (bb == 6) centre.SetXYZ(3 * dx   + centre_hole / 2,  dx    - centre_hole / 2,  distance_block_cible);
-      else if (bb == 7) centre.SetXYZ(dx     + centre_hole / 2,  3 * dx  - centre_hole / 2,  distance_block_cible);
+      else if (bb == 10) centre.SetXYZ(-1 * (3 * dx   - centre_hole / 2),  1 * (-dx   - centre_hole / 2),  distance_block_cible);
+      else if (bb == 11) centre.SetXYZ(-1 * (dx     - centre_hole / 2),  1 * (-3 * dx - centre_hole / 2),  distance_block_cible);
+      else if (bb == 9) centre.SetXYZ(-1 * (3 * dx   + centre_hole / 2),  1 * (dx    - centre_hole / 2),  distance_block_cible);
+      else if (bb == 8) centre.SetXYZ(-1 * (dx     + centre_hole / 2),  1 * (3 * dx  - centre_hole / 2),  distance_block_cible);
 
-      else if (bb == 8) centre.SetXYZ(-dx    + centre_hole / 2,  3 * dx  + centre_hole / 2,  distance_block_cible);
-      else if (bb == 9) centre.SetXYZ(-3 * dx  + centre_hole / 2,  dx    + centre_hole / 2,  distance_block_cible);
-      else if (bb == 10)centre.SetXYZ(-3 * dx  - centre_hole / 2, -dx    + centre_hole / 2,  distance_block_cible);
-      else if (bb == 11)centre.SetXYZ(-dx    - centre_hole / 2,  -3 * dx + centre_hole / 2,  distance_block_cible);
+      else if (bb == 7) centre.SetXYZ(-1 * (-dx    + centre_hole / 2),  1 * (3 * dx  + centre_hole / 2),  distance_block_cible);
+      else if (bb == 6) centre.SetXYZ(-1 * (-3 * dx  + centre_hole / 2),  1 * (dx    + centre_hole / 2),  distance_block_cible);
+      else if (bb == 5)centre.SetXYZ(-1 * (-3 * dx  - centre_hole / 2), 1 * (-dx    + centre_hole / 2),  distance_block_cible);
+      else if (bb == 4)centre.SetXYZ(-1 * (-dx    - centre_hole / 2),  1 * (-3 * dx + centre_hole / 2),  distance_block_cible);
 
 
       else {
