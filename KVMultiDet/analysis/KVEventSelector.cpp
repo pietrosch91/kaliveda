@@ -119,6 +119,23 @@ This selection also applies to any iteration over "OK" particles in Analysis().
 
  - do not call SaveHistos() in EndAnalysis(), and make sure you call CreateTreeFile() without giving a name (the
  resulting intermediate file will have a default name allowing it to be found at the end of the analysis)
+
+### Generating & saving profiles, divided histograms, etc.
+If, at the end of processing, you want to generate a histogram from one or more histograms filled in your analysis,
+for example generate a TProfile from a 2D histogram, or store the result of dividing one histogram by the other,
+you need to do the following:
+
+  - do the processing in the EndRun() method, not in EndAnalysis() - by the time EndAnalysis() is called it is too late,
+    the output file has been closed and written to disk
+  - add the resulting histogram to the output list like so:
+
+~~~~~~~~~~
+   MyEventSelector::EndRun()
+   {
+      TProfile* my_profile = ((TH2*)GetHisto("my_histo_2D"))->ProfileX("name_of_my_profile");
+      GetOutputList()->Add(my_profile);
+   }
+~~~~~~~~~~
 */
 ////////////////////////////////////////////////////////////////////////////////
 
