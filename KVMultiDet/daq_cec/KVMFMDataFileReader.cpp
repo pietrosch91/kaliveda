@@ -35,8 +35,7 @@ KVMFMDataFileReader::KVMFMDataFileReader(const Char_t* filepath)
    if (GetFrameReadType() != MFM_XML_FILE_HEADER_FRAME_TYPE) {
       Warning("KVMFMDataFileReader", "First frame in file is not MFM_XML_FILE_HEADER_FRAME_TYPE: type is %s",
               GetFrameReadTypeSymbol().c_str());
-   }
-   else {
+   } else {
       GetFrameRead().Print();
       fRunInfos.SetValue("ExperimentName", GetFrameRead<MFMXmlFileHeaderFrame>().GetExperimentName());
       fRunInfos.SetValue("FileName", GetFrameRead<MFMXmlFileHeaderFrame>().GetFileName());
@@ -55,3 +54,9 @@ KVMFMDataFileReader* KVMFMDataFileReader::Open(const Char_t* filepath, Option_t*
    return new KVMFMDataFileReader(fp);
 }
 
+void KVMFMDataFileReader::SetActionsDirectory(const string& d)
+{
+   // Set directory in which to look for Ebyedat ACTIONS_* files
+   // Defaults to data directory
+   GetFrameLibrary().SetEbyedatActionsDirectory(d);
+}
