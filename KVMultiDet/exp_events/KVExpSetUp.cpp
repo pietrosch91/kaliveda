@@ -160,7 +160,7 @@ Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe
    // that each frame type corresponds to a different detector array.
    // Therefore as soon as one of them treats the data in the frame,
    // we return kTRUE.
-   Info("handle_raw_data_event_mfmframe", "handling");
+
    TIter next_array(&fMDAList);
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {

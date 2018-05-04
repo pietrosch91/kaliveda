@@ -2871,7 +2871,7 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(KVMFMDataFileReader& mfmre
    // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method)
    //
    // Return kTRUE if raw data was treated
-   Info("handle_raw_data_event_mfmfile", "handling");
+
    if (mfmreader.IsFrameReadMerge()) {
       return handle_raw_data_event_mfmmergeframe(mfmreader.GetMergeManager());
    }
@@ -2885,7 +2885,7 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmmergeframe(const MFMMergeFrameM
 {
    // Method used to handle merged MFM frames
    // We call handle_raw_data_event_mfmframe() for each frame contained in the merge
-   Info("handle_raw_data_event_mfmmergeframe", "handling %d frames", mergeframe.GetNumberOfFrames());
+
    Bool_t ok = false;
    while (mergeframe.ReadNextFrame()) {
       Bool_t me = handle_raw_data_event_mfmframe(mergeframe.GetFrameRead());
@@ -2902,15 +2902,14 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfm
    // Treatment of other frame types will need to be implemented in child classes.
    //
    // Return kTRUE if raw data was treated
-   Info("handle_raw_data_event_mfmframe", "handling %x", mfmframe.GetFrameType());
 
-   // no (ebyedat) acquisition parameters defined for array
-   if (!fACQParams) return kFALSE;
+   if (!fACQParams) return kFALSE;// no (ebyedat) acquisition parameters defined for array
 
    if (mfmframe.GetFrameType() == MFM_EBY_EN_FRAME_TYPE
          || mfmframe.GetFrameType() == MFM_EBY_TS_FRAME_TYPE
          || mfmframe.GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE)
       return handle_raw_data_event_mfmframe_ebyedat((const MFMEbyedatFrame&)mfmframe);
+
    return kFALSE;
 }
 
@@ -2922,7 +2921,6 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    // Fills list of hit acquisition parameters.
    // Returns kTRUE if at least one parameter belonging to the array is present.
 
-   Info("handle_raw_data_event_mfmframe_ebyedat", "Handling event for %s", GetName());
    uint16_t val;
    string lab;
    KVACQParam* acqpar;
@@ -2941,6 +2939,9 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
          ok = kTRUE;
       }
    }
+
+   if (ok) fFiredACQParams.ls();
+
    return ok;
 }
 #endif

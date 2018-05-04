@@ -35,10 +35,12 @@ class MFMMergeFrameManager;
 class KVMFMDataFileReader;
 class MFMEbyedatFrame;
 #endif
+class KVExpSetUp;
 
 class KVMultiDetArray : public KVGeoStrucElement {
 
    friend class KVGeoImport;
+   friend class KVExpSetUp;
 
 protected:
 
@@ -114,6 +116,14 @@ protected:
       fTrajectories.Add(d);
    }
    void AssociateTrajectoriesAndNodes();
+
+#ifdef WITH_MFM
+   virtual Bool_t handle_raw_data_event_mfmfile(KVMFMDataFileReader&);
+   virtual Bool_t handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager&);
+   virtual Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
+   virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
+#endif
+   virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
 
 public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
@@ -366,14 +376,7 @@ public:
 
    virtual void SetMinimumOKMultiplicity(KVEvent*) const;
 
-   virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
    Bool_t HandleRawDataEvent(KVRawDataReader*);
-#ifdef WITH_MFM
-   virtual Bool_t handle_raw_data_event_mfmfile(KVMFMDataFileReader&);
-   virtual Bool_t handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager&);
-   virtual Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
-   virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
-#endif
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };

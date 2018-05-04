@@ -153,7 +153,6 @@ public:
 
    void CreateROOTGeometry();
 
-
    const KVSeqCollection* GetListOfDetectors() const
    {
       return GetDetectors();
