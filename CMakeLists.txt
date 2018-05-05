@@ -130,6 +130,7 @@ if(USE_MFM)
     else(mfmlib_FOUND)
        message(STATUS "You need to install the mfmlib package in order to enable this option")
        message(STATUS "You can clone the sources from: https://gitlab.in2p3.fr/jdfcode/mfmlib.git")
+       set(USE_MFM OFF CACHE BOOL "" FORCE)
     endif(mfmlib_FOUND)
 endif()
 
