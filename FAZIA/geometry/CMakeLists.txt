@@ -1,7 +1,10 @@
-set(extra_libs KVMultiDetexp_events)
+set(deps calibration signals)
+if(WITH_PROTOBUF)
+    set(deps ${deps} protobuf)
+endif(WITH_PROTOBUF)
 
 BUILD_KALIVEDA_MODULE(geometry
 	PARENT ${KVSUBPROJECT}
-   KVMOD_DEPENDS calibration signals protobuf
-   EXTRA_LIBS ${extra_libs}
+   KVMOD_DEPENDS ${deps}
+   EXTRA_LIBS KVMultiDetexp_events
 )
