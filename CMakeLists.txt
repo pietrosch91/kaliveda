@@ -34,14 +34,6 @@ if(Boost_FOUND)
    set(WITH_BOOST yes)
 endif(Boost_FOUND)
 
-#--look for mfmlib library for GANIL MFM data
-set(WITH_MFM)
-#find_package(mfmlib QUIET)
-#if(mfmlib_FOUND)
-#   include_directories(${mfmlib_INCLUDE_DIRS})
-#   set(WITH_MFM yes)
-#endif(mfmlib_FOUND)
-
 include(KaliVedaInstallDirs)
 
 include_directories(${CMAKE_BINARY_DIR})
@@ -124,19 +116,30 @@ if(USE_BUILTIN_GRU)
 	include_directories(${BUILTIN_GRU_INC_DIR})
 endif()
 
-#---GRU Ganil ROOT Utilities for reading GANIL acquisition data
-option(USE_GRU
-		"Use GANIL ROOT utilities (GRU) library for reading data (including MFM format)"
+#---MFM library for GANIL MFM data
+#---sources available from: https://gitlab.in2p3.fr/jdfcode/mfmlib.git
+option(USE_MFM
+                "Enable support for reading GANIL MFM format data"
 		OFF)
-add_feature_info(gru USE_GRU "Use GANIL ROOT utilities (GRU) library for reading data (including MFM format)")
-if(USE_GRU)
-	find_package(GRU)
-	if(GRU_FOUND)
-		set(WITH_GRULIB yes) #--- for #define WITH_GRULIB
-		include_directories(${GRU_INC_DIR})
-		link_directories(${GRU_LIB_DIR})
-	endif(GRU_FOUND)
+add_feature_info(mfm USE_MFM "Enable support for reading GANIL MFM format data")
+if(USE_MFM)
+    find_package(mfmlib QUIET)
+    if(mfmlib_FOUND)
+       include_directories(${mfmlib_INCLUDE_DIRS})
+       set(WITH_MFM yes)
+    else(mfmlib_FOUND)
+       message(STATUS "You need to install the mfmlib package in order to enable this option")
+       message(STATUS "You can clone the sources from: https://gitlab.in2p3.fr/jdfcode/mfmlib.git")
+       set(USE_MFM OFF CACHE BOOL "" FORCE)
+    endif(mfmlib_FOUND)
 endif()
+
+#---Google Protobuffers for reading FAZIA data
+find_package(Protobuf)
+if(PROTOBUF_FOUND)
+   set(WITH_PROTOBUF yes)
+   include_directories(${PROTOBUF_INCLUDE_DIRS})
+endif(PROTOBUF_FOUND)
 
 #---Ricardo Yanez 'range' tables
 option(USE_RANGE
@@ -249,6 +252,12 @@ add_feature_info(indrafazia USE_INDRAFAZIA "Build libraries for analysis of INDR
 Feature_Summary(WHAT ENABLED_FEATURES DESCRIPTION "------ENABLED FEATURES:")
 Feature_Summary(WHAT DISABLED_FEATURES DESCRIPTION "------DISABLED FEATURES:")
 
+# check for C++11 compatibility - use if possible
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX11)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
 
 #---Set the library version in the main CMakeLists.txt------------------------------------------
 file(READ ${CMAKE_SOURCE_DIR}/VERSION versionstr)

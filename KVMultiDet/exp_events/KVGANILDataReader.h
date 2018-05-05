@@ -71,6 +71,11 @@ public:
    Int_t GetScalerStatus(Int_t index) const;
    Int_t GetEventCount() const;
 
+   TString GetDataFormat() const
+   {
+      return "EBYEDAT";
+   }
+
    ClassDef(KVGANILDataReader, 0) //Reads GANIL acquisition files
 };
 

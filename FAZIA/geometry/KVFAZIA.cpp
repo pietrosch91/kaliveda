@@ -19,6 +19,9 @@
 
 #include <KVReconstructedNucleus.h>
 
+#ifdef WITH_MFM
+#include "MFMFaziaFrame.h"
+#endif
 
 ClassImp(KVFAZIA)
 
@@ -334,3 +337,67 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
    }
 }
 
+#ifdef WITH_PROTOBUF
+#include "FzEventSet.pb.h"
+// for reading data
+DAQ::FzEventSet fazia_set;
+DAQ::FzEvent fazia_event;
+
+void treat_hit(const DAQ::FzHit& hit)
+{
+   cout << "\t\t\t";
+   cout << "tel=" << hit.telid() << " det=" << hit.detid() << endl;
+}
+
+void treat_fee(const DAQ::FzFee& fee)
+{
+   cout << "\t\tFEE" << fee.feeid() << endl;
+   for (int i = 0; i < fee.hit_size(); ++i) {
+      treat_hit(fee.hit(i));
+   }
+}
+
+void treat_block(const DAQ::FzBlock& b)
+{
+   cout << "\tB" << b.blkid() << endl;
+   for (int i = 0; i < b.fee_size(); ++i) {
+      treat_fee(b.fee(i));
+   }
+}
+
+void treat_event(const DAQ::FzEvent& e)
+{
+   if (e.trinfo_size()) {
+      cout << "Trigger infos:" << endl;
+      for (int i = 0; i < e.trinfo_size(); ++i) {
+         cout << "\t" << e.trinfo(i).id() << "\t" << e.trinfo(i).attr() << "\t" << e.trinfo(i).value() << endl;
+      }
+   }
+   for (int i = 0; i < e.block_size(); ++i) {
+      cout << "Blocks:" << endl;
+      treat_block(e.block(i));
+   }
+}
+#endif
+
+#ifdef WITH_MFM
+Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
+{
+   // Treatment of raw data in MFM frames with type MFM_FAZIA_FRAME_TYPE
+
+   if (f.GetFrameType() != MFM_FAZIA_FRAME_TYPE) return kFALSE;
+
+#ifdef WITH_PROTOBUF
+   // Parse protobuf data in MFM frame
+   if (fazia_set.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
+      // Parsed an event set
+      for (int i = 0; i < fazia_set.ev_size(); ++i) treat_event(fazia_set.ev(i));
+   }
+   else if (fazia_event.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
+      // Parsed an event
+      treat_event(fazia_event);
+   }
+#endif
+   return kTRUE;
+}
+#endif

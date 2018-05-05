@@ -14,6 +14,10 @@ protected:
 
    void init();
 
+#ifdef WITH_MFM
+   Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
+#endif
+
 public:
 
    KVExpSetUp();
