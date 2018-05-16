@@ -22,6 +22,7 @@ KVSimFile::KVSimFile()
 {
    // Default constructor
    fFiltered = fGemini = kFALSE;
+   fGemDecayPerEvent = 1;
 }
 
 KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname)
@@ -29,6 +30,7 @@ KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* tre
 {
    // Default constructor for simulated events file
    fGemini = kFALSE;
+   fGemDecayPerEvent = 1;
 }
 
 KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname,
@@ -38,6 +40,7 @@ KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* tre
 {
    // Default constructor for filtered (reconstructed) simulated events file
    fGemini = kFALSE;
+   fGemDecayPerEvent = 1;
 }
 //________________________________________________________________
 
@@ -82,6 +85,7 @@ void KVSimFile::Copy(TObject& obj) const
    CastedObj.fOrigFile = fOrigFile;
    CastedObj.fFiltType = fFiltType;
    CastedObj.fGemini = fGemini;
+   CastedObj.fGemDecayPerEvent = fGemDecayPerEvent;
 }
 
 void KVSimFile::ls(Option_t*) const
@@ -101,7 +105,7 @@ void KVSimFile::ls(Option_t*) const
       cout << "----geometry:" << fGeoType << endl;
       cout << "----filter:" << fFiltType << endl;
       cout << "----gemini:";
-      if (fGemini) cout << " yes";
+      if (fGemini) cout << " " << fGemDecayPerEvent << " decays per event";
       else cout << " no";
       cout << endl;
    }

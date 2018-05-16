@@ -53,6 +53,8 @@ ClassImp(KVEventFiltering)
 //                give option PhiRot=no
 //    Gemini:     if option Gemini=yes, then each event will be "decayed" with Gemini++,
 //                if KaliVeda has been compiled with Gemini++ support.
+//    GemDecayPerEvent: if option Gemini=yes then by default 1 Gemini++ decay will be performed for each event.
+//                      you can change this by giving a value for this option
 //
 // The filtered data will be written in the directory given as option "OutputDir".
 // The filename is built up from the original simulation filename and the values
@@ -72,6 +74,7 @@ KVEventFiltering::KVEventFiltering()
    fNewFrame = "";
    fRotate = kTRUE;
    fGemini = kFALSE;
+   fGemDecayPerEvent = 1;
 #ifdef DEBUG_FILTER
    memory_check = KVClassMonitor::GetInstance();
    SetEventsReadInterval(100);
@@ -116,6 +119,7 @@ void KVEventFiltering::Copy(TObject& obj) const
    KVEventFiltering& CastedObj = (KVEventFiltering&)obj;
    CastedObj.fRotate = fRotate;
    CastedObj.fGemini = fGemini;
+   CastedObj.fGemDecayPerEvent = fGemDecayPerEvent;
 }
 
 void KVEventFiltering::RandomRotation(KVEvent* to_rotate, const TString& frame_name) const
@@ -142,36 +146,43 @@ Bool_t KVEventFiltering::Analysis()
    else if (fEVN > 4995) memory_check->CompareToInit();
 #endif
    KVEvent* to_be_detected = GetEvent();
-   if (fGemini) {
+   Int_t iterations = 1;
+   if (fGemini) iterations = fGemDecayPerEvent;
 #ifdef WITH_GEMINI
+   do {
       KVGemini g;
       g.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
       to_be_detected = &fGemEvent;
+      //Copy any parameters associated with simulated event into the Gemini-decayed event
+      GetEvent()->GetParameters()->Copy(*(fGemEvent.GetParameters()));
 #endif
-   }
-   if (fTransformKinematics) {
-      if (fNewFrame == "proj")   to_be_detected->SetFrame("lab", fProjVelocity);
-      else                    to_be_detected->SetFrame("lab", fCMVelocity);
-      if (fRotate) {
-         RandomRotation(to_be_detected, "lab");
-         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
+      if (fTransformKinematics) {
+         if (fNewFrame == "proj")   to_be_detected->SetFrame("lab", fProjVelocity);
+         else                    to_be_detected->SetFrame("lab", fCMVelocity);
+         if (fRotate) {
+            RandomRotation(to_be_detected, "lab");
+            gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
+         }
+         else {
+            gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "lab");
+         }
       }
       else {
-         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "lab");
+         if (fRotate) {
+            RandomRotation(to_be_detected);
+            gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
+         }
+         else {
+            gMultiDetArray->DetectEvent(to_be_detected, fReconEvent);
+         }
       }
+      fReconEvent->SetNumber(fEVN++);
+      fReconEvent->SetFrameName("lab");
+      fTree->Fill();
+#ifdef WITH_GEMINI
    }
-   else {
-      if (fRotate) {
-         RandomRotation(to_be_detected);
-         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent, "rotated_frame");
-      }
-      else {
-         gMultiDetArray->DetectEvent(to_be_detected, fReconEvent);
-      }
-   }
-   fReconEvent->SetNumber(fEVN++);
-   fReconEvent->SetFrameName("lab");
-   fTree->Fill();
+   while (fGemini && --iterations);
+#endif
 
    return kTRUE;
 }
@@ -294,8 +305,11 @@ void KVEventFiltering::InitAnalysis()
 #ifdef WITH_GEMINI
    if (IsOptGiven("Gemini")) {
       if (GetOpt("Gemini") == "yes") fGemini = kTRUE;
+      if (IsOptGiven("GemDecayPerEvent")) fGemDecayPerEvent = GetOpt("GemDecayPerEvent").Atoi();
+      else fGemDecayPerEvent = 1;
    }
    if (fGemini) Info("InitAnalysis", "Statistical decay with Gemini++ for each event before detection");
+   if (fGemDecayPerEvent > 1) Info("InitAnalysis", "  -- %d decays per primary event", fGemDecayPerEvent);
 #endif
    if (!gDataSet->HasCalibIdentInfos()) {
       TString fullpath;
@@ -351,11 +365,15 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    // KEY: TNamed Origin;1 title=[name of simulation file]
    // KEY: TNamed RandomPhi;1 title=[yes/no, random rotation about beam axis]
    // KEY: TNamed Gemini++;1 title=[yes/no, Gemini++ decay before detection]
+   // KEY: TNamed GemDecayPerEvent;1 title=[number of Gemini++ decays per primary event]
    //
    TString basefile = GetOpt("SimFileName");
    basefile.Remove(basefile.Index(".root"), 5);
    TString outfile = basefile;
-   if (fGemini) outfile += "_Gemini";
+   if (fGemini) {
+      outfile += "_Gemini";
+      if (fGemDecayPerEvent > 1) outfile += fGemDecayPerEvent;
+   }
    outfile += "_geo=";
    outfile += GetOpt("Geometry");
    outfile += "_filt=";
@@ -409,5 +427,6 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    (new TNamed("Origin", (basefile + ".root").Data()))->Write();
    (new TNamed("RandomPhi", (fRotate ? "yes" : "no")))->Write();
    (new TNamed("Gemini++", (fGemini ? "yes" : "no")))->Write();
+   (new TNamed("GemDecayPerEvent", Form("%d", fGemDecayPerEvent)))->Write();
    curdir->cd();
 }

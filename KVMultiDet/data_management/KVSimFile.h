@@ -23,6 +23,7 @@ protected:
    TString fOrigFile;//name of simulated events file filtered to generate this file
    TString fFiltType;//type of filtering used (Geo, Geo+Thresh, or Full)
    Bool_t fGemini;//true if statistical decay calculated with Gemini++ before filter
+   Int_t fGemDecayPerEvent;//number of Gemini decays performed per primary event
 
 public:
    KVSimFile();
@@ -44,6 +45,14 @@ public:
    void SetGemini(Bool_t yes = kTRUE)
    {
       fGemini = yes;
+   }
+   void SetGemDecayPerEvent(Int_t n)
+   {
+      fGemDecayPerEvent = n;
+   }
+   Int_t GetGemDecayPerEvent() const
+   {
+      return fGemDecayPerEvent;
    }
 
    KVSimDir* GetSimDir() const

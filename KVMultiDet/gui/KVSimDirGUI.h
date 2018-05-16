@@ -64,6 +64,7 @@ class KVSimDirGUI : public KVBase {
    Bool_t fRandomPhi;
    TGCheckButton* gemini_decay;
    Bool_t fGemDecay;
+   TGNumberEntry* gemini_decays;
    enum {
       kFTGeo = 1,
       kFTSeuils,
@@ -133,6 +134,8 @@ public:
    void SetGeminiDecay(Bool_t on)
    {
       fGemDecay = on;
+      if (on) gemini_decays->SetState(kTRUE);
+      else gemini_decays->SetState(kFALSE);
    }
 
    //void ChangeOutputDirectory();

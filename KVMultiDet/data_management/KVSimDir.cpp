@@ -118,8 +118,8 @@ void KVSimDir::AnalyseDirectory()
    fFiltData.Clear();
    //loop over files in current directory
    TSystemDirectory thisDir(".", GetDirectory());
-   TList* fileList = thisDir.GetListOfFiles();
-   TIter nextFile(fileList);
+   unique_ptr<TList> fileList(thisDir.GetListOfFiles());
+   TIter nextFile(fileList.get());
    TSystemFile* aFile = 0;
    while ((aFile = (TSystemFile*)nextFile())) {
 
@@ -131,7 +131,6 @@ void KVSimDir::AnalyseDirectory()
       AnalyseFile(fileName);
 
    }
-   delete fileList;
 }
 
 //________________________________________________________________
@@ -159,8 +158,8 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
    //Info("AnalyseFile", "Analysing file %s...", filename);
    TString fullpath;
    AssignAndDelete(fullpath, gSystem->ConcatFileName(GetDirectory(), filename));
-   TFile* file = TFile::Open(fullpath);
-   if (!file || file->IsZombie()) return;
+   unique_ptr<TFile> file(TFile::Open(fullpath));
+   if (!file.get() || file->IsZombie()) return;
    // look for TTrees in file
    TIter next(file->GetListOfKeys());
    TKey* key;
@@ -178,43 +177,41 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
             if (branch_class && branch_class->InheritsFrom("KVEvent")) {
                if (branch_class->InheritsFrom("KVReconstructedEvent")) {
                   // filtered data. there must be TNamed called 'Dataset', 'System', & 'Run' in the file.
-                  TNamed* ds = (TNamed*)file->Get("Dataset");
-                  TNamed* orig = (TNamed*)file->Get("Origin");
-                  TNamed* sys = (TNamed*)file->Get("System");
-                  TNamed* r = (TNamed*)file->Get("Run");
-                  TNamed* g = (TNamed*)file->Get("Geometry");
-                  TNamed* f = (TNamed*)file->Get("Filter");
+                  unique_ptr<TNamed> ds((TNamed*)file->Get("Dataset"));
+                  unique_ptr<TNamed> orig((TNamed*)file->Get("Origin"));
+                  unique_ptr<TNamed> sys((TNamed*)file->Get("System"));
+                  unique_ptr<TNamed> r((TNamed*)file->Get("Run"));
+                  unique_ptr<TNamed> g((TNamed*)file->Get("Geometry"));
+                  unique_ptr<TNamed> f((TNamed*)file->Get("Filter"));
                   TString dataset;
-                  if (ds) dataset = ds->GetTitle();
+                  if (ds.get()) dataset = ds->GetTitle();
                   TString system;
-                  if (sys) system = sys->GetTitle();
+                  if (sys.get()) system = sys->GetTitle();
                   TString run;
-                  if (r) run = r->GetTitle();
+                  if (r.get()) run = r->GetTitle();
                   TString origin;
-                  if (orig) origin = orig->GetTitle();
+                  if (orig.get()) origin = orig->GetTitle();
                   TString geometry;
-                  if (g) geometry = g->GetTitle();
+                  if (g.get()) geometry = g->GetTitle();
                   TString filter;
-                  if (f) filter = f->GetTitle();
+                  if (f.get()) filter = f->GetTitle();
                   Int_t run_number = run.Atoi();
                   KVSimFile* fff = new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
                                                  dataset, system, run_number, geometry, origin, filter);
                   fFiltData.Add(fff);
-                  TNamed* gem = (TNamed*)file->Get("Gemini++");
-                  if (gem) {
+                  unique_ptr<TNamed> gem((TNamed*)file->Get("Gemini++"));
+                  if (gem.get()) {
                      if (!strcmp(gem->GetTitle(), "yes")) fff->SetGemini();
-                     delete gem;
+                     unique_ptr<TNamed> gemdec((TNamed*)file->Get("GemDecayPerEvent"));
+                     if (gemdec.get()) {
+                        TString gemdecperev = gemdec->GetTitle();
+                        fff->SetGemDecayPerEvent(gemdecperev.Atoi());
+                     }
                   }
-
-                  delete file;
-                  delete ds;
-                  delete sys;
-                  delete r;
-                  delete f;
                   return;
-               } else {
+               }
+               else {
                   fSimData.Add(new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName()));
-                  delete file;
                   return;
                }
             }

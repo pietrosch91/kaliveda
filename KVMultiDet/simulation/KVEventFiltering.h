@@ -19,6 +19,7 @@ class KVEventFiltering : public KVEventSelector {
    Long64_t fEVN;//event number counter
    Bool_t fRotate;//true if random phi rotation should be applied [default: yes]
    Bool_t fGemini;//true if Gemini++ decay should be performed before detection [default: no]
+   Int_t fGemDecayPerEvent;//number of Gemini++ decays to be performed for each event [default:1]
    KVSimEvent fGemEvent;//event after decay with Gemini
 
    void RandomRotation(KVEvent* to_rotate, const TString& frame_name = "") const;

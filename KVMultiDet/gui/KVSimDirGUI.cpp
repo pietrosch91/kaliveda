@@ -121,14 +121,15 @@ KVSimDirGUI::KVSimDirGUI()
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    group = new TGGroupFrame(vf, "Filtered Simulations");
    fLVfiltData = new KVListView(KVSimFile::Class(), group, 550, 200);
-   fLVfiltData->SetDataColumns(7);
+   fLVfiltData->SetDataColumns(8);
    fLVfiltData->SetDataColumn(0, "Simulation", "GetOriginalFile");
    fLVfiltData->SetDataColumn(1, "DataSet");
    fLVfiltData->SetDataColumn(2, "System");
    fLVfiltData->SetDataColumn(3, "Run");
    fLVfiltData->SetDataColumn(4, "Gemini", "IsGemini");
-   fLVfiltData->SetDataColumn(5, "FilterType");
-   fLVfiltData->SetDataColumn(6, "Events");
+   fLVfiltData->SetDataColumn(5, "Decay/event", "GetGemDecayPerEvent");
+   fLVfiltData->SetDataColumn(6, "FilterType");
+   fLVfiltData->SetDataColumn(7, "Events");
    fLVfiltData->ActivateSortButtons();
    group->AddFrame(fLVfiltData, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 5, 5, 10, 10));
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
@@ -242,7 +243,9 @@ KVSimDirGUI::KVSimDirGUI()
    bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "FilterType(Int_t)");
    fFilterType = kFTSeuils;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY, 2, 2, 2, 2));
-   bgroup = new TGButtonGroup(hf, "Options");
+
+   TGVerticalFrame* vf1 = new TGVerticalFrame(hf, 20, 20);
+   bgroup = new TGButtonGroup(vf1, "Options");
    phi_rotation_check = new TGCheckButton(bgroup, "Random phi");
    phi_rotation_check->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "SetRandomPhi(Bool_t)");
    phi_rotation_check->SetToolTipText("Random rotation around beam axis before detection");
@@ -253,10 +256,22 @@ KVSimDirGUI::KVSimDirGUI()
    gemini_decay->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "SetGeminiDecay(Bool_t)");
    gemini_decay->SetToolTipText("Use Gemini++ to calculate statistical decay before detection");
    gemini_decay->SetState(kButtonUp);
+   TGHorizontalFrame* hhf = new TGHorizontalFrame(vf1, 20);
+   TGLabel* gemini_label = new TGLabel(hhf, "Decays/evt.:");
+   hhf->AddFrame(gemini_label, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 5, 2, 2, 2));
+   gemini_decays = new TGNumberEntry(hhf, 1, 5, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMin, 1);
+   gemini_decays->GetNumberEntry()->SetToolTipText("Number of times to decay each event with Gemini++");
+   hhf->AddFrame(gemini_decays, new TGLayoutHints(kLHintsExpandX | kLHintsCenterY, 10, 2, 2, 2));
+   gemini_decays->SetState(kFALSE);
 #endif
    fGemDecay = kFALSE;
    fGeoType = kGTROOT;
-   hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop | kLHintsLeft, 20, 2, 2, 2));
+   vf1->AddFrame(bgroup, new TGLayoutHints(kLHintsTop, 1, 1, 1, 5));
+#ifdef WITH_GEMINI
+   vf1->AddFrame(hhf, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
+#endif
+   hf->AddFrame(vf1, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
+
    bgroup = new TGButtonGroup(hf, "Kinematics");
    radiob = new TGRadioButton(bgroup, "CM");
    radiob->SetState(kButtonDown);
@@ -741,7 +756,10 @@ void KVSimDirGUI::SetFilterOptions()
       options += r;
    }
    if (!fRandomPhi) options += ",PhiRot=no";
-   if (fGemDecay) options += ",Gemini=yes";
+   if (fGemDecay) {
+      options += ",Gemini=yes";
+      options += Form(",GemDecayPerEvent=%d", (Int_t)gemini_decays->GetNumber());
+   }
    gDataAnalyser->SetUserClassOptions(options);
 }
 
