@@ -16,55 +16,54 @@
 ClassImp(KVEventFiltering)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
 <h2>KVEventFiltering</h2>
 <h4>Filter simulated events with multidetector response</h4>
-<!-- */
-// --> END_HTML
-// Use this KVEventSelector on simulated data TTrees containing a branch with KVSimEvent-derived objects:
-//
-//    my_tree->Process("KVEventFiltering", "[options]");
-//
-// where "[options]" is the list of options in the form "BranchName=toto,Dataset=titi,System=tata, ...".
-//
-// The following options MUST be given:
-//
-//    SimFileName: name of file containing simulated events
-//    SimTitle: description of simulation
-//    BranchName: name of branch containing simulated events
-//    Dataset:    name of experimental dataset (defines multidetector array to use etc.)
-//    System:     name of experimental dataset system (defines collision kinematics etc.)
-//    Geometry:   type of geometry, either 'KV' (KaliVeda geometry) or 'ROOT' (ROOT TGeometry package)
-//    Filter:     type of filter, either 'Geo' (geometric filter), 'GeoThresh' (geometry + detector thresholds),
-//                or 'Full' (full simulation of detector response, including experimental identification
-//                and calibration routines)
-//    OutputDir:  directory path in which to write filtered data file
-//    Kinematics:  kinematical frame for simulation, either "cm" or "lab". if "cm", we use the c.m. velocity
-//                        of the selected System to transform events into the detector (laboratory) frame.
-//                         if "lab" no transformation is performed: simulated events are already in laboratory frame.
-//
-// The following are optional options:
-//
-//    Run:        run number to use for detector status, setup, parameters, etc.
-//                if not given, first run of the given experimental system is used.
-//    PhiRot:     by default, a random rotation around the beam axis will be performed before
-//                simulating detection of the event. If you don't want this to happen,
-//                give option PhiRot=no
-//    Gemini:     if option Gemini=yes, then each event will be "decayed" with Gemini++,
-//                if KaliVeda has been compiled with Gemini++ support.
-//    GemDecayPerEvent: if option Gemini=yes then by default 1 Gemini++ decay will be performed for each event.
-//                      you can change this by giving a value for this option
-//
-// The filtered data will be written in the directory given as option "OutputDir".
-// The filename is built up from the original simulation filename and the values
-// of various options:
-//
-//       [simfile]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
-//
-// The data will be stored in a TTree with name 'ReconstructedEvents', in a branch with name
-// 'ReconEvent'. The class used for reconstructed events depends on the dataset,
-// it is given by KVDataSet::GetReconstructedEventClassName().
+
+Use this KVEventSelector on simulated data TTrees containing a branch with KVSimEvent-derived objects:
+
+    my_tree->Process("KVEventFiltering", "[options]");
+
+where `"[options]"` is the list of options in the form `"BranchName=toto,Dataset=titi,System=tata, ..."`.
+
+The following options __must__ be given:
+
+ - `SimFileName`= name of file containing simulated events
+ - `SimTitle`=   description of simulation
+ - `BranchName`= name of branch containing simulated events
+ - `Dataset`=    name of experimental dataset (defines multidetector array to use etc.)
+ - `System`=     name of experimental dataset system (defines collision kinematics etc.)
+ - `Geometry`=   type of geometry, either 'KV' (KaliVeda geometry) or 'ROOT' (ROOT TGeometry package)
+ - `Filter`=     type of filter, either `'Geo'` (geometric filter), `'GeoThresh'` (geometry + detector thresholds),
+             or `'Full'` (full simulation of detector response, including experimental identification
+             and calibration routines)
+ - `OutputDir`=  directory path in which to write filtered data file
+ - `Kinematics`=  kinematical frame for simulation, either `"cm"` or `"lab"`. if `"cm"`, we use the c.m. velocity
+                     of the selected `System` to transform events into the detector (laboratory) frame.
+                     if `"lab"` no transformation is performed: simulated events are already in laboratory frame.
+
+The following are optional options:
+
+ - `Run`:        run number to use for detector status, setup, parameters, etc.
+              if not given, first run of the given experimental system is used.
+ - `PhiRot`:     by default, a random rotation around the beam axis will be performed before
+              simulating detection of the event. If you don't want this to happen,
+              give option PhiRot=no
+ - `Gemini`:     if option Gemini=yes, then each event will be "decayed" with Gemini++,
+              if KaliVeda has been compiled with Gemini++ support.
+ - `GemDecayPerEvent`: if option Gemini=yes then by default 1 Gemini++ decay will be performed for each event.
+                    you can change this by giving a value for this option
+
+The filtered data will be written in the directory given as option "OutputDir".
+The filename is built up from the original simulation filename and the values
+of various options:
+
+      [simfile]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
+
+The data will be stored in a TTree with name 'ReconstructedEvents', in a branch with name
+'ReconEvent'. The class used for reconstructed events depends on the dataset,
+it is given by KVDataSet::GetReconstructedEventClassName().
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 KVEventFiltering::KVEventFiltering()
