@@ -58,19 +58,35 @@ void KVGemini::DecaySingleNucleus(KVSimNucleus& toDecay, KVSimEvent* decayProduc
    // we throw an exception of type gemini_bad_decay
 
    CNucleus CN(toDecay.GetZ(), toDecay.GetA());
-   CN.setCompoundNucleus(toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
-   // set velocity
-   CN.setVelocityCartesian(toDecay.GetVelocity().X(), toDecay.GetVelocity().Y(), toDecay.GetVelocity().Z());
+   try {
+      CN.setCompoundNucleus(toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
+      // set velocity
+      CN.setVelocityCartesian(toDecay.GetVelocity().X(), toDecay.GetVelocity().Y(), toDecay.GetVelocity().Z());
 
-   // set angle of spin axis
-   CAngle ang(toDecay.GetAngMom().Theta(), toDecay.GetAngMom().Phi());
-   CN.setSpinAxis(ang);
+      // set angle of spin axis
+      CAngle ang(toDecay.GetAngMom().Theta(), toDecay.GetAngMom().Phi());
+      CN.setSpinAxis(ang);
 
-   CN.decay();
+      CN.decay();
+   }
+   catch (std::exception& e) {
+      Info("DecaySingleNucleus", "Caught std::exception: %s", e.what());
+      Info("DecaySingleNucleus", "While decaying: Z=%d A=%d E*=%g S=%g", toDecay.GetZ(), toDecay.GetA(), toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
+      CN.reset();
+      throw gemini_bad_decay();
+   }
+   catch (...) {
+      Info("DecaySingleNucleus", "Caught unknown exception");
+      Info("DecaySingleNucleus", "While decaying: Z=%d A=%d E*=%g S=%g", toDecay.GetZ(), toDecay.GetA(), toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
+      CN.reset();
+      throw gemini_bad_decay();
+   }
 
    if (CN.abortEvent) { //problem with decay?
       // throw exception on gemini++ error
       CN.reset();
+      Info("DecaySingleNucleus", "Bad Gemini decay (CNucleus::abortEvent=true)");
+      Info("DecaySingleNucleus", "While decaying: Z=%d A=%d E*=%g S=%g", toDecay.GetZ(), toDecay.GetA(), toDecay.GetExcitEnergy(), toDecay.GetAngMom().Mag());
       throw gemini_bad_decay();
    }
 
@@ -106,7 +122,8 @@ void KVGemini::DecayEvent(const KVSimEvent* hot, KVSimEvent* cold)
    while ((hotnuc = (KVSimNucleus*)const_cast<KVSimEvent*>(hot)->GetNextParticle())) {
       try {
          DecaySingleNucleus(*hotnuc, cold);
-      } catch (exception& e) {
+      }
+      catch (...) {
          // rethrow any exceptions
          throw;
       }
@@ -127,7 +144,8 @@ void KVGemini::FillTreeWithEvents(KVSimNucleus& toDecay, Int_t nDecays, TTree* t
       decayProducts->Clear();
       try {
          DecaySingleNucleus(toDecay, decayProducts);
-      } catch (exception& e) {
+      }
+      catch (exception& e) {
          continue;
       }
       theTree->Fill();
@@ -158,7 +176,8 @@ void KVGemini::FillTreeWithArrays(KVSimNucleus& toDecay, Int_t nDecays, TTree* t
       theTree->Branch("Energy", x, "Energy[mult]/D");
       theTree->Branch("Theta", y, "Theta[mult]/D");
       theTree->Branch("Phi", z, "Phi[mult]/D");
-   } else {
+   }
+   else {
       theTree->Branch("Vx", x, "Vx[mult]/D");
       theTree->Branch("Vy", y, "Vy[mult]/D");
       theTree->Branch("Vz", z, "Vz[mult]/D");
@@ -167,7 +186,8 @@ void KVGemini::FillTreeWithArrays(KVSimNucleus& toDecay, Int_t nDecays, TTree* t
       decayProducts->Clear();
       try {
          DecaySingleNucleus(toDecay, decayProducts);
-      } catch (exception& e) {
+      }
+      catch (exception& e) {
          continue;
       }
       if (ethetaphi) decayProducts->FillArraysEThetaPhi(mult, Z, A, x, y, z);

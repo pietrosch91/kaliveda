@@ -150,7 +150,12 @@ Bool_t KVEventFiltering::Analysis()
 #ifdef WITH_GEMINI
    do {
       KVGemini g;
-      g.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
+      try {
+         g.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
+      }
+      catch (...) {
+         continue;
+      }
       to_be_detected = &fGemEvent;
       //Copy any parameters associated with simulated event into the Gemini-decayed event
       GetEvent()->GetParameters()->Copy(*(fGemEvent.GetParameters()));
