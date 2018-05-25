@@ -14,8 +14,9 @@ class KVEventReconstructor : public KVBase {
    int multithread = 0;
    int singlethread = 0;
 private:
+#ifdef WITH_CPP11
    void reconstruct_groups(int first, int last);
-
+#endif
    KVMultiDetArray*       fArray;//!       Array for which events are to be reconstructed
    KVReconstructedEvent*  fEvent;//!       The reconstructed event
    TObjArray       fGroupReconstructor;//! array of group reconstructors
@@ -43,9 +44,9 @@ public:
    {
       return fEvent;
    }
-#ifndef WITH_CPP11
-   static void ThreadedReconstructor(void* arg);
-#endif
+//#ifndef WITH_CPP11
+//   static void ThreadedReconstructor(void* arg);
+//#endif
    void bilan()
    {
       double tot = singlethread + multithread;

@@ -9,7 +9,7 @@
 #ifdef WITH_CPP11
 #include <thread>
 #else
-#include <TThread.h>
+//#include <TThread.h>
 #endif
 #include <iostream>
 using namespace std;
@@ -54,10 +54,12 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
       if (i > N || i < 1) {
          Warning("KVEventReconstructor", "Groups in array %s are not numbered the way I like...%u", a->GetName(), i);
          gr->Print();
-      } else {
+      }
+      else {
          if (fGroupReconstructor[i]) {
             Warning("KVEventReconstructor", "%s array has non-unique group numbers!!!", a->GetName());
-         } else {
+         }
+         else {
             fGroupReconstructor[i] = a->GetReconstructorForGroup(gr);
             if (fGroupReconstructor[i]) {
                ((KVGroupReconstructor*)fGroupReconstructor[i])->SetReconEventClass(e->IsA());
@@ -108,7 +110,7 @@ void KVEventReconstructor::ReconstructEvent(TSeqCollection* fired)
    vector<thread> threads;
    threads.reserve(WITH_MULTICORE_CPU - 1);
 #else
-   KVList fThreads;
+//   KVList fThreads;
 #endif
    TIter it(detev.GetGroups());
    KVGroup* group;
@@ -120,21 +122,21 @@ void KVEventReconstructor::ReconstructEvent(TSeqCollection* fired)
             grec->Process();
          }
 #ifndef WITH_CPP11
-         else {
-            TThread* t = new TThread(Form("grp_rec_%d", fNGrpRecon), (TThread::VoidRtnFunc_t)&ThreadedReconstructor, (void*)grec);
-            fThreads.Add(t);
-            t->Run();
-         }
+//         else {
+//            TThread* t = new TThread(Form("grp_rec_%d", fNGrpRecon), (TThread::VoidRtnFunc_t)&ThreadedReconstructor, (void*)grec);
+//            fThreads.Add(t);
+//            t->Run();
+//         }
 #endif
          ++fNGrpRecon;
       }
    }
    if (fThreaded) {
 #ifndef WITH_CPP11
-      // wait for threads to finish
-      TThread* th;
-      TIter itr(&fThreads);
-      while ((th = (TThread*)itr())) th->Join();
+//      // wait for threads to finish
+//      TThread* th;
+//      TIter itr(&fThreads);
+//      while ((th = (TThread*)itr())) th->Join();
 #else
       // divide groups to process between available cpus
       int blksize = fNGrpRecon / WITH_MULTICORE_CPU;
@@ -142,7 +144,8 @@ void KVEventReconstructor::ReconstructEvent(TSeqCollection* fired)
          ++singlethread;
          // 1 thread (this one)
          reconstruct_groups(0, fNGrpRecon - 1);
-      } else {
+      }
+      else {
          ++multithread;
          int first = 0;
          int last;
@@ -164,13 +167,13 @@ void KVEventReconstructor::ReconstructEvent(TSeqCollection* fired)
 }
 
 #ifndef WITH_CPP11
-void KVEventReconstructor::ThreadedReconstructor(void* arg)
-{
-   // Group reconstruction in separate threads
+//void KVEventReconstructor::ThreadedReconstructor(void* arg)
+//{
+//   // Group reconstruction in separate threads
 
-   KVGroupReconstructor* grec = (KVGroupReconstructor*)arg;
-   grec->Process();
-}
+//   KVGroupReconstructor* grec = (KVGroupReconstructor*)arg;
+//   grec->Process();
+//}
 #else
 void KVEventReconstructor::reconstruct_groups(int first, int last)
 {
