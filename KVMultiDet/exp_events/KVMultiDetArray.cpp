@@ -1286,7 +1286,7 @@ KVGroup* KVMultiDetArray::GetGroupWithDetector(const Char_t* name)
    return grp;
 }
 
-KVGroup* KVMultiDetArray::GetGroup(const Char_t* name)
+KVGroup* KVMultiDetArray::GetGroup(const Char_t* name) const
 {
    // Return pointer to group with name
    return (KVGroup*)GetStructure("GROUP", name);
@@ -2833,7 +2833,8 @@ void KVMultiDetArray::RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniq
             }
          }
       }
-   } else if (N->GetNTraj() == 1) {
+   }
+   else if (N->GetNTraj() == 1) {
       // single-trajectory node.
       // work along trajectory adding nodes to group
       KVGeoDNTrajectory* traj = (KVGeoDNTrajectory*)N->GetTrajectories()->First();
@@ -2845,7 +2846,8 @@ void KVMultiDetArray::RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniq
          detectors_of_group.Add(node);
          RecursiveTrajectoryClustering(node, tried_trajectories, multitraj_nodes, detectors_of_group);
       }
-   } else {
+   }
+   else {
       // orphan node? single-detector array?
       detectors_of_group.Add(N);
    }
