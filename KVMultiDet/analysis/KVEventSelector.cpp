@@ -149,7 +149,8 @@ void KVEventSelector::Begin(TTree* /*tree*/)
 
    if (IsOptGiven("CombinedOutputFile")) {
       fCombinedOutputFile = GetOpt("CombinedOutputFile");
-   } else if (gProof) {
+   }
+   else if (gProof) {
       // when running with PROOF, if the user calls SetCombinedOutputFile()
       // in InitAnalysis(), it will only be executed on the workers (in SlaveBegin()).
       // therefore we call InitAnalysis() here, but deactivate CreateTreeFile(),
@@ -199,7 +200,8 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
             gDataRepositoryManager->GetRepository(jdl->GetStringValue("DataRepository"))->cd();
             gDataSetManager->GetDataSet(jdl->GetStringValue("DataSet"))->cd();
             task = gDataSet->GetAnalysisTask(jdl->GetStringValue("AnalysisTask"));
-         } else {
+         }
+         else {
             if (!gDataSetManager) {
                gDataSetManager = new KVDataSetManager;
                gDataSetManager->Init();
@@ -291,7 +293,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
 
    if (gDataAnalyser && gDataAnalyser->AbortProcessingLoop()) {
       // abort requested by external process
-      Abort(Form("Aborting analysis after %lld events", fEventsRead), kAbortFile);
+      Abort(Form("Job received KILL signal from batch system after %lld events - batch job probably needs more CPU time (see end of job statistics)", fEventsRead), kAbortFile);
       return kFALSE;
    }
 
@@ -411,16 +413,19 @@ void KVEventSelector::Terminate()
             Info("Terminate", "both");
             SaveHistos();
             KVBase::CombineFiles(file1, file2, fCombinedOutputFile, kFALSE);
-         } else {
+         }
+         else {
             // no trees - just rename histo file
             Info("Terminate", "histo");
             SaveHistos(fCombinedOutputFile);
          }
-      } else if (GetOutputList()->FindObject(file2)) {
+      }
+      else if (GetOutputList()->FindObject(file2)) {
          // no histos - just rename tree file
          Info("Terminate", "tree");
          gSystem->Rename(file2, fCombinedOutputFile);
-      } else  Info("Terminate", "none");
+      }
+      else  Info("Terminate", "none");
    }
 
    if (gDataAnalyser) gDataAnalyser->preEndAnalysis();
@@ -472,15 +477,18 @@ KVVarGlob* KVEventSelector::AddGV(const Char_t* class_name,
                "Called with class_name=%s.\nClass is unknown: not in standard libraries, and plugin (user-defined class) not found",
                class_name);
          return 0;
-      } else {
+      }
+      else {
          vg = (KVVarGlob*) ph->ExecPlugin(0);
       }
-   } else if (!clas->InheritsFrom("KVVarGlob")) {
+   }
+   else if (!clas->InheritsFrom("KVVarGlob")) {
       Error("AddGV(const Char_t*,const Char_t*)",
             "%s is not a valid class deriving from KVVarGlob.",
             class_name);
       return 0;
-   } else {
+   }
+   else {
       vg = (KVVarGlob*) clas->New();
    }
    vg->SetName(name);
@@ -593,7 +601,8 @@ void KVEventSelector::FillHisto(const Char_t* histo_name, Double_t one, Double_t
          FillTH1(h1, one, two);
       else
          Warning("FillHisto", "%s -> Classe non prevue ...", lhisto->FindObject(histo_name)->ClassName());
-   } else {
+   }
+   else {
       Warning("FillHisto", "%s introuvable", histo_name);
    }
 
@@ -605,7 +614,8 @@ void KVEventSelector::FillHisto(const Char_t* histo_name, const Char_t* label, D
    TH1* h1 = 0;
    if ((h1 = GetHisto(histo_name))) {
       h1->Fill(label, weight);
-   } else {
+   }
+   else {
       Warning("FillHisto", "%s introuvable", histo_name);
    }
 
@@ -698,7 +708,8 @@ void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option, Bool_
             if (((TH1*)obj)->GetEntries() > 0) {
                obj->Write();
             }
-         } else {
+         }
+         else {
             obj->Write();
          }
       }
@@ -738,11 +749,13 @@ void KVEventSelector::FillTree(const Char_t* tree_name)
    //
    if (!strcmp(tree_name, "")) {
       ltree->Execute("Fill", "");
-   } else {
+   }
+   else {
       TTree* tt = 0;
       if ((tt = GetTree(tree_name))) {
          tt->Fill();
-      } else {
+      }
+      else {
          Warning("FillTree", "%s introuvable", tree_name);
       }
    }
