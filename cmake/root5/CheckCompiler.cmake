@@ -97,11 +97,18 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_THREAD_FLAG}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_THREAD_FLAG}")
 
-if(GCC_MAJOR EQUAL 6)
-   # turn off -Wmisleading-indentation: too many warnings due to ROOT headers
+if(GCC_MAJOR GREATER 5)
+   # gcc6+ : turn off -Wmisleading-indentation: too many warnings due to ROOT headers
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation -Wno-deprecated-declarations")
-   message(STATUS "Compiler warning (gcc6): -Wmisleading-indentation disabled.")
-endif(GCC_MAJOR EQUAL 6)
+   message(STATUS "Compiler warning (gcc6+): -Wmisleading-indentation disabled.")
+endif(GCC_MAJOR GREATER 5)
+
+if(GCC_MAJOR GREATER 6)
+    # gcc7+ : turn off -Wimplicit-fallthrough: too many warnings due to code copied from ROOT
+    # gcc7+ : turn off -Wformat-truncation
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough -Wformat-truncation=0")
+   message(STATUS "Compiler warning (gcc7+): -Wimplicit-fallthrough disabled.")
+endif(GCC_MAJOR GREATER 6)
 
 if(cxx11)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
