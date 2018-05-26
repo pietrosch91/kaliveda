@@ -46,7 +46,8 @@ KVReconstructedNucleus* KVINDRAEtalonGroupReconstructor::ReconstructTrajectory(c
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
             IDR[idt->GetType()].IDattempted = kTRUE;
             idt->Identify(&IDR[idt->GetType()]);
-         } else
+         }
+         else
             IDR[idt->GetType()].IDattempted = kFALSE;
       }
       // cases:
@@ -67,14 +68,17 @@ KVReconstructedNucleus* KVINDRAEtalonGroupReconstructor::ReconstructTrajectory(c
                GetEventFragment()->GetParameters()->IncrementValue("INDRA_GAMMA_DETS", node->GetName());
                node->GetDetector()->SetAnalysed();
                return nullptr;
-            } else { // charged particle identified
+            }
+            else {   // charged particle identified
                //Info("ReconstructTrajectory","Charged particle in CsI: with_etalon=%d",with_etalon);
                if (with_etalon) {
                   if (IDR["SILI_CSI"].IDattempted && IDR["SILI_CSI"].IDOK) {
                      //Info("ReconstructTrajectory","Charged particle in SILI too Zcsi=%d Zsili=%d",idcsi.Z,IDR["SILI_CSI"].Z);
                      return GetEventFragment()->AddParticle();
-                  } else return nullptr;
-               } else
+                  }
+                  else return nullptr;
+               }
+               else
                   return GetEventFragment()->AddParticle();
             }
          }
@@ -85,7 +89,7 @@ KVReconstructedNucleus* KVINDRAEtalonGroupReconstructor::ReconstructTrajectory(c
    return KVINDRAGroupReconstructor::ReconstructTrajectory(traj, node);
 }
 
-bool KVINDRAEtalonGroupReconstructor::DoCoherencyAnalysis(KVReconstructedNucleus& PART)
+bool KVINDRAEtalonGroupReconstructor::DoCoherencyAnalysis(KVReconstructedNucleus&)
 {
    // Coherency analysis for etalon groups on rings 10-17 of INDRA
    return kTRUE;
