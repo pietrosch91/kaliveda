@@ -26,8 +26,8 @@ class KVIDINDRACsI: public KVINDRAIDTelescope {
    KVIDGCsI* CsIGrid;//! telescope's grid
    KVDetector* fCsI;//!
 
-   Int_t fThresMin[2][3];// min ID thresholds (smooth step)
-   Int_t fThresMax[2][3];// max ID thresholds (smooth step)
+   Int_t fThresMin[2][4];// min ID thresholds (smooth step)
+   Int_t fThresMax[2][4];// max ID thresholds (smooth step)
 
 protected:
    float smootherstep(float edge0, float edge1, float x);

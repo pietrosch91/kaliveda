@@ -47,10 +47,10 @@ KVIDINDRACsI::KVIDINDRACsI()
    fThresMax[0][1] = 6;    // deutons
    fThresMin[0][2] = 5;
    fThresMax[0][2] = 11;   // tritons
-   fThresMin[1][1] = 20;
-   fThresMax[1][1] = 40;   // 3He
-   fThresMin[1][2] = 1;
-   fThresMax[1][2] = 3;    // alphas
+   fThresMin[1][2] = 20;
+   fThresMax[1][2] = 40;   // 3He
+   fThresMin[1][3] = 1;
+   fThresMax[1][3] = 3;    // alphas
 
    /* in principle all CsI R-L telescopes can identify mass & charge */
    SetHasMassID(kTRUE);
