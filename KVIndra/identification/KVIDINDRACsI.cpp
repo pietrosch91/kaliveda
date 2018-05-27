@@ -40,6 +40,18 @@ KVIDINDRACsI::KVIDINDRACsI()
    SetSubCodeManager(4, 3);
    CsIGrid = 0;
    fCsI = 0;
+
+   fThresMin[0][0] = 1;
+   fThresMax[0][0] = 2;    // protons
+   fThresMin[0][1] = 2;
+   fThresMax[0][1] = 6;    // deutons
+   fThresMin[0][2] = 5;
+   fThresMax[0][2] = 11;   // tritons
+   fThresMin[1][1] = 20;
+   fThresMax[1][1] = 40;   // 3He
+   fThresMin[1][2] = 1;
+   fThresMax[1][2] = 3;    // alphas
+
    /* in principle all CsI R-L telescopes can identify mass & charge */
    SetHasMassID(kTRUE);
 }
@@ -131,4 +143,49 @@ void KVIDINDRACsI::Initialize()
    } else
       ResetBit(kReadyForID);
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+}
+
+
+void KVIDINDRACsI::SetIdentificationStatus(KVReconstructedNucleus* n)
+{
+   // For filtering simulations
+   // If n->GetEnergy() is above threshold for mass identification, we set
+   // n->IsAMeasured(kTRUE) (and n->IsZMeasured(kTRUE)).
+   // Otherwise, we just set n->IsZMeasured(kTRUE) and use the A given by
+   // the mass formula for the particle
+   //
+   // Z-dependence of A identification:
+   //    all ok above threshold if Z<=16, decreasing probability for 17<=Z<=21
+   //    no A identification for Z>21
+   n->SetZMeasured();
+
+   if (n->GetA() > 5) {
+      if (fCsI->GetEnergy() < 40) n->SetAMeasured();
+      else n->SetZ(n->GetZ());
+      return;
+   }
+
+   Bool_t okmass = gRandom->Uniform() < smootherstep(fThresMin[n->GetZ() - 1][n->GetA() - 1], fThresMax[n->GetZ() - 1][n->GetA() - 1], fCsI->GetEnergy());
+   if (okmass) {
+      n->SetAMeasured();
+   } else
+      n->SetZ(n->GetZ());
+}
+
+
+float KVIDINDRACsI::clamp(float x, float lowerlimit, float upperlimit)
+{
+   if (x < lowerlimit)
+      x = lowerlimit;
+   if (x > upperlimit)
+      x = upperlimit;
+   return x;
+}
+
+float KVIDINDRACsI::smootherstep(float edge0, float edge1, float x)
+{
+   // Scale, and clamp x to 0..1 range
+   x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+   // Evaluate polynomial
+   return x * x * x * (x * (x * 6 - 15) + 10);
 }

@@ -26,6 +26,13 @@ class KVIDINDRACsI: public KVINDRAIDTelescope {
    KVIDGCsI* CsIGrid;//! telescope's grid
    KVDetector* fCsI;//!
 
+   Int_t fThresMin[2][3];// min ID thresholds (smooth step)
+   Int_t fThresMax[2][3];// max ID thresholds (smooth step)
+
+protected:
+   float smootherstep(float edge0, float edge1, float x);
+   float clamp(float x, float lowerlimit, float upperlimit);
+
 public:
 
    KVIDINDRACsI();
@@ -47,6 +54,7 @@ public:
       // For INDRA CsI Rapide-Lente detectors, identification is possible up to Z=4
       return (Z < 5);
    }
+   void SetIdentificationStatus(KVReconstructedNucleus* n);
 
    ClassDef(KVIDINDRACsI, 3)        //INDRA identification using CsI R-L matrices
 };
