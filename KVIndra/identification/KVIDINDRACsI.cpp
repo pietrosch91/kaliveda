@@ -146,7 +146,6 @@ void KVIDINDRACsI::Initialize()
 }
 
 
-<<<<<<< 82add65a95f57dba2638f48c0169c621c4097fe8
 void KVIDINDRACsI::SetIdentificationStatus(KVReconstructedNucleus* n)
 {
    // For filtering simulations
