@@ -48,6 +48,10 @@ public:
    {
       return (fStatus);
    }
+   UInt_t GetFrequency(void) const
+   {
+      return (fFreq);
+   }
 
    void ls(Option_t* opt = "") const;
 
