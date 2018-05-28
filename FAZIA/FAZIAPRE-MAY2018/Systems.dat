@@ -13,7 +13,7 @@
 #
 # Exact Cyclotron beam energies, charge state, Frequency, Rigidity
 # (from machine):
-# 12C stripper of 800 ug/cm2 is in the beam for transport purpose
+# 12C stripper of 842 ug/cm2 is in the beam for transport purpose
 # has to takem into account for deduced energy on target
 #
 #   40Ca@40 MeV/A : 40.2682 MeV/u, 12+, 31.87071 MHz, 0.038938 TM
@@ -33,10 +33,10 @@ Runs: 4-13 1078-1081 1106-1107 1200-1201
 40 20 12 6 40.00
 Target: 1 0
 Cqrbon 0.490
-Runs: 34-1062 1082-1099 1108-1199 1207-
+Runs: 34-1062 1082-1099 1108-1199 1207-3769
 
 +Pulser
-Runs: 1063-1067
+Runs: 1063-1067 3770-3775
 
 +Pulser Test
 Runs: 1068-1074
