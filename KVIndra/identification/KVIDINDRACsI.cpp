@@ -160,7 +160,7 @@ void KVIDINDRACsI::SetIdentificationStatus(KVReconstructedNucleus* n)
    n->SetZMeasured();
 
    if (n->GetA() > 5) {
-      if (fCsI->GetEnergy() < 40) n->SetAMeasured();
+      if (fCsI->GetEnergy() > 40) n->SetAMeasured();
       else n->SetZ(n->GetZ());
       return;
    }
