@@ -52,6 +52,10 @@ public:
    {
       return (fFreq);
    }
+   UInt_t GetLabel(void) const
+   {
+      return (fLabel);
+   }
 
    void ls(Option_t* opt = "") const;
 
