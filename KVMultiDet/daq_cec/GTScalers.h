@@ -30,7 +30,7 @@
 #define GT_GTScalers_H
 
 #include <TObject.h>
-#include <TObjArray.h>
+#include <TClonesArray.h>
 class GTOneScaler;
 
 
@@ -49,7 +49,7 @@ public:
 
 protected:
    Int_t fNbChannel;          // Number of individual scales
-   TObjArray fScalerArray; // Array of scalers
+   TClonesArray fScalerArray; // Array of scalers
 public:
    ClassDef(GTScalers, 2)     // Scaler events class
 };

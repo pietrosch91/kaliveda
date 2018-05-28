@@ -45,10 +45,9 @@ ClassImp(GTScalers)
 
 //______________________________________________________________________________
 GTScalers::GTScalers(void)
-   : fScalerArray(100)
+   : fScalerArray("GTOneScaler", 256)
 {
    fNbChannel = -1; // Initialisation Marker
-   fScalerArray.SetOwner(kTRUE);
 }
 
 //______________________________________________________________________________
@@ -56,23 +55,21 @@ GTScalers::~GTScalers(void)
 {
 }
 
-
 //______________________________________________________________________________
 void GTScalers::Fill(void* echelle)
 {
 
+   fScalerArray.Clear();
    scale* s = (scale*)echelle;
 //  cout <<s->Length<<endl;
 //  cout <<s->Nb_channel<<endl; // This is number of actual scalers
 //  cout <<s->Acq_status<<endl;
 
    fNbChannel   = s->Nb_channel;
-   fScalerArray.Expand(fNbChannel);
 
    for (Int_t i = 0; i < fNbChannel; i++) {
-      GTOneScaler* scal = new GTOneScaler;
+      GTOneScaler* scal = (GTOneScaler*)fScalerArray.ConstructedAt(i);
       scal->Set(&(s->jbus_scale.UnScale[i]));
-      fScalerArray.AddAt(scal, i);
    }
 }
 
