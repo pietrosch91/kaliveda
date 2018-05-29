@@ -82,6 +82,9 @@ protected:
       return __ifpeaks;
    };
 
+   mutable TF1* fMeanGDir;//! mean frequency of GENE_DIRECT vs. run number
+   void _init_MeanGDir_func() const;
+
    void init();
 
 public:
@@ -140,6 +143,7 @@ public:
                                  Double_t Coul_par_top = 1.e-10) const;
    Double_t GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top = 1.e-10);
 
+   Double_t GetMeanGDirFreq(Int_t run) const;
 
    KVINDRAPulserDataTree* GetPulserData()
    {

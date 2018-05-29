@@ -690,3 +690,14 @@ KaliVedaGUI.MaxColWidth:       500
 # written on disk with previous (bugged) versions. See KVDataPatch & KVDataPatchList.
 Plugin.KVDataPatch:   INDRA_camp5_PHDcorrection  KVDataPatch_INDRA_camp5_PHDcorrection  KVIndraanalysis  "KVDataPatch_INDRA_camp5_PHDcorrection()"
 +Plugin.KVDataPatch:   CorrectEtalonModuleIDCode  KVDataPatch_CorrectEtalonModuleIDCode  KVIndraanalysis  "KVDataPatch_CorrectEtalonModuleIDCode()"
+
+# FREQUENCY OF SELECTEUR GENE DIRECT
+# these functions give the mean frequency as a function of run number
+# frequencies were extracted from scaler buffers in the data
+INDRA_camp1.GDir.Freq: 165.854+(x-102)*0.00604222
+INDRA_camp2.GDir.Freq: 170.614+(x-1005)*0.00345344
+INDRA_camp4.GDir.Freq: 185.6*(x<4500)+(184.462+(x-4500)*0.00331259)*(x>4500 && x<4900)+(189.346+0.00217762*(x-5000))*(x>4900)
+# N.B. for 5th campaign: although the following (constant) expression makes GDIR seem more stable for this campaign,
+# in fact there appear to be (at least) 2 regimes, with the other (minoritaire) having a very wide distribution
+# around 160-170Hz.
+INDRA_camp5.GDir.Freq: 186.2

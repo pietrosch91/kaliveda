@@ -82,6 +82,8 @@ void KVINDRADB::init()
    fOoOACQPar = 0;
 
    fPulserData = 0;
+
+   fMeanGDir = nullptr;
 }
 
 KVINDRADB::KVINDRADB(const Char_t* name): KVExpDB(name,
@@ -182,10 +184,12 @@ KVList* KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector* detector,
             Warning("ReadPeakList()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             if (TMath::Range(frun, lrun, run) == run) { //frun <= run <= lrun
                ok_for_this_run = kTRUE;
-            } else
+            }
+            else
                ok_for_this_run = kFALSE;
          }
       }                         //Run Range found
@@ -199,7 +203,8 @@ KVList* KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector* detector,
             Warning("GetCalibrationPeaks()",
                     "Bad format in line :\n%s\nUnable to read peak parameters",
                     sline.Data());
-         } else {               // parameters correctly read
+         }
+         else {                 // parameters correctly read
 
             //find corresponding detector
 
@@ -278,7 +283,8 @@ KVList* KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector* detector,
                          <= 0.1 * (peak->GetEnergy() /
                                    ((KVDBElasticPeak*) peak)->GetAproj())))
                      continue;  //read next line
-               } else {
+               }
+               else {
                   if (!
                         (TMath::Abs(peak->GetEnergy() - peak_energy) <=
                          0.1 * peak->GetEnergy()))
@@ -309,14 +315,16 @@ KVList* KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector* detector,
                if (!param_list) {
                   //no gains defined - everybody has gain=1
                   peak->SetGain(1.00);
-               } else {
+               }
+               else {
                   KVDBParameterSet* kvdbps =
                      (KVDBParameterSet*) param_list->
                      FindObjectByName(pic_det->GetName());
                   if (!kvdbps) {
                      //no gain defined for this detector for this run - gain=1
                      peak->SetGain(1.00);
-                  } else {
+                  }
+                  else {
                      peak->SetGain(kvdbps->GetParameter(0));
                   }
                }
@@ -357,6 +365,19 @@ void KVINDRADB::CloseCalibrationPeakFile()
    //Close file containing database of calibration peaks
    __ifpeaks.close();
    __ifpeaks.clear();
+}
+
+void KVINDRADB::_init_MeanGDir_func() const
+{
+   // set up TF1 fMeanGDir if function defined for dataset
+   //   [dataset].GDir.Freq: [function]
+
+   TString formula = KVDataSet::GetDataSetEnv(fDataSet, "GDir.Freq", "");
+   if (formula == "") {
+      SafeDelete(fMeanGDir);
+      return;
+   }
+   fMeanGDir = new TF1("INDRA_MeanGDIR", formula, 1, 10000);
 }
 
 //____________________________________________________________________________
@@ -411,7 +432,8 @@ void KVINDRADB::ReadGainList()
                     sline.Data());
             cout << "sscanf=" << sscanf(sline.Data(), "Run Range : %u %u",
                                         &frun, &lrun) << endl;
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;
@@ -428,7 +450,8 @@ void KVINDRADB::ReadGainList()
             Warning("ReadGainList()",
                     "Bad format in line :\n%s\nUnable to read",
                     sline.Data());
-         } else {               //parameters correctly read
+         }
+         else {                 //parameters correctly read
             parset = new KVDBParameterSet(det_name, "Gains", 1);
             parset->SetParameters((Double_t) gain);
             prev_rr = kFALSE;
@@ -503,7 +526,8 @@ void KVINDRADB::ReadChIoPressures()
             Warning("ReadChIoPressures()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;
@@ -731,6 +755,18 @@ Double_t KVINDRADB::GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cib
    return (1.e27 / (ninc * targ->GetAtomsPerCM2())) * xsec;
 }
 
+Double_t KVINDRADB::GetMeanGDirFreq(Int_t run) const
+{
+   // Return mean frequency of Gene_Direct for run
+   // If not defined for dataset, returns 0
+
+   if (!fMeanGDir) {
+      _init_MeanGDir_func();
+      if (!fMeanGDir) return 0;
+   }
+   return fMeanGDir->Eval(run);
+}
+
 //__________________________________________________________________________________________________________________
 
 void KVINDRADB::Build()
@@ -811,7 +847,8 @@ void KVINDRADB::ReadNewRunList()
          run->ReadRunListLine(line);
          if (run->GetNumber() < 1) {
             delete run;
-         } else {
+         }
+         else {
             AddRun(run);
             kLastRun = TMath::Max(kLastRun, run->GetNumber());
             kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
@@ -971,7 +1008,8 @@ void KVINDRADB::GoodRunLine()
       if (csv_line->HasField(key.Data()))
          run->SetLogbook(csv_line->GetField(key.Data()));
 
-   } else {
+   }
+   else {
       Error("GoodRunLine", "Run %d already exists", run_n);
    }
 }
@@ -1104,7 +1142,8 @@ void KVINDRADB::ReadCsITotalLightGainCorrections()
             line.ReadLine(filereader);
          }
          filereader.close();
-      } else {
+      }
+      else {
          Warning("ReadCsITotalLightGainCorrections", "Run %d: no correction", run_num);
       }
 
@@ -1163,7 +1202,8 @@ void KVINDRADB::ReadChannelVolt()
             Warning("ReadChannelVolt()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;
@@ -1182,7 +1222,8 @@ void KVINDRADB::ReadChannelVolt()
             Warning("ReadChannelVolt()",
                     "Bad format in line :\n%s\nUnable to read",
                     sline.Data());
-         } else {               //parameters correctly read
+         }
+         else {                 //parameters correctly read
             // naming detector
             switch (sign) {
                case ChIo_GG:
@@ -1248,7 +1289,8 @@ void KVINDRADB::ReadChannelVolt()
             Warning("ReadChannelVolt()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;
@@ -1266,7 +1308,8 @@ void KVINDRADB::ReadChannelVolt()
             Warning("ReadChannelVolt()",
                     "Bad format in line :\n%s\nUnable to read",
                     sline.Data());
-         } else {               //parameters correctly read
+         }
+         else {                 //parameters correctly read
             KVString gain;
             gain.Form("%s", det_name);
             toks = gain.Tokenize("_");
@@ -1334,7 +1377,8 @@ void KVINDRADB::ReadVoltEnergyChIoSi()
             Warning("ReadVoltEnergyAlpha()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;
@@ -1352,7 +1396,8 @@ void KVINDRADB::ReadVoltEnergyChIoSi()
             Warning("ReadVoltEnergyAlpha()",
                     "Bad format in line :\n%s\nUnable to read parameters",
                     sline.Data());
-         } else {               //parameters correctly read
+         }
+         else {                 //parameters correctly read
             parset = new KVDBParameterSet(det_name, "Volt-Energy", 3);
             parset->SetParameters(a0, a1, chi);
             prev_rr = kFALSE;
@@ -1485,13 +1530,15 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
                        "Bad format in line :\n%s\nUnable to read parameters",
                        sline.Data());
                return;
-            } else {            //parameters correctly read
+            }
+            else {              //parameters correctly read
                KVCsI* csi =
                   (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
                if (!csi) {
                   Warning("ReadLightEnergyCsI()", "Read calibration for non-existent detector CSI_%02d%02d",
                           ring, mod);
-               } else {
+               }
+               else {
                   parset =
                      new KVDBParameterSet(csi->GetName(), Form("Light-Energy CsI %s", zrange),
                                           4);
@@ -1604,7 +1651,8 @@ void KVINDRADB::ReadAbsentDetectors()
             fAbsentDet->AddRecord(dbrec);
             LinkRecordToRunRange(dbrec, nl);
          }
-      } else {
+      }
+      else {
          dbrec = new KVDBRecord(rec->GetName(), "Absent Detector");
          dbrec->AddKey("Runs", "List of Runs");
          fAbsentDet->AddRecord(dbrec);
@@ -1646,7 +1694,8 @@ void KVINDRADB::ReadOoODetectors()
             fOoODet->AddRecord(dbrec);
             LinkRecordToRunRange(dbrec, nl);
          }
-      } else {
+      }
+      else {
          dbrec = new KVDBRecord(rec->GetName(), "OoO Detector");
          dbrec->AddKey("Runs", "List of Runs");
          fOoODet->AddRecord(dbrec);
@@ -1688,7 +1737,8 @@ void KVINDRADB::ReadOoOACQParams()
             fOoOACQPar->AddRecord(dbrec);
             LinkRecordToRunRange(dbrec, nl);
          }
-      } else {
+      }
+      else {
          dbrec = new KVDBRecord(rec->GetName(), "OoO ACQPar");
          dbrec->AddKey("Runs", "List of Runs");
          fOoOACQPar->AddRecord(dbrec);
