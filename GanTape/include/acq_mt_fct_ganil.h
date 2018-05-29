@@ -26,7 +26,7 @@ extern "C" {
 /*    Prototype de acq_mt_ini_run_c (..) , fonction permettant d'initialiser
  * le contexte du run. Cette fonction se trouve dans le fichier ACQ_MT_INI_RUN.C.
  */
-int acq_mt_ini_run_c(int, in2p3_buffer_struct*, int, int*, char*, int);
+int acq_mt_ini_run_c(int, in2p3_buffer_struct*, int, int*, char*, int, char*);
 
 
 /*    Prototype de get_next_event (..) , fonction permettant d'obtenir le

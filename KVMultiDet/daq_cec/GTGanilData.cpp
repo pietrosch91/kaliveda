@@ -236,8 +236,10 @@ void GTGanilData::Open(void)
       return;
    }
    fRunNumber = 0;
+   Char_t Date[21];
    fStatus = acq_mt_ini_run_c(fLun, fBuffer, fBufSize, &fRunNumber,
-                              fStructEvent, structEvent_size);
+                              fStructEvent, structEvent_size, Date);
+   fDateStart = Date;
 
    if (fStatus != ACQ_OK) {
       gan_tape_erreur(fStatus, "Init Run");
@@ -260,7 +262,8 @@ void GTGanilData::ReadParameters(void)
       ReadBuffer();
       if (strcmp(fHeader, PARAM_Id) == 0)
          fDataArraySize = fDataParameters->Fill(fBuffer->les_donnees.cas.Buf_param);
-   } while (strcmp(fHeader, PARAM_Id) == 0);
+   }
+   while (strcmp(fHeader, PARAM_Id) == 0);
 
    fDataArray = new UShort_t[fDataArraySize + 1]; // Data buffer is allocated
    for (Int_t i = 1; i <= fDataArraySize; i++) {
@@ -371,12 +374,14 @@ bool GTGanilData::Next(void)
       fIsCtrl = false;
       fEventCount++;
       return (ReadNextEvent());
-   } else if (strcmp(fHeader, EVENTCT_Id) == 0) {
+   }
+   else if (strcmp(fHeader, EVENTCT_Id) == 0) {
       fIsScalerBuffer = false;
       fIsCtrl = true;
       fEventCount++;
       return (ReadNextEvent());
-   } else if (strcmp(fHeader, EBYEDAT_Id) == 0) {
+   }
+   else if (strcmp(fHeader, EBYEDAT_Id) == 0) {
       fIsScalerBuffer = false;
       fIsCtrl = false;
       fEventCount++;
@@ -432,22 +437,27 @@ bool GTGanilData::ReadNextEvent(void)
             puts("\n>>> Erreur de reconstruction");
             return (false);
          }
-      } else if (fStatus == ACQ_ENDOFBUFFER) {
+      }
+      else if (fStatus == ACQ_ENDOFBUFFER) {
          fEventNumber = -1;
          return (Next());
-      } else {
+      }
+      else {
          gan_tape_erreur(fStatus, "obtention d'evenement");
          return (false);
       }
-   } else {
+   }
+   else {
       fStatus = get_next_event(fBuffer, fBufSize, (short*)fEventCtrl,
                                fEvcsize, &fEventNumber);
       if (fStatus == ACQ_OK) {
          return (EventUnravelling((CTRL_EVENT*)fEventCtrl));
-      } else if (fStatus == ACQ_ENDOFBUFFER) {
+      }
+      else if (fStatus == ACQ_ENDOFBUFFER) {
          fEventNumber = -1;
          return (Next());
-      } else {
+      }
+      else {
          gan_tape_erreur(fStatus, "obtention d'evenement");
          return (false);
       }
@@ -467,11 +477,13 @@ bool GTGanilData::ReadNextEvent_EBYEDAT(void)
       else if (fStatus == ACQ_ENDOFBUFFER) {
          fEventNumber = -1;
          return (Next());
-      } else {
+      }
+      else {
          cout << " in ReadNextEvent__EBEYEDAT error status: " << fStatus << "  n";
          return (false);
       }
-   } else {
+   }
+   else {
       fStatus = ACQ_BADEVENTFORM;
    }
    return (false);
@@ -513,7 +525,8 @@ bool GTGanilData::EventUnravelling(CTRL_EVENT* pCtrlEvent)
       // cout << "Param index=" << brutData[i] << " Value=" << brutData[i+1]<<endl;
       if (brutData[i] <= fDataArraySize && brutData[i] >= 1) {
          fDataArray[brutData[i]] = brutData[i + 1];
-      } else { // More on error handling would be cool
+      }
+      else {   // More on error handling would be cool
          /*      cout << "Index overflow : Parameter index "<<i<<" is "<<brutData[i]<<
                " but fDataArraySize is " << fDataArraySize<<endl;
                return(false);
@@ -575,7 +588,8 @@ void GTGanilData::SetScalerBuffersManagement(const ScalerWhat_t sc)
       if (gFile && gFile->IsWritable()) {
          fScalerTree = new TTree("Scalers", "Automatic filled scalers");
          fScalerTree->Branch("scalers", fScaler, 8000, 99);
-      } else {
+      }
+      else {
          cout << "Error in <GTGanilData::SetScalerBuffersManagement> : ";
          cout << "You must open a writable TFile before calling SetScalerBuffersManagement(kAutoWriteScaler)" << endl;
          fWhatScaler = kSkipScaler;

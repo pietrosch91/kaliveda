@@ -104,6 +104,10 @@ public:
    }
 
    virtual void SetUserTree(TTree*);
+   TString GetRunStartDate() const
+   {
+      return fDateStart;
+   }
 
 protected:
    void InitDefault(const Int_t argc = 0, char** argv = NULL);
@@ -139,6 +143,7 @@ protected:
    GTDataParameters* fDataParameters; //! Data parameters names class
    GTScalers*     fScaler;        //! Scaler array
    TTree*         fScalerTree;    // Scaler tree for automatic filling
+   TString        fDateStart;     // Date/time of start of run read from file
 public:
    ClassDef(GTGanilData, 0)       // Interface to a GANIL formated Tape or File
 };

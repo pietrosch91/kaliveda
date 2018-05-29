@@ -85,13 +85,13 @@
 
 
 int acq_mt_ini_run_c(int Lun, in2p3_buffer_struct* Buff, int Size,
-                     int* RunNumber, char* StrEvent, int StrEventSize)
+                     int* RunNumber, char* StrEvent, int StrEventSize, char* Date)
 {
 
    void libere_fichier(int);
 
    char Header[9];      /* Header formate en string version 'C'.     */
-   char Date[21];    /* Date formate en string version 'C'.     */
+   /*char Date[21];   Date formate en string version 'C'.     */
    int Size_tempo, Boucle = 0, Status, Bloc_number = 0, Valeur;
    int Nb_struct_bloc, Lun_tempo, Decompte, Debut, Depart, Quant;
    bool Continue = true;
@@ -116,7 +116,8 @@ int acq_mt_ini_run_c(int Lun, in2p3_buffer_struct* Buff, int Size,
          printf("\n>>> Erreur de lecture du bloc no %d",
                 Bloc_number);
          return (Status);
-      } else {
+      }
+      else {
          strncpy(Header, Buff->les_donnees.Ident, 8);
          Header[8] = '\0';     /* Pour delimiter la 'string' */
       }
@@ -128,7 +129,8 @@ int acq_mt_ini_run_c(int Lun, in2p3_buffer_struct* Buff, int Size,
       else if (Bloc_number == 2) {
          Status = ACQ_BADFILESTRUCT;
          return (Status);
-      } else {
+      }
+      else {
          Status = ACQ_NOBEGINRUN;
          return (Status);
       }
@@ -167,7 +169,8 @@ int acq_mt_ini_run_c(int Lun, in2p3_buffer_struct* Buff, int Size,
    if (Status == -1) {   /* Erreur d'ouverture   */
       Status = ACQ_STREVTTMP;
       return (Status);
-   } else Lun_tempo = Status; /* Ouverture correcte du fichier. */
+   }
+   else Lun_tempo = Status;   /* Ouverture correcte du fichier. */
    /* On va maintenant lire tout les blocs " COMMENT"    */
    Decompte = Nb_struct_bloc;
    while (Decompte) {
@@ -190,7 +193,8 @@ int acq_mt_ini_run_c(int Lun, in2p3_buffer_struct* Buff, int Size,
          Status = ACQ_BADEVTSTRUCT;  /* Structure illisible.*/
          libere_fichier(Lun_tempo);
          return (Status);
-      } else Valeur = atoi(Header);
+      }
+      else Valeur = atoi(Header);
       /* On va maintenant ecrire les 'Valeur' caracteres qui suivent
        * dans le fichier temporaire.            */
       Depart = 4;
@@ -290,7 +294,8 @@ int get_next_event(in2p3_buffer_struct* Buff, int Size,
             Status = ACQ_OK;
             *NumeroEvent = Event[1];
          }
-      } else {
+      }
+      else {
          Status = ACQ_ENDOFBUFFER;
          *NumeroEvent = -1;
       }
