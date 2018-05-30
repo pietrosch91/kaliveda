@@ -1,0 +1,36 @@
+<map id="kaliveda.doxygen/KVMultiDet/calibration/KVPulseHeightDefect.h" name="kaliveda.doxygen/KVMultiDet/calibration/KVPulseHeightDefect.h">
+<area shape="rect" id="node2" href="$KVSilicon_8h.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSilicon.h" alt="" coords="1890,117,2065,158"/>
+<area shape="rect" id="node13" href="$KVSiB_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSiB.cpp" alt="" coords="342,325,517,366"/>
+<area shape="rect" id="node35" href="$KVPulseHeightDefect_8cpp.html" title="kaliveda.doxygen/KVMulti\lDet/calibration/KVPulseHeight\lDefect.cpp" alt="" coords="2089,109,2288,165"/>
+<area shape="rect" id="node3" href="$KVINDRADstToRootTransfert_8cpp.html" title="kaliveda.doxygen/KVIndra\l/analysis/KVINDRADstToRootTransfert.cpp" alt="" coords="3668,221,3948,262"/>
+<area shape="rect" id="node4" href="$KVINDRAUpDater_8cpp.html" title="kaliveda.doxygen/KVIndra\l/db/KVINDRAUpDater.cpp" alt="" coords="30,221,208,262"/>
+<area shape="rect" id="node5" href="$KVINDRA_8cpp.html" title="kaliveda.doxygen/KVIndra\l/exp_events/KVINDRA.cpp" alt="" coords="233,221,416,262"/>
+<area shape="rect" id="node6" href="$KVINDRAReconEvent_8cpp.html" title="kaliveda.doxygen/KVIndra\l/exp_events/KVINDRAReconEvent.cpp" alt="" coords="440,221,694,262"/>
+<area shape="rect" id="node7" href="$KVINDRAReconNuc_8cpp.html" title="kaliveda.doxygen/KVIndra\l/exp_events/KVINDRAReconNuc.cpp" alt="" coords="719,221,964,262"/>
+<area shape="rect" id="node8" href="$KVChannelEnergyBrho_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVChannelEnergyBrho.cpp" alt="" coords="988,221,1231,262"/>
+<area shape="rect" id="node9" href="$KVSi75__e494s_8h.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSi75_e494s.h" alt="" coords="3972,221,4154,262"/>
+<area shape="rect" id="node11" href="$KVSiB_8h.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSiB.h" alt="" coords="1256,221,1430,262"/>
+<area shape="rect" id="node15" href="$KVSilicon_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSilicon.cpp" alt="" coords="1454,221,1629,262"/>
+<area shape="rect" id="node16" href="$KVSilicon__e475s_8h.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSilicon_e475s.h" alt="" coords="1654,221,1848,262"/>
+<area shape="rect" id="node20" href="$KVIDGChIoSi_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDGChIoSi.cpp" alt="" coords="1872,221,2083,262"/>
+<area shape="rect" id="node21" href="$KVIDSi150CsI__camp5_8h.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSi150CsI\l_camp5.h" alt="" coords="2107,213,2296,269"/>
+<area shape="rect" id="node23" href="$KVIDSiCorrCsI_8h.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCorrCsI.h" alt="" coords="2321,221,2525,262"/>
+<area shape="rect" id="node25" href="$KVIDSiCsI5_8h.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCsI5.h" alt="" coords="2550,221,2736,262"/>
+<area shape="rect" id="node27" href="$KVIDSiCsI__e613_8h.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCsI_e613.h" alt="" coords="2761,221,2976,262"/>
+<area shape="rect" id="node29" href="$KVIVUpDater_8cpp.html" title="kaliveda.doxygen/VAMOS\l/db/KVIVUpDater.cpp" alt="" coords="3000,221,3174,262"/>
+<area shape="rect" id="node30" href="$KVFocalPlanVamos_8cpp.html" title="kaliveda.doxygen/VAMOS\l/geometry/KVFocalPlanVamos.cpp" alt="" coords="3199,221,3426,262"/>
+<area shape="rect" id="node31" href="$KVSiliconVamos_8h.html" title="kaliveda.doxygen/VAMOS\l/geometry/KVSiliconVamos.h" alt="" coords="3450,221,3644,262"/>
+<area shape="rect" id="node10" href="$KVSi75__e494s_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSi75_e494s.cpp" alt="" coords="3966,325,4160,366"/>
+<area shape="rect" id="node12" href="$KVINDRAFNL_8cpp.html" title="kaliveda.doxygen/KVIndra\l/exp_events/KVINDRAFNL.cpp" alt="" coords="1198,325,1406,366"/>
+<area shape="rect" id="node14" href="$KVTelBlocking_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVTelBlocking.cpp" alt="" coords="979,325,1174,366"/>
+<area shape="rect" id="node17" href="$KVINDRAUpDater__e475s_8cpp.html" title="kaliveda.doxygen/KVIndra\l/db/KVINDRAUpDater_e475s.cpp" alt="" coords="1862,325,2083,366"/>
+<area shape="rect" id="node18" href="$KVSilicon__e475s_8cpp.html" title="kaliveda.doxygen/KVIndra\l/geometry/KVSilicon_e475s.cpp" alt="" coords="1430,325,1638,366"/>
+<area shape="rect" id="node19" href="$KVIDCsI__e475s_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDCsI\l_e475s.cpp" alt="" coords="1662,317,1837,373"/>
+<area shape="rect" id="node22" href="$KVIDSi150CsI__camp5_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSi150CsI\l_camp5.cpp" alt="" coords="2107,317,2296,373"/>
+<area shape="rect" id="node24" href="$KVIDSiCorrCsI_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCorrCsI.cpp" alt="" coords="2320,325,2539,366"/>
+<area shape="rect" id="node26" href="$KVIDSiCsI5_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCsI5.cpp" alt="" coords="2563,325,2763,366"/>
+<area shape="rect" id="node28" href="$KVIDSiCsI__e613_8cpp.html" title="kaliveda.doxygen/KVIndra\l/identification/KVIDSiCsI\l_e613.cpp" alt="" coords="2788,317,2962,373"/>
+<area shape="rect" id="node32" href="$KVSiliconVamos_8cpp.html" title="kaliveda.doxygen/VAMOS\l/geometry/KVSiliconVamos.cpp" alt="" coords="3562,325,3769,366"/>
+<area shape="rect" id="node33" href="$KVIDSiCsIVamos_8h.html" title="kaliveda.doxygen/VAMOS\l/identification/KVIDSiCsIVamos.h" alt="" coords="3318,325,3538,366"/>
+<area shape="rect" id="node34" href="$KVIDSiCsIVamos_8cpp.html" title="kaliveda.doxygen/VAMOS\l/identification/KVIDSiCsIVamos.cpp" alt="" coords="3311,421,3546,463"/>
+</map>

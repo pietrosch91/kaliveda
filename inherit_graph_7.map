@@ -1,0 +1,315 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classKVIDSubCodeManager.html" title="KVIDSubCodeManager" alt="" coords="439,588,598,615"/>
+<area shape="rect" id="node2" href="$classKVINDRAIDTelescope.html" title="KVINDRAIDTelescope" alt="" coords="692,588,849,615"/>
+<area shape="rect" id="node3" href="$classKVIDChIoCsI.html" title="KVIDChIoCsI" alt="" coords="968,81,1071,108"/>
+<area shape="rect" id="node8" href="$classKVIDChIoSi.html" title="KVIDChIoSi" alt="" coords="972,335,1067,361"/>
+<area shape="rect" id="node18" href="$classKVIDINDRACsI.html" title="KVIDINDRACsI" alt="" coords="960,512,1079,539"/>
+<area shape="rect" id="node20" href="$classKVIDPhoswich.html" title="KVIDPhoswich" alt="" coords="964,563,1075,589"/>
+<area shape="rect" id="node21" href="$classKVIDSi75SiLi.html" title="KVIDSi75SiLi" alt="" coords="968,613,1071,640"/>
+<area shape="rect" id="node24" href="$classKVIDSiCsI.html" title="KVIDSiCsI" alt="" coords="976,791,1063,817"/>
+<area shape="rect" id="node34" href="$classKVVAMOSIDTelescope.html" title="A deltaE&#45;E identification telescope in VAMOS. " alt="" coords="938,1081,1101,1108"/>
+<area shape="rect" id="node4" href="$classKVIDChIoCorrCsI.html" title="KVIDChIoCorrCsI" alt="" coords="1198,5,1326,32"/>
+<area shape="rect" id="node6" href="$classKVIDChIoCsI__camp5.html" title="ChIo&#45;CsI id with grids for INDRA_camp5. " alt="" coords="1187,56,1337,83"/>
+<area shape="rect" id="node7" href="$classKVIDChIoCsI__e475s.html" title="derivation of KVIDChIoCsI class for E475s experiment " alt="" coords="1189,107,1335,133"/>
+<area shape="rect" id="node5" href="$classKVIDChIoCorrCsI__e494s.html" title="KVIDChIoCorrCsI_e494s" alt="" coords="1409,5,1580,32"/>
+<area shape="rect" id="node9" href="$classKVIDBlocking.html" title="KVIDBlocking" alt="" coords="1210,157,1314,184"/>
+<area shape="rect" id="node10" href="$classKVIDChIoSi5.html" title="INDRA 5th campaign ChIo&#45;Si identification. " alt="" coords="1211,208,1313,235"/>
+<area shape="rect" id="node11" href="$classKVIDChIoSi75.html" title="KVIDChIoSi75" alt="" coords="1208,259,1316,285"/>
+<area shape="rect" id="node14" href="$classKVIDChIoSi__e475s.html" title="derivation of KVIDChIoSi class for E475s experiment " alt="" coords="1194,309,1330,336"/>
+<area shape="rect" id="node15" href="$classKVIDChIoSi__e613.html" title="modification of the sequence of identification for e613 " alt="" coords="1197,360,1327,387"/>
+<area shape="rect" id="node16" href="$classKVIDChIoSiCorr.html" title="INDRA E503/E494s ChIo&#45;Si identification. " alt="" coords="1203,411,1321,437"/>
+<area shape="rect" id="node17" href="$classKVIDChIoSiLi.html" title="Identification in ChIo&#45;SiLi matrices of INDRA. " alt="" coords="1210,461,1314,488"/>
+<area shape="rect" id="node12" href="$classKVIDChIoSi75__camp5.html" title="ChIo&#45;Si(75) identification for INDRA 5th campaign data. " alt="" coords="1417,233,1572,260"/>
+<area shape="rect" id="node13" href="$classKVIDChIoSi75__e494s.html" title="E503/E494S experiment INDRA identification using ChIo&#45;Si75 matrices. " alt="" coords="1419,284,1570,311"/>
+<area shape="rect" id="node19" href="$classKVIDCsI__e475s.html" title="derivation of KVIDCsI class for E475s experiment " alt="" coords="1203,512,1321,539"/>
+<area shape="rect" id="node22" href="$classKVIDSi75SiLi__camp5.html" title="Identification in Si75&#45;SiLi telescopes for INDRA_camp5 dataset. " alt="" coords="1188,563,1336,589"/>
+<area shape="rect" id="node23" href="$classKVIDSi75SiLi__e494s.html" title="E503/E494S experiment INDRA identification using Si75&#45;SiLi matrices. " alt="" coords="1190,613,1334,640"/>
+<area shape="rect" id="node25" href="$classKVIDSi150CsI__camp5.html" title="Si(150)&#45;CsI identifications for 5th campaign INDRA data. " alt="" coords="1185,765,1339,792"/>
+<area shape="rect" id="node26" href="$classKVIDSiCorrCsI.html" title="KVIDSiCorrCsI" alt="" coords="1206,664,1318,691"/>
+<area shape="rect" id="node27" href="$classKVIDSiCsI5.html" title="KVIDSiCsI5" alt="" coords="1215,715,1309,741"/>
+<area shape="rect" id="node28" href="$classKVIDSiCsI__e475s.html" title="derivation of KVIDSiCsI class for E475s experiment " alt="" coords="1197,816,1327,843"/>
+<area shape="rect" id="node29" href="$classKVIDSiCsI__e613.html" title="Si&#45;CsI id with grids for INDRA_e613. " alt="" coords="1201,867,1323,893"/>
+<area shape="rect" id="node30" href="$classKVIDSiCsIVamos.html" title="KVIDSiCsIVamos" alt="" coords="1198,917,1326,944"/>
+<area shape="rect" id="node31" href="$classKVIDSiLiCsI.html" title="KVIDSiLiCsI" alt="" coords="1213,968,1311,995"/>
+<area shape="rect" id="node32" href="$classKVIDSiLiCsI__camp5.html" title="SiLi&#45;CsI identification for INDRA_camp5 dataset. " alt="" coords="1423,968,1566,995"/>
+<area shape="rect" id="node33" href="$classKVIDSiLiCsI__e494s.html" title="E503/E494S experiment INDRA identification using SiLi&#45;CsI matrices. " alt="" coords="1425,1019,1564,1045"/>
+<area shape="rect" id="node35" href="$classKVIDHarpeeICSi.html" title="DeltaE&#45;E identification telescope in VAMOS with Harpee&#39;s IC&#45;Si detectors. " alt="" coords="1201,1069,1323,1096"/>
+<area shape="rect" id="node37" href="$classKVIDHarpeeSiCsI.html" title="DeltaE&#45;E identification telescope in VAMOS with Harpee&#39;s Si&#45;CsI detectors. " alt="" coords="1197,1120,1327,1147"/>
+<area shape="rect" id="node39" href="$classKVIDQA.html" title="ID telescope used to identify Q and A with VAMOS. " alt="" coords="1225,1171,1299,1197"/>
+<area shape="rect" id="node36" href="$classKVIDHarpeeICSi__e503.html" title="DeltaE&#45;E identification with Harpee&#39;s IC&#45;Si detectors for e503. " alt="" coords="1416,1069,1573,1096"/>
+<area shape="rect" id="node38" href="$classKVIDHarpeeSiCsI__e503.html" title="KVIDHarpeeSiCsI_e503" alt="" coords="1413,1120,1577,1147"/>
+<area shape="rect" id="node40" href="$classKVPosition.html" title="KVPosition" alt="" coords="475,3483,562,3509"/>
+<area shape="rect" id="node41" href="$classKVASGroup.html" title="Group in axially&#45;symmetric multidetector. " alt="" coords="973,3393,1066,3420"/>
+<area shape="rect" id="node42" href="$classKVDetector.html" title="KVDetector" alt="" coords="725,3545,816,3572"/>
+<area shape="rect" id="node68" href="$classKVRing.html" title="KVRing" alt="" coords="737,3444,804,3471"/>
+<area shape="rect" id="node69" href="$classKVTelescope.html" title="KVTelescope" alt="" coords="721,3647,821,3673"/>
+<area shape="rect" id="node43" href="$classKVFAZIADetector.html" title="Base class for FAZIA detector. " alt="" coords="955,3444,1083,3471"/>
+<area shape="rect" id="node45" href="$classKVINDRADetector.html" title="Detectors of INDRA array. " alt="" coords="953,3495,1086,3521"/>
+<area shape="rect" id="node61" href="$classKVSpectroDetector.html" title="Base class for the description of detectors in spectrometer. " alt="" coords="952,3571,1087,3597"/>
+<area shape="rect" id="node44" href="$classKVFAZIACORDetector.html" title="re&#45;implementation due to special CSI calibration " alt="" coords="1183,3229,1341,3256"/>
+<area shape="rect" id="node46" href="$classKVChIo.html" title="KVChIo" alt="" coords="1228,3280,1296,3307"/>
+<area shape="rect" id="node49" href="$classKVCsI.html" title="KVCsI" alt="" coords="1231,3356,1293,3383"/>
+<area shape="rect" id="node52" href="$classKVPhoswich.html" title="KVPhoswich" alt="" coords="1213,3457,1311,3484"/>
+<area shape="rect" id="node53" href="$classKVSilicon.html" title="KVSilicon" alt="" coords="1223,3508,1301,3535"/>
+<area shape="rect" id="node47" href="$classKVBIC.html" title="KVBIC" alt="" coords="1463,3204,1526,3231"/>
+<area shape="rect" id="node48" href="$classKVChIo__e475s.html" title="derivation of KVChIo class for E475s experiment " alt="" coords="1439,3255,1550,3281"/>
+<area shape="rect" id="node50" href="$classKVCsI__e475s.html" title="derivation of KVCsI class for E475s experiment " alt="" coords="1443,3305,1546,3332"/>
+<area shape="rect" id="node51" href="$classKVCsIVamos.html" title="KVCsI for Vamos. " alt="" coords="1443,3356,1546,3383"/>
+<area shape="rect" id="node54" href="$classKVSi75.html" title="KVSi75" alt="" coords="1461,3407,1528,3433"/>
+<area shape="rect" id="node56" href="$classKVSiB.html" title="KVSiB" alt="" coords="1464,3457,1525,3484"/>
+<area shape="rect" id="node57" href="$classKVSiLi.html" title="KVSiLi" alt="" coords="1463,3508,1526,3535"/>
+<area shape="rect" id="node59" href="$classKVSilicon__e475s.html" title="derivation of KVSilicon class for E475s experiment " alt="" coords="1434,3559,1555,3585"/>
+<area shape="rect" id="node60" href="$classKVSiliconVamos.html" title="KVSilicon for Vamos. " alt="" coords="1435,3609,1555,3636"/>
+<area shape="rect" id="node55" href="$classKVSi75__e494s.html" title="Calib Etalons. " alt="" coords="1628,3407,1736,3433"/>
+<area shape="rect" id="node58" href="$classKVSiLi__e494s.html" title="KVSiLi_e494s" alt="" coords="1630,3508,1734,3535"/>
+<area shape="rect" id="node62" href="$classKVVAMOSDetector.html" title="KVVAMOSDetector" alt="" coords="1193,3711,1331,3737"/>
+<area shape="rect" id="node63" href="$classKVDriftChamber.html" title="Drift Chamber, used at the focal plan of VAMOS. " alt="" coords="1435,3660,1554,3687"/>
+<area shape="rect" id="node64" href="$classKVHarpeeCsI.html" title="KVHarpeeCsI" alt="" coords="1443,3711,1546,3737"/>
+<area shape="rect" id="node65" href="$classKVHarpeeIC.html" title="Ionisiation chamber of Harpee, used at the focal plan of VAMOS. " alt="" coords="1447,3761,1543,3788"/>
+<area shape="rect" id="node66" href="$classKVHarpeeSi.html" title="Silicon detectors of Harpee, used at the focal plan of VAMOS. " alt="" coords="1447,3812,1542,3839"/>
+<area shape="rect" id="node67" href="$classKVSeD.html" title="Secondary Electron Detector, used at the focal plan of VAMOS. " alt="" coords="1461,3863,1528,3889"/>
+<area shape="rect" id="node70" href="$classKVINDRATelescope.html" title="A detector telescope in the INDRA array. " alt="" coords="948,3635,1091,3661"/>
+<area shape="rect" id="node71" href="$classKVTelBlocking.html" title="KVTelBlocking" alt="" coords="965,3685,1073,3712"/>
+<area shape="rect" id="node72" href="$classKVTGIDManager.html" title="KVTGIDManager" alt="" coords="709,689,832,716"/>
+<area shape="rect" id="node73" href="$classKVRTGIDManager.html" title="Run&#45;dependant KVTGIDManager. " alt="" coords="953,664,1085,691"/>
+<area shape="rect" id="node75" href="$classKVMFMDataFileReader.html" title="Read MFM format acquisition data. " alt="" coords="690,4167,851,4193"/>
+<area shape="rect" id="node77" href="$classGTDataPar.html" title="GTDataPar" alt="" coords="205,5231,293,5257"/>
+<area shape="rect" id="node78" href="$classinterval.html" title="Hybrid identification grid. " alt="" coords="217,5281,281,5308"/>
+<area shape="rect" id="node79" href="$classinterval__set.html" title="Hybrid identification grid. " alt="" coords="204,5332,293,5359"/>
+<area shape="rect" id="node80" href="$classKVBase.html" title="Base class for KaliVeda framework. " alt="" coords="213,3381,284,3408"/>
+<area shape="rect" id="node289" href="$classKVDroite.html" title="KVDroite" alt="" coords="211,5383,286,5409"/>
+<area shape="rect" id="node290" href="$classKVExcitedState.html" title="KVExcitedState" alt="" coords="191,5433,306,5460"/>
+<area shape="rect" id="node291" href="$classKVGeoNavigator_1_1KVGeoDetectorPath.html" title="KVGeoNavigator::KVGeoDetectorPath" alt="" coords="125,5484,372,5511"/>
+<area shape="rect" id="node292" href="$classKVIntegerList.html" title="Permet de gerer une liste de nombres entiers positifs. " alt="" coords="198,5535,299,5561"/>
+<area shape="rect" id="node295" href="$classKVKinematicalFrame.html" title="Kinematical representation of a particle in a different frame. " alt="" coords="176,5585,321,5612"/>
+<area shape="rect" id="node296" href="$classKVNamedParameter.html" title="A generic parameter with a name and a value. " alt="" coords="177,5636,320,5663"/>
+<area shape="rect" id="node297" href="$classKVNameValueList.html" title="A general&#45;purpose list of parameters (name and associated value) " alt="" coords="184,5687,313,5713"/>
+<area shape="rect" id="node300" href="$classKVNuclDataTable.html" title="ABC for nuclear table. " alt="" coords="185,5737,312,5764"/>
+<area shape="rect" id="node306" href="$classKVPIDIntervalPainter.html" title="toot " alt="" coords="175,5788,322,5815"/>
+<area shape="rect" id="node307" href="$classKVRandomizor.html" title="Test of generic class to perform sample on fonctions. " alt="" coords="193,5839,304,5865"/>
+<area shape="rect" id="node310" href="$classKVSortableDatedFile.html" title="KVSortableDatedFile" alt="" coords="177,5889,321,5916"/>
+<area shape="rect" id="node311" href="$classKVSpiderIdentificator.html" title="Générateur de lignes d&#39;identifications. " alt="" coords="176,5940,321,5967"/>
+<area shape="rect" id="node312" href="$classKVSpiderLine.html" title="KVSpiderLine" alt="" coords="198,5991,299,6017"/>
+<area shape="rect" id="node314" href="$classKVTreeAnalyzer.html" title="KVTreeAnalyzer. " alt="" coords="190,6041,307,6068"/>
+<area shape="rect" id="node315" href="$classNDT_1_1key.html" title="NDT::key" alt="" coords="209,6092,288,6119"/>
+<area shape="rect" id="node81" href="$classBackTrack_1_1GenericModel.html" title="BackTrack::GenericModel" alt="" coords="432,1372,605,1399"/>
+<area shape="rect" id="node83" href="$classBackTrack_1_1GenericModel__Binned.html" title="BackTrack::GenericModel\l_Binned" alt="" coords="432,1441,605,1482"/>
+<area shape="rect" id="node84" href="$classDMSFile__t.html" title="DMSFile_t" alt="" coords="477,1507,561,1533"/>
+<area shape="rect" id="node85" href="$classINDRAGeometryBuilder.html" title="Build INDRA geometry from Huguet CAO infos. " alt="" coords="437,1557,600,1584"/>
+<area shape="rect" id="node86" href="$classKVACQParam.html" title="KVACQParam" alt="" coords="465,1608,572,1635"/>
+<area shape="rect" id="node87" href="$classKVAutoFit.html" title="Manage SemiAutomatic Fits. " alt="" coords="477,1659,560,1685"/>
+<area shape="rect" id="node90" href="$classKVAvailableRunsFile.html" title="KVAvailableRunsFile" alt="" coords="446,1709,591,1736"/>
+<area shape="rect" id="node93" href="$classKVBasicVAMOSFilter.html" title="Basic filter for VAMOS using simple TCuts on delta vs ThetaV matrices. " alt="" coords="443,1760,594,1787"/>
+<area shape="rect" id="node94" href="$classKVBatchJob.html" title="Job handled by batch system. " alt="" coords="471,1811,566,1837"/>
+<area shape="rect" id="node96" href="$classKVBatchSystem.html" title="Base class for interface to a batch job management system. " alt="" coords="459,1861,578,1888"/>
+<area shape="rect" id="node101" href="$classKVBatchSystemGUI.html" title="GUI for batch system jobs. " alt="" coords="447,1912,590,1939"/>
+<area shape="rect" id="node102" href="$classKVCalibrator.html" title="KVCalibrator" alt="" coords="471,1963,567,1989"/>
+<area shape="rect" id="node117" href="$classKVChargeStateDistrib.html" title="Calculate charge state distribution. " alt="" coords="443,2013,594,2040"/>
+<area shape="rect" id="node118" href="$classKVClassMember.html" title="KVClassMember" alt="" coords="458,2064,579,2091"/>
+<area shape="rect" id="node122" href="$classKVClassMonitor.html" title="track potential memory leaks " alt="" coords="460,2115,577,2141"/>
+<area shape="rect" id="node123" href="$classKVColouredBase.html" title="A basic coloured object for coloured list views. " alt="" coords="457,2165,580,2192"/>
+<area shape="rect" id="node124" href="$classKVDataAnalysisTask.html" title="Defines a data analysis task. " alt="" coords="445,2216,592,2243"/>
+<area shape="rect" id="node125" href="$classKVDataBranchHandler.html" title="Handles TTree branches for storing member variables of classes. " alt="" coords="441,2267,596,2293"/>
+<area shape="rect" id="node126" href="$classKVDataPatch.html" title="Correction to be applied to reconstructed calibrated data. " alt="" coords="467,2317,570,2344"/>
+<area shape="rect" id="node129" href="$classKVDataPatchList.html" title="List of corrections to be applied to reconstructed calibrated data. " alt="" coords="457,2368,580,2395"/>
+<area shape="rect" id="node130" href="$classKVDataRepository.html" title="Base class for managing a collection of data files. " alt="" coords="453,2419,584,2445"/>
+<area shape="rect" id="node135" href="$classKVDataSelector.html" title="KVBase. " alt="" coords="461,2469,577,2496"/>
+<area shape="rect" id="node136" href="$classKVDataSet.html" title="Describes a set of experimental data which may be analysed with KaliVeda. " alt="" coords="475,2520,563,2547"/>
+<area shape="rect" id="node137" href="$classKVDBKey.html" title="KVDBKey" alt="" coords="477,2571,560,2597"/>
+<area shape="rect" id="node138" href="$classKVDetectionSimulator.html" title="Simulate detection of particles or events in a detector array. " alt="" coords="443,2621,594,2648"/>
+<area shape="rect" id="node139" href="$classKVDetectorEvent.html" title="KVDetectorEvent" alt="" coords="457,2672,581,2699"/>
+<area shape="rect" id="node140" href="$classKVDigitalFilter.html" title="KVDigitalFilter" alt="" coords="465,2723,572,2749"/>
+<area shape="rect" id="node141" href="$classKVDMS.html" title="Interface to Data Management Systems (SRB, IRODS, etc.) " alt="" coords="483,2773,554,2800"/>
+<area shape="rect" id="node144" href="$classKVedaLossRangeFitter.html" title="Fit a range table using the VEDALOSS functional. " alt="" coords="440,2824,597,2851"/>
+<area shape="rect" id="node145" href="$classKVElasticScatterEvent.html" title="simulate ElasticScatterEvent and answer of a given (multi&#45;)detector : A + B &#45;&gt; A + B ..." alt="" coords="441,2875,597,2901"/>
+<area shape="rect" id="node146" href="$classKVEvent.html" title="Base class for all types of multiparticle event consisting of KVNucleus objects. " alt="" coords="481,2925,556,2952"/>
+<area shape="rect" id="node153" href="$classKVEventReconstructor.html" title="Base class for handling event reconstruction. " alt="" coords="441,2976,597,3003"/>
+<area shape="rect" id="node154" href="$classKVEventViewer.html" title="Draw events in 3D using OpenGL. " alt="" coords="461,3027,576,3053"/>
+<area shape="rect" id="node155" href="$classKVFileReader.html" title="Manage the reading of file. " alt="" coords="467,3077,570,3104"/>
+<area shape="rect" id="node165" href="$classKVFissionKinematics.html" title="Simple calculation of two&#45;body decay. " alt="" coords="445,3128,592,3155"/>
+<area shape="rect" id="node166" href="$classKVGemini.html" title="Interface to gemini++. " alt="" coords="478,3179,559,3205"/>
+<area shape="rect" id="node167" href="$classKVGenPhaseSpace.html" title="Generate momenta for an event using microcanonical phase space sampling. " alt="" coords="449,3229,588,3256"/>
+<area shape="rect" id="node168" href="$classKVGeoDetectorNode.html" title="Information on relative positions of detectors &amp; particle trajectories. " alt="" coords="446,3280,591,3307"/>
+<area shape="rect" id="node169" href="$classKVGeoDNTrajectory.html" title="Path taken by particles through multidetector geometry. " alt="" coords="447,3331,590,3357"/>
+<area shape="rect" id="node171" href="$classKVGeoNavigator.html" title="Propagate particles of an event through a TGeo geometry. " alt="" coords="459,3381,579,3408"/>
+<area shape="rect" id="node175" href="$classKVGeoNodeIterator.html" title="Iterator over geometry nodes/trajectories. " alt="" coords="451,3432,587,3459"/>
+<area shape="rect" id="node176" href="$classKVGeoStrucElement.html" title="A multidetector array geometry structural element. " alt="" coords="447,3584,590,3611"/>
+<area shape="rect" id="node196" href="$classKVGroupReconstructor.html" title="Base class for handling event reconstruction in detector groups. " alt="" coords="440,3635,597,3661"/>
+<area shape="rect" id="node197" href="$classKVHistogram.html" title="Wrapper for histograms and graphical cuts used by KVTreeAnalyzer. " alt="" coords="469,3685,569,3712"/>
+<area shape="rect" id="node198" href="$classKVIdentificationResult.html" title="Full result of one attempted particle identification. " alt="" coords="443,3736,595,3763"/>
+<area shape="rect" id="node199" href="$classKVIDGridEditor.html" title="Editeur de grille d&#39;identification. " alt="" coords="463,3787,575,3813"/>
+<area shape="rect" id="node200" href="$classKVIDGridManager.html" title="KVIDGridManager" alt="" coords="455,3837,583,3864"/>
+<area shape="rect" id="node201" href="$classKVIDTelescope.html" title="KVIDTelescope" alt="" coords="461,1259,576,1285"/>
+<area shape="rect" id="node210" href="$classKVImpactParameter.html" title="Impact parameter analysis tools. " alt="" coords="449,3888,589,3915"/>
+<area shape="rect" id="node211" href="$classKVINDRAPulserDataTree.html" title="Handles TTree with mean pulser data for every run. " alt="" coords="431,3939,606,3965"/>
+<area shape="rect" id="node212" href="$classKVIonRangeTable.html" title="KVIonRangeTable" alt="" coords="455,3989,583,4016"/>
+<area shape="rect" id="node215" href="$classKVIonRangeTableMaterial.html" title="Material for use in energy loss &amp; range calculations. " alt="" coords="431,4040,606,4067"/>
+<area shape="rect" id="node218" href="$classKVMaterial.html" title="KVMaterial" alt="" coords="475,3533,562,3560"/>
+<area shape="rect" id="node220" href="$classKVNuclearChart.html" title="Used to draw nuclear chart. " alt="" coords="460,4091,577,4117"/>
+<area shape="rect" id="node221" href="$classKVParticleCondition.html" title="Implements parser of particle selection criteria. " alt="" coords="449,4141,588,4168"/>
+<area shape="rect" id="node222" href="$classKVRawDataReader.html" title="Pure abstract base class for reading raw data. " alt="" coords="450,4243,587,4269"/>
+<area shape="rect" id="node226" href="$classKVRunFile.html" title="A file containing data for a run. " alt="" coords="476,4293,561,4320"/>
+<area shape="rect" id="node227" href="$classKVRungeKutta.html" title="Adaptive step&#45;size 4th order Runge&#45;Kutta ODE integrator from Numerical Recipes. " alt="" coords="464,4344,573,4371"/>
+<area shape="rect" id="node229" href="$classKVSimDir.html" title="Handle directory containing simulated and/or filtered simulated data. " alt="" coords="479,4395,559,4421"/>
+<area shape="rect" id="node230" href="$classKVSimDirGUI.html" title="GUI for simulated data. " alt="" coords="467,4445,571,4472"/>
+<area shape="rect" id="node231" href="$classKVSimFile.html" title="Handle file containing simulated and/or filtered simulated data. " alt="" coords="477,4496,561,4523"/>
+<area shape="rect" id="node232" href="$classKVTarArchive.html" title="Handles directories stored in .tgz archive files. " alt="" coords="467,4547,570,4573"/>
+<area shape="rect" id="node233" href="$classKVTenseur3.html" title="KVTenseur3" alt="" coords="471,4597,566,4624"/>
+<area shape="rect" id="node234" href="$classKVTestListView.html" title="KVTestListView" alt="" coords="461,4648,577,4675"/>
+<area shape="rect" id="node235" href="$classKVTrieur.html" title="KVTrieur" alt="" coords="482,4699,555,4725"/>
+<area shape="rect" id="node239" href="$classKVValueRange.html" title="KVValueRange\&lt; ValueType \&gt;" alt="" coords="420,4749,617,4776"/>
+<area shape="rect" id="node240" href="$classKVVAMOSDataCorrection.html" title="Base class to use for VAMOS data corrections. " alt="" coords="431,4800,607,4827"/>
+<area shape="rect" id="node242" href="$classKVVAMOSReconTrajectory.html" title="KVVAMOSReconTrajectory" alt="" coords="427,4851,611,4877"/>
+<area shape="rect" id="node243" href="$classKVVAMOSTransferMatrix.html" title="VAMOS&#39;s transformation matrix to map the measured coordinates at the focal plane back to the target..." alt="" coords="433,4901,605,4928"/>
+<area shape="rect" id="node244" href="$classKVVAMOSWeightFinder.html" title="Class used to estimate normalisation weights for VAMOS events. " alt="" coords="436,4952,601,4979"/>
+<area shape="rect" id="node245" href="$classKVVarGlob.html" title="Base class for global variables. " alt="" coords="475,5003,562,5029"/>
+<area shape="rect" id="node279" href="$classKVVirtualIDFitter.html" title="ABC for fitting ID grids with functionals. " alt="" coords="458,5053,579,5080"/>
+<area shape="rect" id="node281" href="$classKVWidget.html" title="KVWidget" alt="" coords="478,5104,559,5131"/>
+<area shape="rect" id="node282" href="$classKVZALineFinder.html" title="(try to) find masse lines from charge lines " alt="" coords="460,5155,577,5181"/>
+<area shape="rect" id="node283" href="$classKVZGOUBIComb.html" title="KVZGOUBIComb" alt="" coords="455,5205,582,5232"/>
+<area shape="rect" id="node284" href="$classKVZGOUBIInverseMatrix.html" title="Class used to reconstruct trajectories in VAMOS. " alt="" coords="433,5256,604,5283"/>
+<area shape="rect" id="node285" href="$classKVZGOUBIInversePosition.html" title="Class used to access ZGOUBI Trajectories in KVZGOUBIInverseMatrix. " alt="" coords="428,5307,609,5333"/>
+<area shape="rect" id="node286" href="$classKVZGOUBIReconstruction.html" title="KVZGOUBIReconstruction" alt="" coords="429,5357,608,5384"/>
+<area shape="rect" id="node287" href="$classKVZGOUBITrajectory.html" title="Class used to access one ZGOUBI Trajectory. " alt="" coords="444,5408,593,5435"/>
+<area shape="rect" id="node288" href="$classMicroStat_1_1MCSampler.html" title="MicroStat::MCSampler" alt="" coords="441,5459,596,5485"/>
+<area shape="rect" id="node82" href="$classBackTrack_1_1GenericPDFModel.html" title="BackTrack::GenericPDFModel" alt="" coords="671,1335,871,1361"/>
+<area shape="rect" id="node88" href="$classKVGaus1D.html" title="Fit gaussien a une dimension. " alt="" coords="727,1385,815,1412"/>
+<area shape="rect" id="node89" href="$classKVGaus2D.html" title="Fit gaussien a deux dimensions. " alt="" coords="727,1436,815,1463"/>
+<area shape="rect" id="node91" href="$classDMSAvailableRunsFile.html" title="Handles list of available runs using DMS. " alt="" coords="692,1487,849,1513"/>
+<area shape="rect" id="node92" href="$classKVRemoteAvailableRunsFile.html" title="KVRemoteAvailableRunsFile" alt="" coords="675,1537,866,1564"/>
+<area shape="rect" id="node95" href="$classKVGEBatchJob.html" title="Job handled by Grid Engine batch system. " alt="" coords="713,1588,828,1615"/>
+<area shape="rect" id="node97" href="$classKV__CCIN2P3__GE.html" title="KV_CCIN2P3_GE" alt="" coords="705,1639,836,1665"/>
+<area shape="rect" id="node98" href="$classKVPROOFLiteBatch.html" title="Batch system interface to PROOFLite. " alt="" coords="699,1689,842,1716"/>
+<area shape="rect" id="node99" href="$classKVRootBatch.html" title="KVRootBatch" alt="" coords="719,1740,822,1767"/>
+<area shape="rect" id="node100" href="$classKVLinuxBatch.html" title="KVLinuxBatch" alt="" coords="967,1740,1072,1767"/>
+<area shape="rect" id="node103" href="$classKVChannelEnergyAlpha.html" title="KVChannelEnergyAlpha" alt="" coords="689,1791,852,1817"/>
+<area shape="rect" id="node104" href="$classKVChannelEnergyBrho.html" title="KVChannelEnergyBrho" alt="" coords="693,1841,849,1868"/>
+<area shape="rect" id="node105" href="$classKVChannelEnergyChIo.html" title="KVChannelEnergyChIo" alt="" coords="692,1892,849,1919"/>
+<area shape="rect" id="node106" href="$classKVChannelVolt.html" title="KVChannelVolt" alt="" coords="715,1943,826,1969"/>
+<area shape="rect" id="node107" href="$classKVFAZIACalibrator.html" title="Basic class for FAZIA calibrators. " alt="" coords="703,1993,838,2020"/>
+<area shape="rect" id="node108" href="$classKVFunctionCal.html" title="analytic function calibration E = f(channel) " alt="" coords="715,2044,826,2071"/>
+<area shape="rect" id="node109" href="$classKVLightEnergyCsI.html" title="KVLightEnergyCsI" alt="" coords="705,2095,836,2121"/>
+<area shape="rect" id="node111" href="$classKVLightEnergyCsIFull.html" title="Light&#45;energy calibration for CsI detectors uding exact expression. " alt="" coords="695,2145,846,2172"/>
+<area shape="rect" id="node112" href="$classKVLinCal.html" title="KVLinCal" alt="" coords="732,2196,809,2223"/>
+<area shape="rect" id="node113" href="$classKVPulseHeightDefect.html" title="Silicon PHD described by Moulton formula. " alt="" coords="695,2247,846,2273"/>
+<area shape="rect" id="node114" href="$classKVRecombination.html" title="Silicon PHD described by electron&#45;hole recombination model. " alt="" coords="707,2297,834,2324"/>
+<area shape="rect" id="node115" href="$classKVSeDPositionCal.html" title="Position calibration for SeD detectors of VAMOS. " alt="" coords="704,2348,837,2375"/>
+<area shape="rect" id="node116" href="$classKVVoltEnergy.html" title="KVVoltEnergy" alt="" coords="719,2399,823,2425"/>
+<area shape="rect" id="node110" href="$classKVLightEnergyCsIVamos.html" title="Specific light&#45;Energy Function for Vamos CsI. " alt="" coords="934,2095,1105,2121"/>
+<area shape="rect" id="node119" href="$classKVClassMethod.html" title="KVClassMethod" alt="" coords="712,2449,829,2476"/>
+<area shape="rect" id="node120" href="$classKVClassConstructor.html" title="KVClassConstructor" alt="" coords="948,2424,1091,2451"/>
+<area shape="rect" id="node121" href="$classKVClassDestructor.html" title="KVClassDestructor" alt="" coords="952,2475,1087,2501"/>
+<area shape="rect" id="node127" href="$classKVDataPatch__CorrectEtalonModuleIDCode.html" title="Patch for correcting bad id&#45;code &amp; calibration for particles stopping in CsI member of etalon modules..." alt="" coords="676,2501,865,2542"/>
+<area shape="rect" id="node128" href="$classKVDataPatch__INDRA__camp5__PHDcorrection.html" title="Patch for correcting Silicon PHD on rings 1&#45;9 [INDRA_camp5 before 1.8.10]. " alt="" coords="671,2566,870,2607"/>
+<area shape="rect" id="node131" href="$classKVDMSDataRepository.html" title="Remote data repository using Data Management Systems. " alt="" coords="690,2632,851,2659"/>
+<area shape="rect" id="node134" href="$classKVRemoteDataRepository.html" title="Class for accessing a collection of data files on a remote machine. " alt="" coords="682,2683,859,2709"/>
+<area shape="rect" id="node132" href="$classIRODSDataRepository.html" title="Remote data repository using IRODS. " alt="" coords="941,2607,1097,2633"/>
+<area shape="rect" id="node133" href="$classSRBDataRepository.html" title="Remote data repository using SRB. " alt="" coords="949,2657,1090,2684"/>
+<area shape="rect" id="node142" href="$classIRODS.html" title="Interface to IRODS commands. " alt="" coords="738,2743,803,2769"/>
+<area shape="rect" id="node143" href="$classSRB.html" title="Interface to SRB commands. " alt="" coords="745,2793,796,2820"/>
+<area shape="rect" id="node147" href="$classKVReconstructedEvent.html" title="KVReconstructedEvent" alt="" coords="691,2875,850,2901"/>
+<area shape="rect" id="node151" href="$classKVSimEvent.html" title="Classe dérivée de KVEvent pour la gestion d&#39;événements issus de simulations. " alt="" coords="722,2925,819,2952"/>
+<area shape="rect" id="node152" href="$classKVTestEvent.html" title="KVTestEvent" alt="" coords="721,2976,821,3003"/>
+<area shape="rect" id="node148" href="$classKVINDRAReconEvent.html" title="KVINDRAReconEvent" alt="" coords="942,2849,1097,2876"/>
+<area shape="rect" id="node150" href="$classKVVAMOSReconEvent.html" title="Event reconstructed from energy losses in VAMOS spectrometer. " alt="" coords="939,2900,1099,2927"/>
+<area shape="rect" id="node149" href="$classKVIVReconEvent.html" title="Event reconstructed from energy losses in INDRA array and VAMOS spectrometer. " alt="" coords="1199,2849,1325,2876"/>
+<area shape="rect" id="node156" href="$classKVSimReader.html" title="Base class to read output files for simulation and create tree using KVSimEvent class. " alt="" coords="718,3077,823,3104"/>
+<area shape="rect" id="node157" href="$classKVSimReader__ELIE.html" title="Read ascii files containing events generated by Elie. " alt="" coords="949,2964,1090,2991"/>
+<area shape="rect" id="node159" href="$classKVSimReader__HIPSE.html" title="Read ascii file for events of the HIPSE code after clusterization. " alt="" coords="943,3015,1096,3041"/>
+<area shape="rect" id="node161" href="$classKVSimReader__MMM.html" title="Read ascii file for events of the MMM code at Freeze Out. " alt="" coords="947,3065,1092,3092"/>
+<area shape="rect" id="node162" href="$classKVSimReader__MMM__asym.html" title="Read ascii file for asymptotic events of the MMM code after deexcitation. " alt="" coords="927,3116,1111,3143"/>
+<area shape="rect" id="node163" href="$classKVSimReader__SMF.html" title="Read ascii file for events of the SMF code after clusterization. " alt="" coords="949,3167,1089,3193"/>
+<area shape="rect" id="node164" href="$classKVSimReader__SMF__asym.html" title="Read ascii file for asymptotic events of the SMF code after SIMON deexcitation. " alt="" coords="930,3217,1109,3244"/>
+<area shape="rect" id="node158" href="$classKVSimReader__ELIE__asym.html" title="Read ELIE events after secondary decay. " alt="" coords="1172,2964,1352,2991"/>
+<area shape="rect" id="node160" href="$classKVSimReader__HIPSE__asym.html" title="Read ascii file for asymptotic events of the HIPSE code after SIMON deexcitation. ..." alt="" coords="1166,3015,1358,3041"/>
+<area shape="rect" id="node170" href="$classKVReconNucTrajectory.html" title="Reconstructed trajectory of nucleus detected by array. " alt="" coords="691,3191,851,3217"/>
+<area shape="rect" id="node172" href="$classKVGeoImport.html" title="Import a ROOT geometry into a KVMultiDetArray object. " alt="" coords="720,3241,821,3268"/>
+<area shape="rect" id="node173" href="$classKVRangeTableGeoNavigator.html" title="Propagate particles through a geometry and calculate their energy losses. " alt="" coords="675,3292,866,3319"/>
+<area shape="rect" id="node174" href="$classKVVAMOSReconGeoNavigator.html" title="Propagate nuclei through the geometry of VAMOS for their reconstruction/calibrate/identification. " alt="" coords="667,3343,874,3369"/>
+<area shape="rect" id="node177" href="$classKVGroup.html" title="KVGroup" alt="" coords="733,3495,808,3521"/>
+<area shape="rect" id="node178" href="$classKVLayer.html" title="KVLayer" alt="" coords="735,3697,807,3724"/>
+<area shape="rect" id="node179" href="$classKVMultiDetArray.html" title="Multidetector array base class. " alt="" coords="711,3888,831,3915"/>
+<area shape="rect" id="node180" href="$classKVASMultiDetArray.html" title="Axially&#45;Symmetric multidetector array base class. " alt="" coords="950,3787,1089,3813"/>
+<area shape="rect" id="node183" href="$classKVExpSetUp.html" title="Describe an experimental set&#45;up made of several KVMultiDetArray objects. " alt="" coords="969,3863,1069,3889"/>
+<area shape="rect" id="node184" href="$classKVFAZIA.html" title="Base class for description of the FAZIA set up. " alt="" coords="980,3913,1059,3940"/>
+<area shape="rect" id="node193" href="$classKVFocalPlanVamos.html" title="Si and CsI of vamos at FP. " alt="" coords="950,3964,1089,3991"/>
+<area shape="rect" id="node194" href="$classKVINDRA__VAMOS.html" title="KVINDRA_VAMOS" alt="" coords="950,4015,1089,4041"/>
+<area shape="rect" id="node195" href="$classKVVAMOS.html" title="KVVAMOS" alt="" coords="975,4065,1063,4092"/>
+<area shape="rect" id="node181" href="$classKVINDRA.html" title="INDRA multidetector array, 1st campaign configuration. " alt="" coords="1221,3761,1303,3788"/>
+<area shape="rect" id="node182" href="$classKVINDRAe503.html" title="INDRA multidetector array, configuration for experiments E503 &amp; E494S. " alt="" coords="1439,3913,1550,3940"/>
+<area shape="rect" id="node185" href="$classKVFAZIA__2B.html" title="FAZIA set&#45;up with two blocks used in LNS 2014 commissioning. " alt="" coords="1211,3812,1313,3839"/>
+<area shape="rect" id="node186" href="$classKVFAZIACOR.html" title="Description of the FAZIA set up. " alt="" coords="1208,3863,1316,3889"/>
+<area shape="rect" id="node187" href="$classKVFAZIALNS17.html" title="Description of the FAZIA set up. " alt="" coords="1203,3913,1321,3940"/>
+<area shape="rect" id="node188" href="$classKVFAZIALNS2016.html" title="Description of the FAZIA set up. " alt="" coords="1196,3964,1328,3991"/>
+<area shape="rect" id="node189" href="$classKVFAZIANFS.html" title="configuration of FAZIA telescopes for NFS experiments " alt="" coords="1209,4015,1315,4041"/>
+<area shape="rect" id="node190" href="$classKVFAZIASYM.html" title="Description of the FAZIA set up. " alt="" coords="1209,4065,1315,4092"/>
+<area shape="rect" id="node191" href="$classKVFAZIETO.html" title="description of the FAZIA&#45;12B demonstrator " alt="" coords="1214,4116,1310,4143"/>
+<area shape="rect" id="node192" href="$classKVISOFAZIA.html" title="FAZIA set&#45;up for ISOFAZIA experiment June 2015 &#45; 4 blocks. " alt="" coords="1211,4167,1313,4193"/>
+<area shape="rect" id="node202" href="$classKVFAZIAIDTelescope.html" title="Identification for FAZIA array. " alt="" coords="695,1233,847,1260"/>
+<area shape="rect" id="node209" href="$classKVIDCsI.html" title="A generic 1&#45;member CsI fast&#45;slow identification telescope. " alt="" coords="733,1284,808,1311"/>
+<area shape="rect" id="node203" href="$classKVFAZIAIDCsI.html" title="id telescope to manage FAZIA CsI identification " alt="" coords="963,1157,1076,1184"/>
+<area shape="rect" id="node204" href="$classKVFAZIAIDSiCsI.html" title="id telescope to manage FAZIA Si&#45;CsI identification " alt="" coords="957,1208,1082,1235"/>
+<area shape="rect" id="node206" href="$classKVFAZIAIDSiPSA.html" title="PSA identification in first silicon of FAZIA telescopes. " alt="" coords="954,1259,1085,1285"/>
+<area shape="rect" id="node207" href="$classKVFAZIAIDSiSi.html" title="identification telescope for FAZIA Si&#45;Si idcards " alt="" coords="961,1309,1077,1336"/>
+<area shape="rect" id="node208" href="$classKVFAZIAIDSiSi__FAZIACOR.html" title="identification telescope for FAZIA Si&#45;Si idcards " alt="" coords="924,1360,1115,1387"/>
+<area shape="rect" id="node205" href="$classKVFAZIAIDSiCsI__FAZIASYM.html" title="identification telescope for FAZIASYM experiment " alt="" coords="1163,1221,1361,1248"/>
+<area shape="rect" id="node213" href="$classKVedaLoss.html" title="C++ implementation of VEDALOSS stopping power calculation. " alt="" coords="726,3939,815,3965"/>
+<area shape="rect" id="node214" href="$classKVRangeYanez.html" title="Interface to Range dE/dx and range library (Ricardo Yanez) " alt="" coords="713,3989,828,4016"/>
+<area shape="rect" id="node216" href="$classKVedaLossMaterial.html" title="Description of material properties used by KVedaLoss range calculation. " alt="" coords="703,4040,838,4067"/>
+<area shape="rect" id="node217" href="$classKVRangeYanezMaterial.html" title="Description of absorber for the Range dE/dx and range library (Ricardo Yanez) " alt="" coords="690,4091,851,4117"/>
+<area shape="rect" id="node219" href="$classKVTarget.html" title="Simulation of passage of particles through a target. " alt="" coords="732,3596,809,3623"/>
+<area shape="rect" id="node223" href="$classKVGANILDataReader.html" title="Reads GANIL acquisition files. " alt="" coords="695,4217,846,4244"/>
+<area shape="rect" id="node224" href="$classKVGRUNetClientGanilReader.html" title="Read GANIL acquisition events over network connection. " alt="" coords="672,4268,869,4295"/>
+<area shape="rect" id="node225" href="$classKVGRUTapeGanilReader.html" title="Read GANIL acquisition events from file. " alt="" coords="685,4319,856,4345"/>
+<area shape="rect" id="node228" href="$classKVCoulombPropagator.html" title="Perform Coulomb propagation of events. " alt="" coords="693,4369,848,4396"/>
+<area shape="rect" id="node236" href="$classKVTrieurBloc.html" title="KVTrieurBloc" alt="" coords="721,4623,820,4649"/>
+<area shape="rect" id="node237" href="$classKVTrieurLin.html" title="KVTrieurLin" alt="" coords="725,4673,816,4700"/>
+<area shape="rect" id="node238" href="$classKVTrieurTranche.html" title="KVTrieurTranche" alt="" coords="711,4724,831,4751"/>
+<area shape="rect" id="node241" href="$classKVVAMOSDataCorrection__e503.html" title="KVVAMOSDataCorrection_e503" alt="" coords="665,4775,876,4801"/>
+<area shape="rect" id="node246" href="$classKVCaloBase.html" title="Bilan énergétique d un ensemble de noyaux. " alt="" coords="722,4825,819,4852"/>
+<area shape="rect" id="node248" href="$classKVFlowTensor.html" title="Kinetic energy flow tensor of Gyulassy et al. " alt="" coords="717,4876,825,4903"/>
+<area shape="rect" id="node249" href="$classKVPtot.html" title="KVPtot" alt="" coords="739,4927,803,4953"/>
+<area shape="rect" id="node251" href="$classKVQuadMoment.html" title="Quadrupole moment tensor of particle momenta. " alt="" coords="711,4977,830,5004"/>
+<area shape="rect" id="node252" href="$classKVRiso.html" title="KVRiso" alt="" coords="737,5028,804,5055"/>
+<area shape="rect" id="node254" href="$classKVSource.html" title="KVSource" alt="" coords="730,5079,811,5105"/>
+<area shape="rect" id="node255" href="$classKVTensP.html" title="KVTensP" alt="" coords="731,5129,810,5156"/>
+<area shape="rect" id="node259" href="$classKVVarGlob1.html" title="KVVarGlob1" alt="" coords="723,5256,818,5283"/>
+<area shape="rect" id="node278" href="$classKVZmax.html" title="KVZmax" alt="" coords="734,5307,807,5333"/>
+<area shape="rect" id="node247" href="$classKVCalorimetry.html" title="Bilan énergétique d un ensemble de noyaux. " alt="" coords="966,4825,1073,4852"/>
+<area shape="rect" id="node250" href="$classKVZVtot.html" title="KVZVtot" alt="" coords="983,4927,1055,4953"/>
+<area shape="rect" id="node253" href="$classKVRisoAv.html" title="KVRisoAv" alt="" coords="978,5003,1061,5029"/>
+<area shape="rect" id="node256" href="$classKVTensE.html" title="Kinetic energy tensor. " alt="" coords="980,5053,1059,5080"/>
+<area shape="rect" id="node257" href="$classKVTensPCM.html" title="KVTensPCM" alt="" coords="970,5104,1069,5131"/>
+<area shape="rect" id="node258" href="$classKVRotatedTensor.html" title="Tensor analysis using multiple rotations of events around beam axis. " alt="" coords="1199,5104,1325,5131"/>
+<area shape="rect" id="node260" href="$classKVEkin.html" title="KVEkin" alt="" coords="986,5155,1053,5181"/>
+<area shape="rect" id="node261" href="$classKVEtrans.html" title="KVEtrans" alt="" coords="980,5205,1059,5232"/>
+<area shape="rect" id="node263" href="$classKVFoxH2.html" title="Event shape global variable : second Fox&#45;Wolfram moment, H(2) " alt="" coords="980,5256,1059,5283"/>
+<area shape="rect" id="node264" href="$classKVMultAv.html" title="KVMultAv" alt="" coords="979,5307,1060,5333"/>
+<area shape="rect" id="node265" href="$classKVMultLeg.html" title="KVMultLeg" alt="" coords="976,5357,1063,5384"/>
+<area shape="rect" id="node267" href="$classKVVarGlobMean.html" title="KVVarGlobMean" alt="" coords="960,5408,1079,5435"/>
+<area shape="rect" id="node272" href="$classKVZbound.html" title="KVZbound" alt="" coords="978,5509,1061,5536"/>
+<area shape="rect" id="node276" href="$classKVZtot.html" title="KVZtot" alt="" coords="988,5585,1051,5612"/>
+<area shape="rect" id="node262" href="$classKVEtransLCP.html" title="KVEtransLCP" alt="" coords="1210,5205,1314,5232"/>
+<area shape="rect" id="node266" href="$classKVMultLegAv.html" title="KVMultLegAv" alt="" coords="1211,5256,1313,5283"/>
+<area shape="rect" id="node268" href="$classKVRelativeVelocity.html" title="calculate for a given group of particles the mean relative velocity " alt="" coords="1195,5307,1329,5333"/>
+<area shape="rect" id="node269" href="$classKVVGSum.html" title="KVVGSum" alt="" coords="1219,5357,1305,5384"/>
+<area shape="rect" id="node270" href="$classKVZBoundMean.html" title="Global variable returning the mean value and the standard deviation of the charge. " alt="" coords="1203,5408,1321,5435"/>
+<area shape="rect" id="node271" href="$classKVZmean.html" title="KVZmean" alt="" coords="1222,5459,1302,5485"/>
+<area shape="rect" id="node273" href="$classKVMultIMF.html" title="KVMultIMF" alt="" coords="1218,5509,1306,5536"/>
+<area shape="rect" id="node275" href="$classKVZboundAv.html" title="KVZboundAv" alt="" coords="1213,5560,1311,5587"/>
+<area shape="rect" id="node274" href="$classKVMultIMFAv.html" title="KVMultIMFAv" alt="" coords="1443,5509,1547,5536"/>
+<area shape="rect" id="node277" href="$classKVZtotAv.html" title="KVZtotAv" alt="" coords="1223,5611,1301,5637"/>
+<area shape="rect" id="node280" href="$classKVTGIDFitter.html" title="Fit of E&#45;DE functional. " alt="" coords="719,5357,822,5384"/>
+<area shape="rect" id="node293" href="$classKVPartition.html" title="Classe dérivée de KVIntegerList. " alt="" coords="475,5509,563,5536"/>
+<area shape="rect" id="node294" href="$classKVPartitionFromLeaf.html" title="Derived form KVPartition to optimize filling from a tree. " alt="" coords="699,5509,842,5536"/>
+<area shape="rect" id="node298" href="$classKVPSAResult.html" title="class to store PSA parameters and results " alt="" coords="466,5560,571,5587"/>
+<area shape="rect" id="node299" href="$classKVValues.html" title="Handle Operation on variable. " alt="" coords="479,5611,559,5637"/>
+<area shape="rect" id="node301" href="$classKVAbundanceTable.html" title="Store available values of the relative abundance. " alt="" coords="450,5661,587,5688"/>
+<area shape="rect" id="node302" href="$classKVChargeRadiusTable.html" title="//Store charge radius information for nuclei " alt="" coords="441,5712,596,5739"/>
+<area shape="rect" id="node303" href="$classKVElementDensityTable.html" title="Table of atomic elements. " alt="" coords="436,5763,601,5789"/>
+<area shape="rect" id="node304" href="$classKVLifeTimeTable.html" title="Store life time information of nuclei. " alt="" coords="457,5813,580,5840"/>
+<area shape="rect" id="node305" href="$classKVMassExcessTable.html" title="manage mass excess data for nuclei " alt="" coords="445,5864,593,5891"/>
+<area shape="rect" id="node308" href="$classKVRandomizorCor.html" title="KVRandomizor. " alt="" coords="453,5915,584,5941"/>
+<area shape="rect" id="node309" href="$classKVRandomizorInd.html" title="KVRandomizor. " alt="" coords="455,5965,583,5992"/>
+<area shape="rect" id="node313" href="$classKVSpiderLineSiCsI.html" title="KVSpiderLine specialized for PSA matrix. " alt="" coords="451,6016,586,6043"/>
+</map>

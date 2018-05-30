@@ -1,0 +1,7 @@
+<map id="KVRawDataReader" name="KVRawDataReader">
+<area shape="rect" id="node4" href="$classKVGANILDataReader.html" title="Reads GANIL acquisition files. " alt="" coords="453,5,603,32"/>
+<area shape="rect" id="node5" href="$classKVGRUNetClientGanilReader.html" title="Read GANIL acquisition events over network connection. " alt="" coords="429,56,627,83"/>
+<area shape="rect" id="node6" href="$classKVGRUTapeGanilReader.html" title="Read GANIL acquisition events from file. " alt="" coords="443,107,613,133"/>
+<area shape="rect" id="node7" href="$classKVMFMDataFileReader.html" title="Read MFM format acquisition data. " alt="" coords="447,157,609,184"/>
+<area shape="rect" id="node2" href="$classKVBase.html" title="Base class for KaliVeda framework. " alt="" coords="125,81,196,108"/>
+</map>
