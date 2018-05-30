@@ -87,8 +87,8 @@ branch in 'sim_tree'. Then we can retrieve the parent nucleus responsible for pr
 a particular nucleus in 'recev' like so:
 
     sim_tree.GetEntry( recev.GetIntValue("SIMEVENT_TREE_ENTRY" ) );
-    // parent nucleus of 15th nucleus in filtered event 'recev'
-    KVSimNucleus* parent_nuc = (KVSimNucleus*)simev->GetParticle( recev.GetNucleus(15)->GetIntValue("GEMINI_PARENT_INDEX") );
+    KVSimNucleus* parent_nuc = (KVSimNucleus*)simev->GetParticle( recev.GetNucleus(15)->GetIntValue("GEMINI_PARENT_INDEX") );    // parent nucleus of 15th nucleus in filtered event 'recev'
+
 
 */
 ////////////////////////////////////////////////////////////////////////////////
