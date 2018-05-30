@@ -674,7 +674,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
    // iterate through list of particles
    KVNucleus* part, *_part;
-   KVNameValueList* det_stat = new KVNameValueList();
+   KVNameValueList det_stat;
    KVNameValueList* nvl = 0;
    KVNameValueList un;
 
@@ -690,13 +690,13 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       if (strcmp(detection_frame, "")) _part = (KVNucleus*)part->GetFrame(detection_frame);
       else _part = (KVNucleus*)part;
       _part->SetE0();
-      det_stat->Clear();
+      det_stat.Clear();
       Double_t eLostInTarget = 0;
       KVDetector* last_det = 0;
 
       if (part->GetZ() && !fNavigator->CheckIonForRangeTable(part->GetZ(), part->GetA())) {
          // ignore charged particles which range table cannot handle
-         det_stat->SetValue("UNDETECTED", Form("Z=%d", part->GetZ()));
+         det_stat.SetValue("UNDETECTED", Form("Z=%d", part->GetZ()));
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("SUPERHEAVY");
@@ -704,13 +704,13 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       else if (!fNavigator->IsTracking() && (part->GetZ() == 0)) {
          // when tracking is activated, we follow neutron trajectories
          // if not, we don't even bother trying
-         det_stat->SetValue("UNDETECTED", "NEUTRON");
+         det_stat.SetValue("UNDETECTED", "NEUTRON");
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NEUTRON");
       }
       else if (_part->GetKE() < 1.e-3) {
-         det_stat->SetValue("UNDETECTED", "NO ENERGY");
+         det_stat.SetValue("UNDETECTED", "NO ENERGY");
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NO ENERGY");
@@ -725,7 +725,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
             if (fFilterType != kFilterType_Geo) fTarget->DetectParticle(_part);
             eLostInTarget = ebef - _part->GetKE();
             if (_part->GetKE() < 1.e-3) {
-               det_stat->SetValue("UNDETECTED", "STOPPED IN TARGET");
+               det_stat.SetValue("UNDETECTED", "STOPPED IN TARGET");
 
                part->AddGroup("UNDETECTED");
                part->AddGroup("STOPPED IN TARGET");
@@ -741,13 +741,13 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
             if (!(nvl = DetectParticle(_part))) {
                if (part->GetZ() == 0) {
                   // tracking
-                  det_stat->SetValue("UNDETECTED", "NEUTRON");
+                  det_stat.SetValue("UNDETECTED", "NEUTRON");
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NEUTRON");
                }
                else {
-                  det_stat->SetValue("UNDETECTED", "NO HIT");
+                  det_stat.SetValue("UNDETECTED", "NO HIT");
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NO HIT");
@@ -758,7 +758,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
                if (part->GetZ() == 0) {
                   // tracking
-                  det_stat->SetValue("UNDETECTED", "NEUTRON");
+                  det_stat.SetValue("UNDETECTED", "NEUTRON");
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NEUTRON");
@@ -767,7 +767,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("DEAD ZONE");
 
-                  det_stat->SetValue("UNDETECTED", "DEAD ZONE");
+                  det_stat.SetValue("UNDETECTED", "DEAD ZONE");
                }
                delete nvl;
                nvl = 0;
@@ -827,7 +827,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                         }
                         dd->GetHits()->Remove(_part);
                      }
-                  det_stat->SetValue("UNDETECTED", "GEOMETRY INCOHERENCY");
+                  det_stat.SetValue("UNDETECTED", "GEOMETRY INCOHERENCY");
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("GEOMETRY INCOHERENCY");
@@ -839,7 +839,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   lidtel = last_det->GetTelescopesForIdentification();
                   if (lidtel->GetEntries() == 0 && last_det->GetEnergy() <= 0) {
                      //Arret dans un absorbeur
-                     det_stat->SetValue("UNDETECTED", "THRESHOLD");
+                     det_stat.SetValue("UNDETECTED", "THRESHOLD");
 
                      part->AddGroup("UNDETECTED");
                      part->AddGroup("THRESHOLD");
@@ -851,7 +851,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   }
                   else {
                      part->AddGroup("DETECTED");
-                     det_stat->SetValue("DETECTED", "OK");
+                     det_stat.SetValue("DETECTED", "OK");
                      fHitGroups->AddGroup(last_det->GetGroup());
 
                      if (lidtel->GetEntries() > 0) {
@@ -860,7 +860,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                      else if (last_det->GetEnergy() > 0) {
                         //Il n'y a pas de possibilite d'identification
                         //arret dans le premier etage de detection
-                        det_stat->SetValue("DETECTED", "INCOMPLETE");
+                        det_stat.SetValue("DETECTED", "INCOMPLETE");
                         part->AddGroup("INCOMPLETE");
                      }
                      else {
@@ -885,9 +885,9 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                            // avec le dernier par laquelle elle est passee
                            // (ceci peut etre du a un pb de definition de la geometrie)
                            part->RemoveGroup("DETECTED");
-                           det_stat->RemoveParameter("DETECTED");
+                           det_stat.RemoveParameter("DETECTED");
 
-                           det_stat->SetValue("UNDETECTED", "GEOMETRY INCOHERENCY");
+                           det_stat.SetValue("UNDETECTED", "GEOMETRY INCOHERENCY");
                            part->AddGroup("UNDETECTED");
                            part->AddGroup("GEOMETRY INCOHERENCY");
                            //Warning("DetectEvent","Fuite ......");
@@ -899,7 +899,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                            // tout l'appareillage de detection
                            //Warning("DetectEvent","Punch Through ......");
                            part->AddGroup("PUNCH THROUGH");
-                           det_stat->SetValue("DETECTED", "PUNCH THROUGH");
+                           det_stat.SetValue("DETECTED", "PUNCH THROUGH");
                            //Warning("DetectEvent","Punch Through ......");
                         }
                      } //fin du cas ou la particule avait encore de l energie apres avoir traverser l ensemble du detecteur
@@ -907,7 +907,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                } //fin du cas ou la trajectoire est coherente avec la geometrie
             } //fin du cas ou la particule a touche un detecteur au sens large
          } //fin de la condition (FilterType == kFilterType_Geo) || _part->GetKE()>1.e-3
-      } // Fin du cas ou une particule avec une �nergie cin�tique est sortie d'une �ventuelle cible
+      } // end case where particle with a non-zero KE left the target
 
       //On enregistre l eventuelle perte dans la cible
       if (fTarget)
@@ -937,8 +937,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       }
       //On enregistre le statut de detection
       //dans l objet KVNucleus
-      for (Int_t ii = 0; ii < det_stat->GetNpar(); ii += 1) {
-         part->GetParameters()->SetValue(det_stat->GetNameAt(ii), det_stat->GetStringValue(ii));
+      for (Int_t ii = 0; ii < det_stat.GetNpar(); ii += 1) {
+         part->GetParameters()->SetValue(det_stat.GetNameAt(ii), det_stat.GetStringValue(ii));
       }
       //On enregistre les differentes pertes d'energie dans les detecteurs
       //dans l objet KVNucleus
@@ -970,8 +970,6 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       _part->SetMomentum(*_part->GetPInitial());
 
    }    //fin de loop over particles
-
-   delete det_stat;
 
    //   Info("DetectEvent", "Finished filtering event. Event status now:");
    //   event->Print();

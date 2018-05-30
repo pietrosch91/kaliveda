@@ -13,6 +13,8 @@ class KVSimEvent;
 
 class KVGemini : public KVBase {
 
+   int part_index;//! used for labelling decay products
+
 public:
    KVGemini();
    virtual ~KVGemini();

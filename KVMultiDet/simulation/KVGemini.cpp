@@ -95,6 +95,7 @@ void KVGemini::DecaySingleNucleus(KVSimNucleus& toDecay, KVSimEvent* decayProduc
    while (nuc) {
 
       KVNucleus* N = decayProducts->AddParticle();
+      N->SetParameter("GEMINI_PARENT_INDEX", part_index); //set parameter with index of parent nucleus in 'hot' event
       N->SetZ(nuc->iZ);
       N->SetA(nuc->iA);
       N->SetExcitEnergy(nuc->fEx);
@@ -119,9 +120,11 @@ void KVGemini::DecayEvent(const KVSimEvent* hot, KVSimEvent* cold)
 
    cold->Clear();
    KVSimNucleus* hotnuc;
+   part_index = 1;
    while ((hotnuc = (KVSimNucleus*)const_cast<KVSimEvent*>(hot)->GetNextParticle())) {
       try {
          DecaySingleNucleus(*hotnuc, cold);
+         ++part_index;
       }
       catch (...) {
          // rethrow any exceptions

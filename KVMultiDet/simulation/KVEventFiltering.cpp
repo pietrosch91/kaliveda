@@ -49,8 +49,11 @@ The following are optional options:
  - `PhiRot`:     by default, a random rotation around the beam axis will be performed before
               simulating detection of the event. If you don't want this to happen,
               give option PhiRot=no
+              If used, filtered events will have a parameter "RANDOM_PHI" with the applied
+              rotation (in radians)
  - `Gemini`:     if option Gemini=yes, then each event will be "decayed" with Gemini++,
-              if KaliVeda has been compiled with Gemini++ support.
+              if KaliVeda has been compiled with Gemini++ support. See below for extra
+              information on Gemini decay stored in particle parameter lists.
  - `GemDecayPerEvent`: if option Gemini=yes then by default 1 Gemini++ decay will be performed for each event.
                     you can change this by giving a value for this option
 
@@ -63,6 +66,30 @@ of various options:
 The data will be stored in a TTree with name 'ReconstructedEvents', in a branch with name
 'ReconEvent'. The class used for reconstructed events depends on the dataset,
 it is given by KVDataSet::GetReconstructedEventClassName().
+
+Each filtered event will have some or all of the following parameters in its list:
+
+ - SIMEVENT_TREE_ENTRY = index of simulated event in TTree we are reading
+ - SIMEVENT_NUMBER = event number of simulated event in TTree we are reading (if defined i.e. if !=0)
+ - RANDOM_PHI = rotation around beam axis [in radians]
+
+When using Gemini++ to decay simulated events before filtering, each particle will have
+the following parameter defined:
+
+ - GEMINI_PARENT_INDEX = index of parent nucleus in simulated event
+
+The combination of SIMEVENT_TREE_ENTRY/_NUMBER and SIMEVENT_NUC allows to connect primary
+fragments in the simulated events with their detected decay products in the filtered event.
+
+Example: suppose 'recev' is a filtered event and 'sim_tree' is the TTree containing the original
+simulation, while 'simev' is a pointer to a KVSimEvent object connected to the appropriate
+branch in 'sim_tree'. Then we can retrieve the parent nucleus responsible for producing
+a particular nucleus in 'recev' like so:
+
+    sim_tree.GetEntry( recev.GetIntValue("SIMEVENT_TREE_ENTRY" ) );
+    // parent nucleus of 15th nucleus in filtered event 'recev'
+    KVSimNucleus* parent_nuc = (KVSimNucleus*)simev->GetParticle( recev.GetNucleus(15)->GetIntValue("GEMINI_PARENT_INDEX") );
+
 */
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -125,10 +152,14 @@ void KVEventFiltering::RandomRotation(KVEvent* to_rotate, const TString& frame_n
 {
    // do random phi rotation around z-axis
    // if frame_name is given, apply rotation to that frame
+   //
+   // store phi rotation angle [radians] in event parameter "RANDOM_PHI"
    TRotation r;
-   r.RotateZ(gRandom->Uniform(TMath::TwoPi()));
+   Double_t phi = gRandom->Uniform(TMath::TwoPi());
+   r.RotateZ(phi);
    if (frame_name != "") to_rotate->SetFrame("rotated_frame", frame_name, r);
    else to_rotate->SetFrame("rotated_frame", r);
+   to_rotate->SetParameter("RANDOM_PHI", phi);
 }
 
 Bool_t KVEventFiltering::Analysis()
@@ -147,6 +178,8 @@ Bool_t KVEventFiltering::Analysis()
    KVEvent* to_be_detected = GetEvent();
    Int_t iterations = 1;
    if (fGemini) iterations = fGemDecayPerEvent;
+   if (to_be_detected->GetNumber()) to_be_detected->SetParameter("SIMEVENT_NUMBER", (int)to_be_detected->GetNumber());
+   to_be_detected->SetParameter("SIMEVENT_TREE_ENTRY", (int)fTreeEntry);
 #ifdef WITH_GEMINI
    do {
       KVGemini g;
