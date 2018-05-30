@@ -153,6 +153,8 @@ public:
    virtual void WriteObjects(TFile*);
    virtual void ReadObjects(TFile*);
 
+   virtual Double_t GetRunLengthFromGeneDirect(int run) const;
+
    ClassDef(KVINDRADB, 5)       //DataBase of parameters for an INDRA campaign
 };
 

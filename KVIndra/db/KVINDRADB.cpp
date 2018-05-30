@@ -1045,6 +1045,30 @@ void KVINDRADB::ReadObjects(TFile* file)
    fPulserData->ReadTree(file);
 }
 
+Double_t KVINDRADB::GetRunLengthFromGeneDirect(int run) const
+{
+   // Using the mean frequency of the Selecteur internal clock (Gene DIRECT)
+   // and the total measured number of ticks for the run,
+   // calculate the length of the run in seconds
+
+   Double_t g_dir_frq = GetMeanGDirFreq(run);
+   if (g_dir_frq == 0) {
+      Error("GetRunLengthFromGeneDirect", "Mean frequency of G_DIR unknown for this dataset");
+      return 0;
+   }
+   KVINDRADBRun* dbr = GetRun(run);
+   if (!dbr) {
+      Error("GetRunLengthFromGeneDirect", "Run %d not in database", run);
+      return 0;
+   }
+   Double_t g_dir = dbr->GetScaler("Gene DIRECT");
+   if (g_dir == 0) {
+      Error("GetRunLengthFromGeneDirect", "Gene DIRECT total not known for run");
+      return 0;
+   }
+   return g_dir / g_dir_frq;
+}
+
 //____________________________________________________________________________
 
 void KVINDRADB::ReadCsITotalLightGainCorrections()
