@@ -97,7 +97,6 @@ public:
          ResetBit(kDeleteGVList);
       }
       SafeDelete(fPartCond);
-      SafeDelete(fAuxChain);
       lhisto->Clear();
       delete lhisto;
       lhisto = 0;

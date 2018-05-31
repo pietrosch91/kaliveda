@@ -180,8 +180,12 @@ void KVEventSelector::Begin(TTree* /*tree*/)
    if (gDataAnalyser) {
       if (GetInputList()) {
          gDataAnalyser->AddJobDescriptionList(GetInputList());
-         GetInputList()->ls();
+         //GetInputList()->ls();
       }
+   }
+   if (IsOptGiven("AuxFiles")) {
+      SetUpAuxEventChain();
+      if (GetInputList()) GetInputList()->Add(fAuxChain);
    }
 }
 
@@ -244,14 +248,21 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
    InitAnalysis();              //user initialisations for analysis
    if (gDataAnalyser) gDataAnalyser->postInitAnalysis();
 
-   if (ltree->GetEntries() > 0)
+   if (ltree->GetEntries() > 0) {
       for (Int_t ii = 0; ii < ltree->GetEntries(); ii += 1) {
          TTree* tt = (TTree*)ltree->At(ii);
          tt->SetDirectory(writeFile);
          tt->AutoSave();
       }
+   }
 
-   if (IsOptGiven("AuxFiles")) SetUpAuxEventChain();
+   if (IsOptGiven("AuxFiles")) {
+      // auxiliary files with PROOF
+      if (GetInputList()) {
+         fAuxChain = (TTree*)GetInputList()->FindObject(GetOpt("AuxTreeName"));
+         InitFriendTree(fAuxChain, GetOpt("AuxBranchName"));
+      }
+   }
 }
 Bool_t KVEventSelector::CreateTreeFile(const Char_t* filename)
 {
@@ -444,6 +455,9 @@ void KVEventSelector::Terminate()
    if (gDataAnalyser) gDataAnalyser->preEndAnalysis();
    EndAnalysis();               //user end of analysis routine
    if (gDataAnalyser) gDataAnalyser->postEndAnalysis();
+
+   if (GetInputList() && fAuxChain) GetInputList()->Remove(fAuxChain);
+   SafeDelete(fAuxChain);
 }
 
 KVVarGlob* KVEventSelector::AddGV(const Char_t* class_name,
