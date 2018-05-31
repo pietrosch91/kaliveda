@@ -20,7 +20,7 @@ ClassImp(KVSimDirAnalyser)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVSimDirAnalyser::KVSimDirAnalyser()
-   : KVDataAnalyser(), fListOfSimFiles(nullptr), fAnalysisChain(nullptr), fSimDir(nullptr)
+   : KVDataAnalyser(), fListOfSimFiles(nullptr), fListOfAuxFiles(nullptr), fAnalysisChain(nullptr), fSimDir(nullptr)
 {
    // Default constructor
 }
@@ -59,6 +59,25 @@ void KVSimDirAnalyser::SubmitTask()
                 results_file_name.Data(), first_file->GetTitle());
    if (first_file->IsFiltered()) options += Form(",DataSet=%s,System=%s,Run=%d",
             first_file->GetDataSet(), first_file->GetSystem(), first_file->GetRun());
+   if (fListOfAuxFiles) {
+      // Set up list of auxiliary files
+      KVString auxfiles;
+      TIter ifi(fListOfAuxFiles);
+      KVSimFile* auxf;
+      while ((auxf = (KVSimFile*)ifi())) {
+         if (auxfiles != "") auxfiles += "|";
+         auxfiles += auxf->GetName();
+      }
+      options += ",AuxFiles=";
+      options += auxfiles;
+      options += ",AuxDir=";
+      KVSimFile* ffaux = (KVSimFile*)fListOfAuxFiles->First();
+      options += ffaux->GetSimDir()->GetDirectory();
+      options += ",AuxTreeName=";
+      options += ffaux->GetTreeName();
+      options += ",AuxBranchName=";
+      options += ffaux->GetBranchName();
+   }
    // Add any user-defined options
    if (GetUserClassOptions() != "") {
       options += ",";
@@ -78,7 +97,8 @@ void KVSimDirAnalyser::SubmitTask()
       else analysis_class = GetUserClass();
       if (read_all_events) {
          fAnalysisChain->Process(analysis_class, options.Data());
-      } else {
+      }
+      else {
          fAnalysisChain->Process(analysis_class, options.Data(), GetNbEventToRead());
       }
    }

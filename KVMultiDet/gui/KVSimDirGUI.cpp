@@ -640,23 +640,33 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
    unique_ptr<TList> selected_sim_runs(fLVsimData->GetSelectedObjects());
    unique_ptr<TList> selected_filt_runs(fLVfiltData->GetSelectedObjects());
    TList* runs_to_analyse(nullptr);
+   TList* aux_runs_to_analyse(nullptr);
    TString analysis_task;
    if (type == "tree") { // analysis of simulated or filtered events
       if (!selected_sim_runs->GetEntries() && !selected_filt_runs->GetEntries()) {
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose one or more simulated or filtered data files!", kMBIconExclamation);
          return;
       }
-      if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
-         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
-         return;
-      }
+//      if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
+//         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
+//         return;
+//      }
       if (fAnalClassHeader == "" || fAnalClassImp == "") {
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose a valid analysis class!", kMBIconExclamation);
          return;
       }
       if (selected_sim_runs->GetEntries()) {
-         runs_to_analyse = selected_sim_runs.get();
-         analysis_task = "analysis simulated";
+         if (selected_filt_runs->GetEntries()) {
+            // if both simulated & filtered events are selected, we assume the user wants to analyse filtered
+            // data while having access to the original non-filtered data as an auxiliary/"friend" tree
+            runs_to_analyse = selected_filt_runs.get();
+            analysis_task = "analysis filtered";
+            aux_runs_to_analyse = selected_sim_runs.get();
+         }
+         else {
+            runs_to_analyse = selected_sim_runs.get();
+            analysis_task = "analysis simulated";
+         }
       }
       else {
          runs_to_analyse = selected_filt_runs.get();
@@ -673,10 +683,6 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose a simulated data file to filter!", kMBIconExclamation);
          return;
       }
-//       if (selected_sim_runs->GetEntries() > 1) {
-//          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunFilter", "Choose ONE simulated data file to filter!", kMBIconExclamation);
-//          return;
-//       }
       runs_to_analyse = selected_sim_runs.get();
       analysis_task = "filter simulated";
    }
@@ -684,6 +690,7 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
    gDataAnalyser = KVDataAnalyser::GetAnalyser(anTask->GetDataAnalyser());
    gDataAnalyser->SetAnalysisTask(anTask);
    gDataAnalyser->SetFileList(runs_to_analyse);
+   if (aux_runs_to_analyse) gDataAnalyser->SetAuxFileList(aux_runs_to_analyse);
    if (anTask->WithUserClass()) {
       gDataAnalyser->SetUserClass(fAnalClassName);
       if (!gDataAnalyser->IsUserClassValid()) {

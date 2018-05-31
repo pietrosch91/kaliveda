@@ -33,11 +33,23 @@ ClassImp(KVEventSelector)
     BranchName:                name of branch containing the events
 ~~~~~~~~~~~~~~~~
 
- The following is an optional option:
+ The following are optional options:
 
 ~~~~~~~~~~~~~~~~
     EventsReadInterval:     print info on analysis every N events instead of default value
+    AuxFiles:               list of files containing "friend" TTrees to be made available during analysis. Separate filenames with '|'.
+    AuxDir:                 directory in which to find AuxFiles
+    AuxTreeName:            name of tree in AuxFiles containing KVEvent objects
+    AuxBranchName:          name of branch in AuxFiles containing KVEvent objects
 ~~~~~~~~~~~~~~~~
+
+ When `AuxFiles` is used, the user can access the events in these files in her `Analysis()` method
+ by doing the following:
+
+~~~~~~~~~~~~
+   GetFriendTreeEntry(entry_number);
+   KVEvent* friend_event = GetFriendEvent();
+~~~~~~~~~~~~
 
  Any other options can be defined by the user and parsed in her analysis class
  with methods IsOptGiven() and GetOpt()
@@ -239,6 +251,7 @@ void KVEventSelector::SlaveBegin(TTree* /*tree*/)
          tt->AutoSave();
       }
 
+   if (IsOptGiven("AuxFiles")) SetUpAuxEventChain();
 }
 Bool_t KVEventSelector::CreateTreeFile(const Char_t* filename)
 {
@@ -664,6 +677,33 @@ void KVEventSelector::FillTH3(TH3* h3, Double_t one, Double_t two, Double_t thre
    h3->Fill(one, two, three, four);
 }
 
+void KVEventSelector::SetUpAuxEventChain()
+{
+   // Called by SlaveBegin() when user gives the following options:
+   //
+   //~~~~~~~~~~~~~~~~
+   //    AuxFiles:               list of files containing "friend" TTrees to be made available during analysis
+   //    AuxDir:                 directory in which to find AuxFiles
+   //    AuxTreeName:            name of tree in AuxFiles containing KVEvent objects
+   //    AuxBranchName:          name of branch in AuxFiles containing KVEvent objects
+   //~~~~~~~~~~~~~~~~
+
+   if (!IsOptGiven("AuxDir") || !IsOptGiven("AuxTreeName") || !IsOptGiven("AuxBranchName")) {
+      Error("SetUpAuxEventChain", "if AuxFiles option given, you must define AuxDir, AuxTreeName and AuxBranchName");
+      return;
+   }
+   KVString filelist = GetOpt("AuxFiles");
+   KVString filedir = GetOpt("AuxDir");
+   if (!filedir.EndsWith("/")) filedir += "/";
+   TChain* auxchain = new TChain(GetOpt("AuxTreeName"));
+   filelist.Begin("|");
+   while (!filelist.End()) {
+      KVString path = filedir + filelist.Next();
+      auxchain->Add(path);
+   }
+   InitFriendTree(auxchain, GetOpt("AuxBranchName"));
+}
+
 //____________________________________________________________________________
 
 void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option, Bool_t onlyfilled)
@@ -861,6 +901,28 @@ void KVEventSelector::Init(TTree* tree)
    SetAdditionalBranchAddress();
    fEventsRead = 0;
 
+}
+
+void KVEventSelector::InitFriendTree(TTree* tree, const TString& branchname)
+{
+   // Set up a "friend" TTree/TChain containing KVEvent-derived objects in branch 'branchname'
+   // N.B. this is not a "friend" in the sense of TTree::AddFriend, the main TTree and the
+   // "friend" TTree can have different numbers of entries
+   //
+   // After calling this method at the beginning of the analysis, you can
+   // access any of the events stored in the "friend" by doing:
+   //
+   //~~~~~~~~~~~~
+   //   GetFriendTreeEntry(entry_number);
+   //   KVEvent* friend_event = GetFriendEvent();
+   //~~~~~~~~~~~~
+
+   AuxEvent = 0;
+   fAuxChain = tree;
+   fAuxChain->SetBranchAddress(branchname, &AuxEvent);
+   fAuxChain->Print();
+   fAuxChain->GetEntry(0);
+   fAuxChain->GetTree()->GetEntry(0);
 }
 
 Bool_t KVEventSelector::Notify()

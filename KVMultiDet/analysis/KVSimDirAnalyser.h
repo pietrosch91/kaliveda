@@ -12,6 +12,7 @@
 class KVSimDirAnalyser : public KVDataAnalyser {
 
    TList* fListOfSimFiles;//!    list of files/trees to analyse
+   TList* fListOfAuxFiles;//!    [optional] list of original simulated data to be used during filtered data analysis
    TChain* fAnalysisChain;//!    TChain for analysis
    KVSimDir* fSimDir;//!         used for batch analysis
 
@@ -32,6 +33,10 @@ public:
    void SetFileList(TList* l)
    {
       fListOfSimFiles = l;
+   }
+   void SetAuxFileList(TList* l)
+   {
+      fListOfAuxFiles = l;
    }
    TList* GetFileList() const
    {

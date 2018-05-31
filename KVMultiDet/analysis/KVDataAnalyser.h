@@ -198,6 +198,10 @@ public:
    {
       AbstractMethod("SetFileList(TList*)");
    }
+   virtual void SetAuxFileList(TList*)
+   {
+      AbstractMethod("SetAuxFileList(TList*)");
+   }
 
    void SetNbEventToRead(Long64_t nb = 0)
    {

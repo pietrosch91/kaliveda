@@ -86,8 +86,8 @@ simulation, while 'simev' is a pointer to a KVSimEvent object connected to the a
 branch in 'sim_tree'. Then we can retrieve the parent nucleus responsible for producing
 a particular nucleus in 'recev' like so:
 
-    sim_tree.GetEntry( recev.GetIntValue("SIMEVENT_TREE_ENTRY" ) );
-    KVSimNucleus* parent_nuc = (KVSimNucleus*)simev->GetParticle( recev.GetNucleus(15)->GetIntValue("GEMINI_PARENT_INDEX") );    // parent nucleus of 15th nucleus in filtered event 'recev'
+    sim_tree.GetEntry( recev.GetParameters()->GetIntValue("SIMEVENT_TREE_ENTRY" ) );
+    KVSimNucleus* parent_nuc = (KVSimNucleus*)simev->GetParticle( recev.GetNucleus(15)->GetParameters()->GetIntValue("GEMINI_PARENT_INDEX") );    // parent nucleus of 15th nucleus in filtered event 'recev'
 
 
 */

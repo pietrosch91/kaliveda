@@ -32,9 +32,11 @@ protected :
    };
 
    TTree*          fChain;   //!pointer to the analyzed TTree or TChain
+   TTree*          fAuxChain;//![optional] pointer to another TTree or TChain which may be used during analysis
 
    // Declaration of leaf types
-   KVEvent*     Event;
+   KVEvent*     Event;//the events to be analysed
+   KVEvent*     AuxEvent;//[optional] events in fAuxChain
 
    // List of branches
    TBranch*        b_Event;   //!
@@ -70,6 +72,8 @@ protected :
    void FillTProfile2D(TProfile2D* h2, Double_t one, Double_t two, Double_t three, Double_t four);
    void FillTH3(TH3* h3, Double_t one, Double_t two, Double_t three, Double_t four);
 
+   void SetUpAuxEventChain();
+
 public:
    TFile* writeFile;//!
    TProofOutputFile* mergeFile;//! for merging with PROOF
@@ -78,7 +82,7 @@ public:
 
    virtual void ParseOptions();
 
-   KVEventSelector(TTree* /*tree*/ = 0) : fChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
+   KVEventSelector(TTree* /*tree*/ = 0) : fChain(0), fAuxChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
       fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE), fDisableCreateTreeFile(kFALSE)
    {
       lhisto = new KVHashList();
@@ -93,6 +97,7 @@ public:
          ResetBit(kDeleteGVList);
       }
       SafeDelete(fPartCond);
+      SafeDelete(fAuxChain);
       lhisto->Clear();
       delete lhisto;
       lhisto = 0;
@@ -111,12 +116,21 @@ public:
    virtual void    Begin(TTree* tree);
    virtual void    SlaveBegin(TTree* tree);
    virtual void    Init(TTree* tree);
+   void    InitFriendTree(TTree* tree, const TString& branchname);
    virtual Bool_t  Notify();
    virtual Bool_t  Process(Long64_t entry);
    virtual void   CheckEndOfRun();
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0)
    {
       return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
+   }
+   Int_t GetFriendTreeEntry(Long64_t entry, Int_t getall = 0)
+   {
+      return fAuxChain ? fAuxChain->GetTree()->GetEntry(entry, getall) : 0;
+   }
+   KVEvent* GetFriendEvent() const
+   {
+      return AuxEvent;
    }
    virtual void    SetObject(TObject* obj)
    {
@@ -136,14 +150,14 @@ public:
    void SetBranchName(const Char_t* n)
    {
       fBranchName = n;
-   };
+   }
    const Char_t* GetBranchName() const
    {
       return fBranchName.Data();
-   };
+   }
    virtual void SetAnalysisFrame()
    {
-   };
+   }
 
    KVEvent* GetEvent() const
    {
