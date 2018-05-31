@@ -62,6 +62,9 @@ void ExampleFilteredSimDataAnalysis::InitAnalysis()
 
    AddTree(t);
 
+   // check if we can access the original simulated events before filtering
+   // (activated when selecting both filtered & simulated files in kaliveda-sim GUI)
+   link_to_unfiltered_simulation = IsOptGiven("AuxFiles");
 }
 
 //____________________________________________________________________________________
@@ -91,6 +94,10 @@ Bool_t ExampleFilteredSimDataAnalysis::Analysis()
 
    mult = GetEvent()->GetMult("ok");
 
+   // if we can access the events of the unfiltered simulation, read in the event corresponding
+   // to the currently analysed reconstructed event
+   if (link_to_unfiltered_simulation) GetFriendTreeEntry(GetEvent()->GetParameters()->GetIntValue("SIMEVENT_TREE_ENTRY"));
+
    for (int i = 0; i < mult; i++) {
       KVReconstructedNucleus* part = (KVReconstructedNucleus*)ZMAX->GetZmax(i);
       Z[i] = part->GetZ();
@@ -107,6 +114,10 @@ Bool_t ExampleFilteredSimDataAnalysis::Analysis()
       ELab[i] = part->GetEnergy();
       ThetaLab[i] = part->GetTheta();
       PhiLab[i] = part->GetPhi();
+      // if we can access the events of the unfiltered simulation, and if Gemini++ was used
+      // to decay events before filtering, this is how you can access the "parent" nucleus
+      // of the current detected decay product
+      // KVSimNucleus* papa = (KVSimNucleus*)GetFriendEvent()->GetParticle( part->GetParameters()->GetIntValue("GEMINI_PARENT_INDEX") );
    }
 
    GetGVList()->FillBranches();

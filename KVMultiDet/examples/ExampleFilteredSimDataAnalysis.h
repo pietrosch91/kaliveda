@@ -15,6 +15,8 @@ protected:
    Double_t Vpar[200], Vper[200], ELab[200], ThetaLab[200], PhiLab[200];
    KVZmax* ZMAX;
 
+   Bool_t link_to_unfiltered_simulation;
+
 public:
    ExampleFilteredSimDataAnalysis() {}
    virtual ~ExampleFilteredSimDataAnalysis() {}
