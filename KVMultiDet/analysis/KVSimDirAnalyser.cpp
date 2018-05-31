@@ -33,11 +33,18 @@ void KVSimDirAnalyser::DeleteSimFilesListIfOurs()
       SafeDelete(fListOfSimFiles);
 }
 
+void KVSimDirAnalyser::DeleteAuxFilesListIfOurs()
+{
+   if (fListOfAuxFiles && TString(fListOfAuxFiles->GetName()) == "toDelete")
+      SafeDelete(fListOfAuxFiles);
+}
+
 KVSimDirAnalyser::~KVSimDirAnalyser()
 {
    // Destructor
    SafeDelete(fSimDir);
    DeleteSimFilesListIfOurs();
+   DeleteAuxFilesListIfOurs();
 }
 
 void KVSimDirAnalyser::SubmitTask()
@@ -135,6 +142,15 @@ void KVSimDirAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t sav)
       next();
       while ((simF = (KVSimFile*)next())) GetBatchInfoFile()->SetValue("+SimFiles", simF->GetName());
    }
+   if (fListOfAuxFiles) {
+      // auxiliary files for batch job
+      GetBatchInfoFile()->SetValue("AuxFiles", fListOfAuxFiles->First()->GetName());
+      if (fListOfAuxFiles->GetEntries() > 1) {
+         TIter next(fListOfAuxFiles);
+         next();
+         while ((simF = (KVSimFile*)next())) GetBatchInfoFile()->SetValue("+AuxFiles", simF->GetName());
+      }
+   }
    if (sav) GetBatchInfoFile()->SaveLevel(kEnvUser);
 }
 
@@ -168,6 +184,18 @@ Bool_t KVSimDirAnalyser::ReadBatchEnvFile(const Char_t* filename)
    while (!simfiles.End()) {
       if (filetype == "simulated") fListOfSimFiles->Add(fSimDir->GetSimDataList()->FindObject(simfiles.Next()));
       else if (filetype == "filtered") fListOfSimFiles->Add(fSimDir->GetFiltDataList()->FindObject(simfiles.Next()));
+   }
+
+   KVString auxfiles = GetBatchInfoFile()->GetValue("AuxFiles", "");
+   if (auxfiles == "") return (ok = kTRUE);
+
+   DeleteAuxFilesListIfOurs();
+   fListOfAuxFiles = new TList;
+   fListOfAuxFiles->SetName("toDelete");
+
+   auxfiles.Begin(" ");
+   while (!auxfiles.End()) {
+      fListOfAuxFiles->Add(fSimDir->GetSimDataList()->FindObject(auxfiles.Next()));
    }
 
    ok = kTRUE;

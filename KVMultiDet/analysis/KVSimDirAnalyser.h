@@ -18,6 +18,7 @@ class KVSimDirAnalyser : public KVDataAnalyser {
 
 private:
    void DeleteSimFilesListIfOurs();
+   void DeleteAuxFilesListIfOurs();
 
 protected:
    void BuildChain();
