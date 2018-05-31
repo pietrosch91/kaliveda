@@ -61,8 +61,13 @@ KVSimDir::KVSimDir(const Char_t* name, const Char_t* path)
    init();
    // make sure we have absolute path
    KVString _path(path);
-   if (!_path.Contains("..")) _path.ReplaceAll(".", "$(PWD)");
    gSystem->ExpandPathName(_path);
+   if (!gSystem->IsAbsoluteFileName(_path)) {
+      if (_path.CountChar('.') == 1) {
+         _path.ReplaceAll(".", "$(PWD)");
+         gSystem->ExpandPathName(_path);
+      }
+   }
    SetTitle(_path);
 }
 
