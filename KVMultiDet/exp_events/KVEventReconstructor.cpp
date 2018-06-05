@@ -6,11 +6,6 @@
 #include "KVGroupReconstructor.h"
 #include "KVTarget.h"
 
-#ifdef WITH_CPP11
-#include <thread>
-#else
-//#include <TThread.h>
-#endif
 #include <iostream>
 using namespace std;
 
@@ -39,7 +34,7 @@ ClassImp(KVEventReconstructor)
 
 KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEvent* e, Bool_t)
    : KVBase("KVEventReconstructor", Form("Reconstruction of events in array %s", a->GetName())),
-     fArray(a), fEvent(e), fGroupReconstructor(a->GetNumberOfGroups(), 1), fThreaded(false)
+     fArray(a), fEvent(e), fGroupReconstructor(a->GetNumberOfGroups(), 1)
 {
    // Default constructor
    // Set up group reconstructor for every group of the array.
@@ -106,82 +101,21 @@ void KVEventReconstructor::ReconstructEvent(TSeqCollection* fired)
    fNGrpRecon = 0;
    fHitGroups.clear();
    fHitGroups.reserve(detev.GetGroups()->GetEntries());
-#ifdef WITH_CPP11
-   vector<thread> threads;
-   threads.reserve(WITH_MULTICORE_CPU - 1);
-#else
-//   KVList fThreads;
-#endif
    TIter it(detev.GetGroups());
    KVGroup* group;
    while ((group = (KVGroup*)it())) {
       KVGroupReconstructor* grec = (KVGroupReconstructor*)fGroupReconstructor[group->GetNumber()];
       if (grec) {
          fHitGroups[fNGrpRecon] = group->GetNumber();
-         if (!fThreaded) {
-            grec->Process();
-         }
-#ifndef WITH_CPP11
-//         else {
-//            TThread* t = new TThread(Form("grp_rec_%d", fNGrpRecon), (TThread::VoidRtnFunc_t)&ThreadedReconstructor, (void*)grec);
-//            fThreads.Add(t);
-//            t->Run();
-//         }
-#endif
+         grec->Process();
          ++fNGrpRecon;
       }
-   }
-   if (fThreaded) {
-#ifndef WITH_CPP11
-//      // wait for threads to finish
-//      TThread* th;
-//      TIter itr(&fThreads);
-//      while ((th = (TThread*)itr())) th->Join();
-#else
-      // divide groups to process between available cpus
-      int blksize = fNGrpRecon / WITH_MULTICORE_CPU;
-      if (blksize < 1) {
-         ++singlethread;
-         // 1 thread (this one)
-         reconstruct_groups(0, fNGrpRecon - 1);
-      }
-      else {
-         ++multithread;
-         int first = 0;
-         int last;
-         for (int cpu = 0; cpu < WITH_MULTICORE_CPU - 1; ++cpu) {
-            last = first + blksize - 1;
-            if (cpu == WITH_MULTICORE_CPU - 1) last = fNGrpRecon - 1;
-            threads.push_back(thread(&KVEventReconstructor::reconstruct_groups, this, first, last));
-            first += blksize;
-         }
-         last = fNGrpRecon - 1;
-         reconstruct_groups(first, last);
-         for (auto& t : threads) t.join();
-      }
-#endif
    }
 
    // merge resulting event fragments
    MergeGroupEventFragments();
 }
 
-#ifndef WITH_CPP11
-//void KVEventReconstructor::ThreadedReconstructor(void* arg)
-//{
-//   // Group reconstruction in separate threads
-
-//   KVGroupReconstructor* grec = (KVGroupReconstructor*)arg;
-//   grec->Process();
-//}
-#else
-void KVEventReconstructor::reconstruct_groups(int first, int last)
-{
-   for (int i = first; i <= last; ++i) {
-      ((KVGroupReconstructor*)fGroupReconstructor[fHitGroups[i]])->Process();
-   }
-}
-#endif
 void KVEventReconstructor::MergeGroupEventFragments()
 {
    // After processing has finished in groups, call this method to produce

@@ -74,7 +74,8 @@ KVGroupReconstructor* KVGroupReconstructor::Factory(const TString& plugin)
    TPluginHandler* ph = LoadPlugin("KVGroupReconstructor", plugin);
    if (ph) {
       return (KVGroupReconstructor*)ph->ExecPlugin(0);
-   } else {
+   }
+   else {
       ::Error("KVGroupReconstructor::Factory", "No KVGroupReconstructor plugin found with name %s", plugin.Data());
    }
    return nullptr;
@@ -96,7 +97,7 @@ void KVGroupReconstructor::Process()
       return;
    }
    Identify();
-   //Calibrate();
+   Calibrate();
 }
 
 void KVGroupReconstructor::Reconstruct()
@@ -184,10 +185,12 @@ void KVGroupReconstructor::AnalyseParticles()
                && ((KVIDTelescope*)nuc->GetReconstructionTrajectory()->GetIDTelescopes()->First())->IsIndependent()) {
             //all particles whose first identification telescope is independent are fine
             nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-         } else if (nuc->GetReconstructionTrajectory()->GetNumberOfIdentifications()) {
+         }
+         else if (nuc->GetReconstructionTrajectory()->GetNumberOfIdentifications()) {
             //no independent identification telescope => depends on what's in the rest of the group
             ++n_nseg_1;
-         } else {
+         }
+         else {
             //no identification available
             nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
          }
@@ -207,7 +210,8 @@ void KVGroupReconstructor::AnalyseParticles()
                //after identifying the others and subtracting their calculated
                //energy losses from the other detectors
                nuc->SetStatus(KVReconstructedNucleus::kStatusOKafterSub);
-            } else {
+            }
+            else {
                //more than one ? then we can make some wild guess by sharing the
                //contribution between them, but I wouldn't trust it as far as I can spit
                nuc->SetStatus(KVReconstructedNucleus::kStatusOKafterShare);
@@ -220,7 +224,8 @@ void KVGroupReconstructor::AnalyseParticles()
             }
          }
       }
-   } else if (GetNUnidentifiedInGroup() == 1) {
+   }
+   else if (GetNUnidentifiedInGroup() == 1) {
       //only one unidentified particle in group: just need an idtelescope which works
 
       //loop over particles looking for the unidentified one
@@ -233,7 +238,8 @@ void KVGroupReconstructor::AnalyseParticles()
       if (nuc->GetReconstructionTrajectory()->GetNumberOfIdentifications()) {
          //OK no problem
          nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-      } else {
+      }
+      else {
          //dead in the water
          nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
@@ -270,7 +276,8 @@ void KVGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
             idt->Identify(IDR);
 
             if (IDR->IDOK) n_success_id++;
-         } else
+         }
+         else
             IDR->IDattempted = kFALSE;
 
          if (n_success_id < 1 &&
@@ -373,7 +380,8 @@ void KVGroupReconstructor::Identify()
          if (d.GetStatus() == KVReconstructedNucleus::kStatusOK) {
             // identifiable particles
             IdentifyParticle(d);
-         } else if (d.GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
+         }
+         else if (d.GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
             Int_t zmin = d.GetStoppingDetector()->FindZmin(-1., d.GetMassFormula());
