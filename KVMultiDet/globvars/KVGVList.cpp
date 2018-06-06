@@ -215,6 +215,9 @@ void KVGVList::MakeBranches(TTree* tree)
    //
    //    `GVname.ValueName`
    //
+   // To avoid problems with TTree::Draw, 'GVName' will be sanitized i.e. any
+   // mathematical symbols will be replaced by '_'.
+   //
    // Any variable for which KVVarGlob::SetMaxNumBranches() was called with argument `0`
    // will not be added to the TTree.
 
@@ -228,6 +231,7 @@ void KVGVList::MakeBranches(TTree* tree)
    KVVarGlob* ob;
    while ((ob = (KVVarGlob*)next())) {
       if (ob->GetNumberOfBranches()) { //skip variables for which KVVarGlob::SetMaxNumBranches(0) was called
+         TString sane_varname = NameSanitizer(ob->GetName());
          if (ob->GetNumberOfValues() > 1) {
             // multi-valued variable
             for (int i = 0; i < ob->GetNumberOfBranches(); i++) {
@@ -236,18 +240,21 @@ void KVGVList::MakeBranches(TTree* tree)
                TString sane_name(ob->GetValueName(i));
                sane_name.ReplaceAll("*", "star");
                if (ob->GetValueType(i) == 'I') {
-                  if (fNbIBranch < MAX_CAP_BRANCHES)  tree->Branch(Form("%s.%s", ob->GetName(), sane_name.Data()), &fIBranchVar[ fNbIBranch++ ], Form("%s.%s/I", ob->GetName(), sane_name.Data()));
-               } else {
-                  if (fNbBranch < MAX_CAP_BRANCHES)  tree->Branch(Form("%s.%s", ob->GetName(), sane_name.Data()), &fBranchVar[ fNbBranch++ ], Form("%s.%s/D", ob->GetName(), sane_name.Data()));
+                  if (fNbIBranch < MAX_CAP_BRANCHES)  tree->Branch(Form("%s.%s", sane_varname.Data(), sane_name.Data()), &fIBranchVar[ fNbIBranch++ ], Form("%s.%s/I", sane_varname.Data(), sane_name.Data()));
+               }
+               else {
+                  if (fNbBranch < MAX_CAP_BRANCHES)  tree->Branch(Form("%s.%s", sane_varname.Data(), sane_name.Data()), &fBranchVar[ fNbBranch++ ], Form("%s.%s/D", sane_varname.Data(), sane_name.Data()));
                }
                if (fNbIBranch == MAX_CAP_BRANCHES) break;
                if (fNbBranch == MAX_CAP_BRANCHES) break;
             }
-         } else {
+         }
+         else {
             if (ob->GetValueType(0) == 'I') {
-               if (fNbIBranch < MAX_CAP_BRANCHES)   tree->Branch(ob->GetName(), &fIBranchVar[ fNbIBranch++ ], Form("%s/I", ob->GetName()));
-            } else {
-               if (fNbBranch < MAX_CAP_BRANCHES)    tree->Branch(ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
+               if (fNbIBranch < MAX_CAP_BRANCHES)   tree->Branch(sane_varname, &fIBranchVar[ fNbIBranch++ ], Form("%s/I", sane_varname.Data()));
+            }
+            else {
+               if (fNbBranch < MAX_CAP_BRANCHES)    tree->Branch(sane_varname, &fBranchVar[ fNbBranch++ ], Form("%s/D", sane_varname.Data()));
             }
          }
       }
@@ -279,7 +286,8 @@ void KVGVList::FillBranches()
                if (ob->GetValueType(j) == 'I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
                else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
             }
-         } else {
+         }
+         else {
             if (ob->GetValueType(0) == 'I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
             else fBranchVar[ FLT_index++ ] = ob->GetValue();
          }

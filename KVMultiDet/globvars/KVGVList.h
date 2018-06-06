@@ -23,6 +23,18 @@ class KVGVList: public KVUniqueNameList {
    Int_t fNbBranch;
    Int_t fNbIBranch;
 
+   /// replace any mathematical symbols in 's' with '_'
+   TString NameSanitizer(const Char_t* s) const
+   {
+      TString _s(s);
+      _s.ReplaceAll("+", "_");
+      _s.ReplaceAll("*", "_");
+      _s.ReplaceAll("-", "_");
+      _s.ReplaceAll("/", "_");
+      _s.ReplaceAll("=", "_");
+      return _s;
+   }
+
 protected:
    void init_KVGVList(void);
    TList fVG1; // one-body variables

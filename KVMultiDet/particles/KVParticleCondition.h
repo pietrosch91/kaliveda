@@ -47,7 +47,7 @@ public:
    void SetParticleClassName(const Char_t* cl)
    {
       fClassName = cl;
-   };
+   }
    void AddExtraInclude(const Char_t* inc_file);
 
    virtual void Copy(TObject&) const;
