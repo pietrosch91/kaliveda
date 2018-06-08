@@ -22,7 +22,7 @@ protected:
    KVNameValueList* nvl_ing;//!-> //Contains all ingredients computed
    KVNameValueList* nvl_par;//!-> //Contains all parameters needed for the computation
 
-   Bool_t   kIsModified;   //indique les ingredients ont été modifiés
+   Bool_t   kIsModified;   //indique les ingredients ont ete modifies
    virtual void SumUp();
 
    Bool_t   RootSquare(Double_t aaa, Double_t bbb, Double_t ccc);

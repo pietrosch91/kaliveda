@@ -25,7 +25,6 @@ protected:
    void SetFragmentMinimumCharge(Double_t value);
    void SetParticleFactor(Double_t value);
    void SetLevelDensityParameter(Double_t value);
-   void SetAsurZ(Double_t value);
    void SetNeutronMeanEnergyFactor(Double_t value);
    void ComputeTemperature();
 
@@ -41,6 +40,7 @@ public:
    void UseChargeDiff(Int_t FragmentMinimumCharge, Double_t ParticleFactor);
    void DeduceTemperature(Double_t LevelDensityParameter);
    void IncludeFreeNeutrons(Double_t AsurZ, Double_t NeutronMeanEnergyFactor, Double_t LevelDensityParameter);
+   void SetAsurZ(Double_t value);
 
    void  Fill(KVNucleus*);
    Bool_t Calculate(void);

@@ -16,65 +16,57 @@ ClassImp(KVCaloBase)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVCaloBase</h2>
-<h4>Bilan énergétique d un ensemble de noyaux</h4>
+<h4>Calorimetry of hot nuclei</h4>
 <!-- */
 // --> END_HTML
-// Classe héritée de KVVarGlob avec d'ajouter à ces membres, deux KVNameValueList permettant
-// gérer les ingrédients/variables et les paramètres de manière complètement progressive.
-// Ces deux listes sont accessibles via GetList(Option_t* option = "ing" ou "par")
+// Inherits from KVVarGlob adding two KVNameValueList to handle the ingredients/parameters.
+// These lists are accessible via GetList(Option_t* option = "ing" or "par")
 //
-// PRINCIPE
-// KVCaloBase fait la somme des Z (Zsum), A (Asum), Ek (Eksum) et Q (Qsum) des noyaux considérés (méthode Fill(KVNucleus* ))
-// Ces ingrédients permettent ensuite de calculer l'énergie d'excitation en utilisant
-// le bilan énergétique suivant:
+// ## Principle
+// KVCaloBase sums the Z (Zsum), A (Asum), Ek (Eksum) and Q (Qsum) of the considered nuclei (method Fill(KVNucleus* ))
+// These ingredients allow to calculate the excitation energy using the following relation:
+//
+//~~~~~~~~~~~~~~~~~~~~~~~
 // Exci + Qini  = Eksum + Qsum -> Exci = Eksum + Qsum - Qini
-// A noter : Si l'utilisateur définit un repère via KVVarGlob::SetFrame(const Char_t* ) les énergies cinétiques
-// des noyaux sont prises dans ce référentiel ( KVNucleus::GetFrame("nom_du_referentiel)"->GetKE() )
-//------------------
-// Exemple d utilisation :
-//------------------
+//~~~~~~~~~~~~~~~~~~~~~~~
 //
-//KVNucleus alpha(2,4,10); //definition des noyaux
+// __N.B.__ If method KVVarGlob::SetFrame(const Char_t* ) is called, kinetic energies of nuclei
+//  are taken in that frame
+//
+//
+// ### Example of use
+//
+//~~~~~~~~~~~~~~~~~~~~~
+//KVNucleus alpha(2,4,10); //definition of nuclei
 //KVNucleus triton(1,3);
 //KVNucleus azote(7,16,40);
 //
 //KVCaloBase ca;
 //
-//ca.Fill(&alpha);   //Remplissage de la variable
+//ca.Fill(&alpha);   //filling the variable
 //ca.Fill(&triton);
 //ca.Fill(&azote);
 //
-//ca.Calculate();    //Calcul
-//ca.Print("ing");   //Print
+//ca.Calculate();
+//ca.Print("ing");   // print ingredients
+//
 //Ingredients, 7 stored:
 //0 | Zsum | 10.00000   Sum of charges
 //1 | Asum | 23.00000   Sum of masses
-//2 | Eksum | 50.0000   Sum of kinetic energiex (MeV)
+//2 | Eksum | 50.0000   Sum of kinetic energies (MeV)
 //3 | Qsum | 23.05840   Sum of mass excess (MeV)
 //4 | Msum | 3.000000   Multiplicity
-//5 | Qini | -5.15400   Mass Excess of the initial state (reconstructed sourceeeeeee)
+//5 | Qini | -5.15400   Mass Excess of the initial state (reconstructed source)
 //6 | Exci | 78.21240   Excitation energy (MeV)
 //
-//ca.GetValue(0)
+//ca.GetValue(0);  // return value "Zsum"
 //10.0000
 //ca.GetValue("Exci")
 //78.21240
+//~~~~~~~~~~~~~~~~~~~~~
 //
-//------------------------ //Fin de l'exemple
-//
-// ACCES AUX VARIABLES
-//
-//L'accès aux variables se fait via les deux méthodes :
-// - GetValue(Int_t) choix par index
-// - GetValue(const Char_t* ) choix par nom
-// - GetValuePtr(), renvoie un tableau de Double_t*, de la dimension correspondant au nombre de valeurs (méthode GetNumberOfValues())
-// C'est à l' utilisateur ensuite d'effacer ce tableau via "delete [] tableau"
-// - Pour connaître l'index d une variable : GetNameIndex(const Char_t* )
-// - Pour connaître une variable à un index donné : GetValueName(Int_t )
-//
-//    IL EST INDISPENSABLE D APPELER LA METHODE Calculate() avant d'utiliser les variables calculées dans KVCaloBase
-//    Cette méthode renvoie un booléen indiquant si tout c'est bien passé (kTRUE)
-
+// __N.B.__  You *must* call method Calculate() before trying to use any of the results of KVCaloBase
+//   This method returns kTRUE if the calculation succeeded
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -175,8 +167,8 @@ void KVCaloBase::Print(Option_t* option) const
 //_________________________________________________________________
 KVNameValueList* KVCaloBase::GetList(Option_t* option) const
 {
-   //retourne la KVNameValueList ou sont enregistrés les ingrédients (option=="ing")
-   //ou les paramètres (option=="par")
+   //retourne la KVNameValueList ou sont enregistres les ingredients (option=="ing")
+   //ou les parametres (option=="par")
    //
    if (!strcmp(option, "ing"))
       return nvl_ing;
@@ -203,7 +195,8 @@ Double_t KVCaloBase::getvalue_int(Int_t i)
    if (i < nvl_ing->GetNpar()) {
       Calculate();
       return GetIngValue(i);
-   } else return 0;
+   }
+   else return 0;
 }
 
 //_________________________________________________________________
@@ -260,14 +253,14 @@ Char_t KVCaloBase::GetValueType(Int_t i) const
    TString name = GetValueName(i);
    if (name.BeginsWith("E") || name.BeginsWith("Q") || name.BeginsWith("T")) return 'D';
    else return 'I';
-};
+}
 
 //_________________________________________________________________
 Double_t* KVCaloBase::GetValuePtr(void)
 {
-   // On retourne un tableau rassemblant l'ensemble des ingrédients
+   // On retourne un tableau rassemblant l'ensemble des ingredients
    // retourne 0 si aucun ingredient
-   // Note, c'est à l'utilisateur d'effacer ensuite ce tableau
+   // Note, c'est a l'utilisateur d'effacer ensuite ce tableau
 
    if (GetNumberOfValues())
       return 0;
@@ -287,11 +280,11 @@ void KVCaloBase::init_KVCaloBase()
    // All member initialisations should be done here.
 
    fType = KVVarGlob::kOneBody; // this is a 1-body variable
-   //KVNameValueList contentant les ingrédients et les paramètres
+   //KVNameValueList contentant les ingredients et les parametres
    //de la variable globale
-   //Elles sont remplies au fur et à mesure des
-   //methodes, pas besoin de définition a priori des
-   //noms des ingrédients / paramètres
+   //Elles sont remplies au fur et a mesure des
+   //methodes, pas besoin de definition a priori des
+   //noms des ingredients / parametres
    nvl_ing = new KVNameValueList();
    nvl_ing->SetName("Ingredients");
    nvl_par = new KVNameValueList();
@@ -361,9 +354,9 @@ void KVCaloBase::SetParameter(const Char_t* par, Double_t value)
 void KVCaloBase::Fill(KVNucleus* n)
 {
    // Remplissage des energies, masse, charge et defaut de masse
-   // Pour l'énergie cinétique, si l'utilisateur a utilisé en amont
-   // la méthode KVVarGlob::SetFrame(const Char_t*), c'est dans ce repère que les énergies sont sommées
-   // (à condition que chaque KVNucleus possede le repere avec un nom identique)
+   // Pour l'energie cinetique, si l'utilisateur a utilise en amont
+   // la methode KVVarGlob::SetFrame(const Char_t*), c'est dans ce repere que les energies sont sommees
+   // (a condition que chaque KVNucleus possede le repere avec un nom identique)
    //
    // somme simple sur les A, Z, Ek, Q sans distinction du type de particules
 
@@ -380,13 +373,13 @@ void KVCaloBase::Fill(KVNucleus* n)
 void KVCaloBase::SumUp()
 {
    // protected method
-   // Appelé par Calculate pour mettre à jour les différents ingrédients
-   // de la calorimétrie :
+   // Appele par Calculate pour mettre a jour les differents ingredients
+   // de la calorimetrie :
    //
    // Trois modes de sommes:
    //------------------
    //
-   // détermination de l excès de masse de la source recontruite, dernier ingrédient de l'équation :
+   // determination de l exces de masse de la source recontruite, dernier ingredient de l'equation :
    // Exci + Qini  = \Sigma Ek + \Sigma Q -> Exci = \Sigma Ek + \Sigma Q - Qini
    //
    // defaut de masse de la source reconstruite
@@ -421,11 +414,11 @@ void KVCaloBase::AddNeutrons(Int_t mult, Double_t mke)
 //________________________________________________________________
 Bool_t   KVCaloBase::Calculate(void)
 {
-   //Réalisation de la calorimétrie
-   //Calcul de l'énergie d'excitation
+   //Realisation de la calorimetrie
+   //Calcul de l'energie d'excitation
    //appel de SumUp()
    //
-   // Résolution de l'équation
+   // Resolution de l'equation
    // Exci + Qini  = \Sigma Ek + \Sigma Q
    //    -> Exci = \Sigma Ek + \Sigma Q - Qini
    //
@@ -455,8 +448,8 @@ Bool_t   KVCaloBase::RootSquare(Double_t aa, Double_t bb, Double_t cc)
    // kroot_status<0 les deux racines sont mises a zero la fonction retourne kFALSE
    //    =-1 2 racines imaginaires (Delta<0)
    //    =-2 aa=bb=0
-   // le calcul n'est alors pas poursuivi, la méthode Calculate() retournera kFALSE
-   // la cause peut être discriminée en appelant la méthode GetValue("RootStatus")
+   // le calcul n'est alors pas poursuivi, la methode Calculate() retournera kFALSE
+   // la cause peut etre discriminee en appelant la methode GetValue("RootStatus")
    //
    kracine_max = 0, kracine_min = 0;
    Double_t x1, x2;
@@ -467,7 +460,8 @@ Bool_t   KVCaloBase::RootSquare(Double_t aa, Double_t bb, Double_t cc)
          //Warning("RootSquare","Delta<0 - Solutions imaginaires");
          kroot_status = -1;
          SetIngValue("RootStatus", kroot_status);
-      } else {
+      }
+      else {
          Double_t racDelta = TMath::Sqrt(Delta);
          x1 = (-1.*bb + racDelta) / (2.*aa);
          x2 = (-1.*(bb + racDelta)) / (2.*aa);
@@ -475,16 +469,19 @@ Bool_t   KVCaloBase::RootSquare(Double_t aa, Double_t bb, Double_t cc)
          if (x1 > x2)  {
             kracine_max = x1;
             kracine_min = x2;
-         } else        {
+         }
+         else        {
             kracine_max = x2;
             kracine_min = x1;
          }
       }
-   } else {
+   }
+   else {
       if (bb != 0) {
          kroot_status = 1;
          kracine_max = kracine_min = -1.*cc / bb;
-      } else {
+      }
+      else {
          kroot_status = -2;
          kracine_max = kracine_min = 0;
          SetIngValue("RootStatus", kroot_status);
@@ -493,7 +490,8 @@ Bool_t   KVCaloBase::RootSquare(Double_t aa, Double_t bb, Double_t cc)
    if (kroot_status < 0) {
       SetIngValue("RootStatus", kroot_status);
       return kFALSE;
-   } else {
+   }
+   else {
       return kTRUE;
    }
 

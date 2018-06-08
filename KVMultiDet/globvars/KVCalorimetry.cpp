@@ -16,79 +16,32 @@ ClassImp(KVCalorimetry)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVCalorimetry</h2>
-<h4>Bilan énergétique d un ensemble de noyaux</h4>
+<h4>Improved calorimetry of hot nuclei</h4>
 <!-- */
 // --> END_HTML
-// Classe héritée de KVCaloBase avec d'ajouter à ces membres, deux KVNameValueList permettant
-// gérer les ingrédients/variables et les paramètres de manière complètement progressive.
-// Ces deux listes sont accessibles via GetList(Option_t* option = "ing" ou "par")
 //
-// PRINCIPE
-// KVCalorimetry fait la somme des Z (Zsum), A (Asum), Ek (Eksum) et Q (Qsum) des noyaux considérés (méthode Fill(KVNucleus* ))
-// Ces ingrédients permettent ensuite de calculer l'énergie d'excitation en utilisant
-// le bilan énergétique suivant:
-// Exci + Qini  = Eksum + Qsum -> Exci = Eksum + Qsum - Qini
-// A noter : Si l'utilisateur définit un repère via KVVarGlob::SetFrame(const Char_t* ) les énergies cinétiques
-// des noyaux sont prises dans ce référentiel ( KVNucleus::GetFrame("nom_du_referentiel)"->GetKE() )
-//------------------
-// Exemple d utilisation :
-//------------------
+// This is an extension of the KVCaloBase basic calorimetry, with several operating modes.
 //
-//KVNucleus alpha(2,4,10); //definition des noyaux
-//KVNucleus triton(1,3);
-//KVNucleus azote(7,16,40);
+// ## Two filling modes
 //
-//KVCalorimetry ca;
+// 1. Normal mode (default) - as for KVCaloBase
+// 2. Mode distinguishing light and heavy particles depending on Z.
+//    Activated by calling UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor)
+//     FragmentMinimumCharge is discriminating parameter :
+//       - KVNucleus::GetZ()<FragmentMinimumCharge -> "light particles"
+//       - KVNucleus::GetZ()>=FragmentMinimumCharge -> "fragments"
+//     the ParticleFactor parameter is used in the calculation of Zsum, Asum, Eksum, Qsum.
 //
-//ca.Fill(&alpha);   //Remplissage de la variable
-//ca.Fill(&triton);
-//ca.Fill(&azote);
+//    In method SumUp we have
 //
-//ca.Calculate();    //Calcul
-//ca.Print("ing");   //Print
-//Ingredients, 7 stored:
-//0 | Zsum | 10.00000   Sum of charges
-//1 | Asum | 23.00000   Sum of masses
-//2 | Eksum | 50.0000   Sum of kinetic energiex (MeV)
-//3 | Qsum | 23.05840   Sum of mass excess (MeV)
-//4 | Msum | 3.000000   Multiplicity
-//5 | Qini | -5.15400   Mass Excess of the initial state (reconstructed sourceeeeeee)
-//6 | Exci | 78.21240   Excitation energy (MeV)
+//~~~~~~~~~~~~~~~~~~~~
+// Eksum = \Sigma Ek(Z>=[FragmentMinimumCharge]) + [ParticleFactor]*\Sigma Ek(Z<[FragmentMinimumCharge])
+//~~~~~~~~~~~~~~~~~~~~
 //
-//ca.GetValue(0)
-//10.0000
-//ca.GetValue("Exci")
-//78.21240
+//    and the different contributions are stored in the ingredients list:
 //
-//------------------------ //Fin de l'exemple
-//
-// ACCES AUX VARIABLES
-//
-//L'accès aux variables se fait via les deux méthodes :
-// - GetValue(Int_t) choix par index
-// - GetValue(const Char_t* ) choix par nom
-// - GetValuePtr(), renvoie un tableau de Double_t*, de la dimension correspondant au nombre de valeurs (méthode GetNumberOfValues())
-// C'est à l' utilisateur ensuite d'effacer ce tableau via "delete [] tableau"
-// - Pour connaître l'index d une variable : GetNameIndex(const Char_t* )
-// - Pour connaître une variable à un index donné : GetValueName(Int_t )
-//
-// PLUSIEURS MODES DE FONCTIONNEMENT
-//
-// Deux modes de remplissage :
-//------------------------
-// 1. Mode normal (par défaut) comme explicité plus haut
-// 2. Mode distinguant les noyaux suivant leur charge, ie séparation entre particules et fragments
-//    Actif avec l appel de la méthode void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor)
-//    le paramètre FragmentMinimumCharge est le critère discriminant :
-//       - KVNucleus::GetZ()<FragmentMinimumCharge -> particules
-//       - KVNucleus::GetZ()>=FragmentMinimumCharge -> fragments
-//    le paramètre ParticleFactor correspond au facteur lorsque les grandeurs Zsum, Asum, Eksum, Qsum
-//    sont calculées.
-//    Dans la méthode SumUp on a  : Eksum = \Sigma Ek(Z>=[FragmentMinimumCharge]) + [ParticleFactor]*\Sigma Ek(Z<[FragmentMinimumCharge])
-//    et dans la liste des ingrédients, sont ajoutés les deux contributions particules et fragments et les paramètres choisis
-//    sont également enregistrés
-//
-//       root [12] ca.Print("ing");    //Exemple d'output avec cette methode
+//~~~~~~~~~~~~~~~~~~~~
+//       root [12] ca.Print("ing");    //Example output
 //          Ingredients, 17 stored:
 //          0 | Zpart | 3.000000000
 //          1 | Apart | 7.000000000
@@ -111,26 +64,30 @@ ClassImp(KVCalorimetry)
 //          Parameters, 2 stored:
 //          0 | FragmentMinimumCharge | 5.000
 //          1 | ParticleFactor | 2.0000
+//~~~~~~~~~~~~~~~~~~~~
 //
-//----------------------------
 //
-// Deux modes de calcul :
-//------------------------
-// 1. Mode normal (par défaut) comme explicité plus haut
-// 2. Mode incluant les neutrons libres
-//    Actif avec l appel de la méthode IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
+// ## Two calculation modes
+//
+// 1. Normal mode (default) - as KVCaloBase
+// 2. Inclusion of free neutrons
+//    Activated by calling
+//
+//~~~~~~~~~~~~~~~~~~~~
+//   IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
 //
 //    Mn =  [AsurZ]*Zsum - Asum  (methode SumUp)
 //    Asum/[LevelDensityParameter] * T*T + Qi - \Sigma Ek - [NeutronMeanEnergyFactor]*Mn*T - \Sigma Q = 0   (methode Calculate)
 //    Exci = Asum/[LevelDensityParameter] * T*T
+//~~~~~~~~~~~~~~~~~~~~
 //
-//       A NOTER : Dans le cas ou le calcul de la multiplicité de neutrons retourne un nombre négatif (Mneu<0), le
-//       multiplicité de neutrons est mise à zéro (Mneu=0) et on rajoute un paramètre Aexcess = TMath::Abs(Mneu)
-//       La calorimétrie se fait en considérant aucun neutrons libres
+// __N.B.__ : If calculated neutron multiplicity Mneu<0, we set Mneu=0 and add a parameter 'Aexcess' = TMath::Abs(Mneu)
+//  In this case calorimetry is performed without considering free neutrons.
 //
-//    Dans la liste des ingrédients, sont ajoutés les contributions relatives aux neutrons et les paramètres choisis
-//    sont également enregistrés
-//       root [31] ca.Print("ing");       //Exemple d'output avec cette methode
+//    All informations are stored in ingredients list:
+//
+//~~~~~~~~~~~~~~~~~~~~
+//       root [31] ca.Print("ing");       //Example
 //          Ingredients, 13 stored:
 //          0 | Zsum | 10.0000000000
 //          1 | Asum | 25.0000000000
@@ -149,21 +106,29 @@ ClassImp(KVCalorimetry)
 //          0 | AsurZ | 2.50000000
 //          1 | NeutronMeanEnergyFactor | 1.00
 //          2 | LevelDensityParameter | 10.000
-// Température (MeV)
-// Dans le cas où les neutrons libres sont pris en compte, la détermination de la température
-// fait partie du calcul, dans les autres cas, l'utilisateur peut appeler en début de traitement
-// la méthode DeduceTemperature(Double_t LevelDensityParameter) qui donne la température suivant la formule :
-// T = TMath::Sqrt(Exci * [LevelDensityParameter]/Asum)
+//~~~~~~~~~~~~~~~~~~~~
 //
-// Pour Resume,
-//    IL EST INDISPENSABLE D APPELER LA METHODE Calculate() avant d'utiliser les variables calculées dans KVCalorimetry
-//    Cette méthode renvoie un booléen indiquant si tout c'est bien passé (kTRUE)
-//    les methodes :
+// ### Temperature
+// When free neutrons are considered, the temperature is calculated as part of the method.
+// If not, you can call method DeduceTemperature(Double_t LevelDensityParameter) which gives the temperature
+// according to the Fermi gas formula:
+//
+//~~~~~~~~~~~~~~~~~~~~
+// T = TMath::Sqrt(Exci * [LevelDensityParameter]/Asum)
+//~~~~~~~~~~~~~~~~~~~~
+//
+// ## Summary
+//    You __must__ call Calculate() before using any variables calculated by this class
+//    This method returns kTRUE if all went well.
+//    Methods:
+//
+//~~~~~~~~~~~~~~~~~~~~
 //       void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor);
 //       void DeduceTemperature(Double_t LevelDensityParameter);
 //       void IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
-//    DOIVENT ETRE APPELEES AVANT LES OPERATIONS DE FILL de l'objet KVCalorimetry
-
+//~~~~~~~~~~~~~~~~~~~~
+//
+//    __must__ be called before Fill()-ing the variable
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -309,19 +274,19 @@ void KVCalorimetry::IncludeFreeNeutrons(Double_t AsurZ, Double_t NeutronMeanEner
 void KVCalorimetry::Fill(KVNucleus* n)
 {
    // Remplissage des energies, masse, charge et defaut de masse
-   // Pour l'énergie cinétique, si l'utilisateur a utilisé en amont
-   // la méthode KVVarGlob::SetFrame(const Char_t*), c'est dans ce repère que les énergies sont sommées
-   // (à condition que chaque KVNucleus possede le repere avec un nom identique)
+   // Pour l'energie cinetique, si l'utilisateur a utilise en amont
+   // la methode KVVarGlob::SetFrame(const Char_t*), c'est dans ce repere que les energies sont sommees
+   // (a condition que chaque KVNucleus possede le repere avec un nom identique)
    //
    // Deux modes de remplissages :
    //----------------------------
-   // - mode par défault, somme simple sur les A, Z, Ek, Q sans distinction du type de particules
+   // - mode par default, somme simple sur les A, Z, Ek, Q sans distinction du type de particules
    //
-   // - mode avec distinction particules / fragments, actif si la méthode
-   // UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor) a été appelée :
-   // ->Uune distinction entre produits avec une
-   // charge strictement inférieur à FragmentMinimumCharge (particules) et supérieur ou égale (fragments)
-   // est appliquée
+   // - mode avec distinction particules / fragments, actif si la methode
+   // UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor) a ete appelee :
+   // ->Une distinction entre produits avec une
+   // charge strictement inferieur à FragmentMinimumCharge (particules) et superieur ou egale (fragments)
+   // est appliquee
 
    kIsModified = kTRUE;
 
@@ -333,7 +298,8 @@ void KVCalorimetry::Fill(KVNucleus* n)
          AddIngValue("Ekfrag", n->GetFrame(fFrame.Data(), kFALSE)->GetKE());
          AddIngValue("Qfrag", n->GetMassExcess());
          AddIngValue("Mfrag", 1);
-      } else {
+      }
+      else {
          AddIngValue("Zpart", n->GetZ());
          AddIngValue("Apart", n->GetA());
          AddIngValue("Ekpart", n->GetFrame(fFrame.Data(), kFALSE)->GetKE());
@@ -352,33 +318,33 @@ void KVCalorimetry::Fill(KVNucleus* n)
 void KVCalorimetry::SumUp()
 {
    // protected method
-   // Appelé par Calculate pour mettre à jour les différents ingrédients
-   // de la calorimétrie :
+   // Appele par Calculate pour mettre a jour les differents ingredients
+   // de la calorimetrie :
    //
    // Trois modes de sommes:
    //------------------
    // - mode normal (par defaut)
-   // détermination de l excès de masse de la source recontruite, dernier ingrédient de l'équation :
+   // determination de l exces de masse de la source recontruite, dernier ingredient de l'equation :
    // Exci + Qini  = \Sigma Ek + \Sigma Q -> Exci = \Sigma Ek + \Sigma Q - Qini
    //
-   // - mode avec distinction particules / fragments, actif si la méthode
-   // UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor) a été appelée :
-   // -> une distinction entre produits avec une charge strictement inférieur à FragmentMinimumCharge (particules)
-   // et supérieur ou égale (fragments) est appliquée
-   // Ainsi dans la méthode SumUp() pour les énergies cinétiques, par exemple
-   // l'énergie cinétique de la source reconstruite sera
+   // - mode avec distinction particules / fragments, actif si la methode
+   // UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor) a ete appelee :
+   // -> une distinction entre produits avec une charge strictement inferieur a FragmentMinimumCharge (particules)
+   // et superieur ou egale (fragments) est appliquee
+   // Ainsi dans la methode SumUp() pour les energies cinetiques, par exemple
+   // l'energie cinetique de la source reconstruite sera
    // Eksum = Ekfrag(Z>=[FragmentMinimumCharge]) + [ParticleFactor]*Ekpart(Z<[FragmentMinimumCharge])
-   // Détermination ensuite de l excès de masse de la source
+   // Determination ensuite de l exces de masse de la source
    //
-   // - mode avec prise en compte des neutrons libres, actif si la métode
+   // - mode avec prise en compte des neutrons libres, actif si la methode
    // IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter)
    // L'estimation du nombre neutrons, est fait en utilisant un AsurZ (paramètre de la calorimétrie)
-   // supposé de la source reconstruite :
-   // le nombre de neutrons libres est alors égal :
+   // suppose de la source reconstruite :
+   // le nombre de neutrons libres est alors egal :
    // Mn =  [AsurZ]*Zsum - Asum
-   // Pour un Zsou reconstruit, on rajoute des neutrons pour que le Asou corresponde à un AsurZ prédéfini
-   // On en déduit ensuite l'exces de masse asscoié à ces neutrons
-   // Détermination ensuite de l excès de masse de la source
+   // Pour un Zsou reconstruit, on rajoute des neutrons pour que le Asou corresponde a un AsurZ predefini
+   // On en deduit ensuite l'exces de masse asscoie a ces neutrons
+   // Determination ensuite de l exces de masse de la source
 
    // Les proprietes de la source sont calculees
 
@@ -420,28 +386,28 @@ void KVCalorimetry::SumUp()
 //________________________________________________________________
 Bool_t   KVCalorimetry::Calculate(void)
 {
-   //Réalisation de la calorimétrie
-   //Calcul de l'énergie d'excitation, température (optionnel), de l'énergie moyenne des neutrons (optionnel)
+   //Realisation de la calorimétrie
+   //Calcul de l'energie d'excitation, temperature (optionnel), de l'energie moyenne des neutrons (optionnel)
    //appel de SumUp()
-   //Cette méthore retourne kTRUE si tout s'est bien passée, kFALSE si il y a un problème dans la résolution
+   //Cette methode retourne kTRUE si tout s'est bien passee, kFALSE si il y a un probleme dans la resolution
    //du polynome d'ordre 2
    //
    // Deux modes de calcul:
    //------------------
    // - mode normal (par defaut)
-   // Résolution de l'équation
+   // Resolution de l'equation
    // Exci + Qini  = \Sigma Ek + \Sigma Q
    //    -> Exci = \Sigma Ek + \Sigma Q - Qini
    //
    // Optionnel :
-   // le calcul de la température peut être également fait si la méthode DeduceTemperature(Double_t LevelDensityParameter) a été appelée
+   // le calcul de la temperature peut etre egalement fait si la methode DeduceTemperature(Double_t LevelDensityParameter) a ete appelee
    // elle est obtenue via la formule : Exci = Asum/[LevelDensityParameter] * T*T
    //
-   // - mode avec prise en compte des neutrons libres, actif si la métode
+   // - mode avec prise en compte des neutrons libres, actif si la methode
    // IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter)
-   // Résolution de l'équation (polynome deuxième degrée en T (température) )
+   // Resolution de l'equation (polynome deuxieme degree en T (temperature) )
    // Asum/[LevelDensityParameter] * T*T + Qi - \Sigma Ek - [NeutronMeanEnergyFactor]*Mn*T - \Sigma Q = 0
-   // on y obtient directement la température
+   // on y obtient directement la temperature
    //
 
    //Info("Calculate","Debut");
@@ -470,11 +436,13 @@ Bool_t   KVCalorimetry::Calculate(void)
 
          //parametre additionnel
          //SetIngValue("Tmin",kracine_min); // la deuxieme solution de l'eq en T2
-      } else {
+      }
+      else {
          return kFALSE;
       }
 
-   } else {
+   }
+   else {
 
       ComputeExcitationEnergy();
       if (ktempdeduced) {
