@@ -921,11 +921,7 @@ void KVEvent::MergeEventFragments(TCollection* events, Option_t* opt)
    Clear(opt);
    TIter it(events);
    KVEvent* e;
-   while ((e = (KVEvent*)it())) {
-      for (Iterator ite = e->begin(); ite != e->end(); ++ite)(*ite).Copy(*AddParticle());
-      GetParameters()->Merge(*(e->GetParameters()));
-      e->Clear(opt);
-   }
+   while ((e = (KVEvent*)it())) fParticles->AbsorbObjects(e->fParticles);
 }
 
 KVEvent* KVEvent::Factory(const char* plugin)
