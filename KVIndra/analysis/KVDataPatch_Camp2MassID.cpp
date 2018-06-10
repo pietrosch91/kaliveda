@@ -33,27 +33,24 @@ KVDataPatch_Camp2MassID::~KVDataPatch_Camp2MassID()
 
 void KVDataPatch_Camp2MassID::ApplyToParticle(KVNucleus* n)
 {
-   Info("ApplyToParticle", "Called");
    KVINDRAReconNuc* irn = dynamic_cast<KVINDRAReconNuc*>(n);
-   if (irn->IsAMeasured() && !irn->GetCodes().TestIDCode(kIDCode_CsI)) {
-      Info("ApplyToParticle", "Applying to: Z=%d A=%d idcode=%d", irn->GetZ(), irn->GetA(), irn->GetIDCode());
+   if (irn->IsAMeasured() && (!irn->GetCodes().TestIDCode(kIDCode_CsI) || irn->GetRingNumber() == 1)) {
       irn->SetAMeasured(kFALSE);
+   }
+   if (!irn->IsAMeasured()) {
       irn->SetMassFormula(KVNucleus::kVedaMass);
       irn->SetZ(irn->GetZ());
-      Info("ApplyToParticle", " changed to: A=%d", irn->GetA());
    }
 }
 
 void KVDataPatch_Camp2MassID::PrintPatchInfo() const
 {
    std::cout << "Correct bad attribution of isotopic resolution & mass in 2nd campaign data" << std::endl;
-   std::cout << "Only light (Z<5) particles were identified in mass." << std::endl;
-   std::cout << "The 1st campaign convention of giving negative A values to particles whose mass" << std::endl;
-   std::cout << "was only calculated from Z (using the VEDA mass formula) was not respected for this" << std::endl;
-   std::cout << "campaign: as a result, when initially imported into KaliVeda, everything was labelled" << std::endl;
-   std::cout << "as being isotopically identified (KVReconstructedNucleus::IsAMeasured() returns kTRUE)." << std::endl;
-   std::cout << "In addition, calculated masses seem not to have been applied coherently, with each element" << std::endl;
-   std::cout << "appearing with two masses, separated by 2 mass units...[\"Curiouser and curiouser\", said Alice]" << std::endl;
+   std::cout << std::endl;
+   std::cout << "All particles identified in Phoswich detectors (Ring 1) were" << std::endl;
+   std::cout << "labelled as being isotopically identified." << std::endl;
+   std::cout << "Calculated masses were not consistent: several A for some Z" << std::endl;
+   std::cout << "We give single KVNucleus::kVedaMass A to all" << std::endl;
 }
 
 //____________________________________________________________________________//
