@@ -3,6 +3,8 @@
 
 #include "KVDataPatch_Camp2MassID.h"
 #include "KVINDRAReconNuc.h"
+#include "TClass.h"
+
 ClassImp(KVDataPatch_Camp2MassID)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +20,8 @@ KVDataPatch_Camp2MassID::KVDataPatch_Camp2MassID()
    : KVDataPatch()
 {
    // Default constructor
+   SetName(ClassName());
+   SetTitle(Class()->GetTitle());
 }
 
 //____________________________________________________________________________//
@@ -29,11 +33,14 @@ KVDataPatch_Camp2MassID::~KVDataPatch_Camp2MassID()
 
 void KVDataPatch_Camp2MassID::ApplyToParticle(KVNucleus* n)
 {
+   Info("ApplyToParticle", "Called");
    KVINDRAReconNuc* irn = dynamic_cast<KVINDRAReconNuc*>(n);
    if (irn->IsAMeasured() && !irn->GetCodes().TestIDCode(kIDCode_CsI)) {
+      Info("ApplyToParticle", "Applying to: Z=%d A=%d idcode=%d", irn->GetZ(), irn->GetA(), irn->GetIDCode());
       irn->SetAMeasured(kFALSE);
       irn->SetMassFormula(KVNucleus::kVedaMass);
       irn->SetZ(irn->GetZ());
+      Info("ApplyToParticle", " changed to: A=%d", irn->GetA());
    }
 }
 
