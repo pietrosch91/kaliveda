@@ -179,7 +179,8 @@ Bool_t KVEventFiltering::Analysis()
 #endif
    KVEvent* to_be_detected = GetEvent();
 #ifdef WITH_GEMINI
-   if (fGemini) Int_t iterations = fGemDecayPerEvent;
+   Int_t iterations = 1;
+   if (fGemini) iterations = fGemDecayPerEvent;
 #endif
    if (to_be_detected->GetNumber()) to_be_detected->SetParameter("SIMEVENT_NUMBER", (int)to_be_detected->GetNumber());
    to_be_detected->SetParameter("SIMEVENT_TREE_ENTRY", (int)fTreeEntry);
