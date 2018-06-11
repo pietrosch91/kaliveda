@@ -114,6 +114,7 @@ public:
 
    void SelectDataSet(const char*);
    void SelectSystem(const char*);
+   void UpdateSystemText(const char*);
    void SelectRun(const char*);
    void FilterType(Int_t i)
    {
