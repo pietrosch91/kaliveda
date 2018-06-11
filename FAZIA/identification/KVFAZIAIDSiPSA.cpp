@@ -66,7 +66,8 @@ Bool_t KVFAZIAIDSiPSA::Identify(KVIdentificationResult* idr, Double_t x, Double_
 
    if (IGrid->IsIdentifiable(ima, esi)) {
       IGrid->Identify(ima, esi, idr);
-   } else {
+   }
+   else {
       idr->IDOK = kFALSE;
       idr->IDquality = KVIDZAGrid::kICODE8;
    }
@@ -106,7 +107,8 @@ void KVFAZIAIDSiPSA::Initialize()
       SetHasMassID(IGrid->IsOnlyZId());
       IGrid->Initialize();
       SetBit(kReadyForID);
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
    if (!gDataSet->HasCalibIdentInfos()) { // for filtering simulations
@@ -138,6 +140,8 @@ void KVFAZIAIDSiPSA::SetIdentificationStatus(KVReconstructedNucleus* n)
    // Z-dependence of A identification:
    //    all ok above threshold if Z<=16, decreasing probability for 17<=Z<=21
    //    no A identification for Z>21
+   //
+   // If A is not measured, we make sure the KE of the particle corresponds to the simulated one
 
    n->SetZMeasured();
    fMassIDProb->SetParameters(18.5, .4);
@@ -145,6 +149,10 @@ void KVFAZIAIDSiPSA::SetIdentificationStatus(KVReconstructedNucleus* n)
    okmass = okmass && (n->GetEnergy() >= fAThreshold->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
-   } else
+   }
+   else {
+      double e = n->GetE();
       n->SetZ(n->GetZ());
+      n->SetE(e);
+   }
 }

@@ -11,8 +11,6 @@
 #include "KVDataSetManager.h"
 #include "KVGeoNavigator.h"
 
-#include <KVGemini.h>
-
 ClassImp(KVEventFiltering)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,8 +97,10 @@ KVEventFiltering::KVEventFiltering()
    fTransformKinematics = kTRUE;
    fNewFrame = "";
    fRotate = kTRUE;
+#ifdef WITH_GEMINI
    fGemini = kFALSE;
    fGemDecayPerEvent = 1;
+#endif
 #ifdef DEBUG_FILTER
    memory_check = KVClassMonitor::GetInstance();
    SetEventsReadInterval(100);
@@ -144,8 +144,10 @@ void KVEventFiltering::Copy(TObject& obj) const
    KVEventSelector::Copy(obj);
    KVEventFiltering& CastedObj = (KVEventFiltering&)obj;
    CastedObj.fRotate = fRotate;
+#ifdef WITH_GEMINI
    CastedObj.fGemini = fGemini;
    CastedObj.fGemDecayPerEvent = fGemDecayPerEvent;
+#endif
 }
 
 void KVEventFiltering::RandomRotation(KVEvent* to_rotate, const TString& frame_name) const
@@ -176,22 +178,24 @@ Bool_t KVEventFiltering::Analysis()
    else if (fEVN > 4995) memory_check->CompareToInit();
 #endif
    KVEvent* to_be_detected = GetEvent();
-   Int_t iterations = 1;
-   if (fGemini) iterations = fGemDecayPerEvent;
+#ifdef WITH_GEMINI
+   if (fGemini) Int_t iterations = fGemDecayPerEvent;
+#endif
    if (to_be_detected->GetNumber()) to_be_detected->SetParameter("SIMEVENT_NUMBER", (int)to_be_detected->GetNumber());
    to_be_detected->SetParameter("SIMEVENT_TREE_ENTRY", (int)fTreeEntry);
 #ifdef WITH_GEMINI
    do {
-      KVGemini g;
-      try {
-         g.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
+      if (fGemini) {
+         try {
+            GEM.DecayEvent((KVSimEvent*)GetEvent(), &fGemEvent);
+         }
+         catch (...) {
+            continue;
+         }
+         //Copy any parameters associated with simulated event into the Gemini-decayed event
+         GetEvent()->GetParameters()->Copy(*(fGemEvent.GetParameters()));
+         to_be_detected = &fGemEvent;
       }
-      catch (...) {
-         continue;
-      }
-      to_be_detected = &fGemEvent;
-      //Copy any parameters associated with simulated event into the Gemini-decayed event
-      GetEvent()->GetParameters()->Copy(*(fGemEvent.GetParameters()));
 #endif
       if (fTransformKinematics) {
          if (fNewFrame == "proj")   to_be_detected->SetFrame("lab", fProjVelocity);
@@ -407,10 +411,12 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    TString basefile = GetOpt("SimFileName");
    basefile.Remove(basefile.Index(".root"), 5);
    TString outfile = basefile;
+#ifdef WITH_GEMINI
    if (fGemini) {
       outfile += "_Gemini";
       if (fGemDecayPerEvent > 1) outfile += fGemDecayPerEvent;
    }
+#endif
    outfile += "_geo=";
    outfile += GetOpt("Geometry");
    outfile += "_filt=";
@@ -463,7 +469,9 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem* S, Int_t run)
    (new TNamed("Filter", GetOpt("Filter").Data()))->Write();
    (new TNamed("Origin", (basefile + ".root").Data()))->Write();
    (new TNamed("RandomPhi", (fRotate ? "yes" : "no")))->Write();
+#ifdef WITH_GEMINI
    (new TNamed("Gemini++", (fGemini ? "yes" : "no")))->Write();
    (new TNamed("GemDecayPerEvent", Form("%d", fGemDecayPerEvent)))->Write();
+#endif
    curdir->cd();
 }

@@ -73,13 +73,15 @@ Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_
    if (fBelowProton) {
       if (fBelowProton->TestPoint(csi, si2)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
       else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-   } else {
+   }
+   else {
       idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
    }
 
    if (TheGrid->IsIdentifiable(csi, si2)) {
       TheGrid->Identify(csi, si2, idr);
-   } else {
+   }
+   else {
       idr->IDOK = kFALSE;
       idr->IDquality = KVIDZAGrid::kICODE8;
    }
@@ -109,7 +111,8 @@ void KVFAZIAIDSiCsI::Initialize()
       fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
       SetBit(kReadyForID);
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
    if (!gDataSet->HasCalibIdentInfos()) {// for filtering simulations
@@ -125,12 +128,18 @@ void KVFAZIAIDSiCsI::SetIdentificationStatus(KVReconstructedNucleus* n)
    // Z-dependence of A identification:
    //    all ok if Z<=14, decreasing probability for 15<=Z<=18
    //    no A identification for Z>18
+   //
+   // If A is not measured, we make sure the KE of the particle corresponds to the simulated one
 
    n->SetZMeasured();
    fMassIDProb->SetParameters(16.5, .4);
    Bool_t okmass = (n->GetZ() <= 14) || (n->GetZ() < 19 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
-   } else
+   }
+   else {
+      double e = n->GetE();
       n->SetZ(n->GetZ());
+      n->SetE(e);
+   }
 }

@@ -1234,12 +1234,20 @@ void KVIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
    n->SetZMeasured();
    if (!HasMassID()) {
       n->SetAMeasured(kFALSE);
+      // beware - changing particle's mass changes its KE (momentum is conserved)
+      double e = n->GetE();
       n->SetZ(n->GetZ());// use mass formula for A
+      n->SetE(e);
    }
    else {
       if (fMassIDValidity) n->SetAMeasured(fMassIDValidity->Test(n)); // test expression for mass ID validity
       else n->SetAMeasured();   // no expression set; all nuclei are identified in mass
-      if (!n->IsAMeasured()) n->SetZ(n->GetZ()); // use mass formula for A
+      if (!n->IsAMeasured()) {
+         // beware - changing particle's mass changes its KE (momentum is conserved)
+         double e = n->GetE();
+         n->SetZ(n->GetZ()); // use mass formula for A
+         n->SetE(e);
+      }
    }
 }
 

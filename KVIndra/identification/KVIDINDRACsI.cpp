@@ -47,6 +47,12 @@ KVIDINDRACsI::KVIDINDRACsI()
    fThresMax[0][1] = 6;    // deutons
    fThresMin[0][2] = 5;
    fThresMax[0][2] = 11;   // tritons
+   fThresMin[0][3] = -1;
+   fThresMax[0][3] = -1;   // 4H - NO!
+   fThresMin[1][0] = -1;
+   fThresMax[1][0] = -1;   // 1He - NO!
+   fThresMin[1][1] = -1;
+   fThresMax[1][1] = -1;   // 2He - NO!
    fThresMin[1][2] = 20;
    fThresMax[1][2] = 40;   // 3He
    fThresMin[1][3] = 1;
@@ -140,7 +146,8 @@ void KVIDINDRACsI::Initialize()
    if (CsIGrid) {
       CsIGrid->Initialize();
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }
@@ -154,22 +161,34 @@ void KVIDINDRACsI::SetIdentificationStatus(KVReconstructedNucleus* n)
    // Otherwise, we just set n->IsZMeasured(kTRUE) and use the A given by
    // the mass formula for the particle
    //
-   // Z-dependence of A identification:
-   //    all ok above threshold if Z<=16, decreasing probability for 17<=Z<=21
-   //    no A identification for Z>21
+   // individual thresholds defined for 1H, 2H, 3H, 3He, 4He
+   // for A>5 identification if CsI energy > 40 MeV
+   //
+   // If A is not measured, we make sure the KE of the particle corresponds to the simulated one
+
    n->SetZMeasured();
 
    if (n->GetA() > 5) {
-      if (fCsI->GetEnergy() > 40) n->SetAMeasured();
-      else n->SetZ(n->GetZ());
+      if (fCsI->GetEnergy() > 40)
+         n->SetAMeasured();
+      else {
+         double e = n->GetE();
+         n->SetZ(n->GetZ());
+         n->SetE(e);
+      }
       return;
    }
-
-   Bool_t okmass = gRandom->Uniform() < smootherstep(fThresMin[n->GetZ() - 1][n->GetA() - 1], fThresMax[n->GetZ() - 1][n->GetA() - 1], fCsI->GetEnergy());
-   if (okmass) {
-      n->SetAMeasured();
-   } else
+   if (fThresMin[n->GetZ() - 1][n->GetA() - 1] > 0) {
+      Bool_t okmass = gRandom->Uniform() < smootherstep(fThresMin[n->GetZ() - 1][n->GetA() - 1], fThresMax[n->GetZ() - 1][n->GetA() - 1], fCsI->GetEnergy());
+      if (okmass) {
+         n->SetAMeasured();
+      }
+   }
+   else {
+      double e = n->GetE();
       n->SetZ(n->GetZ());
+      n->SetE(e);
+   }
 }
 
 

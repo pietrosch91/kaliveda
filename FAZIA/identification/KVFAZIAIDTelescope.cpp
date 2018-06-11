@@ -43,7 +43,8 @@ void KVFAZIAIDTelescope::AddDetector(KVDetector* d)
       if (GetSize() > 1)
          SetName(Form("ID_%s_%s_%d", GetDetector(1)->GetLabel(), GetDetector(2)->GetLabel(), ((KVFAZIADetector*)GetDetector(1))->GetIndex()));
       else SetName(Form("ID_%s_%d", GetDetector(1)->GetLabel(), ((KVFAZIADetector*)GetDetector(1))->GetIndex()));
-   } else {
+   }
+   else {
       Warning("AddDetector", "Called with null pointer");
    }
 }
@@ -71,7 +72,8 @@ const Char_t* KVFAZIAIDTelescope::GetNewName(KVString oldname)
    static KVString newname;
    if (det2 == "") {
       newname.Form("ID_%s_%s", labdet1.Data(), idxdet1.Data());
-   } else {
+   }
+   else {
       KVString newdet2 = KVFAZIADetector::GetNewName(det2.Data());
       newdet2.Begin("-");
       KVString labdet2 = newdet2.Next();
@@ -89,12 +91,18 @@ void KVFAZIAIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
    // Z-dependence of A identification:
    //    all ok if Z<=20, decreasing probability for 21<=Z<25
    //    no A identification for Z>=25
+   //
+   // If A is not measured, we make sure the KE of the particle corresponds to the simulated one
 
    n->SetZMeasured();
    fMassIDProb->SetParameters(22.5, .4);
    Bool_t okmass = (n->GetZ() <= 20) || (n->GetZ() < 25 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
-   } else
+   }
+   else {
+      double e = n->GetE();
       n->SetZ(n->GetZ());
+      n->SetE(e);
+   }
 }
