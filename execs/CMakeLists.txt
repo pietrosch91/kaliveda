@@ -12,8 +12,7 @@ set(build_targets
         KaliVedaGUI
 )
 if(USE_INDRA)
-    list(APPEND build_targets KVDataBaseGUI)
-# test_reconstruction) only works with ROOT6
+    list(APPEND build_targets KVDataBaseGUI test_reconstruction)
 endif()
 
 set(test_reconstruction_SRC test_reconstruction.C)
