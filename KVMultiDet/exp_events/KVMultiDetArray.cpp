@@ -679,7 +679,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
    // iterate through list of particles
    KVNucleus* part, *_part;
-   KVNameValueList det_stat;
+   KVNameValueList* det_stat = new KVNameValueList();
    KVNameValueList* nvl = 0;
    KVNameValueList un;
 
@@ -3053,8 +3053,6 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
          ok = kTRUE;
       }
    }
-
-   //if (ok) fFiredACQParams.ls();
 
    return ok;
 }

@@ -101,7 +101,8 @@ void KVReconstructedEvent::Streamer(TBuffer& R__b)
             gMultiDetArray->AcceptParticleForAnalysis(par);
          }
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVReconstructedEvent::Class(), this);
    }
 }
@@ -182,8 +183,7 @@ void KVReconstructedEvent::ls(Option_t*) const
       printf("  D:%10s", nuc.GetStoppingDetector()->GetName());
       printf(" IDCODE=%2d", nuc.GetIDCode());
       if (nuc.IsIdentified()) {
-         if (!nuc.GetIdentifyingTelescope()) nuc.Print();
-         printf(" ID:%15s", nuc.GetIdentifyingTelescope()->GetName());
+         if (nuc.GetIdentifyingTelescope()) printf(" ID:%15s", nuc.GetIdentifyingTelescope()->GetName());
          if (nuc.IsZMeasured()) printf(" Z=%2d", nuc.GetZ());
          else printf("     ");
          if (nuc.IsAMeasured()) printf(" A=%3d  : ", nuc.GetA());
@@ -191,7 +191,10 @@ void KVReconstructedEvent::ls(Option_t*) const
          if (nuc.GetParameters()->IsValue("Coherent", false)) printf("/not coherent/");
          if (nuc.GetParameters()->IsValue("Pileup", true)) printf("/pileup/");
       }
-      if (!nuc.IsIdentified()) nuc.PrintStatusString();
+      if (!nuc.IsIdentified()) {
+         printf(" ");
+         nuc.PrintStatusString();
+      }
       else printf("\n");
       ++i;
    }
@@ -213,7 +216,8 @@ void KVReconstructedEvent::IdentifyEvent()
          if (d->GetStatus() == KVReconstructedNucleus::kStatusOK) {
             // identifiable particles
             d->Identify();
-         } else if (d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
+         }
+         else if (d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
             UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
