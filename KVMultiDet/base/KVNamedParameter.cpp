@@ -119,8 +119,22 @@ void KVNamedParameter::Set(const char* nom, const KVNamedParameter& p)
 
 void KVNamedParameter::Add(const KVNamedParameter& p)
 {
-   // Add the numerical value of "p" to this parameter
-   fNumber += p.fNumber;
+   // Numerical values: Add the numerical value of "p" to this parameter
+   // Strings: add string to comma-separated list of values
+   // If parameters are not same type, print warning and do nothing
+
+   if (GetType() != p.GetType()) {
+      Warning("Add", "Parameters are not same type: this->name=%s (type=%d) other->name=%s (type=%d)",
+              GetName(), GetType(), p.GetName(), p.GetType());
+      return;
+   }
+   if (IsString()) {
+      TString w = Get<TString>() + ",";
+      w += p.Get<TString>();
+      Set(w);
+   }
+   else
+      fNumber += p.fNumber;
 }
 
 void KVNamedParameter::Set(Int_t val)
@@ -292,7 +306,8 @@ void KVNamedParameter::Print(Option_t*) const
 {
    if (IsString()) {
       Info("Print", "Name = %s type = string value = %s", GetName(), GetTitle());
-   } else
+   }
+   else
       Info("Print", "Name = %s type = %s value = %s", GetName(), GetTitle(), GetString());
 }
 
@@ -318,7 +333,8 @@ void KVNamedParameter::ls(Option_t* option) const
    TROOT::IndentLevel();
    if (IsString()) {
       if (can_print) cout << "<" << GetName() << "=" << GetTitle() << ">" << endl;
-   } else {
+   }
+   else {
       switch (GetType()) {
          case kIsInt:
             if (can_print) cout << "<" << GetName() << "=" << GetInt() << ">" << endl;
