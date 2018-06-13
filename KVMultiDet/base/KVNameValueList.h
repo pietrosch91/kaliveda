@@ -65,7 +65,8 @@ public:
             fList.GetCollection()->Remove(par);
             fList.AddAt(par, idx);
          }
-      } else fList.AddAt(new KVNamedParameter(name, value), idx);
+      }
+      else fList.AddAt(new KVNamedParameter(name, value), idx);
    }
 
    template <typename value_type>
@@ -83,7 +84,8 @@ public:
             fList.GetCollection()->Remove(par);
             fList.AddFirst(par);
          }
-      } else fList.AddFirst(new KVNamedParameter(name, value));
+      }
+      else fList.AddFirst(new KVNamedParameter(name, value));
    }
 
    template <typename value_type>
@@ -101,19 +103,18 @@ public:
             fList.GetCollection()->Remove(par);
             fList.AddLast(par);
          }
-      } else fList.AddLast(new KVNamedParameter(name, value));
+      }
+      else fList.AddLast(new KVNamedParameter(name, value));
    }
 
    template <typename value_type>
-   value_type IncrementValue(const Char_t* name, value_type value)
+   void IncrementValue(const Char_t* name, value_type value)
    {
       //increment a parameter (define by its name) by a value
       //if the parameter is not in the list, it is added
       //if it's in the list increment its value
-      //the new value of the parameter is returned
       KVNamedParameter* par = FindParameter(name);
-      par ? par->Set(value += par->Get<value_type>()) : fList.Add(new KVNamedParameter(name, value));
-      return value;
+      par ? par->Add(KVNamedParameter(name, value)) : fList.Add(new KVNamedParameter(name, value));
    }
 
    template <typename value_type>
@@ -253,34 +254,4 @@ public:
 
    ClassDef(KVNameValueList, 4) //A general-purpose list of parameters
 };
-
-/// KVNameValueList::IncrementValue specializations for strings
-/// strings are added to a comma-separated list: "str1,str2,str3,..."
-template <>
-inline TString KVNameValueList::IncrementValue(const Char_t* name, TString value)
-{
-   KVNamedParameter* par = FindParameter(name);
-   if (!par) fList.Add(par = new KVNamedParameter(name, value));
-   else {
-      TString w = par->Get<TString>() + ",";
-      w += value;
-      par->Set(w);
-   }
-   return par->Get<TString>();
-}
-/// KVNameValueList::IncrementValue specializations for strings
-/// strings are added to a comma-separated list: "str1,str2,str3,..."
-template <>
-inline cstring KVNameValueList::IncrementValue(const Char_t* name, cstring value)
-{
-   return IncrementValue(name, TString(value));
-}
-/// KVNameValueList::IncrementValue specializations for strings
-/// strings are added to a comma-separated list: "str1,str2,str3,..."
-template <>
-inline std::string KVNameValueList::IncrementValue(const Char_t* name, std::string value)
-{
-   return IncrementValue(name, value.c_str());
-}
-
 #endif

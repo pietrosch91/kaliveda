@@ -191,12 +191,12 @@ void KVNameValueList::SetValue(const KVNamedParameter& p)
 void KVNameValueList::AddValue(const KVNamedParameter& p)
 {
    // if a parameter with the same name & type as 'p' exists,
-   // add numerical value of p to value of parameter in list.
+   // add numerical value of p to value of parameter in list,
+   // or for strings we add to a comma-separated list of strings.
    // otherwise, add a copy of p to list
 
    KVNamedParameter* par = FindParameter(p.GetName());
    par ? par->Add(p) : fList.Add(new KVNamedParameter(p));
-
 }
 
 //______________________________________________
