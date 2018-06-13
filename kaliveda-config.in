@@ -75,6 +75,8 @@ incdir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
 kaliveda_exec=$bindir/kaliveda
 examplesdir=@CMAKE_INSTALL_FULL_TUTDIR@
+root_cflags=$(root-config --cflags)
+root_libs=$(root-config --glibs)
 # get list of all installed libraries
 modules="@subprojlist@"
 libs=""
@@ -85,7 +87,7 @@ done
 
 usage="\
 Usage: `basename $0` [--version] [--libs] [--incdir] [--libdir] [--bindir]\n\
-           [--buildir] [--srcdir] [--examples] [--gitinfos] [--help]"
+           [--cflags] [--linklibs] [--buildir] [--srcdir] [--examples] [--gitinfos] [--help]"
 
 if test $# -eq 0; then
    echo -e "${usage}" 1>&2
@@ -135,22 +137,30 @@ while test $# -gt 0; do
       ### output the library directory
       out="$out $libdir"
       ;;
-      --incdir)
-        ### output the header directory
-        out="$out $incdir"
-        ;;
-        --examples)
-          ### output the examples directory
-          out="$out $examplesdir"
-          ;;
-          --gitinfos)
-            ### output git infos
+    --incdir)
+      ### output the header directory
+      out="$out $incdir"
+      ;;
+    --examples)
+      ### output the examples directory
+      out="$out $examplesdir"
+      ;;
+    --gitinfos)
+      ### output git infos
             git_infos=`$kaliveda_exec --gitinfos`
             out="$out $git_infos"
             ;;
     --libs)
       ### output all libraries for linking
       out="$out $libs"
+      ;;
+    --cflags)
+      ### output all flags for compiling
+      out="$out -I$incdir $root_cflags"
+      ;;
+    --linklibs)
+      ### output all flags for linking
+      out="$out -L$libdir $libs $root_libs"
       ;;
     --help)
       ### Print a help message
@@ -165,6 +175,8 @@ while test $# -gt 0; do
       echo "  --srcdir              Print the source directory"
       echo "  --gitinfos            Print the git branch and commit"
       echo "  --examples            Print the examples directory"
+      echo "  --cflags              Print all flags for compiling (including ROOT flags)"
+      echo "  --linklibs            Print all directives for linking (including ROOT libs)"
       echo "  --help                Print this message"
       exit 0
       ;;
