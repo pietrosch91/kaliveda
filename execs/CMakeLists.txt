@@ -14,9 +14,15 @@ set(build_targets
 if(USE_INDRA)
     list(APPEND build_targets KVDataBaseGUI test_reconstruction)
 endif()
+if(USE_INDRAFAZIA AND WITH_MFM)
+    list(APPEND build_targets test_indrafazia)
+endif()
 
 set(test_reconstruction_SRC test_reconstruction.C)
 set(test_reconstruction_LIB ${KVIndra_LIB_LIST})
+
+set(test_indrafazia_SRC test_indrafazia.C)
+set(test_indrafazia_LIB  ${KVIndra_LIB_LIST})
 
 set(kaliveda_SRC kaliveda.cpp)
 

@@ -191,19 +191,23 @@ void KVFAZIA::Build(Int_t run)
 
 //}
 
-void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
+void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sigs)
 {
    // First step in event reconstruction based on current status of detectors in array.
    // Fills the given KVDetectorEvent with the list of all groups which have fired.
    // i.e. loop over all groups of the array and test whether KVGroup::Fired() returns true or false.
    //
-   // If the list of fired acquisition parameters 'signals' is given, KVMultiDetArray::GetDetectorEvent
-   // is called
+   // If the list of fired acquisition parameters 'sigs' is not given,
+   // KVMultiDetArray::GetDetectorEvent is called. We check also if the internal fFiredACQParams
+   // list contains data.
    //
 
-   if (signals) {
+   if (!sigs || !sigs->GetEntries()) {
+      if (fFiredACQParams.GetEntries()) sigs = &fFiredACQParams;
+   }
+   if (sigs && sigs->GetEntries()) {
       // list of fired acquisition parameters given
-      TIter next_par(signals);
+      TIter next_par(sigs);
 
       KVSignal* par = 0;
       KVDetector* det = 0;
@@ -212,9 +216,9 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
          if (!(par->GetN() > 0))
             Info("GetDetectorEvent", "%s empty", par->GetName());
          par->DeduceFromName();
-//          if (!(det = GetDetector(par->GetDetectorName()))) {
-//             det = GetDetector(KVFAZIADetector::GetNewName(par->GetDetectorName()));
-//          }
+         //          if (!(det = GetDetector(par->GetDetectorName()))) {
+         //             det = GetDetector(KVFAZIADetector::GetNewName(par->GetDetectorName()));
+         //          }
          det = GetDetector(par->GetDetectorName());
          if (det) {
             ((KVFAZIADetector*)det)->SetSignal(par, par->GetType());

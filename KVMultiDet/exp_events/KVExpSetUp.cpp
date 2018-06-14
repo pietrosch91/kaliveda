@@ -153,6 +153,31 @@ void KVExpSetUp::AcceptParticleForAnalysis(KVReconstructedNucleus* NUC) const
    }
 }
 
+void KVExpSetUp::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params)
+{
+   // Override KVMultiDetArray method
+   // Call each array in turn and add fired groups to the KVDetectorEvent
+
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->GetDetectorEvent(detev, fired_params);
+   }
+}
+
+KVGroupReconstructor* KVExpSetUp::GetReconstructorForGroup(const KVGroup* g) const
+{
+   // Override KVMultiDetArray method
+   // Call each array in turn to get reconstructor for group
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   KVGroupReconstructor* gr(nullptr);
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      if ((gr = mda->GetReconstructorForGroup(g))) break;
+   }
+   return gr;
+}
+
 #ifdef WITH_MFM
 Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe)
 {
@@ -164,7 +189,10 @@ Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe
    TIter next_array(&fMDAList);
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
-      if (mda->handle_raw_data_event_mfmframe(mfmframe)) return kTRUE;
+      if (mda->handle_raw_data_event_mfmframe(mfmframe)) {
+         Info("handle_raw_data_event_mfmframe", "Handled frame for %s", mda->GetName());
+         return kTRUE;
+      }
    }
    return kFALSE;
 }

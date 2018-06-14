@@ -769,14 +769,15 @@ TGraph* KVINDRA::GetPedestals(const Char_t* det_signal, const Char_t* det_type, 
 
 //_____________________________________________________________________________
 
-void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params)
+void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params)
 {
    // Overrides KVASMultiDetArray::GetDetectorEvent.
    // If the list of fired acquisition parameters is given (meaning we are reading raw data)
    // then we check that what we have read is in fact an INDRA event
    // (see KVINDRATriggerInfo::IsINDRAEvent()) : if not, we do not try to find the hit groups.
 
-   if (fired_params && !GetTriggerInfo()->IsINDRAEvent()) return;
+   if (((fired_params && fired_params->GetEntries()) || fFiredACQParams.GetEntries())
+         && !GetTriggerInfo()->IsINDRAEvent()) return;
    KVASMultiDetArray::GetDetectorEvent(detev, fired_params);
 }
 
@@ -969,7 +970,7 @@ KVGroupReconstructor* KVINDRA::GetReconstructorForGroup(const KVGroup* g) const
       else {
          KVINDRADetector* id = (KVINDRADetector*)g->GetDetectors()->First();
          if (id->GetRingNumber() < 10) gr = KVGroupReconstructor::Factory("INDRA.forward");
-         //else gr = KVGroupReconstructor::Factory("INDRA.backward");
+         else gr = KVGroupReconstructor::Factory("INDRA.backward");
       }
    }
    return gr;

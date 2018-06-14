@@ -144,7 +144,8 @@ KVNameValueList* KVINDRA_VAMOS::DetectParticle(KVNucleus* part)
 
    if (IsROOTGeometry()) {
       return DetectParticle_TGEO(part);
-   } else {
+   }
+   else {
       gIndra->SetROOTGeometry(kFALSE);
       return gIndra->DetectParticle(part);
    }
@@ -230,7 +231,8 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event,
          // its detection in INDRA
          part->Clear();
 
-      } else _part->SetMomentum(*_part->GetPInitial());
+      }
+      else _part->SetMomentum(*_part->GetPInitial());
 
       SafeDelete(nvl);
    }     //fin de loop over particles
@@ -249,7 +251,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event,
 }
 //________________________________________________________________
 
-void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params)
+void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params)
 {
 
    // This method is obsolete. To have access to the detector events of INDRA

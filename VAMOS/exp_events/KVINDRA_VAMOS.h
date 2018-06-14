@@ -23,7 +23,7 @@ public:
    virtual KVNameValueList* DetectParticle(KVNucleus* part);
    virtual void DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event, const Char_t* detection_frame = "");
    using KVMultiDetArray::GetDetectorEvent;
-   virtual void   GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params = 0);
+   virtual void   GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params = 0);
    using KVMultiDetArray::GetGroupWithAngles;
    virtual KVGroup* GetGroupWithAngles(Float_t theta, Float_t phi);
 

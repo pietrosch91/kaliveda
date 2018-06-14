@@ -32,7 +32,7 @@ public:
 
    void Copy(TObject& obj) const;
 
-   void ReconstructEvent(TSeqCollection* = nullptr);
+   void ReconstructEvent(const TSeqCollection* = nullptr);
    void MergeGroupEventFragments();
 
    KVReconstructedEvent* GetEvent()

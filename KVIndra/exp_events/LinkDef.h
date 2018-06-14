@@ -13,6 +13,6 @@
 #pragma link C++ class KVINDRAReconNuc+;
 #pragma link C++ class KVINDRAGroupReconstructor+;
 #pragma link C++ class KVINDRAForwardGroupReconstructor+;
-//#pragma link C++ class KVINDRABackwardGroupReconstructor+;
+#pragma link C++ class KVINDRABackwardGroupReconstructor+;
 #pragma link C++ class KVINDRAEtalonGroupReconstructor+;
 #endif
