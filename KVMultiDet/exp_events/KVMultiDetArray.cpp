@@ -1438,22 +1438,15 @@ void KVMultiDetArray::UpdateCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params)
+void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params)
 {
    // First step in event reconstruction based on current status of detectors in array.
    // Fills the given KVDetectorEvent with the list of all groups which have fired.
    // i.e. loop over all groups of the array and test whether KVGroup::Fired() returns true or false.
    //
    // If the list of fired acquisition parameters 'fired_params' is given, then we use this list
-   // to find, first, the associated fired detectors, then, the associated groups. This is possible when
-   // reading raw data using an object derived from KVRawDataReader:
-   //
-   //     KVRawDataReader *run = ... ; // base pointer to object used to read data
-   //     if( run->GetNextEvent() )  // read an event and test that all is well
-   //      {
-   //           KVSeqCollection* fired = run->GetFiredDataParameters(); // get fired acquisition parameters
-   //           gMultiDetArray->GetDetectorEvent(detev, fired); // build list of fired groups
-   //       }
+   // to find, first, the associated fired detectors, then, the associated groups. If not given,
+   // or if it is empty, we may use the internal fFiredACQParams list.
    //
    // The KVDetectorEvent object can then be used by KVReconstructedEvent::ReconstructEvent
    // in order to generate a list of particles (KVReconstructedNucleus).
@@ -1461,7 +1454,10 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* f
    // Call method detev->Clear() before reading another event in order to reset all of the hit groups
    // (including all detectors etc.) and emptying the list.
 
-   if (fired_params) {
+   if (!fired_params || !fired_params->GetEntries()) {
+      if (fFiredACQParams.GetEntries()) fired_params = &fFiredACQParams;
+   }
+   if (fired_params && fired_params->GetEntries()) {
       // list of fired acquisition parameters given
       TIter next_par(fired_params);
       KVACQParam* par = 0;
@@ -3048,9 +3044,12 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    for (int i = 0; i < ebyframe.GetNbItems(); ++i) {
       ebyframe.GetDataItem(i, lab, val);
       if ((acqpar = GetACQParam(lab.c_str()))) {
-         acqpar->SetData(val);
-         fFiredACQParams.Add(acqpar);
-         ok = kTRUE;
+         TString myname(acqpar->GetName());
+         if (!myname.BeginsWith("SI_0914")) {
+            acqpar->SetData(val);
+            fFiredACQParams.Add(acqpar);
+            ok = kTRUE;
+         }
       }
    }
 

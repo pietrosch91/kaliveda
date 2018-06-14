@@ -75,9 +75,6 @@ KVGroupReconstructor* KVGroupReconstructor::Factory(const TString& plugin)
    if (ph) {
       return (KVGroupReconstructor*)ph->ExecPlugin(0);
    }
-   else {
-      ::Error("KVGroupReconstructor::Factory", "No KVGroupReconstructor plugin found with name %s", plugin.Data());
-   }
    return nullptr;
 }
 
@@ -96,8 +93,8 @@ void KVGroupReconstructor::Process()
    if (GetEventFragment()->GetMult() == 0) {
       return;
    }
-   Identify();
-   Calibrate();
+   //Identify();
+   //Calibrate();
 }
 
 void KVGroupReconstructor::Reconstruct()
@@ -128,7 +125,10 @@ void KVGroupReconstructor::Reconstruct()
 
    }
 
-   if (GetEventFragment()->GetMult()) AnalyseParticles();
+   if (GetEventFragment()->GetMult()) {
+      GetEventFragment()->Print();
+      AnalyseParticles();
+   }
 }
 
 KVReconstructedNucleus* KVGroupReconstructor::ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node)

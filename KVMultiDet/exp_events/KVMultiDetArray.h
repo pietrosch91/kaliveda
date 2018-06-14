@@ -209,7 +209,7 @@ public:
 
    virtual void DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event, const Char_t* detection_frame = "");
    virtual Int_t FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event);
-   virtual void GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* fired_params = 0);
+   virtual void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params = 0);
    virtual void ReconstructEvent(KVReconstructedEvent*, KVDetectorEvent*);
    KVNameValueList* DetectParticle_TGEO(KVNucleus* part);
    virtual KVNameValueList* DetectParticle(KVNucleus* part)

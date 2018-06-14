@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
    for (int i = 0; i < 500; ++i) {
       std::cout << std::endl << "==============================================EVENT " << i << std::endl << std::endl;
       if (!raw_file->GetNextEvent()) break;
-      //gMultiDetArray->HandleRawDataEvent(raw_file.get());
+      gMultiDetArray->HandleRawDataEvent(raw_file.get());
       erec.ReconstructEvent(raw_file->GetFiredDataParameters());
       erec.GetEvent()->SetNumber(i + 1);
       erec.GetEvent()->ls();
