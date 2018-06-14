@@ -12,8 +12,6 @@ int main(int argc, char* argv[])
 {
    KVBase::InitEnvironment();
 
-   TApplication myapp("myapp", &argc, argv);
-
    KVDataRepositoryManager drm;
    drm.Init();
    gDataSetManager->GetDataSet("INDRA_camp5")->cd();
