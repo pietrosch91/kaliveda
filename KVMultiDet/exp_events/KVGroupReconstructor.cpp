@@ -20,6 +20,9 @@ ClassImp(KVGroupReconstructor)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+bool KVGroupReconstructor::fDoIdentification = kTRUE;
+bool KVGroupReconstructor::fDoCalibration = kTRUE;
+
 KVGroupReconstructor::KVGroupReconstructor()
    : KVBase("KVGroupReconstructor", "Reconstruction of particles in detector groups"),
      fGroup(nullptr), fGrpEvent(nullptr)
@@ -81,6 +84,8 @@ KVGroupReconstructor* KVGroupReconstructor::Factory(const TString& plugin)
 void KVGroupReconstructor::Process()
 {
    // Perform full reconstruction for group: reconstruct, identify, calibrate
+   //   - identification can be inhibited (for all groups) by calling KVGroupReconstructor::SetDoIdentification(false);
+   //   - calibration can be inhibited (for all groups) by calling KVGroupReconstructor::SetDoCalibration(false);
 
    nfireddets = 0;
    Reconstruct();
@@ -93,8 +98,8 @@ void KVGroupReconstructor::Process()
    if (GetEventFragment()->GetMult() == 0) {
       return;
    }
-   //Identify();
-   //Calibrate();
+   if (fDoIdentification) Identify();
+   if (fDoCalibration) Calibrate();
 }
 
 void KVGroupReconstructor::Reconstruct()
@@ -126,7 +131,6 @@ void KVGroupReconstructor::Reconstruct()
    }
 
    if (GetEventFragment()->GetMult()) {
-      GetEventFragment()->Print();
       AnalyseParticles();
    }
 }

@@ -12,6 +12,9 @@
 
 class KVGroupReconstructor : public KVBase {
 
+   static bool fDoIdentification;
+   static bool fDoCalibration;
+
    KVGroup*              fGroup;//!        the group where we are reconstructing
    KVReconstructedEvent* fGrpEvent;//!     event containing particles reconstructed in this group
    TString               fPartSeedCond;//! condition for seeding reconstructed particles
@@ -77,6 +80,16 @@ public:
    {
       //number of unidentified particles reconstructed in group
       return (GetEventFragment()->GetMult() - GetNIdentifiedInGroup());
+   }
+   static void SetDoIdentification(bool on = kTRUE)
+   {
+      // Enable/Disable identification step in KVGroupReconstructor::Process
+      fDoIdentification = on;
+   }
+   static void SetDoCalibration(bool on = kTRUE)
+   {
+      // Enable/Disable calibration step in KVGroupReconstructor::Process
+      fDoCalibration = on;
    }
 
    ClassDef(KVGroupReconstructor, 0) //Base class for handling event reconstruction in detector groups
