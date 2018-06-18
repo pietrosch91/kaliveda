@@ -18,6 +18,8 @@ int main(int argc, char* argv[])
    unique_ptr<KVGANILDataReader> raw_file(gDataSet->OpenRunfile<KVGANILDataReader>("raw", 6800));
 
    KVEventReconstructor erec(gMultiDetArray, new KVINDRAReconEvent);
+   KVGroupReconstructor::SetDoIdentification(true);
+   KVGroupReconstructor::SetDoCalibration(true);
 
    for (int i = 0; i < 500; ++i) {
       std::cout << std::endl << "==============================================EVENT " << i << std::endl << std::endl;
