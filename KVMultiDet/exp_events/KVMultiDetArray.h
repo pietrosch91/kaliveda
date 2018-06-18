@@ -125,6 +125,8 @@ protected:
 #endif
    virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
 
+   virtual void PerformClosedROOTGeometryOperations(Int_t run = -1);
+
 public:
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {

@@ -600,6 +600,13 @@ Int_t KVINDRA::GetIDTelescopes(KVDetector* de, KVDetector* e, TCollection* idtel
    return n;
 }
 
+void KVINDRA::PerformClosedROOTGeometryOperations(Int_t)
+{
+   // Finalise the ROOT geometry description by performing operations which can
+   // only be done once the geometry is closed
+   CreateROOTGeometry();
+}
+
 //_______________________________________________________________________________________
 
 void KVINDRA::SetPinLasersForCsI()
@@ -866,10 +873,10 @@ void KVINDRA::CreateROOTGeometry()
    KVEvent* evt = new KVEvent();
    KVNucleus* nuc = evt->AddParticle();
    nuc->SetZAandE(1, 1, 1);
-   KVDetector* det;
+   KVINDRADetector* det;
    TIter next(GetDetectors());
    Int_t nrootgeo = 0;
-   while ((det = (KVDetector*)next())) {
+   while ((det = (KVINDRADetector*)next())) {
       nuc->SetTheta(det->GetTheta());
       nuc->SetPhi(det->GetPhi());
       gimp.SetLastDetector(0);
@@ -892,25 +899,28 @@ void KVINDRA::CreateROOTGeometry()
       if (!(det->GetActiveLayerShape() && det->GetActiveLayerMatrix())) {
          Info("CreateROOTGeometry", "Volume checking failed for : %s", det->GetName());
       }
-      // check etalon trajectories
-      if (det->GetActiveLayerShape() && det->GetActiveLayerMatrix()
-            && (det->IsCalled("CSI_1002") || det->IsCalled("CSI_1102")
-                || det->IsCalled("CSI_1202") || det->IsCalled("CSI_1304")
-                || det->IsCalled("CSI_1403") || det->IsCalled("CSI_1503")
-                || det->IsCalled("CSI_1602") || det->IsCalled("CSI_1702"))
-            && det->GetNode()->GetNDetsInFront() < 2) {
-         Info("CreateROOTGeometry", "Trajectory checking for %s", det->GetName());
-         Double_t theta0 = det->GetTheta();
-         Double_t phi0 = det->GetPhi();
-         for (Double_t TH = theta0 - 0.5; TH <= theta0 + 0.5; TH += 0.1) {
-            for (Double_t PH = phi0 - 10; PH <= phi0 + 10; PH += 1) {
-               nuc->SetTheta(TH);
-               nuc->SetPhi(PH);
-               gimp.SetLastDetector(0);
-               gimp.PropagateEvent(evt);
-               if (det->GetNode()->GetNDetsInFront() == 2) break;
+      // check etalon trajectories (if etalons are present)
+      if (det->GetActiveLayerShape() && det->GetActiveLayerMatrix() && det->GetRingNumber() > 9) {
+         if (GetDetector(Form("SI75_%d", det->GetRingNumber())) || GetDetector(Form("SILI_%d", det->GetRingNumber()))) {
+            if ((det->IsCalled("CSI_1002") || det->IsCalled("CSI_1102")
+                  || det->IsCalled("CSI_1202") || det->IsCalled("CSI_1304")
+                  || det->IsCalled("CSI_1403") || det->IsCalled("CSI_1503")
+                  || det->IsCalled("CSI_1602") || det->IsCalled("CSI_1702"))
+                  && det->GetNode()->GetNDetsInFront() < 2) {
+               Info("CreateROOTGeometry", "Trajectory checking for %s", det->GetName());
+               Double_t theta0 = det->GetTheta();
+               Double_t phi0 = det->GetPhi();
+               for (Double_t TH = theta0 - 0.5; TH <= theta0 + 0.5; TH += 0.1) {
+                  for (Double_t PH = phi0 - 10; PH <= phi0 + 10; PH += 1) {
+                     nuc->SetTheta(TH);
+                     nuc->SetPhi(PH);
+                     gimp.SetLastDetector(0);
+                     gimp.PropagateEvent(evt);
+                     if (det->GetNode()->GetNDetsInFront() == 2) break;
+                  }
+                  if (det->GetNode()->GetNDetsInFront() == 2) break;
+               }
             }
-            if (det->GetNode()->GetNDetsInFront() == 2) break;
          }
       }
       nrootgeo += (det->GetActiveLayerShape() && det->GetActiveLayerMatrix());
@@ -938,7 +948,7 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
       CreateGeoManager();
       INDRAGeometryBuilder igb;
       igb.Build(kFALSE, fCloseGeometryNow);
-      CreateROOTGeometry();
+      if (fCloseGeometryNow) PerformClosedROOTGeometryOperations();
    }
    else {
       KVMultiDetArray::SetROOTGeometry(on);

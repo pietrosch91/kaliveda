@@ -33,7 +33,8 @@ void KVFAZIETO::GetGeometryParameters()
    //defined configuration of the blocks
    fNblocks = 12;
    fFDist = 100.0;
-   fFThetaMin = 2.0;
+   fFThetaMin = 1.5;
+   SetGeometryImportParameters(.25, 1., 1.5, 0, 12);
 }
 
 
