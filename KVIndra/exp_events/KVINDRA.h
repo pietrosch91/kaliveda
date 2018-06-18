@@ -95,6 +95,7 @@ protected:
    void FillTrajectoryIDTelescopeLists();
    Int_t GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
+   void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
 public:
    KVINDRA();

@@ -1702,7 +1702,6 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
 
       //execute constructor/macro for multidetector - assumed without arguments
       mda = (KVMultiDetArray*) ph->ExecPlugin(0);
-
       mda->fDataSet = dataset_name;
       mda->Build(run);
       // if ROOT geometry is not allowed ([dataset_name].KVMultiDetArray.ROOTGeometry = no
@@ -2950,6 +2949,16 @@ Bool_t KVMultiDetArray::handle_raw_data_event_ebyedat(KVGANILDataReader&)
    // Values of all KVACQParam objects appearing in the event are updated
    AbstractMethod("handle_raw_data_event_ebyedat");
    return kFALSE;
+}
+
+void KVMultiDetArray::PerformClosedROOTGeometryOperations(Int_t)
+{
+   // Perform any operations to finalise the description of the multidetector
+   // which can only be done once the geometry is closed, e.g. use KVGeoImport
+   // to set up nodes, trajectories, detectors, idtelescopes, etc.
+   // This has to be kept separate for use with KVExpSetUp which first fills
+   // a single ROOT geometry with all component KVMultiDetArray geometries,
+   // then closes the geometry only when all have been built.
 }
 
 Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)

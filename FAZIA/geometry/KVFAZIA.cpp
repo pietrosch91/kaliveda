@@ -111,6 +111,33 @@ void KVFAZIA::SetNameOfDetectors(KVEnv& env)
    }
 }
 
+void KVFAZIA::PerformClosedROOTGeometryOperations(Int_t run)
+{
+   // Finalise description of array performing all operations which require ROOT
+   // geometry to be closed
+
+   KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
+   imp.SetDetectorPlugin(ClassName());
+   imp.SetNameCorrespondanceList(fCorrespondanceFile.Data());
+   // any additional structure name formatting definitions
+   DefineStructureFormats(imp);
+
+   // the following parameters are optimized for a 12-block compact
+   // geometry placed at 80cm with rings 1-5 of INDRA removed.
+   // make sure that the expected number of detectors get imported!
+   imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
+
+   SetCalibrators();
+   SetIdentifications();
+
+   SetDetectorThicknesses();
+   SetBit(kIsBuilt);
+
+   if (run != -1) {
+      SetParameters(run);
+   }
+}
+
 void KVFAZIA::GetGeometryParameters()
 {
    //Called by the Build method
@@ -158,26 +185,7 @@ void KVFAZIA::Build(Int_t run)
    if (fCloseGeometryNow) {
       gGeoManager->DefaultColors();
       gGeoManager->CloseGeometry();
-   }
-   KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
-   imp.SetDetectorPlugin(ClassName());
-   imp.SetNameCorrespondanceList(fCorrespondanceFile.Data());
-   // any additional structure name formatting definitions
-   DefineStructureFormats(imp);
-
-   // the following parameters are optimized for a 12-block compact
-   // geometry placed at 80cm with rings 1-5 of INDRA removed.
-   // make sure that the expected number of detectors get imported!
-   imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
-
-   SetCalibrators();
-   SetIdentifications();
-
-   SetDetectorThicknesses();
-   SetBit(kIsBuilt);
-
-   if (run != -1) {
-      SetParameters(run);
+      PerformClosedROOTGeometryOperations(run);
    }
 }
 

@@ -48,6 +48,8 @@ protected:
    Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
 #endif
 
+   void PerformClosedROOTGeometryOperations(Int_t run = -1);
+
 public:
 
    KVFAZIA(const Char_t* title = "");

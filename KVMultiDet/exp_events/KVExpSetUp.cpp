@@ -28,9 +28,8 @@ ClassImp(KVExpSetUp)
 
 void KVExpSetUp::init()
 {
-   fCloseGeometryNow = kFALSE;
    fBuildTarget = kFALSE;
-
+   fCloseGeometryNow = kFALSE;
    //modification of the owner mode compare to Mother classes
    fStructures.SetOwner(kFALSE);
    fIDTelescopes->SetOwner(kFALSE);
@@ -46,7 +45,7 @@ KVExpSetUp::KVExpSetUp()
 KVExpSetUp::~KVExpSetUp()
 {
    // Destructor
-
+   fCloseGeometryNow = kTRUE;
 }
 
 
@@ -75,28 +74,7 @@ void KVExpSetUp::Build(Int_t run)
       gMultiDetArray = nullptr; //otherwise MakeMultiDetector will delete any previously built array
       tmp = MakeMultiDetector(gDataSet->GetName(), run, sname.Data());
       if (tmp) {
-
-         unique_ptr<KVSeqCollection> groups(tmp->GetStructureTypeList("GROUP"));
-         if (group_offset) {
-            // renumber all groups to keep unique names/numbers
-            TIter next(groups.get());
-            KVGroup* group;
-            while ((group = (KVGroup*)next())) {
-               Int_t group_number = group->GetNumber();
-               group->SetNumber(group_number + group_offset);
-            }
-         }
-         else
-            group_offset += groups->GetEntries();
-
          fMDAList.Add(tmp);
-         fDetectors.AddAll((KVUniqueNameList*)tmp->GetDetectors());
-         fStructures.AddAll((KVUniqueNameList*)tmp->GetStructures());
-         fIDTelescopes->AddAll(tmp->GetListOfIDTelescopes());
-
-         // retrieve correspondance list node path<->detector
-         gnl->AbsorbDetectorPaths(tmp->GetNavigator());
-
       }
       else {
          Error("Build", "NULL pointer returned by MakeMultiDetector");
@@ -105,6 +83,30 @@ void KVExpSetUp::Build(Int_t run)
 
    gGeoManager->DefaultColors();
    gGeoManager->CloseGeometry();
+
+   TIter nxt_mda(&fMDAList);
+   while ((tmp = (KVMultiDetArray*)nxt_mda())) {
+      tmp->PerformClosedROOTGeometryOperations(run);
+      unique_ptr<KVSeqCollection> groups(tmp->GetStructureTypeList("GROUP"));
+      if (group_offset) {
+         // renumber all groups to keep unique names/numbers
+         TIter next(groups.get());
+         KVGroup* group;
+         while ((group = (KVGroup*)next())) {
+            Int_t group_number = group->GetNumber();
+            group->SetNumber(group_number + group_offset);
+         }
+      }
+      else
+         group_offset += groups->GetEntries();
+
+      fDetectors.AddAll((KVUniqueNameList*)tmp->GetDetectors());
+      fStructures.AddAll((KVUniqueNameList*)tmp->GetStructures());
+      fIDTelescopes->AddAll(tmp->GetListOfIDTelescopes());
+
+      // retrieve correspondance list node path<->detector
+      gnl->AbsorbDetectorPaths(tmp->GetNavigator());
+   }
 
    SetGeometry(gGeoManager);
 
