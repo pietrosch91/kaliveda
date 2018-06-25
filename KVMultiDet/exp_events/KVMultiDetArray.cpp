@@ -2947,7 +2947,7 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
       }
    }
 
-   if (ok) fFiredACQParams.ls();
+   //if (ok) fFiredACQParams.ls();
 
    return ok;
 }
