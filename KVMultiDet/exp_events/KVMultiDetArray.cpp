@@ -3045,11 +3045,9 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
       ebyframe.GetDataItem(i, lab, val);
       if ((acqpar = GetACQParam(lab.c_str()))) {
          TString myname(acqpar->GetName());
-         if (!myname.BeginsWith("SI_0914")) {
-            acqpar->SetData(val);
-            fFiredACQParams.Add(acqpar);
-            ok = kTRUE;
-         }
+         acqpar->SetData(val);
+         fFiredACQParams.Add(acqpar);
+         ok = kTRUE;
       }
    }
 

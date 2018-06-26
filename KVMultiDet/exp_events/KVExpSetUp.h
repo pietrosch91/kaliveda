@@ -35,6 +35,9 @@ public:
 
    void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params = nullptr);
    KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
+   Bool_t HandleRawDataEvent(KVRawDataReader*);
+
+   void GetArrayMultiplicities(KVReconstructedEvent*, KVNameValueList&, Option_t* = "");
 
    ClassDef(KVExpSetUp, 1) //Describe an experimental set-up made of several KVMultiDetArray objects
 };

@@ -14,6 +14,13 @@
 #endif
 
 class KVDetectorEvent;
+#ifdef WITH_PROTOBUF
+#ifndef __CINT__
+namespace DAQ {
+   class FzEvent;
+}
+#endif
+#endif
 
 class KVFAZIA : public KVMultiDetArray {
 protected:
@@ -32,6 +39,8 @@ protected:
    Double_t fImport_ThetaMax;//! for geometry import
    Double_t fImport_PhiMin;//! for geometry import
    Double_t fImport_PhiMax;//! for geometry import
+   int fQuartet[8][2];//! quartet number from #FEE and #FPGA
+   int fTelescope[8][2];//! telescope number from #FEE and #FPGA
 
    //methods to be implemented in child classes
    virtual void BuildFAZIA();
@@ -50,6 +59,12 @@ protected:
 
    void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
+   void CreateCorrespondence();
+#ifdef WITH_PROTOBUF
+#ifndef __CINT__
+   void treat_event(const DAQ::FzEvent&);
+#endif
+#endif
 public:
 
    KVFAZIA(const Char_t* title = "");

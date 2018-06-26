@@ -180,6 +180,34 @@ KVGroupReconstructor* KVExpSetUp::GetReconstructorForGroup(const KVGroup* g) con
    return gr;
 }
 
+Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
+{
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->fHandledRawData = false;
+   }
+   return KVMultiDetArray::HandleRawDataEvent(g);
+}
+
+void KVExpSetUp::GetArrayMultiplicities(KVReconstructedEvent* e, KVNameValueList& m, Option_t* opt)
+{
+   // Calculate multiplicities of particles in each array of the setup.
+   // They will appear in the KVNameValueList as parameters with the name of the array.
+   // e.g.
+   //
+   //    "INDRA" = 21
+   //    "FAZIA" = 3
+   //
+   // Any option given will be used to determine the type of event iterator used -
+   // see KVEvent::GetNextParticleIterator(Option_t*).
+
+   m.Clear();
+   for (KVEvent::Iterator it = e->GetNextParticleIterator(opt); it != e->end(); ++it) {
+      m.IncrementValue((*it).GetParameters()->GetStringValue("ARRAY"), 1);
+   }
+}
+
 #ifdef WITH_MFM
 Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe)
 {
@@ -192,7 +220,8 @@ Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
       if (mda->handle_raw_data_event_mfmframe(mfmframe)) {
-         Info("handle_raw_data_event_mfmframe", "Handled frame for %s", mda->GetName());
+         //Info("handle_raw_data_event_mfmframe", "Handled frame for %s", mda->GetName());
+         mda->fHandledRawData = true;
          return kTRUE;
       }
    }

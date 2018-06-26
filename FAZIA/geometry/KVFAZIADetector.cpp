@@ -49,6 +49,8 @@ void KVFAZIADetector::init()
    fLabel = -1;
    fChannel = 0;
    fVolt = 0;
+   //BIDOUILLE for testing INDRAFAZIA reconstruction
+   fFired = false;
 }
 
 //________________________________________________________________
@@ -128,13 +130,15 @@ void KVFAZIADetector::SetCalibrators()
 
    if (fIdentifier == kCSI) {
       fChannelToEnergy = new KVLightEnergyCsIFull(GetName(), "Channel-Energy", this, KVLightEnergyCsIFull::kExact);
-   } else {
+   }
+   else {
       fChannelToEnergy = new KVFAZIACalibrator(GetName(), "Channel-Energy");
       fChannelToEnergy->SetDetector(this);
       sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Energy", "");
       if (sf == "") {
          Warning("SetCalibrators", "No formula defined for Calibration Channel-Energy");
-      } else {
+      }
+      else {
          ((KVFAZIACalibrator*)fChannelToEnergy)->SetFunction(sf.Data());
       }
    }
@@ -144,7 +148,8 @@ void KVFAZIADetector::SetCalibrators()
    sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Volt", "");
    if (sf == "") {
       Warning("SetCalibrators", "No formula defined for Calibration Channel-Volt");
-   } else {
+   }
+   else {
       ((KVFAZIACalibrator*)fChannelToVolt)->SetFunction(sf.Data());
    }
 
@@ -153,7 +158,8 @@ void KVFAZIADetector::SetCalibrators()
    sf = gEnv->GetValue("FAZIADetector.Calib.Volt-Energy", "");
    if (sf == "") {
       Warning("SetCalibrators", "No formula defined for Calibration Volt-Energy");
-   } else {
+   }
+   else {
       ((KVFAZIACalibrator*)fVoltToEnergy)->SetFunction(sf.Data());
    }
 
@@ -229,6 +235,8 @@ void  KVFAZIADetector::Clear(Option_t*)
 {
 
    KVDetector::Clear("");
+   //BIDOUILLE for testing INDRAFAZIA reconstruction
+   fFired = false;
    if (fSignals) {
       fSignals->Execute("Set", "0");
    }
@@ -269,12 +277,14 @@ Bool_t KVFAZIADetector::SetProperties()
    if (tmp == "RUTH") {
       fIsRutherford = kTRUE;
       fIndex = fTelescope = fQuartet = fBlock = 0;
-   } else if (tmp.IsDigit()) {
+   }
+   else if (tmp.IsDigit()) {
       fIndex = tmp.Atoi();
       fBlock = fIndex / 100;
       fQuartet = (fIndex - fBlock * 100) / 10;
       fTelescope = fIndex - fBlock * 100 - fQuartet * 10;
-   } else {
+   }
+   else {
       Info("SetProperties", "Unkown format for the detector %s", GetName());
    }
 
@@ -286,11 +296,14 @@ Bool_t KVFAZIADetector::SetProperties()
    KVString lsignals = "";
    if (!strcmp(GetLabel(), "SI1")) {
       lsignals = "QH1,I1,QL1";
-   } else if (!strcmp(GetLabel(), "SI2")) {
+   }
+   else if (!strcmp(GetLabel(), "SI2")) {
       lsignals = "Q2,I2";
-   } else if (!strcmp(GetLabel(), "CSI")) {
+   }
+   else if (!strcmp(GetLabel(), "CSI")) {
       lsignals = "Q3";
-   } else {
+   }
+   else {
       Warning("SetProperties", "Unknown label \"%s\" for this detector : %s\n", GetLabel(), GetName());
       lsignals = "";
    }
@@ -365,6 +378,7 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
 
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer
+
    KVSignal* sig;
    if (fSignals) {
       TIter next(fSignals);
@@ -378,19 +392,23 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
 
                if (sig->IsFired()) {
                   return kTRUE;
-               } else {
+               }
+               else {
 
                }
             }
-         } else {
+         }
+         else {
             //Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
          }
       }
-   } else {
+   }
+   else {
       Warning("Fired", "%s : No signal attached to this detector ...", GetName());
    }
 
-   return kFALSE;
+   // BIDOUILLE for testing INDRAFAZIA reconstruction
+   return fFired;
 }
 
 //_________________________________________________________________________________
@@ -403,7 +421,8 @@ void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
    KVSignal* sig = GetSignal(type);
    if (sig) {
       sig->SetData(signal->GetN(), signal->GetX(), signal->GetY());
-   } else {
+   }
+   else {
       Warning("SetSignal", "%s : No signal of type #%s# is available", GetName(), type);
    }
 }

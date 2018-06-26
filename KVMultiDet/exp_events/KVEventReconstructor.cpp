@@ -63,9 +63,6 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
          }
       }
    }
-   for (int i = 1; i <= N; ++i) {
-      cout << i << " group array: " << ((KVGroupReconstructor*)fGroupReconstructor[i])->GetGroup()->GetArray()->GetName() << ", class: " << fGroupReconstructor[i]->ClassName() << endl;
-   }
 }
 
 //________________________________________________________________
