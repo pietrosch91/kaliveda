@@ -64,7 +64,7 @@ protected:
    KVDetectorEvent* fHitGroups;          //!   list of hit groups in simulation
    KVSeqCollection* fIDTelescopes;       //->deltaE-E telescopes in groups
    KVSeqCollection* fACQParams;          //list of data acquisition parameters associated to detectors
-   KVHashList       fFiredACQParams;     //! list of fired acquisition parameters after reading raw data event
+   KVUniqueNameList fFiredACQParams;     //! list of fired acquisition parameters after reading raw data event
 
    TString fDataSet;            //!name of associated dataset, used with MakeMultiDetector()
    UInt_t fCurrentRun;          //Number of the current run used to call SetParameters
@@ -84,6 +84,8 @@ protected:
    KVNumberList fAcceptECodes;//! list of acceptable calibration codes for reconstructed nuclei
 
    TString fPartSeedCond;//! condition for seeding new reconstructed particles
+
+   Bool_t fHandledRawData;//! set to true if multidetector handles data in last call to HandleRawData
 
    virtual void RenumberGroups();
    virtual void BuildGeometry()
@@ -193,8 +195,7 @@ public:
       return fACQParams;
    }
 
-   /// Returns list of acquisition parameters (KVACQData objects) fired in last read raw event
-   /// This list is filled when ebyedat format data has been read
+   /// Returns list of acquisition parameters (KVACQParam objects) fired in last read raw event
    const KVSeqCollection* GetFiredDataParameters() const
    {
       return &fFiredACQParams;
@@ -400,7 +401,11 @@ public:
       return glist->GetEntries();
    }
 
-   Bool_t HandleRawDataEvent(KVRawDataReader*);
+   virtual Bool_t HandleRawDataEvent(KVRawDataReader*);
+   Bool_t HandledRawData() const
+   {
+      return fHandledRawData;
+   }
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };

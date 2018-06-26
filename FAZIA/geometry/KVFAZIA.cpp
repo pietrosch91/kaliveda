@@ -23,6 +23,10 @@
 #include "MFMFaziaFrame.h"
 #endif
 
+#ifdef WITH_PROTOBUF
+#include "FzEventSet.pb.h"
+#endif
+
 ClassImp(KVFAZIA)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +48,7 @@ KVFAZIA::KVFAZIA(const Char_t* title)
    fDetectorLabels = "";
    fSignalTypes = "QL1,I1,QH1,Q2,I2,Q3";
    SetGeometryImportParameters();
+   CreateCorrespondence();
 }
 
 KVFAZIA::~KVFAZIA()
@@ -189,16 +194,6 @@ void KVFAZIA::Build(Int_t run)
    }
 }
 
-//void KVFAZIA::SortIDTelescopes()
-//{
-//   KVDetector* det = 0;
-//   TIter next(GetDetectors());
-//   while ((det = (KVDetector*)next())) {
-//      ((KVFAZIADetector*)det)->SortIDTelescopes();
-//   }
-
-//}
-
 void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sigs)
 {
    // First step in event reconstruction based on current status of detectors in array.
@@ -214,6 +209,19 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
       if (fFiredACQParams.GetEntries()) sigs = &fFiredACQParams;
    }
    if (sigs && sigs->GetEntries()) {
+      // check type of first object in list
+      // if it is a detector, we are in ze bidouille for indrafazia tests
+      if (sigs->First()->InheritsFrom("KVDetector")) {
+         TIter next_det(sigs);
+         KVDetector* det = 0;
+         KVGroup* grp = 0;
+         while ((det = (KVDetector*)next_det())) {
+            if ((grp = det->GetGroup())) {
+               detev->AddGroup(grp);
+            }
+         }
+         return;
+      }
       // list of fired acquisition parameters given
       TIter next_par(sigs);
 
@@ -232,7 +240,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
             ((KVFAZIADetector*)det)->SetSignal(par, par->GetType());
             if ((!(((KVFAZIADetector*)det)->GetSignal(par->GetType())->GetN() > 0)))
                Warning("Error", "%s %s empty signal is returned", det->GetName(), par->GetType());
-            if ((grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp)) {
+            if ((grp = det->GetGroup())) {
                detev->AddGroup(grp);
             }
          }
@@ -350,44 +358,36 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
 }
 
 #ifdef WITH_PROTOBUF
-#include "FzEventSet.pb.h"
-// for reading data
-DAQ::FzEventSet fazia_set;
-DAQ::FzEvent fazia_event;
-
-void treat_hit(const DAQ::FzHit& hit)
+void KVFAZIA::treat_event(const DAQ::FzEvent& e)
 {
-   cout << "\t\t\t";
-   cout << "tel=" << hit.telid() << " det=" << hit.detid() << endl;
-}
-
-void treat_fee(const DAQ::FzFee& fee)
-{
-   cout << "\t\tFEE" << fee.feeid() << endl;
-   for (int i = 0; i < fee.hit_size(); ++i) {
-      treat_hit(fee.hit(i));
-   }
-}
-
-void treat_block(const DAQ::FzBlock& b)
-{
-   cout << "\tB" << b.blkid() << endl;
-   for (int i = 0; i < b.fee_size(); ++i) {
-      treat_fee(b.fee(i));
-   }
-}
-
-void treat_event(const DAQ::FzEvent& e)
-{
-   if (e.trinfo_size()) {
-      cout << "Trigger infos:" << endl;
-      for (int i = 0; i < e.trinfo_size(); ++i) {
-         cout << "\t" << e.trinfo(i).id() << "\t" << e.trinfo(i).attr() << "\t" << e.trinfo(i).value() << endl;
+   for (int b = 0; b < e.block_size(); ++b) {
+      for (int f = 0; f < e.block(b).fee_size(); ++f) {
+         for (int h = 0; h < e.block(b).fee(f).hit_size(); ++h) {
+            int detnum = 100 * e.block(b).blkid()
+                         + 10 * fQuartet[e.block(b).fee(f).feeid()][e.block(b).fee(f).hit(h).telid()]
+                         + fTelescope[e.block(b).fee(f).feeid()][e.block(b).fee(f).hit(h).telid()];
+            TString det;
+            switch (e.block(b).fee(f).hit(h).detid()) {
+               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_Si1:
+                  det = "SI1-";
+                  break;
+               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_Si2:
+                  det = "SI2-";
+                  break;
+               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_CsI:
+                  det = "CSI-";
+                  break;
+               default:
+                  Error("treat_hit", "Unknown detector type %d", e.block(b).fee(f).hit(h).detid());
+                  return;
+            }
+            det += Form("%d", detnum);
+            if (GetDetector(det)) {
+               fFiredACQParams.Add(GetDetector(det));
+               ((KVFAZIADetector*)GetDetector(det))->SetFired();
+            }
+         }
       }
-   }
-   for (int i = 0; i < e.block_size(); ++i) {
-      cout << "Blocks:" << endl;
-      treat_block(e.block(i));
    }
 }
 #endif
@@ -397,9 +397,13 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
 {
    // Treatment of raw data in MFM frames with type MFM_FAZIA_FRAME_TYPE
 
+   fFiredACQParams.Clear();
+
    if (f.GetFrameType() != MFM_FAZIA_FRAME_TYPE) return kFALSE;
 
 #ifdef WITH_PROTOBUF
+   DAQ::FzEventSet fazia_set;
+   DAQ::FzEvent fazia_event;
    // Parse protobuf data in MFM frame
    if (fazia_set.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
       // Parsed an event set
@@ -413,3 +417,31 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
    return kTRUE;
 }
 #endif
+
+void KVFAZIA::CreateCorrespondence()
+{
+   // set up correspondence between FPGA number/FEE number (from acquisition)
+   // and Quartet/Telescope numbers
+
+   TString DataFilePath;
+   if (!KVBase::SearchKVFile("ElecDetLink.env", DataFilePath, "data")) {
+      Error("CreateCorrespondence", "ElecDetLink.env not found");
+      return;
+   }
+   KVEnv DetLink;
+   DetLink.ReadFile(DataFilePath, kEnvUser);
+   for (int t = 1; t <= 4; t++) {
+      for (int q = 1; q <= 4; q++) {
+         TString elec = DetLink.GetValue(Form("T%1d-Q%1d", t, q), " ");
+         if (!elec.IsWhitespace()) {
+            int fee, fpga;
+            sscanf(elec.Data(), "FPGA%d-FE%d", &fpga, &fee);
+            fQuartet[fee][fpga] = q;
+            fTelescope[fee][fpga] = t;
+         }
+         else {
+            Error("CreateCorrespondence", "Problem reading FAZIA ElecDetLink.env file : T%1d-Q%1d = %s", t, q, elec.Data());
+         }
+      }
+   }
+}

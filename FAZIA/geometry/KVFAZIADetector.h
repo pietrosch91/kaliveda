@@ -73,6 +73,8 @@ protected:
    void init();   //initialisatino method called by the constructors
    Bool_t SetProperties();
 
+   Bool_t fFired;// BIDOUILLE for testing INDRAFAZIA reconstruction
+
 
 public:
    enum {                       //determine identification of the detector
@@ -94,6 +96,11 @@ public:
 //   void SortIDTelescopes();
 
    virtual Bool_t Fired(Option_t* opt = "any");
+   /// BIDOUILLE for testing INDRAFAZIA reconstruction
+   void SetFired()
+   {
+      fFired = true;
+   }
    Double_t GetCalibratedEnergy();
    Double_t GetEnergy();
    Double_t GetCalibratedVolt();

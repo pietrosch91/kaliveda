@@ -245,9 +245,9 @@ public:
    };
 protected:
    mutable Iterator fIter;//! internal iterator used by GetNextParticle()
-   Iterator GetNextParticleIterator(Option_t* opt) const;
 
 public:
+   Iterator GetNextParticleIterator(Option_t* opt) const;
    KVNameValueList* GetParameters() const
    {
       return (KVNameValueList*)&fParameters;
