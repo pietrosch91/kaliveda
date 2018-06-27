@@ -378,13 +378,7 @@ KVNameValueList KVNameValueList::operator += (KVNameValueList& nvl)
 {
    TIter it(nvl.GetList());
    KVNamedParameter* par = 0;
-   while ((par = (KVNamedParameter*)it())) {
-
-      if (par->IsInt())         SetValue(par->GetName(), par->GetInt());
-      else if (par->IsDouble()) SetValue(par->GetName(), par->GetDouble());
-      else if (par->IsString()) SetValue(par->GetName(), par->GetString());
-      else if (par->IsBool()) SetValue(par->GetName(), par->GetBool());
-   }
+   while ((par = (KVNamedParameter*)it())) SetValue(*par);
    return *this;
 }
 

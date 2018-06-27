@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
    gMultiDetArray->SetIdentifications();
-   gMultiDetArray->SetGridsInTelescopes(1000);
+   gMultiDetArray->SetGridsInTelescopes(12);
    gMultiDetArray->InitializeIDTelescopes();
    gMultiDetArray->PrintStatusOfIDTelescopes();
 
@@ -35,15 +35,30 @@ int main(int argc, char* argv[])
    int first_frame = TString(argv[2]).Atoi();
    TFile f(Form("INDRAFAZIArecon_%d.root", first_frame), "recreate");
 
+   TTree* tree = new TTree("ReconEvents", "Reconstructed INDRA-FAZIA events");
+   KVEvent::MakeEventBranch(tree, "ReconEvent", "KVReconstructedEvent", erec.GetEventReference());
+
    int i = 0;
    while (raw_file->GetNextEvent()) {
       ++i;
       if (i != first_frame) continue;
       first_frame += 20;
-      gMultiDetArray->HandleRawDataEvent(raw_file.get());
-      erec.ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
-      erec.GetEvent()->SetNumber(i + 1);
-      erec.GetEvent()->ls();
+      //cout << "=================================================================" << endl;
+      if (gMultiDetArray->HandleRawDataEvent(raw_file.get())) {
+         erec.ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
+         erec.GetEvent()->SetNumber(i + 1);
+         if (gFazia->HandledRawData()) {
+            for (KVEvent::Iterator it = erec.GetEvent()->begin(); it != erec.GetEvent()->end(); ++it) {
+               KVReconstructedNucleus& n = it.reference<KVReconstructedNucleus>();
+               if (n.GetParameters()->GetTStringValue("ARRAY") == "FAZIA") n.Print();
+            }
+         }
+         tree->Fill();
+      }
+      else {
+         cout << "Frame " << i << " not handled by anybody:" << endl;
+         raw_file->PrintFrameRead();
+      }
       if (!(i % 10000)) cout << "Treated " << i << " frames..." << endl;
    }
 

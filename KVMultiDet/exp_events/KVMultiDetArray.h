@@ -87,6 +87,8 @@ protected:
 
    Bool_t fHandledRawData;//! set to true if multidetector handles data in last call to HandleRawData
 
+   KVNameValueList fParameters;//! general purpose list of parameters for storing information
+
    virtual void RenumberGroups();
    virtual void BuildGeometry()
    {
@@ -134,6 +136,14 @@ protected:
    virtual void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
 public:
+   KVNameValueList& GetParameters()
+   {
+      return fParameters;
+   }
+   const KVNameValueList& GetParameters() const
+   {
+      return fParameters;
+   }
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {
       if (!gGeoManager) {

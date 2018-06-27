@@ -184,6 +184,9 @@ FAZIADB.Systems:     Systems.dat
 +Plugin.KVMultiDetArray:    TESTLNS17    KVFAZIALNS17    FAZIAgeometry    "KVFAZIALNS17()"
 +Plugin.KVMultiDetArray:    FAZIADEM    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
 
+# Plugins for reconstruction of particles from data/simulation
++Plugin.KVGroupReconstructor:   FAZIA KVFAZIAGroupReconstructor FAZIAanalysis "KVFAZIAGroupReconstructor()"
+
 # Acceptable identification & energy codes for FAZIA reconstructed particles
 # Dataset-dependent values can be set with [Dataset].FAZIA.ReconstructedNuclei.Accept[ID/E]Codes
 FAZIA.ReconstructedNuclei.AcceptIDCodes: 6,11,12,22,23,33

@@ -39,8 +39,11 @@ ClassImp(KVFAZIA)
 ////////////////////////////////////////////////////////////////////////////////
 KVFAZIA* gFazia;
 
+static Char_t const* const FzDataType_str[] = { "QH1", "I1", "QL1", "Q2", "I2", "Q3", "ADC", "UNK" };
+static Char_t const* const FzDetector_str[] = { "SI1", "SI1", "SI1", "SI2", "SI2", "CSI" };
+
 KVFAZIA::KVFAZIA(const Char_t* title)
-   : KVMultiDetArray("FAZIA", title)
+   : KVMultiDetArray("FAZIA", title), fSignals("KVSignal", 1000)
 {
    // Default constructor
    fStartingBlockNumber = 0;
@@ -49,6 +52,13 @@ KVFAZIA::KVFAZIA(const Char_t* title)
    fSignalTypes = "QL1,I1,QH1,Q2,I2,Q3";
    SetGeometryImportParameters();
    CreateCorrespondence();
+
+   // values of trapezoidal filter rise time set in the fpgas
+   // to be linked with a database...
+   fQH1risetime    = 2.;
+   fQ2risetime     = 2.;
+   fQ3slowrisetime = 0.5;
+   fQ3fastrisetime = 10.;
 }
 
 KVFAZIA::~KVFAZIA()
@@ -205,23 +215,19 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
    // list contains data.
    //
 
+   if (!fHandledRawData) {
+      //Info("GetDetectorEvent","i didnt handle any data...");
+      return;
+   }
    if (!sigs || !sigs->GetEntries()) {
-      if (fFiredACQParams.GetEntries()) sigs = &fFiredACQParams;
+      //Info("GetDetectorEvent","external list empty");
+      if (fFiredACQParams.GetEntries()) {
+         sigs = &fFiredACQParams;
+         //Info("GetDetectorEvent","using internal list");
+      }
    }
    if (sigs && sigs->GetEntries()) {
-      // check type of first object in list
-      // if it is a detector, we are in ze bidouille for indrafazia tests
-      if (sigs->First()->InheritsFrom("KVDetector")) {
-         TIter next_det(sigs);
-         KVDetector* det = 0;
-         KVGroup* grp = 0;
-         while ((det = (KVDetector*)next_det())) {
-            if ((grp = det->GetGroup())) {
-               detev->AddGroup(grp);
-            }
-         }
-         return;
-      }
+      //Info("GetDetectorEvent","Got signals in list");
       // list of fired acquisition parameters given
       TIter next_par(sigs);
 
@@ -235,13 +241,18 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
          //          if (!(det = GetDetector(par->GetDetectorName()))) {
          //             det = GetDetector(KVFAZIADetector::GetNewName(par->GetDetectorName()));
          //          }
+         //cout << "Deduced name: " << par->GetDetectorName();
          det = GetDetector(par->GetDetectorName());
          if (det) {
+            //cout << "Setting signal for " << det->GetName() << endl;
             ((KVFAZIADetector*)det)->SetSignal(par, par->GetType());
             if ((!(((KVFAZIADetector*)det)->GetSignal(par->GetType())->GetN() > 0)))
                Warning("Error", "%s %s empty signal is returned", det->GetName(), par->GetType());
             if ((grp = det->GetGroup())) {
                detev->AddGroup(grp);
+            }
+            else {
+               Warning("GetDetectorEvent", "No group defined for detector %s", det->GetName());
             }
          }
          else {
@@ -250,9 +261,10 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
       }
    }
    else {
+      //Info("GetDetectorEvent","Calling base method");
       KVMultiDetArray::GetDetectorEvent(detev, 0);
    }
-
+   //detev->ls();
 }
 
 void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames)
@@ -357,38 +369,187 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
    }
 }
 
-#ifdef WITH_PROTOBUF
-void KVFAZIA::treat_event(const DAQ::FzEvent& e)
+KVGroupReconstructor* KVFAZIA::GetReconstructorForGroup(const KVGroup* g) const
 {
+   // Specialized group reconstructor for FAZIA
+
+   KVGroupReconstructor* gr(nullptr);
+   if (GetGroup(g->GetName())) { // make sure group belongs to us
+      gr = KVGroupReconstructor::Factory("FAZIA");
+   }
+   return gr;
+}
+
+Double_t KVFAZIA::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signaltype, Int_t idx)
+{
+
+   TString sene = "";
+   sene.Form("ENER%d-%s-%d", idx, signaltype.Data(), 100 * blk + 10 * qua + tel);
+   //rustines for RUTHERFORD Telescope
+   if (blk == 0 && qua == 0 && tel == 0)
+      sene.Form("ENER%d-RUTH-%s", idx, signaltype.Data());
+
+   if (fParameters.HasDoubleParameter(sene.Data()))
+      return fParameters.GetValue<Double_t>(sene.Data());
+   else
+      return 0.0;
+}
+
+TString KVFAZIA::GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig)
+{
+
+   TString sname;
+   if (bb == 4) {
+      if (fDataSet == "FAZIASYM" || fDataSet == "FAZIACOR") {
+         sname.Form("%s-RUTH", FzDataType_str[idsig]);
+      }
+      else {
+         sname.Form("%s-%d", FzDataType_str[idsig], 100 * bb + 10 * qq + tt);
+      }
+   }
+   else if (bb == 6) {
+      if (fDataSet == "FAZIAPRE") {
+         sname.Form("%s-RUTH", FzDataType_str[idsig]);
+      }
+      else {
+         sname.Form("%s-%d", FzDataType_str[idsig], 100 * bb + 10 * qq + tt);
+      }
+   }
+   else {
+      sname.Form("%s-%d", FzDataType_str[idsig], 100 * bb + 10 * qq + tt);
+   }
+   return sname;
+
+}
+
+#ifdef WITH_PROTOBUF
+Double_t KVFAZIA::TreatEnergy(Int_t sigid, Int_t eid, uint32_t val)
+{
+   Int_t value = (val << 2);
+   value >>= 2;
+   Double_t dval = -1.;
+   switch (sigid) {
+      case DAQ::FzData_FzDataType_QH1:
+         if (eid == 0) dval = value / (fQH1risetime * 1e3 / 10.);
+         break;
+      case DAQ::FzData_FzDataType_I1:
+         break;
+      case DAQ::FzData_FzDataType_QL1:
+         break;
+      case DAQ::FzData_FzDataType_Q2:
+         if (eid == 0) dval = value / (fQ2risetime * 1e3 / 10.);
+         break;
+      case DAQ::FzData_FzDataType_I2:
+         break;
+      case DAQ::FzData_FzDataType_Q3:
+         if (eid == 0) dval = value / (fQ3slowrisetime * 1e3 / 10.);
+         if (eid == 1) dval = value / (fQ3fastrisetime * 1e3 / 10.);
+         break;
+   }
+   return dval;
+}
+
+Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
+{
+   // Read raw data for an event
+
+   Bool_t good = kTRUE;
+   fFiredACQParams.Clear();
+   fSignals.Clear();
+   fParameters.Clear();
+
    for (int b = 0; b < e.block_size(); ++b) {
+
+      // check block errors
+      if (e.block(b).len_error() || e.block(b).crc_error() || (!good)) {
+         good = kFALSE;
+         break;  //stop iteration on blocks
+      }
+      int fIdBlk = e.block(b).blkid();
+
       for (int f = 0; f < e.block(b).fee_size(); ++f) {
-         for (int h = 0; h < e.block(b).fee(f).hit_size(); ++h) {
-            int detnum = 100 * e.block(b).blkid()
-                         + 10 * fQuartet[e.block(b).fee(f).feeid()][e.block(b).fee(f).hit(h).telid()]
-                         + fTelescope[e.block(b).fee(f).feeid()][e.block(b).fee(f).hit(h).telid()];
-            TString det;
-            switch (e.block(b).fee(f).hit(h).detid()) {
-               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_Si1:
-                  det = "SI1-";
-                  break;
-               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_Si2:
-                  det = "SI2-";
-                  break;
-               case ::DAQ::FzHit_FzDetector::FzHit_FzDetector_CsI:
-                  det = "CSI-";
-                  break;
-               default:
-                  Error("treat_hit", "Unknown detector type %d", e.block(b).fee(f).hit(h).detid());
-                  return;
+
+         const DAQ::FzFee& rdfee = e.block(b).fee(f);
+
+         for (int h = 0; h < rdfee.hit_size(); ++h) {
+
+            const DAQ::FzHit& rdhit = rdfee.hit(h);
+            // check fee errors
+            if (rdfee.len_error() || rdfee.crc_error() || (!good)) {
+               good = kFALSE;
+               break;  //stop iteration on hits
             }
-            det += Form("%d", detnum);
-            if (GetDetector(det)) {
-               fFiredACQParams.Add(GetDetector(det));
-               ((KVFAZIADetector*)GetDetector(det))->SetFired();
+            int fIdFee = rdhit.feeid();
+            int fIdTel = rdhit.telid();
+
+            for (Int_t mm = 0; mm < rdhit.data_size(); mm++) {
+               const DAQ::FzData& rdata = rdhit.data(mm);
+               int fIdSignal = rdata.type();
+
+               //on decompile le HIT
+               int fIdQuartet = fQuartet[fIdFee][fIdTel];
+               int fIdTelescope = fTelescope[fIdFee][fIdTel];
+
+               if (!rdata.has_energy() && !rdata.has_waveform()) {
+                  Warning("treat_event", "[NO DATA]");
+                  continue;
+               }
+               if (rdata.has_energy() && !rdata.has_waveform()) {
+                  Warning("treat_event", "ENERGY WITHOUT SIGNAL");
+               }
+               if (rdata.has_energy()) {
+                  const DAQ::Energy& ren = rdata.energy();
+                  for (Int_t ee = 0; ee < ren.value_size(); ee++) {
+                     Double_t energy = TreatEnergy(fIdSignal, ee, ren.value(ee));
+                     fParameters.SetValue(Form("ENER%d-%s", ee, GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal).Data()), energy);
+                  }
+               }
+
+               if (rdata.has_waveform()) {
+                  const DAQ::Waveform& rwf = rdata.waveform();
+                  Int_t supp;
+
+                  if (fIdSignal <= 5) {
+                     TString sname = GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal);
+                     if (sname == "")
+                        Warning("treat_event", "signal name is empty !!! blk=%d qua=%d tel=%d\n", fIdBlk, fIdQuartet, fIdTelescope);
+
+                     KVSignal* sig = (KVSignal*)fSignals.ConstructedAt(fSignals.GetEntries());
+                     sig->SetNameTitle(sname, FzDetector_str[fIdSignal]);
+                     sig->Set(rwf.sample_size());
+
+                     fFiredACQParams.Add(sig);
+
+                     for (Int_t nn = 0; nn < rwf.sample_size(); nn++) {
+                        if (fIdSignal != DAQ::FzData::ADC) {
+                           if (rwf.sample(nn) > 8191) {
+                              supp = rwf.sample(nn) | 0xFFFFC000;
+                           }
+                           else {
+                              supp = rwf.sample(nn);
+                           }
+                        }
+                        else {
+                           supp = rwf.sample(nn);
+                        }
+                        sig->SetPoint(nn, nn, supp);
+                     }
+                  }
+                  else {
+                     if (fIdSignal > 5)
+                        Warning("treat_event", "datatype %d>5 - taille = %d\n", fIdSignal, rwf.sample_size());
+                  }
+               }
             }
          }
       }
    }
+
+//   cout << "good=" << good << endl;
+//   fParameters.ls();
+//   fSignals.ls();
+
+   return good;
 }
 #endif
 
@@ -396,8 +557,6 @@ void KVFAZIA::treat_event(const DAQ::FzEvent& e)
 Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
 {
    // Treatment of raw data in MFM frames with type MFM_FAZIA_FRAME_TYPE
-
-   fFiredACQParams.Clear();
 
    if (f.GetFrameType() != MFM_FAZIA_FRAME_TYPE) return kFALSE;
 
@@ -407,11 +566,16 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
    // Parse protobuf data in MFM frame
    if (fazia_set.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
       // Parsed an event set
-      for (int i = 0; i < fazia_set.ev_size(); ++i) treat_event(fazia_set.ev(i));
+      if (fazia_set.ev_size() > 1) {
+         Warning("handle_raw_data_event_mfmframe",
+                 "Got a FzEventSet from data: cannot handle multiple events at once!");
+         return kFALSE;
+      }
+      return treat_event(fazia_set.ev(0));
    }
    else if (fazia_event.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
       // Parsed an event
-      treat_event(fazia_event);
+      return treat_event(fazia_event);
    }
 #endif
    return kTRUE;
@@ -445,3 +609,4 @@ void KVFAZIA::CreateCorrespondence()
       }
    }
 }
+

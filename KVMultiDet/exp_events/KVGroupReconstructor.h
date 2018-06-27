@@ -26,6 +26,7 @@ protected:
 
    virtual KVReconstructedNucleus* ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node);
    void ReconstructParticle(KVReconstructedNucleus* part, const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node);
+   virtual void PostReconstructionProcessing();
    virtual void IdentifyParticle(KVReconstructedNucleus& PART);
    virtual void CalibrateParticle(KVReconstructedNucleus* PART);
 

@@ -39,6 +39,11 @@ public:
    {
       return fEvent;
    }
+   void* GetEventReference()
+   {
+      // for KVEvent::MakeEventBranch
+      return &fEvent;
+   }
 
    ClassDef(KVEventReconstructor, 0) //Base class for handling event reconstruction
 };

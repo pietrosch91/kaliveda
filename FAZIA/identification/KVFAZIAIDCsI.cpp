@@ -43,6 +43,7 @@ Bool_t KVFAZIAIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t 
    //perform identification
    Double_t csir = (y < 0. ? GetIDMapY() : y);
    Double_t csil = (x < 0. ? GetIDMapX() : x);
+
    CsIGrid->Identify(csil, csir, IDR);
 
    // set general ID code
@@ -89,7 +90,8 @@ void KVFAZIAIDCsI::Initialize()
    if (CsIGrid) {
       CsIGrid->Initialize();
       SetBit(kReadyForID);
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
