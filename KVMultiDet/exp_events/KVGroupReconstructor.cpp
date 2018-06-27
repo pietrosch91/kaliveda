@@ -92,8 +92,8 @@ void KVGroupReconstructor::Process()
    if (!nfireddets) {
       // odd - not a single fired parameter in the group, yet this group is in the
       // list of fired groups for the event?
-//      Warning("Process", "Group with 0 fired detectors/parameters");
-//      GetGroup()->PrintData();
+      Warning("Process", "Group with 0 fired detectors/parameters");
+      GetGroup()->PrintData();
    }
    if (GetEventFragment()->GetMult() == 0) {
       return;
@@ -132,7 +132,15 @@ void KVGroupReconstructor::Reconstruct()
 
    if (GetEventFragment()->GetMult()) {
       AnalyseParticles();
+      PostReconstructionProcessing();
    }
+}
+
+void KVGroupReconstructor::PostReconstructionProcessing()
+{
+   // This method will be called after reconstruction and first-order coherency analysis
+   // of all particles in the group (if there are any reconstructed particles).
+   // By default it does nothing.
 }
 
 KVReconstructedNucleus* KVGroupReconstructor::ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node)

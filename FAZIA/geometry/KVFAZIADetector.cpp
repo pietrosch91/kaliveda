@@ -49,8 +49,6 @@ void KVFAZIADetector::init()
    fLabel = -1;
    fChannel = 0;
    fVolt = 0;
-   //BIDOUILLE for testing INDRAFAZIA reconstruction
-   fFired = false;
 }
 
 //________________________________________________________________
@@ -235,8 +233,6 @@ void  KVFAZIADetector::Clear(Option_t*)
 {
 
    KVDetector::Clear("");
-   //BIDOUILLE for testing INDRAFAZIA reconstruction
-   fFired = false;
    if (fSignals) {
       fSignals->Execute("Set", "0");
    }
@@ -407,8 +403,7 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
       Warning("Fired", "%s : No signal attached to this detector ...", GetName());
    }
 
-   // BIDOUILLE for testing INDRAFAZIA reconstruction
-   return fFired;
+   return kFALSE;
 }
 
 //_________________________________________________________________________________

@@ -187,7 +187,7 @@ Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
    while ((mda = (KVMultiDetArray*)next_array())) {
       mda->fHandledRawData = false;
    }
-   return KVMultiDetArray::HandleRawDataEvent(g);
+   return (fHandledRawData = KVMultiDetArray::HandleRawDataEvent(g));
 }
 
 void KVExpSetUp::GetArrayMultiplicities(KVReconstructedEvent* e, KVNameValueList& m, Option_t* opt)

@@ -41,6 +41,14 @@ protected:
    Double_t fImport_PhiMax;//! for geometry import
    int fQuartet[8][2];//! quartet number from #FEE and #FPGA
    int fTelescope[8][2];//! telescope number from #FEE and #FPGA
+   TClonesArray fSignals;//! for reading raw data
+
+   // values of trapezoidal filter rise time set in the fpgas
+   // to be linked with a database...
+   Double_t fQH1risetime;
+   Double_t fQ2risetime;
+   Double_t fQ3slowrisetime;
+   Double_t fQ3fastrisetime;
 
    //methods to be implemented in child classes
    virtual void BuildFAZIA();
@@ -62,9 +70,11 @@ protected:
    void CreateCorrespondence();
 #ifdef WITH_PROTOBUF
 #ifndef __CINT__
-   void treat_event(const DAQ::FzEvent&);
+   Bool_t treat_event(const DAQ::FzEvent&);
 #endif
+   Double_t TreatEnergy(Int_t sigid, Int_t eid, uint32_t val);
 #endif
+   TString GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig);
 public:
 
    KVFAZIA(const Char_t* title = "");
@@ -104,6 +114,9 @@ public:
       fImport_ThetaMin = tmin;
    }
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
+
+   KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
+   Double_t GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signaltype, Int_t idx = 0);
 
    ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up
 };
