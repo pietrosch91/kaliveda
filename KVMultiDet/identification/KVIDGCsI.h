@@ -17,7 +17,6 @@ class KVIDGCsI: public KVIDZAGrid {
 
    KVIDLine* IMFLine;//!
    KVIDLine* GammaLine;//!
-   Bool_t fIMFlineadded;//!set to kTRUE once IMF line has been added to list of identifiers
 
 protected:
    KVIDLine* GetNearestIDLine(Double_t x, Double_t y,
@@ -34,11 +33,11 @@ public:
    inline KVIDLine* GetGammaLine() const
    {
       return GammaLine;
-   };
+   }
    inline KVIDLine* GetIMFLine() const
    {
       return IMFLine;
-   };
+   }
 
 
    virtual void Identify(Double_t x, Double_t y,
@@ -54,7 +53,7 @@ public:
    virtual TClass* DefaultIDLineClass()
    {
       return TClass::GetClass("KVIDCsIRLLine");
-   };
+   }
 
    ClassDef(KVIDGCsI, 2)       //CsI Rapide-Lente grid & identification
 };

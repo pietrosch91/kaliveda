@@ -33,7 +33,6 @@ KVIDGCsI::KVIDGCsI()
    //Default constructor
    IMFLine = 0;
    GammaLine = 0;
-   fIMFlineadded = kFALSE;
 }
 
 KVIDGCsI::KVIDGCsI(const KVIDGCsI& grid) : KVIDZAGrid()
@@ -41,7 +40,6 @@ KVIDGCsI::KVIDGCsI(const KVIDGCsI& grid) : KVIDZAGrid()
    //Copy constructor
    IMFLine = 0;
    GammaLine = 0;
-   fIMFlineadded = kFALSE;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    grid.Copy(*this);
 #else
@@ -74,6 +72,21 @@ Bool_t KVIDGCsI::IsIdentifiable(Double_t x, Double_t y) const
 
 //_______________________________________________________________________________________________//
 
+// small utility class which adds the IMF line to the identifier list when constructed,
+// and removes it when it goes out of scope i.e. whenever the program leaves the Identify method
+struct add_remove_imf_line {
+   KVList* idlines;
+   KVIDLine* imfline;
+   add_remove_imf_line(KVList* l, KVIDLine* i) : idlines(l), imfline(i)
+   {
+      if (imfline) idlines->AddLast(imfline);
+   }
+   ~add_remove_imf_line()
+   {
+      if (imfline) idlines->Remove(imfline);
+   }
+};
+
 void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
 {
    // Set Z and A of nucleus based on position in R-L grid
@@ -88,10 +101,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) con
 
    // before first use of this method, we add the IMF line to the list of identifiers
    // which is necessary for IdentZA to work correctly
-   if (!fIMFlineadded) {
-      if (IMFLine) fIdentifiers->AddLast(IMFLine);
-      const_cast < KVIDGCsI* >(this)->fIMFlineadded = kTRUE;
-   }
+   add_remove_imf_line IMF(fIdentifiers, IMFLine);
 
    if (!IsIdentifiable(x, y)) {
       //point below gamma line
@@ -253,7 +263,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      ibif = 0;
                      y2 /= 2.;
                      ix2 = Asups - Asup;
-                  } else {
+                  }
+                  else {
                      if (Zsups > 0)
                         y2 /= 2.;       // 'sups' line is not IMF line
                      Double_t x2 = wsup;
@@ -261,7 +272,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y2 = TMath::Min(y2, x2);
                      ix2 = 1;
                   }
-               } else {       // ksups == -1 i.e. no 'sups' line
+               }
+               else {         // ksups == -1 i.e. no 'sups' line
                   y2 = wsup;
                   y2 = 0.5 * TMath::Max(y2, dist);
                   ix2 = 1;
@@ -282,13 +294,15 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      ibif = 0;
                      ix1 = Ainfi - Ainf;
                      y1 = -y1;
-                  } else {
+                  }
+                  else {
                      Double_t x1 = winf;
                      x1 = 0.5 * TMath::Max(x1, dist);
                      y1 = -TMath::Min(y1, x1);
                      ix1 = -1;
                   }
-               } else {       // kinfi = -1 i.e. no 'infi' line
+               }
+               else {         // kinfi = -1 i.e. no 'infi' line
                   y1 = winf;
                   y1 = -0.5 * TMath::Max(y1, dist);
                   ix1 = -1;
@@ -296,7 +310,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y2 = dt / 2.;
                ix2 = dA;
             }
-         } else {
+         }
+         else {
             //cout << "         /****************Z differents**************/ " << endl;
             if (Zsup == -1) {   //'sup' is the IMF line
                dt *= 2.;
@@ -321,7 +336,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y1 = -TMath::Min(y1, dt / 2.);
                      ix1 = -1;
                      y2 /= 2.;
-                  } else {
+                  }
+                  else {
                      if (Zsups > 0)
                         y2 /= 2.;       // 'sups" is not IMF line
                      y2 = TMath::Min(y1, y2);
@@ -329,7 +345,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y1 = -TMath::Min(y1, dt / 2.);
                      ix1 = -1;
                   }
-               } else {       // ksups == -1, i.e. no 'sups' line
+               }
+               else {         // ksups == -1, i.e. no 'sups' line
                   fICode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
                   y2 = y1;
                   ix2 = 1;
@@ -355,13 +372,15 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y2 = TMath::Min(y2, dt / 2.);
                      ix2 = 1;
                      y1 /= -2.;
-                  } else {
+                  }
+                  else {
                      y1 = -TMath::Min(y2, y1 / 2.);
                      ix1 = -1;
                      y2 = TMath::Min(y2, dt / 2.);
                      ix2 = 1;
                   }
-               } else {       // no kinfi line, kinfi==-1
+               }
+               else {         // no kinfi line, kinfi==-1
                   y1 = -y2;
                   ix1 = -1;
                   y2 = TMath::Min(y2, dt / 2.);
@@ -388,7 +407,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y1 = -TMath::Max(y1, x1);
                ix1 = -1;
                y2 /= 2.;
-            } else {
+            }
+            else {
                if (Zsups > 0)
                   y2 /= 2.;     // 'sups' is not IMF line
                y2 = TMath::Min(y1, y2);
@@ -396,17 +416,20 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y1 = -y1;
                ix1 = -1;
             }
-         } else {             // no 'sups' line above closest line
+         }
+         else {               // no 'sups' line above closest line
             fICode = kICODE7;   //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
             y2 = y1;
             ix2 = 1;
             y1 = -y1;
             ix1 = -1;
          }
-      } else {
+      }
+      else {
          fICode = kICODE8;      //  Z indetermine ou (x,y) hors limites
       }
-   } else if (kinf > -1) {
+   }
+   else if (kinf > -1) {
       //cout <<"/****************** Seule une ligne inferieure a ete trouvee ***********************/" << endl;
       /*** Sep. fragment ***/
       if (Zinf == -1) {         // 'inf' is IMF line
@@ -435,12 +458,14 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y2 = TMath::Max(y2, x2);
                ix2 = 1;
                y1 /= -2.;
-            } else {
+            }
+            else {
                y1 = -TMath::Min(y2, y1 / 2.);
                ix1 = -1;
                ix2 = 1;
             }
-         } else {
+         }
+         else {
             y1 = -y2;
             ix1 = -1;
             ix2 = 1;
@@ -480,7 +505,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
          /*else
             Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                GetName(), dist, Z, Aint, fICode);*/
-      } else if (ix2 == -ix1 * 2) {   // dA2 = 2*dA1
+      }
+      else if (ix2 == -ix1 * 2) {     // dA2 = 2*dA1
          Double_t tmp = y1 * y1 - 4. * dist;
          if (tmp > 0. && dist != 0) {
             dt = -(y1 + 2. * y2 -
@@ -490,7 +516,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
          /*else
             Warning("IdentZA","%s : cannot calculate interpolated mass (y1*y1-4*dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                GetName(), tmp, Z, Aint, fICode);*/
-      } else if (ix1 == -ix2 * 2) {   // dA1 = 2*dA2
+      }
+      else if (ix1 == -ix2 * 2) {     // dA1 = 2*dA2
          Double_t tmp = y2 * y2 - 4. * dist;
          if (tmp > 0. && dist != 0) {
             dt = -(y2 + 2. * y1 +
@@ -509,7 +536,8 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
             /*else
                Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                   GetName(), y2, Z, Aint, fICode);*/
-         } else {
+         }
+         else {
             if (dist > -1. && dt * yy > -1.)
                deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
             /*else
