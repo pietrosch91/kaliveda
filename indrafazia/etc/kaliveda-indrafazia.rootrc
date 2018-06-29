@@ -30,4 +30,23 @@ INDRAFAZIA.IdentificationParameterFile.Si-CsI:       SICSI.dat
 INDRAFAZIA.IdentificationParameterFile.Si-Si:        SISI.dat
 INDRAFAZIA.IdentificationParameterFile.CsI:          CSIRL.dat
 
-INDRAFAZIA.Q3.ShaperRiseTime: 2
+#INDRAFAZIA.Q3.ShaperRiseTime: 2
+#signal.QH1.BaseLine:	150
+#signal.I1.BaseLine:	100
+#signal.QL1.BaseLine:	150
+#signal.Q2.BaseLine:	150
+#signal.I2.BaseLine:	150
+#
+#signal.QH1.RiseTime:	2.
+#signal.QL1.RiseTime:	2.
+#signal.Q2.RiseTime:	2.
+#
+#signal.QH1.FlatTop:	1.
+#signal.QL1.FlatTop:	1.
+#signal.Q2.FlatTop:	1.
+
+INDRAFAZIA.Q3.FastShaperFlatTop:	0.5
+INDRAFAZIA.Q3.ShaperFlatTop:	10.
+INDRAFAZIA.Q3.BaseLineLength:	150
+INDRAFAZIA.Q3.FastShaperRiseTime:    0.7
+INDRAFAZIA.Q3.ShaperRiseTime:        0.7
