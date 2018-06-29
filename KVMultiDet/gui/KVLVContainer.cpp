@@ -51,25 +51,31 @@ ClassImp(KVLVColumnData)
 
 void KVLVColumnData::GetData(TObject* obj, Long_t& i)
 {
-   fMethCall->Execute(obj, "", i);
+   fMethCall.Execute(obj, "", i);
 }
 
 void KVLVColumnData::GetData(TObject* obj, Double_t& i)
 {
-   fMethCall->Execute(obj, "", i);
+   fMethCall.Execute(obj, "", i);
 }
 
 void KVLVColumnData::GetData(TObject* obj, TString& i)
 {
+   if (fRetType == kTString) {
+      Long_t lret;
+      fMethCall.Execute(obj, "", lret);
+      i = ((TString*)lret)->Data();
+      return;
+   }
    Char_t* cret;
-   fMethCall->Execute(obj, "", &cret);
+   fMethCall.Execute(obj, "", &cret);
    i.Form("%s", cret);
 }
 
 void KVLVColumnData::GetData(TObject* obj, KVDatime& i)
 {
    Long_t lret;
-   fMethCall->Execute(obj, "", lret);
+   fMethCall.Execute(obj, "", lret);
    switch (fRetType) {
       case kDatimeRef:
          ((TDatime*)lret)->Copy(i);
@@ -92,6 +98,7 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
    switch (fRetType) {
 
       case (Int_t)TMethodCall::kString :
+      case (Int_t)kTString :
          GetData(obj, result);
          break;
 
@@ -112,8 +119,8 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
          break;
 
       default:
-         std::cout << "Error in <KVLVColumnData::GetDataString> : this type is not supported "
-                   << (Int_t)fMethCall->ReturnType() << std::endl;
+         std::cout << "Error in <KVLVColumnData::GetDataString> : column " << fName << " : this type is not supported "
+                   << (Int_t)fMethCall.ReturnType() << std::endl;
          break;
    }
    return result.Data();
@@ -138,9 +145,10 @@ void KVLVColumnData::SetIsDateTime(KVDatime::EKVDateFormat fmt, Bool_t with_refe
    if (with_reference) {
       fRetType = kDatimeRef;
       // determine class of returned pointer/reference
-      TString ptr_type = fMethCall->GetMethod()->GetReturnTypeName();
+      TString ptr_type = fMethCall.GetMethod()->GetReturnTypeName();
       fIsKVDatime = ptr_type.Contains("KVDatime");
-   } else {
+   }
+   else {
       fRetType = kDatimeInt;
    }
 }
@@ -208,7 +216,7 @@ Int_t KVLVColumnData::Compare(TObject* ob1, TObject* ob2)
 
       default:
          std::cout << "Error in <KVLVColumnData::Compare> : this type is not supported "
-                   << (Int_t)fMethCall->ReturnType() << std::endl;
+                   << (Int_t)fMethCall.ReturnType() << std::endl;
          break;
    }
    return 0;
@@ -357,9 +365,11 @@ void KVLVContainer::Display(const TCollection* list_of_objects)
          TObject* o;
          while ((o = next()) && (N++) < max_entries) list2.Add(o);
          FillList(&list2);
-      } else
+      }
+      else
          FillList(list_of_objects);
-   } else
+   }
+   else
       FillList(list_of_objects);
    if (!fIsResized) {
       GetListView()->ResizeColumns();
@@ -671,7 +681,8 @@ void KVLVContainer::OpenContextMenu(TGFrame* f, Int_t but, Int_t x, Int_t y)
             if ((!fAllowContextMenu && fContextMenuClassExceptions->FindObject(CMobClass))
                   || (fAllowContextMenu && !fContextMenuClassExceptions->FindObject(CMobClass)))
                fContextMenu->Popup(x, y, CMob);
-         } else if (fAllowContextMenu)  fContextMenu->Popup(x, y, CMob);
+         }
+         else if (fAllowContextMenu)  fContextMenu->Popup(x, y, CMob);
       }
    }
 }
@@ -819,7 +830,8 @@ Bool_t KVLVContainer::HandleButton(Event_t* event)
          fContextMenu->Popup(event->fXRoot, event->fYRoot, this);
          delete list;
          return kTRUE;
-      } else if (list->GetSize() == 1) {
+      }
+      else if (list->GetSize() == 1) {
          return TGLVContainer::HandleButton(event);
       }
       delete list;
