@@ -25,12 +25,11 @@ INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 
-INDRAFAZIA.IdentificationParameterFile.CSI:          CSI_RL_67.dat
+INDRAFAZIA.IdentificationParameterFile.CSI:          CSI_R_L_6-12.dat
 INDRAFAZIA.IdentificationParameterFile.Si-CsI:       SICSI.dat
 INDRAFAZIA.IdentificationParameterFile.Si-Si:        SISI.dat
 INDRAFAZIA.IdentificationParameterFile.CsI:          CSIRL.dat
 
-#INDRAFAZIA.Q3.ShaperRiseTime: 2
 #signal.QH1.BaseLine:	150
 #signal.I1.BaseLine:	100
 #signal.QL1.BaseLine:	150
