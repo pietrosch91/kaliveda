@@ -28,7 +28,7 @@ class KVLVColumnData {
 
    TString        fName;      // name used on button at top of column
    TString        fMethod;    // method used to retrieve data from objects
-   TMethodCall*    fMethCall; // method call object
+   TMethodCall    fMethCall; // method call object
    Int_t          fRetType;   // return type of data retrieval method
    TString        result;     // string used to store object data
    Bool_t         fDate;      // kTRUE if column contains TDatime date & time info
@@ -39,7 +39,8 @@ class KVLVColumnData {
 
    enum {
       kDatimeRef = (Int_t)TMethodCall::kNone + 1,
-      kDatimeInt
+      kDatimeInt,
+      kTString
    };
    Int_t Compare_date(TObject* o1, TObject* o2);
    Int_t Compare_string(TObject* o1, TObject* o2);
@@ -51,12 +52,12 @@ public:
       : fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE), fIsBoolean(kFALSE)
    {
       if (fMethod == "") fMethod.Form("Get%s", name);
-      fMethCall = new TMethodCall(cl, fMethod.Data(), "");
-      if (!fMethCall->IsValid()) {
+      fMethCall.Init(cl, fMethod.Data(), "");
+      if (!fMethCall.IsValid()) {
          std::cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
                    << " is not valid for class " << cl->GetName() << std::endl;
       }
-      fRetType = (Int_t)fMethCall->ReturnType();
+      fRetType = (Int_t)fMethCall.ReturnType();
       fDataFormat = "";
       switch (fRetType) {
          case (Int_t)TMethodCall::kLong :
@@ -70,14 +71,14 @@ public:
          default:
             break;
       }
-      if (!strcmp(fMethCall->GetMethod()->GetReturnTypeName(), "bool")
-            || !strcmp(fMethCall->GetMethod()->GetReturnTypeName(), "Bool_t")) fIsBoolean = kTRUE;
+      TString rtn(fMethCall.GetMethod()->GetReturnTypeName());
+      if (rtn == "bool" || rtn == "Bool_t") fIsBoolean = kTRUE;
       else fIsBoolean = kFALSE;
-   };
+      if (rtn == "TString" || rtn == "KVString") fRetType = kTString;
+   }
    virtual ~KVLVColumnData()
    {
-      delete fMethCall;
-   };
+   }
    virtual void SetIsDateTime(KVDatime::EKVDateFormat fmt = KVDatime::kCTIME, Bool_t with_reference = kTRUE);
    virtual void SetIsBoolean(Bool_t isit = kTRUE)
    {
