@@ -125,14 +125,17 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer* cnt,
             mt.Execute(obj, "", &ret);
             if (fClient->GetColorByName(ret, fBGColor)) {
                fColoured = kTRUE;
-            } else {
+            }
+            else {
                Warning("KVLVEntry", "Unknown color %s requested for entry", ret);
             }
-         } else {
+         }
+         else {
             Warning("KVLVEntry", "Object of class %s has GetLVEntryColour() method with wrong return type",
                     obj->ClassName());
          }
-      } else {
+      }
+      else {
          Warning("KVLVEntry", "GetLVEntryColour() method not valid for class %s", obj->ClassName());
       }
    }
@@ -190,8 +193,8 @@ KVLVEntry::~KVLVEntry()
    delete [] fBoolean;
    if (fDisconnectRefresh && fUserData) {
       TObject* obj = (TObject*)fUserData;
-      gInterpreter->Execute(obj, obj->IsA(), "Disconnect",
-                            Form("\"Modified()\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+      if (obj && obj->TestBit(kNotDeleted)) gInterpreter->Execute(obj, obj->IsA(), "Disconnect",
+               Form("\"Modified()\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
    }
 }
 
@@ -248,7 +251,8 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
       iy = 0;
       lx = (fWidth - fTWidth) >> 1;
       ly = fHeight - (fTHeight + 1) - 2;
-   } else {
+   }
+   else {
       ix = 0;
       iy = (fHeight - fCurrent->GetHeight()) >> 1;
       lx = fCurrent->GetWidth() + 2;
@@ -290,7 +294,8 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
          gVirtualX->SetForeground(fNormGC, fgDefaultSelectedBackground);
          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fCpos[0] - lx, fTHeight + 1);
          gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
-      } else {
+      }
+      else {
          // inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
          fCurrent->Draw(id, fNormGC, x + ix, y + iy);
          //gVirtualX->SetForeground(fNormGC, fgWhitePixel);
@@ -300,13 +305,15 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
       }
       TGString tmpTGString(tmpString);
       tmpTGString.Draw(id, fNormGC, x + lx, y + ly + max_ascent);
-   } else {
+   }
+   else {
       if (fActive) {
          if (fSelPic) fSelPic->Draw(id, fNormGC, x + ix, y + iy);
          gVirtualX->SetForeground(fNormGC, fgDefaultSelectedBackground);
          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
          gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
-      } else {
+      }
+      else {
          fCurrent->Draw(id, fNormGC, x + ix, y + iy);
          gVirtualX->SetForeground(fNormGC, fgWhitePixel);
          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fTWidth, fTHeight + 1);
@@ -351,7 +358,8 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
                gVirtualX->SetForeground(fNormGC, fgDefaultSelectedBackground);
                gVirtualX->FillRectangle(id, fNormGC, x + fCpos[i], y + ly, fCpos[i + 1] - fCpos[i], fTHeight + 1);
                gVirtualX->SetForeground(fNormGC, fClient->GetResourcePool()->GetSelectedFgndColor());
-            } else {
+            }
+            else {
                // inactive list items are drawn with alternating background colours: white, grey, white, grey, ...
                //fCurrent->Draw(id, fNormGC, x + ix, y + iy);
                //gVirtualX->SetForeground(fNormGC, fgWhitePixel);
@@ -364,7 +372,8 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
                   // boolean column data drawn with a tick mark
                   fCheckMark->Draw(id, fNormGC, x + lx, y + ly);
                }
-            } else {
+            }
+            else {
                TGString tmpTGString(tmpString);
                tmpTGString.Draw(id, fNormGC, x + lx, y + ly + max_ascent);
             }
