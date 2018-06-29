@@ -38,6 +38,18 @@ int main(int argc, char* argv[])
    TTree* tree = new TTree("ReconEvents", "Reconstructed INDRA-FAZIA events");
    KVEvent::MakeEventBranch(tree, "ReconEvent", "KVReconstructedEvent", erec.GetEventReference());
 
+   TTree* idtree = new TTree("Ident", "Status identifications");
+   int z, a;
+   TString detid, array;
+   idtree->Branch("array", &array);
+   idtree->Branch("detid", &detid);
+   idtree->Branch("z", &z);
+   idtree->Branch("a", &a);
+
+   TH2F* csi_133 = new TH2F("csi_133", "CSI-133 R-L", 2500, 0, 2500, 4000, 0, 4000);
+   KVIDTelescope* idt = gFazia->GetIDTelescope("ID_CSI_133");
+   KVDetector* det = gFazia->GetDetector("CSI-133");
+
    int i = 0;
    while (raw_file->GetNextEvent()) {
       ++i;
@@ -48,12 +60,26 @@ int main(int argc, char* argv[])
          erec.ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
          erec.GetEvent()->SetNumber(i + 1);
          if (gFazia->HandledRawData()) {
-            for (KVEvent::Iterator it = erec.GetEvent()->begin(); it != erec.GetEvent()->end(); ++it) {
-               KVReconstructedNucleus& n = it.reference<KVReconstructedNucleus>();
-               if (n.GetParameters()->GetTStringValue("ARRAY") == "FAZIA") n.Print();
+            if (det->Fired()) {
+               csi_133->Fill(idt->GetIDMapX(), idt->GetIDMapY());
             }
          }
          tree->Fill();
+         if (erec.GetEvent()->GetMult()) {
+            for (KVEvent::Iterator it = erec.GetEvent()->begin(); it != erec.GetEvent()->end(); ++it) {
+               KVReconstructedNucleus& n = it.reference<KVReconstructedNucleus>();
+               if (n.IsIdentified()) {
+                  if (n.IsZMeasured()) {
+                     z = n.GetZ();
+                     if (n.IsAMeasured()) a = n.GetA();
+                     else a = -1;
+                     array = n.GetParameters()->GetTStringValue("ARRAY");
+                     detid = n.GetIdentifyingTelescope()->GetName();
+                     idtree->Fill();
+                  }
+               }
+            }
+         }
       }
       else {
          cout << "Frame " << i << " not handled by anybody:" << endl;
