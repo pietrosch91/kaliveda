@@ -278,7 +278,6 @@ void KVGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
       Int_t idnumber = 1;
       Int_t n_success_id = 0;//number of successful identifications
       while ((idt = (KVIDTelescope*) next())) {
-
          KVIdentificationResult* IDR = PART.GetIdentificationResult(idnumber++);
          id_by_type[IDR->GetType()] = IDR;
 

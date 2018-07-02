@@ -40,19 +40,23 @@ int main(int argc, char* argv[])
    KVEvent::MakeEventBranch(tree, "ReconEvent", "KVReconstructedEvent", erec.GetEventReference());
 
    TTree* idtree = new TTree("Ident", "Status identifications");
-   int z, a;
+   int z, a, code;
+   double idx, idy;
    TString detid, array;
    idtree->Branch("array", &array);
    idtree->Branch("detid", &detid);
    idtree->Branch("z", &z);
    idtree->Branch("a", &a);
+   idtree->Branch("code", &code);
+   idtree->Branch("idx", &idx);
+   idtree->Branch("idy", &idy);
 
    KVHashList my_csi_hists;
-   TIter nxt_csi(gFazia->GetIDTelescopesWithType("CsI"));
+   TIter nxt_csi(gFazia->GetIDTelescopesWithType("Si-CsI"));
    KVIDTelescope* idt;
    while ((idt = (KVIDTelescope*)nxt_csi())) {
       if (((KVFAZIADetector*)idt->GetDetector(1))->GetBlockNumber() == 1)
-         my_csi_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 250, 0, 2500, 400, 0, 4000));
+         my_csi_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 6000, 1000, 0, 500));
    }
 
    int i = 0;
@@ -78,6 +82,9 @@ int main(int argc, char* argv[])
                KVReconstructedNucleus& n = it.reference<KVReconstructedNucleus>();
                if (n.IsIdentified()) {
                   if (n.IsZMeasured()) {
+                     code = n.GetIDCode();
+                     idx = n.GetIdentifyingTelescope()->GetIDMapX();
+                     idy = n.GetIdentifyingTelescope()->GetIDMapY();
                      z = n.GetZ();
                      if (n.IsAMeasured()) a = n.GetA();
                      else a = -1;

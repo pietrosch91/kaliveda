@@ -7,7 +7,7 @@ class KVFAZIAGroupReconstructor : public KVGroupReconstructor {
 protected:
    //KVReconstructedNucleus*ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node);
    //void IdentifyParticle(KVReconstructedNucleus& PART);
-   //void CalibrateParticle(KVReconstructedNucleus* PART);
+//   void CalibrateParticle(KVReconstructedNucleus* PART);
    void PostReconstructionProcessing();
 
 public:
