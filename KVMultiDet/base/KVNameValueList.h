@@ -49,6 +49,9 @@ public:
       par ? par->Set(name, value) : fList.Add(new KVNamedParameter(name, value));
    }
    void SetValue(const KVNamedParameter&);
+   void SetValue64bit(const Char_t* name, ULong64_t);
+   ULong64_t GetValue64bit(const Char_t* name);
+   Bool_t HasValue64bit(const Char_t* name);
 
    template <typename value_type>
    void SetValueAt(const Char_t* name, value_type value, Int_t idx)
