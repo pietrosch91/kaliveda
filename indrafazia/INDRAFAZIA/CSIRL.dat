@@ -6,7 +6,7 @@
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_133
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -101,7 +101,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_134
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -204,7 +204,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_143
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -322,7 +322,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_144
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -438,7 +438,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_141
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -587,7 +587,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_142
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -721,7 +721,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_131
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -862,7 +862,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_132
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -958,7 +958,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_113
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1079,7 +1079,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_114
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1188,7 +1188,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_123
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1300,7 +1300,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_124
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1411,7 +1411,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_111
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1544,7 +1544,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_112
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1667,7 +1667,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_121
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
@@ -1801,7 +1801,7 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=ID_CSI_122
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=0-1000
 +KVIDCsIRLLine
 ID:Z=1 A=1
 1	1
