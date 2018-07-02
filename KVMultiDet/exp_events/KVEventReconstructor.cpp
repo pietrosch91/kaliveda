@@ -114,6 +114,9 @@ void KVEventReconstructor::ReconstructEvent(const TSeqCollection* fired)
 
    // merge resulting event fragments
    MergeGroupEventFragments();
+
+   // copy any parameters stocked in the detector(s) during reconstruction in the reconstructed event
+   GetArray()->SetReconParametersInEvent(GetEvent());
 }
 
 void KVEventReconstructor::MergeGroupEventFragments()

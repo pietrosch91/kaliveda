@@ -96,6 +96,7 @@ protected:
    Int_t GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
    void PerformClosedROOTGeometryOperations(Int_t run = -1);
+   Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
 
 public:
    KVINDRA();

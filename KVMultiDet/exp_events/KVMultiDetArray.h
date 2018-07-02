@@ -148,6 +148,7 @@ public:
       // stored in the KVReconstructedEvent generated
       return fReconParameters;
    }
+   virtual void SetReconParametersInEvent(KVReconstructedEvent*) const;
    void CreateGeoManager(Double_t dx = 500, Double_t dy = 500, Double_t dz = 500)
    {
       if (!gGeoManager) {

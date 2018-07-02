@@ -557,8 +557,11 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
 Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
 {
    // Treatment of raw data in MFM frames with type MFM_FAZIA_FRAME_TYPE
+   // The timestamp is extracted from the frame header and added to fReconParameters
+   // in a 64 bit parameter with name "FAZIA.TS"
 
    if (f.GetFrameType() != MFM_FAZIA_FRAME_TYPE) return kFALSE;
+   fReconParameters.SetValue64bit("FAZIA.TS", f.GetTimeStamp());
 
 #ifdef WITH_PROTOBUF
    DAQ::FzEventSet fazia_set;

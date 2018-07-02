@@ -416,7 +416,7 @@ void KVNameValueList::WriteEnvFile(const Char_t* filename)
 }
 
 
-KVNameValueList KVNameValueList::operator += (KVNameValueList& nvl)
+KVNameValueList KVNameValueList::operator += (const KVNameValueList& nvl)
 {
    TIter it(nvl.GetList());
    KVNamedParameter* par = 0;

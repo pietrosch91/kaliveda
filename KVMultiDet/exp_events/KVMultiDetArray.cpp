@@ -2959,6 +2959,12 @@ void KVMultiDetArray::PerformClosedROOTGeometryOperations(Int_t)
    // then closes the geometry only when all have been built.
 }
 
+void KVMultiDetArray::SetReconParametersInEvent(KVReconstructedEvent* e) const
+{
+   // Copy any parameters in fReconParameters in to the reconstructed event parameter list
+   *(e->GetParameters()) += fReconParameters;
+}
+
 Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
 {
    // Update array according to last event read using the KVRawDataReader object
@@ -3044,7 +3050,6 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    for (int i = 0; i < ebyframe.GetNbItems(); ++i) {
       ebyframe.GetDataItem(i, lab, val);
       if ((acqpar = GetACQParam(lab.c_str()))) {
-         TString myname(acqpar->GetName());
          acqpar->SetData(val);
          fFiredACQParams.Add(acqpar);
          ok = kTRUE;
