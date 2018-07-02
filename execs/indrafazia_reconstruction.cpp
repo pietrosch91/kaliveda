@@ -1,6 +1,7 @@
 #include <KVDataRepositoryManager.h>
 #include <KVDataSetManager.h>
 #include <KVEventReconstructor.h>
+#include <KVFAZIADetector.h>
 #include <KVMFMDataFileReader.h>
 #include <iostream>
 #include "TApplication.h"
@@ -46,9 +47,13 @@ int main(int argc, char* argv[])
    idtree->Branch("z", &z);
    idtree->Branch("a", &a);
 
-   TH2F* csi_133 = new TH2F("csi_133", "CSI-133 R-L", 2500, 0, 2500, 4000, 0, 4000);
-   KVIDTelescope* idt = gFazia->GetIDTelescope("ID_CSI_133");
-   KVDetector* det = gFazia->GetDetector("CSI-133");
+   KVHashList my_csi_hists;
+   TIter nxt_csi(gFazia->GetIDTelescopesWithType("CsI"));
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*)nxt_csi())) {
+      if (((KVFAZIADetector*)idt->GetDetector(1))->GetBlockNumber() == 1)
+         my_csi_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 250, 0, 2500, 400, 0, 4000));
+   }
 
    int i = 0;
    while (raw_file->GetNextEvent()) {
@@ -60,8 +65,11 @@ int main(int argc, char* argv[])
          erec.ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
          erec.GetEvent()->SetNumber(i + 1);
          if (gFazia->HandledRawData()) {
-            if (det->Fired()) {
-               csi_133->Fill(idt->GetIDMapX(), idt->GetIDMapY());
+            nxt_csi.Reset();
+            while ((idt = (KVIDTelescope*)nxt_csi())) {
+               if (idt->GetDetector(1)->Fired()) {
+                  ((TH2*)my_csi_hists.FindObject(idt->GetName()))->Fill(idt->GetIDMapX(), idt->GetIDMapY());
+               }
             }
          }
          tree->Fill();
