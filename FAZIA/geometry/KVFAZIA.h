@@ -42,6 +42,7 @@ protected:
    int fQuartet[8][2];//! quartet number from #FEE and #FPGA
    int fTelescope[8][2];//! telescope number from #FEE and #FPGA
    TClonesArray fSignals;//! for reading raw data
+   KVNameValueList fFPGAParameters;//! for reading raw data
 
    // values of trapezoidal filter rise time set in the fpgas
    // to be linked with a database...

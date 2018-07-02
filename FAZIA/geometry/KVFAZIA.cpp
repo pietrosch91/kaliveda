@@ -389,8 +389,8 @@ Double_t KVFAZIA::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signalt
    if (blk == 0 && qua == 0 && tel == 0)
       sene.Form("ENER%d-RUTH-%s", idx, signaltype.Data());
 
-   if (fParameters.HasDoubleParameter(sene.Data()))
-      return fParameters.GetValue<Double_t>(sene.Data());
+   if (fFPGAParameters.HasDoubleParameter(sene.Data()))
+      return fFPGAParameters.GetValue<Double_t>(sene.Data());
    else
       return 0.0;
 }
@@ -456,7 +456,7 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
    Bool_t good = kTRUE;
    fFiredACQParams.Clear();
    fSignals.Clear();
-   fParameters.Clear();
+   fFPGAParameters.Clear();
 
    for (int b = 0; b < e.block_size(); ++b) {
 
@@ -501,7 +501,7 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
                   const DAQ::Energy& ren = rdata.energy();
                   for (Int_t ee = 0; ee < ren.value_size(); ee++) {
                      Double_t energy = TreatEnergy(fIdSignal, ee, ren.value(ee));
-                     fParameters.SetValue(Form("ENER%d-%s", ee, GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal).Data()), energy);
+                     fFPGAParameters.SetValue(Form("ENER%d-%s", ee, GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal).Data()), energy);
                   }
                }
 
