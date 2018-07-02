@@ -188,6 +188,48 @@ void KVNameValueList::SetValue(const KVNamedParameter& p)
    par ? par->Set(p.GetName(), p) : fList.Add(new KVNamedParameter(p));
 
 }
+
+void KVNameValueList::SetValue64bit(const Char_t* name, ULong64_t x)
+{
+   // Store a 64-bit integer in the list as two 32-bit parameters with
+   // names 'name_up' and 'name_lo'
+
+   TString parname = name;
+   parname += "_hi";
+   SetValue(parname, (Int_t)(x >> 32));
+   parname = name;
+   parname += "_lo";
+   SetValue(parname, (Int_t)((x << 32) >> 32));
+}
+
+ULong64_t KVNameValueList::GetValue64bit(const Char_t* name)
+{
+   // Return a 64-bit integer stored as two 32-bit parameters with
+   // names 'name_up' and 'name_lo'
+
+   ULong64_t lo, hi;
+   TString parname = name;
+   parname += "_lo";
+   lo = (UInt_t)GetIntValue(parname);
+   parname = name;
+   parname += "_hi";
+   hi = (UInt_t)GetIntValue(parname);
+   ULong64_t x = (ULong64_t)((hi << 32) + lo);
+   return x;
+}
+
+Bool_t KVNameValueList::HasValue64bit(const Char_t* name)
+{
+   // Returns kTRUE if 'name' is stored as a 64-bit value i.e. if
+   // integer parameters 'name_lo' and 'name_hi' are defined
+
+   TString parname_hi = name;
+   parname_hi += "_hi";
+   TString parname_lo = name;
+   parname_lo += "_lo";
+   return (HasIntParameter(parname_hi) && HasIntParameter(parname_lo));
+}
+
 void KVNameValueList::AddValue(const KVNamedParameter& p)
 {
    // if a parameter with the same name & type as 'p' exists,
