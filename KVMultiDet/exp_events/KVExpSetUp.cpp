@@ -186,6 +186,7 @@ Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
       mda->fHandledRawData = false;
+      mda->fReconParameters.Clear();
    }
    return (fHandledRawData = KVMultiDetArray::HandleRawDataEvent(g));
 }

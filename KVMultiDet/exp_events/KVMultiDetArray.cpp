@@ -2974,6 +2974,8 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    //
    // Return kTRUE if raw data was treated
 
+   fReconParameters.Clear();
+
 #ifdef WITH_MFM
    if (rawdata->GetDataFormat() == "MFM") return handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
    else
