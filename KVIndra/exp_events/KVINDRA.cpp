@@ -607,6 +607,27 @@ void KVINDRA::PerformClosedROOTGeometryOperations(Int_t)
    CreateROOTGeometry();
 }
 
+Bool_t KVINDRA::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& f)
+{
+   // Override base method to retrieve CENTRUM timestamp from data if present.
+   // It will be added to fReconParameters as a 64-bit value "INDRA.TS"
+   //
+   // Timestamps are corrected if they do not increase consecutively
+   // (problem due to a bit which does not pass when reading out the CENTRUM)
+
+   static ULong64_t last_ts = 0;
+   static ULong64_t bit_corrector = 0x000008000000;
+
+   if (!KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(f)) return kFALSE;
+   ULong64_t ts = f.GetCENTRUMTimestamp();
+   if (ts != 0) {
+      if (ts < last_ts) ts |= bit_corrector;
+      fReconParameters.SetValue64bit("INDRA.TS", ts);
+      last_ts = ts;
+   }
+   return kTRUE;
+}
+
 //_______________________________________________________________________________________
 
 void KVINDRA::SetPinLasersForCsI()

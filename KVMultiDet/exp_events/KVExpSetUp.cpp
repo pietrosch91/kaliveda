@@ -190,6 +190,16 @@ Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
    return (fHandledRawData = KVMultiDetArray::HandleRawDataEvent(g));
 }
 
+void KVExpSetUp::SetReconParametersInEvent(KVReconstructedEvent* e) const
+{
+   // Add contents of fReconParameters of each sub-array to the event parameter list
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      *(e->GetParameters()) += mda->GetReconParameters();
+   }
+}
+
 void KVExpSetUp::GetArrayMultiplicities(KVReconstructedEvent* e, KVNameValueList& m, Option_t* opt)
 {
    // Calculate multiplicities of particles in each array of the setup.
