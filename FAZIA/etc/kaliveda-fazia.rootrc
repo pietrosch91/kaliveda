@@ -247,7 +247,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIACORDetector       FAZIAgeometry      "KVFAZIACORDetector()"
 +Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
-+Plugin.KVDetector:      KVFAZIETO      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      KVFAZIETO      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
 +Plugin.KVDetector:      KVFAZIANFS      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIALNS2016      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIACOR      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"

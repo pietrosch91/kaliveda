@@ -37,6 +37,12 @@ void KVFAZIAUpDater::SetCalibParameters(KVDBRun* dbrun)
    SetPSAParameters(dbrun);
    SetCalibrations(dbrun);
    CheckStatusOfDetectors(dbrun);
+
+   cout << endl << endl << endl;
+   Info("SetCalibParameters", "called !");
+   cout << endl << endl << endl;
+
+
 }
 
 void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
@@ -71,10 +77,12 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
          sig = det->GetSignal(ssig.Data());
          if (sig) {
             sig->UpdatePSAParameter(par);
-         } else {
+         }
+         else {
             Warning("SetPSAParameters", "Unkonwn signal %s", ssig.Data());
          }
-      } else {
+      }
+      else {
          Warning("SetPSAParameters", "Unkonwn detector %s", sdet.Data());
       }
    }
@@ -96,7 +104,8 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
       if (det && (cal = det->GetCalibrator(par->GetTitle()))) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
             for (int nn = 0; nn < cal->GetNumberParams(); nn++) cal->SetParameter(nn, par->GetParameter(nn));
-         } else {
+         }
+         else {
             Double_t* params = new Double_t[par->GetParamNumber()];
             for (int y = 0; y < par->GetParamNumber(); ++y) params[y] = par->GetParameter(y);
             ((KVFAZIACalibrator*)cal)->ChangeParameters(params);
@@ -125,11 +134,13 @@ void KVFAZIAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
          //Test du bon fonctionnement ou non du detecteur
          if (!ooodet) {
             det->SetDetecting();
-         } else {
+         }
+         else {
             if (ooodet->FindObject(det->GetName(), "OoO Detector")) {
                det->SetDetecting(kFALSE);
                ndet_ooo += 1;
-            } else {
+            }
+            else {
                det->SetDetecting();
             }
          }

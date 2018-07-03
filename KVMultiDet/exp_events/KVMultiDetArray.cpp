@@ -1737,15 +1737,17 @@ KVUpDater* KVMultiDetArray::GetUpDater()
 
    if (!fUpDater) {
       KVString alt_updater = KVDataSet::GetDataSetEnv(fDataSet, Form("ExpSetUp.Updater.%s", GetName()), "");
+      Info("GetUpDater", "alt updater: %s", alt_updater.Data());
       if (alt_updater != "") fUpDater = KVUpDater::MakeUpDater(alt_updater);
       else fUpDater = KVUpDater::MakeUpDater(fDataSet);
    }
+   Info("GetUpDater", "updater class: %s", fUpDater->Class_Name());
    return fUpDater;
 }
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetParameters(UShort_t run)
+void KVMultiDetArray::SetParameters(UInt_t run)
 {
    //Set identification and calibration parameters for run.
    //This can only be done if gDataSet has been set i.e. a dataset has been chosen
