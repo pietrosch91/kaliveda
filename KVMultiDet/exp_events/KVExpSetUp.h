@@ -24,7 +24,7 @@ public:
    virtual ~KVExpSetUp();
    virtual void Build(Int_t run = -1);
 
-   void SetParameters(UShort_t n);
+   void SetParameters(UInt_t n);
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
    virtual KVMultiDetArray* GetArray(const Char_t* name) const
    {

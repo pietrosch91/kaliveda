@@ -115,11 +115,11 @@ void KVExpSetUp::Build(Int_t run)
    SetBit(kIsBuilt);
 }
 
-void KVExpSetUp::SetParameters(UShort_t n)
+void KVExpSetUp::SetParameters(UInt_t n)
 {
    // Call SetParameters for each multidetector, each can use a different KVUpDater
    fCurrentRun = n;
-   fMDAList.Execute("SetParameters", Form("%ud", n));
+   fMDAList.Execute("SetParameters", Form("%u", n));
 }
 
 void KVExpSetUp::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames)

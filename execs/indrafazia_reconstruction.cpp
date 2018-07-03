@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
    while (raw_file->GetNextEvent()) {
       ++i;
       if (i != first_frame) continue;
-      first_frame += 20;
+      first_frame += 1;
       //cout << "=================================================================" << endl;
       if (gMultiDetArray->HandleRawDataEvent(raw_file.get())) {
          erec.ReconstructEvent(gMultiDetArray->GetFiredDataParameters());

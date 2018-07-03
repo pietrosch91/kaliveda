@@ -211,7 +211,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
-+Plugin.KVDetector:      KVFAZIETO      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      KVFAZIETO      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
 +Plugin.KVDetector:      KVFAZIANFS      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIALNS2016      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIACOR      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
@@ -240,7 +240,8 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVIDTelescope:    ^LNS_2016.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^LNS_2016.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^LNS_2016.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
-+Plugin.KVIDTelescope:    ^FAZIACOR.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           +Plugin.KVIDTelescope:    ^FAZIAPRE.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^FAZIACOR.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification
++Plugin.KVIDTelescope:    ^FAZIAPRE.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^FAZIACOR.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^FAZIACOR.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^FAZIAPRE.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
