@@ -73,7 +73,7 @@ protected:
 #ifndef __CINT__
    Bool_t treat_event(const DAQ::FzEvent&);
 #endif
-   Double_t TreatEnergy(Int_t sigid, Int_t eid, uint32_t val);
+   Double_t TreatEnergy(Int_t sigid, Int_t eid, UInt_t val);
 #endif
    TString GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig);
 public:

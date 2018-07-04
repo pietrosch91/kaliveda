@@ -135,11 +135,17 @@ if(USE_MFM)
 endif()
 
 #---Google Protobuffers for reading FAZIA data
-find_package(Protobuf)
-if(PROTOBUF_FOUND)
-   set(WITH_PROTOBUF yes)
-   include_directories(${PROTOBUF_INCLUDE_DIRS})
-endif(PROTOBUF_FOUND)
+# check for C++11 compatibility - can only compile protobuf in mode C++11
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX11)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        find_package(Protobuf)
+        if(PROTOBUF_FOUND)
+           set(WITH_PROTOBUF yes)
+           include_directories(${PROTOBUF_INCLUDE_DIRS})
+        endif(PROTOBUF_FOUND)
+endif()
 
 #---Ricardo Yanez 'range' tables
 option(USE_RANGE
@@ -251,13 +257,6 @@ add_feature_info(indrafazia USE_INDRAFAZIA "Build libraries for analysis of INDR
 #------------------Print BUILD OPTIONS-----------------------
 Feature_Summary(WHAT ENABLED_FEATURES DESCRIPTION "------ENABLED FEATURES:")
 Feature_Summary(WHAT DISABLED_FEATURES DESCRIPTION "------DISABLED FEATURES:")
-
-# check for C++11 compatibility - use if possible
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
 
 #---Set the library version in the main CMakeLists.txt------------------------------------------
 file(READ ${CMAKE_SOURCE_DIR}/VERSION versionstr)
