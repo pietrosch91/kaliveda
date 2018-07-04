@@ -152,8 +152,8 @@ public:
    TString GetFullPathToRunfile(const Char_t* type, Int_t run) const;
    const Char_t* GetRunfileName(const Char_t* type, Int_t run) const;
    TDatime GetRunfileDate(const Char_t* type, Int_t run);
-   template <typename FileType = TObject>
-   FileType * OpenRunfile(const Char_t* type, Int_t run)
+   template <typename FileType>
+   FileType* OpenRunfile(const Char_t* type, Int_t run)
    {
       return dynamic_cast<FileType*>(open_runfile(type, run));
    }

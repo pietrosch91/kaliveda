@@ -423,7 +423,7 @@ TString KVFAZIA::GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig)
 }
 
 #ifdef WITH_PROTOBUF
-Double_t KVFAZIA::TreatEnergy(Int_t sigid, Int_t eid, uint32_t val)
+Double_t KVFAZIA::TreatEnergy(Int_t sigid, Int_t eid, UInt_t val)
 {
    Int_t value = (val << 2);
    value >>= 2;
