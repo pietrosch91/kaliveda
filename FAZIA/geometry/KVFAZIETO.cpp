@@ -5,6 +5,8 @@
 #include "KVUnits.h"
 #include "KVFAZIABlock.h"
 
+#include <KVDataSet.h>
+
 ClassImp(KVFAZIETO)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +33,7 @@ KVFAZIETO::~KVFAZIETO()
 void KVFAZIETO::GetGeometryParameters()
 {
    //defined configuration of the blocks
-   fNblocks = 12;
+   fNblocks = KVDataSet::GetDataSetEnv(fDataSet, "FAZIA.NBlocks", 12.0);
    fFDist = 100.0;
    fFThetaMin = 1.5;
    SetGeometryImportParameters(.25, 1., 1.5, 0, 12);
