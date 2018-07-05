@@ -1,7 +1,7 @@
 //Created by KVClassFactory on Tue Jan 27 11:38:09 2015
 //Author: ,,,
 
-#include "KVFAZIALNS17.h"
+#include "KVFAZIAZERO.h"
 #include "KVUnits.h"
 #include "KVFAZIABlock.h"
 #include "TSystem.h"
@@ -9,28 +9,28 @@
 
 #include <TGeoMatrix.h>
 
-ClassImp(KVFAZIALNS17)
+ClassImp(KVFAZIAZERO)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVFAZIALNS17</h2>
+<h2>KVFAZIAZERO</h2>
 <h4>Description of the FAZIA set up</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVFAZIALNS17::KVFAZIALNS17()
+KVFAZIAZERO::KVFAZIAZERO()
 {
    // Default constructor
 }
 
-KVFAZIALNS17::~KVFAZIALNS17()
+KVFAZIAZERO::~KVFAZIAZERO()
 {
    // Destructor
 }
 
-void KVFAZIALNS17::GetGeometryParameters()
+void KVFAZIAZERO::GetGeometryParameters()
 {
    //Defined number of blocks, the distance from the target and the minimum polar angle
    fNblocks = 6;
@@ -38,7 +38,7 @@ void KVFAZIALNS17::GetGeometryParameters()
    fFThetaMin = 1.65;
 }
 
-void KVFAZIALNS17::RutherfordTelescope()
+void KVFAZIAZERO::PlasticDetectors()
 {
    // Telescope for elastic scattering monitoring
    // Two 5mm diameter silicon detectors of 525um thickness
@@ -47,37 +47,27 @@ void KVFAZIALNS17::RutherfordTelescope()
 
    KVMaterial silicon("Si");
 
-   const double radius = 9 * KVUnits::mm / 2.;
+   const double radius = 2 * KVUnits::cm;
 
    const double thick = 525 * KVUnits::um;
-   const double centre_dist = 1 * KVUnits::mm;
-   double total_thickness = thick + centre_dist;
+   const double centre_dist = 6 * KVUnits::cm;
 
-   TGeoVolume* si_det = gGeoManager->MakeTube("DET_SI", silicon.GetGeoMedium(), 0., radius, thick / 2);
+   TGeoVolume* pl1 = gGeoManager->MakeTube("PL1", silicon.GetGeoMedium(), 0., radius, thick / 2);
+   TGeoVolume* pl2 = gGeoManager->MakeTube("PL2", silicon.GetGeoMedium(), 0., radius, thick / 2);
+   TGeoVolumeAssembly* telpl1 = gGeoManager->MakeVolumeAssembly("STRUCT_PL");
+   telpl1->AddNode(pl1, 1, new TGeoTranslation(0, 0, -centre_dist / 2));
+   telpl1->AddNode(pl2, 2, new TGeoTranslation(0, 0, centre_dist / 2));
+   gGeoManager->GetTopVolume()->AddNode(telpl1, 998, new TGeoTranslation(0, 0, 0));
 
-   TGeoVolumeAssembly* ruth_tel = gGeoManager->MakeVolumeAssembly("STRUCT_RUTH");
-
-   ruth_tel->AddNode(si_det, 1, new TGeoTranslation(0, 0, -centre_dist / 2));
-   ruth_tel->AddNode(si_det, 2, new TGeoTranslation(0, 0, centre_dist / 2));
-
-   // front entrance of first detector at 2 metres from target
-   const double distance = 2.27 * KVUnits::m + 0.5 * total_thickness;
-   const double theta = 0.99;
-   const double phi = -54.07;
-
-   TGeoRotation rot1, rot2;
-   rot2.SetAngles(phi + 90, theta, 0);
-   rot1.SetAngles(-90, 0., 0.);
-   TGeoTranslation trans(0, 0, distance);
-   TGeoHMatrix h = rot2 * trans * rot1;
-   gGeoManager->GetTopVolume()->AddNode(ruth_tel, 1, new TGeoHMatrix(h));
+//   TGeoVolume* pl2 = gGeoManager->MakeTube("PL2", silicon.GetGeoMedium(), 0., radius, thick / 2);
+//   gGeoManager->GetTopVolume()->AddNode(pl2, 999, new TGeoTranslation(0,0,-centre_dist / 2));
 }
 
 
-void KVFAZIALNS17::BuildFAZIA()
+void KVFAZIAZERO::BuildFAZIA()
 {
    //Build geometry of FAZIASYM
-   //All telescopes are : Si(300?m)-Si(500?m)-CsI(10cm)
+   //All telescopes are : Si(300µm)-Si(500µm)-CsI(10cm)
    //No attempt has been made to implement real thicknesses
    //
    Info("BuildFAZIA", "Compact geometry, %f cm from target + 2BLK around 20 degrees",
@@ -125,17 +115,23 @@ void KVFAZIALNS17::BuildFAZIA()
       top->AddNode(block, bb, ph);
    }
 
+//   trans.SetDz(250* KVUnits::cm + thick_si1 / 2.);
+//   h = trans;
+//   ph = new TGeoHMatrix(h);
+//   top->AddNode(block, 4, ph);
+
+
    // add telescope for elastic scattering monitoring
-   RutherfordTelescope();
+   PlasticDetectors();
    // Change default geometry import angular range for rutherford telescope
    SetGeometryImportParameters(.25, 1., 0.5) ;
 }
 
-void KVFAZIALNS17::SetNameOfDetectors(KVEnv& env)
+void KVFAZIAZERO::SetNameOfDetectors(KVEnv& env)
 {
 
    KVFAZIA::SetNameOfDetectors(env);
-   env.SetValue("RUTH_SI_1", "SI1-RUTH");
-   env.SetValue("RUTH_SI_2", "SI2-RUTH");
+//   env.SetValue("RUTH_SI_1", "SI1-RUTH");
+//   env.SetValue("RUTH_SI_2", "SI2-RUTH");
 
 }
