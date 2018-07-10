@@ -16,6 +16,7 @@
 //#include "TGeoBox.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoEltu.h"
+#include "Riostream.h"
 
 #include <KVReconstructedNucleus.h>
 
@@ -231,13 +232,11 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, TSeqCollection* signals)
             if ((grp = det->GetGroup())  && !detev->GetGroups()->FindObject(grp)) {
                detev->AddGroup(grp);
             }
-         }
-         else {
+         } else {
             Error("GetDetectedEvent", "Unknown detector %s !!!", par->GetDetectorName());
          }
       }
-   }
-   else {
+   } else {
       KVMultiDetArray::GetDetectorEvent(detev, 0);
    }
 
@@ -296,8 +295,7 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.I1.SigmaBaseLine", sdet.Data()));
             det->SetI1SigmaBaseLine(val);
 
-         }
-         else if (!strcmp(det->GetLabel(), "SI2")) {
+         } else if (!strcmp(det->GetLabel(), "SI2")) {
 
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q2.FPGAEnergy", sdet.Data()));
             det->SetQ2FPGAEnergy(val);
@@ -320,8 +318,7 @@ void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList
             det->SetI2BaseLine(val);
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.I2.SigmaBaseLine", sdet.Data()));
             det->SetI2SigmaBaseLine(val);
-         }
-         else if (!strcmp(det->GetLabel(), "CSI")) {
+         } else if (!strcmp(det->GetLabel(), "CSI")) {
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAEnergy", sdet.Data()));
             det->SetQ3FPGAEnergy(val);
             val = rnuc->GetParameters()->GetDoubleValue(Form("%s.Q3.FPGAFastEnergy", sdet.Data()));
@@ -353,13 +350,13 @@ DAQ::FzEvent fazia_event;
 
 void treat_hit(const DAQ::FzHit& hit)
 {
-   cout << "\t\t\t";
-   cout << "tel=" << hit.telid() << " det=" << hit.detid() << endl;
+   std::cout << "\t\t\t";
+   std::cout << "tel=" << hit.telid() << " det=" << hit.detid() << std::endl;
 }
 
 void treat_fee(const DAQ::FzFee& fee)
 {
-   cout << "\t\tFEE" << fee.feeid() << endl;
+   std::cout << "\t\tFEE" << fee.feeid() << std::endl;
    for (int i = 0; i < fee.hit_size(); ++i) {
       treat_hit(fee.hit(i));
    }
@@ -367,7 +364,7 @@ void treat_fee(const DAQ::FzFee& fee)
 
 void treat_block(const DAQ::FzBlock& b)
 {
-   cout << "\tB" << b.blkid() << endl;
+   std::cout << "\tB" << b.blkid() << std::endl;
    for (int i = 0; i < b.fee_size(); ++i) {
       treat_fee(b.fee(i));
    }
@@ -376,13 +373,13 @@ void treat_block(const DAQ::FzBlock& b)
 void treat_event(const DAQ::FzEvent& e)
 {
    if (e.trinfo_size()) {
-      cout << "Trigger infos:" << endl;
+      std::cout << "Trigger infos:" << std::endl;
       for (int i = 0; i < e.trinfo_size(); ++i) {
-         cout << "\t" << e.trinfo(i).id() << "\t" << e.trinfo(i).attr() << "\t" << e.trinfo(i).value() << endl;
+         std::cout << "\t" << e.trinfo(i).id() << "\t" << e.trinfo(i).attr() << "\t" << e.trinfo(i).value() << std::endl;
       }
    }
    for (int i = 0; i < e.block_size(); ++i) {
-      cout << "Blocks:" << endl;
+      std::cout << "Blocks:" << std::endl;
       treat_block(e.block(i));
    }
 }
@@ -400,8 +397,7 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
    if (fazia_set.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
       // Parsed an event set
       for (int i = 0; i < fazia_set.ev_size(); ++i) treat_event(fazia_set.ev(i));
-   }
-   else if (fazia_event.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
+   } else if (fazia_event.ParseFromArray(f.GetPointUserData(), ((MFMFaziaFrame&)f).GetEventSize())) {
       // Parsed an event
       treat_event(fazia_event);
    }
