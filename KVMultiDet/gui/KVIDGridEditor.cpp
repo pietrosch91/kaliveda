@@ -454,6 +454,23 @@ void KVIDGridEditor::AddGridOption(TString label, KVHashList* thelist)
    return;
 }
 
+void KVIDGridEditor::RecurseFileStructureFindHistos(TString& hist_names, TDirectory* the_directory)
+{
+   // Recursively scan folders in a file looking for all TH2-derived objects.
+   // Their names are added to the TString.
+   TIter next_key(the_directory->GetListOfKeys());
+   TKey* key;
+   while ((key = (TKey*)next_key())) {
+      if (key->IsFolder()) {
+         RecurseFileStructureFindHistos(hist_names, the_directory->GetDirectory(key->GetName()));
+      }
+      else {
+         TString key_class = key->GetClassName();
+         if (key_class.Contains("TH2")) hist_names += Form(" %s", key->GetName());
+      }
+   }
+}
+
 //________________________________________________________________
 TString KVIDGridEditor::ListOfHistogramInMemory()
 {
@@ -476,19 +493,9 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
    TFile* f;
    TIter next(gROOT->GetListOfFiles());
    while ((f = (TFile*)next())) {
-      TIter nextobj(f->GetList());
-      TObject* obj = 0;
-      while ((obj = nextobj())) {
-         if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
-      }
-      TIter nextkey(f->GetListOfKeys());
-      TKey* key = 0;
-      while ((key = (TKey*)nextkey())) {
-         TString classname = key->GetClassName();
-         if (classname.Contains("TH2")) {
-            HistosNames += Form(" %s", key->GetName());
-         }
-      }
+      // beware KV database file!!!
+      if (!strcmp(gSystem->BaseName(f->GetName()), "DataBase.root")) continue;
+      RecurseFileStructureFindHistos(HistosNames, f);
    }
 
    // histos in canvases
@@ -607,6 +614,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
          if ((TheHistoChoice = (TH2*)gROOT->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = (TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = (TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
+         else if ((TheHistoChoice = (TH2*)gFile->FindObjectAny(Answer.Data()))) TheHisto = TheHistoChoice;
          else if (gTreeAnalyzer && (TheHistoChoice = (TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = FindInCanvases(Answer.Data()))) TheHisto = TheHistoChoice;
          else Answer = "Dummy";

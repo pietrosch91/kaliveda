@@ -182,6 +182,7 @@ protected:
    TString ListOfHistogramInMemory();           //revoie la liste des histo dans gFile
    TString PreselectHistogram(TString ListOfName, Int_t ipert = 0); //revoie le nom de l' histo qui as le mm nom que la grille (si existe)
    TH2* FindInCanvases(const Char_t* name);
+   void RecurseFileStructureFindHistos(TString& hist_names, TDirectory* the_directory);
 
 public:
 
