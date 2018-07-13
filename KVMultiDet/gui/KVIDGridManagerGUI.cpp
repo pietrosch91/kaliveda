@@ -127,6 +127,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
       "profile_t.xpm",
       "bld_copy.xpm",
       "sm_delete.xpm",
+      "ed_find.png",
       "draw_t.xpm",//
       "root_t.xpm",//
       "refresh1.xpm",
@@ -139,6 +140,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
       "New grid",
       "Copy grid",
       "Delete selected grid(s)",
+      "Set ID telescopes for grid",
       "Start editor",//"Quit"
       "Open root file",
       "Refresh display",
@@ -148,6 +150,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
       5,
       0,
       20,
+      0,
       0,
       0,
       20,
@@ -161,6 +164,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
       &fTBNewG,
       &fTBCopyG,
       &fTBDelG,
+      &fTBSetIDG,
       &fTBStartEditor,
       &fTBOpenRoot,
       &fTBRefresh,
@@ -172,6 +176,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
       "NewGrid()",
       "CopyGrid()",
       "DeleteSelectedGrids()",
+      "SetIDTelescopes()",
       "StartEditor()", //"Quit()"
       "OpenRootFile()",
       "UpdateListOfGrids()",
@@ -474,7 +479,8 @@ void KVIDGridManagerGUI::OpenFile()
          SetStatus(Form("Read %d grids from file %s", ngriread, fi.fFilename));
          //set filename for Save
          fFileName = fi.fFilename;
-      } else {
+      }
+      else {
          new TGMsgBox(fClient->GetDefaultRoot(), this, "ID Grid Manager",
                       Form("Could not read file %s", fi.fFilename),
                       0, kMBOk);
@@ -563,6 +569,19 @@ void KVIDGridManagerGUI::DeleteAllGridsInTab()
    fSelectedEntries = 0;
    fSelectedGrid = 0;
    UpdateListOfGrids();
+}
+
+void KVIDGridManagerGUI::SetIDTelescopes()
+{
+   // Set ID telescopes for selected grid
+   Bool_t cancel;
+   TList telescopes;
+   telescopes.AddAll(fSelectedGrid->GetIDTelescopes());
+   new KVIDGUITelescopeChooserDialog(gMultiDetArray, &telescopes, &cancel,
+                                     fClient->GetDefaultRoot(), this, kTRUE);
+   if (cancel || !telescopes.GetEntries()) return;
+   fSelectedGrid->ClearListOfTelescopes();
+   fSelectedGrid->AddIDTelescopes(&telescopes);
 }
 
 void KVIDGridManagerGUI::ClearGrid()
@@ -679,7 +698,8 @@ void KVIDGridManagerGUI::SaveGridsAs(const TCollection* selection)
          SetStatus(Form("Saved %d grids in file %s", n_saved, filenam.Data()));
          //set file name for Save
          fFileName = filenam;
-      } else {
+      }
+      else {
          new TGMsgBox(fClient->GetDefaultRoot(), this, "ID Grid Manager",
                       Form("Could not write file %s", filenam.Data()), 0,
                       kMBOk);
@@ -812,7 +832,8 @@ void KVIDGridManagerGUI::UpdateTabs()
       if (!cf) {
          cout << "cf = 0x0 : label=Grids tab name=" <<
               fGridListTabs->GetTabTab("Grids")->GetText()->GetString() << endl;
-      } else {
+      }
+      else {
          TGFrameElement* el = (TGFrameElement*)cf->GetList()->At(0);
          fIDGridList = (KVListView*)el->fFrame;
          KVList* grids = gIDGridManager->GetGrids();
@@ -857,13 +878,15 @@ void KVIDGridManagerGUI::UpdateTabs()
          fGridListTabs->MapSubwindows();
          fGridListTabs->Layout();
          fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs() - 1, kTRUE);
-      } else { //existing tab
+      }
+      else {   //existing tab
          //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : existing tab '" << lab.Data() << "'..." << endl;
          TGCompositeFrame* cf = fGridListTabs->GetTabContainer(lab.Data());
          if (!cf) {
             cout << "cf = 0x0 : label=" << lab.Data() << " tab name=" <<
                  fGridListTabs->GetTabTab(lab.Data())->GetText()->GetString() << endl;
-         } else {
+         }
+         else {
             //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup tab '" << cf->GetName() << "'..." << endl;
             TGFrameElement* el = (TGFrameElement*)cf->GetList()->At(0);
             //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup element '" << el->GetName() << "'..." << endl;
@@ -963,7 +986,8 @@ void KVIDGridManagerGUI::ShowListOfLines()
       }
       fSelectedGrid->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfLines()");
       fLastSelectedGrid = fSelectedGrid;
-   } else {
+   }
+   else {
       fIDLineList->RemoveAll();
       fCUTLineList->RemoveAll();
       fCUTContourList->RemoveAll();
@@ -996,6 +1020,7 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
       // only one grid selected
       fTBStartEditor->SetEnabled();
       fTBCopyG->SetEnabled();
+      fTBSetIDG->SetEnabled();
    }
 }
 
@@ -1028,7 +1053,8 @@ void KVIDGridManagerGUI::NewIDLine()
                            &cut_class,
                            &okpressed);
       if (!okpressed) return;
-   } else
+   }
+   else
       cut_class = cut_choices;
    SetStatus(Form("Draw ID line (%s) in current pad", cut_class.Data()));
    fSelectedGrid->DrawAndAdd("ID", cut_class.Data());
@@ -1067,7 +1093,8 @@ void KVIDGridManagerGUI::NewCut()
                            &cut_class,
                            &okpressed);
       if (!okpressed) return;
-   } else
+   }
+   else
       cut_class = cut_types;
    SetStatus(Form("Draw cut %s in current pad", cut_class.Data()));
    cut_class.Prepend("KVIDCut");
@@ -1101,7 +1128,8 @@ void KVIDGridManagerGUI::TestGrid()
    if (!histo) {
       SetStatus("No TH2 found in current pad. Select pad containing 2D histo with data to identify.");
       return;
-   } else {
+   }
+   else {
       SetStatus(Form("Test identification of data in current pad %s.", histo->GetName()));
    }
    new KVTestIDGridDialog(fClient->GetDefaultRoot(), this, 10, 10, fSelectedGrid, histo);
@@ -1130,7 +1158,8 @@ void KVIDGridManagerGUI::TestTreeGrid()
    if (!histo) {
       SetStatus("No TH2 found in current pad. Select pad containing 2D histo with data to identify.");
       return;
-   } else {
+   }
+   else {
       SetStatus(Form("Test identification of data in current pad %s.", histo->GetName()));
    }
    TFile* tmpfiles = TestIdentificationWithTree(fSelectedGrid, histo->GetName());
@@ -1240,7 +1269,8 @@ TFile* KVIDGridManagerGUI::TestIdentificationWithTree(KVIDGraph* gr, const Char_
                br_pid = nuc.GetPID();
                br_idcode = gr->GetQualityCode();
                idmap->SetBinContent(i, j, br_idcode);
-            } else {
+            }
+            else {
                br_isid = 0;
                br_pid = -1;
                br_idcode = -1;

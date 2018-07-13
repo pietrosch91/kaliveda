@@ -72,7 +72,7 @@ public:
    KVList* GetDetectors() const
    {
       return fDetectors;
-   };
+   }
    KVDetector* GetDetector(UInt_t n) const
    {
       //returns the nth detector in the telescope structure
@@ -133,15 +133,15 @@ public:
       //   KVIDTelescope::kCalibStatus_Calculated,    : one or more detectors not calibrated/functioning, energy loss calculated
       //   KVIDTelescope::kCalibStatus_NoCalibrations : no calibrations available for any detectors
       return fCalibStatus;
-   };
+   }
 
    virtual void Print(Option_t* opt = "") const;
 
    void SetIDGrid(KVIDGraph*);
-   virtual KVIDGraph* GetIDGrid();
-   virtual KVIDGraph* GetIDGrid(Int_t);
-   virtual KVIDGraph* GetIDGrid(const Char_t*);
-   virtual KVList* GetListOfIDGrids() const
+   KVIDGraph* GetIDGrid();
+   KVIDGraph* GetIDGrid(Int_t);
+   KVIDGraph* GetIDGrid(const Char_t*);
+   KVList* GetListOfIDGrids() const
    {
       return fIDGrids;
    }

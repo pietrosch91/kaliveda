@@ -155,7 +155,8 @@ void KVIDTelescope::Initialize(void)
    if (GetDetectors()->GetEntries() == 2 && GetIDGrid()) {
       GetIDGrid()->Initialize();
       SetBit(kReadyForID);
-   } else if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+   }
+   else if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
    else ResetBit(kReadyForID);
 
    if (gDataSet) {
@@ -366,7 +367,8 @@ Bool_t KVIDTelescope::Identify(KVIdentificationResult* idr, Double_t x, Double_t
 
    if (grid->IsIdentifiable(e, de)) {
       grid->Identify(e, de, idr);
-   } else {
+   }
+   else {
       idr->IDOK = kFALSE;
    }
 
@@ -421,10 +423,16 @@ Double_t KVIDTelescope::GetIDMapX(Option_t* opt)
    //However, if the detector is not calibrated, GetEnergy will return 0, therefore
    //if 'opt' is not an empty string (default) we return the value of the acquisition
    //parameter of type 'opt' associated to the detector
+   //
+   //If an identification grid is associated with the telescope, and if the grid defines
+   //the quantities associated with the two axes, we use this information
 
    if (GetSize() < 2)
       return 0.0;
 
+   if (GetIDGrid() && strcmp(GetIDGrid()->GetVarX(), "")) {
+      return GetDetector(2)->GetACQData(GetIDGrid()->GetVarX());
+   }
    if (strcmp(opt, "")) {
       return GetDetector(2)->GetACQData(opt);
    }
@@ -461,6 +469,13 @@ Double_t KVIDTelescope::GetIDMapY(Option_t* opt)
    //However, if the detector is not calibrated, GetEnergy will return 0, therefore
    //if 'opt' is not an empty string (default) we return the value of the acquisition
    //parameter of type 'opt' associated to the detector
+   //
+   //If an identification grid is associated with the telescope, and if the grid defines
+   //the quantities associated with the two axes, we use this information
+
+   if (GetIDGrid() && strcmp(GetIDGrid()->GetVarY(), "")) {
+      return GetDetector(1)->GetACQData(GetIDGrid()->GetVarY());
+   }
    if (strcmp(opt, "")) {
       return GetDetector(1)->GetACQData(opt);
    }

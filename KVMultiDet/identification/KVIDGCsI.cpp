@@ -99,8 +99,6 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) con
    //  (which is usually the case), there will be no isotopically-identified particle with GetA()=5, although
    //  there may be particles with GetRealA() between 4.5 and 5.5
 
-   // before first use of this method, we add the IMF line to the list of identifiers
-   // which is necessary for IdentZA to work correctly
    add_remove_imf_line IMF(fIdentifiers, IMFLine);
 
    if (!IsIdentifiable(x, y)) {

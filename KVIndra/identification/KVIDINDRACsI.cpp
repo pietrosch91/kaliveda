@@ -122,13 +122,13 @@ void KVIDINDRACsI::Initialize()
    // Initialisation of grid is performed here.
    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run,
    // or if no calibr/ident parameters are defined for the dataset
-
    CsIGrid = (KVIDGCsI*) GetIDGrid();
    fCsI = GetDetector(1);
    if (CsIGrid) {
       CsIGrid->Initialize();
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }
