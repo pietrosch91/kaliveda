@@ -29,10 +29,9 @@ validate the choice.</p>
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
-   KVMultiDetArray* MDA, TList* selection, Bool_t* cancel_pressed,
-   const TGWindow* p, const TGWindow* main,
-   UInt_t w, UInt_t h)
+KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(KVMultiDetArray* MDA, TList* selection, Bool_t* cancel_pressed,
+      const TGWindow* p, const TGWindow* main, Bool_t disable_type_select,
+      UInt_t w, UInt_t h)
 {
    // Create and display dialog for choosing ID telescopes
    // cancel_pressed = kTRUE if cancel button is pressed
@@ -75,6 +74,7 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(
    fComboBox994->Select(-1);
    fMainFrame979->AddFrame(fComboBox994, new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2, 2, 2));
    fComboBox994->MoveResize(24, 40, dx, 22);
+   if (disable_type_select) fComboBox994->SetEnabled(kFALSE);
 
    TGLabel* fLabel1012 = new TGLabel(fMainFrame979, "Select ID telescope(s):");
    fLabel1012->SetTextJustify(36);
@@ -175,8 +175,8 @@ void KVIDGUITelescopeChooserDialog::FillTelescopeListWithType(const char* type)
 
    fListBox980->RemoveAll();
    fListBox980->Layout();
-   KVSeqCollection* telescopes = fMultiDet->GetIDTelescopesWithType(type);
-   TIter next_tel(telescopes);
+   unique_ptr<KVSeqCollection> telescopes(fMultiDet->GetIDTelescopesWithType(type));
+   TIter next_tel(telescopes.get());
    KVIDTelescope* idt;
    int i = 0;
    while ((idt = (KVIDTelescope*)next_tel())) {

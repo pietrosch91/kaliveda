@@ -113,7 +113,7 @@ class KVIDGUITelescopeChooserDialog {
 
 public:
    KVIDGUITelescopeChooserDialog(KVMultiDetArray* MDA, TList* selection, Bool_t*,
-                                 const TGWindow* p, const TGWindow* main, UInt_t w = 1, UInt_t h = 1);
+                                 const TGWindow* p, const TGWindow* main, Bool_t disable_type_select = false, UInt_t w = 1, UInt_t h = 1);
    virtual ~KVIDGUITelescopeChooserDialog();
    void DoClose();
    void CloseWindow();

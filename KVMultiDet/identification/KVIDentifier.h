@@ -32,15 +32,15 @@ protected:
 
    // Does nothing. Can be overridden in child classes in order to write any
    // extra information in between the name of the object and the number of points.
-   virtual void WriteAsciiFile_extras(std::ofstream&, const Char_t* /*name_prefix*/ = "") {};
+   virtual void WriteAsciiFile_extras(std::ofstream&, const Char_t* /*name_prefix*/ = "") {}
 
    // Does nothing. Can be overridden in child classes in order to read any
    // extra information in between the name of the object and the number of points.
-   virtual void ReadAsciiFile_extras(std::ifstream&) {};
+   virtual void ReadAsciiFile_extras(std::ifstream&) {}
    virtual void SetNameFromNucleus()
    {
       SetName(Form("Z=%d A=%d", GetZ(), GetA()));
-   };
+   }
 
 private:
    void init();
@@ -228,7 +228,8 @@ public:
    {
       if (GetEditable()) {
          return TCutG::RemovePoint();
-      } else {
+      }
+      else {
          return -1;
       }
    }; // *MENU={Hierarchy="Modify Line.../RemovePoint"}*

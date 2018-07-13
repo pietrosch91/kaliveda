@@ -62,7 +62,7 @@ public:
       // and PID vs. Eres, depending on e.g. some status code of the identification algorithm.
       // By default, this returns kTRUE (accept all), but may be overridden in child classes.
       return kTRUE;
-   };
+   }
 
    KVIDGraph();
    KVIDGraph(const KVIDGraph&);
@@ -372,7 +372,7 @@ public:
       // Returns 0x0 if graph is not drawn.
       return fPad;
    }
-   void TestIdentification(TH2F* data, TH1F* id_real, TH2F* id_real_vs_e_res, TH2F* z_a_real);
+   virtual void TestIdentification(TH2F* data, TH1F* id_real, TH2F* id_real_vs_e_res, TH2F* z_a_real);
 
    TString GetNamesOfIDTelescopes();
 

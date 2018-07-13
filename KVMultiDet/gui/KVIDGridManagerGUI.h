@@ -64,6 +64,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TGButton* fTBTest;
    TGButton* fTBTestTree;
    TGButton* fTBDelG;
+   TGButton* fTBSetIDG;
    TGButton* fTBRefresh;
    TGButton* fTBStartEditor;
    TGButton* fTBOpenRoot;
@@ -117,6 +118,7 @@ public:
    void ClearGrid();
    void DeleteGrids();
    void DeleteAllGridsInTab();
+   void SetIDTelescopes();
 
    void ActivateToolbarButtons();
 

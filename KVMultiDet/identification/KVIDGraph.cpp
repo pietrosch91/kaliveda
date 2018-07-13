@@ -210,7 +210,8 @@ void KVIDGraph::SetXScaleFactor(Double_t s)
       fPar->SetValue("XScaleFactor", s);
       Scale(s / fLastScaleX);
       fLastScaleX = s;
-   } else {
+   }
+   else {
       fPar->RemoveParameter("XScaleFactor");
       Scale(1.0 / fLastScaleX);
       fLastScaleX = 1.0;
@@ -227,7 +228,8 @@ void KVIDGraph::SetYScaleFactor(Double_t s)
       fPar->SetValue("YScaleFactor", s);
       Scale(-1.0, s / fLastScaleY);
       fLastScaleY = s;
-   } else {
+   }
+   else {
       fPar->RemoveParameter("YScaleFactor");
       Scale(-1.0, 1.0 / fLastScaleY);
       fLastScaleY = 1.0;
@@ -267,11 +269,11 @@ KVIDentifier* KVIDGraph::GetIdentifier(Int_t Z, Int_t A) const
 
    KVIDentifier* id = 0;
    if (!OnlyZId()) {
-      KVSeqCollection* isotopes = fIdentifiers->GetSubListWithMethod(Form("%d", Z), "GetZ");
-      TIter next(isotopes);
+      unique_ptr<KVSeqCollection> isotopes(fIdentifiers->GetSubListWithMethod(Form("%d", Z), "GetZ"));
+      TIter next(isotopes.get());
       while ((id = (KVIDentifier*)next())) if (id->GetA() == A) break;
-      delete isotopes;
-   } else {
+   }
+   else {
       TIter next(fIdentifiers);
       while ((id = (KVIDentifier*)next())) if (id->GetZ() == Z) break;
    }
@@ -478,7 +480,8 @@ void KVIDGraph::ReadFromAsciiFile(ifstream& gridfile)
       if (s.BeginsWith('!')) {
          //end of grid signalled
          break;
-      } else if (s.BeginsWith("++")) {  //will only happen if we are reading a file using ReadAsciiFile(const char*)
+      }
+      else if (s.BeginsWith("++")) {    //will only happen if we are reading a file using ReadAsciiFile(const char*)
          //check classname
          s.Remove(0, 2);
          s.Remove(TString::kBoth, ' '); //remove whitespace
@@ -486,22 +489,26 @@ void KVIDGraph::ReadFromAsciiFile(ifstream& gridfile)
             Warning("ReadFromAsciiFile(ofstream&)",
                     "Class name in file %s does not correspond to this class (%s)",
                     s.Data(), ClassName());
-      } else if (s.BeginsWith("<NAME>")) {
+      }
+      else if (s.BeginsWith("<NAME>")) {
          //name of grid
          s.Remove(0, 7);
          s.Remove(TString::kBoth, ' '); //remove whitespace
          SetName(s.Data());
-      } else if (s.BeginsWith("<VARX>")) {
+      }
+      else if (s.BeginsWith("<VARX>")) {
          //x-axis definition
          s.Remove(0, 7);
          s.Remove(TString::kBoth, ' '); //remove whitespace
          SetVarX(s.Data());
-      } else if (s.BeginsWith("<VARY>")) {
+      }
+      else if (s.BeginsWith("<VARY>")) {
          //y-axis definition
          s.Remove(0, 7);
          s.Remove(TString::kBoth, ' '); //remove whitespace
          SetVarY(s.Data());
-      } else if (s.BeginsWith("<PARAMETER>")) {
+      }
+      else if (s.BeginsWith("<PARAMETER>")) {
          //parameter definition
          s.Remove(0, 11);
          //split into tokens separated by '='
@@ -522,7 +529,8 @@ void KVIDGraph::ReadFromAsciiFile(ifstream& gridfile)
             }
          }
          delete toks;           //must clean up
-      } else if (s.BeginsWith("<LIST>")) {      // number list definition
+      }
+      else if (s.BeginsWith("<LIST>")) {        // number list definition
          s.Remove(0, 6);        // get rid of "<LIST>"
          //split into tokens separated by '='
          TObjArray* toks = s.Tokenize('=');
@@ -538,7 +546,8 @@ void KVIDGraph::ReadFromAsciiFile(ifstream& gridfile)
                fPar->SetValue(name.Data(), list.Data());
          }
          delete toks;           //must clean up
-      } else if (s.BeginsWith("OnlyZId")) {
+      }
+      else if (s.BeginsWith("OnlyZId")) {
          SetOnlyZId(kTRUE);
          s.ReplaceAll("OnlyZId", "");
          s.Remove(TString::kBoth, ' ');
@@ -546,7 +555,8 @@ void KVIDGraph::ReadFromAsciiFile(ifstream& gridfile)
             mass_formula = s.Atoi();
             if (mass_formula > -1) SetMassFormula(mass_formula);
          }
-      } else if (s.BeginsWith('+')) {
+      }
+      else if (s.BeginsWith('+')) {
          //New line
          line_no++;
          //Get name of class by stripping off the '+' at the start of the line
@@ -630,12 +640,14 @@ KVIDentifier* KVIDGraph::New(const Char_t* id_class)
    if (!clas) {
       Error("New",
             "%s is not a valid classname. No known class.", id_class);
-   } else {
+   }
+   else {
       if (!clas->InheritsFrom(KVIDentifier::Class())) {
          Error("New",
                "%s is not a valid class deriving from KVIDentifier",
                id_class);
-      } else {
+      }
+      else {
          line = (KVIDentifier*) clas->New();
       }
    }
@@ -693,7 +705,8 @@ void KVIDGraph::Draw(Option_t*)
 
    if (!gPad) {
       fPad = new TCanvas("c1", GetName());
-   } else {
+   }
+   else {
       fPad = (TPad*)gPad;
       gPad->SetTitle(GetName());
    }
@@ -1014,7 +1027,8 @@ void KVIDGraph::ReadAsciiFile_WP(Int_t version)
    if (vv == -1) {
       if (version == -1)  cout << "no file " + fPattern + "_v%d.grid" << endl;
       else              cout << "no file " + fPattern + Form("_v%d.grid", version) << endl;
-   } else ReadAsciiFile(fPattern + "_v" + Form("%d", vv) + ".grid");
+   }
+   else ReadAsciiFile(fPattern + "_v" + Form("%d", vv) + ".grid");
 }
 //___________________________________________________________________________________//
 Int_t KVIDGraph::CheckVersion(Int_t version)
@@ -1056,7 +1070,8 @@ Int_t KVIDGraph::CheckVersion(Int_t version)
    if (version == -1) return temoin;
    else if (temoin != version) {
       return -1;
-   } else return temoin;
+   }
+   else return temoin;
 }
 
 //___________________________________________________________________________________
@@ -1201,12 +1216,11 @@ void KVIDGraph::Streamer(TBuffer& R__b)
       while ((id = (KVIDentifier*)nxt_id())) id->fParent = this;
       TIter nxt_cut(fCuts);
       while ((id = (KVIDentifier*)nxt_cut())) id->fParent = this;
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVIDGraph::Class(), this);
    }
 }
-
-//___________________________________________________________________________________
 
 void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
                                    TH2F* id_real_vs_e_res, TH2F* z_a_real)
@@ -1223,8 +1237,6 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
 
    //Initialize the grid: calculate line widths etc.
    Initialize();
-
-   KVIdentificationResult* idr = new KVIdentificationResult;
 
    id_real->Reset();
    id_real_vs_e_res->Reset();
@@ -1249,24 +1261,23 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
          //randomly-drawn x and y coordinates inside this bin
          //If 'poids'>20, we perform the identification 20 times and we fill the histograms with
          //a weight poids/20
-         Double_t x, y;
          Int_t kmax = (Int_t) TMath::Min(20., poids);
          Double_t weight = (kmax == 20 ? poids / 20. : 1.);
          for (int k = 0; k < kmax; k++) {
-
-            x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
-            y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
+            double x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
+            double y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
             if (IsIdentifiable(x, y)) {
-               Identify(x, y, idr);
+               KVIdentificationResult idr;
+               Identify(x, y, &idr);
                if (AcceptIDForTest()) {
-                  Float_t PID = idr->PID;
-                  if (idr->Aident) PID = (idr->Z + 0.1 * (idr->PID - 2. * idr->Z));
+                  Float_t PID = idr.PID;
+                  if (idr.Aident) PID = (idr.Z + 0.1 * (idr.PID - 2. * idr.Z));
+                  Float_t RealA, RealZ;
+                  RealA = (idr.Aident ? idr.PID : (Float_t)idr.A);
+                  RealZ = (idr.Aident ? (Float_t)idr.Z : idr.PID);
                   id_real->Fill(PID, weight);
                   id_real_vs_e_res->Fill(x, PID, weight);
-                  Float_t RealA, RealZ;
-                  RealA = (idr->Aident ? idr->PID : (Float_t)idr->A);
-                  RealZ = (idr->Aident ? (Float_t)idr->Z : idr->PID);
-                  if (zaMap && (idr->IDquality == 0) && idr->Aident) z_a_real->Fill(RealA - RealZ, gRandom->Gaus(RealZ, 0.15), weight);
+                  if (zaMap && (idr.IDquality == 0) && idr.Aident) z_a_real->Fill(RealA - RealZ, gRandom->Gaus(RealZ, 0.15), weight);
                }
             }
          }
@@ -1277,12 +1288,6 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
             gSystem->ProcessEvents();
             cumul = percent;
          }
-//         if (percent >= cumul) {
-//            //cout << (Int_t) percent << "\% processed" << endl;
-//            cumul += 10;
-//         }
       }
    }
-
-   delete idr;
 }
