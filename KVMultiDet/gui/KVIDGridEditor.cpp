@@ -454,6 +454,23 @@ void KVIDGridEditor::AddGridOption(TString label, KVHashList* thelist)
    return;
 }
 
+void KVIDGridEditor::RecurseFileStructureFindHistos(TString& hist_names, TDirectory* the_directory)
+{
+   // Recursively scan folders in a file looking for all TH2-derived objects.
+   // Their names are added to the TString.
+   TIter next_key(the_directory->GetListOfKeys());
+   TKey* key;
+   while ((key = (TKey*)next_key())) {
+      if (key->IsFolder()) {
+         RecurseFileStructureFindHistos(hist_names, the_directory->GetDirectory(key->GetName()));
+      }
+      else {
+         TString key_class = key->GetClassName();
+         if (key_class.Contains("TH2")) hist_names += Form(" %s", key->GetName());
+      }
+   }
+}
+
 //________________________________________________________________
 TString KVIDGridEditor::ListOfHistogramInMemory()
 {
@@ -476,19 +493,9 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
    TFile* f;
    TIter next(gROOT->GetListOfFiles());
    while ((f = (TFile*)next())) {
-      TIter nextobj(f->GetList());
-      TObject* obj = 0;
-      while ((obj = nextobj())) {
-         if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
-      }
-      TIter nextkey(f->GetListOfKeys());
-      TKey* key = 0;
-      while ((key = (TKey*)nextkey())) {
-         TString classname = key->GetClassName();
-         if (classname.Contains("TH2")) {
-            HistosNames += Form(" %s", key->GetName());
-         }
-      }
+      // beware KV database file!!!
+      if (!strcmp(gSystem->BaseName(f->GetName()), "DataBase.root")) continue;
+      RecurseFileStructureFindHistos(HistosNames, f);
    }
 
    // histos in canvases
@@ -510,7 +517,8 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
                      HistosNames += Form(" %s", obj2->GetName());
                   }
                }
-            } else if (obj1->InheritsFrom("TH2")) {
+            }
+            else if (obj1->InheritsFrom("TH2")) {
                HistosNames += Form(" %s", ((TH2*)obj1)->GetName());
             }
          }
@@ -568,12 +576,15 @@ void KVIDGridEditor::SetHisto(TH2* hh)
       if (TheHisto) {
          Default = "Current";
          Choices += "Current ";
-      } else Default = "Dummy";
+      }
+      else Default = "Dummy";
 
       if (Listo == "") {
-      } else if (Select == "") {
+      }
+      else if (Select == "") {
          Choices += Listo;
-      } else {
+      }
+      else {
          Default = Select;
          Choices += Select.Data();
          Choices += " ";
@@ -589,7 +600,8 @@ void KVIDGridEditor::SetHisto(TH2* hh)
             Answer = "Current";
             return;
          }
-      } else Answer = Default;
+      }
+      else Answer = Default;
 
       if (!Answer.Contains("Current") && ownhisto) {
          delete TheHisto;
@@ -602,6 +614,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
          if ((TheHistoChoice = (TH2*)gROOT->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = (TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = (TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
+         else if ((TheHistoChoice = (TH2*)gFile->FindObjectAny(Answer.Data()))) TheHisto = TheHistoChoice;
          else if (gTreeAnalyzer && (TheHistoChoice = (TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
          else if ((TheHistoChoice = FindInCanvases(Answer.Data()))) TheHisto = TheHistoChoice;
          else Answer = "Dummy";
@@ -625,10 +638,12 @@ void KVIDGridEditor::SetHisto(TH2* hh)
          TheHisto = new TH2F(hname.Data(), hname.Data(), 2048, 0, Xmax, 2048, 0, Ymax);
          ownhisto = true;
       }
-   } else if (!hh->InheritsFrom("TH2")) {
+   }
+   else if (!hh->InheritsFrom("TH2")) {
       cout << "ERROR: KVIDGridEditor::SetHisto(): '" << hh->GetName() << "' must be a 2D histogram !" << endl;
       return;
-   } else {
+   }
+   else {
       if ((ownhisto) && (TheHisto)) {
          delete TheHisto;
          TheHisto = 0;
@@ -740,7 +755,8 @@ void KVIDGridEditor::SetGrid(TString GridName)
    if (!(tempgrid = (KVIDGraph*)gIDGridManager->GetGrids()->FindObject(GridName.Data()))) {
       cout << "WARNING: KVIDGridEditor::SetGrid(): Unknown grid named '" << GridName.Data() << "' !" << endl;
       return;
-   } else SetGrid(tempgrid, sethisto);
+   }
+   else SetGrid(tempgrid, sethisto);
    return;
 }
 
@@ -754,7 +770,8 @@ void KVIDGridEditor::SetPivot(Double_t xx0, Double_t yy0)
       fPivot->SetMarkerSize(2);
       fPivot->SetMarkerColor(kRed);
       fPivot->SetName("ThePivot");
-   } else fPivot->SetPoint(0, xx0, yy0);
+   }
+   else fPivot->SetPoint(0, xx0, yy0);
 }
 
 //________________________________________________________________
@@ -767,7 +784,8 @@ void KVIDGridEditor::SetPiedestal(Double_t ppdx, Double_t ppdy)
       fPivot->SetMarkerSize(2);
       fPivot->SetMarkerColor(kBlack);
       fPivot->SetName("ThePiedestal");
-   } else fPivot->SetPoint(1, ppdx, ppdy);
+   }
+   else fPivot->SetPoint(1, ppdx, ppdy);
 }
 
 //________________________________________________________________
@@ -808,44 +826,53 @@ void KVIDGridEditor::SelectLabel()
          if (color == kWhite) label->SetFillColor(kRed);
          else if (color == kRed) label->SetFillColor(kWhite);
          UpdateViewer();
-      } else if (lplabel2->Contains(label)) {
+      }
+      else if (lplabel2->Contains(label)) {
          label->SetFillColor(kRed);
          UpdateViewer();
          DispatchOrder(label);
-      } else if (lplabel4->Contains(label)) {
+      }
+      else if (lplabel4->Contains(label)) {
          DispatchOrder(label);
-      } else if (lplabel3->Contains(label)) {
+      }
+      else if (lplabel3->Contains(label)) {
          lplabel3->Execute("SetFillColor", "kWhite");
          if (color == kWhite) label->SetFillColor(kGreen);
          if (color == kGreen)  label->SetFillColor(kWhite);
          //      SelectLines(label);
          SelectLines("Select");
          UpdateViewer();
-      } else if (lplabel5->Contains(label) && (label != modulator)) {
+      }
+      else if (lplabel5->Contains(label) && (label != modulator)) {
          label->SetFillColor(kGreen);
          ChangeStep(label->GetTitle());
          UpdateViewer();
       }
-   } else if (event == kButton1Up) {
+   }
+   else if (event == kButton1Up) {
       if (lplabel2->Contains(label)) {
          label->SetFillColor(kWhite);
          UpdateViewer();
-      } else if (lplabel5->Contains(label) && (label != modulator)) {
+      }
+      else if (lplabel5->Contains(label) && (label != modulator)) {
          label->SetFillColor(kWhite);
          UpdateViewer();
       }
-   } else if (event == kButton1Double) {
+   }
+   else if (event == kButton1Double) {
       if (lplabel5->Contains(label) && (label != modulator)) {
          label->SetFillColor(kGreen);
          ChangeStep(label->GetTitle(), 9);
          UpdateViewer();
       }
-   } else if (event == kButton1Shift) {
+   }
+   else if (event == kButton1Shift) {
       if (lplabel5->Contains(label) && (label != modulator)) {
          label->SetFillColor(kGreen);
          ChangeStep(label->GetTitle(), 100);
          UpdateViewer();
-      } else if (lplabel3->Contains(label)) {
+      }
+      else if (lplabel3->Contains(label)) {
          lplabel3->Execute("SetFillColor", "kGreen");
          //      if(color==kWhite) label->SetFillColor(kGreen);
          //      if(color==kGreen)  label->SetFillColor(kWhite);
@@ -949,9 +976,11 @@ void KVIDGridEditor::MakeTransformation()
    if ((event == kButton1Up) && (dlmode) && (select)) {
       if (select->InheritsFrom("KVIDentifier")) {
          DeleteLine((KVIDentifier*)select);
-      } else if (select->InheritsFrom("KVIDCutLine") || select->InheritsFrom("KVIDCutContour")) {
+      }
+      else if (select->InheritsFrom("KVIDCutLine") || select->InheritsFrom("KVIDCutContour")) {
          DeleteCut((KVIDentifier*)select);
-      } else if (select->InheritsFrom("KVIDQAMarker")) select->Delete();
+      }
+      else if (select->InheritsFrom("KVIDQAMarker")) select->Delete();
    }
    if ((event == kButton1Up) && (select) && (!dlmode)) {
       if (select->InheritsFrom("KVIDentifier")) {
@@ -961,12 +990,14 @@ void KVIDGridEditor::MakeTransformation()
                line->SetLineColor(SelectedColor);
                ListOfLines->AddLast(line);
                UpdateViewer();
-            } else {
+            }
+            else {
                ListOfLines->Remove(line);
                ResetColor(line);
                UpdateViewer();
             }
-         } else if (ListOfLines->Contains(line)) {
+         }
+         else if (ListOfLines->Contains(line)) {
             ListOfLines->Remove(line);
             ResetColor(line);
             //   TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
@@ -995,12 +1026,14 @@ void KVIDGridEditor::MakeTransformation()
             zmax = LastZ;
             amin = TMath::Min(LastA, SeleA);
             amax = TMath::Max(LastA, SeleA);
-         } else if (LastZ < SeleZ) {
+         }
+         else if (LastZ < SeleZ) {
             zmin = LastZ;
             amin = LastA;
             zmax = SeleZ;
             amax = SeleA;
-         } else {
+         }
+         else {
             zmax = LastZ;
             amax = LastA;
             zmin = SeleZ;
@@ -1142,43 +1175,50 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
       FitGrid();
       label->SetFillColor(kWhite);
       UpdateViewer();
-   } else if (commande.Contains("Test")) {
+   }
+   else if (commande.Contains("Test")) {
       label->SetFillColor(kRed);
       UpdateViewer();
       TestGrid();
       label->SetFillColor(kWhite);
       UpdateViewer();
-   } else if (commande.Contains("Mass")) {
+   }
+   else if (commande.Contains("Mass")) {
       label->SetFillColor(kRed);
       UpdateViewer();
       FindZALines();
       label->SetFillColor(kWhite);
       UpdateViewer();
-   } else if (commande.Contains("Spider")) {
+   }
+   else if (commande.Contains("Spider")) {
       label->SetFillColor(kRed);
       UpdateViewer();
       SpiderIdentification();
       label->SetFillColor(kWhite);
       UpdateViewer();
-   } else if (commande.Contains("More")) {
+   }
+   else if (commande.Contains("More")) {
       label->SetFillColor(kRed);
       UpdateViewer();
       SuggestMoreAction();
       label->SetFillColor(kWhite);
       UpdateViewer();
-   } else if (commande.Contains("Delete")) {
+   }
+   else if (commande.Contains("Delete")) {
       if (!TheGrid) return;
       Int_t color = label->GetFillColor();
       if (color == kRed) {
          label->SetFillColor(kWhite);
          dlmode = false;
          UpdateViewer();
-      } else if (color == kWhite) {
+      }
+      else if (color == kWhite) {
          label->SetFillColor(kRed);
          dlmode = true;
          UpdateViewer();
       }
-   } else cout << "WARNING: KVIDGridEditor::DispatchOrder(): unknown order '" << commande << "' !" << endl;
+   }
+   else cout << "WARNING: KVIDGridEditor::DispatchOrder(): unknown order '" << commande << "' !" << endl;
 }
 
 //________________________________________________________________
@@ -1189,7 +1229,8 @@ void KVIDGridEditor::SetEditable(TPaveLabel* label)
       TheGrid->SetEditable(!iseditable);
       if (iseditable) label->SetFillColor(kWhite);
       else label->SetFillColor(kRed);
-   } else label->SetFillColor(kWhite);
+   }
+   else label->SetFillColor(kWhite);
    UpdateViewer();
    return;
 }
@@ -1258,7 +1299,8 @@ void KVIDGridEditor::NewLine()
                            &cut_class,
                            &okpressed);
       if (!okpressed) return;
-   } else cut_class = cut_choices;
+   }
+   else cut_class = cut_choices;
 
    TheGrid->DrawAndAdd("ID", cut_class.Data());
 
@@ -1310,7 +1352,8 @@ void KVIDGridEditor::NewCut()
          drawmode = false;
          return;
       }
-   } else cut_class = cut_types;
+   }
+   else cut_class = cut_types;
 
    cut_class.Prepend("KVIDCut");
    TheGrid->DrawAndAdd("CUT", cut_class.Data());
@@ -1536,11 +1579,13 @@ void KVIDGridEditor::SuggestMoreAction()
       TContextMenu* cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s", Answer.Data()));
       cm->Action(TheGrid, m);
       delete cm;
-   } else if ((m = IsA()->GetMethodAllAny(Answer.Data()))) {
+   }
+   else if ((m = IsA()->GetMethodAllAny(Answer.Data()))) {
       TContextMenu* cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s", Answer.Data()));
       cm->Action(this, m);
       delete cm;
-   } else cout << "INFO: KVIDGridEditor::SuggestMoreAction(): '" << Answer << "' not implemented..." << endl;
+   }
+   else cout << "INFO: KVIDGridEditor::SuggestMoreAction(): '" << Answer << "' not implemented..." << endl;
 
 }
 
@@ -1690,7 +1735,8 @@ void KVIDGridEditor::ChangeStep(const char* title, Int_t dstep)
    TString commande(title);
    if (commande.Contains("+")) {
       imod += dstep;
-   } else if (commande.Contains("-")) {
+   }
+   else if (commande.Contains("-")) {
       imod -= dstep;
       if (imod <= 0)imod = 1;
    }
