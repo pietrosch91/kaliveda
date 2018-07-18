@@ -14,6 +14,7 @@ class KVExpDB : public KVDataBase {
 protected:
    TString fDataSet;//the name of the dataset to which this database is associated
    TString fDataSetDir;//the directory containing the dataset files
+   TString fDBType;//used by GetDBEnv
 
    Int_t kFirstRun;
    Int_t kLastRun;
@@ -133,7 +134,7 @@ public:
 
    static KVExpDB* MakeDataBase(const Char_t* name, const Char_t* datasetdir);
 
-   ClassDef(KVExpDB, 1) //base class to describe database of an experiment
+   ClassDef(KVExpDB, 2) //base class to describe database of an experiment
 };
 
 //........ global variable

@@ -35,6 +35,7 @@ public:
       return 0;
    }
    virtual TString GetDataFormat() const = 0;
+   virtual Int_t GetRunNumberReadFromFile() const = 0;
 
    ClassDef(KVRawDataReader, 0) //Base class for reading raw data
 };

@@ -48,6 +48,7 @@ public:
       return fMergeFrame;
    }
    void SetActionsDirectory(const string&);
+   Int_t GetRunNumberReadFromFile() const;
 
    ClassDef(KVMFMDataFileReader, 0) //Read MFM format acquisition data
 };

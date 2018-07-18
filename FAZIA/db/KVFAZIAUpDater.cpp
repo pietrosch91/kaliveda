@@ -49,7 +49,7 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
 {
    //Put all signals in standard configuration
    //PSA parameters, threshold ...
-   TIter ld(gFazia->GetDetectors());
+   TIter ld(fArray->GetDetectors());
    KVFAZIADetector* det = 0;
    KVSignal* sig = 0;
 
@@ -68,11 +68,11 @@ void KVFAZIAUpDater::SetPSAParameters(KVDBRun* dbrun)
    while ((par = (KVDBParameterList*)next())) {
       TString sdet(par->GetParameters()->GetStringValue("Detector"));
       TString ssig(par->GetParameters()->GetStringValue("Signal"));
-      if (!gFazia) {
-         Error("SetPSAParameters", "gFazia object not defined");
+      if (!fArray) {
+         Error("SetPSAParameters", "fArray object not defined");
          return;
       }
-      det = (KVFAZIADetector*)gFazia->GetDetector(sdet.Data());
+      det = (KVFAZIADetector*)fArray->GetDetector(sdet.Data());
       if (det) {
          sig = det->GetSignal(ssig.Data());
          if (sig) {
@@ -100,7 +100,7 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
       TString sdet(par->GetName());
 //      Info("SetCalibrations", "%s", sdet.Data());
 //      par->Print();
-      det = (KVFAZIADetector*)gFazia->GetDetector(sdet.Data());
+      det = (KVFAZIADetector*)fArray->GetDetector(sdet.Data());
       if (det && (cal = det->GetCalibrator(par->GetTitle()))) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
             for (int nn = 0; nn < cal->GetNumberParams(); nn++) cal->SetParameter(nn, par->GetParameter(nn));
@@ -122,7 +122,7 @@ void KVFAZIAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
 
    KVRList* ooodet = kvrun->GetLinks("OoO Detectors");
 
-   TIter next(gFazia->GetDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* det;
 
    Int_t ndet_ooo = 0;

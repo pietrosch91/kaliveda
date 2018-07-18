@@ -2,14 +2,17 @@
 #
 +DataSet:	  INDRAFAZIA
 INDRAFAZIA.DataSet.Title:    INDRA-FAZIA Campaign (2018-)
-INDRAFAZIA.DataSet.RepositoryDir:	indrafazia
+INDRAFAZIA.DataSet.RepositoryDir:	t18_02
+INDRAFAZIA.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.DataSet.RunFile.DoNotDelete: raw
+INDRAFAZIA.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.KVDataSet.DataType.Subdir.root:  root
 INDRAFAZIA.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
 INDRAFAZIA.ExpSetUp.Updater.INDRA: INDRA_camp1
 INDRAFAZIA.ExpSetUp.Updater.FAZIA: FAZIACOR
-INDRAFAZIA.HasCalibIdentInfos:   yes
+#INDRAFAZIA.HasCalibIdentInfos:   yes
 #INDRAFAZIA.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
 INDRAFAZIA.ActiveIdentifications:      CSI Si-Si Si-CsI
 INDRAFAZIA.SI-CSI.MassID: yes
@@ -35,22 +38,8 @@ INDRAFAZIA.IdentificationParameterFile.CsI:          CSIRL.dat
 FAZIADB.CalibrationFiles:     CalibrationFiles.dat
 FAZIADetector.Calib.Channel-Energy: pol2
 
-#signal.QH1.BaseLine:	150
-#signal.I1.BaseLine:	100
-#signal.QL1.BaseLine:	150
-#signal.Q2.BaseLine:	150
-#signal.I2.BaseLine:	150
-#
-#signal.QH1.RiseTime:	2.
-#signal.QL1.RiseTime:	2.
-#signal.Q2.RiseTime:	2.
-#
-#signal.QH1.FlatTop:	1.
-#signal.QL1.FlatTop:	1.
-#signal.Q2.FlatTop:	1.
-
 INDRAFAZIA.Q3.FastShaperFlatTop:    0.5
 INDRAFAZIA.Q3.ShaperFlatTop:        10.
 INDRAFAZIA.Q3.BaseLineLength:       100
-INDRAFAZIA.Q3.FastShaperRiseTime:   2
-INDRAFAZIA.Q3.ShaperRiseTime:       2
+INDRAFAZIA.Q3.FastShaperRiseTime:   .5
+INDRAFAZIA.Q3.ShaperRiseTime:       .5

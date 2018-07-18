@@ -12,14 +12,17 @@ $Author: franklan $
 #include "TString.h"
 #include "KVDBRun.h"
 
+class KVMultiDetArray;
 class KVUpDater {
 
 protected:
    TString fDataSet;            //!name of dataset associated
+   KVMultiDetArray* fArray;     //!associated array
 public:
 
    KVUpDater();
    virtual ~ KVUpDater();
+   void SetArray(KVMultiDetArray*);
 
    virtual void SetParameters(UInt_t);
    virtual void SetIdentificationParameters(UInt_t) ;
@@ -28,7 +31,7 @@ public:
    virtual void SetIDGrids(UInt_t);
    virtual void SetCalibParameters(KVDBRun*);
 
-   static KVUpDater* MakeUpDater(const Char_t* uri);
+   static KVUpDater* MakeUpDater(const Char_t* uri, KVMultiDetArray*);
 
    ClassDef(KVUpDater, 0)       //Abstract base class handling setting of multidetector parameters for each run
 };

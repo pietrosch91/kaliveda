@@ -63,14 +63,15 @@ void KVINDRAUpDater_e475s::SetCalibrationParameters(UInt_t run)
       return;
    }
    //Reset all calibrators of all detectors first
-   TIter next(gIndra->GetListOfDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* kvd;
    while ((kvd = (KVDetector*) next())) {
       if (kvd->InheritsFrom("KVSiLi") || kvd->InheritsFrom("KVSi75")) {
          if (kvd->GetListOfCalibrators())
             kvd->RemoveCalibrators();
          kvd->SetCalibrators();
-      } else {
+      }
+      else {
          if (kvd->GetListOfCalibrators()) {
             kvd->RemoveCalibrators();
             TIter lacq(kvd->GetACQParamList());
@@ -110,11 +111,14 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 
          if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s")) {
             ((KVSilicon_e475s*)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
-         } else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")) {
+         }
+         else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")) {
             ((KVChIo_e475s*)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
-         } else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVCsI_e475s")) {
+         }
+         else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVCsI_e475s")) {
             ((KVCsI_e475s*)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
-         } else {
+         }
+         else {
             Warning("SetCalibParameters(KVDBRun*)",
                     "Calibrator %s %s not found ! ",
                     kvps->GetName(), kvps->GetTitle());

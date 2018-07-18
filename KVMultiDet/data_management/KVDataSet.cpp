@@ -263,7 +263,8 @@ void KVDataSet::OpenDBFile(const Char_t* full_path_to_dbfile) const
       if (!fDataBase) {
          Error("OpenDBFile", "%s not found in file %s", GetDBName(),
                GetDBFileName());
-      } else {
+      }
+      else {
          fDataBase->ReadObjects(fDBase.get());   // read any associated objects
       }
       work_dir->cd();           //back to initial working directory
@@ -335,7 +336,8 @@ void KVDataSet::SaveDataBase() const
                return;
             }
             gSystem->Chmod(tmp2.Data(), 0775);
-         } else {
+         }
+         else {
             Error("SaveDataBase", "Cannot create directory %s required to save database, even though %s exists: check disk space ?",
                   tmp.Data(), tmp2.Data());
             return;
@@ -345,10 +347,12 @@ void KVDataSet::SaveDataBase() const
             Error("SaveDataBase", "Cannot create directory %s required to save database",
                   tmp.Data());
             return;
-         } else {
+         }
+         else {
             gSystem->Chmod(tmp.Data(), 0775);
          }
-      } else {
+      }
+      else {
          gSystem->Chmod(tmp.Data(), 0775);
       }
    }
@@ -395,7 +399,8 @@ KVExpDB* KVDataSet::GetDataBase(Option_t* opt) const
    _opt.ToUpper();
    if (_opt == "UPDATE") {
       OpenDataBase(_opt.Data());
-   } else {
+   }
+   else {
       OpenDataBase();
    }
    return fDataBase;
@@ -444,7 +449,8 @@ void KVDataSet::OpenDataBase(Option_t* opt) const
       }
       SaveDataBase();
       if (fDataBase && is_glob_db) fDataBase->cd();
-   } else if (!fDataBase) {
+   }
+   else if (!fDataBase) {
       // if database is not in memory at this point, we need to
       // open the database file and read in the database
 
@@ -470,7 +476,8 @@ void KVDataSet::ls(Option_t*) const
       cout << "  [ AVAILABLE: ";
       cout << fDatatypes.Data();
       cout << "]";
-   } else
+   }
+   else
       cout << "  [UNAVAILABLE]";
    cout << endl;
 }
@@ -488,16 +495,19 @@ void KVDataSet::Print(Option_t* opt) const
          cout << "                    *** No available analysis tasks ***"
               << endl;
          return;
-      } else {
+      }
+      else {
          for (int i = 1; i <= GetNtasks(); i++) {
             KVDataAnalysisTask* dat = GetAnalysisTask(i);
             cout << "\t" << i << ". " << dat->GetTitle() << endl;
          }
       }
       cout << endl;
-   } else if (Sopt.Contains("DATA")) {
+   }
+   else if (Sopt.Contains("DATA")) {
       cout << "Available data types: " << fDatatypes.Data() << endl;
-   } else {
+   }
+   else {
       ls(opt);
    }
 }
@@ -581,7 +591,8 @@ void KVDataSet::SetAnalysisTasks(const KVSeqCollection* task_list)
          SetDataSetSpecificTaskParameters(new_task);
          if (HasDataType(new_task->GetPrereq())) {
             fTasks.Add(new_task);
-         } else
+         }
+         else
             delete new_task;
       }
    }
@@ -694,7 +705,7 @@ const Char_t* KVDataSet::GetDataSetEnv(const Char_t* type, const Char_t* defval)
    //then simply "type" if no dataset-specific value is found.
    //If neither resource is defined, return the "defval" default value (="" by default)
 
-   return GetDataSetEnv(GetName(), type, defval);
+   return KVBase::GetDataSetEnv(GetName(), type, defval);
 }
 
 //__________________________________________________________________________________________________________________
@@ -705,7 +716,7 @@ Double_t KVDataSet::GetDataSetEnv(const Char_t* type, Double_t defval) const
    //then simply "type" if no dataset-specific value is found.
    //If neither resource is defined, return the "defval" default value
 
-   return GetDataSetEnv(GetName(), type, defval);
+   return KVBase::GetDataSetEnv(GetName(), type, defval);
 }
 
 //__________________________________________________________________________________________________________________
@@ -716,46 +727,9 @@ Bool_t KVDataSet::GetDataSetEnv(const Char_t* type, Bool_t defval) const
    //then simply "type" if no dataset-specific value is found.
    //If neither resource is defined, return the "defval" default value
 
-   return GetDataSetEnv(GetName(), type, defval);
+   return KVBase::GetDataSetEnv(GetName(), type, defval);
 }
 
-const Char_t* KVDataSet::GetDataSetEnv(const Char_t* dataset, const Char_t* type, const Char_t* defval)
-{
-   // Static method to interrogate dataset-specific variables in configuration
-   // Will look for gEnv->GetValue "dataset.type"
-   // then simply "type" if no dataset-specific value is found.
-   // If neither resource is defined, return the "defval" default value (="" by default)
-   TString temp;
-   temp.Form("%s.%s", dataset, type);
-   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), "");
-   return gEnv->GetValue(type, defval);
-}
-
-Double_t KVDataSet::GetDataSetEnv(const Char_t* dataset, const Char_t* type, Double_t defval)
-{
-   // Static method to interrogate dataset-specific variables in configuration
-   // Will look for gEnv->GetValue "dataset.type"
-   // then simply "type" if no dataset-specific value is found.
-   // If neither resource is defined, return the "defval" default value
-
-   TString temp;
-   temp.Form("%s.%s", dataset, type);
-   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), 0.0);
-   return gEnv->GetValue(type, defval);
-}
-
-Bool_t KVDataSet::GetDataSetEnv(const Char_t* dataset, const Char_t* type, Bool_t defval)
-{
-   // Static method to interrogate dataset-specific variables in configuration
-   //Will look for gEnv->GetValue "dataset.type"
-   //then simply "type" if no dataset-specific value is found.
-   //If neither resource is defined, return the "defval" default value
-
-   TString temp;
-   temp.Form("%s.%s", dataset, type);
-   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), kFALSE);
-   return gEnv->GetValue(type, defval);
-}
 
 //__________________________________________________________________________________________________________________
 
@@ -766,7 +740,7 @@ TObject* KVDataSet::open_runfile(const Char_t* type, Int_t run)
    // The user must cast the returned pointer to the correct class, which will
    // depend on the data type and the dataset (see $KVROOT/KVFiles/.kvrootrc)
 
-   return GetRepository()->OpenDataSetRunFile(this, type, run);
+   return GetRepository()->OpenDataSetRunFile(this, type, run, GetName());
 }
 
 //__________________________________________________________________________________________________________________
@@ -997,11 +971,13 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t* type, TDatime* mi
             if (*min < run->GetRun()->GetDatime() && run->GetRun()->GetDatime() < *max) {
                numb.Add(run->GetRunNumber());
             }
-         } else if (min) {
+         }
+         else if (min) {
             if (*min < run->GetRun()->GetDatime()) {
                numb.Add(run->GetRunNumber());
             }
-         } else if (max) {
+         }
+         else if (max) {
             if (run->GetRun()->GetDatime() < *max) {
                numb.Add(run->GetRunNumber());
             }
@@ -1193,7 +1169,8 @@ void KVDataSet::CheckMultiRunfiles(const Char_t* data_type)
       GetAvailableRunsFile(data_type)->CheckMultiRunfiles();
    if (doubles.IsEmpty()) {
       cout << "OK. No runs appear more than once." << endl;
-   } else {
+   }
+   else {
       cout << "Runs which appear more than once: " << doubles.
            AsString() << endl << endl;
       //print dates and filenames for each run
@@ -1238,7 +1215,8 @@ void KVDataSet::CleanMultiRunfiles(const Char_t* data_type, Bool_t confirm)
    KVNumberList doubles = ARF->CheckMultiRunfiles();
    if (doubles.IsEmpty()) {
       cout << "OK. No runs appear more than once." << endl;
-   } else {
+   }
+   else {
       cout << "Runs which appear more than once: " << doubles.
            AsString() << endl << endl;
       //print dates and filenames for each run
@@ -1273,7 +1251,8 @@ void KVDataSet::CleanMultiRunfiles(const Char_t* data_type, Bool_t confirm)
 
             if (i == i_most_recent) {
                cout << "KEEP : ";
-            } else {
+            }
+            else {
                cout << "DELETE : ";
             }
             cout << "\t" << ((TObjString*) filenames.At(i))->String().
@@ -1427,7 +1406,8 @@ KVNumberList KVDataSet::GetRunList(const Char_t* data_type,
       Error("GetRunList",
             "No data of type %s available. Runlist will be empty.",
             data_type);
-   } else {
+   }
+   else {
       list = GetAvailableRunsFile(data_type)->GetRunList(system);
    }
    return list;

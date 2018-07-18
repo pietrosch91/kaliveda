@@ -61,7 +61,6 @@ public:
    Bool_t TransferRunToCcali(Int_t run, TString path, TString ccali_rep = "/fazia", TString option = "frv");
    void TransferRunListToCcali(KVNumberList lrun, TString path, TString ccali_rep = "/fazia", TString option = "frv");
    void StartTransfer(TString filename = "runlist.dat", TString ccali_rep = "/fazia", TString option = "frv");
-   virtual const Char_t* GetDBEnv(const Char_t* type) const;
 
 
    ClassDef(KVFAZIADB, 3) //database for FAZIA detector

@@ -24,6 +24,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
 
    //TGMainFrame* fMain;
    TGPopupMenu* fMenuFile;
+   TGPopupMenu* fMenuEdit;
    TGPopupMenu* fMenuHelp;
    enum {
       M_GRIDS_NEW,
@@ -34,7 +35,12 @@ class KVIDGridManagerGUI: public TGMainFrame {
       M_GRIDS_DEL_SEL,
       M_GRIDS_DEL_TAB,
       M_GRIDS_DEL_ALL,
-      M_GRIDS_RUNLIST,
+      M_GRIDS_SET_RUNLIST,
+      M_GRIDS_SET_VARX,
+      M_GRIDS_SET_VARY,
+      M_GRIDS_SET_MASSFORM,
+      M_GRIDS_SET_ZID,
+      M_GRIDS_CLEAR,
       ID_LIST_BOX,
       M_QUIT
    };
@@ -145,4 +151,5 @@ public:
 
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
    TFile* TestIdentificationWithTree(KVIDGraph* gr, const Char_t* name_of_data_histo);
+   void StartEditor(TObject*);
 };

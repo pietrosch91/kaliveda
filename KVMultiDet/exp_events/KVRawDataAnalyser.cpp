@@ -52,15 +52,16 @@ void KVRawDataAnalyser::ProcessRun()
       if (fRunFile) delete fRunFile;
       return;
    }
+
    //warning! real number of run may be different from that deduced from file name
-   //we get the real run number from gMultiDetArray and use it to name any new files
-   if (!gMultiDetArray)
-      Error("ProcessRun", "invalid gMultiDetArray pointer ... Go to crash");
-   Int_t newrun = gMultiDetArray->GetCurrentRunNumber();
-   if (newrun != fRunNumber) {
+   //we get the real run number from the data and use it to name any new files
+   Int_t newrun = fRunFile->GetRunNumberReadFromFile();
+   if (newrun && newrun != fRunNumber) {
       cout << " *** WARNING *** run number read from file = " << newrun << endl;
       fRunNumber = newrun;
    }
+
+   KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), fRunNumber);
 
    fEventNumber = 1; //event number
 
@@ -68,7 +69,8 @@ void KVRawDataAnalyser::ProcessRun()
    if (nevents <= 0) {
       nevents = 1000000000;
       cout << endl << "Reading all events from file " << raw_file.Data() << endl;
-   } else {
+   }
+   else {
       cout << endl << "Reading " << nevents << " events from file " << raw_file.Data() << endl;
    }
 
@@ -217,7 +219,8 @@ void KVRawDataAnalyser::AddHisto(TH1* h, const Char_t* family)
          // use top-level directory name as name of fHistoList
          fHistoList.SetName(dir.Data());
          sublist = &fHistoList;
-      } else {
+      }
+      else {
          KVHashList* sublist2 = (KVHashList*)sublist->FindObject(dir.Data());
          if (!sublist2) {
             sublist2 = new KVHashList;
@@ -243,7 +246,8 @@ void KVRawDataAnalyser::SaveSpectra(const Char_t* filename)
    if (strcmp(fHistoList.GetName(), "KVHashList")) {
       // list has been given a name => have directory structure
       fHistoList.Write(fHistoList.GetName(), TObject::kSingleKey);
-   } else {
+   }
+   else {
       fHistoList.Write();
    }
    savegard->Write();
@@ -290,7 +294,8 @@ TH1* KVRawDataAnalyser::FindHisto(const Char_t* path)
             Error("FindHisto", "path=%s. Cannot find %s in top-level.", path, subpath.Data());
             return 0;
          }
-      } else sublist = (KVHashList*)&fHistoList;
+      }
+      else sublist = (KVHashList*)&fHistoList;
       subpath = Path.Next();
       while (!Path.End()) {
          KVHashList* sublist2 = (KVHashList*)sublist->FindObject(subpath.Data());

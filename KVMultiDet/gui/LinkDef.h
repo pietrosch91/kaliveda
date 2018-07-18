@@ -23,7 +23,6 @@
 #pragma link C++ class KVTextDialog+;
 #pragma link C++ class KVTestListView+;
 #pragma link C++ class KVIDGridManagerGUI+;
-#pragma link C++ class KVNewGridDialog+;
 #pragma link C++ class KVNameValueListGUI+;
 #pragma link C++ class KVListView;
 #pragma link C++ class KVLVContainer;

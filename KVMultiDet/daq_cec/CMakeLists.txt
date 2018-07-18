@@ -11,7 +11,7 @@ endif()
 
 BUILD_KALIVEDA_MODULE(daq_cec
 	PARENT ${KVSUBPROJECT}
-	KVMOD_DEPENDS base
+        KVMOD_DEPENDS base geometry
 	LIB_EXCLUDE ${excluded_classes}
         EXTRA_LIBS ${libs_to_link}
 )

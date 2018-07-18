@@ -58,6 +58,7 @@ ClassImp(KVINDRADB)
 
 void KVINDRADB::init()
 {
+   fDBType = "INDRADB";
 
    fChIoPressures = AddTable("ChIo Pressures", "Pressures of ChIo");
    fTapes = AddTable("Tapes", "List of data storage tapes");
@@ -1012,20 +1013,6 @@ void KVINDRADB::GoodRunLine()
    else {
       Error("GoodRunLine", "Run %d already exists", run_n);
    }
-}
-//__________________________________________________________________________________________________________________
-
-const Char_t* KVINDRADB::GetDBEnv(const Char_t* type) const
-{
-   //Will look for gEnv->GetValue name "name_of_dataset.INDRADB.type"
-   //then "INDRADB.type" if no dataset-specific value is found.
-
-   if (!gDataSetManager)
-      return "";
-   KVDataSet* ds = gDataSetManager->GetDataSet(fDataSet.Data());
-   if (!ds)
-      return "";
-   return ds->GetDataSetEnv(Form("INDRADB.%s", type));
 }
 
 //____________________________________________________________________________

@@ -180,13 +180,15 @@ Bool_t KVDataRepository::Init()
          Error("Init", "Executable for bbftp client not found. Check %s.DataRepository.FileTransfer.type",
                GetName());
       }
-   } else if (fTransfertype.Contains("sftp")) {
+   }
+   else if (fTransfertype.Contains("sftp")) {
       fTransferExec = fTransfertype;
       fTransfertype = "sftp";
       if (!KVBase::FindExecutable(fTransferExec)) {
          fTransferExec = "";
       }
-   } else if (fTransfertype.Contains("root")) {
+   }
+   else if (fTransfertype.Contains("root")) {
       fTransferExec = "root";
       fTransfertype = "xrd";
       if (!fXRDtunnel) fTransferExec = "";  // must have viable SSH tunnel description
@@ -390,7 +392,8 @@ const Char_t* KVDataRepository::GetFullPathToOpenFile(const KVDataSet* dataset,
    TString read_root;
    if (read_proto != fReadprotocol) {
       SetFullPath(read_root, read_proto.Data());
-   } else {
+   }
+   else {
       read_root = fReadroot;
    }
    TString tmp, datasetdir = dataset->GetDataPathSubdir();
@@ -574,7 +577,8 @@ KVUniqueNameList* KVDataRepository::GetDirectoryListing(const KVDataSet* dataset
       if (direntry->GetString() == "." || direntry->GetString() == "..") {
          //skip "." and ".."
          delete direntry;
-      } else {
+      }
+      else {
          dirlist->Add(new KVBase(direntry->GetString().Data()));
          delete direntry;
       }
@@ -763,8 +767,9 @@ TSystem* KVDataRepository::FindHelper(const char* path, void* dirptr)
 #else
          helper = new TNetSystem(path, kFALSE);
 #endif
-   } else if (!strcmp(url.GetProtocol(), "http") &&
-              pname.BeginsWith("http")) {
+   }
+   else if (!strcmp(url.GetProtocol(), "http") &&
+            pname.BeginsWith("http")) {
       // http ...
       if ((h = gROOT->GetPluginManager()->FindHandler("TSystem", path)) &&
             h->LoadPlugin() == 0)
@@ -772,7 +777,8 @@ TSystem* KVDataRepository::FindHelper(const char* path, void* dirptr)
       else {
          ;  // no default helper yet
       }
-   } else if ((h = gROOT->GetPluginManager()->FindHandler("TSystem", path))) {
+   }
+   else if ((h = gROOT->GetPluginManager()->FindHandler("TSystem", path))) {
       if (h->LoadPlugin() == -1)
          return 0;
       helper = (TSystem*) h->ExecPlugin(0);
@@ -1047,12 +1053,16 @@ TObject* KVDataRepository::OpenDataSetFile(const KVDataSet* ds, const Char_t* ty
    //
    //name_of_dataset.DataSet.RunFileClass.data_type:     BaseClassName
    //
-   //The actual class to be used is then defined by plugins in $KVROOT/KVFiles/.kvrootrc,
-   //for example
+   //The actual class to be used is then defined by plugins in $KVROOT/KVFiles/.kvrootrc, for example
    //
-   //Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
+   //name_of_dataset.DataSet.RunFileClass.data_type:     plugin_name
    //
-   //which defines the plugin for raw data for all datasets whose name begins with "INDRA"
+   //where 'plugin_name' is one of the known plugins for the default base class for the given data_type,
+   //i.e. if data_type="raw" we could use one of either "GANIL" or "MFM" as plugin_name:
+   //
+   //Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetexp_events    "KVGANILDataReader()"
+   //+Plugin.KVRawDataReader:    MFM    KVMFMDataFileReader     KVMultiDetdaq_cec    "KVMFMDataFileReader()"
+   //
    //If no plugin is found for the base class defined by DataSet.RunFileClass, the base class is used.
    //
    //To actually open the file, each base class & plugin must define a method
@@ -1063,17 +1073,25 @@ TObject* KVDataRepository::OpenDataSetFile(const KVDataSet* ds, const Char_t* ty
    // check connection to repository (e.g. SSH tunnel) in case of remote repository
    if (!IsConnected()) return nullptr;
 
-   //get base class for dataset & type
-   KVString base_class = ds->GetDataSetEnv(Form("DataSet.RunFileClass.%s", type));
+   //get class for dataset & type
+   KVString plugin_class = ds->GetDataSetEnv(Form("DataSet.RunFileClass.%s", type));
 
-   //look for plugin specific to dataset & type
-   TPluginHandler* ph = LoadPlugin(base_class.Data(), Form("%s.%s", type, ds->GetName()));
+   TPluginHandler* ph = nullptr;
+   KVString base_class;
+   if (IsThisAPlugin(plugin_class, base_class)) {
 
+      //look for plugin specific to dataset & type
+      ph = LoadPlugin(base_class, plugin_class);
+
+   }
+   else
+      base_class = plugin_class;
    TClass* cl;
    if (!ph) {
       //no plugin - use base class
       cl = TClass::GetClass(base_class.Data());
-   } else {
+   }
+   else {
       cl = TClass::GetClass(ph->GetClass());
    }
 
@@ -1082,7 +1100,8 @@ TObject* KVDataRepository::OpenDataSetFile(const KVDataSet* ds, const Char_t* ty
    if (strcmp(opt, "")) {
       //Open with option
       methcall = new  TMethodCall(cl, "Open", Form("\"%s\", \"%s\"", fname.Data(), opt));
-   } else {
+   }
+   else {
       //Open without option
       methcall = new  TMethodCall(cl, "Open", Form("\"%s\"", fname.Data()));
    }

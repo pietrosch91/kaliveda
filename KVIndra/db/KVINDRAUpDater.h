@@ -11,7 +11,7 @@ $Author: franklan $
 #include "KVUpDater.h"
 
 class KVDBRun;
-
+class KVINDRA;
 class KVINDRAUpDater: public KVUpDater {
 
 public:
@@ -19,7 +19,7 @@ public:
    KVINDRAUpDater();
    virtual ~ KVINDRAUpDater()
    {
-   };
+   }
 
    virtual void SetParameters(UInt_t run);
    virtual void SetCalibrationParameters(UInt_t);
@@ -39,6 +39,8 @@ public:
    virtual void SetPHDs(KVDBRun*);
    virtual void SetChIoSiPedestals(KVDBRun*);
    virtual void SetCsIPedestals(KVDBRun*);
+
+   KVINDRA* GetINDRA();
 
    ClassDef(KVINDRAUpDater, 0)  //Class handling setting of INDRA parameters for each run
 };

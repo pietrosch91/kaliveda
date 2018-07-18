@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
    TFile f(Form("idmaps_%d.root", first_frame), "recreate");
 
    KVHashList my_hists;
-   TString idtypes[] = {"Si-CsI", "CsI", "CSI", "SI-CSI", ""};
+   TString idtypes[] = {"Si-Si", "Si-CsI", "CsI", "CSI", "SI-CSI", ""};
    int iid = 0;
    while (idtypes[iid] != "") {
       f.mkdir(idtypes[iid]);
@@ -47,7 +47,8 @@ int main(int argc, char* argv[])
             if (idt->GetDetector(1)->InheritsFrom("KVFAZIADetector")) {
                if (((KVFAZIADetector*)idt->GetDetector(1))->GetBlockNumber() == 1) {
 
-                  if (idtypes[iid] == "Si-CsI") my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 4000, 2000, 0, 300));
+                  if (idtypes[iid] == "Si-Si") my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 1000, 2000, 0, 1000));
+                  else if (idtypes[iid] == "Si-CsI") my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 4000, 2000, 0, 500));
                   else my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 4000, 0, 2000, 4000, 0, 3000));
                }
             }

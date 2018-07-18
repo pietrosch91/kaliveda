@@ -4,13 +4,12 @@
 #include "KVGANILDataReader.h"
 #include "GTGanilData.h"
 #include "GTOneScaler.h"
-#include "KVDataSet.h"
-#include "KVMultiDetArray.h"
 #include "TSystem.h"
 #include "TUrl.h"
 #include "TPluginManager.h"
 #include "RVersion.h"
 #include <TInterpreter.h>
+#include "TEnv.h"
 
 ClassImp(KVGANILDataReader)
 
@@ -59,7 +58,7 @@ You need to add "SCALERS" to the option given to method <a href="#KVGANILDataRea
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVGANILDataReader::KVGANILDataReader(const Char_t* file)
+KVGANILDataReader::KVGANILDataReader(const Char_t* file, Option_t* dataset)
 {
    //Open and initialise a GANIL data file for reading.
    //By default, Scaler buffers are ignored.
@@ -67,16 +66,9 @@ KVGANILDataReader::KVGANILDataReader(const Char_t* file)
    //To test if file is open, use IsOpen().
    //The basename of the file (excluding any path) can be obtained using GetName()
    //The full pathname of the file can be obtained using GetTitle()
-   //
-   //If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
-   //to the correct dataset, this will allow to build the necessary multidetector object if it has not already
-   //been done, and to set the calibration parameters etc. as a function of the run number.
-   //
-   //If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
-   //then a list of KVACQParam objects will be generated and connected ready for reading the data.
 
    init();
-   OpenFile(file);
+   OpenFile(file, dataset);
 }
 
 KVGANILDataReader::~KVGANILDataReader()
@@ -243,7 +235,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    fUserTree->GetUserInfo()->Add(parlist);
 }
 
-void KVGANILDataReader::OpenFile(const Char_t* file)
+void KVGANILDataReader::OpenFile(const Char_t* file, Option_t* dataset)
 {
    //Open and initialise a GANIL data file for reading.
    //By default, scaler buffers are ignored.
@@ -255,22 +247,13 @@ void KVGANILDataReader::OpenFile(const Char_t* file)
    //To test if file is open, use IsOpen().
    //The basename of the file (excluding any path) can be obtained using GetName()
    //The full pathname of the file can be obtained using GetTitle()
-   //
-   //If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
-   //to the correct dataset, the associated multidetector object with the calibration parameters etc.
-   //for the run will be built (any previously existing object pointed to by gMultiDetArray will
-   //be deleted beforehand)
-   //
-   //If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
-   //then a list of KVACQParam objects will be generated and connected ready for reading the data.
-   //This list can be obtained with method GetRawDataParameters().
 
    if (fGanilData) {
       delete fGanilData;
       fGanilData = 0;
    }
 
-   fGanilData = NewGanTapeInterface();
+   fGanilData = NewGanTapeInterface(dataset);
 
    fGanilData->SetFileName(file);
    SetName(gSystem->BaseName(file));
@@ -310,26 +293,21 @@ void KVGANILDataReader::OpenFile(const Char_t* file)
          return;
       }
    }
-   // if this data belongs to a known (and currently active dataset), we
-   // build the corresponding multidetector array corresponding to the run
-   if (gDataSet)
-      KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), fGanilData->GetRunNumber());
-
-   ConnectRawDataParameters();
 }
 
 //__________________________________________________________________________
 
-void KVGANILDataReader::ConnectRawDataParameters()
+void KVGANILDataReader::ConnectRawDataParameters(const TSeqCollection* list_acq_params)
 {
-   //Private utility method called by KVGANILDataReader ctor.
+   //Call this method in order to initialise links between data in file and KVACQParam
+   //objects associated with detectors.
+   //
    //fParameters is filled with a KVACQParam for every acquisition parameter in the file.
-   //If there exists a gMultiDetArray corresponding to this data, we use the KVACQParams
-   //already defined for the detectors of the array whenever possible.
-   //For any parameters for which no KVACQParam already exists (a fortiori if no
-   //gMultiDetArray exists) we create new KVACQParam objects which will be deleted
-   //with this KVGANILDataReader (these objects can be accessed from the list
+   //The list contains all KVACQParams defined for the detectors of a multidetector array.
+   //For any parameters for which no KVACQParam is found in the list we create new KVACQParam
+   //objects which will be deleted with this KVGANILDataReader (these objects can be accessed from the list
    //returned by GetUnknownParameters()).
+   //
    //To access the full list of data parameters in the file after this method has been
    //called (i.e. after the file is opened), use GetRawDataParameters().
 
@@ -337,7 +315,7 @@ void KVGANILDataReader::ConnectRawDataParameters()
    KVACQParam* par;
    GTDataPar* daq_par;
    while ((daq_par = (GTDataPar*) next())) {//loop over all parameters
-      par = CheckACQParam(daq_par->GetName());
+      par = CheckACQParam(list_acq_params, daq_par->GetName());
       fGanilData->Connect(par->GetName(), par->ConnectData());
       par->SetNumber(daq_par->Index());
       par->SetNbBits(daq_par->Bits());
@@ -347,7 +325,7 @@ void KVGANILDataReader::ConnectRawDataParameters()
 
 //___________________________________________________________________________
 
-KVACQParam* KVGANILDataReader::CheckACQParam(const Char_t* par_name)
+KVACQParam* KVGANILDataReader::CheckACQParam(const TSeqCollection* list_acq_params, const Char_t* par_name)
 {
    //Check the named acquisition parameter.
    //We look for a corresponding parameter in the list of acq params belonging to
@@ -355,7 +333,7 @@ KVACQParam* KVGANILDataReader::CheckACQParam(const Char_t* par_name)
    //If none is found, we create a new acq param which is added to the list of "unknown parameters"
 
    KVACQParam* par;
-   if (!gMultiDetArray || !(par = gMultiDetArray->GetACQParam(par_name))) {
+   if (!(par = (KVACQParam*)list_acq_params->FindObject(par_name))) {
       //create new unknown parameter
       par = new KVACQParam;
       par->SetName(par_name);
@@ -400,16 +378,13 @@ Bool_t KVGANILDataReader::GetNextEvent()
 
 //___________________________________________________________________________
 
-GTGanilData* KVGANILDataReader::NewGanTapeInterface()
+GTGanilData* KVGANILDataReader::NewGanTapeInterface(Option_t* dataset)
 {
    // Creates and returns new instance of class derived from GTGanilData used to read GANIL acquisition data
    // Actual class is determined by Plugin.GTGanilData in environment files and name of dataset.
-   // If no dataset is defined, we use the default GTGanilData object.
 
    //check and load plugin library
-   TString dsname = "any";
-   if (gDataSet) dsname = gDataSet->GetName();
-   TPluginHandler* ph = LoadPlugin("GTGanilData", dsname);
+   TPluginHandler* ph = LoadPlugin("GTGanilData", dataset);
    if (!ph) {
       // default: GTGanilData
       return (new GTGanilData);
@@ -428,10 +403,11 @@ GTGanilData* KVGANILDataReader::GetGanTapeInterface()
 
 //____________________________________________________________________________
 
-KVGANILDataReader* KVGANILDataReader::Open(const Char_t* filename, Option_t*)
+KVGANILDataReader* KVGANILDataReader::Open(const Char_t* filename, Option_t* dataset)
 {
    //Static method, used by KVDataSet::Open
-   return new KVGANILDataReader(filename);
+   //The name of the dataset is passed in the option string
+   return new KVGANILDataReader(filename, dataset);
 }
 
 //____________________________________________________________________________
@@ -475,6 +451,13 @@ Int_t KVGANILDataReader::GetScalerStatus(Int_t index) const
 Int_t KVGANILDataReader::GetEventCount() const
 {
    return fGanilData->GetEventCount();
+}
+
+Int_t KVGANILDataReader::GetRunNumberReadFromFile() const
+{
+   // Return run number of file being read.
+   // Only call when file has been successfully opened.
+   return fGanilData->GetRunNumber();
 }
 
 

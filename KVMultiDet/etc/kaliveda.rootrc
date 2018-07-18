@@ -70,6 +70,12 @@ DataSet.RunFileClass.recon:    TFile
 DataSet.RunFileClass.ident:    TFile
 DataSet.RunFileClass.root:    TFile
 
+# Plugins for reading raw data
+# Syntax:
+# Plugin.KVRawDataReader:    name_of_plugin    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetexp_events    "KVGANILDataReader()"
++Plugin.KVRawDataReader:    MFM    KVMFMDataFileReader     KVMultiDetdaq_cec    "KVMFMDataFileReader()"
+
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
 # Default name of database object in file
@@ -114,6 +120,8 @@ SimEventFilterAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 +DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
+Reconstruction.DataAnalysisTask.Analyser:     RawDataReconstructor
+Reconstruction.DataAnalysisTask.UserClass:     no
 Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     ReconAnalysis
@@ -172,6 +180,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootB
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirFilterAnalyser         KVSimDirFilterAnalyser        KVMultiDetexp_events   "KVSimDirFilterAnalyser()"
++Plugin.KVDataAnalyser:   RawDataReconstructor         KVRawDataReconstructor        KVMultiDetexp_events   "KVRawDataReconstructor()"
 
 +Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
 +Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"

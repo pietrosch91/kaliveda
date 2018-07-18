@@ -39,7 +39,7 @@ void KVINDRAUpDater::SetParameters(UInt_t run)
 {
    //Set the parameters of INDRA for this run
    //This will:
-   //      set the multiplicity trigger of gIndra using the database value for the run
+   //      set the multiplicity trigger of fArray using the database value for the run
    //      set special detector gains for run (if any)
    //      set the target corresponding to the run
    //      set the ChIo pressures for the run
@@ -49,7 +49,7 @@ void KVINDRAUpDater::SetParameters(UInt_t run)
 
    cout << "Setting parameters of INDRA array for run " << run << ":" <<
         endl;
-   KVDBRun* kvrun = gIndraDB->GetRun(run);
+   KVDBRun* kvrun = gExpDB->GetDBRun(run);
    if (!kvrun) {
       Error("SetParameters(UInt_t)", "Run %u not found in database!", run);
       return;
@@ -79,13 +79,13 @@ void KVINDRAUpDater::SetCalibrationParameters(UInt_t run)
 
    cout << "Setting calibration parameters of INDRA array for run " << run << ":" <<
         endl;
-   KVDBRun* kvrun = gIndraDB->GetRun(run);
+   KVDBRun* kvrun = gExpDB->GetDBRun(run);
    if (!kvrun) {
       Error("SetParameters(UInt_t)", "Run %u not found in database!", run);
       return;
    }
    //Reset all calibrators of all detectors first
-   TIter next(gIndra->GetListOfDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* kvd;
    KVCalibrator* kvc;
    while ((kvd = (KVDetector*) next())) {
@@ -107,8 +107,8 @@ void KVINDRAUpDater::SetTrigger(KVDBRun* kvrun)
    //Set trigger used during this run
 
    cout << "--> Setting Trigger:" << endl;
-   gIndra->SetTrigger(kvrun->GetTrigger());
-   cout << "      M>=" << (Int_t)gIndra->GetTrigger() << endl;
+   GetINDRA()->SetTrigger(kvrun->GetTrigger());
+   cout << "      M>=" << (Int_t)GetINDRA()->GetTrigger() << endl;
 }
 
 
@@ -120,7 +120,7 @@ void KVINDRAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
    KVRList* oooacq = kvrun->GetLinks("OoO ACQPars");
    KVRList* ooodet = kvrun->GetLinks("OoO Detectors");
 
-   TIter next(gIndra->GetListOfDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* det;
    KVACQParam* acq;
 
@@ -132,11 +132,13 @@ void KVINDRAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
       //Test de la presence ou non du detecteur
       if (!absdet) {
          det->SetPresent();
-      } else {
+      }
+      else {
          if (absdet->FindObject(det->GetName(), "Absent Detector")) {
             det->SetPresent(kFALSE);
             ndet_absent += 1;
-         } else {
+         }
+         else {
             det->SetPresent();
          }
       }
@@ -144,11 +146,13 @@ void KVINDRAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
          //Test du bon fonctionnement ou non du detecteur
          if (!ooodet) {
             det->SetDetecting();
-         } else {
+         }
+         else {
             if (ooodet->FindObject(det->GetName(), "OoO Detector")) {
                det->SetDetecting(kFALSE);
                ndet_ooo += 1;
-            } else {
+            }
+            else {
                det->SetDetecting();
             }
          }
@@ -159,14 +163,16 @@ void KVINDRAUpDater::CheckStatusOfDetectors(KVDBRun* kvrun)
                while ((acq = (KVACQParam*)next_acq())) {
                   acq->SetWorking();
                }
-            } else {
+            }
+            else {
                Int_t noff = 0;
                while ((acq = (KVACQParam*)next_acq())) {
                   if (oooacq->FindObject(acq->GetName(), "OoO ACQPar")) {
                      acq->SetWorking(kFALSE);
                      noff += 1;
                      nacq_ooo += 1;
-                  } else {
+                  }
+                  else {
                      acq->SetWorking();
                   }
                }
@@ -195,7 +201,7 @@ void KVINDRAUpDater::SetGains(KVDBRun* kvrun)
    //First all detector gains are set to 1.
    //Then, any detectors for which a different gain has been defined
    //will have its gain set to the value for the run
-   TIter next(gIndra->GetListOfDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* kvd;
    while ((kvd = (KVDetector*) next()))
       kvd->SetGain(1.00);
@@ -208,12 +214,13 @@ void KVINDRAUpDater::SetGains(KVDBRun* kvrun)
    cout << "      Setting gains for " << ndets << " detectors : " << endl;
    for (int i = 0; i < ndets; i++) {
       KVDBParameterSet* dbps = (KVDBParameterSet*) gain_list->At(i);
-      kvd = gIndra->GetDetector(dbps->GetName());
+      kvd = fArray->GetDetector(dbps->GetName());
       if (kvd) {
          kvd->SetGain(dbps->GetParameter(0));
          cout << "             " << kvd->GetName() << " : G=" << kvd->
               GetGain() << endl;
-      } else {
+      }
+      else {
          Error("SetGains", "le detecteur %s n ext pas present", dbps->GetName());
       }
    }
@@ -254,10 +261,10 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun* kvrun)
    KVChIo* kvd;
    KVDBChIoPressures* kvps;
    TIter next_ps(param_list);
-   KVSeqCollection* chios = gIndra->GetListOfChIo();
+   KVSeqCollection* chios = GetINDRA()->GetListOfChIo();
    if (!chios) {
       Error("SetChIoPressures",
-            "gIndra->GetListOfChIo() returns null list pointer");
+            "fArray->GetListOfChIo() returns null list pointer");
       return;
    }
    cout << "--> Setting ChIo pressures" << endl;
@@ -288,7 +295,8 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun* kvrun)
                kvd->SetPressure(kvps->GetPressure(CHIO_13_17));
             if (kvd->GetPressure() == 0.0) {
                kvd->SetDetecting(kFALSE);
-            } else {
+            }
+            else {
                kvd->SetDetecting(kTRUE);
             }
          }
@@ -321,7 +329,7 @@ void KVINDRAUpDater::SetChVoltParameters(KVDBRun* kvrun)
    while ((kvps = (KVDBParameterSet*) next_ps())) {     // boucle sur les parametres
       str = kvps->GetName();
       str.Remove(str.Sizeof() - 4, 3);  //Removing 3 last letters (ex : "_PG")
-      kvd = gIndra->GetDetector(str.Data());
+      kvd = fArray->GetDetector(str.Data());
       if (!kvd)
          Warning("SetChVoltParameters(UInt_t)", "Dectector %s not found !",
                  str.Data());
@@ -360,13 +368,14 @@ void KVINDRAUpDater::SetVoltEnergyChIoSiParameters(KVDBRun* kvrun)
 
    // Setting Channel-Volts calibration parameters
    while ((kvps = (KVDBParameterSet*) next_ps())) {     // boucle sur les parametres
-      kvd = gIndra->GetDetector(kvps->GetName());
+      kvd = fArray->GetDetector(kvps->GetName());
       if (!kvd) {
          /*
          Warning("SetVoltEnergyParameters(UInt_t)",
                  "Dectector %s not found !", kvps->GetName());
          */
-      } else {                  // detector found
+      }
+      else {                    // detector found
          kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());
          if (!kvc)
             Warning("SetVoltEnergyParameters(UInt_t)",
@@ -412,7 +421,7 @@ void KVINDRAUpDater::SetCsIGainCorrectionParameters(KVDBRun* kvrun)
    // We set all detectors' correction to 1, then set the corrections defined for this
    // run, if any.
 
-   TIter next_csi(gIndra->GetListOfCsI());
+   TIter next_csi(GetINDRA()->GetListOfCsI());
    KVCsI* csi;
    while ((csi = (KVCsI*)next_csi())) {
       csi->SetTotalLightGainCorrection(1.0);
@@ -430,12 +439,12 @@ void KVINDRAUpDater::SetCsIGainCorrectionParameters(KVDBRun* kvrun)
    KVDBParameterSet* dbps;
    while ((dbps = (KVDBParameterSet*)next_ps())) {
 
-      csi = (KVCsI*)gIndra->GetDetector(dbps->GetName());
+      csi = (KVCsI*)fArray->GetDetector(dbps->GetName());
       if (!csi) {
          // the name of the parameter set should be the name of the detector;
          // however, it may be the name of an acquisition parameter associated with
          // the detector!
-         KVACQParam* a = gIndra->GetACQParam(dbps->GetName());
+         KVACQParam* a = fArray->GetACQParam(dbps->GetName());
          if (a) csi = (KVCsI*)a->GetDetector();
          // still no good ?
          if (!csi) {
@@ -467,7 +476,7 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun* kvrun)
 
       while ((kvps = (KVDBParameterSet*) next_ps())) {     // boucle sur les parametres
          str = kvps->GetName();
-         kvd = gIndra->GetDetector(str.Data());
+         kvd = fArray->GetDetector(str.Data());
          if (!kvd)
             Warning("SetLitEnergyCsIParameters(UInt_t)",
                     "Dectector %s not found !", str.Data());
@@ -502,7 +511,7 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun* kvrun)
    TIter next_ps2(param_list);
    while ((kvps = (KVDBParameterSet*) next_ps2())) {     // boucle sur les parametres
       str = kvps->GetName();
-      kvd = gIndra->GetDetector(str.Data());
+      kvd = fArray->GetDetector(str.Data());
       if (!kvd)
          Warning("SetLitEnergyCsIParameters(UInt_t)",
                  "Dectector %s not found !", str.Data());
@@ -562,7 +571,7 @@ void KVINDRAUpDater::SetChIoSiPedestals(KVDBRun* kvrun)
       file_pied_chiosi >> cou >> mod >> type >> n_phys >> ave_phys >>
                        sig_phys >> n_gene >> ave_gene >> sig_gene;
 
-      KVDetector* det = gIndra->GetDetectorByType(cou, mod, type);
+      KVDetector* det = GetINDRA()->GetDetectorByType(cou, mod, type);
       if (det) {
          switch (type) {
 
@@ -653,7 +662,7 @@ void KVINDRAUpDater::SetCsIPedestals(KVDBRun* kvrun)
       file_pied_csi >> cou >> mod >> type >> n_phys >> ave_phys >> sig_phys
                     >> n_gene >> ave_gene >> sig_gene;
 
-      KVDetector* det = gIndra->GetDetectorByType(cou, mod, type);
+      KVDetector* det = GetINDRA()->GetDetectorByType(cou, mod, type);
       if (det) {
          switch (type) {
 
@@ -676,6 +685,11 @@ void KVINDRAUpDater::SetCsIPedestals(KVDBRun* kvrun)
    file_pied_csi.close();
 }
 
+KVINDRA* KVINDRAUpDater::GetINDRA()
+{
+   return (KVINDRA*)fArray;
+}
+
 //_______________________________________________________________________________________
 
 void KVINDRAUpDater::SetPHDs(KVDBRun*)
@@ -686,7 +700,7 @@ void KVINDRAUpDater::SetPHDs(KVDBRun*)
    //is read and used to set the (Moulton) pulse-height defect parameters of all silicon
    //detectors.
 
-   TString phdfile = gIndraDB->GetDBEnv("PHD");
+   TString phdfile = gExpDB->GetDBEnv("PHD");
 
    if (phdfile != "") {
       cout << "--> Setting Si pulse height defect parameters (Moulton)" << endl;
@@ -700,7 +714,7 @@ void KVINDRAUpDater::SetPHDs(KVDBRun*)
             Error("SetPHDs", "TEnv::ReadFile != 0, cannot read PHD file");
          }
          //loop over all silicons
-         TIter next_si(gIndra->GetListOfSi());
+         TIter next_si(GetINDRA()->GetListOfSi());
          KVSilicon* si;
          while ((si = (KVSilicon*)next_si())) {
             Int_t group = phds.GetValue(si->GetName(), 0);
@@ -715,8 +729,9 @@ void KVINDRAUpDater::SetPHDs(KVDBRun*)
             }
          }
          //set flag in INDRA to say this has been done
-         gIndra->PHDSet();
-      } else {
+         GetINDRA()->PHDSet();
+      }
+      else {
          Error("SetPHDs", "File %s not found", phdfile.Data());
       }
    }
