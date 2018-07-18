@@ -4,5 +4,4 @@
 #pragma link off all functions;
 #pragma link C++ class KVINDRARunSheetGUI;
 #pragma link C++ class KVIRSGChooseDataSetDialog;
-#pragma link C++ class KVNewGridRRMDialog;
 #endif

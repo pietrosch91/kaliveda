@@ -145,9 +145,6 @@ public:
    const Char_t* GetDataSetEnv(const Char_t* type, const Char_t* defval = "") const;
    Double_t GetDataSetEnv(const Char_t* type, Double_t defval) const;
    Bool_t GetDataSetEnv(const Char_t* type, Bool_t defval) const;
-   static const Char_t* GetDataSetEnv(const Char_t* dataset, const Char_t* type, const Char_t* defval);
-   static Double_t GetDataSetEnv(const Char_t* dataset, const Char_t* type, Double_t defval);
-   static Bool_t GetDataSetEnv(const Char_t* dataset, const Char_t* type, Bool_t defval);
 
    TString GetFullPathToRunfile(const Char_t* type, Int_t run) const;
    const Char_t* GetRunfileName(const Char_t* type, Int_t run) const;
@@ -156,6 +153,10 @@ public:
    FileType* OpenRunfile(const Char_t* type, Int_t run)
    {
       return dynamic_cast<FileType*>(open_runfile(type, run));
+   }
+   TObject* OpenRunfile(const Char_t* type, Int_t run)
+   {
+      return open_runfile(type, run);
    }
 
    Bool_t CheckRunfileAvailable(const Char_t* type, Int_t run);

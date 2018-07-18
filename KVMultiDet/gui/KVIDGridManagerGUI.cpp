@@ -10,7 +10,6 @@
 #include <TROOT.h>
 #include <TGLayout.h>
 #include <TCanvas.h>
-#include <KVNewGridDialog.h>
 #include <KVTestIDGridDialog.h>
 #include "KVConfig.h"
 #include <KVIDGUITelescopeChooserDialog.h>
@@ -71,16 +70,6 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
 
    /**************** GRIDS popup menu *****************/
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
-   //fMenuFile->AddEntry("&New grid...", M_GRIDS_NEW);
-   //fMenuFile->AddSeparator();
-   //fMenuFile->AddEntry("&Read grids...", M_GRIDS_READ);
-
-   /* cascading "Set..." menu... */
-   //TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
-   //sgm->AddEntry("List of Runs", M_GRIDS_RUNLIST);
-// sgm->AddEntry("...in tab", M_GRIDS_DEL_TAB);
-// sgm->AddEntry("...all", M_GRIDS_DEL_ALL);
-   //fMenuFile->AddPopup("Set...", sgm);
    /* cascading "Save grids" menu... */
    TGPopupMenu* sgm = new TGPopupMenu(gClient->GetRoot());
    sgm->AddEntry("Selected", M_GRIDS_SAVE_SEL);
@@ -104,11 +93,25 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 3
 //   fMenuHelp = new TGPopupMenu(gClient->GetRoot());
 //   fMenuHelp->AddEntry("About...", M_HELP_ABOUT);
    /******************MENUBAR*********************/
+
+   fMenuEdit = new TGPopupMenu(gClient->GetRoot());
+   sgm = new TGPopupMenu(gClient->GetRoot());
+   sgm->AddEntry("Runlist", M_GRIDS_SET_RUNLIST);
+   sgm->AddEntry("X Variable", M_GRIDS_SET_VARX);
+   sgm->AddEntry("Y Variable", M_GRIDS_SET_VARY);
+   //sgm->AddEntry("Mass Formula", M_GRIDS_SET_MASSFORM);
+   sgm->AddEntry("Z ID Only", M_GRIDS_SET_ZID);
+   fMenuEdit->AddPopup("Set...", sgm);
+   fMenuEdit->AddEntry("Clear", M_GRIDS_CLEAR);
+   fMenuEdit->Connect("Activated(Int_t)", "KVIDGridManagerGUI", this,
+                      "HandleGridsMenu(Int_t)");
+
    fMenuBarItemLayout =
       new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 //   fMenuBarHelpLayout = new TGLayoutHints(kLHintsTop | kLHintsRight);
    fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+   fMenuBar->AddPopup("&Edit", fMenuEdit, fMenuBarItemLayout);
 //   fMenuBar->AddPopup("&Help", fMenuHelp, fMenuBarHelpLayout);
 
    //add to main window
@@ -326,6 +329,12 @@ void KVIDGridManagerGUI::StartEditor()
    }
 }
 
+void KVIDGridManagerGUI::StartEditor(TObject* o)
+{
+   Info("StartEditor(TObject*)", "obj=%p", o);
+   StartEditor();
+}
+
 void KVIDGridManagerGUI::OpenRootFile()
 {
    static TString dir("$HISTOROOT");
@@ -416,8 +425,8 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
          }
          break;
 
-      case M_GRIDS_RUNLIST:
-         // set runlist for all selected grids in tab
+      case M_GRIDS_SET_RUNLIST:
+         // set runlist for all selected grids
          {
             if (!fSelectedGrid) break; // must have selected at least one grid
             TString runs = fSelectedGrid->GetRunList(); // fill dialog box with current runlist of selected grid
@@ -429,6 +438,61 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
             KVIDGraph* entry;
             while ((entry = (KVIDGraph*) next())) {
                entry->SetRunList(runs.Data());
+            }
+         }
+         break;
+      case M_GRIDS_SET_VARX:
+         // set varx for all selected grids
+         {
+            if (!fSelectedGrid) break; // must have selected at least one grid
+            TString runs = fSelectedGrid->GetVarX(); // fill dialog box with current runlist of selected grid
+            Bool_t ok_pressed = kFALSE;
+            new KVInputDialog(this, "Enter X variable for grid(s):", &runs, &ok_pressed,
+                              "");
+            if (!ok_pressed) break; // user pressed 'cancel' or otherwise closed the dialog
+            TIter next(fSelectedEntries);
+            KVIDGraph* entry;
+            while ((entry = (KVIDGraph*) next())) {
+               entry->SetVarX(runs.Data());
+            }
+         }
+         break;
+      case M_GRIDS_SET_VARY:
+         // set varx for all selected grids
+         {
+            if (!fSelectedGrid) break; // must have selected at least one grid
+            TString runs = fSelectedGrid->GetVarY(); // fill dialog box with current runlist of selected grid
+            Bool_t ok_pressed = kFALSE;
+            new KVInputDialog(this, "Enter Y variable for grid(s):", &runs, &ok_pressed,
+                              "");
+            if (!ok_pressed) break; // user pressed 'cancel' or otherwise closed the dialog
+            TIter next(fSelectedEntries);
+            KVIDGraph* entry;
+            while ((entry = (KVIDGraph*) next())) {
+               entry->SetVarY(runs.Data());
+            }
+         }
+         break;
+      case M_GRIDS_SET_ZID:
+         // set varx for all selected grids
+         {
+            if (!fSelectedGrid) break; // must have selected at least one grid
+            Bool_t runs = fSelectedGrid->IsOnlyZId(); // fill dialog box with current runlist of selected grid
+            TIter next(fSelectedEntries);
+            KVIDGraph* entry;
+            while ((entry = (KVIDGraph*) next())) {
+               entry->SetOnlyZId(!runs);
+            }
+         }
+         break;
+      case M_GRIDS_CLEAR:
+         // set varx for all selected grids
+         {
+            if (!fSelectedGrid) break; // must have selected at least one grid
+            TIter next(fSelectedEntries);
+            KVIDGraph* entry;
+            while ((entry = (KVIDGraph*) next())) {
+               entry->Clear();
             }
          }
          break;
@@ -478,7 +542,7 @@ void KVIDGridManagerGUI::OpenFile()
          int ngriread = gIDGridManager->GetGrids()->GetEntries() - ngri;
          SetStatus(Form("Read %d grids from file %s", ngriread, fi.fFilename));
          //set filename for Save
-         fFileName = fi.fFilename;
+         fFileName = gSystem->BaseName(fi.fFilename);
       }
       else {
          new TGMsgBox(fClient->GetDefaultRoot(), this, "ID Grid Manager",
@@ -686,6 +750,7 @@ void KVIDGridManagerGUI::SaveGridsAs(const TCollection* selection)
    TGFileInfo fi;
    fi.fFileTypes = filetypes;
    fi.fIniDir = StrDup(dir);
+   if (fFileName != "") fi.fFilename = StrDup(fFileName);
    new TGFileDialog(fClient->GetDefaultRoot(), this, kFDSave, &fi);
    if (fi.fFilename) {
       //if no ".xxx" ending given, we add ".dat"
@@ -697,7 +762,7 @@ void KVIDGridManagerGUI::SaveGridsAs(const TCollection* selection)
          //wrote file no problem
          SetStatus(Form("Saved %d grids in file %s", n_saved, filenam.Data()));
          //set file name for Save
-         fFileName = filenam;
+         fFileName = gSystem->BaseName(filenam);
       }
       else {
          new TGMsgBox(fClient->GetDefaultRoot(), this, "ID Grid Manager",
@@ -737,6 +802,7 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
       fIDGridList->ActivateSortButtons();
       fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                            "SelectionChanged()");
+      fIDGridList->SetDoubleClickAction("KVIDGridManagerGUI", this, "StartEditor(TObject*)");
       cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
                    kLHintsExpandX | kLHintsExpandY, 30,
                    10, 10, 10));
@@ -766,6 +832,7 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
       fIDGridList->ActivateSortButtons();
       fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                            "SelectionChanged()");
+      fIDGridList->SetDoubleClickAction("KVIDGridManagerGUI", this, "StartEditor(TObject*)");
       cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
                    kLHintsExpandX | kLHintsExpandY, 30,
                    10, 10, 10));

@@ -124,6 +124,7 @@ public:
                                      const Char_t* uri = "0");
    static const Char_t* GetPluginURI(const Char_t* base, const Char_t* plugin);
    static const Char_t* GetListOfPlugins(const Char_t* base);
+   static Bool_t IsThisAPlugin(const TString& uri, TString& base);
    static void OpenTempFile(TString& base, std::ofstream& fp);       /* open temp file with basename 'base' */
    static void GetTempFileName(TString& base);
 
@@ -186,6 +187,10 @@ public:
    virtual TObject* GetObject() const;
 
    static void PrintSplashScreen();
+   static const Char_t* GetDataSetEnv(const Char_t* dataset, const Char_t* type, const Char_t* defval);
+   static Double_t GetDataSetEnv(const Char_t* dataset, const Char_t* type, Double_t defval);
+   static Bool_t GetDataSetEnv(const Char_t* dataset, const Char_t* type, Bool_t defval);
+
 
    ClassDef(KVBase, 4)          //Base class for all KaliVeda objects
 };

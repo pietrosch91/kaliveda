@@ -774,7 +774,7 @@ TGraph* KVINDRA::GetPedestals(const Char_t* det_signal, const Char_t* det_type, 
    sgraph.Form("KVPed_%s_%s_%d_%d", det_signal, det_type, ring_number, GetCurrentRunNumber());
    if ((gr_ped = (TGraph*)gROOT->FindObject(sgraph.Data()))) return gr_ped;
 
-   if ((sltype = GetListOfDetectors()->GetSubListWithMethod(det_type, "GetType"))) {
+   if ((sltype = GetDetectors()->GetSubListWithMethod(det_type, "GetType"))) {
       KVString sring;
       sring.Form("%d", ring_number);
       if ((slring = sltype->GetSubListWithMethod(sring, "GetRingNumber"))) {

@@ -30,7 +30,7 @@ ClassImp(KVUpDater)
 //      void SetParameters (UInt_t run)
 //must be defined. This updates the current detector array gMultiDetArray with the
 //parameter values for the run found in the current gDataBase database.
-KVUpDater::KVUpDater()
+KVUpDater::KVUpDater() : fArray(nullptr)
 {
    //Default ctor for KVUpDater object.
 }
@@ -42,7 +42,12 @@ KVUpDater::~KVUpDater()
    //Destructor.
 }
 
-KVUpDater* KVUpDater::MakeUpDater(const Char_t* uri)
+void KVUpDater::SetArray(KVMultiDetArray* a)
+{
+   fArray = a;
+}
+
+KVUpDater* KVUpDater::MakeUpDater(const Char_t* uri, KVMultiDetArray* a)
 {
    //Looks for plugin (see $KVROOT/KVFiles/.kvrootrc) with name 'uri'(=name of dataset),
    //loads plugin library, creates object and returns pointer.
@@ -53,10 +58,12 @@ KVUpDater* KVUpDater::MakeUpDater(const Char_t* uri)
    KVUpDater* upd = 0;
    if (!(ph = KVBase::LoadPlugin("KVUpDater", uri))) {
       upd = new KVUpDater;
-   } else {
+   }
+   else {
       upd = (KVUpDater*) ph->ExecPlugin(0);
    }
    upd->fDataSet = uri;
+   upd->SetArray(a);
    return upd;
 }
 
@@ -92,16 +99,16 @@ void KVUpDater::SetTarget(KVDBRun* kvrun)
    cout << "--> Setting Target:" << endl;
 
    //remove existing target
-   gMultiDetArray->SetTarget(0);
+   fArray->SetTarget(0);
    if (!kvrun->GetSystem() || !kvrun->GetSystem()->GetTarget()) {
       cout << "      No target defined for run." << endl;
       return;
    }
 
-   gMultiDetArray->SetTarget((KVTarget*) kvrun->GetSystem()->GetTarget());
+   fArray->SetTarget((KVTarget*) kvrun->GetSystem()->GetTarget());
 
-   cout << "      " << gMultiDetArray->GetTarget()->
-        GetName() << " Total Thickness: " << gMultiDetArray->GetTarget()->
+   cout << "      " << fArray->GetTarget()->
+        GetName() << " Total Thickness: " << fArray->GetTarget()->
         GetTotalThickness()
         << " mg/cm2" << endl;
 }
@@ -116,7 +123,8 @@ void KVUpDater::SetIdentificationParameters(UInt_t run)
    cout << "Setting identification parameters of multidetector array for run " << run << ":" <<
         endl;
    SetIDGrids(run);
-   gMultiDetArray->InitializeIDTelescopes();
+   Info("SetIdentificationParameters", "Now");
+   fArray->InitializeIDTelescopes();
 }
 
 //________________________________________________________________________________________________
@@ -128,12 +136,12 @@ void KVUpDater::SetIDGrids(UInt_t run)
    // Then all grids for current run are set in the associated ID telescopes.
 
    cout << "--> Setting Identification Grids" << endl;
-   TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
+   TIter next_idt(fArray->GetListOfIDTelescopes());
    KVIDTelescope* idt;
    while ((idt = (KVIDTelescope*) next_idt())) {
       idt->RemoveGrids();
    }
-   gMultiDetArray->SetGridsInTelescopes(run);
+   fArray->SetGridsInTelescopes(run);
 }
 
 //_______________________________________________________________//
@@ -153,7 +161,7 @@ void KVUpDater::SetCalibrationParameters(UInt_t run)
       return;
    }
    //Reset all calibrators of all detectors first
-   TIter next(gMultiDetArray->GetDetectors());
+   TIter next(fArray->GetDetectors());
    KVDetector* kvd;
    KVCalibrator* kvc;
    while ((kvd = (KVDetector*) next())) {

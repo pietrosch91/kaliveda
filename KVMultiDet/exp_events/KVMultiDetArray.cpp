@@ -1706,15 +1706,15 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
       mda->Build(run);
       // if ROOT geometry is not allowed ([dataset_name].KVMultiDetArray.ROOTGeometry = no
       // or KVMultiDetArray.ROOTGeometry = no), disable it
-      mda->fROOTGeometry = KVDataSet::GetDataSetEnv(dataset_name, "KVMultiDetArray.ROOTGeometry", kTRUE);
+      mda->fROOTGeometry = KVBase::GetDataSetEnv(dataset_name, "KVMultiDetArray.ROOTGeometry", kTRUE);
       if (mda->fROOTGeometry) mda->CheckROOTGeometry();
       // set dataset-dependent lists of acceptable ID/E codes for reconstructed nuclei
-      KVString codes = KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptIDCodes", mda->GetName()), "");
+      KVString codes = KVBase::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptIDCodes", mda->GetName()), "");
       if (codes != "") mda->fAcceptIDCodes.Set(codes);
-      codes = KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptECodes", mda->GetName()), "");
+      codes = KVBase::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.AcceptECodes", mda->GetName()), "");
       if (codes != "") mda->fAcceptECodes.Set(codes);
       // set dataset-dependent condition for seeding reconstructed nuclei
-      mda->SetPartSeedCond(KVDataSet::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.ParticleSeedCond", mda->GetName()), ""));
+      mda->SetPartSeedCond(KVBase::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.ParticleSeedCond", mda->GetName()), ""));
    }
    else {
       mda = gMultiDetArray;
@@ -1738,10 +1738,9 @@ KVUpDater* KVMultiDetArray::GetUpDater()
    // then we use the updater plugin defined for the given dataset
 
    if (!fUpDater) {
-      KVString alt_updater = KVDataSet::GetDataSetEnv(fDataSet, Form("ExpSetUp.Updater.%s", GetName()), "");
-      Info("GetUpDater", "alt updater: %s", alt_updater.Data());
-      if (alt_updater != "") fUpDater = KVUpDater::MakeUpDater(alt_updater);
-      else fUpDater = KVUpDater::MakeUpDater(fDataSet);
+      KVString alt_updater = KVBase::GetDataSetEnv(fDataSet, Form("ExpSetUp.Updater.%s", GetName()), "");
+      if (alt_updater != "") fUpDater = KVUpDater::MakeUpDater(alt_updater, this);
+      else fUpDater = KVUpDater::MakeUpDater(fDataSet, this);
    }
    Info("GetUpDater", "updater class: %s", fUpDater->Class_Name());
    return fUpDater;
@@ -1903,7 +1902,9 @@ void KVMultiDetArray::InitializeIDTelescopes()
    // Calls Initialize() method of each identification telescope (see KVIDTelescope
    // and derived classes). This is essential before identification of particles is attempted.
 
-   fIDTelescopes->R__FOR_EACH(KVIDTelescope, Initialize)();
+   TIter next(fIDTelescopes);
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*)next())) idt->Initialize();
 }
 
 //_________________________________________________________________________________
@@ -2613,11 +2614,11 @@ void KVMultiDetArray::SetGridsInTelescopes(UInt_t run)
    while ((gr = (KVIDGraph*) next())) {
       if (gr->GetRuns().Contains((Int_t) run)) {
 
-         //Info("SetGridsInTelescopes","la grille %s contient le numero de run %d",gr->GetName(),run);
+         Info("SetGridsInTelescopes", "la grille %s contient le numero de run %d", gr->GetName(), run);
          TIter nxtid(gr->GetIDTelescopes());
          KVIDTelescope* idt;
          while ((idt = (KVIDTelescope*) nxtid())) {
-            //Info("SetGridsInTelescopes","%s %s",idt->GetName(),idt->ClassName());
+            Info("SetGridsInTelescopes", "%s %s", idt->GetName(), idt->ClassName());
             idt->SetIDGrid(gr);
          }
       }
@@ -2865,6 +2866,14 @@ KVGroupReconstructor* KVMultiDetArray::GetReconstructorForGroup(const KVGroup* g
       if (!gr) gr = new KVGroupReconstructor;
    }
    return gr;
+}
+
+void KVMultiDetArray::InitialiseRawDataReading(KVRawDataReader* r)
+{
+   // Call this method just after opening a raw data file in order to perform any
+   // necessary initialisations, depending on the type of data
+
+   if (r->GetDataFormat() == "EBYEDAT")((KVGANILDataReader*)r)->ConnectRawDataParameters(GetACQParams());
 }
 
 void KVMultiDetArray::DeduceGroupsFromTrajectories()

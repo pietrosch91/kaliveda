@@ -15,7 +15,7 @@ if(USE_INDRA)
     list(APPEND build_targets KVDataBaseGUI test_reconstruction)
 endif()
 if(USE_INDRAFAZIA AND WITH_MFM)
-    list(APPEND build_targets test_indrafazia indrafazia_reconstruction)
+    list(APPEND build_targets test_indrafazia indrafazia_reconstruction indrafazia_idmaps)
     KALIVEDA_SET_INCLUDE_DIRS(FAZIA MODULES ${FAZIA_MOD_LIST})
 endif()
 
@@ -27,6 +27,8 @@ set(test_indrafazia_LIB  ${KVIndra_LIB_LIST} ${FAZIA_LIB_LIST})
 
 set(indrafazia_reconstruction_SRC indrafazia_reconstruction.cpp)
 set(indrafazia_reconstruction_LIB  ${KVIndra_LIB_LIST} ${FAZIA_LIB_LIST})
+set(indrafazia_idmaps_SRC indrafazia_idmaps.cpp)
+set(indrafazia_idmaps_LIB  ${KVIndra_LIB_LIST} ${FAZIA_LIB_LIST})
 
 set(kaliveda_SRC kaliveda.cpp)
 

@@ -29,7 +29,7 @@ protected:
    Int_t NbParFired;//!
    UShort_t ParVal[3000];//!
    UInt_t ParNum[3000];//!
-   KVSeqCollection* params;//!
+   const KVSeqCollection* params;//!
 
    virtual KVNumberList PrintAvailableRuns(KVString& datatype);
 

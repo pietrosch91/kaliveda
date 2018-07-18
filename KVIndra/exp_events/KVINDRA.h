@@ -155,10 +155,6 @@ public:
 
    void CreateROOTGeometry();
 
-   const KVSeqCollection* GetListOfDetectors() const
-   {
-      return GetDetectors();
-   }
    virtual void SetROOTGeometry(Bool_t on = kTRUE);
    void SetMinimumOKMultiplicity(KVEvent*) const;
    KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;

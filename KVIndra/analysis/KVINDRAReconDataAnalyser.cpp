@@ -71,7 +71,8 @@ Bool_t KVINDRAReconDataAnalyser::CheckTaskVariables()
    cout << "\"" << GetUserClass() << "\"." << endl;
    if (GetNbEventToRead()) {
       cout << GetNbEventToRead() << " events will be processed." << endl;
-   } else {
+   }
+   else {
       cout << "All events will be processed." << endl;
    }
    cout << "=============================================" << endl;
@@ -122,7 +123,8 @@ void KVINDRAReconDataAnalyser::SubmitTask()
                TString kvversion = treeInfos->GetValue("KVBase::GetKVVersion()", "");
                TString username = treeInfos->GetValue("gSystem->GetUserInfo()->fUser", "");
                if (kvversion != "") ARF->UpdateInfos(run, gSystem->BaseName(fullPathToRunfile), kvversion, username);
-            } else {
+            }
+            else {
                Info("SubmitTask", "No TEnv object associated to the tree");
             }
          }
@@ -153,7 +155,8 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
       cout << "Process aborted." << endl;
       SafeDelete(new_selector);
-   } else {
+   }
+   else {
       SafeDelete(new_selector);
       Info("SubmitTask", "Beginning TChain::Process...");
 #ifdef WITH_CPP11
@@ -167,7 +170,8 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 
       if (GetNbEventToRead()) {
          theChain->Process(analysis_class, option.Data(), GetNbEventToRead());
-      } else {
+      }
+      else {
          theChain->Process(analysis_class, option.Data());
       }
    }
@@ -255,7 +259,8 @@ void KVINDRAReconDataAnalyser::SetSelectorCurrentRun(KVINDRADBRun* CurrentRun)
 {
    if (fSelector) {
       fSelector->SetCurrentRun(CurrentRun);
-   } else {
+   }
+   else {
       fOldSelector->SetCurrentRun(CurrentRun);
    }
 }
@@ -316,7 +321,9 @@ void KVINDRAReconDataAnalyser::preAnalysis()
    // all recon events are numbered 1, 2, ... : therefore entry number is N-1
    Long64_t rawEntry = GetRawEntryNumber();
 
-   gIndra->GetACQParams()->R__FOR_EACH(KVACQParam, Clear)();
+   TIter it(gIndra->GetACQParams());
+   KVACQParam* a;
+   while ((a = (KVACQParam*)it())) a->Clear();
 
    theRawData->GetEntry(rawEntry);
    for (int i = 0; i < NbParFired; i++) {
@@ -345,7 +352,8 @@ void KVINDRAReconDataAnalyser::ConnectRawDataTree()
    if (!theRawData) {
       Warning("ConnectRawDataTree", "RawData tree not found in file; raw data parameters of detectors will not be available in analysis");
       return;
-   } else
+   }
+   else
       Info("ConnectRawDataTree", "Found RawData tree in file");
    Int_t maxNopar = theRawData->GetMaximum("NbParFired");
    if (ParVal) delete [] ParVal;
@@ -369,7 +377,8 @@ void KVINDRAReconDataAnalyser::ConnectGeneDataTree()
    theGeneData = (TTree*)theChain->GetCurrentFile()->Get("GeneData");
    if (!theGeneData) {
       cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
-   } else {
+   }
+   else {
       cout << "  --> Pulser & laser data tree contains " << theGeneData->GetEntries()
            << " events" << endl << endl;
    }
@@ -414,7 +423,8 @@ void KVINDRAReconDataAnalyser::PrintTreeInfos()
          fDataSeries.Form("%d.%d", a, b);
          fDataReleaseNum = c;
       }
-   } else {
+   }
+   else {
       fDataSeries = "";
       fDataReleaseNum = -1;
    }

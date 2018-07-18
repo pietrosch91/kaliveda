@@ -21,14 +21,12 @@ protected:
    Bool_t make_arrays;
    Bool_t make_leaves;
 
-   virtual void ConnectRawDataParameters();
-
    KVHashList* fParameters;//list of all data parameters contained in file
    KVHashList* fExtParams;//list of data parameters in file not defined by gMultiDetArray
    KVHashList* fFired;//list of fired parameters in one event
 
-   virtual GTGanilData* NewGanTapeInterface();
-   virtual KVACQParam* CheckACQParam(const Char_t*);
+   virtual GTGanilData* NewGanTapeInterface(Option_t* dataset);
+   virtual KVACQParam* CheckACQParam(const TSeqCollection*, const Char_t*);
 
    void FillFiredParameterList();
 
@@ -36,9 +34,10 @@ public:
    KVGANILDataReader()
    {
       init();
-   };
-   KVGANILDataReader(const Char_t*);
-   virtual void OpenFile(const Char_t*);
+   }
+   KVGANILDataReader(const Char_t*, Option_t*);
+   void OpenFile(const Char_t*, Option_t* dataset);
+   void ConnectRawDataParameters(const TSeqCollection* list_acq_params);
    virtual ~KVGANILDataReader();
 
    void init();
@@ -50,18 +49,18 @@ public:
    const KVSeqCollection* GetUnknownParameters() const
    {
       return fExtParams;
-   };
+   }
    const KVSeqCollection* GetRawDataParameters() const
    {
       return fParameters;
-   };
+   }
 
    KVSeqCollection* GetFiredDataParameters() const
    {
       // returns pointer to list of fired acquisition parameters of current event.
       // this list is filled automatically when GetNextEvent() is called.
       return fFired;
-   };
+   }
 
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");
 
@@ -75,6 +74,7 @@ public:
    {
       return "EBYEDAT";
    }
+   Int_t GetRunNumberReadFromFile() const;
 
    ClassDef(KVGANILDataReader, 0) //Reads GANIL acquisition files
 };

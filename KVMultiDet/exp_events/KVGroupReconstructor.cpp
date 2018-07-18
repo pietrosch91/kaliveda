@@ -282,7 +282,6 @@ void KVGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
          id_by_type[IDR->GetType()] = IDR;
 
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
-
             IDR->IDattempted = kTRUE;
             idt->Identify(IDR);
 
@@ -318,8 +317,8 @@ void KVGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
       KVIdentificationResult* pid = PART.GetIdentificationResult(id_no);
       next.Reset();
       idt = (KVIDTelescope*)next();
-      while (pid->IDattempted && idt->HasDetector(PART.GetStoppingDetector())) {
-         if (pid->IDOK) {
+      while (idt->HasDetector(PART.GetStoppingDetector())) {
+         if (pid->IDattempted && pid->IDOK) {
             ok = kTRUE;
             partID = *pid;
             identifying_telescope = idt;

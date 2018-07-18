@@ -710,7 +710,7 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
       cout << "ERROR: KVIDGridEditor::SetHisto(): invalid pointer on the grid !" << endl;
       return;
    }
-   if ((TheGrid) && (!IsClosed())) TheGrid->UnDraw();
+   if ((TheGrid && TheGrid->TestBit(TObject::kNotDeleted)) && (!IsClosed())) TheGrid->UnDraw();
 
    Clear();
 

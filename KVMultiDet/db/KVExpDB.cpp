@@ -221,7 +221,8 @@ void KVExpDB::ReadSystemList()
          next_char = fin.peek();
       }
       fin.close();
-   } else {
+   }
+   else {
       Error("ReadSystemList()", "Could not open file %s",
             GetCalibFileName("Systems"));
    }
@@ -309,7 +310,8 @@ void KVExpDB::WriteRunListFile() const
          run->WriteRunListLine(rlistf, GetDBEnv("Runlist.Separator")[0]);
 
       }
-   } else {
+   }
+   else {
       Warning("WriteRunListFile()", "run list is empty !!!");
    }
    rlistf.close();
@@ -336,14 +338,6 @@ Bool_t KVExpDB::OpenCalibFile(const Char_t* type, ifstream& fs) const
    //GetDBEnv() always returns the correct filename for the currently active dataset.
 
    return KVBase::SearchAndOpenKVFile(GetDBEnv(type), fs, fDataSet.Data());
-}
-
-//__________________________________________________________________________________________________________________
-
-const Char_t* KVExpDB::GetDBEnv(const Char_t*) const
-{
-   Info("GetDBEnv", "To be defined in child class");
-   return 0;
 }
 
 //__________________________________________________________________________________________________________________
@@ -408,3 +402,13 @@ KVExpDB* KVExpDB::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
    return mda;
 }
 
+//__________________________________________________________________________________________________________________
+
+const Char_t* KVExpDB::GetDBEnv(const Char_t* type) const
+{
+   //Will look for gEnv->GetValue name "name_of_dataset.fDBType.type"
+   //then "fDBType.type" if no dataset-specific value is found.
+
+   if (fDataSet == "") return "";
+   return KVBase::GetDataSetEnv(fDataSet, Form("%s.%s", fDBType.Data(), type), "");
+}

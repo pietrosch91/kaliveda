@@ -12,6 +12,7 @@
 #pragma link C++ class KVDetectionSimulator+;
 #pragma link C++ class KVEventReconstructor+;
 #pragma link C++ class KVGroupReconstructor+;
+#pragma link C++ class KVRawDataReconstructor+;
 #pragma link C++ class KVReconNucTrajectory+;
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
 #pragma link C++ class KVDetectorEvent+;
@@ -23,7 +24,6 @@
 #endif
 #pragma link C++ class KVUpDater;
 #ifdef WITH_BUILTIN_GRU
-#pragma link C++ class KVGANILDataReader+;
 #pragma link C++ class KVRawDataAnalyser+;
 #endif
 #pragma link C++ class KVSimDirFilterAnalyser+;

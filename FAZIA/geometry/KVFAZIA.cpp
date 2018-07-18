@@ -462,6 +462,7 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
 
       // check block errors
       if (e.block(b).len_error() || e.block(b).crc_error() || (!good)) {
+         Warning("treat_event", "BLOCK LEN OR CRC ERROR B%03d", e.block(b).blkid());
          good = kFALSE;
          break;  //stop iteration on blocks
       }
@@ -476,6 +477,7 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
             const DAQ::FzHit& rdhit = rdfee.hit(h);
             // check fee errors
             if (rdfee.len_error() || rdfee.crc_error() || (!good)) {
+               Warning("treat_event", "FEE LEN OR CRC ERROR B%03d-FE%d", e.block(b).blkid(), rdfee.feeid());
                good = kFALSE;
                break;  //stop iteration on hits
             }

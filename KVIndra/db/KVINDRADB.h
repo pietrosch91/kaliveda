@@ -144,8 +144,7 @@ public:
    KVINDRAPulserDataTree* GetPulserData()
    {
       return fPulserData;
-   };
-   virtual const Char_t* GetDBEnv(const Char_t* type) const;
+   }
    virtual void WriteObjects(TFile*);
    virtual void ReadObjects(TFile*);
 

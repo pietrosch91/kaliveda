@@ -205,7 +205,7 @@ public:
    void ReplaceDetector(const Char_t* name, KVDetector* new_kvd);
 
    void AddACQParam(KVACQParam*);
-   KVSeqCollection* GetACQParams()
+   const KVSeqCollection* GetACQParams() const
    {
       return fACQParams;
    }
@@ -416,7 +416,8 @@ public:
       return glist->GetEntries();
    }
 
-   virtual Bool_t HandleRawDataEvent(KVRawDataReader*);
+   void InitialiseRawDataReading(KVRawDataReader*);
+   Bool_t HandleRawDataEvent(KVRawDataReader*);
    Bool_t HandledRawData() const
    {
       return fHandledRawData;

@@ -417,7 +417,8 @@ void KVBase::Streamer(TBuffer& R__b)
             R__b >> fLabel;
             if (R__v < 3) SetBit(kIsKaliVedaObject);
             R__b.CheckByteCount(R__s, R__c, KVBase::IsA());
-         } else {
+         }
+         else {
             //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 3
             KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
          }
@@ -436,7 +437,8 @@ void KVBase::Streamer(TBuffer& R__b)
       }
       SetBit(kIsKaliVedaObject);
       R__b.CheckByteCount(R__s, R__c, KVBase::IsA());
-   } else {
+   }
+   else {
       KVBase::Class()->WriteBuffer(R__b, this);
    }
 }
@@ -502,7 +504,8 @@ Bool_t KVBase::SearchKVFile(const Char_t* name, TString& fullpath,
    if (strcmp(kvsubdir, "")) {
       //subdirectory name given
       kvfile_dir = GetDATADIRFilePath(kvsubdir);
-   } else
+   }
+   else
       kvfile_dir = GetDATADIRFilePath();
    return SearchFile(name, fullpath, 3, kvfile_dir.Data(),
                      gSystem->HomeDirectory(), gSystem->pwd());
@@ -567,14 +570,17 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t* name, ofstream& file, const Cha
    KVString fullpath;
    if (gSystem->IsAbsoluteFileName(name)) {
       fullpath = name;
-   } else if (gSystem->IsAbsoluteFileName(kvsubdir)) {
+   }
+   else if (gSystem->IsAbsoluteFileName(kvsubdir)) {
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(kvsubdir, name));
-   } else if (strcmp(kvsubdir, "")) {
+   }
+   else if (strcmp(kvsubdir, "")) {
       KVString path = GetDATADIRFilePath(kvsubdir);
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(path.Data(), name));
-   } else {
+   }
+   else {
       fullpath = GetDATADIRFilePath(name);
    }
    //Backup file if necessary
@@ -821,7 +827,8 @@ Bool_t KVBase::FindExecutable(TString& exec, const Char_t* path)
       if (!gSystem->AccessPathName(expandexec)) {
          exec = expandexec;
          return kTRUE;
-      } else {
+      }
+      else {
          //try with ".exe" in case of Windows system
          if (!expandexec.EndsWith(".exe")) {
             expandexec += ".exe";
@@ -859,7 +866,8 @@ const Char_t* KVBase::FindFile(const Char_t* search, TString& wfil)
    if (result) {
       wfil = result;
       delete[]result;
-   } else {
+   }
+   else {
       wfil = "";
    }
    return wfil.Data();
@@ -1043,6 +1051,30 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
    //remove final trailing whitespace
    tmp.Remove(TString::kTrailing, ' ');
    return tmp;
+}
+
+Bool_t KVBase::IsThisAPlugin(const TString& uri, TString& base)
+{
+   // Returns kTRUE if 'uri' is the name of a defined plugin, in which case 'base'
+   // is the name of the base class extended by this plugin.
+   //
+   // Most of the code is copied from `TPluginManager::LoadHandlersFromEnv`
+
+   TIter next(gEnv->GetTable());
+   TEnvRec* er;
+   while ((er = (TEnvRec*) next())) {
+      KVString ername = er->GetName();
+      if (ername.BeginsWith("Plugin.")) {
+         base = ername;
+         base.Remove(0, 7);
+         KVString erval = gEnv->GetValue(ername, "");
+         erval.Begin(" ");
+         while (!erval.End()) {
+            if (erval.Next() == uri) return kTRUE;
+         }
+      }
+   }
+   return kFALSE;
 }
 
 //__________________________________________________________________________________________________________________
@@ -1285,6 +1317,45 @@ void KVBase::PrintSplashScreen()
    cout << "***********************************************************" <<
         endl << endl;
 }
+
+const Char_t* KVBase::GetDataSetEnv(const Char_t* dataset, const Char_t* type, const Char_t* defval)
+{
+   // Static method to interrogate dataset-specific variables in configuration
+   // Will look for gEnv->GetValue "dataset.type"
+   // then simply "type" if no dataset-specific value is found.
+   // If neither resource is defined, return the "defval" default value (="" by default)
+   TString temp;
+   temp.Form("%s.%s", dataset, type);
+   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), "");
+   return gEnv->GetValue(type, defval);
+}
+
+Double_t KVBase::GetDataSetEnv(const Char_t* dataset, const Char_t* type, Double_t defval)
+{
+   // Static method to interrogate dataset-specific variables in configuration
+   // Will look for gEnv->GetValue "dataset.type"
+   // then simply "type" if no dataset-specific value is found.
+   // If neither resource is defined, return the "defval" default value
+
+   TString temp;
+   temp.Form("%s.%s", dataset, type);
+   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), 0.0);
+   return gEnv->GetValue(type, defval);
+}
+
+Bool_t KVBase::GetDataSetEnv(const Char_t* dataset, const Char_t* type, Bool_t defval)
+{
+   // Static method to interrogate dataset-specific variables in configuration
+   //Will look for gEnv->GetValue "dataset.type"
+   //then simply "type" if no dataset-specific value is found.
+   //If neither resource is defined, return the "defval" default value
+
+   TString temp;
+   temp.Form("%s.%s", dataset, type);
+   if (gEnv->Defined(temp.Data())) return gEnv->GetValue(temp.Data(), kFALSE);
+   return gEnv->GetValue(type, defval);
+}
+
 
 /** \example base_kvbase.C
 # Example of use of the KVBase class

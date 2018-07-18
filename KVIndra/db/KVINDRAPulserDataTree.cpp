@@ -209,7 +209,7 @@ void KVINDRAPulserDataTree::CreateTree()
 
    if (!gIndra) KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
 
-   KVSeqCollection* acq_pars = gIndra->GetACQParams();
+   const KVSeqCollection* acq_pars = gIndra->GetACQParams();
 
    fTab_siz = acq_pars->GetEntries() + 20;
    fVal = new Float_t[fTab_siz];
@@ -235,7 +235,8 @@ void KVINDRAPulserDataTree::CreateTree()
          iob->SetNumber(ap_num);
          fIndex->Add(iob);
          fArb->Branch(ap_name.Data(), &fVal[ap_num++], Form("%s/F", ap_name.Data()));
-      } else if (ap_type != "T") {
+      }
+      else if (ap_type != "T") {
          iob = new KVBase(ap_name.Data());
          iob->SetNumber(ap_num);
          fIndex->Add(iob);
