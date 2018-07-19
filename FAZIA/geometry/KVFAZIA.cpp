@@ -454,9 +454,6 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
    // Read raw data for an event
 
    Bool_t good = kTRUE;
-   fFiredACQParams.Clear();
-   fSignals.Clear();
-   fFPGAParameters.Clear();
 
    for (int b = 0; b < e.block_size(); ++b) {
 
@@ -586,6 +583,14 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
    return kTRUE;
 }
 #endif
+
+void KVFAZIA::prepare_to_handle_new_raw_data()
+{
+   // reset signals, fpga parameters etc. before reading new raw data event
+   KVMultiDetArray::prepare_to_handle_new_raw_data();
+   fSignals.Clear();
+   fFPGAParameters.Clear();
+}
 
 void KVFAZIA::CreateCorrespondence()
 {

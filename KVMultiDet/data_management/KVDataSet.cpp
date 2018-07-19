@@ -1597,7 +1597,7 @@ Bool_t KVDataSet::DataBaseNeedsUpdate() const
    return (ret != 0);
 }
 
-TString KVDataSet::GetOutputRepository(const Char_t* taskname)
+TString KVDataSet::GetOutputRepository(const Char_t* taskname) const
 {
    // Returns name of output repository for given task.
    // By default it is the name of the repository associated with this dataset,

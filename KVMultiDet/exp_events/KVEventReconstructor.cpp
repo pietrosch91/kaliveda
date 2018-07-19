@@ -39,6 +39,13 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
    // Default constructor
    // Set up group reconstructor for every group of the array.
    // It is assumed that these are all numbered uniquely & sensibly ;)
+   //
+   // Identification & calibration are enabled or not depending on the following
+   // (possibly-dataset-dependent) variables:
+   //
+   //    EventReconstruction.DoIdentification
+   //    EventReconstruction.DoCalibration
+
    fGroupReconstructor.SetOwner();
    unique_ptr<KVSeqCollection> gr_list(a->GetStructureTypeList("GROUP"));
    KVGroup* gr;
@@ -63,6 +70,18 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
          }
       }
    }
+
+   KVGroupReconstructor::SetDoIdentification(GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE));
+   KVGroupReconstructor::SetDoCalibration(GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE));
+   Info("KVEventReconstructor", "Initialised for %u groups of multidetector %s", N, fArray->GetName());
+   if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE) || GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE)) {
+      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE))
+         Info("KVEventReconstructor", " -- identfication of events will be performed");
+      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE))
+         Info("KVEventReconstructor", " -- calibration of events will be performed");
+   }
+   else
+      Info("KVEventReconstructor", " -- no identification or calibration will be performed");
 }
 
 //________________________________________________________________
@@ -130,5 +149,5 @@ void KVEventReconstructor::MergeGroupEventFragments()
       int i = fHitGroups[k];
       to_merge.Add(((KVGroupReconstructor*)fGroupReconstructor[i])->GetEventFragment());
    }
-   GetEvent()->MergeEventFragments(&to_merge, "N");// "N" = no group reset
+   GetEvent()->MergeEventFragments(&to_merge);// "N" = no group reset
 }

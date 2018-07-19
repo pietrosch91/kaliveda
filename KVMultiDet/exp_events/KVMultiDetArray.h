@@ -132,6 +132,7 @@ protected:
    virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
 #endif
    virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
+   virtual void prepare_to_handle_new_raw_data();
 
    virtual void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
@@ -185,7 +186,7 @@ public:
    void SetFilterType(Int_t t)
    {
       fFilterType = t;
-   };
+   }
    void init();
 
    virtual void Build(Int_t run = -1);
@@ -238,7 +239,7 @@ public:
    KVSeqCollection* GetListOfIDTelescopes() const
    {
       return fIDTelescopes;
-   };
+   }
    KVUniqueNameList* GetIDTelescopeTypes();
    KVSeqCollection* GetIDTelescopesWithType(const Char_t* type);
    virtual void SetDetectorThicknesses();
@@ -250,7 +251,7 @@ public:
    KVTarget* GetTarget()
    {
       return fTarget;
-   };
+   }
 
    virtual Double_t GetTargetEnergyLossCorrection(KVReconstructedNucleus*);
 
@@ -279,19 +280,19 @@ public:
    Bool_t ParamsSet()
    {
       return TestBit(kParamsSet);
-   };
+   }
    Bool_t IDParamsSet()
    {
       return (TestBit(kIDParamsSet) || ParamsSet());
-   };
+   }
    Bool_t CalParamsSet()
    {
       return (TestBit(kCalParamsSet) || ParamsSet());
-   };
+   }
    UInt_t GetCurrentRunNumber() const
    {
       return fCurrentRun;
-   };
+   }
 
    virtual void SetIdentifications();
    virtual void InitializeIDTelescopes();
@@ -317,14 +318,14 @@ public:
       // If on=kFALSE, we are analysing/reconstruction experimental data
       fSimMode = on;
       const_cast<KVSeqCollection*>(GetDetectors())->Execute("SetSimMode", Form("%d", (Int_t)on));
-   };
+   }
    virtual Bool_t IsSimMode() const
    {
       // Returns simulation mode of array:
       //   IsSimMode()=kTRUE : we are in simulation mode (calculation of energy losses etc.)
       //   IsSimMode()=kFALSE: we are analysing/reconstruction experimental data
       return fSimMode;
-   };
+   }
 
    virtual Double_t GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A);
    virtual TGraph* DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform = KVNucleus::kBetaMass);
@@ -421,6 +422,11 @@ public:
    Bool_t HandledRawData() const
    {
       return fHandledRawData;
+   }
+
+   TString GetDataSet() const
+   {
+      return fDataSet;
    }
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays

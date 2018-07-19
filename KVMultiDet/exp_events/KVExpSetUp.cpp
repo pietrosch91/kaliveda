@@ -52,6 +52,8 @@ KVExpSetUp::~KVExpSetUp()
 void KVExpSetUp::Build(Int_t run)
 {
    // Build the combined arrays
+   //
+   // The name of the setup will be "[det1]-[det2]-..."
 
    // default ROOT geometry for all arrays
    gEnv->SetValue("KVMultiDetArray.ROOTGeometry", "yes");
@@ -62,6 +64,8 @@ void KVExpSetUp::Build(Int_t run)
 
    KVRangeTableGeoNavigator* gnl = new KVRangeTableGeoNavigator(gGeoManager, KVMaterial::GetRangeTable());
    SetNavigator(gnl);
+
+   TString myname;
 
    KVMultiDetArray* tmp(nullptr);
    Int_t group_offset = 0;// for renumbering groups
@@ -75,6 +79,8 @@ void KVExpSetUp::Build(Int_t run)
       tmp = MakeMultiDetector(gDataSet->GetName(), run, sname.Data());
       if (tmp) {
          fMDAList.Add(tmp);
+         if (myname != "") myname += "-";
+         myname += tmp->GetName();
       }
       else {
          Error("Build", "NULL pointer returned by MakeMultiDetector");
@@ -113,6 +119,17 @@ void KVExpSetUp::Build(Int_t run)
    gMultiDetArray = this;
    fCurrentRun = (run > 0 ? run : 0);
    SetBit(kIsBuilt);
+   SetName(myname);
+}
+
+void KVExpSetUp::Clear(Option_t* opt)
+{
+   // call Clear(opt) for each multidetector in the setup
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->Clear(opt);
+   }
 }
 
 void KVExpSetUp::SetParameters(UInt_t n)
@@ -243,3 +260,15 @@ Bool_t KVExpSetUp::handle_raw_data_event_mfmframe(const MFMCommonFrame& mfmframe
    return kFALSE;
 }
 #endif
+
+
+void KVExpSetUp::prepare_to_handle_new_raw_data()
+{
+   // clear all acquisition parameters etc of each array before reading new raw data event
+   KVMultiDetArray::prepare_to_handle_new_raw_data();
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->prepare_to_handle_new_raw_data();
+   }
+}
