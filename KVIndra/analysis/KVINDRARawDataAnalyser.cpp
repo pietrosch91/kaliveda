@@ -52,7 +52,8 @@ void KVINDRARawDataAnalyser::preAnalysis()
    if (gIndra->GetTriggerInfo()->IsINDRAEvent()) {
       INDRA_events++;
       if (gIndra->GetTriggerInfo()->IsGene()) gene_events++;
-   } else {
+   }
+   else {
       other_events++;
    }
 }
@@ -94,7 +95,7 @@ void KVINDRARawDataAnalyser::Make(const Char_t* kvsname)
    body += "   //  Processing will stop if this method returns kFALSE\n";
    body += "   return kTRUE;";
    cf.AddMethodBody("Analysis", body);
-   //endrunù
+   //endrun
    body = "   //Method called at end of each run";
    cf.AddMethodBody("EndRun", body);
    //endanalysis
@@ -144,15 +145,4 @@ KVNumberList KVINDRARawDataAnalyser::PrintAvailableRuns(KVString& datatype)
       cout << endl;
    }
    return all_runs;
-}
-
-void KVINDRARawDataAnalyser::CalculateTotalEventsToRead()
-{
-   //loop over runs and calculate total events
-   TotalEntriesToRead = 0;
-   GetRunList().Begin();
-   while (!GetRunList().End()) {
-      Int_t r = GetRunList().Next();
-      TotalEntriesToRead += gIndraDB->GetRun(r)->GetEvents();
-   }
 }

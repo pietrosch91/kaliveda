@@ -4,9 +4,16 @@
 #ifndef __KVRAWDATARECONSTRUCTOR_H
 #define __KVRAWDATARECONSTRUCTOR_H
 
+#include "KVEventReconstructor.h"
 #include "KVRawDataAnalyser.h"
 
 class KVRawDataReconstructor : public KVRawDataAnalyser {
+
+   unique_ptr<KVEventReconstructor> fEvRecon;
+   KVReconstructedEvent* fRecev;
+   TFile* fRecFile;
+   TTree* fRecTree;
+
 public:
    KVRawDataReconstructor();
    virtual ~KVRawDataReconstructor();

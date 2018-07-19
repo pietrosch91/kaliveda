@@ -37,9 +37,9 @@ public:
    virtual void InitRun();
    virtual Bool_t Analysis();
    virtual void EndRun();
-   virtual void EndAnalysis() {};
+   virtual void EndAnalysis() {}
 
-   virtual void ExtraProcessing() {};
+   virtual void ExtraProcessing() {}
 
    ClassDef(KVINDRARawDataReconstructor, 2) //Reconstruction of events from raw data acquisition files
 };

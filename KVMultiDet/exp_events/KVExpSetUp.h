@@ -17,12 +17,14 @@ protected:
 #ifdef WITH_MFM
    Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
 #endif
+   void prepare_to_handle_new_raw_data();
 
 public:
 
    KVExpSetUp();
    virtual ~KVExpSetUp();
    virtual void Build(Int_t run = -1);
+   void Clear(Option_t* opt = "");
 
    void SetParameters(UInt_t n);
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);

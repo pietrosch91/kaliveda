@@ -43,20 +43,20 @@ public:
    const KVDetectorEvent* GetDetectorEvent() const
    {
       return fDetEv;
-   };
+   }
    Int_t GetRunNumber() const
    {
       return fRunNumber;
-   };
+   }
    Long64_t GetEventNumber() const
    {
       return fEventNumber;
-   };
+   }
 
    virtual Bool_t FileHasUnknownParameters() const
    {
       return (fRunFile->GetUnknownParameters()->GetSize() > 0);
-   };
+   }
    virtual void SubmitTask();
    static void Make(const Char_t* kvsname = "MyOwnRawDataAnalyser");
    virtual void AddHisto(TH1*, const Char_t* /* family */ = 0);
@@ -64,10 +64,7 @@ public:
    virtual void ClearAllHistos();
    TH1* FindHisto(const Char_t* path);
 
-   virtual void CalculateTotalEventsToRead()
-   {
-      ;
-   }
+   void CalculateTotalEventsToRead();
 
    ClassDef(KVRawDataAnalyser, 1) //Abstract base class for user analysis of raw data
 };

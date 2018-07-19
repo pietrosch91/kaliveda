@@ -2614,11 +2614,9 @@ void KVMultiDetArray::SetGridsInTelescopes(UInt_t run)
    while ((gr = (KVIDGraph*) next())) {
       if (gr->GetRuns().Contains((Int_t) run)) {
 
-         Info("SetGridsInTelescopes", "la grille %s contient le numero de run %d", gr->GetName(), run);
          TIter nxtid(gr->GetIDTelescopes());
          KVIDTelescope* idt;
          while ((idt = (KVIDTelescope*) nxtid())) {
-            Info("SetGridsInTelescopes", "%s %s", idt->GetName(), idt->ClassName());
             idt->SetIDGrid(gr);
          }
       }
@@ -2962,6 +2960,16 @@ Bool_t KVMultiDetArray::handle_raw_data_event_ebyedat(KVGANILDataReader&)
    return kFALSE;
 }
 
+void KVMultiDetArray::prepare_to_handle_new_raw_data()
+{
+   // reset acquisition parameters etc. before reading new raw data event
+   TIter it(GetACQParams());
+   KVACQParam* acqpar;
+   while ((acqpar = (KVACQParam*)it())) acqpar->Clear();
+   fReconParameters.Clear();
+   fFiredACQParams.Clear();
+}
+
 void KVMultiDetArray::PerformClosedROOTGeometryOperations(Int_t)
 {
    // Perform any operations to finalise the description of the multidetector
@@ -2985,8 +2993,7 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    //
    // Return kTRUE if raw data was treated
 
-   fReconParameters.Clear();
-
+   prepare_to_handle_new_raw_data();
 #ifdef WITH_MFM
    if (rawdata->GetDataFormat() == "MFM") return handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
    else
@@ -3056,11 +3063,6 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    string lab;
    KVACQParam* acqpar;
    Bool_t ok = false;
-
-   TIter it(GetACQParams());
-   while ((acqpar = (KVACQParam*)it())) acqpar->Clear();
-
-   fFiredACQParams.Clear();
 
    for (int i = 0; i < ebyframe.GetNbItems(); ++i) {
       ebyframe.GetDataItem(i, lab, val);

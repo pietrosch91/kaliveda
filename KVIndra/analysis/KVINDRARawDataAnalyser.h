@@ -31,11 +31,9 @@ public:
    KVGANILDataReader* GetRawDataReader() const
    {
       return (KVGANILDataReader*)fRunFile;
-   };
+   }
 
    static void Make(const Char_t* kvsname = "MyOwnINDRARawDataAnalyser");
-
-   virtual void CalculateTotalEventsToRead();
 
    ClassDef(KVINDRARawDataAnalyser, 2) //Analysis of raw INDRA data
 };

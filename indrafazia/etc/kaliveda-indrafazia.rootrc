@@ -17,6 +17,8 @@ INDRAFAZIA.ExpSetUp.Updater.FAZIA: FAZIACOR
 INDRAFAZIA.ActiveIdentifications:      CSI Si-Si Si-CsI
 INDRAFAZIA.SI-CSI.MassID: yes
 INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
+INDRAFAZIA.EventReconstruction.DoIdentification: no
+INDRAFAZIA.EventReconstruction.DoCalibration: no
 
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
 +Plugin.KVExpDB:   INDRAFAZIA    KVFAZIADB     FAZIAdb   "KVFAZIADB(const Char_t*)"

@@ -89,8 +89,8 @@ void KVRawDataAnalyser::ProcessRun()
    while ((nevents-- ? fRunFile->GetNextEvent() : kFALSE) && !AbortProcessingLoop()) {
 
       //reconstruct hit groups
-      KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
-      gMultiDetArray->GetDetectorEvent(fDetEv, fired);
+//      KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
+//      gMultiDetArray->GetDetectorEvent(fDetEv, fired);
 
       preAnalysis();
       //call user's analysis. stop if returns kFALSE.
@@ -156,6 +156,17 @@ void KVRawDataAnalyser::SubmitTask()
 }
 
 
+void KVRawDataAnalyser::CalculateTotalEventsToRead()
+{
+   //loop over runs and calculate total events
+   TotalEntriesToRead = 0;
+   GetRunList().Begin();
+   while (!GetRunList().End()) {
+      Int_t r = GetRunList().Next();
+      TotalEntriesToRead += gExpDB->GetDBRun(r)->GetEvents();
+   }
+}
+
 //_______________________________________________________________________//
 
 void KVRawDataAnalyser::Make(const Char_t* kvsname)
@@ -183,7 +194,7 @@ void KVRawDataAnalyser::Make(const Char_t* kvsname)
    body += "   //  Processing will stop if this method returns kFALSE\n";
    body += "   return kTRUE;";
    cf.AddMethodBody("Analysis", body);
-   //endrunù
+   //endrun
    body = "   //Method called at end of each run";
    cf.AddMethodBody("EndRun", body);
    //endanalysis

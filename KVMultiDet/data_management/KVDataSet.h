@@ -206,7 +206,7 @@ public:
       return GetDataSetEnv("ReconstructedEventClassName", "KVReconstructedEvent");
    }
 
-   TString GetOutputRepository(const Char_t* taskname);
+   TString GetOutputRepository(const Char_t* taskname) const;
    void CopyRunfilesToRepository(const Char_t* type, KVNumberList runs, const Char_t* destrepo);
 
    Bool_t HasCalibIdentInfos() const

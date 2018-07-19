@@ -2,6 +2,8 @@
 //Author: eindra
 
 #include "KVRawDataReconstructor.h"
+#include "KVDataSet.h"
+#include "KVDataRepositoryManager.h"
 
 ClassImp(KVRawDataReconstructor)
 
@@ -30,27 +32,60 @@ KVRawDataReconstructor::~KVRawDataReconstructor()
 
 void KVRawDataReconstructor::InitAnalysis()
 {
+   TClass* recev_cl = TClass::GetClass(GetDataSet()->GetReconstructedEventClassName());
+   fRecev = ((KVReconstructedEvent*)recev_cl->New());
 
-   Info("KVRawDataReconstructor", "InitAnalysis");
+   Info("InitAnalysis", "Reconstructed event container class: %s", recev_cl->GetName());
 }
 
 void KVRawDataReconstructor::InitRun()
 {
-   Info("KVRawDataReconstructor", "InitRun");
+   fEvRecon.reset(new KVEventReconstructor(gMultiDetArray, fRecev));
 
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(GetDataSet()->GetOutputRepository("Reconstruction"), GetDataSet()->GetName());
+
+   fRecFile = OutputDataset->NewRunfile("recon", fRunNumber);
+
+   cout << "Writing \"recon\" events in ROOT file " << fRecFile->GetName() << endl;
+
+   //tree for reconstructed events
+   fRecTree = new TTree("ReconEvents", Form("%s : %s : %s",
+                        gMultiDetArray->GetName(),
+                        gExpDB->GetDBRun(fRunNumber)->GetTitle(),
+                        gExpDB->GetDBRun(fRunNumber)->GetName())
+                       );
+
+   //leaves for reconstructed events
+   KVEvent::MakeEventBranch(fRecTree, "ReconEvent", fRecev->ClassName(), &fRecev);
+
+   Info("InitRun", "Created reconstructed data tree %s : %s", fRecTree->GetName(), fRecTree->GetTitle());
 }
 
 Bool_t KVRawDataReconstructor::Analysis()
 {
-   Info("KVRawDataReconstructor", "Analysis");
-   return kTRUE;
+   if (gMultiDetArray->HandleRawDataEvent(fRunFile)) {
+      fEvRecon->ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
+      fEvRecon->GetEvent()->SetNumber(GetEventNumber());
+      fRecTree->Fill();
+   }
 
+   return kTRUE;
 }
 
 void KVRawDataReconstructor::EndRun()
 {
    Info("KVRawDataReconstructor", "EndRun");
+   fRecFile->cd();
+   WriteBatchInfo(fRecTree);
+   fRecTree->Write();
 
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(GetDataSet()->GetOutputRepository("Reconstruction"), GetDataSet()->GetName());
+   //add new file to repository
+   OutputDataset->CommitRunfile("recon", fRunNumber, fRecFile);
 }
 
 void KVRawDataReconstructor::EndAnalysis()
