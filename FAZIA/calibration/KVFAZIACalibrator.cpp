@@ -39,12 +39,18 @@ KVFAZIACalibrator::~KVFAZIACalibrator()
       delete fFunc;
 }
 
+void KVFAZIACalibrator::SetParameter(UShort_t i, Float_t par_val)
+{
+   fFunc->SetParameter(i, par_val);
+}
+
 //___________________________________________________________________________
 void KVFAZIACalibrator::SetFunction(TF1* f1)
 {
    if (fFunc)
       delete fFunc;
    fFunc = (TF1*)f1->Clone(Form("calibfunc_%d", fNCalibFunc++));
+   SetNumberParams(fFunc->GetNpar());
 }
 
 //___________________________________________________________________________
@@ -53,6 +59,7 @@ void KVFAZIACalibrator::SetFunction(TString formula)
    if (fFunc)
       delete fFunc;
    fFunc = new TF1(Form("calibfunc_%d", fNCalibFunc++), formula.Data(), 0, 1);
+   SetNumberParams(fFunc->GetNpar());
 }
 
 //___________________________________________________________________________

@@ -27,6 +27,7 @@ public:
    {
       return fFunc;
    }
+   virtual void SetParameter(UShort_t i, Float_t par_val);
 
    virtual Double_t Compute(Double_t) const;
    virtual Double_t operator()(Double_t);

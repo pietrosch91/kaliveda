@@ -32,7 +32,7 @@ KVChannelEnergyAlpha::KVChannelEnergyAlpha(): KVCalibrator(3)
 }
 
 //___________________________________________________________________________
-KVChannelEnergyAlpha::KVChannelEnergyAlpha(Char_t* signal, KVDetector* kvd): KVCalibrator
+KVChannelEnergyAlpha::KVChannelEnergyAlpha(const Char_t* signal, KVDetector* kvd): KVCalibrator
    (3)
 {
    //Create an electronic calibration object for a specific detector (*kvd)
@@ -52,7 +52,8 @@ Double_t KVChannelEnergyAlpha::Compute(Double_t chan) const
    //Calculate the calibrated signal strength in volts for a given channel number.
    if (fReady) {
       return (fPar[0] + fPar[1] * chan + fPar[2] * chan * chan) / gain;
-   } else {
+   }
+   else {
       return 0.;
    }
 }
@@ -74,10 +75,10 @@ Double_t KVChannelEnergyAlpha::operator()(Double_t chan)
 }
 
 //___________________________________________________________________________
-void KVChannelEnergyAlpha::SetSignal(Char_t* signal)
+void KVChannelEnergyAlpha::SetSignal(const Char_t* signal)
 {
    //Set the type of signal treated ("PG" - petit "low" gain - or "GG" - grand "high" gain)
-   strcpy(fSignal, signal);
+   fSignal = signal;
    fName.Append("_");
    fName.Append(signal);
    fTitle.Append(" ");
@@ -110,11 +111,13 @@ Double_t KVChannelEnergyAlpha::Invert(Double_t volts)
             c = (-fPar[1] - TMath::Sqrt(c)) / (2.0 * fPar[2]);
          }
          channel = (Int_t)(c + 0.5);
-      } else {
+      }
+      else {
          // linear transfer function
          channel = (Int_t)(0.5 + (gain * volts - fPar[0]) / fPar[1]);
       }
-   } else {
+   }
+   else {
       Warning("Compute", "Parameters not correctly initialized");
    }
    return (Double_t) channel;

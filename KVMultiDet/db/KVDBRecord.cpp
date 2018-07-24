@@ -2,7 +2,7 @@
 $Id: KVDBRecord.cpp,v 1.23 2007/05/31 09:59:22 franklan Exp $
                           KVDBRecord.cpp  -  description
                              -------------------
-    begin                : jeu fév 6 2003
+    begin                : jeu fÃ©v 6 2003
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
  ***************************************************************************/

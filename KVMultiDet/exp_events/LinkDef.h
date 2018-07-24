@@ -13,6 +13,8 @@
 #pragma link C++ class KVEventReconstructor+;
 #pragma link C++ class KVGroupReconstructor+;
 #pragma link C++ class KVRawDataReconstructor+;
+#pragma link C++ class KVReconDataAnalyser+;
+#pragma link C++ class KVReconEventSelector+;
 #pragma link C++ class KVReconNucTrajectory+;
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
 #pragma link C++ class KVDetectorEvent+;
@@ -28,6 +30,7 @@
 #endif
 #pragma link C++ class KVSimDirFilterAnalyser+;
 #pragma link C++ class KVExpSetUp+;
+#pragma link C++ class KVExpSetUpDB+;
 #pragma link C++ class KVMultiDetArray+;
 #pragma link C++ class KVASMultiDetArray+;
 #pragma link C++ class KVGeoImport+;

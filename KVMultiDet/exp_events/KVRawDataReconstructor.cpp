@@ -77,6 +77,7 @@ Bool_t KVRawDataReconstructor::Analysis()
 void KVRawDataReconstructor::EndRun()
 {
    Info("KVRawDataReconstructor", "EndRun");
+   fRecev->Clear();
    fRecFile->cd();
    WriteBatchInfo(fRecTree);
    fRecTree->Write();

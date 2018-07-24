@@ -23,21 +23,21 @@ public:
    {
       if (fUserInfo) return fUserInfo->fUser;
       return "";
-   };
+   }
    const Char_t* GetGroup() const
    {
       if (fUserInfo) return fUserInfo->fGroup;
       return "";
-   };
+   }
    Long64_t GetSize() const
    {
       return fFileInfos.fSize;
-   };
+   }
    const Char_t* GetDate() const
    {
       TDatime when(fFileInfos.fMtime);
       return when.AsSQLString();
-   };
+   }
 
    ClassDef(KVSystemFile, 1) //TSystemFile with added info on file size etc.
 };

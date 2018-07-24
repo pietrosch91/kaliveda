@@ -28,11 +28,7 @@ public:
    virtual void Clear(Option_t* opt = "");
    virtual void ClearSelection(TRegexp&);
    virtual void Print(Option_t* opt = "") const;
-   virtual void ls(Option_t* opt = "") const
-   {
-      Print(opt);
-   }
-
+   virtual void ls(Option_t* opt = "") const;
    void SetOwner(Bool_t enable = kTRUE);
    Bool_t IsOwner() const;
 

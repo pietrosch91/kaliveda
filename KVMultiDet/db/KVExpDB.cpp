@@ -30,7 +30,6 @@ void KVExpDB::init()
    fRuns = AddTable("Runs", "List of available runs");
    fRuns->SetDefaultFormat("Run %d"); // default format for run names
    fSystems = AddTable("Systems", "List of available systems");
-
 }
 
 KVExpDB::KVExpDB()
@@ -397,8 +396,9 @@ KVExpDB* KVExpDB::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
    //execute constructor/macro for database
    KVExpDB* mda = (KVExpDB*) ph->ExecPlugin(1, name);
    mda->SetDataSetDir(datasetdir);
-   //call Build() method
+
    mda->Build();
+
    return mda;
 }
 
@@ -406,9 +406,12 @@ KVExpDB* KVExpDB::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
 
 const Char_t* KVExpDB::GetDBEnv(const Char_t* type) const
 {
-   //Will look for gEnv->GetValue name "name_of_dataset.fDBType.type"
-   //then "fDBType.type" if no dataset-specific value is found.
+   //Will look for gEnv->GetValue name "name_of_dataset.fDBType.type",
+   //then "fDBType.type" if no dataset-specific value is found,
+   //then "EXPDB.type" if no database-specific value is found
 
    if (fDataSet == "") return "";
-   return KVBase::GetDataSetEnv(fDataSet, Form("%s.%s", fDBType.Data(), type), "");
+   const char* p = KVBase::GetDataSetEnv(fDataSet, Form("%s.%s", fDBType.Data(), type), "");
+   if (!strcmp(p, "")) return KVBase::GetDataSetEnv(fDataSet, Form("EXPDB.%s", type), "");
+   return p;
 }

@@ -144,6 +144,32 @@ void KVNameValueList::Print(Option_t* option) const
    TROOT::DecreaseDirLevel();
 }
 
+void KVNameValueList::ls(Option_t*) const
+{
+   if (TString(GetName()) != "") cout << GetName();
+   else cout << "KVNameValueList";
+   cout << " : ";
+   for (int i = 0; i < GetNpar(); ++i) {
+      cout << GetParameter(i)->GetName() << "=";
+      switch (GetParameter(i)->GetType()) {
+         case KVNamedParameter::kIsDouble:
+            cout << GetParameter(i)->GetDouble();
+            break;
+         case KVNamedParameter::kIsInt:
+            cout << GetParameter(i)->GetInt();
+            break;
+         case KVNamedParameter::kIsString:
+            cout << GetParameter(i)->GetString();
+            break;
+         case KVNamedParameter::kIsBool:
+            cout << boolalpha << GetParameter(i)->GetBool();
+            break;
+      }
+      if (i < GetNpar() - 1) cout << ",";
+   }
+   cout << endl;
+}
+
 //______________________________________________
 void KVNameValueList::SetOwner(Bool_t enable)
 {

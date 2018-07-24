@@ -132,17 +132,6 @@ void KVExpSetUp::Clear(Option_t* opt)
    }
 }
 
-void KVExpSetUp::SetParameters(UInt_t n)
-{
-   // Call SetParameters for each multidetector, each can use a different KVUpDater
-   fCurrentRun = n;
-   TIter next_array(&fMDAList);
-   KVMultiDetArray* mda;
-   while ((mda = (KVMultiDetArray*)next_array())) {
-      mda->SetParameters(n);
-   }
-}
-
 void KVExpSetUp::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames)
 {
    // Call FillDetectorList for each array in turn, until DetList gets filled
@@ -212,6 +201,15 @@ Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
    return (fHandledRawData = KVMultiDetArray::HandleRawDataEvent(g));
 }
 
+void KVExpSetUp::SetRawDataFromReconEvent(KVNameValueList& l)
+{
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->SetRawDataFromReconEvent(l);
+   }
+}
+
 void KVExpSetUp::SetReconParametersInEvent(KVReconstructedEvent* e) const
 {
    // Add contents of fReconParameters of each sub-array to the event parameter list
@@ -237,6 +235,28 @@ void KVExpSetUp::GetArrayMultiplicities(KVReconstructedEvent* e, KVNameValueList
    m.Clear();
    for (KVEvent::Iterator it = e->GetNextParticleIterator(opt); it != e->end(); ++it) {
       m.IncrementValue((*it).GetParameters()->GetStringValue("ARRAY"), 1);
+   }
+}
+
+void KVExpSetUp::MakeCalibrationTables(KVExpDB* db)
+{
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   TString orig_dbtype = db->GetDBType();
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      db->SetDBType(Form("%sDB", mda->GetName()));
+      mda->MakeCalibrationTables(db);
+   }
+   db->SetDBType(orig_dbtype);
+}
+
+void KVExpSetUp::SetCalibratorParameters(KVDBRun* r, const TString&)
+{
+   // Set calibrators for all detectors for the run
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->SetCalibratorParameters(r, mda->GetName());
    }
 }
 
@@ -270,5 +290,14 @@ void KVExpSetUp::prepare_to_handle_new_raw_data()
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
       mda->prepare_to_handle_new_raw_data();
+   }
+}
+
+void KVExpSetUp::copy_fired_parameters_to_recon_param_list()
+{
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->copy_fired_parameters_to_recon_param_list();
    }
 }

@@ -5,6 +5,7 @@
 #define __KVEXPSETUP_H
 
 #include "KVMultiDetArray.h"
+class KVDBRun;
 
 class KVExpSetUp : public KVMultiDetArray {
 
@@ -18,6 +19,7 @@ protected:
    Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
 #endif
    void prepare_to_handle_new_raw_data();
+   void copy_fired_parameters_to_recon_param_list();
 
 public:
 
@@ -26,7 +28,6 @@ public:
    virtual void Build(Int_t run = -1);
    void Clear(Option_t* opt = "");
 
-   void SetParameters(UInt_t n);
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
    virtual KVMultiDetArray* GetArray(const Char_t* name) const
    {
@@ -38,9 +39,13 @@ public:
    void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params = nullptr);
    KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
    Bool_t HandleRawDataEvent(KVRawDataReader*);
+   void SetRawDataFromReconEvent(KVNameValueList&);
    void SetReconParametersInEvent(KVReconstructedEvent*) const;
 
    void GetArrayMultiplicities(KVReconstructedEvent*, KVNameValueList&, Option_t* = "");
+
+   void MakeCalibrationTables(KVExpDB*);
+   void SetCalibratorParameters(KVDBRun*, const TString& = "");
 
    ClassDef(KVExpSetUp, 1) //Describe an experimental set-up made of several KVMultiDetArray objects
 };

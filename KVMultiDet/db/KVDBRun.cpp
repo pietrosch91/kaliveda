@@ -2,7 +2,7 @@
 $Id: KVDBRun.cpp,v 1.14 2009/03/12 14:01:02 franklan Exp $
                           KVDBRun.cpp  -  description
                              -------------------
-    begin                : jeu fév 13 2003
+    begin                : jeu fÃ©v 13 2003
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
  ***************************************************************************/
@@ -137,7 +137,8 @@ void KVDBRun::ReadRunListLine(const KVString& line)
    KVString kvs = ((TObjString*)fields->At(0))->String().Remove(TString::kBoth, ' ');
    if (kvs.IsDigit()) {
       SetNumber(kvs.Atoi());
-   } else {
+   }
+   else {
       //not a valid line for run
       delete fields;
       return;
@@ -159,10 +160,12 @@ void KVDBRun::ReadRunListLine(const KVString& line)
             //only true for non-floating point i.e. scaler values
             SetScaler(parameter.Data(), value.Atoi());
 //            cout << " -- SCA " << parameter.Data() << " = " << GetScaler(parameter.Data()) << endl;
-         } else if (value.IsFloat()) {
+         }
+         else if (value.IsFloat()) {
             Set(parameter.Data(), value.Atof());
             //          cout << " -- FLO " << parameter.Data() << " = " << Get(parameter.Data()) << endl;
-         } else { // string value
+         }
+         else {   // string value
             // as we write all strings as 'parname=value', there is a problem if the string 'value'
             // itself contains the '=' symbol !!
             // therefore we replace any '=' in the string by '\equal' before writing in the file
@@ -217,14 +220,16 @@ void KVDBRun::SetSystem(KVDBSystem* system)
       KVDBKey* key = AddKey("Systems", "Physical system used");
       key->SetUniqueStatus(kTRUE);
       key->SetSingleStatus(kTRUE);
-   } else {
+   }
+   else {
       UnsetSystem();
    }
    if (!AddLink("Systems", system)) {
       Warning("SetSystem(KVDBSystem*)",
               "System %s couldn't be set for Run %d. This bizarre...",
               system->GetName(), GetNumber());
-   } else {
+   }
+   else {
       //set title of run = name of system
       SetTitle(system->GetName());
    }

@@ -22,15 +22,15 @@ public:
    Long64_t GetTotalFiles() const
    {
       return fTotFiles;
-   };
+   }
    Long64_t GetTotalSubdirs() const
    {
       return fTotDirs;
-   };
+   }
    Long64_t GetTotalSize() const
    {
       return (fTotDirs + fTotFiles);
-   };
+   }
    void ls(Option_t* option = "") const;
 
    ClassDef(KVSystemDirectory, 1) //TSystemDirectory which uses KVSystemFile

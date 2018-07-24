@@ -12,6 +12,8 @@ typedef const char* cstring;
 
 class KVNamedParameter : public TNamed {
 
+   friend class KVNameValueList;
+
    enum {
       kIsString = BIT(14),
       kIsDouble = BIT(15),

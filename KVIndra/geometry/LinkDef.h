@@ -5,6 +5,7 @@
 #pragma link C++ class KVINDRADetector+;
 #pragma link C++ class KVINDRATelescope+;
 #pragma link C++ class KVSilicon-;
+#pragma link C++ class KVSilicon_GG_Energy+;
 #pragma link C++ class KVSi75+;
 #pragma link C++ class KVSiLi+;
 #pragma link C++ class KVSilicon_e475s-;

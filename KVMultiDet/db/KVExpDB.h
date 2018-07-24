@@ -26,10 +26,22 @@ protected:
    void init();
 
 public:
-
    KVExpDB();
    KVExpDB(const Char_t* name);
    KVExpDB(const Char_t* name, const Char_t* title);
+
+   void SetDataSet(const TString& s)
+   {
+      fDataSet = s;
+   }
+   TString GetDBType() const
+   {
+      return fDBType;
+   }
+   void SetDBType(const TString& s)
+   {
+      fDBType = s;
+   }
 
    virtual ~KVExpDB();
 

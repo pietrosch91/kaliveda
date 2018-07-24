@@ -241,7 +241,8 @@ Double_t KVSilicon::GetVolts()
 
    if (fChVoltPG && fChVoltPG->GetStatus()) {
       return GetVoltsFromCanalPG();
-   } else if (fChVoltGG && fChVoltGG->GetStatus()) {
+   }
+   else if (fChVoltGG && fChVoltGG->GetStatus()) {
       return GetVoltsFromCanalGG(GetGGfromPG());
    }
 
@@ -283,7 +284,7 @@ Double_t KVSilicon::GetEnergy()
    //If energy lost in active layer is already set (e.g. by calculation of energy loss
    //of charged particles), return its value.
    //If not, we calculate it and set it using the values read from coders (if fired)
-   //and the channel-volts/volts-energy calibrations, if present
+   //and any calibrations, if present
    //
    //Returns 0 if (i) no calibration present (ii) calibration present but no data in acquisition parameters
 
@@ -310,7 +311,8 @@ void KVSilicon::Streamer(TBuffer& R__b)
       fChVoltPG  = (KVChannelVolt*) GetCalibrator("Channel-Volt PG");
       fChVoltGG  = (KVChannelVolt*) GetCalibrator("Channel-Volt GG");
       fPHD  = (KVPulseHeightDefect*) GetCalibrator("Pulse Height Defect");
-   } else {
+   }
+   else {
       KVSilicon::Class()->WriteBuffer(R__b, this);
    }
 }

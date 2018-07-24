@@ -40,7 +40,7 @@ public:
 
    virtual Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
    Double_t GetVoltsFromCanalGG(Double_t chan = 0.0);
-   Double_t GetCalibratedEnergy();
+   virtual Double_t GetCalibratedEnergy();
    Double_t GetVolts();
    Double_t GetVoltsFromEnergy(Double_t);
 
