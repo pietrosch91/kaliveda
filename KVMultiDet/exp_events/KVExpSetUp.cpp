@@ -117,7 +117,9 @@ void KVExpSetUp::Build(Int_t run)
    SetGeometry(gGeoManager);
 
    gMultiDetArray = this;
-   fCurrentRun = (run > 0 ? run : 0);
+   fCurrentRun = 0;
+   // calibration parameters may not have been correctly retrieved during construction
+   if (run > 0) SetParameters(run);
    SetBit(kIsBuilt);
    SetName(myname);
 }
@@ -257,6 +259,16 @@ void KVExpSetUp::SetCalibratorParameters(KVDBRun* r, const TString&)
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
       mda->SetCalibratorParameters(r, mda->GetName());
+   }
+}
+
+void KVExpSetUp::SetPedestalParameters(KVDBRun* r, const TString&)
+{
+   // Set pedestals for all detectors for the run
+   TIter next_array(&fMDAList);
+   KVMultiDetArray* mda;
+   while ((mda = (KVMultiDetArray*)next_array())) {
+      mda->SetPedestalParameters(r, mda->GetName());
    }
 }
 

@@ -65,6 +65,7 @@ void KVExpSetUpDB::Build()
    // database plugin
 
    FillRunsTable();
+   ReadComments();
    ReadSystemList();
 
    KVMultiDetArray::MakeMultiDetector(fDataSet);
@@ -91,9 +92,17 @@ void KVExpSetUpDB::FillRunsTable()
          dbrun->SetStartDate(run->GetStringValue("Start"));
          dbrun->SetEndDate(run->GetStringValue("End"));
          if (run->HasValue64bit("Size"))
-            dbrun->SetSize(run->GetValue64bit("Size"));
+            dbrun->SetSize(run->GetValue64bit("Size") / 1024. / 1024.);
          else
-            dbrun->SetSize(run->GetIntValue("Size"));
+            dbrun->SetSize(run->GetIntValue("Size") / 1024. / 1024.);
+
+         if (run->HasValue64bit("Events")) {
+            Warning("FillRunsTable", "64-bit value for number of events in run %d", run->GetIntValue("Run"));
+            Warning("FillRunsTable", "Database can only handle 32-bit signed values!");
+            dbrun->SetEvents((Int_t)run->GetValue64bit("Events"));
+         }
+         else
+            dbrun->SetEvents(run->GetIntValue("Events"));
          AddRun(dbrun);
       }
    }

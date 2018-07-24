@@ -92,10 +92,10 @@ public:
    }
 
    virtual Double_t GetTotalSolidAngle(void);
-
-   ClassDef(KVASMultiDetArray, 1) //Azimuthally-symmetric multidetector arrays
    void AnalyseGroupAndReconstructEvent(KVReconstructedEvent* event, KVGroup* grp);
    void AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl);
+
+   ClassDef(KVASMultiDetArray, 1) //Azimuthally-symmetric multidetector arrays
 };
 
 #endif

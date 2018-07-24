@@ -7,6 +7,7 @@
 #include <KVLightEnergyCsIFull.h>
 #include <KVLightEnergyCsI.h>
 #include <KVCalibrator.h>
+#include <KVIDGCsI.h>
 
 ClassImp(KVFAZIAGroupReconstructor)
 
@@ -18,36 +19,6 @@ ClassImp(KVFAZIAGroupReconstructor)
 <!-- */
 // --> END_HTML
 //////////////////////////////////////////////////////////////////////////////////
-//KVReconstructedNucleus* KVFAZIAGroupReconstructor::ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node)
-//{
-//   // Specialised event reconstruction for FAZIA data
-//   // Triggered CsI detectors are checked: if it is a gamma, we count it (parameter "FAZIA_GAMMA_MULT")
-//   // and add the name of the detector to the parameter "FAZIA_GAMMA_DETS"
-//   // but do not reconstruct a particle.
-
-//   if (node->GetDetector()->IsType("CsI")) {
-//      if (node->GetDetector()->Fired()) {
-//         ++nfireddets;
-//         KVIDTelescope* idt = (KVIDTelescope*)traj->GetIDTelescopes()->FindObjectByType("CsI");
-//         if (idt) {
-//            KVIdentificationResult idr;
-//            if (idt->IsReadyForID()) {
-//               idt->Identify(&idr);
-//               if (idr.IDOK && idr.IDcode == 0) {
-//                  GetEventFragment()->GetParameters()->IncrementValue("FAZIA_GAMMA_MULT", 1);
-//                  GetEventFragment()->GetParameters()->IncrementValue("FAZIA_GAMMA_DETS", node->GetName());
-//                  node->GetDetector()->SetAnalysed();
-//                  return nullptr;
-//               }
-//            }
-//         }
-//         return GetEventFragment()->AddParticle();
-//      }
-//      return nullptr;
-//   }
-//   return KVGroupReconstructor::ReconstructTrajectory(traj, node);
-//}
-
 void KVFAZIAGroupReconstructor::CalibrateParticle(KVReconstructedNucleus* PART)
 {
 //   // Perform energy calibration of (previously identified) particle
@@ -311,4 +282,25 @@ void KVFAZIAGroupReconstructor::PostReconstructionProcessing()
       }
    }
 
+}
+
+void KVFAZIAGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
+{
+   // Check for gammas identified in CsI which hide another particle stopping in Si2 or Si1
+
+   KVGroupReconstructor::IdentifyParticle(PART);
+   if (partID.IsType("CsI") && partID.IDquality == KVIDGCsI::kICODE10) {
+      // look at Si1-Si2 identification
+      std::map<std::string, KVIdentificationResult*>::iterator si1si2 = id_by_type.find("Si-Si");
+      if (si1si2 != id_by_type.end()) {
+         if (si1si2->second->IDattempted && si1si2->second->IDquality < KVIDZAGrid::kICODE4) {
+            Info("IdentifyParticle", "Gamma identified in %s replaced with Si1-Si2 identification:", PART.GetStoppingDetector()->GetName());
+            si1si2->second->Print();
+            partID = *(si1si2->second);
+            identifying_telescope = (KVIDTelescope*)PART.GetReconstructionTrajectory()->GetIDTelescopes()->FindObjectByType("CsI");
+            PART.SetIdentifyingTelescope(identifying_telescope);
+            PART.SetIdentification(&partID, identifying_telescope);
+         }
+      }
+   }
 }

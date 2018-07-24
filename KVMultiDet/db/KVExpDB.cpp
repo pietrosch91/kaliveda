@@ -6,6 +6,7 @@
 #include "KVDBSystem.h"
 #include "KVNumberList.h"
 
+#include <KVFileReader.h>
 #include <iostream>
 using namespace std;
 
@@ -414,4 +415,57 @@ const Char_t* KVExpDB::GetDBEnv(const Char_t* type) const
    const char* p = KVBase::GetDataSetEnv(fDataSet, Form("%s.%s", fDBType.Data(), type), "");
    if (!strcmp(p, "")) return KVBase::GetDataSetEnv(fDataSet, Form("EXPDB.%s", type), "");
    return p;
+}
+
+void KVExpDB::ReadComments()
+{
+   // Looks for file with name given by one of the following variables:
+   //
+   //    [DBtype].Comments
+   //    [dataset].[DBtype].Comments
+   //
+   // and opens it to read and add comments on runs.
+   // Format of file is:
+   //
+   //    run=3830-3836 | really amazing data in these runs
+   //
+
+   TString comments_file = GetCalibFileName("Comments");
+   if (comments_file == "") return;
+   TString fullpath;
+   if (!KVBase::SearchKVFile(comments_file, fullpath, fDataSet)) return;
+
+   Info("ReadComments", "Reading run comments in file %s...", fullpath.Data());
+
+   KVFileReader fr;
+   if (!fr.OpenFileToRead(fullpath)) {
+      Error("ReadComments", "Problem opening file %s", fullpath.Data());
+      return;
+   }
+
+   while (fr.IsOK()) {
+      fr.ReadLine("|");
+      if (fr.GetCurrentLine().BeginsWith("#")) {
+
+      }
+      else if (fr.GetCurrentLine() == "") {
+
+      }
+      else {
+         if (fr.GetNparRead() == 2) {
+            KVString srun(fr.GetReadPar(0));
+            srun.Begin("=");
+            srun.Next();
+            KVNumberList lruns(srun.Next());
+            KVString comments(fr.GetReadPar(1));
+            lruns.Begin();
+            while (!lruns.End()) {
+               Int_t run = lruns.Next();
+               KVDBRun* dbrun = GetDBRun(run);
+               if (dbrun)
+                  dbrun->SetComments(comments.Data());
+            }
+         }
+      }
+   }
 }

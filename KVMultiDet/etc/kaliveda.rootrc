@@ -201,6 +201,7 @@ KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
 # Default file names for experimental databases
 EXPDB.Runlist: runinfos.root
 EXPDB.Systems: Systems.dat
+EXPDB.Comments: Comments.txt
 # file which gather all calibration files
 EXPDB.CalibrationFiles:     CalibrationFiles.dat
 
