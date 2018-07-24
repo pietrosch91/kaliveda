@@ -340,13 +340,13 @@ FAZIAPRE.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIAPRE.dat
 FAZIAPRE.ActiveIdentifications:                Si-CsI Si-Si
 
 # file which gather all calibration files
-FAZIADB.CalibrationFiles:     CalibrationFiles.dat
+FAZIADB.CalibrationFiles:     FAZIA.CalibrationFiles.dat
 #comments associated with runs
 FAZIADB.Comments:				Comments.txt
 #comments associated with runs
 FAZIADB.RutherfordCounting:				stat_rutherford.env
 FAZIADB.RutherfordCrossSection:			crosssection_rutherford.env
-# liste des detecteurs ne marchant pas ou éteints (out of order)
+# liste des detecteurs ne marchant pas ou Ù‰teints (out of order)
 FAZIADB.OoODet:    OoODetectors.env
 
 

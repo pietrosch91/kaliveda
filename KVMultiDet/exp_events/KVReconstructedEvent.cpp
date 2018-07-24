@@ -85,6 +85,8 @@ void KVReconstructedEvent::Streamer(TBuffer& R__b)
       // if the multidetector object exists, update some informations
       // concerning the detectors etc. hit by this particle
       if (gMultiDetArray) {
+         // reset raw data in detectors if found in parameter list
+         gMultiDetArray->SetRawDataFromReconEvent(fParameters);
          //set angles
          KVReconstructedNucleus* par;
          for (KVEvent::Iterator it = begin(); it != end(); ++it) {

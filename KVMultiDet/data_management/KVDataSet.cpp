@@ -1514,9 +1514,15 @@ Bool_t KVDataSet::OpenDataSetFile(const Char_t* filename, ifstream& file)
 
 TString KVDataSet::GetFullPathToDataSetFile(const Char_t* filename)
 {
+   return GetFullPathToDataSetFile(GetName(), filename);
+}
+
+TString KVDataSet::GetFullPathToDataSetFile(const TString& dataset, const Char_t* filename)
+{
+   // Static method to find a file in the dataset directory
    TString fullpath;
-   if (!SearchKVFile(filename, fullpath, GetName())) {
-      Warning("GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, GetName());
+   if (!SearchKVFile(filename, fullpath, dataset)) {
+      ::Warning("KVDataSet::GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, dataset.Data());
    }
    return fullpath;
 }

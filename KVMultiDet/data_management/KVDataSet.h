@@ -193,6 +193,7 @@ public:
 
    virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
    TString GetFullPathToDataSetFile(const Char_t* filename);
+   static TString GetFullPathToDataSetFile(const TString& dataset, const Char_t* filename);
 
    virtual Bool_t DataBaseNeedsUpdate() const;
 

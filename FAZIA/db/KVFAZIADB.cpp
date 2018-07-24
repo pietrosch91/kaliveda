@@ -33,7 +33,7 @@ void KVFAZIADB::init()
 
    fExceptions = AddTable("Exceptions", "List signals with different PSA parameters");
    fCalibrations = AddTable("Calibrations", "Available calibration for FAZIA detectors");
-   fOoODets = AddTable("Calibrations", "Available calibration for FAZIA detectors");
+   fOoODets = nullptr;
    //filenames to manage the data transfer via IRODS
    fDONEfile = "FromKVFAZIADB_transferdone.list";
    fFAILEDfile = "FromKVFAZIADB_transferfailed.list";

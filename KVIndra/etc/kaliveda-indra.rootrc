@@ -47,6 +47,8 @@ INDRA_camp1.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_camp1.HasCalibIdentInfos:   no
 INDRA_camp1.DataSet.RunFile.DoNotDelete: raw dst
 INDRA_camp1.DataSet.RunFileClass.raw:    GANIL
+INDRA_camp1.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_camp1.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_camp2
 INDRA_camp2.DataSet.Title:    2nd INDRA campaign (1994)
@@ -56,6 +58,8 @@ INDRA_camp2.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_camp2.HasCalibIdentInfos:   no
 INDRA_camp2.DataSet.RunFile.DoNotDelete: raw dst
 INDRA_camp2.DataSet.RunFileClass.raw:    GANIL
+INDRA_camp2.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_camp2.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
@@ -66,6 +70,8 @@ INDRA_camp4.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_camp4.HasCalibIdentInfos:   no
 INDRA_camp4.DataSet.RunFile.DoNotDelete: raw dst
 INDRA_camp4.DataSet.RunFileClass.raw:    GANIL
+INDRA_camp4.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_camp4.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -74,6 +80,8 @@ INDRA_camp5.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyse
 INDRA_camp5.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_camp5.DataSet.RunFile.DoNotDelete: raw
 INDRA_camp5.DataSet.RunFileClass.raw:    GANIL
+INDRA_camp5.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_camp5.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_e416a
 INDRA_e416a.DataSet.Title:    Fission lifetimes of SHE (E416a) (2005)
@@ -85,6 +93,8 @@ INDRA_e416a.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_e416a.DataSet.RunFile.DoNotDelete: raw
 INDRA_e416a.KVMultiDetArray.ROOTGeometry:  no
 INDRA_e416a.DataSet.RunFileClass.raw:    GANIL
+INDRA_e416a.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_e416a.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_e475s
 INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
@@ -95,6 +105,8 @@ INDRA_e475s.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_e475s.KVDataSet.DataType.Subdir.recon:  recon
 INDRA_e475s.DataSet.RunFile.DoNotDelete: raw
 INDRA_e475s.DataSet.RunFileClass.raw:    GANIL
+INDRA_e475s.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_e475s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:   t10_02
 t10_02.DataSet.Title:    Test INDRA T10_02 (Nov.-Dec. 2010)
@@ -104,6 +116,8 @@ t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 t10_02.ReconstructedEventClassName:   KVINDRAReconEvent
 t10_02.DataSet.RunFile.DoNotDelete: raw
 t10_02.DataSet.RunFileClass.raw:    GANIL
+t10_02.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+t10_02.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:   INDRA_e613
 INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
@@ -115,6 +129,8 @@ INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 # INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
 INDRA_e613.DataSet.RunFile.DoNotDelete: raw
 INDRA_e613.DataSet.RunFileClass.raw:    GANIL
+INDRA_e613.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_e613.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_e494s_woVAMOS
 INDRA_e494s_woVAMOS.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -124,6 +140,8 @@ INDRA_e494s_woVAMOS.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_e494s_woVAMOS.HasCalibIdentInfos:   no
 INDRA_e494s_woVAMOS.DataSet.RunFile.DoNotDelete: raw
 INDRA_e494s_woVAMOS.DataSet.RunFileClass.raw:    GANIL
+INDRA_e494s_woVAMOS.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_e494s_woVAMOS.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataSet:    INDRA_e503_woVAMOS
 INDRA_e503_woVAMOS.DataSet.Title:   Symmetry energy of nuclear EOS (E503) (2007)
@@ -133,6 +151,8 @@ INDRA_e503_woVAMOS.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_e503_woVAMOS.HasCalibIdentInfos:   no
 INDRA_e503_woVAMOS.DataSet.RunFile.DoNotDelete: raw
 INDRA_e503_woVAMOS.DataSet.RunFileClass.raw:    GANIL
+INDRA_e494s_woVAMOS.ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+INDRA_e494s_woVAMOS.ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 # INDRA analyser for Reconstruction DataAnalysisTask
 INDRA_camp5.Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
@@ -236,10 +256,6 @@ ReconRoot.DataAnalysisTask.UserClass:     no
 ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
 ReconRoot.DataAnalysisTask.StatusUpdateInterval:     5000
 
-# INDRA specification for recon analysis
-ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
-ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
-
 +DataAnalysisTask:     GeneAnalysis
 GeneAnalysis.DataAnalysisTask.Title:     Analysis of gene data (recon)
 GeneAnalysis.DataAnalysisTask.Prereq:     recon
@@ -342,7 +358,7 @@ INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 INDRADB.Codeurs:    Codeurs.dat
 # liste des detecteurs physiquement absents
 INDRADB.AbsentDet:	AbsentDetectors.dat
-# liste des detecteurs ne marchant pas ou éteints (out of order)
+# liste des detecteurs ne marchant pas ou eteints (out of order)
 INDRADB.OoODet:    OoODetectors.dat
 # liste des parametres d acquisition ne marchant pas (-1 sur l ensemble d un run)
 INDRADB.OoOACQPar:    OoOACQParameters.dat
@@ -501,6 +517,9 @@ Plugin.KVExpDB:    INDRA_camp1    KVINDRADB1     KVIndradb    "KVINDRADB1(const 
 +Plugin.KVExpDB:    t10_02   KVINDRADB     KVIndradb    "KVINDRADB(const Char_t*)"
 +Plugin.KVExpDB:    INDRA_e494s_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
 +Plugin.KVExpDB:    INDRA_e503_woVAMOS    KVINDRADB     KVIndradb  "KVINDRADB(const Char_t*)"
+
+# file which gather all calibration files
+INDRADB.CalibrationFiles:     INDRA.CalibrationFiles.dat
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.

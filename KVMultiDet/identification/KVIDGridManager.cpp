@@ -85,6 +85,7 @@ void KVIDGridManager::Clear(Option_t*)
    //Delete all grids and empty list, ready to start anew
    Info("Clear", "DELETING ALL GRIDS IN IDGRIDMANAGER");
    fGrids->Disconnect("Modified()", this, "Modified()");
+   fLastReadGrids.Clear();
    fGrids->Delete();
    Modified();                  // emit signal to say something changed
    fGrids->Connect("Modified()", "KVIDGridManager", this, "Modified()");

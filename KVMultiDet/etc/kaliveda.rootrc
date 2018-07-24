@@ -54,7 +54,7 @@ KVDataSet.DataType.Subdir.root:  root2
 # Default formats for runfile names (run number is used to replace integer format)
 # DataSet.RunFileName.online:    run%d.raw
 DataSet.RunFileName.bin:    run%06d
-DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.raw:    run_%04d.dat
 DataSet.RunFileName.dst:    run%d.dst
 DataSet.RunFileName.recon:    run%d.recon.root
 DataSet.RunFileName.ident:    run%d.ident.root
@@ -73,8 +73,8 @@ DataSet.RunFileClass.root:    TFile
 # Plugins for reading raw data
 # Syntax:
 # Plugin.KVRawDataReader:    name_of_plugin    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetexp_events    "KVGANILDataReader()"
-+Plugin.KVRawDataReader:    MFM    KVMFMDataFileReader     KVMultiDetdaq_cec    "KVMFMDataFileReader()"
+Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetexp_events    "KVGANILDataReader(const char*)"
++Plugin.KVRawDataReader:    MFM    KVMFMDataFileReader     KVMultiDetdaq_cec    "KVMFMDataFileReader(const char*)"
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
@@ -122,13 +122,15 @@ Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (r
 Reconstruction.DataAnalysisTask.Prereq:     raw
 Reconstruction.DataAnalysisTask.Analyser:     RawDataReconstructor
 Reconstruction.DataAnalysisTask.UserClass:     no
-Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
+Reconstruction.DataAnalysisTask.StatusUpdateInterval:     5000
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
 ReconAnalysis.DataAnalysisTask.Prereq:     recon
 ReconAnalysis.DataAnalysisTask.UserClass:     yes
-ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     5000
+ReconAnalysis.DataAnalysisTask.Analyser:     ReconDataAnalyser
+ReconAnalysis.DataAnalysisTask.UserClass.Base:     ReconEventSelector/TSelector
 
 # +DataAnalysisTask:     OnlineAnalysis
 # OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
@@ -181,9 +183,11 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirFilterAnalyser         KVSimDirFilterAnalyser        KVMultiDetexp_events   "KVSimDirFilterAnalyser()"
 +Plugin.KVDataAnalyser:   RawDataReconstructor         KVRawDataReconstructor        KVMultiDetexp_events   "KVRawDataReconstructor()"
++Plugin.KVDataAnalyser:   ReconDataAnalyser         KVReconDataAnalyser     KVMultiDetexp_events "KVReconDataAnalyser()"
 
 +Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
 +Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"
++Plugin.TSelector:    ReconEventSelector    KVReconEventSelector    KVMultiDetanalysis   "KVReconEventSelector()"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer
@@ -194,6 +198,11 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDetanalysis   "KVDa
 # Change handling of scaler buffers in GANIL data files
 KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
 
+# Default file names for experimental databases
+EXPDB.Runlist: runinfos.root
+EXPDB.Systems: Systems.dat
+# file which gather all calibration files
+EXPDB.CalibrationFiles:     CalibrationFiles.dat
 
 # COHERENCE TOLERANCE PARAMETER
 # In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses

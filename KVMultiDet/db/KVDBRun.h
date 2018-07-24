@@ -2,7 +2,7 @@
 $Id: KVDBRun.h,v 1.15 2009/03/12 14:01:02 franklan Exp $
                           KVDBRun.h  -  description
                              -------------------
-    begin                : jeu fév 13 2003
+    begin                : jeu fÃ©v 13 2003
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
  ***************************************************************************/

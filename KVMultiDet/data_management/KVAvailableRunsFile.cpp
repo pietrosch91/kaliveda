@@ -93,7 +93,8 @@ const Char_t* KVAvailableRunsFile::GetFileName() const
    if (!fDataSet) {
       Error("GetFileName", "Dataset has not been set for this file.");
       filename = "";
-   } else
+   }
+   else
       filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDataPathSubdir(),
                     fDataSet->GetDataTypeSubdir(GetDataType()));
    return filename.Data();
@@ -119,16 +120,19 @@ const Char_t* KVAvailableRunsFile::GetFilePath() const
    if (!fDataSet) {
       Error("GetFilePath", "Dataset has not been set for this file.");
       filepath = "";
-   } else {
+   }
+   else {
       TString p = gEnv->GetValue("KVAvailableRunsFile.RunFileDirectory", "");
       if (p == "") {
          // no user-defined run file directory
          if (is_gnuinstall()) {
             // GNU-style install: use working directory
             filepath = GetWORKDIRFilePath(fDataSet->GetName());
-         } else
+         }
+         else
             filepath = fDataSet->GetDataSetDir();
-      } else {
+      }
+      else {
          gSystem->ExpandPathName(p);
          AssignAndDelete(filepath, gSystem->ConcatFileName(p.Data(), fDataSet->GetName()));
       }
@@ -205,14 +209,27 @@ Int_t KVAvailableRunsFile::IsRunFileName(const Char_t* filename)
             GetDataType());
       return 0;
    }
+   return IsRunFileName(fmt, filename);
+}
+
+Int_t KVAvailableRunsFile::IsRunFileName(const TString& fmt, const Char_t* filename)
+{
+   //This method tests the string given as 'filename' to see if it could be the name of a runfile.
+   //The decision as to whether the filename is valid or not is based on whether it corresponds
+   //to the given format string, e.g. run_%04d.dat
+   //We also test, for each format, "format%*", in case the filename has the file creation date
+   //string appended to it.
+   //If a working format is found, we return the run number deduced from the filename.
+   //If not, we return 0.
+
    Int_t run;
    //Test format of filename
    KVString _file(gSystem->BaseName(filename));  //Remove protocol and/or path
    if (_file.Sscanf(fmt.Data(), &run))
       return run;
    //wtih date at end ?
-   fmt += "%*";
-   if (_file.Sscanf(fmt.Data(), &run))
+   TString Fmt = fmt + "%*";
+   if (_file.Sscanf(Fmt.Data(), &run))
       return run;
    return 0;
 }
@@ -229,9 +246,19 @@ Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime
    TString fmt =
       fDataSet->
       GetDataSetEnv(Form("DataSet.RunFileName.%s", GetDataType()));
+   return ExtractDateFromFileName(fmt, name, date);
+}
+
+Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const TString& Fmt, const Char_t* name, KVDatime& date)
+{
+   // We assume that 'name' is the name of a runfile according to given format 'fmt'.
+   // We attempt several methods to try to extract a date from 'name'.
+   // If successful, we return kTRUE and 'date' contains the result.
+
+   TString fmt(Fmt);
    Int_t rubbish = fmt.Index("%*");
    if (rubbish > -1) fmt.Remove(rubbish, fmt.Length());
-   Int_t run = IsRunFileName(name);
+   Int_t run = IsRunFileName(fmt, name);
    if (!run) return kFALSE;
    TString basename;
    basename.Form(fmt.Data(), run);
@@ -244,13 +271,19 @@ Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime
    if (KVDatime::IsSQLFormat(fullname.Data())) {
       date.SetSQLDate(fullname.Data());
       return kTRUE;
-   } else {
+   }
+   else {
       fullname.ReplaceAll(".", " ");
       if (KVDatime::IsGANACQFormat(fullname.Data())) {
          date.SetGanacqDate(fullname.Data());
          return kTRUE;
-      } else if (KVDatime::IsGANACQ2010Format(fullname.Data())) {
+      }
+      else if (KVDatime::IsGANACQ2010Format(fullname.Data())) {
          date.SetGanacq2010Date(fullname.Data());
+         return kTRUE;
+      }
+      else if (KVDatime::IsGANACQNarvalFormat(fullname.Data())) {
+         date.SetGanacqNarvalDate(fullname.Data());
          return kTRUE;
       }
    }
@@ -334,23 +367,27 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
                         tmp_file << "|" << prevEntry->GetStringValue(Form("KVVersion[%d]", occIdx)) << "|" << prevEntry->GetStringValue(Form("Username[%d]", occIdx));
                      }
                      tmp_file << endl;
-                  } else {
+                  }
+                  else {
                      // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                      tmp_file << run->GetNumber() << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
                   }
-               } else { // no previous existing file
+               }
+               else {   // no previous existing file
                   // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                   tmp_file << run->GetNumber() << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
                }
             }
-         } else {
+         }
+         else {
             Info("Update", "the current run [%s] is not in database", objs->GetName());
             FileStat_t fs;
             if (repository->GetFileInfo(fDataSet, GetDataType(), objs->GetName(), fs)) {
                TDatime modt(fs.fMtime);
                // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                tmp_file << run_num  << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
-            } else {
+            }
+            else {
                Warning("Update", "%s GetFileInfo return kFALSE", objs->GetName());
             }
          }
@@ -405,7 +442,8 @@ Bool_t KVAvailableRunsFile::GetRunInfo(Int_t run, TDatime& modtime,
       filename = ((TObjString*) filenames.First())->String();
       modtime = ((TObjString*) dates.First())->String().Data();
       return kTRUE;
-   } else if (filenames.GetEntries() > 1) { //several versions
+   }
+   else if (filenames.GetEntries() > 1) {   //several versions
       Warning("GetRunInfo",
               "Multiple versions of this runfile exist in the repository. Infos for most recent file will be returned.");
       Warning("GetRunInfo",
@@ -476,7 +514,8 @@ void KVAvailableRunsFile::GetRunInfos(Int_t run, KVList* dates,
          //dataset's base file name (i.e. with no date/time suffix)
          if (toks->GetEntries() > 2) {
             files->Add(toks->At(2)->Clone());
-         } else {
+         }
+         else {
             files->
             Add(new
                 TObjString(fDataSet->
@@ -624,7 +663,8 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
             fDatime = TDatime(tmp.Data());
             if (toks->GetEntries() > 2) {
                filename = ((TObjString*) toks->At(2))->String();
-            } else {
+            }
+            else {
                filename = GetBaseRunFileName(fRunNumber);
             }
             if (toks->GetEntries() > 3) {
@@ -652,12 +692,14 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
                      //new system
                      sys_list->Add(sys);
                      sys->SetNumberRuns(1);   //set run count to 1
-                  } else {
+                  }
+                  else {
                      //another run for this system
                      sys->SetNumberRuns(sys->GetNumberRuns() + 1);
                   }
                }
-            } else {
+            }
+            else {
                //making a runlist
                if (systol == sys) {   //run belongs to same system
                   if (!sys_list) {
@@ -723,7 +765,8 @@ void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t* filename, const C
          //dataset's base file name (i.e. with no date/time suffix)
          if (toks->GetEntries() > 2) {
             ReadFileName = ((TObjString*) toks->At(2))->String();
-         } else {
+         }
+         else {
             ReadFileName =
                fDataSet->GetBaseFileName(GetDataType(), run);
          }
@@ -731,13 +774,15 @@ void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t* filename, const C
          if (ReadFileName != FileName) {
             //copy line
             tmp_file << line.Data() << endl;
-         } else {
+         }
+         else {
             // replace existing infos
             tmp_file << run << "|" << ((TObjString*) toks->At(1))->String() << "|" << filename << "|" << kvversion << "|" << username << endl;
          }
          delete toks;
 
-      } else {
+      }
+      else {
          //copy line
          tmp_file << line.Data() << endl;
       }
@@ -795,7 +840,8 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t* filename)
             //copy line
             tmp_file << line.Data() << endl;
          }
-      } else {
+      }
+      else {
          //filename was specified: we copy everything up to the line
          //with the right filename & number
          if (line.BeginsWith(Form("%d|", run))) {
@@ -808,7 +854,8 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t* filename)
             //dataset's base file name (i.e. with no date/time suffix)
             if (toks->GetEntries() > 2) {
                ReadFileName = ((TObjString*) toks->At(2))->String();
-            } else {
+            }
+            else {
                ReadFileName =
                   fDataSet->GetBaseFileName(GetDataType(), run);
             }
@@ -819,7 +866,8 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t* filename)
                tmp_file << line.Data() << endl;
             }
 
-         } else {
+         }
+         else {
             //copy line
             tmp_file << line.Data() << endl;
          }
@@ -1002,7 +1050,8 @@ KVNumberList KVAvailableRunsFile::GetRunList(const KVDBSystem* sys)
             if (a_run->GetSystem() == sys)
                runs.Add(fRunNumber);
          }
-      } else {
+      }
+      else {
          // add all runs to list
          runs.Add(fRunNumber);
       }
@@ -1074,7 +1123,8 @@ void KVAvailableRunsFile::ReadFile()
       if (!NVL) {
          NVL = new KVNameValueList(kvs);
          fAvailableRuns->Add(NVL);
-      } else {
+      }
+      else {
          // check date for run is different to any others
          Bool_t ok = kTRUE;
          for (Int_t ii = 0; ii < Occurs; ii++) {
@@ -1104,7 +1154,8 @@ void KVAvailableRunsFile::ReadFile()
       KVString filename;
       if (nfields > 2) {
          filename = ((TObjString*) toks->At(2))->GetString();
-      } else {
+      }
+      else {
          filename = fDataSet->GetBaseFileName(GetDataType(), fRunNumber);
       }
       NVL->SetValue(Form("Filename[%d]", Occurs - 1), filename.Data());

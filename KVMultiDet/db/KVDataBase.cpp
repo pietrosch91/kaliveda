@@ -2,7 +2,7 @@
 $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
                           KVDataBase.cpp  -  description
                              -------------------
-    begin                : jeu fév 6 2003
+    begin                : jeu fÃ©v 6 2003
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
  ***************************************************************************/

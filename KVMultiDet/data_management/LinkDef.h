@@ -13,6 +13,7 @@
 
 #pragma link C++ class KVDataAnalysisTask+;
 #pragma link C++ class KVRunFile+;
+#pragma link C++ class KVRunListCreator+;
 #pragma link C++ class KVAvailableRunsFile+;
 #pragma link C++ class KVRemoteAvailableRunsFile+;
 #pragma link C++ class KVDataSet+;

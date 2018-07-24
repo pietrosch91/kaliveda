@@ -12,6 +12,7 @@
 #include "KVDetector.h"
 #include "KVGroupReconstructor.h"
 
+#include <KVFileReader.h>
 #include <KVGeoDNTrajectory.h>
 class KVIDGraph;
 class KVTarget;
@@ -37,6 +38,9 @@ class KVMFMDataFileReader;
 class MFMEbyedatFrame;
 #endif
 class KVExpSetUp;
+class KVExpDB;
+class KVDBTable;
+class KVDBRun;
 
 class KVMultiDetArray : public KVGeoStrucElement {
 
@@ -136,6 +140,12 @@ protected:
 
    virtual void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
+   virtual void copy_fired_parameters_to_recon_param_list();
+
+   TString GetFileName(KVExpDB*, const Char_t* meth, const Char_t* keyw);
+   unique_ptr<KVFileReader> GetKVFileReader(KVExpDB* db, const Char_t* meth, const Char_t* keyw);
+   void ReadCalibrationFiles(KVExpDB* db, KVDBTable* calib_table);
+   void ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTable* calib_table);
 public:
    KVNameValueList& GetReconParameters()
    {
@@ -423,11 +433,15 @@ public:
    {
       return fHandledRawData;
    }
+   virtual void SetRawDataFromReconEvent(KVNameValueList&);
 
    TString GetDataSet() const
    {
       return fDataSet;
    }
+
+   virtual void MakeCalibrationTables(KVExpDB*);
+   virtual void SetCalibratorParameters(KVDBRun*, const TString& = "");
 
    ClassDef(KVMultiDetArray, 7) //Base class for multidetector arrays
 };

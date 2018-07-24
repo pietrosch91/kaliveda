@@ -10,20 +10,19 @@ INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.KVDataSet.DataType.Subdir.root:  root
 INDRAFAZIA.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
-INDRAFAZIA.ExpSetUp.Updater.INDRA: INDRA_camp1
-INDRAFAZIA.ExpSetUp.Updater.FAZIA: FAZIACOR
 #INDRAFAZIA.HasCalibIdentInfos:   yes
 #INDRAFAZIA.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
-INDRAFAZIA.ActiveIdentifications:      CSI Si-Si Si-CsI
+INDRAFAZIA.ActiveIdentifications:      SI-CSI CSI Si-Si Si-CsI CsI
 INDRAFAZIA.SI-CSI.MassID: yes
 INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
-INDRAFAZIA.EventReconstruction.DoIdentification: no
-INDRAFAZIA.EventReconstruction.DoCalibration: no
+#INDRAFAZIA.EventReconstruction.DoCalibration: no
 
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
-+Plugin.KVExpDB:   INDRAFAZIA    KVFAZIADB     FAZIAdb   "KVFAZIADB(const Char_t*)"
++Plugin.KVExpDB:   INDRAFAZIA    KVExpSetUpDB     KVMultiDetexp_events   "KVExpSetUpDB(const Char_t*)"
 +Plugin.KVFAZIA:    INDRAFAZIA    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
 +Plugin.KVINDRA:    INDRAFAZIA    KVINDRA    KVIndraexp_events    "KVINDRA()"
+
++Plugin.KVDetector:      ^INDRAFAZIA.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
 
 INDRAFAZIA.FAZIA.NBlocks: 2
 
@@ -32,12 +31,12 @@ INDRAFAZIA.FAZIA.NBlocks: 2
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 
-INDRAFAZIA.IdentificationParameterFile.CSI:          CSI_R_L_6-12.dat
-INDRAFAZIA.IdentificationParameterFile.Si-CsI:       SICSI.dat
-INDRAFAZIA.IdentificationParameterFile.Si-Si:        SISI.dat
-INDRAFAZIA.IdentificationParameterFile.CsI:          CSIRL.dat
+INDRAFAZIA.IdentificationParameterFile.SI-CSI:       INDRA_SICSI.dat
+INDRAFAZIA.IdentificationParameterFile.CSI:          INDRA_CSI.dat
+INDRAFAZIA.IdentificationParameterFile.Si-Si:        FAZIA_SiSi.dat
+INDRAFAZIA.IdentificationParameterFile.Si-CsI:       FAZIA_SiCsI.dat
+INDRAFAZIA.IdentificationParameterFile.CsI:          FAZIA_CsI.dat
 
-FAZIADB.CalibrationFiles:     CalibrationFiles.dat
 FAZIADetector.Calib.Channel-Energy: pol2
 
 INDRAFAZIA.Q3.FastShaperFlatTop:    0.5

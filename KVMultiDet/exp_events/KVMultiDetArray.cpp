@@ -39,6 +39,8 @@
 #include <KVDataAnalyser.h>
 #include <KVNamedParameter.h>
 #ifdef WITH_OPENGL
+#include <KVCalibrator.h>
+#include <KVDBParameterSet.h>
 #include <TGLViewer.h>
 #include <TVirtualPad.h>
 #endif
@@ -1419,6 +1421,48 @@ void KVMultiDetArray::SetCalibrators()
    //SetParameters or SetRunCalibrationParameters
 
    const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, SetCalibrators)();
+}
+
+void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
+{
+   // Set parameters for all detectors with links to table "Calibrations" for run
+   // If 'myname' is given, we look in "myname.Calibrations"
+
+   TString tabname = (myname != "" ? Form("%s.Calibrations", myname.Data()) : "Calibrations");
+   Info("SetCalibratorParameters", "For array %s in table %s", GetName(), tabname.Data());
+   KVRList* run_links = r->GetLinks(tabname);
+   if (run_links) Info("SetCalibratorParameters", "Found %d calibrations for this run", run_links->GetEntries());
+   else {
+      Warning("SetCalibratorParameters", "Got no links for %s", tabname.Data());
+      r->GetKeys()->ls();
+      return;
+   }
+   TIter nxt_link(run_links);
+   KVDBParameterSet* dbps;
+   while ((dbps = (KVDBParameterSet*)nxt_link())) {
+      KVDetector* det = GetDetector(dbps->GetName());
+      if (!det) {
+         Warning("SetCalibratorParameters", "Got parameters for unknown detector: %s", dbps->GetName());
+         continue;
+      }
+      KVCalibrator* cal = det->GetCalibrator(dbps->GetTitle());
+      if (!cal) {
+         Warning("SetCalibratorParameters", "Detector %s has no calibrator of type: %s", dbps->GetName(), dbps->GetTitle());
+         continue;
+      }
+      if (dbps->GetParamNumber() > cal->GetNumberParams()) {
+         Warning("SetCalibratorParameters", "Wrong number of parameters (%d) for calibrator %s for detector %s : should be %d",
+                 dbps->GetParamNumber(), dbps->GetTitle(), dbps->GetName(), cal->GetNumberParams());
+         continue;
+      }
+      for (int i = 0; i < dbps->GetParamNumber(); ++i) {
+         if (i >= cal->GetNumberParams())
+            cal->SetParameter(i, 0);
+         else
+            cal->SetParameter(i, dbps->GetParameter(i));
+      }
+      cal->SetStatus(true);
+   }
 }
 
 //_________________________________________________________________________________
@@ -2986,21 +3030,171 @@ void KVMultiDetArray::SetReconParametersInEvent(KVReconstructedEvent* e) const
    *(e->GetParameters()) += fReconParameters;
 }
 
+void KVMultiDetArray::copy_fired_parameters_to_recon_param_list()
+{
+   TIter it(GetFiredDataParameters());
+   TObject* o;
+   while ((o = it())) {
+      if (o->InheritsFrom("KVACQParam") && GetACQParam(o->GetName())) {
+         fReconParameters.SetValue(Form("ACQPAR.%s.%s", GetName(), o->GetName()), (Int_t)((KVACQParam*)o)->GetCoderData());
+      }
+   }
+}
+
 Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
 {
    // Update array according to last event read using the KVRawDataReader object
    // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method)
    //
    // Return kTRUE if raw data was treated
+   //
+   // All fired acquisition parameters are written in the fReconParameters list,
+   // ready to be copied to the reconstructed event
 
    prepare_to_handle_new_raw_data();
+   bool ok = false;
 #ifdef WITH_MFM
-   if (rawdata->GetDataFormat() == "MFM") return handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
+   if (rawdata->GetDataFormat() == "MFM") ok = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
    else
 #endif
-      if (rawdata->GetDataFormat() == "EBYEDAT") return handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
-   return kFALSE;
+      if (rawdata->GetDataFormat() == "EBYEDAT") ok = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
+   if (ok) {
+      copy_fired_parameters_to_recon_param_list();
+   }
+   return ok;
 }
+
+void KVMultiDetArray::SetRawDataFromReconEvent(KVNameValueList& l)
+{
+   // Take values 'ACQPAR.[array_name].[par_name]' in the parameter list and use them to set
+   // values of raw acquisition parameters
+
+   int N = l.GetNpar();
+   for (int i = 0; i < N; ++i) {
+      KVNamedParameter* np = l.GetParameter(i);
+      KVString name(np->GetName());
+      name.Begin(".");
+      if (name.Next() == "ACQPAR") {
+         if (name.Next() == GetName()) {
+            KVACQParam* par = GetACQParam(name.Next());
+            if (par) par->SetData((UShort_t)np->GetInt());
+         }
+      }
+   }
+}
+
+void KVMultiDetArray::MakeCalibrationTables(KVExpDB* db)
+{
+   // Add to the experiment database a table '[name].Calibrations' where [name] is the name of this array.
+   // We then look for a file with the name given by
+   //
+   //    [dataset].[name].CalibrationFiles:      [CalibrationFiles.dat]
+   //
+   // which should contain the names of files to read with each type of calibration
+
+   KVDBTable* tab = db->AddTable(Form("%s.Calibrations", GetName()), Form("Calibrations for %s", GetName()));
+   ReadCalibrationFiles(db, tab);
+}
+
+TString KVMultiDetArray::GetFileName(KVExpDB* db, const Char_t* meth, const Char_t* keyw)
+{
+   TString basic_name = db->GetCalibFileName(keyw);
+   if (basic_name == "") {
+      Info(meth, "No name found for \"%s\" file", keyw);
+      return "";
+   }
+   Info(meth, "Search for %s for dataset %s ...", basic_name.Data(), fDataSet.Data());
+   TString fp;
+   SearchKVFile(basic_name.Data(), fp, fDataSet);
+   if (fp == "") {
+      Info(meth, "\tNo file found ...");
+   }
+   return fp;
+}
+
+unique_ptr<KVFileReader> KVMultiDetArray::GetKVFileReader(KVExpDB* db, const Char_t* meth, const Char_t* keyw)
+{
+
+   TString fp = GetFileName(db, meth, keyw);
+   if (fp == "")
+      return nullptr;
+
+   unique_ptr<KVFileReader> fr(new KVFileReader());
+   if (!fr->OpenFileToRead(fp.Data())) {
+      Error(meth, "Error in opening file %s", fp.Data());
+      fr.reset(nullptr);
+   }
+   else
+      Info(meth, "Reading %s file", fp.Data());
+   return fr;
+}
+
+void KVMultiDetArray::ReadCalibrationFiles(KVExpDB* db, KVDBTable* calib_table)
+{
+
+   unique_ptr<KVFileReader> fr = GetKVFileReader(db, "ReadCalibrationFiles()", "CalibrationFiles");
+   if (!fr.get())
+      return;
+
+   while (fr->IsOK()) {
+      fr->ReadLine(0);
+      if (fr->GetCurrentLine().BeginsWith("#") || fr->GetCurrentLine() == "") {}
+      else {
+         ReadCalibFile(fr->GetCurrentLine().Data(), db, calib_table);
+      }
+   }
+   fr->CloseFile();
+}
+
+void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTable* calib_table)
+{
+
+   TString fullpath = "";
+   if (!SearchKVFile(filename, fullpath, fDataSet)) {
+      Info("ReadCalibFile", "%s does not exist or not found", filename);
+      return;
+   }
+
+   Info("ReadCalibFile", "file : %s found", fullpath.Data());
+   TEnv env;
+   env.ReadFile(fullpath, kEnvAll);
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+   KVNumberList default_run_list;
+   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
+
+   TString ssignal = "";
+   TString stype = "";
+
+   while ((rec = (TEnvRec*)next())) {
+      TString sname(rec->GetName());
+      if (sname == "Signal") {
+         ssignal = rec->GetValue();
+      }
+      else if (sname == "CalibType") {
+         stype = rec->GetValue();
+      }
+      else if (sname == "RunList") {
+         default_run_list.Set(rec->GetValue());
+      }
+      else {
+         KVString lval(rec->GetValue());
+         par = new KVDBParameterSet(sname.Data(), stype.Data(), lval.GetNValues(","));
+         Int_t np = 0;
+         lval.Begin(",");
+         while (!lval.End()) {
+            par->SetParameter(np++, lval.Next().Atof());
+         }
+         calib_table->AddRecord(par);
+         db->LinkRecordToRunRange(par, default_run_list);
+      }
+   }
+
+   if (ssignal == "") Error("ReadCalibFile", "No signal defined");
+   if (stype == "") Error("ReadCalibFile", "No calibration type defined");
+}
+
 
 #ifdef WITH_MFM
 Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(KVMFMDataFileReader& mfmreader)

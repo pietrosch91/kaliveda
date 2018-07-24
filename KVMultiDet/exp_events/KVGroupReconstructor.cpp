@@ -89,12 +89,6 @@ void KVGroupReconstructor::Process()
 
    nfireddets = 0;
    Reconstruct();
-//   if (!nfireddets) {
-//      // odd - not a single fired parameter in the group, yet this group is in the
-//      // list of fired groups for the event?
-//      Warning("Process", "Group with 0 fired detectors/parameters");
-//      GetGroup()->PrintData();
-//   }
    if (GetEventFragment()->GetMult() == 0) {
       return;
    }
