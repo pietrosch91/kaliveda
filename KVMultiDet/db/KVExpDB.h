@@ -23,6 +23,7 @@ protected:
 
    Bool_t OpenCalibFile(const Char_t* type, std::ifstream& fs) const;
    virtual void ReadSystemList();
+   virtual void ReadComments();
    void init();
 
 public:

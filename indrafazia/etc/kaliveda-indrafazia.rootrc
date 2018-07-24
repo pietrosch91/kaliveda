@@ -16,6 +16,10 @@ INDRAFAZIA.ActiveIdentifications:      SI-CSI CSI Si-Si Si-CsI CsI
 INDRAFAZIA.SI-CSI.MassID: yes
 INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
 #INDRAFAZIA.EventReconstruction.DoCalibration: no
+INDRAFAZIA.ReconIdent.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.IdentRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.ReconRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
 
 +Plugin.KVMultiDetArray:    INDRAFAZIA    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
 +Plugin.KVExpDB:   INDRAFAZIA    KVExpSetUpDB     KVMultiDetexp_events   "KVExpSetUpDB(const Char_t*)"

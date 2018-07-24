@@ -1465,6 +1465,32 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
    }
 }
 
+void KVMultiDetArray::SetPedestalParameters(KVDBRun* r, const TString& myname)
+{
+   // Set pedestals for all detectors with links to table "Pedestals" for run
+   // If 'myname' is given, we look in "myname.Pedestals"
+
+   TString tabname = (myname != "" ? Form("%s.Pedestals", myname.Data()) : "Pedestals");
+   KVRList* run_links = r->GetLinks(tabname);
+   if (run_links) {
+      Info("SetPedestalParameters", "For array %s in table %s", GetName(), tabname.Data());
+      Info("SetPedestalParameters", "Found %d pedestals for this run", run_links->GetEntries());
+   }
+   else {
+      return;
+   }
+   TIter nxt_link(run_links);
+   KVDBParameterSet* dbps;
+   while ((dbps = (KVDBParameterSet*)nxt_link())) {
+      KVACQParam* par = GetACQParam(dbps->GetName());
+      if (!par) {
+         Warning("SetPedestalParameters", "Got pedestal for unknown parameter: %s", dbps->GetName());
+         continue;
+      }
+      par->SetPedestal(dbps->GetParameter(0));
+   }
+}
+
 //_________________________________________________________________________________
 
 void KVMultiDetArray::UpdateCalibrators()
@@ -2927,6 +2953,11 @@ void KVMultiDetArray::DeduceGroupsFromTrajectories()
    Info("DeduceGroupsFromTrajectories", "Deducing groups of detectors from trajectories");
    Int_t number_of_groups = 0;
    TIter next_det(GetDetectors());
+   unique_ptr<KVSeqCollection> stl(GetStructureTypeList("GROUP"));
+   if (stl.get() && stl->GetEntries()) {
+      Info("DeduceGroupsFromTrajectories", "Deleting existing %d groups in array", stl->GetEntries());
+      ClearStructures("GROUP");
+   }
    KVDetector* det;
    KVUniqueNameList tried_trajectories;//avoid double-counting/infinite loops
    KVUniqueNameList multitraj_nodes;//avoid double-counting/infinite loops
@@ -3085,15 +3116,24 @@ void KVMultiDetArray::SetRawDataFromReconEvent(KVNameValueList& l)
 
 void KVMultiDetArray::MakeCalibrationTables(KVExpDB* db)
 {
-   // Add to the experiment database a table '[name].Calibrations' where [name] is the name of this array.
-   // We then look for a file with the name given by
+   // We look for a file with the name given by
    //
    //    [dataset].[name].CalibrationFiles:      [CalibrationFiles.dat]
    //
    // which should contain the names of files to read with each type of calibration
+   // If found we add to the experiment database a table '[name].Calibrations' where [name] is the name of this array,
+   // containing all calibrations as KVDBParameterSet objects with the name of the detector concerned.
+   //
+   // We also look for a file with the name given by
+   //
+   //    [dataset].[name].Pedestals:      [Pedestals.dat]
+   //
+   // which should contain the names of files to read with pedestal values.
+   // If found we add to the experiment database a table '[name].Pedestals' where [name] is the name of this array,
+   // containing all pedestals as KVDBParameterSet objects with the name of the acquisition parameter concerned.
 
-   KVDBTable* tab = db->AddTable(Form("%s.Calibrations", GetName()), Form("Calibrations for %s", GetName()));
-   ReadCalibrationFiles(db, tab);
+   ReadCalibrationFiles(db);
+   ReadPedestalFiles(db);
 }
 
 TString KVMultiDetArray::GetFileName(KVExpDB* db, const Char_t* meth, const Char_t* keyw)
@@ -3129,18 +3169,37 @@ unique_ptr<KVFileReader> KVMultiDetArray::GetKVFileReader(KVExpDB* db, const Cha
    return fr;
 }
 
-void KVMultiDetArray::ReadCalibrationFiles(KVExpDB* db, KVDBTable* calib_table)
+void KVMultiDetArray::ReadCalibrationFiles(KVExpDB* db)
 {
 
    unique_ptr<KVFileReader> fr = GetKVFileReader(db, "ReadCalibrationFiles()", "CalibrationFiles");
    if (!fr.get())
       return;
 
+   KVDBTable* calib_table = db->AddTable(Form("%s.Calibrations", GetName()), Form("Calibrations for %s", GetName()));
    while (fr->IsOK()) {
       fr->ReadLine(0);
       if (fr->GetCurrentLine().BeginsWith("#") || fr->GetCurrentLine() == "") {}
       else {
          ReadCalibFile(fr->GetCurrentLine().Data(), db, calib_table);
+      }
+   }
+   fr->CloseFile();
+}
+
+void KVMultiDetArray::ReadPedestalFiles(KVExpDB* db)
+{
+
+   unique_ptr<KVFileReader> fr = GetKVFileReader(db, "ReadPedestalFiles()", "Pedestals");
+   if (!fr.get())
+      return;
+
+   KVDBTable* pedestal_table = db->AddTable(Form("%s.Pedestals", GetName()), Form("Pedestals for %s", GetName()));
+   while (fr->IsOK()) {
+      fr->ReadLine(0);
+      if (fr->GetCurrentLine().BeginsWith("#") || fr->GetCurrentLine() == "") {}
+      else {
+         ReadPedestalFile(fr->GetCurrentLine().Data(), db, pedestal_table);
       }
    }
    fr->CloseFile();
@@ -3193,6 +3252,41 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
 
    if (ssignal == "") Error("ReadCalibFile", "No signal defined");
    if (stype == "") Error("ReadCalibFile", "No calibration type defined");
+}
+
+void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDBTable* pedestal_table)
+{
+
+   TString fullpath = "";
+   if (!SearchKVFile(filename, fullpath, fDataSet)) {
+      Info("ReadPedestalFile", "%s does not exist or not found", filename);
+      return;
+   }
+
+   Info("ReadPedestalFile", "file : %s found", fullpath.Data());
+   TEnv env;
+   env.ReadFile(fullpath, kEnvAll);
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+   KVNumberList default_run_list;
+   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
+
+   while ((rec = (TEnvRec*)next())) {
+
+      TString sname(rec->GetName());
+
+      if (sname == "RunList") {
+         default_run_list.Set(rec->GetValue());
+      }
+      else {
+         KVString lval(rec->GetValue());
+         par = new KVDBParameterSet(sname.Data(), "Pedestal", 1);
+         par->SetParameter(0, lval.Atof());
+         pedestal_table->AddRecord(par);
+         db->LinkRecordToRunRange(par, default_run_list);
+      }
+   }
 }
 
 

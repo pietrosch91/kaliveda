@@ -76,7 +76,7 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
    Info("KVEventReconstructor", "Initialised for %u groups of multidetector %s", N, fArray->GetName());
    if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE) || GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE)) {
       if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE))
-         Info("KVEventReconstructor", " -- identfication of events will be performed");
+         Info("KVEventReconstructor", " -- identification of events will be performed");
       if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE))
          Info("KVEventReconstructor", " -- calibration of events will be performed");
    }

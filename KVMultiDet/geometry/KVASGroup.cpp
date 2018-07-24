@@ -48,7 +48,6 @@ KVASGroup::~KVASGroup()
    fNumberOfLayers = 0;
    fLayNumMin = 0;
    fLayNumMax = 0;
-   fReconstructedNuclei = 0;
 }
 
 //_____________________________________________________________________________________
@@ -213,7 +212,8 @@ void KVASGroup::CountLayers()
                if (tel->GetParentStructure("RING")->GetParentStructure("LAYER")->GetNumber() < fLayNumMin)
                   fLayNumMin = tel->GetParentStructure("RING")->GetParentStructure("LAYER")->GetNumber();
             }
-         } else {
+         }
+         else {
             laynums[fNumberOfLayers++] = tel->GetParentStructure("RING")->GetParentStructure("LAYER")->GetNumber();
             if (fNumberOfLayers > 9) {
                Warning("CountLayers", "Too many layers in group");
@@ -364,7 +364,8 @@ TList* KVASGroup::GetAlignedDetectors(KVDetector* det, UChar_t dir)
             delete dets;
          }
       }
-   } else {
+   }
+   else {
       for (UInt_t lay = last_layer; lay >= first_layer; lay--) {
          TList* dets = GetDetectorsInLayer(lay);
          if (dets) {
