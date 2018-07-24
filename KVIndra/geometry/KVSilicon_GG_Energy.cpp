@@ -29,6 +29,6 @@ Double_t KVSilicon_GG_Energy::GetCalibratedEnergy()
    //Returns 0 if calibration not ready or no parameters fired
 
    if (IsCalibrated() && Fired("any"))
-      return (fCalib->Compute(GetGG()));
+      return (fCalib->Compute(GetGG() - GetPedestal("GG")));
    return 0;
 }
