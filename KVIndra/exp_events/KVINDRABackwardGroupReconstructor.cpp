@@ -57,15 +57,21 @@ void KVINDRABackwardGroupReconstructor::DoCalibration(KVReconstructedNucleus* PA
    KVCsI* csi = GetCsI(PART);
    if (csi) {
       stopped_in_chio = kFALSE;
-      /* CSI ENERGY CALIBRATION */
-      if (PART->GetIDCode() == 2 && PART->IsIsotope(4, 8)) {
-         fECsI = DoBeryllium8Calibration(PART);
-      }
-      else
-         fECsI = csi->GetCorrectedEnergy(PART, -1., kFALSE);
+      if (csi->IsCalibrated()) {
+         /* CSI ENERGY CALIBRATION */
+         if (PART->GetIDCode() == 2 && PART->IsIsotope(4, 8)) {
+            fECsI = DoBeryllium8Calibration(PART);
+         }
+         else
+            fECsI = csi->GetCorrectedEnergy(PART, -1., kFALSE);
 
-      if (fECsI <= 0) {
-         SetBadCalibrationStatus(PART);// bad - no CsI energy
+         if (fECsI <= 0) {
+            SetBadCalibrationStatus(PART);// bad - no CsI energy
+            return;
+         }
+      }
+      else {
+         SetNoCalibrationStatus(PART);
          return;
       }
    }
