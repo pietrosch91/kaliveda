@@ -190,7 +190,7 @@ FAZIADB.Systems:     Systems.dat
 # Acceptable identification & energy codes for FAZIA reconstructed particles
 # Dataset-dependent values can be set with [Dataset].FAZIA.ReconstructedNuclei.Accept[ID/E]Codes
 FAZIA.ReconstructedNuclei.AcceptIDCodes: 6,11,12,22,23,33
-FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
+FAZIA.ReconstructedNuclei.AcceptECodes: 0-1
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -346,7 +346,7 @@ FAZIADB.Comments:				Comments.txt
 #comments associated with runs
 FAZIADB.RutherfordCounting:				stat_rutherford.env
 FAZIADB.RutherfordCrossSection:			crosssection_rutherford.env
-# liste des detecteurs ne marchant pas ou ىteints (out of order)
+# liste des detecteurs ne marchant pas ou eteints (out of order)
 FAZIADB.OoODet:    OoODetectors.env
 
 
