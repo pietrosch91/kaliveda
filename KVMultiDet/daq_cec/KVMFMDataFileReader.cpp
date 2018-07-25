@@ -21,7 +21,7 @@ This class is enabled if you build kaliveda with cmake option -DUSE_MFM=yes
 ////////////////////////////////////////////////////////////////////////////////
 
 KVMFMDataFileReader::KVMFMDataFileReader(const Char_t* filepath)
-   : KVRawDataReader(), MFMFileReader(filepath)
+   : KVRawDataReader(), MFMFileReader(filepath, 100 * 1024 * 1024)
 {
    // Open the datafile with given path
    // Read the first frame in the file (should be a MFMXmlFileHeaderFrame) and extract informations

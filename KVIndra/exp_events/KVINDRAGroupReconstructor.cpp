@@ -51,17 +51,17 @@ void KVINDRAGroupReconstructor::Identify()
 {
    KVGroupReconstructor::Identify();
    for (KVEvent::Iterator it = GetEventFragment()->begin(); it != GetEventFragment()->end(); ++it) {
-      KVReconstructedNucleus& d = it.reference<KVReconstructedNucleus>();
-      if (d.IsIdentified() && d.GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
-         if (d.GetIdentifyingTelescope()) {
-            d.GetIdentifyingTelescope()->SetIDCode(&d, kIDCode5);
-         } else {
-            if (d.InheritsFrom("KVINDRAReconNuc")) d.SetIDCode(kIDCode5);
-            else d.SetIDCode(5);
+      KVReconstructedNucleus* d = it.pointer<KVReconstructedNucleus>();
+      if (d->IsIdentified() && d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
+         if (d->GetIdentifyingTelescope()) {
+            d->GetIdentifyingTelescope()->SetIDCode(d, kIDCode5);
          }
-      } else if (!d.IsIdentified()) {
-         if (d.InheritsFrom("KVINDRAReconNuc")) d.SetIDCode(kIDCode14);
-         else d.SetIDCode(14);  // unidentifiable particle
+         else {
+            SETINDRAIDCODE(d, 5);
+         }
+      }
+      else if (!d->IsIdentified()) {
+         SETINDRAIDCODE(d, 14); // unidentifiable particle
       }
    }
 }
@@ -91,11 +91,10 @@ void KVINDRAGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
    // and the particle has IsIdentified()=true
 
    // INDRA coherency treatment
-   fUseFullChIoEnergyForCalib = kFALSE;
+   PART.SetParameter("Coherent", kTRUE);
+   PART.SetParameter("Pileup", kFALSE);
+   PART.SetParameter("UseFullChIoEnergyForCalib", kTRUE);
    Bool_t ok = DoCoherencyAnalysis(PART);
-   PART.SetParameter("UseFullChIoEnergyForCalib", fUseFullChIoEnergyForCalib);
-   PART.SetParameter("Coherent", fCoherent);
-   PART.SetParameter("Pileup", fPileup);
 
    if (ok) { // identification may change here due to coherency analysis
       PART.SetIsIdentified();
@@ -120,13 +119,13 @@ void KVINDRAGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
 
       }
 
-   } else {
+   }
+   else {
 
       /******* UNIDENTIFIED PARTICLES *******/
 
       /*** general ID code for non-identified particles ***/
-      if (PART.InheritsFrom("KVINDRAReconNuc")) PART.SetIDCode(kIDCode14);
-      else PART.SetIDCode(14);
+      SETINDRAIDCODE((&PART), 14);
 
       std::map<std::string, KVIdentificationResult*>::iterator csirl = id_by_type.find("CSI_R_L");
       if (csirl != id_by_type.end()) {
@@ -147,3 +146,67 @@ void KVINDRAGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)
 
    }
 }
+
+void KVINDRAGroupReconstructor::CalculateChIoDEFromResidualEnergy(KVReconstructedNucleus* n, Double_t ERES)
+{
+   // calculate fEChIo from residual energy
+   Double_t e0 = theChio->GetDeltaEFromERes(n->GetZ(), n->GetA(), ERES);
+   theChio->SetEResAfterDetector(ERES);
+   fEChIo = theChio->GetCorrectedEnergy(n, e0);
+   fEChIo = -TMath::Abs(fEChIo);
+   SETINDRAECODE(n, 2);
+}
+
+void KVINDRAGroupReconstructor::CalibrateParticle(KVReconstructedNucleus* PART)
+{
+   // Calculate and set the energy of a (previously identified) reconstructed particle.
+
+   fEChIo = fESi = fECsI = 0;
+
+   DoCalibration(PART);
+
+   PART->SetIsCalibrated();
+   PART->SetParameter("INDRA.ECHIO", fEChIo);
+   PART->SetParameter("INDRA.ESI", fESi);
+   PART->SetParameter("INDRA.ECSI", fECsI);
+   //add correction for target energy loss - moving charged particles only!
+   Double_t E_targ = 0.;
+   if (PART->GetZ() && PART->GetEnergy() > 0) {
+      E_targ = GetTargetEnergyLossCorrection(PART);
+      PART->SetTargetEnergyLoss(E_targ);
+   }
+   Double_t E_tot = PART->GetEnergy() + E_targ;
+   PART->SetEnergy(E_tot);
+   // set particle momentum from telescope dimensions (random)
+   PART->GetAnglesFromStoppingDetector();
+   CheckCsIEnergy(PART);
+}
+
+double KVINDRAGroupReconstructor::DoBeryllium8Calibration(KVReconstructedNucleus* n)
+{
+   // Beryllium-8 = 2 alpha particles of same energy
+   // We halve the total light output of the CsI to calculate the energy of 1 alpha
+   // Then multiply resulting energy by 2
+   // Note: fECsI is -ve, because energy is calculated not measured
+
+   KVCsI* csi = GetCsI(n);
+   Double_t half_light = csi->GetLumiereTotale() * 0.5;
+   KVNucleus tmp(2, 4);
+   double ecsi = -2.*csi->GetCorrectedEnergy(&tmp, half_light, kFALSE);
+   SETINDRAECODE(n, 2);
+   return ecsi;
+}
+
+void KVINDRAGroupReconstructor::CheckCsIEnergy(KVReconstructedNucleus* n)
+{
+   // Check calculated CsI energy loss of particle.
+   // If it is greater than the maximum theoretical energy loss
+   // (depending on the length of CsI, the Z & A of the particle)
+   // we set the energy calibration code to kECode3 (historical VEDA code
+   // for particles with E_csi > E_max_csi)
+
+   KVDetector* csi = GetCsI(n);
+   if (csi && n->GetZ() > 0 && n->GetZ() < 3 && (csi->GetEnergy() > csi->GetMaxDeltaE(n->GetZ(), n->GetA())))
+      SETINDRAECODE(n, 3);
+}
+

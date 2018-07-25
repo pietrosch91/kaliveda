@@ -7,14 +7,19 @@
 #include "KVINDRAGroupReconstructor.h"
 
 class KVINDRAForwardGroupReconstructor : public KVINDRAGroupReconstructor {
+
+protected:
+   void DoNeutronCalibration(KVReconstructedNucleus* PART);
    Bool_t CoherencyChIoSiCsI(KVReconstructedNucleus& PART);
    Bool_t CoherencySiCsI(KVReconstructedNucleus& PART);
-
+   Bool_t CalculateSiliconDEFromResidualEnergy(KVReconstructedNucleus* n, KVSilicon* si);
 public:
    KVINDRAForwardGroupReconstructor() {}
    virtual ~KVINDRAForwardGroupReconstructor() {}
 
    bool DoCoherencyAnalysis(KVReconstructedNucleus& PART);
+
+   void DoCalibration(KVReconstructedNucleus* PART);
 
    ClassDef(KVINDRAForwardGroupReconstructor, 1) //Reconstruct data in rings 1-9 of INDRA
 };
