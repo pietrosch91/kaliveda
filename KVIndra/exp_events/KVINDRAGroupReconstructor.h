@@ -6,15 +6,44 @@
 
 #include "KVGroupReconstructor.h"
 #include "KVChIo.h"
+#include "KVCsI.h"
+#include "KVINDRAReconNuc.h"
+
+#define SETINDRAECODE(n,x) if(n->InheritsFrom("KVINDRAReconNuc")) \
+      n->SetECode(kECode##x); \
+   else \
+      n->SetECode(x)
+#define SETINDRAIDCODE(n,x) if(n->InheritsFrom("KVINDRAReconNuc")) \
+      n->SetIDCode(kIDCode##x); \
+   else \
+      n->SetIDCode(x)
+
 
 class KVINDRAGroupReconstructor : public KVGroupReconstructor {
 
 protected:
    KVChIo* theChio;                 // the ChIo of the group
-   Bool_t fUseFullChIoEnergyForCalib;//decided by coherency analysis
-   Bool_t fCoherent;//coherency of CsI & Si-CsI identifications
-   Bool_t fPileup;//apparent pileup in Si, revealed by inconsistency between CsI & Si-CsI identifications
+   Double_t fECsI, fESi, fEChIo;
 
+   void SetBadCalibrationStatus(KVReconstructedNucleus* n)
+   {
+      SETINDRAECODE(n, 15);
+      n->SetEnergy(-1.0);
+   }
+   void SetNoCalibrationStatus(KVReconstructedNucleus* n)
+   {
+      SETINDRAECODE(n, 0);
+      n->SetEnergy(0.0);
+   }
+
+   double DoBeryllium8Calibration(KVReconstructedNucleus* n);
+   void CheckCsIEnergy(KVReconstructedNucleus* n);
+   KVCsI* GetCsI(KVReconstructedNucleus* n)
+   {
+      return (KVCsI*)(n->GetStoppingDetector()->IsType("CSI") ? n->GetStoppingDetector() : nullptr);
+   }
+
+   void CalculateChIoDEFromResidualEnergy(KVReconstructedNucleus* n, Double_t ERES);
 public:
    KVINDRAGroupReconstructor() {}
    virtual ~KVINDRAGroupReconstructor() {}
@@ -29,8 +58,11 @@ public:
 
    void Identify();
    void IdentifyParticle(KVReconstructedNucleus& PART);
+   void CalibrateParticle(KVReconstructedNucleus* PART);
 
-   virtual bool DoCoherencyAnalysis(KVReconstructedNucleus& PART) = 0;
+   virtual bool DoCoherencyAnalysis(KVReconstructedNucleus&) = 0;
+
+   virtual void DoCalibration(KVReconstructedNucleus*) {}
 
    ClassDef(KVINDRAGroupReconstructor, 1) //Reconstruct particles in INDRA groups
 };

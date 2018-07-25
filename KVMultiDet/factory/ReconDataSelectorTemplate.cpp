@@ -17,6 +17,7 @@
 // line '#include' at the beginning of this file.
 
 #include "KVDataAnalyser.h"
+#include "KVMultiDetArray.h"
 
 void ReconDataSelectorTemplate::InitAnalysis(void)
 {

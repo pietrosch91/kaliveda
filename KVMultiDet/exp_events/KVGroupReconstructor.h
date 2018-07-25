@@ -22,7 +22,7 @@ protected:
    mutable int nfireddets;//! number of fired detectors in group for current event
    KVIdentificationResult partID;//! identification to be applied to current particle
    KVIDTelescope* identifying_telescope;//! telescope which identified current particle
-   std::map<std::string, KVIdentificationResult*> id_by_type; //! identification results by type
+   std::map<std::string, KVIdentificationResult*> id_by_type; //! identification results by type for current particle
 
    virtual KVReconstructedNucleus* ReconstructTrajectory(const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node);
    void ReconstructParticle(KVReconstructedNucleus* part, const KVGeoDNTrajectory* traj, const KVGeoDetectorNode* node);

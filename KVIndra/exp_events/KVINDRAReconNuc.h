@@ -147,7 +147,8 @@ public:
    {
       if (GetTelescope()) {
          return GetTelescope()->GetRingNumber();
-      } else {
+      }
+      else {
          return 0;
       }
    };
@@ -155,7 +156,8 @@ public:
    {
       if (GetTelescope()) {
          return GetTelescope()->GetNumber();
-      } else {
+      }
+      else {
          return 0;
       }
    };
@@ -270,6 +272,7 @@ public:
    {
       //Sets code for energy calibration
       GetCodes().SetECode(code_mask);
+      KVReconstructedNucleus::SetECode(GetCodes().GetVedaECode());
    }
    virtual Int_t GetIDCode() const
    {
