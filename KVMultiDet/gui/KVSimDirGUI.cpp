@@ -39,8 +39,82 @@ ClassImp(KVSimDirGUI)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef WITH_RSQLITE
+TString KVSimDirGUI::AddTableForDataSet(KVSimDir* sd, int ds_table_number)
+{
+   // Add a new dataset table for the given KVSimDir object
+
+   TString ds_table_name = Form("Table_%d", ds_table_number);
+   KVSQLite::table DStable(ds_table_name);
+   DStable.add_primary_key("Id");
+   DStable.add_column("FileName", KVSQLite::column_type::TEXT);
+   DStable.add_column("TreeInfo", KVSQLite::column_type::TEXT);
+   DStable.add_column("Filtered", KVSQLite::column_type::INTEGER);
+   DStable.add_column("Events", KVSQLite::column_type::INTEGER);
+   DStable.add_column("DataSet", KVSQLite::column_type::TEXT);
+   DStable.add_column("System", KVSQLite::column_type::TEXT);
+   DStable.add_column("Run", KVSQLite::column_type::INTEGER);
+   DStable.add_column("GeoType", KVSQLite::column_type::TEXT);
+   DStable.add_column("TreeName", KVSQLite::column_type::TEXT);
+   DStable.add_column("BranchName", KVSQLite::column_type::TEXT);
+   DStable.add_column("OrigFile", KVSQLite::column_type::TEXT);
+   DStable.add_column("FiltType", KVSQLite::column_type::TEXT);
+   DStable.add_column("Gemini", KVSQLite::column_type::INTEGER);
+   DStable.add_column("GemDecayPerEvent", KVSQLite::column_type::INTEGER);
+   fConfigDB.add_table(DStable);
+   // update name of dataset table in main table
+   fConfigDB["Datasets"]["Table"] = ds_table_name;
+   fConfigDB.update("Datasets", "Table", Form("Name=\"%s\"", sd->GetName()));
+   return ds_table_name;
+}
+
+void KVSimDirGUI::FillDataSetTableWithInfos(TString ds_table_name, KVSimDir* sd)
+{
+   fConfigDB.prepare_data_insertion(ds_table_name);
+   KVSQLite::table& dstable = fConfigDB[ds_table_name];
+   if (sd->GetSimDataList()->GetEntries()) {
+      TIter it1(sd->GetSimDataList());
+      KVSimFile* sf = nullptr;
+      while ((sf = (KVSimFile*)it1())) {
+         dstable["FileName"] = sf->GetName();
+         dstable["TreeInfo"] = sf->GetTitle();
+         dstable["Filtered"] = 0;
+         dstable["Events"] = (Int_t)sf->GetEvents();
+         dstable["TreeName"] = sf->GetTreeName();
+         dstable["BranchName"] = sf->GetBranchName();
+         fConfigDB.insert_data_row();
+      }
+   }
+   if (sd->GetFiltDataList()->GetEntries()) {
+      TIter it1(sd->GetFiltDataList());
+      KVSimFile* sf = nullptr;
+      while ((sf = (KVSimFile*)it1())) {
+         dstable["FileName"] = sf->GetName();
+         dstable["TreeInfo"] = sf->GetTitle();
+         dstable["Filtered"] = 1;
+         dstable["Events"] = (Int_t)sf->GetEvents();
+         dstable["TreeName"] = sf->GetTreeName();
+         dstable["BranchName"] = sf->GetBranchName();
+         dstable["DataSet"] = sf->GetDataSet();
+         dstable["System"] = sf->GetSystem();
+         dstable["Run"] = sf->GetRun();
+         dstable["GeoType"] = sf->GetGeometry();
+         dstable["FiltType"] = sf->GetFilterType();
+         dstable["OrigFile"] = sf->GetOriginalFile();
+         dstable["Gemini"] = sf->IsGemini();
+         dstable["GemDecayPerEvent"] = sf->GetGemDecayPerEvent();
+         fConfigDB.insert_data_row();
+      }
+   }
+   fConfigDB.end_data_insertion();
+}
+#endif
+
 KVSimDirGUI::KVSimDirGUI()
    : fGuirc(".kvsimdirguirc")
+#ifdef WITH_RSQLITE
+   , fConfigDB(gSystem->ExpandPathName("$(HOME)/.kvsimdirguidb"))
+#endif
 {
    // Default constructor
    // main frame
@@ -164,8 +238,8 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(new_filt_class, new TGLayoutHints(kLHintsLeft | kLHintsCenterY));
 
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandY, 2, 2, 2, 2));
-//   fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
-//   fCBAllEvents->SetState(kButtonDown, kTRUE);
+   //   fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
+   //   fCBAllEvents->SetState(kButtonDown, kTRUE);
 
    fAnalTab->AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
@@ -177,9 +251,9 @@ KVSimDirGUI::KVSimDirGUI()
 
    /*system and dataset*/
    hf = new TGGroupFrame(vf, "Experimental condition", kVerticalFrame);
-//   new TGGroupFrame()
-//   lab = new TGLabel(hf, "Experimental conditions : ");
-//   hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 2, 2, 2));
+   //   new TGGroupFrame()
+   //   lab = new TGLabel(hf, "Experimental conditions : ");
+   //   hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 2, 2, 2));
 
    TGCompositeFrame* tmpf = new TGHorizontalFrame(hf, 600, 200, kHorizontalFrame);
    fCBdataset = new TGComboBox(tmpf);
@@ -226,9 +300,9 @@ KVSimDirGUI::KVSimDirGUI()
    tmpf->AddFrame(fCBrun, new TGLayoutHints(kLHintsLeft | kLHintsTop, 10, 2, 2, 2));
    fCBrun->Connect("Selected(const char*)", "KVSimDirGUI", this, "SelectRun(const char*)");
 
-//   fTERunNumber = new TGTextEntry(tmpf, new TGTextBuffer(200));
-//   fTERunNumber->Resize(200, fTERunNumber->GetDefaultHeight());
-//   tmpf->AddFrame(fTERunNumber, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
+   //   fTERunNumber = new TGTextEntry(tmpf, new TGTextBuffer(200));
+   //   fTERunNumber->Resize(200, fTERunNumber->GetDefaultHeight());
+   //   tmpf->AddFrame(fTERunNumber, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2, 2, 2));
    hf->AddFrame(tmpf, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));
 
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 10, 2));
@@ -281,34 +355,34 @@ KVSimDirGUI::KVSimDirGUI()
    bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "Kinematics(Int_t)");
    fKine = kKCM;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop | kLHintsLeft, 20, 2, 2, 2));
-//   proof_analysis_filt = new TGPictureButton(hf, gClient->GetPicture("proof_base.xpm"));
-//   proof_analysis_filt->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
-//   proof_analysis_filt->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
-//   proof_analysis_filt->SetToolTipText("Enable PROOF");
-//   proof_analysis_filt->Resize(40, 40);
-//   proof_analysis_filt->AllowStayDown(kTRUE);
-//   hf->AddFrame(proof_analysis_filt, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 250, 2, 2, 2));
-//   launch_analysis = new TGPictureButton(hf, gClient->GetPicture("query_submit.xpm"));
-////   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunFilter()");
-//   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "Run()");
-//   launch_analysis->SetToolTipText("Run filter");
-//   launch_analysis->Resize(40, 40);
-//   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 5, 2, 2, 2));
+   //   proof_analysis_filt = new TGPictureButton(hf, gClient->GetPicture("proof_base.xpm"));
+   //   proof_analysis_filt->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   //   proof_analysis_filt->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   //   proof_analysis_filt->SetToolTipText("Enable PROOF");
+   //   proof_analysis_filt->Resize(40, 40);
+   //   proof_analysis_filt->AllowStayDown(kTRUE);
+   //   hf->AddFrame(proof_analysis_filt, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 250, 2, 2, 2));
+   //   launch_analysis = new TGPictureButton(hf, gClient->GetPicture("query_submit.xpm"));
+   ////   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunFilter()");
+   //   launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "Run()");
+   //   launch_analysis->SetToolTipText("Run filter");
+   //   launch_analysis->Resize(40, 40);
+   //   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 5, 2, 2, 2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 10, 2));
 
-//    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
-//    lab= new TGLabel(hf, "Output directory : ");
-//    hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
-//    fTEOutputDir = new TGTextEntry(hf, new TGTextBuffer(256));
-//    fTEOutputDir->SetText(gSystem->pwd());
-//    fTEOutputDir->Resize(650, fTEOutputDir->GetDefaultHeight());
-//    hf->AddFrame(fTEOutputDir, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
-//    change_class = new TGPictureButton(hf,gClient->GetPicture("bld_open.png"));
-//    change_class->Resize(fTEOutputDir->GetDefaultHeight(),fTEOutputDir->GetDefaultHeight());
-//    change_class->SetToolTipText("Change directory");
-//    change_class->Connect("Clicked()", "KVSimDirGUI", this, "ChangeOutputDirectory()");
-//    hf->AddFrame(change_class,new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
-//    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
+   //    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
+   //    lab= new TGLabel(hf, "Output directory : ");
+   //    hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
+   //    fTEOutputDir = new TGTextEntry(hf, new TGTextBuffer(256));
+   //    fTEOutputDir->SetText(gSystem->pwd());
+   //    fTEOutputDir->Resize(650, fTEOutputDir->GetDefaultHeight());
+   //    hf->AddFrame(fTEOutputDir, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
+   //    change_class = new TGPictureButton(hf,gClient->GetPicture("bld_open.png"));
+   //    change_class->Resize(fTEOutputDir->GetDefaultHeight(),fTEOutputDir->GetDefaultHeight());
+   //    change_class->SetToolTipText("Change directory");
+   //    change_class->Connect("Clicked()", "KVSimDirGUI", this, "ChangeOutputDirectory()");
+   //    hf->AddFrame(change_class,new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
+   //    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
 
    fFiltTab->AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
@@ -362,17 +436,65 @@ KVSimDirGUI::KVSimDirGUI()
    MainFrame->Resize(MainFrame->GetDefaultSize());
    MainFrame->MapWindow();
    // MainFrame->Resize(200,500);
+#ifdef WITH_RSQLITE
+   // define tables in DB if not already done
+   bool sqlite_conversion = false;
+   if (!fConfigDB.get_number_of_tables()) {
+      sqlite_conversion = true;
+      KVSQLite::table datasets("Datasets");
+      datasets.add_primary_key("Id");
+      datasets.add_column("Name", "TEXT");
+      datasets.add_column("Directory", "TEXT");
+      datasets.add_column("Table", "TEXT");
+      fConfigDB.add_table(datasets);
+   }
+   if (!sqlite_conversion) {
+      // use existing sqlite database to reconstruct simdirs
+      ReconstructSimDirsFromDB();
+      FillTreeList();
+      return;
+   }
+#endif
    // use .guirc to fill the list of sim dirs
    KVString simdirs = fGuirc.GetValue("SimDirs", "");
    if (simdirs != "") {
+#ifdef WITH_RSQLITE
+      if (sqlite_conversion) {
+         // we are converting from the old TEnv back end to sqlite
+         // need to fill table of Datasets
+         fConfigDB.prepare_data_insertion("Datasets");
+      }
+      int ds_table = 0;
+#endif
       simdirs.Begin(" ");
       while (!simdirs.End()) {
          KVString simdir = simdirs.Next();
          KVString simdirectory = fGuirc.GetValue(Form("%s.Directory", simdir.Data()), "");
          KVSimDir* sd = new KVSimDir(simdir, simdirectory);
+#ifdef WITH_RSQLITE
+         if (sqlite_conversion) {
+            fConfigDB["Datasets"]["Name"] = simdir;
+            fConfigDB["Datasets"]["Directory"] = simdirectory;
+            fConfigDB.insert_data_row();
+         }
+#endif
          sd->AnalyseDirectory();
          fListOfDirs.Add(sd);
       }
+#ifdef WITH_RSQLITE
+      if (sqlite_conversion) {
+         fConfigDB.end_data_insertion();
+         TIter itdir(&fListOfDirs);
+         KVSimDir* sd = nullptr;
+         while ((sd = (KVSimDir*)itdir())) {
+            // add table for dataset
+            TString ds_table_name = AddTableForDataSet(sd, ds_table);
+            // fill table with infos
+            FillDataSetTableWithInfos(ds_table_name, sd);
+            ++ds_table;
+         }
+      }
+#endif
       FillTreeList();
    }
 }
@@ -461,6 +583,25 @@ void KVSimDirGUI::AddSimDir()
          fGuirc.SetValue("SimDirs", simdirs);
          fGuirc.SetValue(Form("%s.Directory", simdirname.Data()), sd->GetDirectory());
          fGuirc.SaveLevel(kEnvUser);
+#ifdef WITH_RSQLITE
+         //update database
+         int ds_table_num = 0;
+         if (fConfigDB.count("Datasets")) {
+            // get name/number of last dataset table
+            KVNameValueList table_names = fConfigDB.get_name_value_list("Datasets", "Name", "Table");
+            sscanf(table_names.GetParameter(table_names.GetNpar() - 1)->GetString(),
+                   "Table_%d", &ds_table_num);
+            ++ds_table_num;
+         }
+         fConfigDB.prepare_data_insertion("Datasets");
+         fConfigDB["Datasets"]["Id"].set_null();
+         fConfigDB["Datasets"]["Name"] = simdirname;
+         fConfigDB["Datasets"]["Directory"] = sd->GetDirectory();
+         fConfigDB.insert_data_row();
+         fConfigDB.end_data_insertion();
+         TString table_name = AddTableForDataSet(sd, ds_table_num);
+         FillDataSetTableWithInfos(table_name, sd);
+#endif
       }
    }
    dir = fi.fIniDir;
@@ -472,6 +613,13 @@ void KVSimDirGUI::RefreshSimDir()
    fSelectedSimDir->AnalyseDirectory();
    fLVsimData->Display(fSelectedSimDir->GetSimDataList());
    fLVfiltData->Display(fSelectedSimDir->GetFiltDataList());
+#ifdef WITH_RSQLITE
+   fConfigDB.select_data("Datasets", "Table", Form("Name=\"%s\"", fSelectedSimDir->GetName()));
+   TString ds_table_name;
+   while (fConfigDB.get_next_result()) ds_table_name = fConfigDB["Datasets"]["Table"].get_data<TString>();
+   fConfigDB.clear_table(ds_table_name);
+   FillDataSetTableWithInfos(ds_table_name, fSelectedSimDir);
+#endif
 }
 
 void KVSimDirGUI::RemSimDir()
@@ -654,10 +802,10 @@ void KVSimDirGUI::RunAnalysis(const TString& type)
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose one or more simulated or filtered data files!", kMBIconExclamation);
          return;
       }
-//      if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
-//         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
-//         return;
-//      }
+      //      if (selected_sim_runs->GetEntries() && selected_filt_runs->GetEntries()) {
+      //         new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose EITHER simulated or filtered data files!", kMBIconExclamation);
+      //         return;
+      //      }
       if (fAnalClassHeader == "" || fAnalClassImp == "") {
          new TGMsgBox(gClient->GetRoot(), MainFrame, "KVSimDirGUI::RunAnalysis", "Choose a valid analysis class!", kMBIconExclamation);
          return;
@@ -898,3 +1046,49 @@ Bool_t KVSimDirGUI::WarningBox(const char* title, const char* msg, Bool_t confir
    return reply;
 }
 
+#ifdef WITH_RSQLITE
+void KVSimDirGUI::ReconstructSimDirsFromDB()
+{
+   // Rebuild all KVSimDir/KVSimFile objects from information in sqlite DB
+
+   fConfigDB.select_data("Datasets");
+   KVNameValueList tables;
+   while (fConfigDB.get_next_result()) {
+      fListOfDirs.Add(new KVSimDir(fConfigDB["Datasets"]["Name"].get_data<TString>(),
+                                   fConfigDB["Datasets"]["Directory"].get_data<TString>()));
+      tables.SetValue(fConfigDB["Datasets"]["Name"].get_data<TString>(),
+                      fConfigDB["Datasets"]["Table"].get_data<TString>());
+   }
+   for (int i = 0; i < tables.GetNpar(); ++i) {
+      KVSimDir* sd = (KVSimDir*)fListOfDirs.FindObject(tables.GetParameter(i)->GetName());
+      fConfigDB.select_data(tables.GetValue<TString>(i));
+      KVSQLite::table& dstable = fConfigDB[tables.GetValue<TString>(i)];
+      while (fConfigDB.get_next_result()) {
+         if (dstable["Filtered"].get_data<int>()) {
+            // filtered/reconstructed data
+            KVSimFile* f = new KVSimFile(
+               sd,
+               dstable["FileName"].get_data<TString>(), dstable["TreeInfo"].get_data<TString>(),
+               dstable["Events"].get_data<int>(), dstable["TreeName"].get_data<TString>(),
+               dstable["BranchName"].get_data<TString>(), dstable["DataSet"].get_data<TString>(),
+               dstable["System"].get_data<TString>(), dstable["Run"].get_data<int>(),
+               dstable["GeoType"].get_data<TString>(), dstable["OrigFile"].get_data<TString>(),
+               dstable["FiltType"].get_data<TString>()
+            );
+            f->SetGemini(dstable["Gemini"].get_data<bool>());
+            if (f->IsGemini()) f->SetGemDecayPerEvent(dstable["GemDecayPerEvent"].get_data<int>());
+            sd->AddFiltData(f);
+         }
+         else {
+            // simulation data
+            KVSimFile* f = new KVSimFile(
+               sd,
+               dstable["FileName"].get_data<TString>(), dstable["TreeInfo"].get_data<TString>(),
+               dstable["Events"].get_data<int>(), dstable["TreeName"].get_data<TString>(),
+               dstable["BranchName"].get_data<TString>());
+            sd->AddSimData(f);
+         }
+      }
+   }
+}
+#endif

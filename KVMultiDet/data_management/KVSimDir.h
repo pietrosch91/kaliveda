@@ -7,6 +7,8 @@
 #include "KVBase.h"
 #include "KVList.h"
 
+class KVSimFile;
+
 class KVSimDir : public KVBase {
 protected:
    KVList fSimData;// list of simulated data files
@@ -40,6 +42,8 @@ public:
    {
       return &fFiltData;
    }
+   void AddSimData(KVSimFile*);
+   void AddFiltData(KVSimFile*);
 
    void ls(Option_t* opt = "") const;
 

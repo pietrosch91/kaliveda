@@ -18,6 +18,9 @@
 #include "TApplication.h"
 #include "KVListView.h"
 #include "KVSimDir.h"
+#ifdef WITH_RSQLITE
+#include "SQLiteDB.h"
+#endif
 class TChain;
 
 class KVSimDirGUI : public KVBase {
@@ -86,10 +89,17 @@ class KVSimDirGUI : public KVBase {
    TGPictureButton* proof_analysis;
    TGPictureButton* proof_analysis_ana;
    TEnv fGuirc;
-
+#ifdef WITH_RSQLITE
+   KVSQLite::database fConfigDB;
+#endif
    Bool_t fWithPROOF;//=kTRUE when running with PROOF-lite
 protected:
    void SetFilterOptions();
+#ifdef WITH_RSQLITE
+   TString AddTableForDataSet(KVSimDir* sd, int ds_table_number);
+   void FillDataSetTableWithInfos(TString ds_table_name, KVSimDir* sd);
+   void ReconstructSimDirsFromDB();
+#endif
 
 public:
    KVSimDirGUI();

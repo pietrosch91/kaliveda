@@ -225,6 +225,16 @@ void KVSimDir::AnalyseFile(const Char_t* filename)
    }
 }
 
+void KVSimDir::AddSimData(KVSimFile* f)
+{
+   fSimData.Add(f);
+}
+
+void KVSimDir::AddFiltData(KVSimFile* f)
+{
+   fFiltData.Add(f);
+}
+
 //________________________________________________________________
 
 void KVSimDir::ls(Option_t*) const
