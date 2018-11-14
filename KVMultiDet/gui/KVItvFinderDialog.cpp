@@ -219,7 +219,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
    LinearizeHisto(60);
    fLinearHisto->SetLineColor(kBlack);
    fLinearHisto->SetFillColor(kGreen + 1);
-   fLinearHisto->Draw();
+   fLinearHisto->Draw("hist");
 
    int tmp[30] = {3, 3, 3, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
    for (int ii = 0; ii < 30; ii++) fNpeaks[ii] = tmp[ii];
@@ -396,7 +396,8 @@ void KVItvFinderDialog::Identify(double sigma, double ratio)
    if (!list->GetSize()) {
       ProcessIdentification(1, TMath::Min(fGrid->GetIdentifiers()->GetSize(), 25));
       for (int ii = 0; ii < fGrid->GetIntervalSets()->GetSize(); ii++) DrawInterval((interval_set*)fGrid->GetIntervalSets()->At(ii), 0);
-   } else {
+   }
+   else {
       for (int ii = 0; ii < list->GetSize(); ii++) {
          interval_set* itvs = (interval_set*) list->At(ii);
          ProcessIdentification(itvs->GetZ(), itvs->GetZ());
@@ -489,13 +490,16 @@ void KVItvFinderDialog::NewInterval()
    if (!itvs->GetNPID()) {
       aa = itvs->GetZ() * 2;
       iint = 0;
-   } else if (pid < ((interval*)itvs->GetIntervals()->First())->GetPID()) {
+   }
+   else if (pid < ((interval*)itvs->GetIntervals()->First())->GetPID()) {
       aa = ((interval*)itvs->GetIntervals()->First())->GetA() - 1;
       iint = 0;
-   } else if (pid > ((interval*)itvs->GetIntervals()->Last())->GetPID()) {
+   }
+   else if (pid > ((interval*)itvs->GetIntervals()->Last())->GetPID()) {
       aa = ((interval*)itvs->GetIntervals()->Last())->GetA() + 1;
       iint = itvs->GetNPID();
-   } else {
+   }
+   else {
       for (int ii = 1; ii < itvs->GetNPID(); ii++) {
          bool massok = false;
          if (pid > ((interval*)itvs->GetIntervals()->At(ii - 1))->GetPID() && pid < ((interval*)itvs->GetIntervals()->At(ii))->GetPID()) {
@@ -552,14 +556,17 @@ void KVItvFinderDialog::RemoveInterval()
          fCurrentView->Display(itvs->GetIntervals());
          fCanvas->Modified();
          fCanvas->Update();
-      } else ClearInterval(itvs);
+      }
+      else ClearInterval(itvs);
       delete list;
-   } else if (nSelected > 1) {
+   }
+   else if (nSelected > 1) {
       for (int ii = 0; ii < nSelected; ii++) {
          itvs = (interval_set*)list->At(ii);
          ClearInterval(itvs);
       }
-   } else delete list;
+   }
+   else delete list;
 
 }
 
@@ -582,7 +589,8 @@ void KVItvFinderDialog::MassesUp()
 //            fCurrentView->Display(itvs->GetIntervals());
          fCanvas->Modified();
          fCanvas->Update();
-      } else {
+      }
+      else {
          KVList* ll = itvs->GetIntervals();
          nSelected = ll->GetSize();
          if (nSelected >= 1) {
@@ -596,7 +604,8 @@ void KVItvFinderDialog::MassesUp()
             fCanvas->Update();
          }
       }
-   } else delete list;
+   }
+   else delete list;
 }
 
 void KVItvFinderDialog::MassesDown()
@@ -616,7 +625,8 @@ void KVItvFinderDialog::MassesDown()
          fItvPaint.Execute("Update", "");
          fCanvas->Modified();
          fCanvas->Update();
-      } else {
+      }
+      else {
 
          KVList* ll = itvs->GetIntervals();
          nSelected = ll->GetSize();
@@ -630,7 +640,8 @@ void KVItvFinderDialog::MassesDown()
             fCanvas->Update();
          }
       }
-   } else delete list;
+   }
+   else delete list;
 }
 
 void KVItvFinderDialog::UpdateLists()
@@ -685,7 +696,8 @@ void KVItvFinderDialog::FindPIDIntervals(Int_t zz)
    if (!itvs) {
       itvs = new interval_set(zz, KVIDZAFromZGrid::kIntType);
       fGrid->GetIntervalSets()->Add(itvs);
-   } else ClearInterval(itvs);
+   }
+   else ClearInterval(itvs);
 
 
    if (zz == 1) fLinearHisto->SetAxisRange(0.9, zz + 0.5, "X");
