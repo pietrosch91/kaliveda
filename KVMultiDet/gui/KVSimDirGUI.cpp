@@ -76,6 +76,7 @@ void KVSimDirGUI::FillDataSetTableWithInfos(TString ds_table_name, KVSimDir* sd)
       TIter it1(sd->GetSimDataList());
       KVSimFile* sf = nullptr;
       while ((sf = (KVSimFile*)it1())) {
+         dstable["Id"].set_null();
          dstable["FileName"] = sf->GetName();
          dstable["TreeInfo"] = sf->GetTitle();
          dstable["Filtered"] = 0;
@@ -89,6 +90,7 @@ void KVSimDirGUI::FillDataSetTableWithInfos(TString ds_table_name, KVSimDir* sd)
       TIter it1(sd->GetFiltDataList());
       KVSimFile* sf = nullptr;
       while ((sf = (KVSimFile*)it1())) {
+         dstable["Id"].set_null();
          dstable["FileName"] = sf->GetName();
          dstable["TreeInfo"] = sf->GetTitle();
          dstable["Filtered"] = 1;
@@ -191,6 +193,7 @@ KVSimDirGUI::KVSimDirGUI()
    fLVsimData->SetDataColumn(1, "Info", "GetTitle");
    fLVsimData->SetDataColumn(2, "Events");
    fLVsimData->ActivateSortButtons();
+   fLVsimData->AllowContextMenu(kFALSE);
    group->AddFrame(fLVsimData, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 5, 5, 10, 10));
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    group = new TGGroupFrame(vf, "Filtered Simulations");
@@ -205,6 +208,7 @@ KVSimDirGUI::KVSimDirGUI()
    fLVfiltData->SetDataColumn(6, "FilterType");
    fLVfiltData->SetDataColumn(7, "Events");
    fLVfiltData->ActivateSortButtons();
+   fLVfiltData->AllowContextMenu(kFALSE);
    group->AddFrame(fLVfiltData, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 5, 5, 10, 10));
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
@@ -628,6 +632,14 @@ void KVSimDirGUI::RemSimDir()
    fListOfDirs.Remove(fSelectedSimDir);
    // there is no way of removing a name-value pair from a TEnv!!
    fGuirc.SetValue(Form("%s.Directory", fSelectedSimDir->GetName()), "");
+#ifdef WITH_RSQLITE
+   // remove from datasets table
+   fConfigDB.select_data("Datasets", "Table", Form("Name=\"%s\"", fSelectedSimDir->GetName()));
+   TString ds_table_name;
+   while (fConfigDB.get_next_result()) ds_table_name = fConfigDB["Datasets"]["Table"].get_data<TString>();
+   fConfigDB.delete_data("Datasets", Form("Name=\"%s\"", fSelectedSimDir->GetName()));
+   // and delete table with dataset data
+#endif
    delete fSelectedSimDir;
    fSelectedSimDir = nullptr;
    FillTreeList();
@@ -898,10 +910,15 @@ void KVSimDirGUI::SetFilterOptions()
          filter = "Full";
    }
 
-   // check system
-   KV2Body cd(fSystem.Data());
-   cd.CalculateKinematics();
-   cd.Print();
+   // check system - only for ad hoc systems
+   KVDBSystem* sys = (gDataBase ?
+                      (gDataBase->GetTable("Systems") ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(fSystem) : nullptr)
+                      : nullptr);
+   if (!sys) {
+      KV2Body cd(fSystem.Data());
+      cd.CalculateKinematics();
+      cd.Print();
+   }
 
    TString options;
    options = Form("Dataset=%s,", fDataset.Data());
