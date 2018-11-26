@@ -242,7 +242,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 
 ############
 +Plugin.KVDetector:      KVFAZIA_2B      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
-+Plugin.KVDetector:      KVFAZIASYM      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
++Plugin.KVDetector:      KVFAZIASYM      KVFAZIACORDetector       FAZIAgeometry      "KVFAZIACORDetector()"
 +Plugin.KVDetector:      KVISOFAZIA      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIETO      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIANFS      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
@@ -256,7 +256,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 1-2
 +Plugin.KVIDTelescope:    ^ISOFAZIA.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^ISOFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
-+Plugin.KVIDTelescope:    ^FAZIASYM.Si-CsI$                 KVFAZIAIDSiCsI_FAZIASYM            FAZIAidentification           "KVFAZIAIDSiCsI_FAZIASYM()"
++Plugin.KVIDTelescope:    ^FAZIASYM.Si-CsI$                KVFAZIAIDSiCsI_FAZIASYM          FAZIAidentification           "KVFAZIAIDSiCsI_FAZIASYM()"
 +Plugin.KVIDTelescope:    ^FAZIACOR.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIAPRE.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIAZERO.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
@@ -371,11 +371,11 @@ ISOFAZIA.IdentificationParameterFile.Si-CsI:       IDGrids_SI2_CSI.dat
 ISOFAZIA.IdentificationParameterFile.Si:       IDGrids_SI1_ImaxE.dat
 ISOFAZIA.ActiveIdentifications:        CsI Si-Si Si-CsI Si
 
-FAZIASYM.IdentificationParameterFile.Si-Si:       IDGrids_SI1_SI2_light.dat
-#FAZIASYM.IdentificationParameterFile.Si-Si:       IDGrids_SI1_SI2.dat
-FAZIASYM.IdentificationParameterFile.CsI:       IDGrids_CSI.dat
-FAZIASYM.IdentificationParameterFile.Si-CsI:       IDGrids_SI2_CSI.dat
-FAZIASYM.ActiveIdentifications:        CsI Si-CsI Si-Si
+FAZIASYM.IdentificationParameterFile.Si:	ID_SI1_Alberto.dat
+FAZIASYM.IdentificationParameterFile.Si-Si:	ID_SI1_SI2_Alberto.dat
+FAZIASYM.IdentificationParameterFile.CsI:	ID_CSI_Alberto.dat
+FAZIASYM.IdentificationParameterFile.Si-CsI:	ID_SI2_CSI_Alberto.dat
+FAZIASYM.ActiveIdentifications:	Si-Si CsI Si-CsI Si
 
 LNS_2016.IdentificationParameterFile.Si-Si:       SI-SI-Grids.dat
 #LNS_2016.IdentificationParameterFile.CsI:      .dat
