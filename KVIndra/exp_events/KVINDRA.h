@@ -96,8 +96,9 @@ protected:
    Int_t GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 
    void PerformClosedROOTGeometryOperations(Int_t run = -1);
+#ifdef WITH_MFM
    Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
-
+#endif
 public:
    KVINDRA();
    virtual ~ KVINDRA();

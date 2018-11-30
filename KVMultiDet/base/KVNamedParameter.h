@@ -163,6 +163,10 @@ template<> inline bool KVNamedParameter::DefaultValue<bool>()
 {
    return false;
 }
+template<> inline TString KVNamedParameter::DefaultValue<TString>()
+{
+   return "-1";
+}
 template<> inline KVString KVNamedParameter::DefaultValue<KVString>()
 {
    return "-1";

@@ -910,9 +910,7 @@ void KVSimDirGUI::SetFilterOptions()
    }
 
    // check system - only for ad hoc systems
-   KVDBSystem* sys = (gDataBase ?
-                      (gDataBase->GetTable("Systems") ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(fSystem) : nullptr)
-                      : nullptr);
+   KVDBSystem* sys = (gExpDB ? gExpDB->GetSystem(fSystem) : nullptr);
    if (!sys) {
       KV2Body cd(fSystem.Data());
       cd.CalculateKinematics();

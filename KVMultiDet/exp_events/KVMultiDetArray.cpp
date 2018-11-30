@@ -681,7 +681,7 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
    // iterate through list of particles
    KVNucleus* part, *_part;
-   KVNameValueList* det_stat = new KVNameValueList();
+   KVNameValueList det_stat;
    KVNameValueList* nvl = 0;
    KVNameValueList un;
 

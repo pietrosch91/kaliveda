@@ -373,7 +373,7 @@ void KVINDRADB::_init_MeanGDir_func() const
    // set up TF1 fMeanGDir if function defined for dataset
    //   [dataset].GDir.Freq: [function]
 
-   TString formula = KVDataSet::GetDataSetEnv(fDataSet, "GDir.Freq", "");
+   TString formula = KVBase::GetDataSetEnv(fDataSet, "GDir.Freq", "");
    if (formula == "") {
       SafeDelete(fMeanGDir);
       return;

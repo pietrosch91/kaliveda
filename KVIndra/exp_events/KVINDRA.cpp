@@ -607,6 +607,7 @@ void KVINDRA::PerformClosedROOTGeometryOperations(Int_t)
    CreateROOTGeometry();
 }
 
+#ifdef WITH_MFM
 Bool_t KVINDRA::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& f)
 {
    // Override base method to retrieve CENTRUM timestamp from data if present.
@@ -627,7 +628,7 @@ Bool_t KVINDRA::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& f)
    }
    return kTRUE;
 }
-
+#endif
 //_______________________________________________________________________________________
 
 void KVINDRA::SetPinLasersForCsI()
