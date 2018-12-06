@@ -454,6 +454,7 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
       }
       return kFALSE;
     */
+   return kFALSE;
 }
 
 //_________________________________________________________________________________
@@ -477,14 +478,11 @@ void KVFAZIAReconNuc::Calibrate()
    for (Int_t ii = 0; ii < ntot; ii += 1) eloss[ii] = 0;
    TIter next(GetDetectorList());
    KVFAZIADetector* det = 0;
-   KVIDTelescope* idt = GetIdentifyingTelescope();
    Int_t ndet = 0;
    Int_t ndet_calib = 0;
    Double_t etot = 0;
-   int detname = 0;
 
    while ((det = (KVFAZIADetector*)next())) {
-      detname = det->GetBlockNumber() * 100 + det->GetQuartetNumber() * 10 + det->GetTelescopeNumber();
       if (det->IsCalibrated() && GetZ() <= 2) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
 
@@ -547,8 +545,6 @@ void KVFAZIAReconNuc::Calibrate()
 
          chi2 /= ndet;
 
-         int idtype = GetIdentificationResult(idt->GetTitle())->IDcode;
-
          if ((avatar.GetKE() / GetKE()) > 0.0) {
             punch_through = kTRUE;
          }
@@ -584,7 +580,7 @@ void KVFAZIAReconNuc::Calibrate()
    }
    else {
       if (StoppedInCSI() && /*!(GetCSI()->IsCalibrated()) &&*/ ndet_calib == 2) {
-         if (GetZ() > 2) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo
+         if (GetZ() > 2) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non Ã¨ calibrato per loro non prendo
             if (!IsAMeasured()) {
 
                if (GetZ() == 1)       SetA(1);
@@ -620,8 +616,8 @@ void KVFAZIAReconNuc::Calibrate()
 
          }
       }
-      if (StoppedInCSI() && !(GetSI1()->IsCalibrated()) && ndet_calib == 1) { //se ho solo SI2-CSI e il Si2 Calibrato, quando il Si1 è morto
-         if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo
+      if (StoppedInCSI() && !(GetSI1()->IsCalibrated()) && ndet_calib == 1) { //se ho solo SI2-CSI e il Si2 Calibrato, quando il Si1 Ã¨ morto
+         if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non Ã¨ calibrato per loro non prendo
             if (!IsAMeasured()) {
 
                if (GetZ() == 1)       SetA(1);
