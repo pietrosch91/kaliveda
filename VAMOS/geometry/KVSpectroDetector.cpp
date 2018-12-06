@@ -154,7 +154,8 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
       // detector is not and put the absorbers inside
       vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d", GetName(), fNumVol++));
       vol_as->AddNode(prev_vol, 1);
-   } else vol_as = prev_vol;
+   }
+   else vol_as = prev_vol;
 
    // Add the volume in the assembly of volumes
    vol_as->AddNode(vol, 1, matrix);
@@ -187,7 +188,8 @@ void KVSpectroDetector::AddAbsorberLayer(TGeoVolume* vol, Bool_t active)
       Double_t p = material->GetPressure();
       Double_t T = material->GetTemperature();
       absorber = new KVMaterial(irmat->GetType(), width, p, T);
-   } else
+   }
+   else
       absorber = new KVMaterial(irmat->GetType(), width);
    KVDetector::AddAbsorber(absorber);
    absorber->SetAbsGeoVolume(vol);
@@ -407,7 +409,8 @@ TGeoHMatrix& KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i) const
 
       // just to not create problems if this method is called during a tracking
       gGeoManager->CdNode(prev_id);
-   } else mm.SetName("Identity_matrix");
+   }
+   else mm.SetName("Identity_matrix");
 
    return mm;
 }
@@ -448,7 +451,8 @@ TGeoMedium* KVSpectroDetector::GetGeoMedium(const Char_t* mat_name)
       KVIonRangeTableMaterial* irmat = KVMaterial::GetRangeTable()->GetMaterial(matName.Data());
       if (irmat->IsGas()) medName.Form("%s_%f", matName.Data(), GetPressure());
       else medName = GetName();
-   } else {
+   }
+   else {
       matName = mat_name;
       medName = mat_name;
    }
@@ -461,7 +465,8 @@ TGeoMedium* KVSpectroDetector::GetGeoMedium(const Char_t* mat_name)
       if (!strcmp(matName.Data(), "Vacuum")) {
          // create material
          gmat = new TGeoMaterial("Vacuum", 0, 0, 0);
-      } else {
+      }
+      else {
          // create material
          gmat = GetRangeTable()->GetTGeoMaterial(matName.Data());
          if (!gmat) {

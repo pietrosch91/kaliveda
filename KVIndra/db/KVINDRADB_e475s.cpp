@@ -213,7 +213,8 @@ void KVINDRADB_e475s::ReadCalibFile(ifstream& fin, TString dettype, TString detg
                            cout << calib_mods << endl;
                            //sprintf(detname,"%s_%02d%02d_%s",dettype.Data(),calib_ring.Atoi(),calib_mods.Atoi(),detgain.Data());
                            detname.Form("%s_%02d%02d", dettype.Data(), calib_ring.Atoi(), calib_mods.Atoi());
-                        } else {
+                        }
+                        else {
                            sline.ReplaceAll("<PARAMETER> Function=", "");
                            cout << sline << endl;
                            toks.reset(sline.Tokenize(":"));
@@ -317,7 +318,8 @@ void KVINDRADB_e475s::ReadPedestalFile(ifstream& fin, TString dettype, TString d
                               cout << calib_mods << endl;
                               //sprintf(detname,"%s_%02d%02d_%s",dettype.Data(),calib_ring.Atoi(),calib_mods.Atoi(),detgain.Data());
                               sprintf(detname, "%s_%02d%02d", calib_det.Data(), calib_ring.Atoi(), calib_mods.Atoi());
-                           } else {
+                           }
+                           else {
                               sline.ReplaceAll("<PARAMETER> Function=", "");
                               cout << sline << endl;
                               toks = sline.Tokenize(":");

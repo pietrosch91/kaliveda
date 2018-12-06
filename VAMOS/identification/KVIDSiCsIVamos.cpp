@@ -57,7 +57,8 @@ void KVIDSiCsIVamos::Initialize()
       SetBit(kReadyForID);
       fgrid->Initialize();
       fgrid->Print();
-   } else
+   }
+   else
       ResetBit(kReadyForID);
    //fgrid->Print();
 }

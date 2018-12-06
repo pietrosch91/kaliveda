@@ -179,7 +179,8 @@ Double_t KVFunctionCal::Invert(Double_t to)
       Double_t xmin, xmax;
       fcalibfunction->GetRange(xmin, xmax);
       return fcalibfunction->GetX(to, xmin, xmax);
-   } else return -666;
+   }
+   else return -666;
 
 }
 //------------------------------

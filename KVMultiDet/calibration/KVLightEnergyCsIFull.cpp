@@ -65,7 +65,8 @@ Double_t KVLightEnergyCsIFull::dLightIntegralApprox(double* x, double* par)
    double raps = 1. + sn / se;
    if (e <= e_delta * afit) {
       if (se > 0. && raps > 0. && deno > 0.) dlum = (1. + an * sn) / (deno * raps);
-   } else {
+   }
+   else {
       if (se > 0. && raps > 0. && deno > 0.) {
          dlum = (1. + an * sn) * (1. - fraction) / (deno2 * raps) + fraction / raps;
       }
@@ -188,7 +189,8 @@ Double_t KVLightEnergyCsIFull::sp_e(double z, double a, double e)
       double fact = 0.997;
       se_cs = fact * slow_cs * shigh_cs / (slow_cs + shigh_cs);
       se_i = fact * slow_i * shigh_i / (slow_i + shigh_i);
-   } else {
+   }
+   else {
       se_cs = exp(a6_cs + a7_cs * log(1000. / ei) + a8_cs * pow(log(1000. / ei), 2.) + a9_cs * pow(log(1000. / ei), 3.));
       se_i = exp(a6_i + a7_i * log(1000. / ei) + a8_i * pow(log(1000. / ei), 2.) + a9_i * pow(log(1000. / ei), 3.));
    }

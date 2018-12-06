@@ -143,12 +143,14 @@ KVIDLine* KVIDGrid::NewLine(const Char_t* idline_class)
    if (!clas) {
       Error("AddIDLine",
             "%s is not a valid classname. No known class.", _cl.Data());
-   } else {
+   }
+   else {
       if (!clas->InheritsFrom("KVIDLine")) {
          Error("AddIDLine",
                "%s is not a valid class deriving from KVIDLine.",
                _cl.Data());
-      } else {
+      }
+      else {
          line = (KVIDLine*) clas->New();
       }
    }

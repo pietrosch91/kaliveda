@@ -88,7 +88,8 @@ void GTGanilDataVAMOS::ReadParameters(void)
          Par->Fill(fBuffer->les_donnees.cas.Buf_param);
 
       }
-   } while (strcmp(fHeader, PARAM_Id) == 0);
+   }
+   while (strcmp(fHeader, PARAM_Id) == 0);
 
    fDataArray = new UShort_t[fDataArraySize + 1]; // Data buffer is allocated
    for (Int_t i = 1; i <= fDataArraySize; i++) {

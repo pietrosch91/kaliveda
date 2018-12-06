@@ -124,9 +124,11 @@ void KVTrieurLin::SetNomsCases(void)
       for (Int_t i = 0; i < nb_cases; i++) {
          if (i == 0) {
             nomt.Form("%s < %f", nom_var, xmin + (i + 1) * xpas);
-         } else if (i == nb_cases - 1) {
+         }
+         else if (i == nb_cases - 1) {
             nomt.Form("%f #leq %s", xmin + i * xpas, nom_var);
-         } else {
+         }
+         else {
             nomt.Form("%f #leq %s < %f", xmin + i * xpas, nom_var,
                       xmin + (i + 1) * xpas);
          }
@@ -278,7 +280,8 @@ Int_t KVTrieurLin::GetNumCase(Double_t x)
          i = 1;
       if (i > nb_cases)
          i = nb_cases;
-   } else {
+   }
+   else {
       Warning("GetNumCase(Double_t x)", "Xmin >= Xmax !");
       i = 0;
    }

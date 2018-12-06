@@ -175,7 +175,8 @@ NewRooAddPdf::NewRooAddPdf(const char* name, const char* title, const RooArgList
             first = kFALSE ;
             _coefList.add(*coef) ;
 
-         } else {
+         }
+         else {
 
             // The i-th recursive fraction = (1-f1)*(1-f2)*...(fi) and is calculated from the list (f1,...,fi) by RooRecursiveFraction)
             RooAbsReal* rfrac = new RooRecursiveFraction(Form("%s_recursive_fraction_%s", GetName(), pdf->GetName()), "Recursive Fraction", partinCoefList) ;
@@ -184,7 +185,8 @@ NewRooAddPdf::NewRooAddPdf(const char* name, const char* title, const RooArgList
 
          }
 
-      } else {
+      }
+      else {
          _coefList.add(*coef) ;
       }
    }
@@ -210,7 +212,8 @@ NewRooAddPdf::NewRooAddPdf(const char* name, const char* title, const RooArgList
          _haveLastCoef = kTRUE ;
       }
 
-   } else {
+   }
+   else {
       _haveLastCoef = kTRUE ;
    }
 
@@ -472,7 +475,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
          // Play fit options as historically defined
          ret = m.fit(fitOpt) ;
 
-      } else {
+      }
+      else {
 
          if (verbose) {
             // Activate verbose options
@@ -536,7 +540,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
             if (!decomp) {
                coutE(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName()
                               << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" << std::endl ;
-            } else {
+            }
+            else {
                // replace C by its inverse
                decomp.Invert(matC);
                // the class lies about the matrix being symmetric, so fill in the
@@ -557,7 +562,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
             // Evaluate errs with Minos
             if (minosSet) {
                m.minos(*minosSet) ;
-            } else {
+            }
+            else {
                m.minos() ;
             }
          }
@@ -576,7 +582,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
 
 #endif
 
-   } else {
+   }
+   else {
 
       NewRooMinuit m(*nll) ;
 
@@ -604,7 +611,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
          // Play fit options as historically defined
          ret = m.fit(fitOpt) ;
 
-      } else {
+      }
+      else {
 
          if (verbose) {
             // Activate verbose options
@@ -669,7 +677,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
             if (!decomp) {
                coutE(Fitting) << "RooAbsPdf::improvedFitTo(" << GetName()
                               << ") ERROR: Cannot apply sum-of-weights correction to covariance matrix: correction matrix calculated with weight-squared is singular" << std::endl ;
-            } else {
+            }
+            else {
                // replace C by its inverse
                decomp.Invert(matC);
                // the class lies about the matrix being symmetric, so fill in the
@@ -690,7 +699,8 @@ RooFitResult* NewRooAddPdf::improvedFitTo(RooDataHist& data, const RooLinkedList
             // Evaluate errs with Minos
             if (minosSet) {
                m.minos(*minosSet) ;
-            } else {
+            }
+            else {
                m.minos() ;
             }
          }
@@ -862,7 +872,8 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
       glObs = (RooArgSet*) allVars->selectByAttrib(globsTag, kTRUE) ;
       coutI(Minimization) << "User-defined specification of global observables definition with tag named '" <<  globsTag << "'" << std::endl ;
       delete allVars ;
-   } else if (!pc.hasProcessed("GlobalObservables")) {
+   }
+   else if (!pc.hasProcessed("GlobalObservables")) {
 
       // Neither GlobalObservables nor GlobalObservablesTag has been processed - try if a default tag is defined in the head node
       // Check if head not specifies default global observable tag
@@ -928,7 +939,8 @@ RooAbsReal* NewRooAddPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdLi
 
       nll = new RooNLLVar(baseName.c_str(), "-log(likelihood)", *this, data, projDeps, ext, rangeName, addCoefRangeName, numcpu, interl, verbose, splitr, cloneData) ;
 
-   } else {
+   }
+   else {
       // Composite case: multiple ranges
       RooArgList nllList ;
       const size_t bufSize = strlen(rangeName) + 1;

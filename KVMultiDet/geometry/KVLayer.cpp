@@ -77,7 +77,8 @@ const Char_t* KVLayer::GetName() const
    if (!strcmp(fName.Data(), "")) {
       fDyName.Form("Layer %d", GetNumber());
       return fDyName;
-   } else
+   }
+   else
       return fName.Data();
 }
 

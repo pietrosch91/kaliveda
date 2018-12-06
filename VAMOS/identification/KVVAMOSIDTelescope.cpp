@@ -58,11 +58,13 @@ const Char_t* KVVAMOSIDTelescope::GetArrayName()
       if (Edet) {
          SetName(Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()));
          SetType(Form("%s_%s", DEdet->GetType(), Edet->GetType()));
-      } else {
+      }
+      else {
          SetName(Form("VID_%s", DEdet->GetName()));
          SetType(Form("%s", DEdet->GetType()));
       }
-   } else SetName("VID_EMPTY");
+   }
+   else SetName("VID_EMPTY");
 
    return fName.Data();
 }
@@ -125,7 +127,8 @@ void KVVAMOSIDTelescope::Initialize()
    if (fDEdet && fEdet && fGrid) {
       fGrid->Initialize();
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }
 //________________________________________________________________

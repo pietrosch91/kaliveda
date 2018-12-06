@@ -160,7 +160,8 @@ int   sev_memlen;      /* length in bytes of evt str. mem. */
                         /* Ce code doit etre le premier rencontre */
                         err = R_SEVSTRUCT; /* Mauvaise structure du fichier struct */
                         cont = FALSE;
-                     } else {
+                     }
+                     else {
                         sev_fct->sev_code = code;
                         SevFctPrev = sev_fct;
                         sev_fct++;
@@ -243,12 +244,14 @@ int   sev_memlen;      /* length in bytes of evt str. mem. */
                               sscanf(buf, "%d %d", &vsn_sa, &par_num);
                               par_adr = start_par + vsn_sa;
                               *par_adr = par_num;
-                           } else {
+                           }
+                           else {
                               err = R_SEVEOF;  /* fin de fichier non attendue */
                               cont = FALSE;
                            }
                            nbvsnsa--;
-                        } while ((nbvsnsa > 0) && cont);
+                        }
+                        while ((nbvsnsa > 0) && cont);
 
                         sev_fct = (SEV_FCT*)end_par;
                      }
@@ -265,7 +268,8 @@ int   sev_memlen;      /* length in bytes of evt str. mem. */
                      err = R_SEVCODE;    /* code inconnu */
                      cont = FALSE;
                }
-            } else {
+            }
+            else {
                err = R_SEVMEM;  /* buffer structure evenement trop petit */
                cont = FALSE;
             }

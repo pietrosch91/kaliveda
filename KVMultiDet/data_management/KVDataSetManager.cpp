@@ -203,7 +203,8 @@ void KVDataSetManager::Print(Option_t* opt) const
          cout << "                    *** No available datasets ***" <<
               endl;
          return;
-      } else {
+      }
+      else {
          for (int i = 1; i <= fNavailable; i++) {
             KVDataSet* ds = GetAvailableDataSet(i);
             cout << "\t" << i << ". " << ds->GetTitle() << endl;
@@ -296,7 +297,8 @@ void KVDataSetManager::CheckAvailability()
          //no datasets found when checking file system ?
          //can we rely on the cache file ?
          ReadAvailableDatasetsFile();
-      } else {
+      }
+      else {
          //now set up array of available datasets' indices
          fIndex.clear();
          next.Reset();
@@ -424,7 +426,8 @@ Bool_t KVDataSetManager::ReadAvailableDatasetsFile()
                   dataset->AddAvailableDataType(((TObjString*) toks->At(i))->String().
                                                 Data());
                }
-            } else {
+            }
+            else {
                //UNAVAILABLE DATASET (no subdirs)
                dataset->SetAvailable(kFALSE);
             }
@@ -480,9 +483,11 @@ Bool_t KVDataSetManager::CheckCacheStatus()
       if (file_age < fMaxCacheTime) {
          Info("KVDataSetManager::CheckCacheStatus", "Using cached file");
          return kTRUE;
-      } else
+      }
+      else
          Info("KVDataSetManager::CheckCacheStatus", "File is too old (max time=%u). Update will be performed.", fMaxCacheTime);
-   } else
+   }
+   else
       Info("KVDataSetManager::CheckCacheStatus", "...no file found");
    return kFALSE;
 }

@@ -107,7 +107,8 @@ void KVSystemDirectory::GetListings()
             fSubdirs->Add(sd);
             fTotDirs += sd->GetTotalSize();
          }
-      } else {
+      }
+      else {
          KVSystemFile* sf = new KVSystemFile(file, GetTitle());
          fContents->Add(sf);
          fTotFiles += sf->GetSize();
@@ -135,7 +136,8 @@ void KVSystemDirectory::ls(Option_t* opt) const
          printf("%-60s [total : %lld / files : %lld bytes]\n",
                 sd->GetTitle(), sd->GetTotalSize(), sd->GetTotalFiles());
       }
-   } else {
+   }
+   else {
       GetListOfDirectories()->R__FOR_EACH(KVSystemDirectory, ls)();
    }
    TROOT::DecreaseDirLevel();

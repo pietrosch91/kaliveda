@@ -51,7 +51,8 @@ void KVGeoNodeIterator::Reset(KVGeoDetectorNode* start, KVGeoDNTrajectory* traje
    if (start == nullptr) {
       current_node = start_node;
       next_trajectory->Reset();
-   } else {
+   }
+   else {
       current_node = start_node = start;
       iter_on_traj = trajectory;
       delete next_trajectory;

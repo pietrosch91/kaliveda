@@ -166,11 +166,14 @@ void KVAutoFit::SetHistos(KVHashList* lh, TString option)
 
    if (option == "all") {
       Info("SetHistos", "On s'occupe de tous les histos de la liste");
-   } else if (option == "relecture") {
+   }
+   else if (option == "relecture") {
       Info("SetHistos", "On s'occupe de tous les histos de la liste en relisant les infos des histos pour lesquels on en a (des info)");
-   } else if (option == "inconnu") {
+   }
+   else if (option == "inconnu") {
       Info("SetHistos", "On ne s'occupe que des histos pour lesquels on n'a pas d info");
-   } else {
+   }
+   else {
       Info("SetHistos", "la variable option doit prendre la valeur \"all\", \"relecture\" ou \"inconnu\"");
       return;
    }
@@ -321,7 +324,8 @@ void KVAutoFit::SetHisto(TH1* hh)
    if (hh->InheritsFrom("TH2")) {
       if (is2D)
          ok = kTRUE;
-   } else if (hh->InheritsFrom("TH1")) {
+   }
+   else if (hh->InheritsFrom("TH1")) {
       if (!is2D)
          ok = kTRUE;
    }
@@ -379,7 +383,8 @@ void KVAutoFit::GetInterval()
       Ymin = gPad->AbsPixeltoY(yy);
 
       XminSet = kTRUE;
-   } else if (event == kButton2Up) {
+   }
+   else if (event == kButton2Up) {
 
       Int_t xx = gPad->GetEventX();
       Int_t yy = gPad->GetEventY();
@@ -395,7 +400,8 @@ void KVAutoFit::GetInterval()
             Ymin = temp;
          }
       }
-   } else if (event == kButton1Double) {
+   }
+   else if (event == kButton1Double) {
       Save();
       NextHisto();
    }
@@ -413,7 +419,8 @@ void KVAutoFit::GetInterval()
             hfit->Fit(f1Dfit, "0N", "", Xmin, Xmax);
             f1Dfit->Draw("same");
             ExtraDrawing();
-         } else {
+         }
+         else {
             hfit->Fit(f2Dfit, "0N", "", Xmin, Xmax);
             f2Dfit->Draw("same,cont2");
             ExtraDrawing();
@@ -506,7 +513,8 @@ void KVAutoFit::Save()
       if (!is2D) {
          f1->GetRange(x1, x2);
          fout << x1 << " " << x2 << endl;
-      } else {
+      }
+      else {
          f1->GetRange(x1, y1, x2, y2);
          fout << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
       }
@@ -549,7 +557,8 @@ void KVAutoFit::Relecture(const Char_t* name)
                //Creation de la fonction a partir d une formule
                line.ReadLine(fin);
                freload = new TF1(snom.Data(), line.Data());
-            } else {
+            }
+            else {
                //lecture de l'expression ou de la methode definissant la fonction
                //lecture du nombre de parametres
                line.ReadLine(fin);
@@ -579,7 +588,8 @@ void KVAutoFit::Relecture(const Char_t* name)
 
          }
       }
-   } else {
+   }
+   else {
       TF2* freload;
       TString f2d;
       f2d.Form("%s::f2D", GetName());
@@ -600,7 +610,8 @@ void KVAutoFit::Relecture(const Char_t* name)
                //Creation de la fonction a partir d une formule
                line.ReadLine(fin);
                freload = new TF2(snom.Data(), line.Data());
-            } else {
+            }
+            else {
                //lecture de l'expression ou de la methode definissant la fonction
                //lecture du nombre de parametres
                line.ReadLine(fin);

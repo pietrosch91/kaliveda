@@ -91,7 +91,8 @@ CsIv::CsIv(LogFile* Log) :
    if (!gDataSet->OpenDataSetFile("CsI.pied", in2)) {
       cout << "Could not open the calibration file CsI.pied !!!" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading CsI.pied" << endl;
       while (!in2.eof()) {
          sline.ReadLine(in2);
@@ -115,7 +116,8 @@ CsIv::CsIv(LogFile* Log) :
    if (!gDataSet->OpenDataSetFile("CsI.cal", in3)) {
       cout << "Could not open the calibration file CsI.cal !!!" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading CsI.cal" << endl;
       while (!in3.eof()) {
          sline.ReadLine(in3);

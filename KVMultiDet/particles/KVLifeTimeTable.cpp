@@ -129,7 +129,8 @@ void KVLifeTimeTable::Initialize()
    if (!KVBase::SearchKVFile(gEnv->GetValue(dfile.Data(), ""), cl_path, "data")) {
       Error("Initialize", "No file found for %s", GetName());
       return;
-   } else {
+   }
+   else {
       //Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
    }
    SetTitle(gEnv->GetValue(dfile.Data(), ""));
@@ -149,7 +150,8 @@ void KVLifeTimeTable::Initialize()
          kcomments += fr->GetCurrentLine();
          kcomments += "\n";
 
-      } else {
+      }
+      else {
          Int_t zz = fr->GetIntReadPar(0);
          Int_t aa = fr->GetIntReadPar(1);
          GiveIndexToNucleus(zz, aa, ntot);
@@ -169,9 +171,11 @@ void KVLifeTimeTable::Initialize()
       fr->ReadLine(" ");
       if (fr->GetCurrentLine().IsNull()) {
          break;
-      } else if (fr->GetNparRead() == 0) {
+      }
+      else if (fr->GetNparRead() == 0) {
          break;
-      } else if (fr->GetReadPar(0).BeginsWith("//")) { }
+      }
+      else if (fr->GetReadPar(0).BeginsWith("//")) { }
       else {
          Double_t val = fr->GetDoubleReadPar(2);
 
@@ -183,14 +187,16 @@ void KVLifeTimeTable::Initialize()
             if (unit.EndsWith("eV")) {
                lf->SetResonance(kTRUE);
                val *= ToMeV(unit);
-            } else {
+            }
+            else {
                lf->SetResonance(kFALSE);
                val *= ToSecond(unit);
             }
             if (fr->GetNparRead() > 4) {
                Int_t meas = fr->GetReadPar(4).Atoi();
                lf->SetMeasured(meas);
-            } else {
+            }
+            else {
                if (ntot == 0) InfoOnMeasured();
             }
          }

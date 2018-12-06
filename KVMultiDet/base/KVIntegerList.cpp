@@ -150,13 +150,15 @@ void KVIntegerList::SetPartition(const Char_t* par)
          if (!tamp.Contains(")")) {
             Warning("SetPartition", "%s ->pb de coherence dans les parentheses", tamp.Data());
             return;
-         } else {
+         }
+         else {
             toks = tamp.Tokenize("(");
             val = ((TObjString*)toks->At(0))->GetString().Atoi();
             freq = ((TObjString*)toks->At(1))->GetString().Atoi();
             delete toks;
          }
-      } else {
+      }
+      else {
          val = tamp.Atoi();
          freq = 1;
       }
@@ -361,7 +363,8 @@ Bool_t KVIntegerList::remove_values(Int_t val, Int_t freq)
    if (val > fLimiteRegle)   return kFALSE;
    else if (!Contains(val)) {
       return kFALSE;
-   } else {
+   }
+   else {
       Int_t freq_rel = TMath::Min(fRegle->At(val), freq);
       fRegle->AddAt(TMath::Max(fRegle->At(val) - freq, 0), val);
       fMult -= freq_rel;
@@ -566,7 +569,8 @@ void KVIntegerList::Streamer(TBuffer& R__b)
    if (R__b.IsReading()) {
       R__b.ReadClassBuffer(TNamed::Class(), this);
       DeducePartitionFromTNamed();
-   } else {
+   }
+   else {
       SetTitle(Form("%d", GetPopulation()));
       R__b.WriteClassBuffer(TNamed::Class(), this);
    }

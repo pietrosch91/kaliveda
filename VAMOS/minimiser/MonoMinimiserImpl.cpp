@@ -189,7 +189,8 @@ Int_t MonoMinimiserImpl::Minimise(
    if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
 #endif
       delta_last = sim_results_->delta;
-   } else {
+   }
+   else {
       delta_last = 100000.;
    }
 
@@ -223,7 +224,8 @@ Int_t MonoMinimiserImpl::Minimise(
       if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
 #endif
          delta = sim_results_->delta;
-      } else {
+      }
+      else {
          delta = 100000.;
       }
 
@@ -240,7 +242,8 @@ Int_t MonoMinimiserImpl::Minimise(
             break;
          }
          ++num_maximising;
-      } else {
+      }
+      else {
          num_maximising = 0;
       }
 
@@ -286,7 +289,8 @@ Int_t MonoMinimiserImpl::Minimise(
       if (stack_->Simulate(sim_parameters_.get(), sim_results_.get())) {
 #endif
          delta = sim_results_->delta;
-      } else {
+      }
+      else {
          delta = 100000.;
       }
 
@@ -303,7 +307,8 @@ Int_t MonoMinimiserImpl::Minimise(
             break;
          }
          ++num_maximising;
-      } else {
+      }
+      else {
          num_maximising = 0;
       }
 
@@ -338,21 +343,24 @@ Int_t MonoMinimiserImpl::Minimise(
       }
       return best_forward_a_value;
 
-   } else if (backward_status && !forward_status) {
+   }
+   else if (backward_status && !forward_status) {
       if (mono_data) {
          mono_data->SetA(best_backward_a_value);
          mono_data->SetDelta(best_backward_delta);
       }
       return best_backward_a_value;
 
-   } else if (!backward_status && !forward_status) {
+   }
+   else if (!backward_status && !forward_status) {
       if (mono_data) {
          mono_data->SetA(-1);
          mono_data->SetDelta(100000.);
       }
       return kNoValidResult;
 
-   } else {
+   }
+   else {
       if (best_backward_delta < best_forward_delta) {
          if (mono_data) {
             mono_data->SetA(best_backward_a_value);
@@ -360,7 +368,8 @@ Int_t MonoMinimiserImpl::Minimise(
          }
          return best_backward_a_value;
 
-      } else {
+      }
+      else {
          if (mono_data) {
             mono_data->SetA(best_forward_a_value);
             mono_data->SetDelta(best_forward_delta);

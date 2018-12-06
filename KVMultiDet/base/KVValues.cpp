@@ -183,13 +183,15 @@ void KVValues::DefineAdditionalValue(KVString name, KVString expr)
    if (nl) {
       if (nl->IsEmpty()) {
          Warning("DefineAdditionalValue", "la KVNumberList est vide #%s#", nl->GetList());
-      } else {
+      }
+      else {
          if (AddFormula(name, expr2)) {
             LinkParameters(nl);
             ComputeAdditionalValues(kval_add - 1, kval_add);
          }
       }
-   } else {
+   }
+   else {
       Error("DefineAdditionalValue", "La traduction de l'expression %s a echouee", expr.Data());
    }
 }
@@ -232,7 +234,8 @@ KVNumberList* KVValues::TransformExpression(KVString& expr)
       if (expression[ii] == O[0]) {
          nouvert += 1;
          posouvert = ii;
-      } else if (expression[ii] == F[0]) {
+      }
+      else if (expression[ii] == F[0]) {
          nferme += 1;
          posferme = ii;
          KVString st(clone(posouvert + 1, posferme - posouvert - 1));
@@ -241,11 +244,13 @@ KVNumberList* KVValues::TransformExpression(KVString& expr)
             if (0 <= idx && idx < kval_tot) {
                nl->Add(idx);
                nvar += 1;
-            } else {
+            }
+            else {
                delete nl;
                return 0;
             }
-         } else {
+         }
+         else {
 
             Int_t idx = GetValuePosition(st.Data());
             if (idx == -1) {
@@ -260,7 +265,8 @@ KVNumberList* KVValues::TransformExpression(KVString& expr)
             s2.Form("[%d]", idx);
             expr.ReplaceAll(s1, s2);
          }
-      } else {}
+      }
+      else {}
    }
 
    if (nouvert != nferme || nvar != nouvert) {

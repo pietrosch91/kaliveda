@@ -72,7 +72,8 @@ SeDv::SeDv(LogFile* Log, short nr)
    if (!gDataSet->OpenDataSetFile(fname, inf1)) {
       cout << "Could not open the Reference file SeDRef.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading " << fname << endl;
       L->Log << "Reading " << fname << endl;
@@ -102,7 +103,8 @@ SeDv::SeDv(LogFile* Log, short nr)
    if (!gDataSet->OpenDataSetFile(fname, inf)) {
       cout << "Could not open the calibration file " << fname << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading " << fname << endl;
       L->Log << "Reading " << fname << endl;
@@ -311,7 +313,8 @@ void SeDv::Calibrate(void)
    if ((E[0] > 0.0 || E[1] > 0.0 || E[2] > 0.0) && T[0] > 0.0) {
       PresentWires = true;
       Counter[5]++;
-   } else {
+   }
+   else {
       E[0] = E[1] = E[2] = T[0] = 0.0;
    }
 
@@ -439,7 +442,8 @@ void SeDv::FocalSubseqX(void)
                XS[i] = X[i] = X[i] * 3. / sqrtf(2.); //Goes mm
             if (!(X[i] < 500. && X[i] > 0.)) XS[i] = X[i] = -500.;
             if (X[i] > 0.) Counter1[i][1]++;
-         } else { // the case of Weighted Average
+         }
+         else {   // the case of Weighted Average
 #ifdef WEIGHTEDAVERAGE
             if (Mult[i] > NStrips) {
                //Looking for entire peak for W.A.
@@ -451,9 +455,11 @@ void SeDv::FocalSubseqX(void)
                      if ((Q[j][i] <= Q[j + 1][i])) {
                         StripsWA++;
                         FStrip[StripsWA] = j;
-                     } else
+                     }
+                     else
                         break;
-                  } else
+                  }
+                  else
                      break;
 
                for (j = FStrip[0]; j < Mult[i] - 1; j++)
@@ -461,9 +467,11 @@ void SeDv::FocalSubseqX(void)
                      if (Q[j][i] >= Q[j + 1][i]) {
                         StripsWA++;
                         FStrip[StripsWA] = j + 1;
-                     } else
+                     }
+                     else
                         break;
-                  } else
+                  }
+                  else
                      break;
 
                if (StripsWA >= NStrips) {
@@ -510,7 +518,8 @@ void SeDv::FocalSubseqX(void)
          XWA[i] -= (Float_t) XRef[i];
       }
       Counter[9]++;
-   } else {
+   }
+   else {
       for (i = 0; i < 2; i++)
          X[i] = -500.0;
    }

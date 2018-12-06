@@ -65,7 +65,8 @@ void KVIDChIoSi_e613::Initialize()
       SetBit(kReadyForID);
       ChIoSiGrid->Initialize();
       if (FromFitChIoSiGrid) FromFitChIoSiGrid->Initialize();
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
 
@@ -97,7 +98,8 @@ Bool_t KVIDChIoSi_e613::Identify(KVIdentificationResult* IDR, Double_t x, Double
          );
          */
          //theIdentifyingGrid = ChIoSiGrid;
-      } else {
+      }
+      else {
          if (FromFitChIoSiGrid) {
             FromFitChIoSiGrid->Identify(si, chio, IDR);
             if (IDR->IDOK) {
@@ -113,7 +115,8 @@ Bool_t KVIDChIoSi_e613::Identify(KVIdentificationResult* IDR, Double_t x, Double
             }
          }
       }
-   } else if (FromFitChIoSiGrid->IsIdentifiable(si, chio)) {
+   }
+   else if (FromFitChIoSiGrid->IsIdentifiable(si, chio)) {
       FromFitChIoSiGrid->Identify(si, chio, IDR);
       theIdentifyingGrid = FromFitChIoSiGrid;
       Info("Identify", "Cas2 identification avec grille fitte, IDRcode=%d IDRz=%d IDRq=%d Grilleq=%d",

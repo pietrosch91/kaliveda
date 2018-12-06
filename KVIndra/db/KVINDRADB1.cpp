@@ -97,7 +97,8 @@ void KVINDRADB1::GoodRunLine()
          tape = new KVDBTape(tape_n);
          AddTape(tape);
       }
-   } else {
+   }
+   else {
       Error("GoodRunLine", "No tape field ? run=%d", run_n);
    }
 
@@ -158,7 +159,8 @@ void KVINDRADB1::GoodRunLine()
       if (csv_line->HasFieldValue("Remarque"))
          run->SetComments(csv_line->GetField("Remarque"));
 
-   } else {
+   }
+   else {
       Error("GoodRunLine", "Run %d already exists", run_n);
    }
 }

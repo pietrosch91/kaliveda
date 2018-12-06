@@ -38,7 +38,8 @@ void* KVMemoryPool::GetMemory(size_t bytes)
       do {
          fLastChunkUsed = fLastChunkUsed->Next();
          if (fLastChunkUsed) p = fLastChunkUsed->GetMemory(bytes);
-      } while (!p && fLastChunkUsed);
+      }
+      while (!p && fLastChunkUsed);
    }
    if (!p) {
       // there are no chunks big enough to provide memory

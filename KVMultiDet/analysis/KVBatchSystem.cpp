@@ -257,7 +257,8 @@ void KVBatchSystem::ChangeDefJobOpt(KVDataAnalyser* da)
       Info("ChangeDefJobOpt", "Changing default batch options for task %s.", da->GetAnalysisTask()->GetName());
       Info("ChangeDefJobOpt", "Batch job options for this job are : %s", tmp.Data());
       SetDefaultJobOptions(tmp.Data());
-   } else {
+   }
+   else {
       tmp = gEnv->GetValue(Form("%s.BatchSystem.DefaultJobOptions", GetName()), "");
       SetDefaultJobOptions(tmp.Data());
    }
@@ -277,7 +278,8 @@ const Char_t* KVBatchSystem::GetJobName() const
    if (!fAnalyser) {
       //stand-alone batch submission ?
       fCurrJobName = fJobName;
-   } else {
+   }
+   else {
       //replace any special symbols with their current values
       fCurrJobName = fAnalyser->ExpandAutoBatchName(fJobName.Data());
    }
@@ -329,13 +331,15 @@ void KVBatchSystem::Print(Option_t* option) const
    if (!strcmp(option, "log")) {
       cout << "Job " << GetJobName()
            << " executed by batch system " << GetName() << endl;
-   } else if (!strcmp(option, "all")) {
+   }
+   else if (!strcmp(option, "all")) {
       cout << ClassName() << " : Name = " << GetName() << endl << " Title = " << GetTitle() << endl;
       cout << " fJobSubCmd = " << fJobSubCmd.Data() << endl;
       cout << " fJobScript = " << fJobScript.Data() << endl;
       cout << " fDefOpt = " << fDefOpt.Data() << endl;
       fParList.Print();        //list of parameters/switches to be passed on job submission command line
-   } else
+   }
+   else
       KVBase::Print(option);
 }
 

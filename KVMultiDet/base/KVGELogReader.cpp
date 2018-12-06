@@ -44,27 +44,32 @@ void KVGELogReader::ReadLine(TString& line, Bool_t& ok)
 
    if (line.Contains("LOCAL:") && line.Contains("->SRB:")) {
       fileCopiedtoSRB = kTRUE;
-   } else if (line.Contains("Cputime limit exceeded")) {
+   }
+   else if (line.Contains("Cputime limit exceeded")) {
       ok = kFALSE;
       fStatus = line;
       fOK = kFALSE;
       return;
-   } else if (line.Contains("Filesize limit exceeded")) {
+   }
+   else if (line.Contains("Filesize limit exceeded")) {
       ok = kFALSE;
       fStatus = line;
       fOK = kFALSE;
       return;
-   } else if (line.Contains("File size limit exceeded")) {
+   }
+   else if (line.Contains("File size limit exceeded")) {
       ok = kFALSE;
       fStatus = line;
       fOK = kFALSE;
       return;
-   } else if (line.Contains("XCPU")) {
+   }
+   else if (line.Contains("XCPU")) {
       ok = kFALSE;
       fStatus = "KILLED";
       fOK = kFALSE;
       return;
-   } else if (line.Contains("cpu time:"))
+   }
+   else if (line.Contains("cpu time:"))
       ReadCPULimit(line);
    else if (line.Contains("CpuUser ="))
       ReadKVCPU(line);
@@ -89,10 +94,12 @@ void KVGELogReader::ReadKVCPU(TString& line)
       KVString token = ((TObjString*)toks->At(i))->String();
       if (token == "CpuUser") {
          fCPUused = ((TObjString*)toks->At(i + 1))->String().Atof();
-      } else if (token == "VirtMem") {
+      }
+      else if (token == "VirtMem") {
          fMemKB = ((TObjString*)toks->At(i + 1))->String().Atof();
          fMemKB *= GetByteMultiplier(((TObjString*)toks->At(i + 2))->String());
-      } else if (token == "DiskUsed") {
+      }
+      else if (token == "DiskUsed") {
          token = ((TObjString*)toks->At(i + 1))->String();
          fScratchKB = ReadStorage(token);
       }
@@ -179,7 +186,8 @@ Double_t KVGELogReader::ReadStorage(KVString& stor)
    if (index >= 0) {
       stor.Remove(index);
       u = units[i];
-   } else {
+   }
+   else {
       u = "M";
    }
    return (stor.Atof() * GetByteMultiplier(u));

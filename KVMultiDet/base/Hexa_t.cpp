@@ -211,7 +211,8 @@ void Hexa_t::SetBit(UChar_t nbit, Long64_t val)
          SetBit(nbit);
       else
          ResetBit(nbit);
-   } else
+   }
+   else
       SETBIT(fVal, nbit);
 }
 

@@ -116,7 +116,8 @@ void KVSiB::Streamer(TBuffer& R__b)
       KVSiB::Class()->ReadBuffer(R__b, this);
       fLinCal = (KVLinCal*)GetCalibrator("Linear calibration E");
       fPHD  = (KVPulseHeightDefect*) GetCalibrator("Pulse Height Defect");
-   } else {
+   }
+   else {
       KVSiB::Class()->WriteBuffer(R__b, this);
    }
 }

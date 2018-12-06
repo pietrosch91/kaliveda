@@ -261,7 +261,8 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
          fNPoints++;
       }
       if (projey) delete projey;
-   } else Error("FindALine", "not starting bin indicated...");
+   }
+   else Error("FindALine", "not starting bin indicated...");
    SortLines(&Lines);
 
    Int_t nLines = Lines.GetSize();

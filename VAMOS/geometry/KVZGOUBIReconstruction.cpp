@@ -82,7 +82,8 @@ void KVZGOUBIReconstruction::Init()
    if (filename4D == "" && filename_localdatabase4D == "") {
       Warning("SetZGOUBITFile_fromdataset", "No filename defined. Should be given by %s.KVZGOUBIInverseMatrix.ZGOUBIDatabase or %s.KVZGOUBIInverseMatrix.ZGOUBIDatabase_local", gDataSet->GetName(), gDataSet->GetName());
       return;
-   } else {
+   }
+   else {
       Bool_t rootfiles_status = true;
       Int_t rootfile_nb = 1;
       TString rootfile_name;
@@ -92,14 +93,16 @@ void KVZGOUBIReconstruction::Init()
          std::cout << "Local DataBase for 4D:" << filename_localdatabase4D << std::endl;
          t->Add(filename_localdatabase4D.Data());
          std::cout << "Trajectories:" << t->GetEntries() << std::endl;
-      } else {
+      }
+      else {
          while (rootfiles_status == true) {
             rootfile_name.Form("%s_%i.root", filename4D.Data(), rootfile_nb);
             if (gDataSet->SearchKVFile(rootfile_name.Data(), fullpath, hardcoded_datasetsubdir.Data())) {
                std::cout << "DataSet DataBase for 4D:" << fullpath << std::endl;
                t->Add(fullpath.Data());
                rootfile_nb++;
-            } else {
+            }
+            else {
                rootfiles_status = false;
             }
          }
@@ -114,7 +117,8 @@ void KVZGOUBIReconstruction::Init()
    if (filename2D == "" && filename_localdatabase2D == "") {
       Warning("SetZGOUBITFile_fromdataset", "No filename defined. Should be given by %s.KVZGOUBIInverseMatrix.ZGOUBIDatabase or %s.KVZGOUBIInverseMatrix.ZGOUBIDatabase_local", gDataSet->GetName(), gDataSet->GetName());
       return;
-   } else {
+   }
+   else {
       Bool_t rootfiles_status = true;
       Int_t rootfile_nb = 1;
       TString rootfile_name;
@@ -124,14 +128,16 @@ void KVZGOUBIReconstruction::Init()
          std::cout << "Local DataBase for 2D:" << filename_localdatabase2D << std::endl;
          t->Add(filename_localdatabase2D.Data());
          std::cout << "Trajectories:" << t->GetEntries() << std::endl;
-      } else {
+      }
+      else {
          while (rootfiles_status == true) {
             rootfile_name.Form("%s_%i.root", filename2D.Data(), rootfile_nb);
             if (gDataSet->SearchKVFile(rootfile_name.Data(), fullpath, hardcoded_datasetsubdir.Data())) {
                std::cout << "DataSet DataBase for 2D:" << fullpath << std::endl;
                t->Add(fullpath.Data());
                rootfile_nb++;
-            } else {
+            }
+            else {
                rootfiles_status = false;
             }
          }

@@ -143,7 +143,8 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
    while ((id = (KVIDentifier*)next_id())) {
       if (!with_xlimits) {
          npts += id->GetN(); // count all points
-      } else {
+      }
+      else {
          Double_t x, y;
          for (int i = 0; i < id->GetN(); i++) {
             id->GetPoint(i, x, y);

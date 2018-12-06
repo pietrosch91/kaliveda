@@ -148,7 +148,8 @@ KVElasticCountRates::KVElasticCountRates(Double_t theta_min, Double_t theta_max,
       gMultiDetArray->SetSimMode(kTRUE);
       gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_GeoThresh);
       gMultiDetArray->InitializeIDTelescopes();
-   } else {
+   }
+   else {
       Warning("KVElasticCountRates", "gMultiDetArray does not refer to a valid multidetector array");
       printf("Define it before using this class, and put it in simulation mode : gMultiDetArray->SetSimMode(kTRUE)");
    }
@@ -282,7 +283,8 @@ void KVElasticCountRates::CalculateScattering(Int_t N)
    //set random interaction point for scattering
    if (fIntLayer) {
       fTarget->SetInteractionLayer(fIntLayer, fBeamDirection);
-   } else {
+   }
+   else {
       fTarget->GetInteractionPoint(fProj);
    }
 
@@ -338,7 +340,8 @@ void KVElasticCountRates::CalculateScattering(Int_t N)
       //set random interaction point for scattering
       if (fIntLayer) {
          fTarget->SetInteractionLayer(fIntLayer, fBeamDirection);
-      } else {
+      }
+      else {
          fTarget->GetInteractionPoint(fProj);
          //if target is multilayer and the interaction layer is not fixed,
          //the layer & hence the target nucleus may change
@@ -421,7 +424,8 @@ struct count_rate {
          tmp += ",";
          tmp += detector;
          nl.SetValue("DetList", tmp.Data());
-      } else {
+      }
+      else {
          nl.SetValue("DetList", detector.Data());
       }
       nl.SetValue(Form("%s.Counts(/sec)", detector.Data()), Form("%8.2f", counts));

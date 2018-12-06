@@ -170,7 +170,8 @@ void KVParticleCondition::Set(const Char_t* cond)
    if (ind < 0) {
       fCondition_raw = fCondition;
       fCondition += ";";    //we add a ";" if there isn't already
-   } else {
+   }
+   else {
       fCondition_raw = fCondition.Strip(TString::kTrailing, ';');
    }
    fCondition_brackets = "(" + fCondition_raw + ")";

@@ -161,7 +161,8 @@ void KVElasticScatterEvent::SetSystem(KVDBSystem* sys)
       SetProjNucleus(sys->GetKinematics()->GetNucleus(1));
       SetTargNucleus(sys->GetKinematics()->GetNucleus(2));
       SetTargetMaterial(sys->GetTarget());
-   } else {
+   }
+   else {
       Error("SetSystem", "KVDBSystem pointer is not valid");
       return;
    }
@@ -201,7 +202,8 @@ void KVElasticScatterEvent::SetDiffNucleus(KVString name)
 
    if (name == "TARG") {
       kDiffNuc = 4;
-   } else {
+   }
+   else {
       kDiffNuc = 3;
       if (name != "PROJ") {
          Warning("SetDiffNucleus", "%s Le nom en argument doit etre PROJ ou TARG, par defaut on choisit le projectile", name.Data());
@@ -300,7 +302,8 @@ void KVElasticScatterEvent::SetDetectionOn(Bool_t On)
       SetBit(kIsDetectionOn, On);
       ResetBit(kIsUpdated);
 
-   } else {
+   }
+   else {
       if (On)
          Warning("MakeDetection", "Detection asked but no multiDetArray defined");
    }
@@ -375,7 +378,8 @@ Bool_t KVElasticScatterEvent::DefineTargetNucleusFromLayer(KVString layer_name)
    if (layer_name == "") {
       kchoix_layer = 1;
       mat = GetTarget()->GetLayerByIndex(kchoix_layer);
-   } else {
+   }
+   else {
       if (!(mat = GetTarget()->GetLayer(layer_name))) {
          printf("le nom du layer %s ne correspond a aucun present dans le cible\n", layer_name.Data());
          printf("Attention le layer doit etre appele par son symbol (ie Calcium -> Ca)");
@@ -432,7 +436,8 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
       if (!IsTargMatSet()) {
          Error("ValidateEntrance", "Il n'y a pas de noyau cible -> use SetTargNucleus() ou SetTargetMaterial");
          return kFALSE;
-      } else {
+      }
+      else {
          if (DefineTargetNucleusFromLayer())
             Info("ValidateEntrance", "Definition du noyau cible via DefineTargetNucleusFromLayer()");
       }
@@ -442,19 +447,23 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
       if (GetTarget()) {
          if (gMultiDetArray->GetTarget() && gMultiDetArray->GetTarget() ==  ktarget) {
 
-         } else {
+         }
+         else {
             //Fait un clone
             gMultiDetArray->SetTarget(GetTarget());
             delete ktarget;
             ktarget = gMultiDetArray->GetTarget();
          }
-      } else if (gMultiDetArray->GetTarget()) {
+      }
+      else if (gMultiDetArray->GetTarget()) {
          ktarget = gMultiDetArray->GetTarget();
-      } else {
+      }
+      else {
          Warning("ValidateEntrance", "Pas de calcul de perte dans la cible ... ");
       }
       //DefineAngularRange(gMultiDetArray);
-   } else {
+   }
+   else {
       Info("ValidateEntrance", "The elastic scatter events will not be detected/filtered");
    }
 
@@ -558,7 +567,8 @@ void KVElasticScatterEvent::MakeDiffusion()
 
    if (IsDetectionOn()) {
       Filter();
-   } else {
+   }
+   else {
       if (IsTargMatSet())
          SortieDeCible();
    }
@@ -665,11 +675,13 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta, Double_t phi)
 
    if (nsol_kin == 1) {
       ediff = ediff1;
-   } else {
+   }
+   else {
       if (kChoixSol == 1) ediff = ediff1;
       else if (kChoixSol == 2) {
          ediff = ediff2;
-      } else {
+      }
+      else {
          Int_t choix = TMath::Nint(gRandom->Uniform(0.5, 2.5));
          if (choix == 2)  ediff = ediff2;
          else           ediff = ediff1;
@@ -1020,13 +1032,15 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
       tmax = pos_obj->GetThetaMax();
       pmin = pos_obj->GetPhiMin();
       pmax = pos_obj->GetPhiMax();
-   } else if (obj->InheritsFrom("KVDetector")) {
+   }
+   else if (obj->InheritsFrom("KVDetector")) {
       KVTelescope* pos_obj = (KVTelescope*)((KVDetector*)obj)->GetParentStructure("TELESCOPE");
       tmin = pos_obj->GetThetaMin();
       tmax = pos_obj->GetThetaMax();
       pmin = pos_obj->GetPhiMin();
       pmax = pos_obj->GetPhiMax();
-   } else if (obj->InheritsFrom("KVASMultiDetArray")) {
+   }
+   else if (obj->InheritsFrom("KVASMultiDetArray")) {
       Warning("DefineAngularRange(KVASMultiDetArray*)", "Needs reimplementing");
       /*KVASMultiDetArray* pos_obj=(KVASMultiDetArray* )obj;
       KVSeqCollection* ll = pos_obj->GetGroups();
@@ -1044,7 +1058,8 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
        tmax = tmax2;
        pmin = pmin2;
             pmax = pmax2;*/
-   } else {
+   }
+   else {
       printf("les objects de type %s ne sont pas implemente dans KVElasticScatterEvent::DefineAngularRange\n", obj->IsA()->GetName());
       return;
    }

@@ -96,7 +96,8 @@ void KVFAZIARawEvent::Streamer(TBuffer& R__b)
    if (R__b.IsReading()) {
       Clear();
       R__b.ReadClassBuffer(KVFAZIARawEvent::Class(), this);
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVFAZIARawEvent::Class(), this);
    }
 }

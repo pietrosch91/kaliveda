@@ -151,7 +151,8 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
          IDR->Zident = kTRUE;
          //subcode says "Z ok but A failed because..."
          IDR->IDquality = GetStatus();
-      } else {                   //both Z and A successful ?
+      }
+      else {                     //both Z and A successful ?
 
          ia = TMath::Nint(mass);
          // fix 16B
@@ -190,10 +191,12 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
                      ia = new_ia;
                      mass = new_mass;
                      Info("Identify", "%s : accepted new ID", GetName());
-                  } else {
+                  }
+                  else {
                      Info("Identify", "%s : rejected new ID", GetName());
                   }
-               } else {
+               }
+               else {
                   Info("Identify", "%s : failed to obtain new ID with Z=%d", GetName(), iz2);
                }
             }
@@ -204,7 +207,8 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
          IDR->Zident = kTRUE;
          IDR->Aident = kTRUE;
       }
-   } else {
+   }
+   else {
       //only Z identified
       //ID subcode remains 'Zstatus'
       IDR->Z = iz;

@@ -65,10 +65,12 @@ void KVINDRAGeneDataAnalyser::SubmitTask()
    if (!selector || !selector->InheritsFrom("KVINDRAGeneDataSelector")) {
       cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
       cout << "Process aborted." << endl;
-   } else {
+   }
+   else {
       if (GetNbEventToRead()) {
          t->Process(GetUserClass(), "", GetNbEventToRead());
-      } else {
+      }
+      else {
          t->Process(GetUserClass());
       }
    }

@@ -220,7 +220,8 @@ Bool_t MEDetectorStack::Simulate(
    if (absolute_delta_) {
       // We've specified absolute delta (default)
       delta = TMath::Abs(parameters->si_energy - si_->GetEnergyLoss());
-   } else {
+   }
+   else {
       // Otherwise simply return the difference
       delta = parameters->si_energy - si_->GetEnergyLoss();
    }

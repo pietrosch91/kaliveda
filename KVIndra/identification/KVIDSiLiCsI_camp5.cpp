@@ -56,7 +56,8 @@ void KVIDSiLiCsI_camp5::Initialize()
       SetBit(kReadyForID);
       fGGgrid->Initialize();
       if (fPGgrid) fPGgrid->Initialize();
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }
 

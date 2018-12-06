@@ -172,7 +172,8 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
          gIndra->ReconstructEvent(recev, (KVDetectorEvent*)GetDetectorEvent());
          nb_recon++;
          ExtraProcessing();
-      } else {
+      }
+      else {
          genetree->Fill();
       }
    }

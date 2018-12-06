@@ -56,10 +56,12 @@ void KVDBParameterList::Print(Option_t* option) const
    opt.ToUpper();
    if (opt == "PAR") {
       GetParameters()->Print();
-   } else if (opt == "ALL") {
+   }
+   else if (opt == "ALL") {
       KVDBRecord::Print(option);
       GetParameters()->Print();
-   } else {
+   }
+   else {
       KVDBRecord::Print(option);
    }
 

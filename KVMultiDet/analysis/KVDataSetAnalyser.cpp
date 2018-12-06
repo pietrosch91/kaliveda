@@ -148,7 +148,8 @@ void KVDataSetAnalyser::ChooseDataSet()
    if (n_avail == 1) {
       //1 dataset available - automatic choice
       n_dataset = 1;
-   } else {
+   }
+   else {
       KVString tmp;
       while (!IsQuit() && (n_dataset < 1 || n_dataset > n_avail)) {
          cout << endl << "Your choice (1-" << gDataSetManager->
@@ -159,7 +160,8 @@ void KVDataSetAnalyser::ChooseDataSet()
          if (IsMenus() && (tmp.Contains("q") || tmp.Contains("Q"))) {
             SetQuit();
             return;
-         } else if (tmp.IsDigit()) {
+         }
+         else if (tmp.IsDigit()) {
             n_dataset = tmp.Atoi();
          }
       }
@@ -193,9 +195,11 @@ void KVDataSetAnalyser::ChooseDataType()
       if (tmp == "raw" || tmp == "recon" || tmp == "ident" || tmp == "root") {
          fChoozSystem = kTRUE;
          SetDataType(tmp);
-      } else if (tmp.Contains("q") || tmp.Contains("Q")) {
+      }
+      else if (tmp.Contains("q") || tmp.Contains("Q")) {
          SetQuit();
-      } else if (tmp.Contains("d") || tmp.Contains("D")) {
+      }
+      else if (tmp.Contains("d") || tmp.Contains("D")) {
          SetChooseDataSet();
       }
 
@@ -240,10 +244,12 @@ void KVDataSetAnalyser::ChooseAnalysisTask()
       if (IsMenus() && (tmp.Contains("q") || tmp.Contains("Q"))) {
          SetQuit();
          return;
-      } else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
+      }
+      else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
          fChoozDataSet = kTRUE;
          return;
-      } else if (tmp.IsDigit()) {
+      }
+      else if (tmp.IsDigit()) {
          n_task = tmp.Atoi();
       }
    }
@@ -330,14 +336,18 @@ void KVDataSetAnalyser::ChooseSystem(const Char_t* data_type)
       tmp.ReadLine(cin);
       if (IsMenus() && (tmp.Contains("q") || tmp.Contains("Q"))) {
          SetQuit();
-      } else if (IsMenus() && (tmp.Contains("t") || tmp.Contains("T"))) {
+      }
+      else if (IsMenus() && (tmp.Contains("t") || tmp.Contains("T"))) {
          SetChooseTask();
-      } else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
+      }
+      else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
          fChoozDataSet = kTRUE;
-      } else if (IsMenus() && (tmp.Contains("r") || tmp.Contains("R"))) {
+      }
+      else if (IsMenus() && (tmp.Contains("r") || tmp.Contains("R"))) {
          fChoozRuns = kTRUE;
          return;
-      } else if (tmp.IsDigit()) {
+      }
+      else if (tmp.IsDigit()) {
          nsys_pick = tmp.Atoi();
          if (nsys_pick >= 1 && nsys_pick <= nsys)
             fChoozRuns = kTRUE;
@@ -404,16 +414,21 @@ void KVDataSetAnalyser::ChooseRuns(KVDBSystem* system,
    tmp.ReadLine(cin);
    if (IsMenus() && (tmp.Contains("q") || tmp.Contains("Q"))) {
       SetQuit();
-   } else if (IsMenus() && (tmp.Contains("s") || tmp.Contains("S"))) {
+   }
+   else if (IsMenus() && (tmp.Contains("s") || tmp.Contains("S"))) {
       fChoozSystem = kTRUE;
-   } else if (IsMenus() && (tmp.Contains("t") || tmp.Contains("T"))) {
+   }
+   else if (IsMenus() && (tmp.Contains("t") || tmp.Contains("T"))) {
       SetChooseTask();
-   } else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
+   }
+   else if (IsMenus() && (tmp.Contains("d") || tmp.Contains("D"))) {
       fChoozDataSet = kTRUE;
-   } else if (tmp.Contains("a") || tmp.Contains("A")) {
+   }
+   else if (tmp.Contains("a") || tmp.Contains("A")) {
       fRunList = all_runs;
       SetSubmit();
-   } else {
+   }
+   else {
       //cout << "YOU TYPED : " << tmp.Data() << endl;
       KVNumberList user_list(tmp.Data());
       //cout << "YOUR LIST : " << user_list.GetList() << endl;
@@ -430,7 +445,8 @@ void KVDataSetAnalyser::ChooseRuns(KVDBSystem* system,
                "None of the runs you chose appear in the list");
          //we force the user to choose again
          fChoozRuns = kTRUE;
-      } else
+      }
+      else
          SetSubmit();
    }
    if (IsSubmit())
@@ -481,7 +497,8 @@ void KVDataSetAnalyser::set_dataset_name(const Char_t* name)
    KVDataSet* ds = gDataSetManager->GetDataSet(name);
    if (!ds) {
       Error("SetDataSet", "Unknown dataset %s", name);
-   } else {
+   }
+   else {
       set_dataset_pointer(ds);
    }
 }
@@ -552,14 +569,16 @@ void KVDataSetAnalyser::SetRuns(const KVNumberList& nl, Bool_t check)
          Warning("SetRuns",
                  "The run %d is not present for the data type \"%s\" of data set \"%s\".",
                  run_no, GetDataType().Data(), fDataSet->GetName());
-      } else {
+      }
+      else {
          fRunList.Add(run_no);
       }
       KVDBRun* run = fDataSet->GetDataBase()->GetDBRun(run_no);
       if (!i) {
          fSystem = run->GetSystem();
          i = 1;
-      } else {
+      }
+      else {
          if (run->GetSystem() != fSystem) {
             if (fSystem)
                Warning("SetRuns",
@@ -604,7 +623,8 @@ Bool_t KVDataSetAnalyser::ReadBatchEnvFile(const Char_t* filename)
    TString val = GetBatchInfoFile()->GetValue("DataRepository", "");
    if (val != "") {
       gDataRepositoryManager->GetRepository(val.Data())->cd();
-   } else {
+   }
+   else {
       Error("ReadBatchEnvFile", "Name of data repository not given");
       return ok;
    }
@@ -612,7 +632,8 @@ Bool_t KVDataSetAnalyser::ReadBatchEnvFile(const Char_t* filename)
    if (val != "") {
       gDataSetManager->GetDataSet(val.Data())->cd();
       SetDataSet(gDataSet);
-   } else {
+   }
+   else {
       Error("ReadBatchEnvFile", "Name of dataset not given");
       return ok;
    }
@@ -620,7 +641,8 @@ Bool_t KVDataSetAnalyser::ReadBatchEnvFile(const Char_t* filename)
    SetAnalysisTask(nullptr);
    if (val != "") {
       SetAnalysisTask(gDataSet->GetAnalysisTask(val.Data()));
-   } else {
+   }
+   else {
       Error("ReadBatchEnvFile", "Name of analysis task not given");
       return ok;
    }
@@ -632,7 +654,8 @@ Bool_t KVDataSetAnalyser::ReadBatchEnvFile(const Char_t* filename)
    val = GetBatchInfoFile()->GetValue("Runs", "");
    if (val != "") {
       SetRuns(val.Data());
-   } else {
+   }
+   else {
       Error("ReadBatchEnvFile", "List of runs not given");
       return ok;
    }

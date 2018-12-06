@@ -16,7 +16,8 @@ void UpdateLimits(KVNameValueList& limits, KVNumberList& list, Double_t dummy, c
    if (list.GetNValues() == 1) {
       limits.SetValue(max, dummy);
       limits.SetValue(min, dummy);
-   } else {
+   }
+   else {
       if (dummy > limits.GetDoubleValue(max)) limits.SetValue(max, dummy);
       else if (dummy < limits.GetDoubleValue(min)) limits.SetValue(min, dummy);
    }
@@ -146,9 +147,11 @@ int main(int argc, char** argv)
       Int_t run = log_reader.GetRunNumber();
       if (log_reader.JobOK()) {
          UpdateStatistics(run, SCRreq_ok, log_reader, OKavg, OKlimits, ok, MEMreq_ok, CPUreq_ok);
-      } else if (log_reader.Killed()) {
+      }
+      else if (log_reader.Killed()) {
          UpdateStatistics(run, SCRreq_kill, log_reader, KILLavg, KILLlimits, kill, MEMreq_kill, CPUreq_kill);
-      } else if (log_reader.SegFault()) seg.Add(run);
+      }
+      else if (log_reader.SegFault()) seg.Add(run);
       else if (log_reader.Incomplete()) {
          incompleteStatus.SetValue(Form("Run %d", run), log_reader.GetStatus());
          UpdateStatistics(run, SCRreq_incomp, log_reader, INCOMPavg, INCOMPlimits, oot, MEMreq_incomp, CPUreq_incomp);

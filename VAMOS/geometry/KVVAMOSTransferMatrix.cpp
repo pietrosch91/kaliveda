@@ -89,7 +89,8 @@ void KVVAMOSTransferMatrix::Streamer(TBuffer& R__b)
             R__b.ReadFastArray(f_ijkl[p], fNCoef[p]);
          }
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVVAMOSTransferMatrix::Class(), this);
       for (UChar_t p = 0; p < 4; p++) {
          if (fNCoef[p]) {
@@ -517,7 +518,8 @@ void KVVAMOSTransferMatrix::SetCoef(EReconParam par, UShort_t i, UShort_t j, USh
          }
       }
       Warning("SetCoef", "you can not set coefficient anymore. The arrays are full");
-   } else Error("SetCoef", " one of the indexes (i,j,k,l) is greater than the order");
+   }
+   else Error("SetCoef", " one of the indexes (i,j,k,l) is greater than the order");
 }
 //________________________________________________________________
 

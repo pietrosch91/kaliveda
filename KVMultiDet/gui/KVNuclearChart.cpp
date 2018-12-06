@@ -179,7 +179,8 @@ void KVNuclearChart::Draw(Option_t* option)
             break;
          }
       }
-   } else {
+   }
+   else {
       KVCanvas* cc = new KVCanvas;
       TPad* pp = (TPad*) cc->cd();
       fPad = pp;

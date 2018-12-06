@@ -78,7 +78,8 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
       Warning("ReadRangeTable", "Problem reading energy limits in range table file for %s (%s)",
               GetName(), GetType());
       return kFALSE;
-   } else {
+   }
+   else {
       if (!strncmp(line, "COMPOUND", 8)) {
          // material is compound. read composition for TGeoMixture.
          if (fgets(line, 132, fp)) {}
@@ -89,7 +90,8 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
             sscanf(line, "%d %d %d", &z, &a, &w);
             AddCompoundElement(z, a, w);
          }
-      } else if (!strncmp(line, "MIXTURE", 7)) {
+      }
+      else if (!strncmp(line, "MIXTURE", 7)) {
          // material is mixture. read composition for TGeoMixture.
          if (fgets(line, 132, fp)) {}
          int nel = atoi(line);  // read number of elements
@@ -106,7 +108,8 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
       Warning("ReadRangeTable", "Problem reading energy limits in range table file for %s (%s)",
               GetName(), GetType());
       return kFALSE;
-   } else {
+   }
+   else {
       while (line[0] == 'Z') {
          Int_t z1, z2;
          Float_t e1, e2;
@@ -155,7 +158,8 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
       if (!fgets(line, 132, fp)) {
          Warning("ReadRangeTable", "file too short ??? %s (%s)", GetName(), GetType());
          return kFALSE;
-      } else {
+      }
+      else {
          if (sscanf(line, "%lf %lf %lf %lf %lf %lf",
                     &fCoeff[count][8], &fCoeff[count][9],
                     &fCoeff[count][10], &fCoeff[count][11],
@@ -211,7 +215,8 @@ Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
    if (R0 < thickness) {
       fRangeOfLastDE = R0;
       return 0.0;
-   } else
+   }
+   else
       fRangeOfLastDE = thickness;
 
    // calculate energy after absorber - invert range function to find Eres corresponding to (R0 - thickness)

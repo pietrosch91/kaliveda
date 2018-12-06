@@ -101,7 +101,8 @@ void KVPIDIntervalPainter::HighLight(bool hi)
       fLine1->SetLineColor(kRed + 1);
       fLine2->SetLineWidth(2);
       fLine2->SetLineColor(kRed + 1);
-   } else {
+   }
+   else {
       fMarker->SetMarkerSize(1);
       fMarker->SetMarkerColor(kBlack);
       fLabel->SetTextColor(kBlack);
@@ -163,7 +164,8 @@ void KVPIDIntervalPainter::Paint(Option_t*)
          max = fLine2->GetX1();
          IntMod();
       }
-   } else {
+   }
+   else {
       fLine1->SetY2(0);
       fLine2->SetY2(0);
       fMarker->SetMarkerSize(0);

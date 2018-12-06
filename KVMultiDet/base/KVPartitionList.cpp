@@ -137,7 +137,8 @@ void KVPartitionList::Add(TObject* obj)
       //Ajout de la partition
       KVHashList::Add(obj);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       //une partition identique existe deja
       atrouve = kTRUE;
       //on incremente la population de celle ci
@@ -167,7 +168,8 @@ void KVPartitionList::AddFirst(TObject* obj)
    if (!(find = FindObject(obj->GetName()))) {
       KVHashList::AddFirst(obj);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       atrouve = kTRUE;
       ((KVIntegerList*)find)->AddPopulation(1);
    }
@@ -184,7 +186,8 @@ void KVPartitionList::AddLast(TObject* obj)
    if (!(find = FindObject(obj->GetName()))) {
       KVHashList::AddLast(obj);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       atrouve = kTRUE;
       ((KVIntegerList*)find)->AddPopulation(1);
    }
@@ -201,7 +204,8 @@ void KVPartitionList::AddAt(TObject* obj, Int_t idx)
    if (!(find = FindObject(obj->GetName()))) {
       KVHashList::AddAt(obj, idx);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       atrouve = kTRUE;
       ((KVIntegerList*)find)->AddPopulation(1);
    }
@@ -218,7 +222,8 @@ void KVPartitionList::AddAfter(const TObject* after, TObject* obj)
    if (!(find = FindObject(obj->GetName()))) {
       KVHashList::AddAfter(after, obj);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       atrouve = kTRUE;
       ((KVIntegerList*)find)->AddPopulation(1);
    }
@@ -235,7 +240,8 @@ void KVPartitionList::AddBefore(const TObject* before, TObject* obj)
    if (!(find = FindObject(obj->GetName()))) {
       KVHashList::AddBefore(before, obj);
       ValidateEntrance((KVIntegerList*)obj);
-   } else {
+   }
+   else {
       atrouve = kTRUE;
       ((KVIntegerList*)find)->AddPopulation(1);
    }
@@ -291,7 +297,8 @@ TTree* KVPartitionList::GenereTree(const Char_t* treename, Bool_t Compress)
       //sinon on rempli pop fois cette partition
       if (Compress) {
          tree->Fill();
-      } else {
+      }
+      else {
          for (Int_t pp = 0; pp < pop; pp += 1)  tree->Fill();
       }
       delete table;

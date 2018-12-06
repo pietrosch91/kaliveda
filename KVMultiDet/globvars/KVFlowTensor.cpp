@@ -302,7 +302,8 @@ void KVFlowTensor::Calculate()
    Double_t sum_val_prop = f(1) + f(2) + f(3);
    if (sum_val_prop > .1) {
       fSphericity = 3. * (1. - f(1) / sum_val_prop) / 2.;
-   } else
+   }
+   else
       fSphericity = -1;
 
    fCalculated = kTRUE;

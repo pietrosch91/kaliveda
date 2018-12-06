@@ -498,7 +498,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             if (newXfirst < 1) {
                newXfirst = 1;
                newXlast = NdisXbins;
-            } else {
+            }
+            else {
                newXlast = Xlast0 - dXbins;
                if (newXlast > NXbins) {
                   newXlast = NXbins;
@@ -516,7 +517,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             if (newYfirst < 1) {
                newYfirst = 1;
                newYlast = NdisYbins;
-            } else {
+            }
+            else {
                newYlast = Ylast0 - dYbins;
                if (newYlast > NYbins) {
                   newYlast = NYbins;
@@ -805,7 +807,8 @@ Bool_t KVCanvas::HandleKey(Int_t, Int_t py)
             ((TH1*)fSelected)->GetYaxis()->UnZoom();
             Modified();
             Update();
-         } else if (fSelected->InheritsFrom("TAxis")) {
+         }
+         else if (fSelected->InheritsFrom("TAxis")) {
             ((TAxis*)fSelected)->UnZoom();
             Modified();
             Update();
@@ -831,7 +834,8 @@ Bool_t KVCanvas::HandleKey(Int_t, Int_t py)
          if (fSelected->InheritsFrom("TF1")) {
             TH1* hh = 0;
             if ((hh = FindHisto())) hh->GetListOfFunctions()->Remove(fSelected);
-         } else GetListOfPrimitives()->Remove(fSelected);
+         }
+         else GetListOfPrimitives()->Remove(fSelected);
          Modified();
          Update();
          break;
@@ -852,7 +856,8 @@ Bool_t KVCanvas::HandleKey(Int_t, Int_t py)
                   ((TPad*)obj)->SetGrid(0, 0);
                }
             }
-         } else {
+         }
+         else {
             SetGrid();
             while ((obj = next())) {
                if (obj->InheritsFrom(TPad::Class())) {
@@ -977,11 +982,13 @@ Bool_t KVCanvas::HandleKey(Int_t, Int_t py)
             ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum() + 1);
             Modified();
             Update();
-         } else if (fSelected->InheritsFrom("TF1")) {
+         }
+         else if (fSelected->InheritsFrom("TF1")) {
             ((TF1*)fSelected)->SetNpx(((TF1*)fSelected)->GetNpx() + 50);
             Modified();
             Update();
-         } else if (fSelected->InheritsFrom("TH1")) {
+         }
+         else if (fSelected->InheritsFrom("TH1")) {
             TObject* obj = 0;
             TIter it(((TH1*)fSelected)->GetListOfFunctions());
             while ((obj = it())) {
@@ -997,11 +1004,13 @@ Bool_t KVCanvas::HandleKey(Int_t, Int_t py)
             if (((TH1*)fSelected)->GetMinimum() > 0)((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum() - 1);
             Modified();
             Update();
-         } else if (fSelected->InheritsFrom("TF1")) {
+         }
+         else if (fSelected->InheritsFrom("TF1")) {
             ((TF1*)fSelected)->SetNpx(((TF1*)fSelected)->GetNpx() - 50);
             Modified();
             Update();
-         } else if (fSelected->InheritsFrom("TH1")) {
+         }
+         else if (fSelected->InheritsFrom("TH1")) {
             TObject* obj = 0;
             TIter it(((TH1*)fSelected)->GetListOfFunctions());
             while ((obj = it()))((TF1*)obj)->SetNpx(((TF1*)obj)->GetNpx() - 50);

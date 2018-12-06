@@ -280,7 +280,8 @@ public:
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning fRealZ" << std::endl;
          return fRealZ;
-      } else {
+      }
+      else {
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning GetZ() because fRealZ=" << fRealZ << std::endl;
          return (Float_t) GetZ();

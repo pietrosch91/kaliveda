@@ -102,7 +102,8 @@ void Analysisv::CloseInputTree(const char* inTreeName)
       L->Log << "Closing file : " << inTreeName << endl;
       inTree-> Close();
       delete inTree;
-   } else {
+   }
+   else {
       cout << "File was not opened " << inTreeName << endl;
       exit(EXIT_FAILURE);
    }
@@ -140,7 +141,8 @@ void Analysisv::CloseOutputTree(const char* outTreeName)
       L->Log << "Closing file : " << outTreeName << endl;
       outTree-> Close();
       delete outTree;
-   } else {
+   }
+   else {
       cout << "File was not opened " << outTreeName << endl;
       exit(EXIT_FAILURE);
    }

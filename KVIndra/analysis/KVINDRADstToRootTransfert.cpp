@@ -85,7 +85,8 @@ void KVINDRADstToRootTransfert::InitRun()
       cout << "     ------------- Process infos -------------" << endl;
       printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
              pid.fCpuUser, pid.fMemVirtual / 1024., disk.Data());
-   } else {
+   }
+   else {
       Warning("InitRun", "pas d info disponible sur le bilan ressource");
    }
 
@@ -142,7 +143,8 @@ void KVINDRADstToRootTransfert::ProcessRun()
          else if (line.BeginsWith("run_number="))     rn_verif = val;
          else {}
          delete toks;
-      } else {}
+      }
+      else {}
    }
    f_in.close();
 
@@ -398,7 +400,8 @@ void KVINDRADstToRootTransfert::DefineSHELLVariables()
 
       camp1 = kTRUE;
 
-   } else if (fCampNumber == 2) {
+   }
+   else if (fCampNumber == 2) {
 
       shell_var.Form("%s/veda%d/for%d", gSystem->ExpandPathName("$THRONG_DIR"), fCampNumber, fCampNumber);
       gSystem->Setenv("VEDA_FOR", shell_var.Data());
@@ -408,7 +411,8 @@ void KVINDRADstToRootTransfert::DefineSHELLVariables()
 
       camp2 = kTRUE;
 
-   } else if (fCampNumber == 4) {
+   }
+   else if (fCampNumber == 4) {
 
       shell_var.Form("%s/veda%d/for/include", gSystem->ExpandPathName("$THRONG_DIR"), fCampNumber);
       gSystem->Setenv("VEDA_FOR", shell_var.Data());
@@ -418,7 +422,8 @@ void KVINDRADstToRootTransfert::DefineSHELLVariables()
 
       camp4 = kTRUE;
 
-   } else {}
+   }
+   else {}
 
 
 
@@ -449,7 +454,8 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
          phos->GetACQParam("T")->SetData((UShort_t)mt);
          identifying_telescope = gIndra->GetIDTelescope(Form("PHOS_R_L_%02d", mod));
          return phos;
-      } else { // campagne 4: GSI Campaign
+      }
+      else {   // campagne 4: GSI Campaign
          KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
          if (!csi) return 0;
          KVSilicon* si = (KVSilicon*) gIndra->GetDetectorByType(ring, mod, Si_GG);
@@ -466,7 +472,8 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
          identifying_telescope = gIndra->GetIDTelescope(Form("CSI_R_L_%02d%02d", ring, mod));
          return csi;
       }
-   } else if (ring >= 2 && ring <= 9) {
+   }
+   else if (ring >= 2 && ring <= 9) {
       //chio-si-csi
       KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
       if (!csi) return 0;
@@ -489,7 +496,8 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
       csi->GetACQParam("T")->SetData((UShort_t)mt);
       identifying_telescope = gIndra->GetIDTelescope(Form("CSI_R_L_%02d%02d", ring, mod));
       return csi;
-   } else if (ring > 9) {
+   }
+   else if (ring > 9) {
       //chio-csi or chio-si75-sili-csi
       KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
       if (!csi) return 0;
@@ -554,7 +562,8 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
       csi->GetACQParam("T")->SetData((UShort_t)mt);
       identifying_telescope = gIndra->GetIDTelescope(Form("SI_CSI_%02d%02d", ring, mod));
       return csi;
-   } else if (ring >= 2 && ring <= 9) {
+   }
+   else if (ring >= 2 && ring <= 9) {
       //chio-si-csi
       KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
       if (!csi) return 0;
@@ -576,7 +585,8 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
       csi->GetACQParam("T")->SetData((UShort_t)mt);
       identifying_telescope = gIndra->GetIDTelescope(Form("SI_CSI_%02d%02d", ring, mod));
       return csi;
-   } else if (ring >= 10) {
+   }
+   else if (ring >= 10) {
       KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
       if (!csi) return 0;
       KVChIo* chio = (KVChIo*)csi->GetChIo();
@@ -604,7 +614,8 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
          csi->GetACQParam("T")->SetData((UShort_t)mt);
          identifying_telescope = gIndra->GetIDTelescope(Form("SILI_CSI_%02d%02d", ring, mod));
          return csi;
-      } else {
+      }
+      else {
          identifying_telescope = gIndra->GetIDTelescope(Form("SI75_SILI_%02d%02d", ring, mod));
          return sili;
       }
@@ -693,7 +704,8 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
       phos->GetACQParam("T")->SetData((UShort_t)mt);
       identifying_telescope = gIndra->GetIDTelescope(Form("PHOS_R_L_%02d", mod));
       return phos;
-   } else if (ring >= 2 && ring <= 9) {
+   }
+   else if (ring >= 2 && ring <= 9) {
       //chio-si
       KVSilicon* si = (KVSilicon*) gIndra->GetDetectorByType(ring, mod, Si_GG);
       if (!si) return 0;
@@ -710,9 +722,11 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
          si->GetACQParam("T")->SetData((UShort_t)canal[Si_T]);
          identifying_telescope = gIndra->GetIDTelescope(Form("CI_SI_%02d%02d", ring, mod));
          return si;
-      } else
+      }
+      else
          return chio;
-   } else if (ring >= 10) {
+   }
+   else if (ring >= 10) {
       //chio-csi or chio-si75
       KVCsI* csi = (KVCsI*) gIndra->GetDetectorByType(ring, mod, CsI_R);
       if (!csi) return 0;
@@ -731,14 +745,16 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
          csi->GetACQParam("T")->SetData((UShort_t)mt);
          identifying_telescope = gIndra->GetIDTelescope(Form("CI_CSI_%02d%02d", ring, mod));
          return csi;
-      } else if (de4 > 0.0) {
+      }
+      else if (de4 > 0.0) {
          si75->SetEnergy(de4);
          si75->GetACQParam("GG")->SetData((UShort_t)canal[Si75_GG]);
          si75->GetACQParam("PG")->SetData((UShort_t)canal[Si75_PG]);
          si75->GetACQParam("T")->SetData((UShort_t)canal[Si75_T]);
          identifying_telescope = gIndra->GetIDTelescope(Form("CI_SI75_%02d%02d", ring, mod));
          return si75;
-      } else
+      }
+      else
          return chio;
    }
    return 0;
@@ -819,7 +835,8 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream& f_in, KVINDRAReconEvent* evt)
          buff.ReadLine(f_in);
          if (buff.IsFloat()) {
             ener = buff.Atof();
-         } else {
+         }
+         else {
             ener = 0.;
             cout << "BAD:  event#" << num_ev << " z=" << z << " a=" << a << " / Non-numeric value read for ener. Set E=0" << endl;
             cout << "(read: " << buff.Data() << ")" << endl;
@@ -925,7 +942,8 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream& f_in, KVINDRAReconEvent* evt)
             if (!det_stop) {
                cout << "det_stop=0: event#" << num_ev << " particle#" << i << "  icou=" << icou << " imod=" << imod <<
                     " z=" << z << " a=" << a << " code=" << code << " ecode=" << ecode << endl;
-            } else {
+            }
+            else {
                KVINDRAReconNuc* tmp = evt->AddParticle();
                if (!tmp) {
                   Fatal("lire_evt", "KVINDRAReconEvent::AddParticle() returns NULL pointer.");
@@ -951,7 +969,8 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream& f_in, KVINDRAReconEvent* evt)
                if (a > 0 && (code == 2 || code == 3)) {
                   tmp->SetAMeasured(kTRUE);
                   tmp->SetRealA(a_indra);
-               } else {
+               }
+               else {
                   tmp->SetAMeasured(kFALSE);
                   // reset Z in order to force calculation of mass according to default mass formula of KVINDRAReconNuc
                   tmp->SetZ(z);

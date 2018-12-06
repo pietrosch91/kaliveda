@@ -206,7 +206,8 @@ template < class T > const Char_t* Binary_t < T >::String(UChar_t nbits)
    if (!Value()) {
       fDumString = "0";
       setbits = 1;
-   } else {
+   }
+   else {
       fDumString = "";
       T cont = Value();
       while (cont) {
@@ -228,7 +229,8 @@ template < class T > const Char_t* Binary_t < T >::String(UChar_t nbits)
    if (lzos > 0) {
       //Add 'lzos' leading zeroes
       fDumString.Prepend('0', lzos);
-   } else if (lzos < 0) {
+   }
+   else if (lzos < 0) {
       //cut off (-lzos) most significant bits
       fDumString.Remove(0, -lzos);
    }

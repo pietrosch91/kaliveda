@@ -109,7 +109,8 @@ KVUniqueNameList* KVDMS::GetFullListing(const Char_t* directory)
       if (IsContainer(tmp)) { // container
          f->SetName(gSystem->BaseName(tmp.Data()));
          f->SetIsContainer();
-      } else {
+      }
+      else {
          ExtractFileInfos(tmp, f);
       }
       list->Add(f);
@@ -131,7 +132,8 @@ Bool_t KVDMS::GetPathInfo(const Char_t* path, DMSFile_t& fs)
       fs.SetName(filename.Data());
       if (IsContainer(fout)) { // container
          fs.SetIsContainer();
-      } else {
+      }
+      else {
          ExtractFileInfos(fout, &fs);
       }
       return kTRUE;
@@ -161,7 +163,8 @@ TList* KVDMS::GetListing(const Char_t* directory)
       if (IsContainer(tmp)) { // container
          f->SetName(gSystem->BaseName(tmp.Data()));
          f->SetIsContainer();
-      } else {
+      }
+      else {
          f->SetName(tmp.Data());
       }
       list->Add(f);

@@ -779,7 +779,8 @@ void KVDigitalFilter::Quantize(int nbits, int use_pow2,
       if (use_pow2 == 1) {
          N = (int)ceil(log(fabs(x[i])) / log(2.));
          N = (1 << N);
-      } else
+      }
+      else
          N = (int)ceil(fabs(x[i])); // numero intero.
       if (N == 0) {
          x[i] *= factor;
@@ -816,7 +817,8 @@ void KVDigitalFilter::Quantize(int nbits, int use_pow2,
       if (use_pow2 == 1) {
          N = (int)ceil(log(fabs(y[i])) / log(2.));
          N = (1 << N);
-      } else
+      }
+      else
          N = (int)ceil(fabs(y[i])); // numero intero.
       if (N == 0) {
          y[i] *= factor;
@@ -864,7 +866,8 @@ void KVDigitalFilter::Draw(Option_t* option)
          numIM += GetXcoeff(i) * a_im;
          if (i == 0) {
             denRE += 1;
-         } else {
+         }
+         else {
             denRE -=  GetYcoeff(i) * a_re;
             denIM -=  GetYcoeff(i) * a_im;
          }

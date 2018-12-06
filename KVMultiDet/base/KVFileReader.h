@@ -102,7 +102,8 @@ public:
       StoreParameters(pattern);
       if (GetNparRead() == nexpect) {
          return 1;
-      } else {
+      }
+      else {
          return 2;
       }
 
@@ -114,7 +115,8 @@ public:
       StoreParameters(pattern);
       if (GetNparRead() == nexpect) {
          return 1;
-      } else {
+      }
+      else {
          return 2;
       }
 

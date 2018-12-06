@@ -85,7 +85,8 @@ public:
             //increase index
             idx_min = idx;
             idx += (Int_t)((idx_max - idx) / 2 + 0.5);
-         } else {
+         }
+         else {
             //decrease index
             idx_max = idx;
             idx -= (Int_t)((idx - idx_min) / 2 + 0.5);
@@ -134,7 +135,8 @@ public:
             //increase index
             idx_min = idx;
             idx += (Int_t)((idx_max - idx) / 2 + 0.5);
-         } else {
+         }
+         else {
             //decrease index
             idx_max = idx;
             idx -= (Int_t)((idx - idx_min) / 2 + 0.5);

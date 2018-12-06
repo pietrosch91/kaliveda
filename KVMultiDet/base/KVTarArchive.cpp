@@ -86,7 +86,8 @@ void KVTarArchive::CheckDirectory(const Char_t* dirname, const Char_t* path)
          if (gSystem->Exec(cmd.Data())) {
             Error("CheckDirectory", "Problem executing %s", cmd.Data());
             fFullpath = "";
-         } else {
+         }
+         else {
             fOK = kTRUE;
             // strip '.tgz' to leave just full path to directory
             fFullpath.Remove(fFullpath.Length() - 4);
@@ -94,7 +95,8 @@ void KVTarArchive::CheckDirectory(const Char_t* dirname, const Char_t* path)
          }
          gSystem->cd(pwd.Data());
       }
-   } else {
+   }
+   else {
       fOK = kTRUE;
       Info("CheckDirectory", "Found directory %s", fFullpath.Data());
    }
@@ -120,7 +122,8 @@ void KVTarArchive::DeleteDirectory(const Char_t* dirpath)
          if (strcmp(fil->GetName(), "..") && strcmp(fil->GetName(), ".")) {
             DeleteDirectory(fil->GetTitle());
          }
-      } else {
+      }
+      else {
          if (gSystem->Unlink(Form("%s/%s", fil->GetTitle(), fil->GetName())) == -1) {
             Info("DeleteDirectory", "Cannot delete file %s in %s", fil->GetName(), fil->GetTitle());
          }

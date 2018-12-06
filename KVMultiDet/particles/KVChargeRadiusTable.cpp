@@ -47,7 +47,8 @@ void KVChargeRadiusTable::Initialize()
    if (!KVBase::SearchKVFile(gEnv->GetValue(dfile.Data(), ""), cl_path, "data")) {
       Error("Initialize", "No file found for %s", GetName());
       return;
-   } else {
+   }
+   else {
       //Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
    }
    SetTitle(gEnv->GetValue(dfile.Data(), ""));
@@ -67,7 +68,8 @@ void KVChargeRadiusTable::Initialize()
          kcomments += fr->GetCurrentLine();
          kcomments += "\n";
 
-      } else {
+      }
+      else {
          Int_t aa = fr->GetIntReadPar(0);
          Int_t zz = fr->GetIntReadPar(1);
          GiveIndexToNucleus(zz, aa, ntot);
@@ -87,9 +89,11 @@ void KVChargeRadiusTable::Initialize()
       fr->ReadLine(" ");
       if (fr->GetCurrentLine().IsNull()) {
          break;
-      } else if (fr->GetNparRead() == 0) {
+      }
+      else if (fr->GetNparRead() == 0) {
          break;
-      } else if (fr->GetReadPar(0).BeginsWith("//")) { }
+      }
+      else if (fr->GetReadPar(0).BeginsWith("//")) { }
       else {
          Double_t val = fr->GetDoubleReadPar(2);
          Double_t eval = fr->GetDoubleReadPar(3);

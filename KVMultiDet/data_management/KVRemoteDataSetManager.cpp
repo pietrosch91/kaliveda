@@ -101,7 +101,8 @@ Bool_t KVRemoteDataSetManager::OpenAvailableDatasetsFile()
          Error("OpenAvailableDatasetsFile",
                "You cannot use this remote data repository");
          return kFALSE;
-      } else { // no HTML in file : OK
+      }
+      else {   // no HTML in file : OK
          //reset stream to beginning of file
          fDatasets.clear();         // clear any error flags (EOF etc.)
          fDatasets.seekg(0, ios::beg);      // set file buffer pointer to beginning of file

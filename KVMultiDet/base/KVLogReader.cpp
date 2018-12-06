@@ -60,17 +60,20 @@ void KVLogReader::ReadLine(TString& line, Bool_t& ok)
       ok = kFALSE;
       fStatus = line;
       fOK = kFALSE;
-   } else if (line.Contains("Temps limite atteint")) {
+   }
+   else if (line.Contains("Temps limite atteint")) {
       //VEDA FORTRAN programme 'out of time' error seen during DST conversion
       ok = kFALSE;
       fStatus = "VEDA Fortran out of time";
       fOK = kFALSE;
-   } else if (line.Contains("rfcp : Input/output error")) {
+   }
+   else if (line.Contains("rfcp : Input/output error")) {
       //failure to copy new run to hpss system at ccali
       ok = kFALSE;
       fStatus = "rfcp error";
       fOK = kFALSE;
-   } else if (line.Contains("TXNetFile") && line.Contains("open attempt failed")) {
+   }
+   else if (line.Contains("TXNetFile") && line.Contains("open attempt failed")) {
       //failure to open recon file with xrootd
       ok = kFALSE;
       fStatus = "XROOTD error";

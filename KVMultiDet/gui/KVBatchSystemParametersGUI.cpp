@@ -33,7 +33,8 @@ KVBatchSystemParametersGUI::KVBatchSystemParametersGUI(const TGWindow* main, KVN
       if (dan->GetNumberOfFilesToAnalyse() < 2) {
          fRPJ->SetState(kFALSE);
          fMJ->SetEnabled(kFALSE);
-      } else {
+      }
+      else {
          fMJ->Connect("Toggled(Bool_t)", "TGNumberEntry", fRPJ, "SetState(Bool_t)");
          fRPJ->SetState(fMJ->IsDown());
       }
@@ -59,7 +60,8 @@ void KVBatchSystemParametersGUI::SetAutoBatchName(Bool_t on)
       fJN->SetEnabled(kFALSE);
       fJNF->SetEnabled();
       UpdateAutoBatchName(fJNF->GetText());
-   } else {
+   }
+   else {
       fJN->SetEnabled();
       fJNF->SetEnabled(kFALSE);
    }

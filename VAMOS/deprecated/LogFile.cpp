@@ -59,7 +59,8 @@ void LogFile::Open(const char* LogFileName)
    if (!Log) {
       cout << "Could not open the LogFile: " << LogFileName << " !" << endl;
       exit(EXIT_FAILURE);
-   } else {
+   }
+   else {
       cout << "LogFile: " << LogFileName << " opened." << endl;
    }
 
@@ -81,7 +82,8 @@ void LogFile::Message(const char* location, const char* msg)
 
    if (Log.good() == 1) {
       Log << "[" << this->GetTime() << "][" << location << "] " << msg << endl;
-   } else {
+   }
+   else {
       cerr << "Stream not good for I/O operations" << endl;
    }
 }

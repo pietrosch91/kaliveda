@@ -347,7 +347,8 @@ Bool_t KVOldINDRASelector::Process(Long64_t entry)      //for ROOT versions > 4.
 
    if (needToSelect) {
       ok_anal = fKVDataSelector->ProcessCurrentEntry(); //Data Selection and user analysis
-   } else
+   }
+   else
       ok_anal = Analysis();     //user analysis
    gDataAnalyser->postAnalysis();
 
@@ -514,15 +515,18 @@ KVVarGlob* KVOldINDRASelector::AddGV(const Char_t* class_name,
                "Called with class_name=%s.\nClass is unknown: not in standard libraries, and plugin (user-defined class) not found",
                class_name);
          return 0;
-      } else {
+      }
+      else {
          vg = (KVVarGlob*) ph->ExecPlugin(0);
       }
-   } else if (!clas->InheritsFrom("KVVarGlob")) {
+   }
+   else if (!clas->InheritsFrom("KVVarGlob")) {
       Error("AddGV(const Char_t*,const Char_t*)",
             "%s is not a valid class deriving from KVVarGlob.",
             class_name);
       return 0;
-   } else {
+   }
+   else {
       vg = (KVVarGlob*) clas->New();
    }
    vg->SetName(name);
@@ -611,7 +615,8 @@ void KVOldINDRASelector::BuildEventList(void)
          cout << "Analysis from a chain of trees." << endl;
          lof = ((TChain*) fChain)->GetListOfFiles();
          toff = fTreeOffset;
-      } else {
+      }
+      else {
          cout << "Analysis from a single tree." << endl;
          lof = new TObjArray();
          lof->
@@ -634,7 +639,8 @@ void KVOldINDRASelector::BuildEventList(void)
       if (KVBase::FindFile("", searchname)) {
          //get lock on file to avoid interference with other processes
          if (dataselector_lock.Lock(fname.Data())) fileDataSelector = new TFile(fname.Data());
-      } else {
+      }
+      else {
          cout << "The file \"" << fname.
               Data() << "\" does not exist." << endl;
       }
@@ -661,14 +667,16 @@ void KVOldINDRASelector::BuildEventList(void)
                   fEvtList->Enter(fTreeOffset[tn] + revtList->GetEntry(i));
                }
                fTEVLexist[tn] = kTRUE;
-            } else {
+            }
+            else {
                cout << "Liste introuvable..." << endl;
                for (Int_t i = fTreeOffset[tn]; i < fTreeOffset[tn + 1];
                      i++) {
                   fEvtList->Enter(i);
                }
             }
-         } else {
+         }
+         else {
             cout << "Run inconnu..." << endl;
          }
       }
@@ -754,7 +762,8 @@ void KVOldINDRASelector::LoadDataSelector(void)
 
             if (KVBase::FindFile("", fname)) {
                if (dataselector_lock.Lock(fname.Data())) fileDataSelector = new TFile(fname.Data());
-            } else {
+            }
+            else {
                cout << "The file \"" << fname.
                     Data() << "\" does not exist." << endl;
             }
@@ -770,7 +779,8 @@ void KVOldINDRASelector::LoadDataSelector(void)
                mach->SaveSource(fileh.Data());
                cout << fileh.Data() << " re-generated." << endl;
                deleteSources = kTRUE;
-            } else {
+            }
+            else {
                Warning("LoadDataSelector(void)",
                        "No implementation and/or declaration file found for \"%s\".",
                        fDataSelector.Data());
@@ -780,7 +790,8 @@ void KVOldINDRASelector::LoadDataSelector(void)
                dataselector_lock.Release();
             }
 #endif
-         } else {
+         }
+         else {
             cout << "Files " << fileC.Data() << " and " << fileh.Data() <<
                  " found." << endl;
          }
@@ -799,7 +810,8 @@ void KVOldINDRASelector::LoadDataSelector(void)
             Error("LoadDataSelector(void)",
                   "Called with class_name=%s.\nClass is unknown: not in standard libraries, and plugin (user-defined class) not found",
                   fDataSelector.Data());
-         } else {
+         }
+         else {
             fKVDataSelector = (KVDataSelector*) ph->ExecPlugin(0);
             fKVDataSelector->SetKVSelector(this);
             cout << "Apres Plugin " << fKVDataSelector->IsA()->
@@ -807,11 +819,13 @@ void KVOldINDRASelector::LoadDataSelector(void)
                  GetKVSelector() << endl;
          }
 
-      } else if (!clas->InheritsFrom("KVDataSelector")) {
+      }
+      else if (!clas->InheritsFrom("KVDataSelector")) {
          Error("LoadDataSelector(void)",
                "%s is not a valid class deriving from KVDataSelector.",
                fDataSelector.Data());
-      } else {
+      }
+      else {
          fKVDataSelector = (KVDataSelector*) clas->New();
          fKVDataSelector->SetKVSelector(this);
          cout << "Apres clas->New() " << fKVDataSelector->IsA()->
@@ -825,7 +839,8 @@ void KVOldINDRASelector::LoadDataSelector(void)
          Exec(Form
               ("rm %s.[c,h]*", fDataSelector.Data()));
       }
-   } else {
+   }
+   else {
       fKVDataSelector = 0;
    }
    if (fKVDataSelector)
@@ -845,7 +860,8 @@ void KVOldINDRASelector::SaveCurrentDataSelection(void)
       TString fname = searchname;
       if (KVBase::FindFile("", searchname)) {
          option = "update";
-      } else {
+      }
+      else {
          option = "recreate";
       }
       cout << "File to open : " << fname.Data() << " : " << option.
@@ -894,7 +910,8 @@ void KVOldINDRASelector::SaveCurrentDataSelection(void)
       fileDataSelector->Close();
       dataselector_lock.Release();
       gFile = curfile;
-   } else {
+   }
+   else {
       cout << "No TEventList to save..." << endl;
    }
 }
@@ -1020,7 +1037,8 @@ void KVOldINDRASelector::FillHisto(KVString sname, Double_t one, Double_t two, D
          FillTH1(h1, one, two);
       else
          Warning("FillHisto", "%s -> Classe non prevue ...", lhisto->FindObject(sname.Data())->ClassName());
-   } else {
+   }
+   else {
       Warning("FillHisto", "%s introuvable", sname.Data());
    }
 
@@ -1099,7 +1117,8 @@ void KVOldINDRASelector::WriteHistoToFile(KVString filename, Option_t* option)
    Bool_t IsCreated = kFALSE;
    if (filename == "") {
       GetHistoList()->Write();
-   } else {
+   }
+   else {
       TFile* file = 0;
       if (!(file = (TFile*)gROOT->GetListOfFiles()->FindObject(filename.Data()))) {
          IsCreated = kTRUE;
@@ -1145,11 +1164,13 @@ void KVOldINDRASelector::FillTree(KVString sname)
 
    if (sname == "") {
       ltree->Execute("Fill", "");
-   } else {
+   }
+   else {
       TTree* tt = 0;
       if ((tt = GetTree(sname.Data()))) {
          tt->Fill();
-      } else {
+      }
+      else {
          Warning("FillTree", "%s introuvable", sname.Data());
       }
    }
@@ -1165,7 +1186,8 @@ void KVOldINDRASelector::WriteTreeToFile(KVString filename, Option_t* option)
    Bool_t IsCreated = kFALSE;
    if (filename == "") {
       GetTreeList()->Write();
-   } else {
+   }
+   else {
       TFile* file = 0;
       //if filename correspond to an already opened file, write in it
       //if not open/create it, depending on the option ("recreate" by default)

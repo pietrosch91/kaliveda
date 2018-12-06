@@ -336,7 +336,8 @@ void CsICalib::SetCalibration(Sive503* Si, CsIv* CsI, Int_t sinum, Int_t csinum)
       c = Si->ECoef[sinum][2];
       alpha = 1;
       //L->Log<<"parametri silicio a="<<a<<" b="<<b<<" c="<<c<<endl;
-   } else {
+   }
+   else {
       a = b = c = alpha = 0.0;
    }
 
@@ -356,7 +357,8 @@ void CsICalib::SetCalibration(Sive503* Si, CsIv* CsI, Int_t sinum, Int_t csinum)
       //L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
       //L->Log<<"pedestal csi=      "<<ePied<<endl;
 
-   } else {
+   }
+   else {
       ePied = 0.0;
 
       lum->SetNumberParams(3);
@@ -501,7 +503,8 @@ void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
 
    if ((A - 5) > 0) {
       left = A - 5;
-   } else {
+   }
+   else {
       left = 1;
    }
 
@@ -563,7 +566,8 @@ void CsICalib::Bisection(Int_t A, Double_t chan)   //UShort_t chan
       difference = factor * (eEnergySi - sEnergySi);
       if (difference < 0) {
          left = middle;
-      } else
+      }
+      else
          right = middle;
 
       it++;
@@ -645,7 +649,8 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI)
       //L->Log<<"difference : "<<difference<<endl;
       if (difference < 0) {
          leftA = middle;
-      } else
+      }
+      else
          rightA = middle;
       // === End test
 
@@ -669,7 +674,8 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI)
    Double_t calcul_light_right = lum->Invert(Z, rightA, ECsI);
    if (TMath::Abs(LightCsI - calcul_light_left) > TMath::Abs(LightCsI - calcul_light_right)) {
       return rightA;
-   } else
+   }
+   else
       return leftA;
 
 }

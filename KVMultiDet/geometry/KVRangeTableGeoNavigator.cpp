@@ -146,11 +146,13 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
          if (!theDet->IsSingleLayer()) {
             absorber_name.Form("%s/%s", theDet->GetName(), GetCurrentNode()->GetName());
             if (strncmp(GetCurrentNode()->GetName(), "ACTIVE", 6) == 0) active_layer = kTRUE;
-         } else {
+         }
+         else {
             absorber_name = theDet->GetName();
             active_layer = kTRUE;
          }
-      } else
+      }
+      else
          absorber_name = irmat->GetName();
 
       if (part->GetZ()) {
@@ -178,7 +180,8 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus* part)
             AddPointToCurrentTrack(GetEntryPoint().X(), GetEntryPoint().Y(), GetEntryPoint().Z());
             AddPointToCurrentTrack(midVol.X(), midVol.Y(), midVol.Z());
          }
-      } else {
+      }
+      else {
          part->GetParameters()->SetValue(Form("Xout:%s", absorber_name.Data()), GetExitPoint().X());
          part->GetParameters()->SetValue(Form("Yout:%s", absorber_name.Data()), GetExitPoint().Y());
          part->GetParameters()->SetValue(Form("Zout:%s", absorber_name.Data()), GetExitPoint().Z());

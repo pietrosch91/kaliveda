@@ -318,7 +318,8 @@ public:
          fE0 = new TVector3;
       if (!e) {
          *fE0 = GetMomentum();
-      } else {
+      }
+      else {
          *fE0 = *e;
       }
    };

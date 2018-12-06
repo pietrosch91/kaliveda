@@ -90,7 +90,8 @@ Double_t KVChannelEnergyBrho::Invert(Double_t energy)
       // linear transfer function
       channel = (Int_t)(0.5 + (energy - GetParameter(0)) / GetParameter(1)
                         + det->GetPedestal("GG"));
-   } else {
+   }
+   else {
       Warning("Compute", "Parameters not correctly initialized");
    }
    return (Double_t) channel;

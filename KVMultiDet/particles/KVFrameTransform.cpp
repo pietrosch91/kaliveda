@@ -58,7 +58,8 @@ KVFrameTransform::KVFrameTransform(const TVector3& boost, Bool_t beta)
    //   if beta=kFALSE [default], velocity given in cm/ns units.
    if (beta) {
       Boost(boost);
-   } else {
+   }
+   else {
       Boost(boost.X() / KVParticle::C(), boost.Y() / KVParticle::C(),
             boost.Z() / KVParticle::C());
    }
@@ -97,7 +98,8 @@ KVFrameTransform::KVFrameTransform(const TVector3& boost, const TRotation& r, Bo
    //   if beta=kFALSE [default], velocity given in cm/ns units.
    if (beta) {
       Boost(boost);
-   } else {
+   }
+   else {
       Boost(boost.X() / KVParticle::C(), boost.Y() / KVParticle::C(),
             boost.Z() / KVParticle::C());
    }
@@ -113,7 +115,8 @@ KVFrameTransform::KVFrameTransform(const TRotation& r, const TVector3& boost, Bo
    //   if beta=kFALSE [default], velocity given in cm/ns units.
    if (beta) {
       Boost(boost);
-   } else {
+   }
+   else {
       Boost(boost.X() / KVParticle::C(), boost.Y() / KVParticle::C(),
             boost.Z() / KVParticle::C());
    }

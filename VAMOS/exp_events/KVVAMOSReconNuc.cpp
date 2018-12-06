@@ -65,7 +65,8 @@ void KVVAMOSReconNuc::Streamer(TBuffer& R__b)
             fDetE.resize(N);
             for (Int_t i = 0; i < N; i++) fDetE[i] = (Double_t)tmp[i];
             delete[] tmp;
-         } else if (R__v == 3) {
+         }
+         else if (R__v == 3) {
             // In version 3, fDetE is Double_t array
             Double_t* tmp(new Double_t[N]);
             R__b.ReadFastArray(tmp, N);
@@ -75,7 +76,8 @@ void KVVAMOSReconNuc::Streamer(TBuffer& R__b)
             delete[] tmp;
          }
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVVAMOSReconNuc::Class(), this);
    }
 }
@@ -188,7 +190,8 @@ void KVVAMOSReconNuc::Calibrate()
          Int_t N = GetDetectorList()->GetEntries();
          fDetE.resize(N, -1.);
       }
-   } else {
+   }
+   else {
       if (fdebug) Info("Calibrate", "... gVamos->Calibrate() wasn't success, CalibrateFromDetList() will be called ...");
       CalibrateFromDetList();
    }
@@ -353,7 +356,8 @@ void KVVAMOSReconNuc::CalibrateFromDetList()
             if (!(det->Fired() && det->IsECalibrated()))
                det->SetEnergyLoss(Edet + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
             //Info("CalibrateFromDetList", "MultiHit in %s", det->GetName());
-         } else if (!det->Fired() || !det->IsECalibrated())
+         }
+         else if (!det->Fired() || !det->IsECalibrated())
             det->SetEnergyLoss(Edet);
 
          det->SetEResAfterDetector(Etot);
@@ -392,7 +396,8 @@ Bool_t KVVAMOSReconNuc::StoppedInChIo()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "CHI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -403,7 +408,8 @@ Bool_t KVVAMOSReconNuc::StoppedInSi()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "SI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -414,7 +420,8 @@ Bool_t KVVAMOSReconNuc::StoppedInCsI()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "CSI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -549,7 +556,8 @@ void KVVAMOSReconNuc::IdentifyZ()
                           GetIDCode(), (int) IsZMeasured(), (int) IsAMeasured(), GetRealZ(), GetRealA(), GetZ(), GetA(), GetAMinimizer());
                   }
                }
-            } else
+            }
+            else
                IDR->IDattempted = kFALSE;
          };
       }
@@ -749,7 +757,8 @@ void KVVAMOSReconNuc::ReconstructFPtraj()
             Idx[ Ncomp ] = i;
             for (Int_t j = 0; j < 3; j++) XYZf[ Ncomp ][ j ] = xyzf[ j ];
             Ncomp++;
-         } else if (IncDetBitmask & res) {
+         }
+         else if (IncDetBitmask & res) {
             // look at only incomplete position measurment (XZ or YZ)
             // not found yet
 
@@ -768,7 +777,8 @@ void KVVAMOSReconNuc::ReconstructFPtraj()
             fRT.dirFP.SetY((XYZf[1][1] - XYZf[0][1]) / (XYZf[1][2] - XYZf[0][2]));
             GetCodes().SetFPCode(Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX);
             break;
-         } else if ((Ncomp == 1) && !IncDetBitmask) {
+         }
+         else if ((Ncomp == 1) && !IncDetBitmask) {
             //Case where the Focal plane Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
 
             fRT.dirFP.SetX((XYZf[3 - inc1IsX][0] - XYZf[0][0]) / (XYZf[3 - inc1IsX][2] - XYZf[0][2]));
@@ -845,7 +855,8 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
                NptX++;
                res |= 5;
             }
-         } else { // case where several X positions are measurable
+         }
+         else {   // case where several X positions are measurable
             for (Int_t j = 1; j <= d->GetNMeasuredX(); j++) {
                // look at only well measured X position with its Z
                if ((d->GetPosition(xyzf, 'X', j) & 5) == 5) {
@@ -867,7 +878,8 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
                NptY++;
                res |= 6;
             }
-         } else { // case where several Y positions are measurable
+         }
+         else {   // case where several Y positions are measurable
             for (Int_t j = 1; j <= d->GetNMeasuredY(); j++) {
                // look at only well measured Y position with its Z
                if ((d->GetPosition(xyzf, 'Y', j) & 6) == 6) {
@@ -888,7 +900,8 @@ Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting()
 
             Idx[ Ncomp ] = i;
             Ncomp++;
-         } else if (IncDetBitmask & res) {
+         }
+         else if (IncDetBitmask & res) {
             // look at only incomplete position measurment (XZ or YZ)
             // if it is not found yet
 
@@ -946,13 +959,16 @@ Bool_t KVVAMOSReconNuc::ReconstructLabTraj()
    if (filename == "") {
       Warning("ReconstructLabTraj()", "No method defined. Should be given by %s.KVVAMOSReconNuc.ReconstructLabTrajMethod", gDataSet->GetName());
       return false;
-   } else if (filename == "Zgoubi") {
+   }
+   else if (filename == "Zgoubi") {
       KVZGOUBIReconstruction* tm = gVamos->GetZGOUBIReconstruction();
       return tm->ReconstructFPtoLab(&fRT);
-   } else if (filename == "Polynomial") {
+   }
+   else if (filename == "Polynomial") {
       KVVAMOSTransferMatrix* tm = gVamos->GetTransferMatrix();
       return tm->ReconstructFPtoLab(&fRT);
-   } else {
+   }
+   else {
       Warning("ReconstructLabTraj()", "Method not valid, should be Polynomial or Zgoubi. Should be given by %s.KVVAMOSReconNuc.ReconstructLabTrajMethod. Zgoubi will be used.", gDataSet->GetName());
       KVZGOUBIReconstruction* tm = gVamos->GetZGOUBIReconstruction();
       return tm->ReconstructFPtoLab(&fRT);
@@ -1145,7 +1161,8 @@ void KVVAMOSReconNuc::SetBasicQandAIdentification(KVIdentificationResult* idr)
       SetA(idr->A);
       SetRealA(idr->PID);
       SetEnergy(E);
-   } else SetRealQ(idr->PID);
+   }
+   else SetRealQ(idr->PID);
 }
 //________________________________________________________________
 

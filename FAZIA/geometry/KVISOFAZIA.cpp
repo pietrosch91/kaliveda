@@ -66,13 +66,16 @@ void KVISOFAZIA::BuildFAZIA()
       if (bb == 3) {
          phi = 90;
          theta = 11.8 + arc;
-      } else if (bb == 2) {
+      }
+      else if (bb == 2) {
          phi = 90;
          theta = 2.3 + arc;
-      } else if (bb == 1) {
+      }
+      else if (bb == 1) {
          phi = 360 - 90;
          theta = 2.3 + arc;
-      } else if (bb == 0) {
+      }
+      else if (bb == 0) {
          phi = 360 - 90;
          theta = 11.8 + arc;
       }

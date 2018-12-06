@@ -33,7 +33,8 @@ int main(int argc, char** argv)
       if (tmp.Contains("repository=")) {
          tmp.Remove(0, 11);
          repo = tmp;
-      } else if (tmp.Contains("plugin=")) {
+      }
+      else if (tmp.Contains("plugin=")) {
          tmp.Remove(0, 7);
          plugin = tmp;
       }

@@ -119,7 +119,8 @@ const Char_t* KVSeD::GetArrayName()
    if (GetNumber() > 0) {
       fFName  = Form("%s%d", GetType(), GetNumber());
       SetLabel(fFName.Data());
-   } else fFName = GetType();
+   }
+   else fFName = GetType();
    return fFName.Data();
 }
 //________________________________________________________________
@@ -216,7 +217,8 @@ Float_t KVSeD::CalculateQThreshold(Char_t dir)
    //as the mean of the noise + 1 time its standart deviation
    if (noise_sum < 2. || noise_var == 0) {
       noise_mean = noise_var = 0;
-   } else {
+   }
+   else {
       noise_mean /= noise_sum;
       noise_var   = noise_var / noise_sum - noise_mean * noise_mean;
       noise_stdev = TMath::Sqrt(noise_var);
@@ -669,13 +671,15 @@ UChar_t KVSeD::GetPosition(Double_t* XYZf, Char_t /* dir */, Int_t /* idx */)
       OK = (*fPosCalib)(Xraw, Yraw, XYZf[0], XYZf[1]);
       OK = (OK && ActiveVolumeToFocal(XYZf, XYZf));
       rvalue = 7; // X,Y,Z are OK
-   } else if (Xraw > 0) {
+   }
+   else if (Xraw > 0) {
       Yraw = 24;  // we impose the center in Y (48/2) for the X calibration
       OK = (*fPosCalib)(Xraw, Yraw, XYZf[0], XYZf[1]);
       OK = (OK && ActiveVolumeToFocal(XYZf, XYZf));
       XYZf[1] = -666;
       rvalue = 5; // X and Z are OK
-   } else if (Yraw > 0) {
+   }
+   else if (Yraw > 0) {
       Xraw = 64;  // we impose the center in X (128/2) for the Y calibration
       OK = (*fPosCalib)(Xraw, Yraw, XYZf[0], XYZf[1]);
       OK = (OK && ActiveVolumeToFocal(XYZf, XYZf));

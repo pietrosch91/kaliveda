@@ -53,7 +53,8 @@ KVTGIDGrid::KVTGIDGrid(KVTGID* tgid, KVIDZAGrid* original)
       do {
          name.Form("%s_%d", fTGID->GetName(), ver);
          ver++;
-      } while (gIDGridManager->GetGrid(name.Data()));
+      }
+      while (gIDGridManager->GetGrid(name.Data()));
    }
    SetName(name.Data());
    if (original) original->GetCuts()->Copy((TObject&)*fCuts);

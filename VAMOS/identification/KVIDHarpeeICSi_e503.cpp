@@ -117,7 +117,8 @@ Double_t KVIDHarpeeICSi_e503::GetIDMapY(Option_t* opt)
          if (tmp && fGrid) {
             fGrid = NULL;
             return 0.;
-         } else if (tmp) {
+         }
+         else if (tmp) {
             // Load the grid associated to the fired ACQ Parameter
             // for identification
             fGrid = tmp;
@@ -215,9 +216,11 @@ Bool_t KVIDHarpeeICSi_e503::Identify(
             idr->IDquality = kBelowPunchThrough;
             idr->SetComment("warning: point below punch-through line");
             if (fverbose) Info("Identify", "... point(%lf, %lf) is below punch-through line ...", GetIDMapX(), GetIDMapY());
-         } else if (fverbose) Info("Identify", "... point(%lf, %lf) is above punch-through line ...", GetIDMapX(), GetIDMapY());
+         }
+         else if (fverbose) Info("Identify", "... point(%lf, %lf) is above punch-through line ...", GetIDMapX(), GetIDMapY());
 
-      } else if (fverbose) Info("Identify", "... no puch-through line found for detector %s (ICSegment=%d)...", GetName(), ic->GetFiredSegNumber());
+      }
+      else if (fverbose) Info("Identify", "... no puch-through line found for detector %s (ICSegment=%d)...", GetName(), ic->GetFiredSegNumber());
    }
 
    // Set the idcode and type for this telescope

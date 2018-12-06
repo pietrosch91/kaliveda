@@ -126,7 +126,8 @@ void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
          fZminInt = min.Atoi();
          min = (pidrange(pidrange.Index("-") + 1, pidrange.Length()));
          fZmaxInt = min.Atoi();
-      } else {
+      }
+      else {
          fZminInt = 1;
          fZmaxInt = pidrange.Atoi();
       }
@@ -218,12 +219,14 @@ int KVIDZAFromZGrid::is_inside(double pid)
          it = GetIntervalSet(zint + 1);
          if (it && it->is_inside(pid)) return zint + 1;
          else return 0;
-      } else {
+      }
+      else {
          it = GetIntervalSet(zint - 1);
          if (it && it->is_inside(pid)) return zint - 1;
          else return 0;
       }
-   } else return 0;
+   }
+   else return 0;
 }
 
 void KVIDZAFromZGrid::Initialize()
@@ -304,8 +307,10 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
       if (idr->IDquality < kICODE4) { // should always be true: to be verified...
          if (const_cast < KVIDZAFromZGrid* >(this)->GetIntervalSet(idr->Z)->GetNPID() > 1) idr->Aident = kTRUE;
          idr->IDOK = kTRUE;
-      } else if (idr->IDquality == kICODE4) idr->IDquality = kICODE3;
-   } else {
+      }
+      else if (idr->IDquality == kICODE4) idr->IDquality = kICODE3;
+   }
+   else {
       switch (fICode) {
          case kICODE0:
             idr->SetComment("ok");
@@ -370,26 +375,30 @@ double interval_set::eval(KVIdentificationResult* idr)
          idr->PID = res;
          idr->IDquality = KVIDZAGrid::kICODE0;
          idr->SetComment("ok");
-      } else {
+      }
+      else {
          ares = TMath::Nint(res);
          idr->A = ares;
          idr->PID = res;
          if (pid > ((interval*)fIntervals.At(0))->GetPIDmin() && pid < ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) {
             idr->IDquality = KVIDZAGrid::kICODE3;
             idr->SetComment("slight ambiguity of A, which could be larger or smaller");
-         } else {
+         }
+         else {
             idr->IDquality = KVIDZAGrid::kICODE4;
             idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
          }
       }
-   } else {
+   }
+   else {
       ares = TMath::Nint(res);
       idr->A = ares;
       idr->PID = res;
       if (ares > fPIDs.GetX()[0] && ares < fPIDs.GetX()[fNPIDs - 1]) {
          idr->IDquality = KVIDZAGrid::kICODE0;
          idr->SetComment("ok");
-      } else {
+      }
+      else {
          idr->IDquality = KVIDZAGrid::kICODE4;
          idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
       }

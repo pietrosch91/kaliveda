@@ -91,7 +91,8 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t& funLTG)
       Z = IdentZ(GetName(), GetIDMapX("PG"), GetIDMapY("PG"), funLTG, "PG1"); //IdentZ(this, funLTG, "PG1", "PG");
       fWhichGrid = k_PG1;
 
-   } else {
+   }
+   else {
       //successful GG identification
       return Z;
    }
@@ -159,7 +160,8 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t, Double_t)
          IDR->Zident = kTRUE;
          //subcode says "Z ok but A failed because..."
          IDR->IDquality = k_OutOfIDRange_PG2 + GetStatus();
-      } else {                //both Z and A successful ?
+      }
+      else {                  //both Z and A successful ?
          ia = TMath::Nint(mass);
          // fix 16B
          if (iz == 5 && ia == 16) ia = (mass > 16.0 ? 17 : 15);
@@ -197,10 +199,12 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t, Double_t)
                      ia = new_ia;
                      mass = new_mass;
                      Info("Identify", "%s : accepted new ID", GetName());
-                  } else {
+                  }
+                  else {
                      Info("Identify", "%s : rejected new ID", GetName());
                   }
-               } else {
+               }
+               else {
                   Info("Identify", "%s : failed to obtain new ID with Z=%d", GetName(), iz2);
                }
             }
@@ -211,7 +215,8 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t, Double_t)
          IDR->Zident = kTRUE;
          IDR->Aident = kTRUE;
       }
-   } else {
+   }
+   else {
       //only Z identified
       //ID subcode remains 'Zstatus'
       IDR->Z = iz;
@@ -232,7 +237,8 @@ void KVIDSiCsI5::Print(Option_t*) const
    if (GetListOfIDFunctions().GetSize() > 0) {
       if (HasMassID()) {
          cout << "  A and Z identification" << endl;
-      } else {
+      }
+      else {
          cout << "  Z identification only" << endl;
       }
       cout << "Identification objects :" << endl;
@@ -289,7 +295,8 @@ void KVIDSiCsI5::Initialize()
    fCsILPedestal = fCsI->GetPedestal("L");
    if (GetListOfIDFunctions().GetEntries()) {
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }
 
@@ -308,7 +315,8 @@ Double_t KVIDSiCsI5::GetIDMapY(Option_t* opt)
    if (!strcmp(opt, "PG")) {
       si = (Double_t)fSi->GetPG();
       si_ped = fSiPGPedestal;
-   } else {
+   }
+   else {
       si = (Double_t)fSi->GetGG();
       si_ped = fSiGGPedestal;
    }
@@ -328,7 +336,8 @@ Double_t KVIDSiCsI5::GetPedestalY(Option_t* opt)
    Double_t si_ped = 0.;
    if (!strcmp(opt, "PG")) {
       si_ped = fSiPGPedestal;
-   } else {
+   }
+   else {
       si_ped = fSiGGPedestal;
    }
    return si_ped;
@@ -411,7 +420,8 @@ Bool_t KVIDSiCsI5::SetIdentificationParameters(const KVMultiDetArray* MDA)
                   _tgid2 =
                      new KVTGIDZ(idt->GetTGIDName(idt->GetName(), "Z", type),
                                  "pichon_Z", 0.1, 100., 12, 10, 11);
-               } else {
+               }
+               else {
                   //Z-identification functional.
                   _tgid =
                      new KVTGIDZ(idt->GetTGIDName(idt->GetName(), "Z", type),

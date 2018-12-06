@@ -170,7 +170,8 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
       // for all other events
       if (fMaxVelocity > 0) maxV = fMaxVelocity;
       else fMaxVelocity = maxV;
-   } else if (fMaxVelocity > 0) maxV = fMaxVelocity;
+   }
+   else if (fMaxVelocity > 0) maxV = fMaxVelocity;
 
    TGeoVolume* box  = geom->MakeSphere("box",  Box,  0.99 * maxV, maxV);
    box->SetLineColor(kBlack);
@@ -247,7 +248,8 @@ void KVEventViewer::ReadEvent()
    if (textInput) {
       if (!theEvent) theEvent = new KVEvent;
       ReadTextEvent();
-   } else {
+   }
+   else {
       ReadTreeEvent();
    }
 

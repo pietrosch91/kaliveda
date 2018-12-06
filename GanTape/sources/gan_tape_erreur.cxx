@@ -101,7 +101,8 @@ void gan_tape_erreur(int Status, const char* message)
          else
 #endif /*****************************************************************/
             printf("Code d'erreur inconnu");
-      } else
+      }
+      else
          printf("< %s > ", pErr->ErrMes);
 
    }

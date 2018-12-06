@@ -338,7 +338,8 @@ void KVDBSystemDialog::SelectSystem(Int_t index)
       fSystem = (KVDBSystem*)gExpDB->GetSystems()->At(index);
       fCreateSystem->SetEnabled(kFALSE);
       fSetRuns->SetEnabled(!fRuns.IsEmpty());
-   } else {
+   }
+   else {
       fCreateSystem->SetEnabled(kTRUE);
       fSetRuns->SetEnabled(kFALSE);
       fSystem = 0;
@@ -378,7 +379,8 @@ void KVDBSystemDialog::UpdateProjectileProperties()
    if (proj.GetZ() == 0) {
       fCheckButton1376->SetState(kButtonUp);
       EnableProjectileProperties(kFALSE);
-   } else {
+   }
+   else {
       fCheckButton1376->SetState(kButtonDown);
       EnableProjectileProperties(kTRUE);
    }
@@ -576,7 +578,8 @@ void KVDBSystemDialog::RemoveTargetLayer()
       fTarget = 0;
       if (fSystem) fSystem->SetTarget(0);
       fLayer = 0;
-   } else {
+   }
+   else {
       KVTarget* new_target = new KVTarget;
       TIter next(fTarget->GetLayers());
       KVMaterial* mat;
@@ -624,7 +627,8 @@ void KVDBSystemDialog::RemoveAll(TGComboBox* box)
    if (box->GetSelectedEntry()) {
       ((TGTextLBEntry*)box->GetSelectedEntry())->SetTitle("");
       gClient->NeedRedraw(box->GetSelectedEntry());
-   } else {
+   }
+   else {
       box->GetTextEntry()->SetTitle("");
       gClient->NeedRedraw(box->GetTextEntry());
    }

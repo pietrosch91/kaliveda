@@ -185,7 +185,8 @@ UChar_t KVINDRACodes::GetCodeIndex(UShort_t mask)
    do {
       mask = (mask >> 1);
       i++;
-   } while (mask);
+   }
+   while (mask);
    return i - 1;
 }
 

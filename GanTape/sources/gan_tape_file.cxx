@@ -116,18 +116,21 @@ int acq_mt_open_c(gan_tape_desc* DeviceName, mode_r_w RWMode, int* Lun)
       if (RWMode == o_read) {
          Mode = O_RDONLY;    /* Ouverture en Lecture seule ou en     */
          Status = ACQ_OK;
-      } else if (RWMode == o_write) {
+      }
+      else if (RWMode == o_write) {
          /* Une Ouverture en WRITE ne peut se faire que si la bande le permet */
          Status = acq_dev_is_wr_protect_c(*DeviceName);
          if (Status == ACQ_DEVWRITLOCK) {
             DeviceName->Is_protected = true;
             Status = ACQ_DEVWRITLOCK;
-         } else if (Status == ACQ_ISNOTATAPE || Status == ACQ_OK) {
+         }
+         else if (Status == ACQ_ISNOTATAPE || Status == ACQ_OK) {
             DeviceName->Is_protected = false;
             Status = ACQ_OK;
          }
          Mode = O_WRONLY;    /* ecriture seule...                    */
-      } else Status = ACQ_ERRPARAM;
+      }
+      else Status = ACQ_ERRPARAM;
 
       if (Status == ACQ_OK) {
 
@@ -160,7 +163,8 @@ int acq_mt_open_c(gan_tape_desc* DeviceName, mode_r_w RWMode, int* Lun)
 
 
 #if defined ( __VMS ) || defined ( VMS )
-      } else Status = ACQ_NOTMOUNT;
+      }
+      else Status = ACQ_NOTMOUNT;
 #endif
 
    }
@@ -244,7 +248,8 @@ int acq_mt_read_c(int Lun, char* Buffer, int* Taille)
       else if (Status == 0)
          Status = ACQ_ENDOFFILE;
       else Status = ACQ_ERRDURREAD;;
-   } else Status = ACQ_ERRPARAM;
+   }
+   else Status = ACQ_ERRPARAM;
 
    return (Status);
 
@@ -336,7 +341,8 @@ int acq_mt_rewind_c(gan_tape_desc DeviceName)
       /* Deassigne le canal   */
       if (Ass_Status != SS$_NORMAL) Status = Ass_Status;
 
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #elif defined ( __unix__ ) || ( __unix ) /* Coherence a verifier entre les differents UniX  */
 
@@ -349,7 +355,8 @@ int acq_mt_rewind_c(gan_tape_desc DeviceName)
       Status = ioctl(DeviceName.Lun, MTIOCTOP, &Control);
       if (Status != -1)
          Status = ACQ_OK;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #else    /****************************************************************/
@@ -427,7 +434,8 @@ int acq_mt_skip_file_c(gan_tape_desc DeviceName, int NombreSkip)
                   Status = ACQ_OK;
                else Status = Iosb[0];
             }
-         } else Status = Iosb[0];
+         }
+         else Status = Iosb[0];
 
          Ass_Status = sys$dassgn(Channel);
          if (Ass_Status != SS$_NORMAL)
@@ -441,7 +449,8 @@ int acq_mt_skip_file_c(gan_tape_desc DeviceName, int NombreSkip)
       if (Status == SS$_ENDOFFILE)
          Status = ACQ_OK;
 
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #elif defined ( __unix__ ) || ( __unix )
@@ -453,7 +462,8 @@ int acq_mt_skip_file_c(gan_tape_desc DeviceName, int NombreSkip)
       if (NombreSkip < 0) {                 /* Ligne 388 */
          Control.mt_count = -NombreSkip;
          Control.mt_op     = MTBSF;
-      } else {
+      }
+      else {
          Control.mt_count = NombreSkip;
          Control.mt_op     = MTFSF;
       }
@@ -461,7 +471,8 @@ int acq_mt_skip_file_c(gan_tape_desc DeviceName, int NombreSkip)
       if (Status != -1)
          Status = ACQ_OK;
       else Status = ACQ_ENDOFTAPE;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #else    /****************************************************************/
@@ -528,7 +539,8 @@ int acq_mt_skip_block_c(gan_tape_desc DeviceName, int NombreSkip)
                Continue = true;
                Loc_Skip = Loc_Skip - Tempo_Skip; /* Skip intermediaire */
                NombreSkip = Tempo_Skip;
-            } else {
+            }
+            else {
                NombreSkip = Loc_Skip;
                Continue = false;
             }
@@ -568,7 +580,8 @@ int acq_mt_skip_block_c(gan_tape_desc DeviceName, int NombreSkip)
       if (NombreSkip < 0) {
          Control.mt_count = -NombreSkip;
          Control.mt_op     = MTBSR;
-      } else {
+      }
+      else {
          Control.mt_count = NombreSkip;
          Control.mt_op     = MTFSR;
       }
@@ -576,7 +589,8 @@ int acq_mt_skip_block_c(gan_tape_desc DeviceName, int NombreSkip)
       if (Status != -1)
          Status = ACQ_OK;
       else Status = ACQ_ENDOFFILE;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #else    /****************************************************************/
@@ -640,10 +654,12 @@ int acq_mt_skip_to_eot_c(gan_tape_desc DeviceName, int* NombreSkip)
             if (Iosb[0] == SS$_ENDOFVOLUME) {
                Status = ACQ_OK;
                *NombreSkip = Iosb[1];
-            } else {
+            }
+            else {
                Status = Iosb[0];
                *NombreSkip = -1;
-            } else *NombreSkip = -1;
+            }
+         else *NombreSkip = -1;
 
          Ass_Status = sys$dassgn(Channel);
          if (Ass_Status != SS$_NORMAL)
@@ -652,7 +668,8 @@ int acq_mt_skip_to_eot_c(gan_tape_desc DeviceName, int* NombreSkip)
       }
 
       else Status = Ass_Status;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #elif defined ( __unix__ ) || ( __unix )
@@ -674,7 +691,8 @@ int acq_mt_skip_to_eot_c(gan_tape_desc DeviceName, int* NombreSkip)
       NbrTempo --;   /* Pour supprimer le double 'Tape Mark' de fin  */
       Status = ACQ_OK;
       *NombreSkip = NbrTempo;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #else    /****************************************************************/
 #error "Ce package n'est pas compatible avec votre OS"

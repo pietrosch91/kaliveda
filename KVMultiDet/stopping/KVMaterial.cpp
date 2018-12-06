@@ -431,7 +431,8 @@ Double_t KVMaterial::GetELostByParticle(KVNucleus* kvn, TVector3* norm)
    if (norm) {
       TVector3 p = kvn->GetMomentum();
       thickness = GetEffectiveThickness((*norm), p);
-   } else
+   }
+   else
       thickness = GetThickness();
    Double_t E_loss =
       fIonRangeTable->GetLinearDeltaEOfIon(GetType(), kvn->GetZ(), kvn->GetA(), kvn->GetKE(),
@@ -455,7 +456,8 @@ Double_t KVMaterial::GetParticleEIncFromERes(KVNucleus* kvn, TVector3* norm)
    if (norm) {
       TVector3 p = kvn->GetMomentum();
       thickness = GetEffectiveThickness((*norm), p);
-   } else
+   }
+   else
       thickness = GetThickness();
    Double_t E_inc = fIonRangeTable->
                     GetLinearEIncFromEResOfIon(GetType(), kvn->GetZ(), kvn->GetA(), kvn->GetKE(),

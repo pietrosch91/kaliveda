@@ -228,7 +228,8 @@ void KVHarpeeCsI::Streamer(TBuffer& R__b)
          if (cal->InheritsFrom(KVLightEnergyCsIVamos::Class()))
             fCal  = (KVLightEnergyCsIVamos*)cal;
       }
-   } else {
+   }
+   else {
       KVHarpeeCsI::Class()->WriteBuffer(R__b, this);
    }
 }
@@ -264,11 +265,13 @@ Double_t KVHarpeeCsI::GetCorrectedEnergy(KVNucleus* nuc, Double_t light,
       // Calculate energy loss from the predicted light output of the detected
       // energy.
       eloss = fCal->Compute(fCal->Invert(GetEnergy()));
-   } else if (light < 0.) {
+   }
+   else if (light < 0.) {
       // Light has not been set so use the ACQ data
       eloss = fCal->Compute(GetACQData(GetEBaseName()) -
                             GetPedestal(GetEBaseName()));
-   } else {
+   }
+   else {
       // Light has been set manually
       eloss = fCal->Compute(light);
    }

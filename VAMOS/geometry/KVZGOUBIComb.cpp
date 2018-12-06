@@ -90,7 +90,8 @@ std::vector<std::vector<int> > KVZGOUBIComb::comb(int N, int K)
       }
       allcombinations.push_back(vectorcombination);
       vectorcombination.clear();
-   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+   }
+   while (std::prev_permutation(bitmask.begin(), bitmask.end()));
    return allcombinations;
 }
 
@@ -109,27 +110,38 @@ std::vector<std::vector<int> > KVZGOUBIComb::GetComb(int N)
 {
    if (N == 10) {
       return N10;
-   } else if (N > 10) {
+   }
+   else if (N > 10) {
       return allcomb(N);
-   } else if (N == 1) {
+   }
+   else if (N == 1) {
       return N1;
-   } else if (N == 2) {
+   }
+   else if (N == 2) {
       return N2;
-   } else if (N == 3) {
+   }
+   else if (N == 3) {
       return N3;
-   } else if (N == 4) {
+   }
+   else if (N == 4) {
       return N4;
-   } else if (N == 5) {
+   }
+   else if (N == 5) {
       return N5;
-   } else if (N == 6) {
+   }
+   else if (N == 6) {
       return N6;
-   } else if (N == 7) {
+   }
+   else if (N == 7) {
       return N7;
-   } else if (N == 8) {
+   }
+   else if (N == 8) {
       return N8;
-   } else if (N == 9) {
+   }
+   else if (N == 9) {
       return N9;
-   } else {
+   }
+   else {
       std::vector<std::vector<int> > empty;
       return empty;
    }

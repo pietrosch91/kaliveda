@@ -147,7 +147,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
       if (*NextEvent == 0) {
          err = ACQ_INVARG; /* New buffer and EvtNum != -1 */
          printf("acq_ebyedat_get_next_event: New buffer and EvtNum != -1 \n");
-      } else {
+      }
+      else {
          /* verify that nextevent doesn't point out of the buffer */
          BufHd = (GANIL_BUF_HD*)Buffer;
          BufEnd = Buffer + GANIL_BUF_HD_SIZE / 2 + BufHd->length;
@@ -161,7 +162,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
             err = ACQ_ERRDATABUF; /* Bad end of buffer */
             printf("acq_ebyedat_get_next_event : NextEvent points after LastToken:\n   Buffer = 0x%lx, NextEvent = 0x%lx, LastToken = 0x%lx\n",
                    Buffer, *NextEvent, LastToken);
-         } else {
+         }
+         else {
             CurEvent = *NextEvent;
             CtrlEventData = (UNSINT16*)&CtrlEvent->ct_par;
             EventHd = (EBYEDAT_EVENT_HD*)CurEvent;
@@ -188,7 +190,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
                  Buffer, LastToken, CurEvent );
                }
                    */
-            } else {
+            }
+            else {
                *NextEvent = CurEvent + EventHd->length;
                if (*NextEvent > LastToken) {
                   err = ACQ_ERRDATABUF; /* Bad end of buffer */
@@ -233,7 +236,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
                            err = ACQ_ERRDATABUF;
                            printf("acq_ebyedat_get_next_event : NextSubEvent (0X%x) != *NextEvent (0X%x)\n",
                                   NextSubEvent, *NextEvent);
-                        } else {
+                        }
+                        else {
                            /* Copy subevent */
                            int SubEvtFormat;
                            SubEvtFormat = SubEventHd->StartToken & 0Xf;
@@ -393,7 +397,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
                                         SubEventHd->StartToken);
                            }
                         }
-                     } while ((NextSubEvent < *NextEvent) && (err == ACQ_OK));
+                     }
+                     while ((NextSubEvent < *NextEvent) && (err == ACQ_OK));
 
                      CtrlEvent->ct_len = CtrlEventData - (UNSINT16*)CtrlEvent;
                      *EvtAddr = CtrlEventBuf;
@@ -412,7 +417,8 @@ int acq_ebyedat_get_next_event_r(UNSINT16* Buffer,
             if (EventHd->length == 0) {
                /* No more events in buffer */
                err = ACQ_ENDOFBUFFER;
-            } else {
+            }
+            else {
                printf("acq_ebyedat_get_next_event : EndDataBlockToken with EventHd->length=%d != 0\n", EventHd->length);
                err = ACQ_BADEVENTFORM;
             }

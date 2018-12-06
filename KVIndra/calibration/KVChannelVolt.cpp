@@ -69,7 +69,8 @@ Double_t KVChannelVolt::Compute(Double_t chan) const
    //Calculate the calibrated signal strength in volts for a given channel number.
    if (fReady) {
       return (fPar[0] + fPar[1] * chan + fPar[2] * chan * chan) * gain_ref / gain;
-   } else {
+   }
+   else {
       return 0.;
    }
 }
@@ -127,11 +128,13 @@ Double_t KVChannelVolt::Invert(Double_t volts)
             c = (-fPar[1] - TMath::Sqrt(c)) / (2.0 * fPar[2]);
          }
          channel = (Int_t)(c + 0.5);
-      } else {
+      }
+      else {
          // linear transfer function
          channel = (Int_t)(0.5 + (gain / gain_ref * volts - fPar[0]) / fPar[1]);
       }
-   } else {
+   }
+   else {
       Warning("Compute", "Parameters not correctly initialized");
    }
    return (Double_t) channel;
@@ -159,11 +162,13 @@ Double_t KVChannelVolt::InvertDouble(Double_t volts)
             c = (-fPar[1] - TMath::Sqrt(c)) / (2.0 * fPar[2]);
          }
          channel = c;
-      } else {
+      }
+      else {
          // linear transfer function
          channel = (gain / gain_ref * volts - fPar[0]) / fPar[1];
       }
-   } else {
+   }
+   else {
       Warning("Compute", "Parameters not correctly initialized");
    }
    return (Double_t) channel;

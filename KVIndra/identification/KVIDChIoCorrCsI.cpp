@@ -52,7 +52,8 @@ void KVIDChIoCorrCsI::Initialize()
       fGrid->Initialize();
       fGrid->SetOnlyZId(kTRUE);
       SetBit(kReadyForID);
-   } else ResetBit(kReadyForID);
+   }
+   else ResetBit(kReadyForID);
 
 }
 

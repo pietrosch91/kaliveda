@@ -40,10 +40,12 @@ KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size, Int_t colStable, Int
       SetLineColor(kBlack);
       SetLineWidth(2);
       SetFillColor(colStable);
-   } else if (fNucleus->GetLifeTime() > 1.e-06) {
+   }
+   else if (fNucleus->GetLifeTime() > 1.e-06) {
       SetLineColor(kBlack);
       SetFillColor(colRadio);
-   } else {
+   }
+   else {
       SetLineColor(kBlack);
       SetFillColor(colRadio);
    }
@@ -79,10 +81,12 @@ KVNucleusBox::KVNucleusBox(KVNucleus* nuc, Double_t size, Bool_t owner): TBox(nu
       SetLineColor(kBlack);
       SetLineWidth(2);
       SetFillColor(kBlack);
-   } else if (fNucleus->GetLifeTime() > 1.e-06) {
+   }
+   else if (fNucleus->GetLifeTime() > 1.e-06) {
       SetLineColor(kBlack);
       SetFillColor(kGray + 1);
-   } else {
+   }
+   else {
       SetLineColor(kGray);
       SetFillColor(kGray);
    }
@@ -138,7 +142,8 @@ void KVNucleusBox::ExecuteEvent(Int_t event, Int_t px, Int_t py)
 {
    if (event == kButton1Double) {
       fNuclearChart->ShowNucleusInfo(fNucleus);
-   } else if (event == kButton3Down) {
+   }
+   else if (event == kButton3Down) {
       fNuclearChart->SetCurrentNuc(fNucleus);
       KVCanvas* cc = fNuclearChart->GetCanvas();
       cc->GetContextMenu()->Popup(px, py, fNuclearChart, cc, cc->cd());

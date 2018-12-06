@@ -277,7 +277,8 @@ void KVPartitionGenerator::Process(void)
             if (tabz[0] >= tabz[mshift]) {
                TreatePartition();
             }
-         } else {
+         }
+         else {
             TreatePartition();
          }
 
@@ -298,7 +299,8 @@ void KVPartitionGenerator::Process(void)
 
       if (previous < 0) {
          finish = kTRUE;
-      } else {
+      }
+      else {
          niter[previous] += 1;
          zdispo = coup[previous]->GetZ2(niter[previous]);
          zsup = coup[previous]->GetZ1(niter[previous]);
@@ -311,7 +313,8 @@ void KVPartitionGenerator::Process(void)
 
                ncouple[ncbis] = coup[ncbis]->GetNbreCouples();
                niter[ncbis] = 0;
-            } else { }
+            }
+            else { }
             if (niter[ncbis] < ncouple[ncbis]) {
 
                zdispo = coup[ncbis]->GetZ2(niter[ncbis]);
@@ -433,7 +436,8 @@ void KVPartitionGenerator::BreakUsing_Ztot_Zmax_Zinf_Criterion(Int_t Ztot, Int_t
 
    if (Ztot == Zmax) {
       MakePartitions(Ztot, 1, Zinf);
-   } else if (Ztot - Zmax >= Zinf) {
+   }
+   else if (Ztot - Zmax >= Zinf) {
 
       Int_t mfmin = 2;
       Int_t np = 0;
@@ -480,7 +484,8 @@ void KVPartitionGenerator::BreakUsing_Ztot_Zmax_Zinf_Criterion(Int_t Ztot, Int_t
          MakePartitions(Ztot - zshift, Mtot - mshift, Zinf);
       }
 
-   } else {
+   }
+   else {
       printf("%d %d ??? \n", Ztot - Zmax, Zinf);
    }
 

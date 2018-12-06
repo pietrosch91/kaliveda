@@ -119,11 +119,13 @@ NewRooFitResult* NewRooFitResult::lastMinuitFit(const RooArgList& varList)
 
          if ((xlo < xhi) && !isConst) {
             var = new RooRealVar(varName, varName, xval, xlo, xhi) ;
-         } else {
+         }
+         else {
             var = new RooRealVar(varName, varName, xval) ;
          }
          var->setConstant(isConst) ;
-      } else {
+      }
+      else {
 
          var = (RooRealVar*) varList.at(i - 1)->Clone() ;
          var->setConstant(isConst) ;
@@ -140,7 +142,8 @@ NewRooFitResult* NewRooFitResult::lastMinuitFit(const RooArgList& varList)
 
       if (isConst) {
          constPars.addOwned(*var) ;
-      } else {
+      }
+      else {
          var->setError(xerr) ;
          floatPars.addOwned(*var) ;
       }

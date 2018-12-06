@@ -53,7 +53,8 @@ void KVSimDirFilterAnalyser::preInitRun()
    KVDBSystem* sys = gExpDB->GetSystem(system);
    if (sys) {
       fKinematics = sys->GetKinematics();
-   } else {
+   }
+   else {
       fKinematics = new KV2Body(system);
       fKinematics->SetBit(kCanDelete); // clean up in destructor
       fKinematics->CalculateKinematics();

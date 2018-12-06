@@ -135,7 +135,8 @@ void KVIDQAMarker::UpdateXandY()
             SetX(x_low + (x_up - x_low)*fDelta);
             SetY(y_low + (y_up - y_low)*fDelta);
          }
-      } else {      // marker is over one point
+      }
+      else {        // marker is over one point
          SetX(x_low);
          SetY(y_low);
       }
@@ -175,7 +176,8 @@ void KVIDQAMarker::ExecuteEvent(Int_t event, Int_t px, Int_t py)
                   fIdx = fParent->InsertPoint(fIdx + 1, GetX(), GetY(), x_prev);
                   fDelta   = 0;
                   fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker, UpdateXandY)();
-               } else {
+               }
+               else {
                   fParent->SetPoint(fIdx, GetX(), GetY());
                   fParent->GetMarkers()->R__FOR_EACH(KVIDQAMarker, UpdateXandY)();
                }

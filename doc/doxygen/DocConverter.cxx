@@ -43,7 +43,8 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
             l.Append(" ##");
             just_got_classname = false;
          }
-      } else if (l.BeginsWith("<h4>")) {
+      }
+      else if (l.BeginsWith("<h4>")) {
          l.ReplaceAll("<h4>", "");
          l.ReplaceAll("</h4>", "");
          if (just_got_classname) {
@@ -51,18 +52,21 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
             briefdesc = l;
             just_got_classname = false;
             l = "";
-         } else {
+         }
+         else {
             // transform to markdown titie
             l.Prepend("#### ");
             l.Append(" ####");
          }
-      } else if (l.BeginsWith("<h3>")) {
+      }
+      else if (l.BeginsWith("<h3>")) {
          l.ReplaceAll("<h3>", "");
          l.ReplaceAll("</h3>", "");
          // transform to markdown titie
          l.Prepend("### ");
          l.Append(" ###");
-      } else if (l == "<code>") l = "~~~~~~~~~~~~~~~{.cpp}";
+      }
+      else if (l == "<code>") l = "~~~~~~~~~~~~~~~{.cpp}";
       else if (l == "</code>") l = "~~~~~~~~~~~~~~~";
       else {
          just_got_classname = false;
@@ -86,7 +90,8 @@ void write_class_description(KVString& group, int& last_non_code_line, ofstream&
 //         auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : no brief\n"; };
 //         std::for_each(classname.begin(),classname.end(),errmess);
       }
-   } else {
+   }
+   else {
 //      auto errmess = [](const KVString& a){ cout << "CLASS: " << a << " : ***NO DESC***\n"; };
 //      std::for_each(classname.begin(),classname.end(),errmess);
    }
@@ -147,7 +152,8 @@ void HeaderConverter(const KVString& in_header, const KVString& out_header)
          else if (source_line.BeginsWith("#endif")) {
             in_a_ifdef = in_a_ifdefelse = false;
          }
-      } else if (source_line.BeginsWith("#if")) {
+      }
+      else if (source_line.BeginsWith("#if")) {
          in_a_ifdef = true;
       }
 
@@ -192,13 +198,17 @@ void HeaderConverter(const KVString& in_header, const KVString& out_header)
                   comments.Prepend(";///< ");
                   source_line.Prepend("    ");
                   output_file << source_line << comments << endl;
-               } else
+               }
+               else
                   output_file << original_line << endl;
-            } else
+            }
+            else
                output_file << original_line << endl;
-         } else
+         }
+         else
             output_file << original_line << endl;
-      } else
+      }
+      else
          output_file << original_line << endl;
       source_line.ReadToDelim(source_file, '\n');
    }
@@ -288,7 +298,8 @@ void DocConverter(const KVString& file)
       if (in_class_desc) {
          if (source_line.BeginsWith("//////////////")) in_class_desc = false;
          else class_description.push_back(original_line);
-      } else if (source_line.BeginsWith("//////////////")) in_class_desc = true;
+      }
+      else if (source_line.BeginsWith("//////////////")) in_class_desc = true;
 //        if (found_first_method && !in_a_method && separator_comment) {}
 //        else{
       output.push(original_line);
@@ -315,7 +326,8 @@ void DocConverter(const KVString& file)
          else if (source_line.BeginsWith("#endif")) {
             in_a_ifdef = in_a_ifdefelse = false;
          }
-      } else if (source_line.BeginsWith("#if")) {
+      }
+      else if (source_line.BeginsWith("#if")) {
          in_a_ifdef = true;
       }
 
@@ -329,11 +341,13 @@ void DocConverter(const KVString& file)
                ns_count += delta_brace;
                delta_ns = delta_brace;
                delta_brace = 0;
-            } else if (delta_brace < 0 && brace_count == 0) {
+            }
+            else if (delta_brace < 0 && brace_count == 0) {
                ns_count += delta_brace;
                delta_ns = delta_brace;
                delta_brace = 0;
-            } else
+            }
+            else
                brace_count += delta_brace;
          }
       }
@@ -367,7 +381,8 @@ void DocConverter(const KVString& file)
                }
             }
          }
-      } else if (brace_count == 0 && delta_brace == -1) {
+      }
+      else if (brace_count == 0 && delta_brace == -1) {
 //          cout << endl;
 //          cout << "Method body ends line " << line_no << endl;
 //          cout << "Last written line " << last_line_writ << endl;
@@ -412,11 +427,13 @@ void DocConverter(const KVString& file)
                comment.Prepend("/**\n");
                output_file << comment << endl;
                prefix = "";
-            } else if (comment.BeginsWith("\\f]")) {
+            }
+            else if (comment.BeginsWith("\\f]")) {
                comment.Append("\n*/");
                output_file << comment << endl;
                prefix = "///";
-            } else if (!comment.IsWhitespace()) output_file << prefix << " " << comment << endl;
+            }
+            else if (!comment.IsWhitespace()) output_file << prefix << " " << comment << endl;
          }
          output_file << endl;
          while (!output.empty()) {

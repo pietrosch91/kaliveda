@@ -120,7 +120,8 @@ void KVBatchSystemManager::Print(Option_t* opt) const
       for (int i = 1; i <= fBatchSystems.GetSize(); i++) {
          fBatchSystems.At(i - 1)->Print("all");
       }
-   } else {
+   }
+   else {
       for (int i = 1; i <= fBatchSystems.GetSize(); i++) {
          cout << "\t" << i << ". " << ((KVBatchSystem*)fBatchSystems.At(i - 1))->GetTitle() << endl;
       }

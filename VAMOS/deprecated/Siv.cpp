@@ -63,7 +63,8 @@ Siv::Siv(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("Si.cal", inf)) {
       cout << "Could not open the calibration file Si.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading Si.cal" << endl;
       L->Log << "Reading Si.cal" << endl;
@@ -78,11 +79,13 @@ Siv::Siv(LogFile* Log)
                for (i = 0; i < 3; i++)
                   ECoef[tmp][i] *= tmp1;
                tmp++;
-            } else if (tmp < 42) {
+            }
+            else if (tmp < 42) {
                sscanf(line, "%f %f", TOff[tmp - 21] + 0, TOff[tmp - 21] + 1);
                //       cout <<  "TO " <<TOff[tmp-21][0] << " " << TOff[tmp-21][1]<< endl;
                tmp++;
-            } else {
+            }
+            else {
                sscanf(line, "%f %f", TCoef[tmp - 42] + 0, TCoef[tmp - 42] + 1);
                //       cout <<  "TC " <<TCoef[tmp-42][0] << " " << TCoef[tmp-42][1]<< endl;
                tmp++;

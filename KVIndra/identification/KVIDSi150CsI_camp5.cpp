@@ -51,7 +51,8 @@ void KVIDSi150CsI_camp5::Initialize()
       SetBit(kReadyForID);
       fZAGrid->Initialize();
       if (fZGrid) fZGrid->Initialize();
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }
 

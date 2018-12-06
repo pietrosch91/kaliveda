@@ -83,7 +83,8 @@ void KVFAZIAReconDataAnalyser::ProcessRun()
       ffriend = gDataSet->OpenRunfile<TFile>("raw", fRunNumber);
       if (!(ffriend && !ffriend->IsZombie())) {
          Warning("ProcessRun", "file %s does not exist or is made zombie\n Reading of raw data is not possible", fullPathToRunfile.Data());
-      } else {
+      }
+      else {
          theTree->AddFriend("FAZIA", ffriend);
       }
    }
@@ -99,7 +100,8 @@ void KVFAZIAReconDataAnalyser::ProcessRun()
    Info("SubmitTask", "Beginning TTree::Process... Option=%s", option.Data());
    if (GetNbEventToRead()) {
       theTree->Process(GetUserClass(), option.Data(), GetNbEventToRead());
-   } else {
+   }
+   else {
       theTree->Process(GetUserClass(), option.Data());
    }
 

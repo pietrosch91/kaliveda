@@ -105,7 +105,8 @@ KVElasticScatter::KVElasticScatter(): fBeamDirection(0, 0, 1)
    fDetInd = 0;
    if (gMultiDetArray) {
       gMultiDetArray->SetSimMode(kTRUE);
-   } else {
+   }
+   else {
       Warning("KVElasticScatter", "gMultiDetArray does not refer to a valid multidetector array");
       printf("Define it before using this class, and put it in simulation mode : gMultiDetArray->SetSimMode(kTRUE)");
    }
@@ -194,7 +195,8 @@ void KVElasticScatter::SetDetector(const Char_t* det)
          while (fDetInd->HasParameter(newname.Data()))
             newname.Form("%s_%d", d->GetType(), j++);
          fDetInd->SetValue(newname.Data(), i);
-      } else {
+      }
+      else {
          fDetInd->SetValue(d->GetType(), i);
       }
       i++;
@@ -284,7 +286,8 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    if (!fHistos) {
       fHistos = new TObjArray(fAlignedDetectors->GetSize());
       fHistos->SetOwner();      //will delete histos it stores
-   } else {
+   }
+   else {
       fHistos->Clear();         //delete any previous histograms
    }
    KVDetector* d;
@@ -308,7 +311,8 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    //set random interaction point for scattering
    if (fIntLayer) {
       fTarget->SetInteractionLayer(fIntLayer, fBeamDirection);
-   } else {
+   }
+   else {
       fTarget->GetInteractionPoint(fProj);
    }
 
@@ -381,7 +385,8 @@ void KVElasticScatter::CalculateScattering(Int_t N)
       //set random interaction point for scattering
       if (fIntLayer) {
          fTarget->SetInteractionLayer(fIntLayer, fBeamDirection);
-      } else {
+      }
+      else {
          fTarget->GetInteractionPoint(fProj);
          //if target is multilayer and the interaction layer is not fixed,
          //the layer & hence the target nucleus may change

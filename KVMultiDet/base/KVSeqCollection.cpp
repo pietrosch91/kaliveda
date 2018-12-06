@@ -462,25 +462,29 @@ TObject* KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue, const Cha
                      if (RV == ret) {
                         return obj;
                      }
-                  } else {
+                  }
+                  else {
                      if (KVString(ret).Match(RV)) {
                         return obj;
                      }
                   }
                }
-            } else if (mt.ReturnType() == TMethodCall::kLong) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kLong) {
                Long_t ret;
                mt.Execute(obj, "", ret);
                if (ret == RV.Atoi()) {
                   return obj;
                }
-            } else if (mt.ReturnType() == TMethodCall::kDouble) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kDouble) {
                Double_t ret;
                mt.Execute(obj, "", ret);
                if (ret == RV.Atof()) {
                   return obj;
                }
-            } else Error("FindObjectWithMethod", "Return type %d is not supported", (int)mt.ReturnType());
+            }
+            else Error("FindObjectWithMethod", "Return type %d is not supported", (int)mt.ReturnType());
          }
       }
    }
@@ -635,7 +639,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithClass(const Char_t* class_name) 
 
    if (class_name) {
       return GetSubListWithClass(TClass::GetClass(class_name));
-   } else return nullptr;
+   }
+   else return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -685,18 +690,22 @@ void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollec
                mt.Execute(ob, "", &ret);
                if (!wildcard) {
                   if (RV == ret) outputList->Add(ob);
-               } else {
+               }
+               else {
                   if (KVString(ret).Match(RV)) outputList->Add(ob);
                }
-            } else if (mt.ReturnType() == TMethodCall::kLong) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kLong) {
                Long_t ret;
                mt.Execute(ob, "", ret);
                if (ret == RV.Atoi()) outputList->Add(ob);
-            } else if (mt.ReturnType() == TMethodCall::kDouble) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kDouble) {
                Double_t ret;
                mt.Execute(ob, "", ret);
                if (ret == RV.Atof()) outputList->Add(ob);
-            } else std::cout << "this type is not supported " << (int)mt.ReturnType() << std::endl;
+            }
+            else std::cout << "this type is not supported " << (int)mt.ReturnType() << std::endl;
          }
       }
    }
@@ -765,7 +774,8 @@ KVSeqCollection* KVSeqCollection::MakeListFromFile(TFile* file)
    if (!file) {
       TIter next_ps(gDirectory->GetListOfKeys());
       while ((key = (TKey*) next_ps())) ll->Add(key->ReadObj());
-   } else {
+   }
+   else {
       TIter next_ps(file->GetListOfKeys());
       while ((key = (TKey*) next_ps())) ll->Add(key->ReadObj());
 
@@ -834,7 +844,8 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
    if (enable) {
       fgCleanups->Add(this);
       fCollection->R__FOR_EACH(TObject, SetBit)(kMustCleanup);
-   } else {
+   }
+   else {
       fgCleanups->Remove(this);
    }
 }
@@ -854,15 +865,18 @@ void KVSeqCollection::Streamer(TBuffer& R__b)
          fCollection->SetOwner(kFALSE);
          fCollection->Streamer(R__b);
          fCollection->SetOwner(owns);
-      } else R__b >> fCollection;
+      }
+      else R__b >> fCollection;
       R__b.CheckByteCount(R__s, R__c, KVSeqCollection::IsA());
-   } else {
+   }
+   else {
       R__c = R__b.WriteVersion(KVSeqCollection::IsA(), kTRUE);
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
       if (fCollection) {
          fCollection->Streamer(R__b);
-      } else R__b << fCollection;
+      }
+      else R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
 }

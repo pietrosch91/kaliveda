@@ -395,7 +395,8 @@ void KVVarGlob::SetNameIndex(const Char_t* name, Int_t index)
    // Make the link between a variable name and an index
    if (!(nameList.HasParameter(name))) {
       nameList.SetValue(name, index);
-   } else {
+   }
+   else {
       Warning("SetNameIndex(const Char_t *name,Int_t index)",
               "No link between \"%s\" and the index %d: the name already exist.",
               name, index);
@@ -409,7 +410,8 @@ Int_t KVVarGlob::GetNameIndex(const Char_t* name)
    Int_t index = 0;
    if (nameList.HasParameter(name)) {
       index = nameList.GetIntValue(name);
-   } else {
+   }
+   else {
       Warning("GetNameIndex(const Char_t *name)",
               "The parameter \"%s\" does not exist fot the Class %s.\n 0 returned.",
               name, ClassName());

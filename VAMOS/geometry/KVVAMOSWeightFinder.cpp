@@ -115,7 +115,8 @@ void KVVAMOSWeightFinder::Init()
       ReadTransCoefFileListInDataSet();
       if (CheckTransCoefSteps()) fkIsInit = kTRUE;
       gVAMOSWeightFinder = this;
-   } else fkIsInit = kFALSE;
+   }
+   else fkIsInit = kFALSE;
 
    if (!fkIsInit) Warning("Init", "... problem in initialisation: runlist is empty OR/AND current run number<0 OR/AND run list doesn't contain the current run ...");
    return;

@@ -22,7 +22,8 @@ class KVGeoNodeIterator : public KVBase {
       if (iter_on_traj) {
          if (current_trajectory == nullptr) current_trajectory = iter_on_traj;
          else current_trajectory = nullptr;
-      } else
+      }
+      else
          current_trajectory = (KVGeoDNTrajectory*)(*next_trajectory)();
       if (current_trajectory) {
          if (iterate_backwards) current_trajectory->IterateBackFrom(start_node);

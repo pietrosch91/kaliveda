@@ -263,7 +263,8 @@ int acq_swap_buf(in2p3_buffer_struct* Buff, int Size)
             err = SwTraiteFileh(Buff);
          else if (OrdreOctets == 0)
             err = ACQ_UNKMSB;
-      } else if (Swbufon)
+      }
+      else if (Swbufon)
          OnSwap = TRUE;
       else
          OnSwap = FALSE;
@@ -338,7 +339,8 @@ static int SwapEventdbSwapToHost(in2p3_buffer_struct* Buff, int Size)
 {
    if (Machine_LSB) { /* machine little-endian */
       SwapInt16((UNSINT16*)Buff, Size);
-   } else { /* machine big-endian */
+   }
+   else {   /* machine big-endian */
       /* swappe Byte/Byte l'ident ASCII */
       SwapInt16((UNSINT16*)Buff, 8);
 
@@ -365,7 +367,8 @@ static int SwapEventctSwapToHost(in2p3_buffer_struct* Buff, int Size)
 {
    if (Machine_LSB) { /* machine little-endian */
       SwapInt16((UNSINT16*)Buff, Size);
-   } else { /* machine big-endian */
+   }
+   else {   /* machine big-endian */
       /* swappe Byte/Byte l'ident ASCII */
       SwapInt16((UNSINT16*)Buff, 8);
 
@@ -393,7 +396,8 @@ static int SwapJbusSwapToHost(in2p3_buffer_struct* Buff, int Size)
 {
    if (Machine_LSB) { /* machine little-endian */
       SwapInt16((UNSINT16*)Buff, Size);
-   } else { /* machine big-endian */
+   }
+   else {   /* machine big-endian */
       /* swappe Byte/Byte l'ident ASCII */
       SwapInt16((UNSINT16*)Buff, 8);
 
@@ -424,7 +428,8 @@ static int SwapScalerSwapToHost(in2p3_buffer_struct* Buff, int Size)
 {
    if (Machine_LSB) { /* machine little-endian */
       SwapInt16((UNSINT16*)Buff, Size);
-   } else { /* machine big-endian */
+   }
+   else {   /* machine big-endian */
       /* swappe Byte/Byte l'ident ASCII */
       SwapInt16((UNSINT16*)Buff, 8);
 
@@ -439,7 +444,8 @@ static int SwapStatusSwapToHost(in2p3_buffer_struct* Buff, int Size)
 {
    if (Machine_LSB) { /* machine little-endian */
       SwapInt16((UNSINT16*)Buff, Size);
-   } else { /* machine big-endian */
+   }
+   else {   /* machine big-endian */
       /* swappe Byte/Byte l'ident ASCII */
       SwapInt16((UNSINT16*)Buff, 8);
 

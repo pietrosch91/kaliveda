@@ -109,7 +109,8 @@ public:
       if (r) {
          SetBit(kIncoming);
          ResetBit(kOutgoing);
-      } else
+      }
+      else
          ResetBit(kIncoming);
    };
    Bool_t IsOutgoing() const
@@ -129,7 +130,8 @@ public:
       if (r) {
          SetBit(kOutgoing);
          ResetBit(kIncoming);
-      } else
+      }
+      else
          ResetBit(kOutgoing);
    };
 

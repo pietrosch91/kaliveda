@@ -104,10 +104,12 @@ Bool_t KVINDRARunListReader::ReadRLLine()
          fNewRunList = kTRUE;
          return kFALSE;
       }
-   } else if (!fLine.BeginsWith(fComment)) {
+   }
+   else if (!fLine.BeginsWith(fComment)) {
       fLineReader->SetLine(fLine);
       fLineReader->BreakLineIntoFields(fSeparator);
-   } else {
+   }
+   else {
       //comment line - reset line reader
       fLineReader->Clear();
    }
@@ -130,7 +132,8 @@ void KVINDRARunListReader::ReadRunList(const Char_t* t)
                "No runlist file open for reading");
          return;
       }
-   } else {
+   }
+   else {
       //open new file - check OK
       //close any previously opened file
       CloseRLFile();

@@ -34,7 +34,8 @@ void KVDataPatchList::FillPatchList()
       if (h) {
          KVDataPatch* p = (KVDataPatch*)h->ExecPlugin(0);
          fPatchList->Add(p);
-      } else
+      }
+      else
          Warning("FillPatchList", "Cannot load plugin data patch %s", plug.Data());
    }
 }

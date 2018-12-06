@@ -167,7 +167,8 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
    if (!gDataSet->OpenDataSetFile("Vamos_distance.dat", inf3)) {
       cout << "Could not open the calibration file Vamos_distance.dat !" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading Vamos_distance.dat " << endl;
       L->Log << "Reading Vamos_distance.dat " << endl;
 
@@ -216,7 +217,8 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
    if (!gDataSet->OpenDataSetFile("Reconstruction.cal", inf)) {
       cout << "Could not open the calibration file Reconstruction.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading Reconstruction.cal" << endl;
       L->Log << "Reading Reconstruction.cal" << endl;
@@ -244,7 +246,8 @@ Reconstructionv::Reconstructionv(LogFile* Log, DriftChamberv* Drift)
          if (!gDataSet->OpenDataSetFile(fname, inf1)) {
             cout << "Could not open the calibration file " << fname << endl;
             return;
-         } else {
+         }
+         else {
             cout.setf(ios::showpoint);
             cout << "Reading " << fname << endl;
             L->Log << "Reading " << fname << endl;
@@ -448,7 +451,8 @@ void Reconstructionv::Calculate(void)
             corr_pl = double(Facteur[j]);
             //cout<<"corr_pl  = "<<corr_pl<<endl;
             break;
-         } else if (Delta1[j] < deltat && Delta2[j] > deltat && Deg2[j - 1] < ThetaLdeg && ThetaLdeg < Deg1[j]) {
+         }
+         else if (Delta1[j] < deltat && Delta2[j] > deltat && Deg2[j - 1] < ThetaLdeg && ThetaLdeg < Deg1[j]) {
             corr_pl = double((Facteur[j] + Facteur[j - 1]) / 2);
             //cout<<"corr_pl moy = "<<corr_pl<<endl;
             break;

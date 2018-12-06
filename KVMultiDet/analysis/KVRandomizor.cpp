@@ -106,11 +106,14 @@ TH1* KVRandomizor::FillHisto(Int_t ntimes)
    TH1* h1 = 0;
    if (fNd == 1) {
       h1 = FillHisto1D(ntimes);
-   } else if (fNd == 2) {
+   }
+   else if (fNd == 2) {
       h1 = FillHisto2D(ntimes);
-   } else if (fNd == 3) {
+   }
+   else if (fNd == 3) {
       h1 = FillHisto3D(ntimes);
-   } else {
+   }
+   else {
       Info("FillHisto", "method implemented for dimansion <= 3\nDo nothing ...");
       return h1;
    }
@@ -134,7 +137,8 @@ TH1* KVRandomizor::FillHisto1D(Int_t ntimes)
       Double_t* pos = GetPosition();
       if (TestValue(ComputeValue(pos))) {
          h1->Fill(pos[0]);
-      } else {
+      }
+      else {
          ii -= 1;
       }
       delete [] pos;
@@ -158,7 +162,8 @@ TH1* KVRandomizor::FillHisto2D(Int_t ntimes)
       Double_t* pos = GetPosition();
       if (TestValue(ComputeValue(pos))) {
          h1->Fill(pos[0], pos[1]);
-      } else {
+      }
+      else {
          ii -= 1;
       }
       delete [] pos;
@@ -182,7 +187,8 @@ TH1* KVRandomizor::FillHisto3D(Int_t ntimes)
       Double_t* pos = GetPosition();
       if (TestValue(ComputeValue(pos))) {
          h1->Fill(pos[0], pos[1], pos[2]);
-      } else {
+      }
+      else {
          ii -= 1;
       }
       delete [] pos;

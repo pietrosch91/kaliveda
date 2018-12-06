@@ -219,7 +219,8 @@ void KVCalibrator::Streamer(TBuffer& R__b)
       R__b >> fDetector;
       R__b >> fReady;
       R__b.CheckByteCount(R__s, R__c, KVCalibrator::IsA());
-   } else {
+   }
+   else {
       R__c = R__b.WriteVersion(KVCalibrator::IsA(), kTRUE);
       KVBase::Streamer(R__b);
       R__b << fParamNumber;

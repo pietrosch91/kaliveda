@@ -39,7 +39,8 @@ const Char_t* KVIDQA::GetArrayName()
    if (det) {
       SetName(Form("VID_QA_%s", det->GetName()));
       SetType(Form("%s", det->GetType()));
-   } else SetName("VID_QA_EMPTY");
+   }
+   else SetName("VID_QA_EMPTY");
 
    return fName.Data();
 }

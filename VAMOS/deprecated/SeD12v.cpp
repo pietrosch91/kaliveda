@@ -64,7 +64,8 @@ SeD12v::SeD12v(LogFile* Log, SeDv* SeD1, SeDv* SeD2)
    if (!gDataSet->OpenDataSetFile("SeD12Ref.cal", inf1)) {
       cout << "Could not open the Reference file SeD12Ref.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading SeD12Ref.cal" << endl;
       L->Log << "Reading SeD12Ref.cal" << endl;
@@ -199,7 +200,8 @@ void SeD12v::SetMatX(void)
    if (Det == 0.0) {
       cout << "SeD12v::SetMatX: Det == 0 !" << endl;
       exit(EXIT_FAILURE);
-   } else {
+   }
+   else {
       MatX[0][0] = A[1][1] / Det;
       MatX[1][1] = A[0][0] / Det;
       MatX[1][0] = -1.0 * A[0][1] / Det;
@@ -238,7 +240,8 @@ void SeD12v::SetMatY(void)
    if (Det == 0.0) {
       cout << "SeD12v::SetMatY: Det == 0 !" << endl;
       exit(EXIT_FAILURE);
-   } else {
+   }
+   else {
       MatY[0][0] = A[1][1] / Det;
       MatY[1][1] = A[0][0] / Det;
       MatY[0][1] = -1.0 * A[1][0] / Det;
@@ -290,7 +293,8 @@ void SeD12v::Focal(void)
 
          Present = true;
          Counter[8]++;
-      } else {
+      }
+      else {
          Xf = Yf = Tf = Pf = -500.0;
       }
    }
@@ -327,7 +331,8 @@ void SeD12v::FocalX(void)
    if ((TanFocal[0] - B[0]) != 0.) {
       Xf = (Float_t)(B[0] * (TanFocal[0] * FocalPos + B[1]) / (TanFocal[0] - B[0]) + B[1]);
       Counter[5]++;
-   } else
+   }
+   else
       Xf = -500.0;
 
    //  cout << "C " << Tf << ' ' << Xf << endl;
@@ -361,7 +366,8 @@ void SeD12v::FocalY(void)
    if ((TanFocal[1] - B[0]) != 0.) {
       Yf = (Float_t)(B[0] * (TanFocal[1] * FocalPos + B[1]) / (TanFocal[1] - B[0]) + B[1]);
       Counter[7]++;
-   } else
+   }
+   else
       Yf = -500.0;
 }
 

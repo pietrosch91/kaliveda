@@ -136,7 +136,8 @@ void KVIDZAGrid::RemoveLine(Int_t Z, Int_t A)
    KVIDZALine* tmpline = 0;
    if ((A > 0) && (!IsOnlyZId())) {
       if ((tmpline = GetZALine(Z, A, toto))) RemoveIdentifier((KVIDentifier*)tmpline);
-   } else {
+   }
+   else {
       if (!IsOnlyZId()) {
          KVList* tmplist = (KVList*)fIdentifiers->GetSubListWithMethod(Form("%d", Z), "GetZ");
          TIter next_id(tmplist);
@@ -144,7 +145,8 @@ void KVIDZAGrid::RemoveLine(Int_t Z, Int_t A)
             if (tmpline) RemoveIdentifier((KVIDentifier*)tmpline);
          }
          delete tmplist;
-      } else if ((tmpline = GetZLine(Z, toto))) RemoveIdentifier((KVIDentifier*)tmpline);
+      }
+      else if ((tmpline = GetZLine(Z, toto))) RemoveIdentifier((KVIDentifier*)tmpline);
    }
 }
 
@@ -193,7 +195,8 @@ KVIDZALine* KVIDZAGrid::GetZLine(Int_t z, Int_t& index) const
          //increase index
          idx_min = idx;
          idx += (Int_t)((idx_max - idx) / 2 + 0.5);
-      } else {
+      }
+      else {
          //decrease index
          idx_max = idx;
          idx -= (Int_t)((idx - idx_min) / 2 + 0.5);
@@ -247,7 +250,8 @@ KVIDZALine* KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t& index) const
       }
       //gone to the end of the list and still not found it
       return 0;
-   } else if (a < line->GetA()) {
+   }
+   else if (a < line->GetA()) {
       for (int i = idx; i > 0; i--) {
          line = (KVIDZALine*) GetIdentifierAt(i);
          if (line->GetZ() != z)
@@ -318,7 +322,8 @@ void KVIDZAGrid::CalculateLineWidths()
       Int_t i_other;// index of line used to calculate width
       if (OnlyZId()) { //grid is 'OnlyZId':calculate widths by comparing neighbouring Z.
          i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));
-      } else {
+      }
+      else {
          //grid with several isotopes for each Z:calculate isotopic widths using lines with same Z, different A
          i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));
       }
@@ -353,7 +358,8 @@ void KVIDZAGrid::CalculateLineWidths()
          _aline = _otherline;
          _bline = _line;
 
-      } else {
+      }
+      else {
 
          //first point of other line is "inside" the X-coords of the our line:
          //asymptotic distance LEFT is distance from other line's starting point (x1,Y1) to our line
@@ -392,7 +398,8 @@ void KVIDZAGrid::CalculateLineWidths()
          _aline = _otherline;
          _bline = _line;
 
-      } else {
+      }
+      else {
 
          //last point of other line is "inside" the X-coords of the our line:
          //asymptotic distance RIGHT is distance from other line's end point (x1,Y1) to our line
@@ -436,7 +443,8 @@ void KVIDZAGrid::DrawLinesWithWidth()
 
    if (!gPad) {
       new TCanvas("c1", GetName());
-   } else {
+   }
+   else {
       gPad->SetTitle(GetName());
    }
    if (!gPad->GetListOfPrimitives()->GetSize()) {
@@ -517,7 +525,8 @@ Bool_t KVIDZAGrid::FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* 
             Asup = fLsup->GetA();
          }
       }
-   } else if (ksup > -1 && ksup == fIdxClosest) {
+   }
+   else if (ksup > -1 && ksup == fIdxClosest) {
       //point is below closest line, closest line is "ksup"
       //need to look for 1 line above (ksups) and 2 lines below (kinf, kinfi)
       fLsup = fClosest;
@@ -534,7 +543,8 @@ Bool_t KVIDZAGrid::FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* 
             Ainf = fLinf->GetA();
          }
       }
-   } else {
+   }
+   else {
       Error("FindFourEmbracingLines",
             "I do not understand the result of FindNearestEmbracingIDLine!!!");
       return kFALSE;
@@ -618,14 +628,16 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      ibif = 0;
                      y2 /= 2.;
                      ix2 = Asups - Asup;
-                  } else {
+                  }
+                  else {
                      y2 /= 2.;
                      Double_t x2 = wsup;
                      x2 = 0.5 * TMath::Max(x2, dist);
                      y2 = TMath::Min(y2, x2);
                      ix2 = 1;
                   }
-               } else {       // ksups == -1 i.e. no 'sups' line
+               }
+               else {         // ksups == -1 i.e. no 'sups' line
                   y2 = wsup;
                   y2 = 0.5 * TMath::Max(y2, dist);
                   ix2 = 1;
@@ -646,13 +658,15 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      ibif = 0;
                      ix1 = Ainfi - Ainf;
                      y1 = -y1;
-                  } else {
+                  }
+                  else {
                      Double_t x1 = winf;
                      x1 = 0.5 * TMath::Max(x1, dist);
                      y1 = -TMath::Min(y1, x1);
                      ix1 = -1;
                   }
-               } else {       // kinfi = -1 i.e. no 'infi' line
+               }
+               else {         // kinfi = -1 i.e. no 'infi' line
                   y1 = winf;
                   y1 = -0.5 * TMath::Max(y1, dist);
                   ix1 = -1;
@@ -660,7 +674,8 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y2 = dt / 2.;
                ix2 = dA;
             }
-         } else {
+         }
+         else {
             //cout << "         /****************Z differents**************/ " << endl;
             /*** Z = Zsup ***/
             ibif = 3;
@@ -681,14 +696,16 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y1 = -TMath::Min(y1, dt / 2.);
                      ix1 = -1;
                      y2 /= 2.;
-                  } else {
+                  }
+                  else {
                      y2 /= 2.;
                      y2 = TMath::Min(y1, y2);
                      ix2 = 1;
                      y1 = -TMath::Min(y1, dt / 2.);
                      ix1 = -1;
                   }
-               } else {       // ksups == -1, i.e. no 'sups' line
+               }
+               else {         // ksups == -1, i.e. no 'sups' line
                   fICode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
                   y2 = y1;
                   ix2 = 1;
@@ -714,13 +731,15 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                      y2 = TMath::Min(y2, dt / 2.);
                      ix2 = 1;
                      y1 /= -2.;
-                  } else {
+                  }
+                  else {
                      y1 = -TMath::Min(y2, y1 / 2.);
                      ix1 = -1;
                      y2 = TMath::Min(y2, dt / 2.);
                      ix2 = 1;
                   }
-               } else {       // no kinfi line, kinfi==-1
+               }
+               else {         // no kinfi line, kinfi==-1
                   y1 = -y2;
                   ix1 = -1;
                   y2 = TMath::Min(y2, dt / 2.);
@@ -747,14 +766,16 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
                y1 = -TMath::Max(y1, x1);
                ix1 = -1;
                y2 /= 2.;
-            } else {
+            }
+            else {
                y2 /= 2.;
                y2 = TMath::Min(y1, y2);
                ix2 = 1;
                y1 = -y1;
                ix1 = -1;
             }
-         } else {             // no 'sups' line above closest line
+         }
+         else {               // no 'sups' line above closest line
             fICode = kICODE7;   //Z est alors un Zmin et le plus probable
             y2 = y1;
             ix2 = 1;
@@ -767,10 +788,12 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
             fICode = kICODE6; // we are too far from first line to extrapolate correctly
             Z = Zsup - 1; // give Z below first line of grid, but this is an upper limit
          }
-      } else {
+      }
+      else {
          fICode = kICODE8;      //  Z indetermine ou (x,y) hors limites
       }
-   } else if (kinf > -1) {
+   }
+   else if (kinf > -1) {
 
       //cout <<"/****************** Seule une ligne inferieure a ete trouvee ***********************/" << endl;
 
@@ -790,12 +813,14 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
             y2 = TMath::Max(y2, x2);
             ix2 = 1;
             y1 /= -2.;
-         } else {
+         }
+         else {
             y1 = -TMath::Min(y2, y1 / 2.);
             ix1 = -1;
             ix2 = 1;
          }
-      } else {
+      }
+      else {
          y1 = -y2;
          ix1 = -1;
          ix2 = 1;
@@ -837,7 +862,8 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
          /*else
             Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                GetName(), Z, Aint, fICode);*/
-      } else if (ix2 == -ix1 * 2) {   // dA2 = 2*dA1
+      }
+      else if (ix2 == -ix1 * 2) {     // dA2 = 2*dA1
          Double_t tmp = y1 * y1 - 4. * dist;
          if (tmp > 0 && dist != 0) {
             dt = -(y1 + 2. * y2 -
@@ -847,7 +873,8 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
          /*else
             Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                GetName(), Z, Aint, fICode);*/
-      } else if (ix1 == -ix2 * 2) {   // dA1 = 2*dA2
+      }
+      else if (ix1 == -ix2 * 2) {     // dA1 = 2*dA2
          Double_t tmp = y2 * y2 - 4. * dist;
          if (tmp > 0 && dist != 0) {
             dt = -(y2 + 2. * y1 +
@@ -866,7 +893,8 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t& Z, Double_t& A)
             /*else
                Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
                   GetName(), y2, Z, Aint, fICode);*/
-         } else {
+         }
+         else {
             if (dist > -1. && dt * yy > -1.)
                deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
             /*else
@@ -960,7 +988,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
                ibif = 0;
                y2 /= 2.;
                ix2 = Zsups - Zsup;
-            } else {       // ksups == -1 i.e. no 'sups' line
+            }
+            else {         // ksups == -1 i.e. no 'sups' line
                y2 = wsup;
                y2 = 0.5 * TMath::Max(y2, dist);
                ix2 = 1;
@@ -983,7 +1012,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
                ix1 = Zinfi - Zinf;
                y1 = -y1;
 
-            } else {       // kinfi = -1 i.e. no 'infi' line
+            }
+            else {         // kinfi = -1 i.e. no 'infi' line
                y1 = winf;
                y1 = -0.5 * TMath::Max(y1, dist);
                ix1 = -1;
@@ -1013,7 +1043,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
             ix1 = -1;
             y2 /= 2.;
 
-         } else {             // no 'sups' line above closest line
+         }
+         else {               // no 'sups' line above closest line
             y2 = y1;
             ix2 = 1;
             y1 = -y1;
@@ -1048,7 +1079,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
          y2 = TMath::Max(y2, x2);
          ix2 = 1;
          y1 /= -2.;
-      } else {
+      }
+      else {
          y1 = -y2;
          ix1 = -1;
          ix2 = 1;
@@ -1095,7 +1127,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
          /*else
             Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
                GetName(), Zint, fICode);*/
-      } else if (ix2 == -ix1 * 2) {   // dZ2 = 2*dZ1
+      }
+      else if (ix2 == -ix1 * 2) {     // dZ2 = 2*dZ1
          Double_t tmp = y1 * y1 - 4. * dist;
          if (tmp > 0. && dist != 0) {
             dt = -(y1 + 2. * y2 -
@@ -1105,7 +1138,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
          /*else
             Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
                GetName(), Zint, fICode);*/
-      } else if (ix1 == -ix2 * 2) {   // dZ1 = 2*dZ2
+      }
+      else if (ix1 == -ix2 * 2) {     // dZ1 = 2*dZ2
          Double_t tmp = y2 * y2 - 4. * dist;
          if (tmp > 0. && dist != 0) {
             dt = -(y2 + 2. * y1 +
@@ -1124,7 +1158,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t& Z)
             /*else
                Warning("IdentZ","%s : cannot calculate interpolated charge (y2=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
                   GetName(), y2, Zint, fICode);*/
-         } else {
+         }
+         else {
             if (dist > -1. && dt * yy > -1.)
                deltaZ = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
             /*else
@@ -1249,7 +1284,8 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
          default:
             idr->SetComment("no identification: (x,y) out of range covered by grid");
       }
-   } else {
+   }
+   else {
 
       Int_t Z;
       Double_t A;
@@ -1331,10 +1367,12 @@ void KVIDZAGrid::Streamer(TBuffer& R__b)
          }
          KVIDGrid::Streamer(R__b);
          R__b >> fZMax;
-      } else {
+      }
+      else {
          R__b.ReadClassBuffer(KVIDZAGrid::Class(), this, R__v, R__s, R__c);
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVIDZAGrid::Class(), this);
    }
 }

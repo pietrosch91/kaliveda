@@ -66,7 +66,8 @@ Bool_t KVDMSDataRepository::CheckSubdirExists(const Char_t* dir,
    if (subdir) {
       AssignAndDelete(path, gSystem->ConcatFileName(fAccessroot.Data(), dir));
       dirname = subdir;
-   } else {
+   }
+   else {
       path = fAccessroot.Data();
       dirname = dir;
    }

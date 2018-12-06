@@ -142,7 +142,8 @@ void KVFoxH2::Fill2(KVNucleus* n1, KVNucleus* n2)
    if (n1 == n2) {
       p1 = p2 = n1->GetFrame(fFrame.Data(), kFALSE)->GetMomentum().Mag();
       cos_th_rel = 1.;
-   } else {
+   }
+   else {
       p1 = n1->GetFrame(fFrame.Data(), kFALSE)->GetMomentum().Mag();
       p2 = n2->GetFrame(fFrame.Data(), kFALSE)->GetMomentum().Mag();
       if ((p1 * p2) > 0.0) cos_th_rel = n1->GetFrame(fFrame.Data(), kFALSE)->GetMomentum().Dot(n2->GetFrame(fFrame.Data(), kFALSE)->GetMomentum()) / (p1 * p2);

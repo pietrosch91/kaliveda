@@ -143,7 +143,8 @@ void KVIDQALine::IdentA(Double_t x, Double_t y, Int_t& A, Double_t& realA, Int_t
       //we assume that realA = Q * A/Q and set kICODE0
       realA = x * GetQ();
       code = KVIDQAGrid::kICODE0;
-   } else {
+   }
+   else {
       //the closest marker is found
       //Info("IdentA","ID marker found: %s",closest_mk->GetName());
 
@@ -169,7 +170,8 @@ void KVIDQALine::IdentA(Double_t x, Double_t y, Int_t& A, Double_t& realA, Int_t
          if (dist > closest_mk->GetWidth() / 2.) {
             if (closest_mk == l_mk) code = KVIDQAGrid::kICODE1;  // "slight ambiguity of A, which could be larger"
             else code = KVIDQAGrid::kICODE2; // "slight ambiguity of A, which could be smaller"
-         } else code = KVIDQAGrid::kICODE0; // ok
+         }
+         else code = KVIDQAGrid::kICODE0;   // ok
 
       }
       // case where only 1 embracing marker is found.
@@ -180,7 +182,8 @@ void KVIDQALine::IdentA(Double_t x, Double_t y, Int_t& A, Double_t& realA, Int_t
             // the distance from the closest marker is to high
             if (closest_mk == l_mk) code = KVIDQAGrid::kICODE6;  // "(x,y) is below first marker in line"
             else code = KVIDQAGrid::kICODE7; // "(x,y) is above last marker in line"
-         } else {
+         }
+         else {
             code = KVIDQAGrid::kICODE3; // "slight ambiguity of A, which could be larger or smaller"
          }
       }
@@ -210,7 +213,8 @@ KVIDQAMarker* KVIDQALine::FindNearestIDMarker(Double_t x, Double_t y, Int_t& idx
       if (dist_low < dist_up) {
          //deacrease index of idx_max
          idx_up -= (Int_t)((idx_up - idx_low) / 2 + 0.5);
-      } else {
+      }
+      else {
          //increase index
          idx_low += (Int_t)((idx_up - idx_low) / 2 + 0.5);
       }
@@ -227,7 +231,8 @@ KVIDQAMarker* KVIDQALine::FindNearestIDMarker(Double_t x, Double_t y, Int_t& idx
       dist    = dist_low;
       idx     = idx_low;
       nearest = mk_low;
-   } else {
+   }
+   else {
       dist    = dist_up;
       idx     = idx_up;
       nearest = mk_up;
@@ -341,7 +346,8 @@ Int_t KVIDQALine::RemovePoint(Int_t i)
    if (m) {
       fMarkers->Remove(m);
       delete m;
-   } else {
+   }
+   else {
       i = KVIDZALine::RemovePoint(i);
       if (i >= 0) IncrementPtIdxOfMarkers(i, -1);
    }
@@ -374,11 +380,13 @@ void KVIDQALine::IncrementPtIdxOfMarkers(Int_t idx, Int_t ival)
 
             if (delta_m * li < lf) {
                delta = delta_m * li / lf;
-            } else {
+            }
+            else {
                delta = (delta_m * li - lf) / (li - lf);
                idx_m += ival;
             }
-         } else if (idx <= idx_m) {
+         }
+         else if (idx <= idx_m) {
             delta  = delta_m;
             idx_m += ival;
          }
@@ -406,7 +414,8 @@ void KVIDQALine::Streamer(TBuffer& R__b)
    if (R__b.IsReading()) {
       R__b.ReadClassBuffer(KVIDQALine::Class(), this);
       fMarkers->R__FOR_EACH(KVIDQAMarker, SetParent)((this));
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVIDQALine::Class(), this);
    }
 }
@@ -467,9 +476,11 @@ void KVIDQALine::FindAMarkers(TH1* h)
          for (Int_t i = (low > -1 ? low : 0); i < fNpoints; ++i) {
             if (fX[i] < x) {
                if ((low == -1) || (fX[i] > fX[low])) low = i;
-            } else if (fX[i] > x) {
+            }
+            else if (fX[i] > x) {
                if ((up  == -1) || (fX[i] < fX[up])) up = i;
-            } else { // case x == fX[i]
+            }
+            else {   // case x == fX[i]
                low = up = i;
                break;
             }
@@ -544,12 +555,14 @@ KVIDQAMarker* KVIDQALine::New(const Char_t* m_class)
    if (!clas) {
       Error("New",
             "%s is not a valid classname. No known class.", m_class);
-   } else {
+   }
+   else {
       if (!clas->InheritsFrom(KVIDQAMarker::Class())) {
          Error("New",
                "%s is not a valid class deriving from KVIDQAMarker",
                m_class);
-      } else {
+      }
+      else {
          m = (KVIDQAMarker*) clas->New();
       }
    }
@@ -615,13 +628,16 @@ Bool_t KVIDQALine::ProjIsBetween(Double_t x, Double_t y, KVIDQAMarker* m1, KVIDQ
          y  /= GetQ();
          y1 /= GetQ();
          y2 /= GetQ();
-      } else return kFALSE;
-   } else {
+      }
+      else return kFALSE;
+   }
+   else {
       if (y > 0 && y1 > 0 && y2 > 0) {
          y  = GetA() / y;
          y1 = GetA() / y1;
          y2 = GetA() / y2;
-      } else return kFALSE;
+      }
+      else return kFALSE;
    }
    TVector2 P1P2(x2 - x1, y2 - y1);
    if (P1P2.Mod2() == 0) return kFALSE;

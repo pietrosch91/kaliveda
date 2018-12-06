@@ -48,11 +48,13 @@ void KVINDRAIdentRoot::InitRun(void)
       TString branchname = infos->GetValue("KVBase::bzrBranchNick()", "");
       if (branchname == "") {
          Warning("InitRun", "IDENT file generated with UNKNOWN version of KaliVeda (no bzr branchname)");
-      } else {
+      }
+      else {
          Int_t revno = infos->GetValue("KVBase::bzrRevisionNumber()", 0);
          if (!revno) {
             Warning("InitRun", "IDENT file generated with UNKNOWN version of KaliVeda (no bzr revno)");
-         } else {
+         }
+         else {
             if ((branchname == "1.8" && revno < 489) || (branchname == "1.8.1-bugfixes" && revno < 444)) {
                Fatal("InitRun", "**** IDENT FILE GENERATED WITH WRONG VERSION!!! **** IDENT FILE GENERATED WITH WRONG VERSION!!!\n\n\t\t\t====>> Regenerate with KaliVeda v1.8.3+ <====");
                exit(1);

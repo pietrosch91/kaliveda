@@ -316,7 +316,8 @@ void KVFocalPlanVamos::SetNamesDetectors()
 
             // NEED TO MAKE THE FOLLOWING 'SAFE'!!
             det->GetAbsorber("Si")->SetThickness(thick_si[ksih - 1] * 1E-4); //um->cm
-         } else if (modnum == 2) {
+         }
+         else if (modnum == 2) {
             ksib -= 1;
             sprintf(name, "SIE_%02d", ksib);
             det->SetName(name);

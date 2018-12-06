@@ -113,7 +113,8 @@ NewRooMinimizer::NewRooMinimizer(RooAbsReal& function)
    // Now set default verbosity
    if (RooMsgService::instance().silentMode()) {
       setPrintLevel(-1) ;
-   } else {
+   }
+   else {
       setPrintLevel(1) ;
    }
 }
@@ -336,7 +337,8 @@ Int_t NewRooMinimizer::hesse()
       coutW(Minimization) << "NewRooMinimizer::hesse: Error, run Migrad before Hesse!"
                           << endl ;
       _status = -1;
-   } else {
+   }
+   else {
 
       _fcn->Synchronize(_theFitter->Config().ParamsSettings(),
                         _optConst, _verbose) ;
@@ -372,7 +374,8 @@ Int_t NewRooMinimizer::minos()
       coutW(Minimization) << "NewRooMinimizer::minos: Error, run Migrad before Minos!"
                           << endl ;
       _status = -1;
-   } else {
+   }
+   else {
 
       _fcn->Synchronize(_theFitter->Config().ParamsSettings(),
                         _optConst, _verbose) ;
@@ -409,7 +412,8 @@ Int_t NewRooMinimizer::minos(const RooArgSet& minosParamList)
       coutW(Minimization) << "NewRooMinimizer::minos: Error, run Migrad before Minos!"
                           << endl ;
       _status = -1;
-   } else if (minosParamList.getSize() > 0) {
+   }
+   else if (minosParamList.getSize() > 0) {
 
       _fcn->Synchronize(_theFitter->Config().ParamsSettings(),
                         _optConst, _verbose) ;
@@ -565,13 +569,16 @@ void NewRooMinimizer::optimizeConst(Int_t flag)
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinimizer::optimizeConst: deactivating const optimization" << endl ;
       _func->constOptimizeTestStatistic(RooAbsArg::DeActivate) ;
       _optConst = flag ;
-   } else if (!_optConst && flag) {
+   }
+   else if (!_optConst && flag) {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinimizer::optimizeConst: activating const optimization" << endl ;
       _func->constOptimizeTestStatistic(RooAbsArg::Activate, flag > 1) ;
       _optConst = flag ;
-   } else if (_optConst && flag) {
+   }
+   else if (_optConst && flag) {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinimizer::optimizeConst: const optimization already active" << endl ;
-   } else {
+   }
+   else {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinimizer::optimizeConst: const optimization wasn't active" << endl ;
    }
 
@@ -638,7 +645,8 @@ NewRooFitResult* NewRooMinimizer::save(const char* userName, const char* userTit
          }
       }
       fitRes->fillCorrMatrix(globalCC, corrs, covs) ;
-   } else {
+   }
+   else {
       fitRes->setCovarianceMatrix(*_extV) ;
    }
 
@@ -724,7 +732,8 @@ RooPlot* NewRooMinimizer::contour(RooRealVar& var1, RooRealVar& var2,
                                 << GetName()
                                 << ") ERROR: MINUIT did not return a contour graph for n="
                                 << n[ic] << endl ;
-         } else {
+         }
+         else {
             xcoor[npoints] = xcoor[0];
             ycoor[npoints] = ycoor[0];
             TGraph* graph = new TGraph(npoints + 1, xcoor, ycoor);
@@ -854,11 +863,13 @@ NewRooFitResult* NewRooMinimizer::lastMinuitFit(const RooArgList& varList)
 
          if ((xlo < xhi) && !isConst) {
             var = new RooRealVar(varName, varName, xval, xlo, xhi) ;
-         } else {
+         }
+         else {
             var = new RooRealVar(varName, varName, xval) ;
          }
          var->setConstant(isConst) ;
-      } else {
+      }
+      else {
 
          var = (RooRealVar*) varList.at(i)->Clone() ;
          var->setConstant(isConst) ;
@@ -876,7 +887,8 @@ NewRooFitResult* NewRooMinimizer::lastMinuitFit(const RooArgList& varList)
 
       if (isConst) {
          constPars.addOwned(*var) ;
-      } else {
+      }
+      else {
          var->setError(xerr) ;
          floatPars.addOwned(*var) ;
       }

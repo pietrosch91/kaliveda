@@ -143,7 +143,8 @@ KVINDRADetector* KVINDRADetector::FindChIo()
                fChIo = dd;
          }
       }
-   } else
+   }
+   else
       fChIo = 0;
    return fChIo;
 }

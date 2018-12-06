@@ -91,7 +91,8 @@ void KVFAZIARawDataAnalyser::ProcessRun()
    Info("SubmitTask", "Beginning TTree::Process...");
    if (GetNbEventToRead()) {
       theTree->Process(GetUserClass(), option.Data(), GetNbEventToRead());
-   } else {
+   }
+   else {
       theTree->Process(GetUserClass(), option.Data());
    }
 

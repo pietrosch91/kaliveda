@@ -211,7 +211,8 @@ void KVCalculateChIoSiGridDialog::SetPressure(Bool_t yes)
    set_pressure = yes;
    if (yes) {
       fChIoPressure->SetState(kTRUE);
-   } else {
+   }
+   else {
       fChIoPressure->SetState(kFALSE);
       chio_press = -1.0;
    }
@@ -227,7 +228,8 @@ void KVCalculateChIoSiGridDialog::SetPHD(Bool_t yes)
    set_phd = yes;
    if (yes) {
       //fPHDparam->SetState(kTRUE);
-   } else {
+   }
+   else {
       //fPHDparam->SetState(kFALSE);
       phd_param = -1.0;
    }
@@ -243,7 +245,8 @@ void KVCalculateChIoSiGridDialog::SetNpoints(Bool_t yes)
    set_npoints = yes;
    if (yes) {
       fNumberPoints->SetState(kTRUE);
-   } else {
+   }
+   else {
       fNumberPoints->SetState(kFALSE);
       npoints = 20;
    }
@@ -299,7 +302,8 @@ void KVCalculateChIoSiGridDialog::SetMassFormula(Int_t mf)
       //EPAX not implemented
       Warning("SetMassFormula", "EPAX mass formula not implemented. Will use Charity EAL formula.");
       fSelectedGrid->SetMassFormula(KVNucleus::kEALMass);
-   } else {
+   }
+   else {
       Info("SetMassFormula", "Setting grid mass formula");
       fSelectedGrid->SetMassFormula(mf);
    }

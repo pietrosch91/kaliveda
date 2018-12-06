@@ -73,7 +73,8 @@ KVTGIDZ::KVTGIDZ(const Char_t* name, Int_t npar, Int_t type, Int_t light, Int_t 
       fMu = np++;
       fNu = np++;
       fXi = np++;
-   } else {
+   }
+   else {
       fMu = np++;
    }
    fG = np++;

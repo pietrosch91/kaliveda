@@ -159,7 +159,8 @@ void KVVGSum::Fill(KVNucleus* c)
       else
          fMethod->Execute((void*)c->GetFrame(fFrame.Data(), kFALSE), fVal);
       FillVar(fVal, (Double_t)(fSelection ? fSelection->Test(c) : 1));
-   } else
+   }
+   else
       FillVar(1, (Double_t)(fSelection ? fSelection->Test(c) : 1));
 }
 
@@ -184,7 +185,8 @@ void KVVGSum::Init()
    if (GetOptionString("mode") == "mult") {
       SetBit(kMult);
       fValueType = 'I'; // integer type for automatic TTree branch
-   } else if (GetOptionString("mode") == "sum") SetBit(kSum);
+   }
+   else if (GetOptionString("mode") == "sum") SetBit(kSum);
    else if (GetOptionString("mode") == "mean") SetBit(kMean);
    else SetBit(kSum); //sum by default if unknown mode given
 

@@ -246,7 +246,8 @@ void KVZGOUBIInverseMatrix::SetZGOUBIInversePositionDatabase()
       ZGOUBIDatabase_position = GetZGOUBIDatabase_position(xftemp, thetaftemp, yftemp, phiftemp);
       if (ZGOUBIDatabase_position > (int) ZGOUBIInversePositionDatabase.size()) {
          std::cout << "Problem acceptvectorposition size" << std::endl;
-      } else {
+      }
+      else {
          ZGOUBIInversePositionDatabase[ZGOUBIDatabase_position].AddtoInversePositionVector(i);
       }
    }
@@ -270,7 +271,8 @@ Int_t KVZGOUBIInverseMatrix::GetZGOUBIDatabase_position(Float_t XFt, Float_t The
 
       ZGOUBIDatabase_position = positionxf * nbstep_yf * nbstep_thetaf * nbstep_phif + positionyf * nbstep_thetaf * nbstep_phif + positionthetaf * nbstep_phif + positionphif;
       return ZGOUBIDatabase_position;
-   } else {
+   }
+   else {
       return -1;
    }
 }
@@ -348,7 +350,8 @@ std::vector<Int_t> KVZGOUBIInverseMatrix::GetClosest4DVoxels(Float_t XFt, Float_
          }
       }
       return Closest4DVoxelsvector;
-   } else {
+   }
+   else {
       return Closest4DVoxelsvector;
    }
 }
@@ -409,7 +412,8 @@ Int_t KVZGOUBIInverseMatrix::GetNearestLinenb(Float_t XFt, Float_t ThetaFt, Floa
       Closest4DVoxelsvector = GetClosest4DVoxels(XFt, ThetaFt, YFt, PhiFt, nbneighbors);
       if (Closest4DVoxelsvector.size() <= 0) {
          // std::cout<<"Value outside full range"<<std::endl;
-      } else {
+      }
+      else {
          for (int i = 0; i < (int) Closest4DVoxelsvector.size(); i++) {
             ZGOUBIInversePositionDatabaseposition = Closest4DVoxelsvector[i];
             MultZGOUBIInversePosition = ZGOUBIInversePositionDatabase[ZGOUBIInversePositionDatabaseposition].GetInversePositionVectorSize();
@@ -460,7 +464,8 @@ std::vector<Int_t> KVZGOUBIInverseMatrix::GetNearestLinenbs(Float_t XFt, Float_t
          Closest4DVoxelsvector = GetClosest4DVoxels(XFt, ThetaFt, YFt, PhiFt, nbneighbors);
          if (Closest4DVoxelsvector.size() <= 0) {
             // std::cout<<"Value outside full range"<<std::endl;
-         } else {
+         }
+         else {
             for (int i = 0; i < (int) Closest4DVoxelsvector.size(); i++) {
                ZGOUBIInversePositionDatabaseposition = Closest4DVoxelsvector[i];
                MultZGOUBIInversePosition = ZGOUBIInversePositionDatabase[ZGOUBIInversePositionDatabaseposition].GetInversePositionVectorSize();
@@ -479,7 +484,8 @@ std::vector<Int_t> KVZGOUBIInverseMatrix::GetNearestLinenbs(Float_t XFt, Float_t
                         result_max_element = std::max_element(ZGOUBIDatabase_positionmin_distance.begin(), ZGOUBIDatabase_positionmin_distance.end());
                         positionmax = std::distance(ZGOUBIDatabase_positionmin_distance.begin(), result_max_element);
                         distancemax = ZGOUBIDatabase_positionmin_distance[positionmax];
-                     } else if (distance < distancemax) {
+                     }
+                     else if (distance < distancemax) {
                         ZGOUBIDatabase_positionmin[positionmax] = ZGOUBITrajectoryposition;
                         ZGOUBIDatabase_positionmin_distance[positionmax] = distance;
                         result_max_element = std::max_element(ZGOUBIDatabase_positionmin_distance.begin(), ZGOUBIDatabase_positionmin_distance.end());
@@ -522,7 +528,8 @@ std::vector<Int_t> KVZGOUBIInverseMatrix::GetLinesinRadius(Float_t XFt, Float_t 
    Closest4DVoxelsvector = GetClosest4DVoxels(XFt, ThetaFt, YFt, PhiFt, nbmax);
    if (Closest4DVoxelsvector.size() <= 0) {
       // std::cout<<"Value outside full range"<<std::endl;
-   } else {
+   }
+   else {
       for (int i = 0; i < (int) Closest4DVoxelsvector.size(); i++) {
          ZGOUBIInversePositionDatabaseposition = Closest4DVoxelsvector[i];
          MultZGOUBIInversePosition = ZGOUBIInversePositionDatabase[ZGOUBIInversePositionDatabaseposition].GetInversePositionVectorSize();

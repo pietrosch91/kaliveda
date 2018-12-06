@@ -178,7 +178,8 @@ const Char_t* KVDriftChamber::GetArrayName()
    if (GetNumber() > 0) {
       fFName  = Form("%s%d", GetType(), GetNumber());
       SetLabel(fFName.Data());
-   } else fFName = GetType();
+   }
+   else fFName = GetType();
    return fFName.Data();
 }
 //________________________________________________________________
@@ -434,7 +435,8 @@ Float_t KVDriftChamber::CalculateQThreshold(Int_t c_num)
    //as the mean of the noise + 1 time its standart deviation
    if (noise_sum < 2. || noise_var == 0) {
       noise_mean = noise_var = 0;
-   } else {
+   }
+   else {
       noise_mean /= noise_sum;
       noise_var   = noise_var / noise_sum - noise_mean * noise_mean;
       noise_stdev = TMath::Sqrt(noise_var);
@@ -608,7 +610,8 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
                      fERawPosX[ c ]  = 0.; //to be modified
 
                      delete[] QQ;
-                  } else { //Meand and RMS method
+                  }
+                  else {   //Meand and RMS method
                      // The two cathode plans are offset by half a strip to
                      // reduce the non linearity of the position measurement
                      // in between the strips. The center of the detector
@@ -630,7 +633,8 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num)
                      if (sum) {
                         fRawPosX [ 0 ] /= sum;
                         fERawPosX[ 0 ] /= sum;
-                     } else {
+                     }
+                     else {
                         fRawPosX [ 0 ] = -666;
                         fERawPosX[ 0 ] = -1;
                      }
@@ -734,7 +738,8 @@ UChar_t KVDriftChamber::GetPosition(Double_t* XYZf, Char_t dir, Int_t num)
          Int_t pad = GetPadMax(num);
          if (num == 1) XYZf[0] = (pad - 32.5) * GetStripWidth() + Xraw + fOffsetX[0];
          if (num == 2) XYZf[0] = (pad - 32.) * GetStripWidth()  + Xraw + fOffsetX[1];
-      } else {
+      }
+      else {
          XYZf[0] = Xraw * GetStripWidth();
       }
       rvalue += 1;

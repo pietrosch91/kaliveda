@@ -113,7 +113,8 @@ void KVGroup::RemoveHit(KVNucleus* kvd)
          delete fReconstructedNuclei;
          fReconstructedNuclei = 0;
       }
-   } else {
+   }
+   else {
       Warning("RemoveHit", "No reconstructed nuclei in this group");
    }
 }

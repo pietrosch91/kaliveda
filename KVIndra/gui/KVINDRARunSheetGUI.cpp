@@ -180,7 +180,8 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI(): TGMainFrame(gClient->GetRoot(), 500,
 
    if (strcmp(fReader.GetFileFormat(), "")) {
       fFormLabel = new TGLabel(fHframe, fReader.GetFileFormat());
-   } else
+   }
+   else
       fFormLabel = new TGLabel(fHframe, "************");
 
 //      fFormLabel->SetTextColor( (TColor*)gROOT->GetListOfColors()->FindObject("green") );
@@ -376,7 +377,8 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI(): TGMainFrame(gClient->GetRoot(), 500,
       new KVIRSGChooseDataSetDialog(gClient->GetRoot(), this, 10, 10);
       GUIenv->SetValue("KVDataBaseGUI.DataSet", gDataSet->GetName());
       GUIenv->SaveLevel(kEnvUser);
-   } else {
+   }
+   else {
       // check dataset exists
       KVDataSet* ds = gDataSetManager->GetDataSet(dataset.Data());
       if (ds) ds->cd();
@@ -443,17 +445,20 @@ void KVINDRARunSheetGUI::EnableButtons()
    if (strcmp(fReader.GetRunSheetDir(), "")
          && strcmp(fReader.GetFileFormat(), "")) {
       fUpdate->SetEnabled(kTRUE);
-   } else {
+   }
+   else {
       fUpdate->SetEnabled(kFALSE);
    }
    if (fLastRun >= fFirstRun) {
       fSaveDB->SetEnabled(kTRUE);
-   } else {
+   }
+   else {
       fSaveDB->SetEnabled(kFALSE);
    }
    if (GetNSelected() == 1) {
       fPrintRun->SetEnabled(kTRUE);
-   } else
+   }
+   else
       fPrintRun->SetEnabled(kFALSE);
    if (GetNSelected() >= 1) {
       fAddComment->SetEnabled(kTRUE);
@@ -707,7 +712,8 @@ void KVINDRARunSheetGUI::UnsetSystem()
          cout << "Unsetting system (" << fSelectedRun->GetSystem()->GetName() << " for run " << fSelectedRun->GetNumber() << endl;
          fSelectedRun->UnsetSystem();
       }
-   } else if (GetNSelected() > 1) {
+   }
+   else if (GetNSelected() > 1) {
       //multiselection
       TIter next(fSelectedEntries);
       KVINDRADBRun* run;

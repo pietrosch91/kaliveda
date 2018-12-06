@@ -74,7 +74,8 @@ int main(int argc, char* argv[])
       index << "<li><a href=\"" << title << ".html\">" << title << "</a> - " << class_desc << "</li>\n";
       index.close();
       html.MakeClass(title.c_str());
-   } else {
+   }
+   else {
       gROOT->LoadMacro(aclic.c_str());
       // update example index file
       ofstream index;

@@ -112,7 +112,8 @@ void KVQ3::UpdatePSAParameter(KVDBParameterList* par)
       else {
          if (nameat == "Detector" || nameat == "Signal" || nameat == "RunRange") {
 
-         } else {
+         }
+         else {
             Warning("UpdatePSAParameter", "Not supported PSA parameter : %d %s\n", ii, nameat.Data());
          }
       }

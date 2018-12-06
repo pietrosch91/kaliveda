@@ -106,7 +106,8 @@ void KVReconstructedNucleus::Streamer(TBuffer& R__b)
             id_array[R__i].Copy(*GetIdentificationResult(R__i + 1));
          }
          R__b.CheckByteCount(R__s, R__c, KVReconstructedNucleus::IsA());
-      } else
+      }
+      else
          R__b.ReadClassBuffer(KVReconstructedNucleus::Class(), this, R__v, R__s, R__c);
       // if the multidetector object exists, update some informations
       // concerning the detectors etc. hit by this particle
@@ -118,7 +119,8 @@ void KVReconstructedNucleus::Streamer(TBuffer& R__b)
          if (fIDTelName != "") fIDTelescope = gMultiDetArray->GetIDTelescope(fIDTelName.Data());
          if (fReconTraj) {
             if (R__v < 16) fNSegDet = fReconTraj->GetNumberOfIndependentIdentifications(); // fNSegDet/fAnalStatus non-persistent before v.16
-         } else {
+         }
+         else {
             TIter next_det(&fDetList);
             KVDetector* det;
             while ((det = (KVDetector*)next_det())) {
@@ -134,7 +136,8 @@ void KVReconstructedNucleus::Streamer(TBuffer& R__b)
             }
          }
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVReconstructedNucleus::Class(), this);
    }
 }
@@ -210,13 +213,15 @@ void KVReconstructedNucleus::Print(Option_t*) const
       cout << " Z=" << GetZ() << " A=" << GetA();
       if (IsAMeasured()) cout << " Areal=" << GetRealA();
       else cout << " Zreal=" << GetRealZ();
-   } else {
+   }
+   else {
       cout << "(unidentified)" << endl;
    }
    if (IsCalibrated()) {
       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
-   } else {
+   }
+   else {
       cout << "(uncalibrated)" << endl;
    }
    cout << "RECONSTRUCTION STATUS : " << endl;
@@ -385,7 +390,8 @@ void KVReconstructedNucleus::Identify()
             idt->Identify(IDR);
 
             if (IDR->IDOK) n_success_id++;
-         } else
+         }
+         else
             IDR->IDattempted = kFALSE;
 
          if (n_success_id < 1 &&
@@ -441,11 +447,13 @@ void KVReconstructedNucleus::AnalyseParticlesInGroup(KVGroup* grp)
          if (nuc->GetNSegDet() >= 2) {
             //all part.s crossing 2 or more independent detectors are fine
             nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-         } else if (nuc->GetNSegDet() == 1) {
+         }
+         else if (nuc->GetNSegDet() == 1) {
             //only 1 independent detector hit => depends on what's in the rest
             //of the group
             n_nseg_1++;
-         } else {
+         }
+         else {
             //part.s crossing 0 independent detectors (i.E. arret ChIo)
             //can not be reconstructed
             nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
@@ -464,7 +472,8 @@ void KVReconstructedNucleus::AnalyseParticlesInGroup(KVGroup* grp)
                //energy losses from the "dependent"/"non-segmented" detector
                //(i.E. the ChIo)
                nuc->SetStatus(KVReconstructedNucleus::kStatusOKafterSub);
-            } else {
+            }
+            else {
                //more than one ? then we can make some wild guess by sharing the
                //"non-segmented" (i.e. ChIo) contribution between them, but
                //I wouldn't trust it as far as I can spit
@@ -478,7 +487,8 @@ void KVReconstructedNucleus::AnalyseParticlesInGroup(KVGroup* grp)
             }
          }
       }
-   } else if (GetNUnidentifiedInGroup(grp) == 1) {
+   }
+   else if (GetNUnidentifiedInGroup(grp) == 1) {
       //only one unidentified particle in group: if NSegDet>=1 then it's OK
 
       //loop over particles looking for the unidentified one
@@ -491,7 +501,8 @@ void KVReconstructedNucleus::AnalyseParticlesInGroup(KVGroup* grp)
       if (nuc->GetNSegDet() > 0) {
          //OK no problem
          nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-      } else {
+      }
+      else {
          //dead in the water
          nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
@@ -541,7 +552,8 @@ void KVReconstructedNucleus::GetAnglesFromStoppingDetector(Option_t* opt)
       //random angles
       TVector3 dir = angle_det->GetRandomDirection("random");
       SetMomentum(GetEnergy(), dir);
-   } else {
+   }
+   else {
       //middle of telescope
       TVector3 dir = angle_det->GetDirection();
       SetMomentum(GetEnergy(), dir);
@@ -639,7 +651,8 @@ void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr, KVID
    if (idr->Aident) {
       SetA(idr->A);
       SetRealA(idr->PID);
-   } else {
+   }
+   else {
       SetRealZ(idr->PID);
    }
 }

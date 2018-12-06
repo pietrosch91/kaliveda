@@ -52,7 +52,8 @@ Double_t KVVoltEnergy::Compute(Double_t volts) const
    //Calculate the calibrated energy in Mev for the given voltage
    if (GetStatus()) {
       return GetParameter(0) + GetParameter(1) * volts;
-   } else {
+   }
+   else {
       /*      cout <<
                 "Double_t KVVoltEnergy::Compute(Double_t chan) : Parameters not correctly initialized"
                 << endl;
@@ -84,7 +85,8 @@ Double_t KVVoltEnergy::Invert(Double_t energy)
 
    if (fReady) {
       return (energy - GetParameter(0)) / GetParameter(1);
-   } else {
+   }
+   else {
       Warning("Compute",
               "Parameters not correctly initialized for calibrator %s of %s",
               GetType(),

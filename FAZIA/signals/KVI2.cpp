@@ -87,7 +87,8 @@ Double_t KVI2::ComputeBaseLine()
 
    if (fBaseLine <= fEndLine) {
       //do nothing baseline is kept as calculated by default KVSignal method
-   } else {
+   }
+   else {
       //compute the base line at the end of the signal
       //baseline length is taken as for the standard base line calculation
       //

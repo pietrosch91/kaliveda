@@ -101,7 +101,8 @@ KVIDQALine* KVIDQAGrid::GetQLine(Int_t q, Int_t& index) const
          //increase index
          idx_min = idx;
          idx += (Int_t)((idx_max - idx) / 2 + 0.5);
-      } else {
+      }
+      else {
          //decrease index
          idx_max = idx;
          idx -= (Int_t)((idx - idx_min) / 2 + 0.5);
@@ -183,7 +184,8 @@ void KVIDQAGrid::CalculateLineWidths()
          _aline = _otherline;
          _bline = _line;
 
-      } else {
+      }
+      else {
 
          //first point of other line is "inside" the X-coords of the our line:
          //asymptotic distance LEFT is distance from other line's starting point (x1,Y1) to our line
@@ -222,7 +224,8 @@ void KVIDQAGrid::CalculateLineWidths()
          _aline = _otherline;
          _bline = _line;
 
-      } else {
+      }
+      else {
 
          //last point of other line is "inside" the X-coords of the our line:
          //asymptotic distance RIGHT is distance from other line's end point (x1,Y1) to our line
@@ -265,7 +268,8 @@ void KVIDQAGrid::DrawLinesWithWidth()
 
    if (!gPad) {
       new TCanvas("c1", GetName());
-   } else {
+   }
+   else {
       gPad->SetTitle(GetName());
    }
    if (!gPad->GetListOfPrimitives()->GetSize()) {
@@ -322,7 +326,8 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
    if (!line || !line->InheritsFrom(KVIDQALine::Class())) {
       //no line corresponding to point was found
       const_cast < KVIDQAGrid* >(this)->fICode = kICODE8;         // Q indetermine ou (x,y) hors limites
-   } else {
+   }
+   else {
       //the closest_line is found
       closest_line = (KVIDQALine*)line;
 
@@ -365,7 +370,8 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
             else
                const_cast < KVIDQAGrid* >(this)->fICode = kICODE2;  // "slight ambiguity of Q, which could be smaller"
 
-         } else const_cast < KVIDQAGrid* >(this)->fICode = kICODE0; // ok
+         }
+         else const_cast < KVIDQAGrid* >(this)->fICode = kICODE0;   // ok
 
          if (deltaQ > 0.5) Info("Identify", "deltaQ= %f, Qclosest= %d, Qinf= %d, Qsup= %d, icode= %d, X= %f, Y= %f", deltaQ, closest_line->GetQ(), inf_line->GetQ(), sup_line->GetQ(), fICode, x, y);
       }
@@ -380,7 +386,8 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
                const_cast < KVIDQAGrid* >(this)->fICode = kICODE6;  // "(x,y) is below first line in grid"
             else
                const_cast < KVIDQAGrid* >(this)->fICode = kICODE7;  // "(x,y) is above last line in grid"
-         } else {
+         }
+         else {
             deltaQ = dist / closest_line->GetWidth();
             if (closest_line == sup_line) deltaQ *= -1.;
             const_cast < KVIDQAGrid* >(this)->fICode = kICODE3;  // "slight ambiguity of Q, which could be larger or smaller"
@@ -714,7 +721,8 @@ TFile* KVIDQAGrid::FindAMarkers(const Char_t* name_of_data_histo, const Char_t* 
                   hh = (TH2F*)l_histos.FindObject(Form("Q%.2d", idr->Z));
                   if (hh) hh->Fill(x, y, poids / kmax);
                }
-            } else {
+            }
+            else {
                idcode = -1;
                idmap->SetBinContent(i, j, idcode);
             }
@@ -859,7 +867,8 @@ void KVIDQAGrid::TestIdentification(TH2F* data, TH1F* h1_q,
                   if (idr->Aident) {
                      realQ = fRealQ;
                      realA = idr->PID;
-                  } else if (idr->Zident) realQ = idr->PID;
+                  }
+                  else if (idr->Zident) realQ = idr->PID;
                   h1_q->Fill(realQ, weight);
                   h2_q_qxaoq->Fill(x * idr->Z, realQ, weight);
                   if (qaMap) h2_q_a->Fill(realA, realQ, weight);

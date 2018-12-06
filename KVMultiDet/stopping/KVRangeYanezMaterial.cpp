@@ -207,7 +207,8 @@ void KVRangeYanezMaterial::Initialize()
          fAbsorb[fNelem].w = nvl->GetDoubleValue("Ar*Weight");
          fNelem++;
       }
-   } else if (IsMixture()) {
+   }
+   else if (IsMixture()) {
       fNelem = 0;
       iabso = -1;
       TIter next(fComposition);

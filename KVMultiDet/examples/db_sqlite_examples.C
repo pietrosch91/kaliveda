@@ -60,7 +60,8 @@ void sqlite_example()
          db["Tasks"]["Number"] = numbers[row];
          if (wrks[row] != "") {
             db["Tasks"]["Worker"] = wrks[row];
-         } else {
+         }
+         else {
             db["Tasks"]["Worker"].set_null();// N.B. this is not the same as filling with an empty string
          }
          db.insert_data_row();

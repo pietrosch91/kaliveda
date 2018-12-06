@@ -190,7 +190,8 @@ void KVINDRAReconNuc::Print(Option_t* option) const
             else cout << "    ChIo-Si identification indicates MULTIPLE CHIO CONTRIBUTIONS" << endl;
          }
          cout << endl;
-      } else {
+      }
+      else {
          cout << "  -- RESULTS OF COHERENCY TESTS (RINGS 10-17) -- " << endl;
          if (fIncludeEtalonsInCalibration) cout << "    WITH Etalon telescopes included in particle trajectory" << endl;
          else cout << "    WITHOUT etalon telescopes included in particle trajectory" << endl;
@@ -213,7 +214,8 @@ void KVINDRAReconNuc::Print(Option_t* option) const
       else cout << " Zreal=" << GetRealZ();
       cout << endl << " Identification code = " << ((KVINDRAReconNuc*) this)->
            GetCodes().GetIDStatus() << endl;
-   } else {
+   }
+   else {
       cout << "(unidentified)" << endl;
    }
    if (IsCalibrated()) {
@@ -230,7 +232,8 @@ void KVINDRAReconNuc::Print(Option_t* option) const
          cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV";
          if (fECsI < 0) cout << " (calculated)";
          cout << endl;
-      } else {
+      }
+      else {
          cout << "    EChIo = " << TMath::Abs(fEChIo) << " MeV";
          if (fEChIo < 0) cout << " (calculated)";
          cout << endl;
@@ -249,7 +252,8 @@ void KVINDRAReconNuc::Print(Option_t* option) const
       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
       cout << " Calibration code = " << ((KVINDRAReconNuc*) this)->
            GetCodes().GetEStatus() << endl;
-   } else {
+   }
+   else {
       cout << "(uncalibrated)" << endl;
    }
 //   if (!IsIdentified()) {
@@ -356,7 +360,8 @@ Bool_t KVINDRAReconNuc::StoppedInChIo()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "CI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -367,7 +372,8 @@ Bool_t KVINDRAReconNuc::StoppedInSi()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "SI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -377,7 +383,8 @@ Bool_t KVINDRAReconNuc::StoppedInSi75()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "SI75")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -387,7 +394,8 @@ Bool_t KVINDRAReconNuc::StoppedInSiLi()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "SILI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -398,7 +406,8 @@ Bool_t KVINDRAReconNuc::StoppedInCsI()
 
    if (!strcmp(GetStoppingDetector()->GetType(), "CSI")) {
       return kTRUE;
-   } else {
+   }
+   else {
       return kFALSE;
    }
 }
@@ -561,7 +570,8 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
                   }
                }
             }
-         } else if (IDsicsi->deltaEpedestal == KVIdentificationResult::deltaEpedestal_YES) {
+         }
+         else if (IDsicsi->deltaEpedestal == KVIdentificationResult::deltaEpedestal_YES) {
             // explicit treatment of 'neutron-like' particles with a cut in Si-CsI id grid
             theID = *IDsicsi;
             theID.IDOK = kTRUE;
@@ -613,18 +623,22 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
                   fCoherent = kFALSE;
                   IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                   return kTRUE;
-               } else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
+               }
+               else if (IDsicsi->Z == 2 && IDsicsi->A > 6 && IDsicsi->A < 10) {
                   // accept helium-7,8,9 as 8He
                   theID = *IDsicsi;
                   return kTRUE;
-               } else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
+               }
+               else if ((IDsicsi->Z == 2 && IDsicsi->A > 9) || (IDsicsi->Z == 3 && IDsicsi->A < 6)) {
                   fCoherent = kFALSE;
                   IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                   return kTRUE;
-               } else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
+               }
+               else if (IDsicsi->Z == 3 && IDsicsi->A > 5 && IDsicsi->A < 9) {
                   // accept lithium-6,7,8 as 7Li
                   return kTRUE;
-               } else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
+               }
+               else if ((IDsicsi->Z == 3 && IDsicsi->A > 8) || IDsicsi->Z > 3) {
                   fPileup = kTRUE;
                   IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                   return kTRUE;
@@ -645,16 +659,19 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
             // everything else - Z must be same, A +/- 1 unit
             if (IDsicsi->Z == Zref && TMath::Abs(IDsicsi->A - Aref) < 2) {
                return kTRUE;
-            } else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
+            }
+            else if (IDsicsi->Z < Zref || (IDsicsi->Z == Zref && IDsicsi->A < (Aref - 1))) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                return kTRUE;
-            } else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
+            }
+            else  if (IDsicsi->Z > Zref || (IDsicsi->Z == Zref && IDsicsi->A > (Aref + 1))) {
                fPileup = kTRUE;
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                return kTRUE;
             }
-         } else { // only Z identification from Si-CsI
+         }
+         else {   // only Z identification from Si-CsI
             if (IDcsi->Z == 4 && IDcsi->A == 8) {
                // traitement special 8Be
                // we ask for Z to be equal 3 in SiCsI, but with no mass identification
@@ -663,9 +680,11 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
                   fCoherent = kFALSE;
                   IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                   return kTRUE;
-               } else if (IDsicsi->Z == 3) {
+               }
+               else if (IDsicsi->Z == 3) {
                   return kTRUE;
-               } else {
+               }
+               else {
                   fPileup = kTRUE;
                   IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
                   return kTRUE;
@@ -674,11 +693,13 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
             // everything else
             if (IDsicsi->Z == Zref) {
                return kTRUE;
-            } else if (IDsicsi->Z < Zref) {
+            }
+            else if (IDsicsi->Z < Zref) {
                fCoherent = kFALSE;
                IDsicsi->SetComment("CsI-R/L & Si-CsI identifications not coherent");
                return kTRUE;
-            } else {
+            }
+            else {
                fPileup = kTRUE;
 
                IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
@@ -806,14 +827,16 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult& theID)
                      fPileupSi75 = kTRUE;
                      IDcisi75->SetComment("CsI identification with another particle stopped in Si75");
                      fUseFullChIoEnergyForCalib = kFALSE; // calculate ChIo energy for this particle
-                  } else {
+                  }
+                  else {
                      fPileupSiLi = kTRUE;
                      IDsi75sili->SetComment("CsI identification with another particle stopped in SiLi");
                      fUseFullChIoEnergyForCalib = kFALSE; // calculate ChIo energy for this particle
                   }
                }
             }
-         } else if (haveChIoSi75) {
+         }
+         else if (haveChIoSi75) {
             // check for heavy fragment in ChIo-Si75
             if (IDcisi75->Z > theID.Z) {
                fPileupSi75 = kTRUE;
@@ -822,7 +845,8 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult& theID)
             }
          }
          return kTRUE;
-      } else if (haveSiLiCsI) {
+      }
+      else if (haveSiLiCsI) {
          theID = *IDsilicsi;
          if (haveChIoSi75) {
             // check for heavy fragment in ChIo-Si75
@@ -833,7 +857,8 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult& theID)
             }
          }
          return kTRUE;
-      } else if (haveChIoCsI) {
+      }
+      else if (haveChIoCsI) {
          theID = *IDcicsi;
          // fragment identified in ChIo-CsI
          // therefore it did not cross the etalon telescopes
@@ -841,7 +866,8 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult& theID)
          fIncludeEtalonsInCalibration = kFALSE;
          return kTRUE;
       }
-   } else if (StoppedInSiLi()) {
+   }
+   else if (StoppedInSiLi()) {
       if (haveSi75SiLi) {
          theID = *IDsi75sili;
          // check ChIo-Si75 id is coherent (either no id or Z<=this one)
@@ -849,11 +875,13 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult& theID)
             if (IDcisi75->Z > theID.Z) fPileupChIo = kTRUE;
          }
          return kTRUE;
-      } else if (haveChIoSi75) {
+      }
+      else if (haveChIoSi75) {
          theID = *IDcisi75;
          return kTRUE;
       }
-   } else if (StoppedInSi75()) { // MFR march 2014 SiLi is not the real stopping detector
+   }
+   else if (StoppedInSi75()) {   // MFR march 2014 SiLi is not the real stopping detector
       if (haveChIoSi75) {
          theID = *IDcisi75;
          return kTRUE;
@@ -901,7 +929,8 @@ void KVINDRAReconNuc::Identify()
 
          //if(fCoherent && !fPileup)
          fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
-      } else {
+      }
+      else {
          // particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
          Int_t id_no = 1;
          KVIdentificationResult* pid = GetIdentificationResult(id_no);
@@ -916,7 +945,8 @@ void KVINDRAReconNuc::Identify()
          }
          fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits() > 1);
       }
-   } else {
+   }
+   else {
       //identification couronne 10 a 17
       //Arret dans les CsI, coherence entre identification CsI RL et ChIo CsI
 
@@ -930,7 +960,8 @@ void KVINDRAReconNuc::Identify()
          else
             ok = CoherencyChIoCsI(partID);
 
-      } else if (StoppedInChIo()) {
+      }
+      else if (StoppedInChIo()) {
          // particle stopped in ChIo (=> Zmin)
          Int_t id_no = 1;
          KVIdentificationResult* pid = GetIdentificationResult(id_no);
@@ -944,7 +975,8 @@ void KVINDRAReconNuc::Identify()
             pid = GetIdentificationResult(id_no);
          }
          partID.Print();
-      } else {
+      }
+      else {
          // particle stopped in SiLi or Si75 (etalon modules)
          ok = CoherencyEtalons(partID);
       }
@@ -978,7 +1010,8 @@ void KVINDRAReconNuc::Identify()
 
       }
 
-   } else {
+   }
+   else {
 
       /******* UNIDENTIFIED PARTICLES *******/
 
@@ -1049,7 +1082,8 @@ void KVINDRAReconNuc::DoNeutronCalibration()
       fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE);
       SetEnergy(fECsI);
       SetECode(kECode2); // not a real energy measure
-   } else {
+   }
+   else {
       SetNoCalibrationStatus();
    }
 }
@@ -1077,7 +1111,8 @@ Bool_t KVINDRAReconNuc::CalculateSiliconDEFromResidualEnergy()
       // can't calculate fESi from CsI energy - bad
       SetBadCalibrationStatus();
       return kFALSE;
-   } else {
+   }
+   else {
       // calculated energy: negative
       fESi = -TMath::Abs(fESi);
       SetECode(kECode2);
@@ -1141,9 +1176,11 @@ void KVINDRAReconNuc::CalibrateRings1To9()
          /* CSI ENERGY CALIBRATION */
          if (GetCodes().TestIDCode(kIDCode_CsI) && GetZ() == 4 && GetA() == 8) {
             DoBeryllium8Calibration();
-         } else
+         }
+         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
-      } else {
+      }
+      else {
          SetNoCalibrationStatus();// no CsI calibration - no calibration performed
          return;
       }
@@ -1165,7 +1202,8 @@ void KVINDRAReconNuc::CalibrateRings1To9()
          Bool_t si_transmission = kTRUE;
          if (stopped_in_silicon) {
             si_transmission = kFALSE;
-         } else {
+         }
+         else {
             GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
          }
          fESi = GetSi()->GetCorrectedEnergy(this, -1., si_transmission);
@@ -1173,16 +1211,19 @@ void KVINDRAReconNuc::CalibrateRings1To9()
             // problem with silicon calibration
             if (!stopped_in_silicon && (TMath::Abs(fECsI) > 0.0)) {
                if (!CalculateSiliconDEFromResidualEnergy()) return;
-            } else {
+            }
+            else {
                // stopped in Si with bad Si calibration - no good
                SetBadCalibrationStatus();
                return;
             }
          }
-      } else {
+      }
+      else {
          if (!stopped_in_silicon) {
             if (!CalculateSiliconDEFromResidualEnergy()) return;
-         } else {
+         }
+         else {
             // cannot calibrate particle stopping in silicon in this case
             SetNoCalibrationStatus();
             return;
@@ -1199,7 +1240,8 @@ void KVINDRAReconNuc::CalibrateRings1To9()
          if (!StoppedInChIo()) {
             GetChIo()->SetEResAfterDetector(ERES);
             fEChIo = GetChIo()->GetCorrectedEnergy(this);
-         } else {
+         }
+         else {
             // particle stopped in chio, not in transmission
             fEChIo = GetChIo()->GetCorrectedEnergy(this, -1., kFALSE);
          }
@@ -1209,10 +1251,12 @@ void KVINDRAReconNuc::CalibrateRings1To9()
                CalculateChIoDEFromResidualEnergy(ERES);
             }
          }
-      } else {
+      }
+      else {
          if (!StoppedInChIo()) {
             CalculateChIoDEFromResidualEnergy(ERES);
-         } else {
+         }
+         else {
             // particle stopped in ChIo, no calibration available
             SetNoCalibrationStatus();
             return;
@@ -1285,7 +1329,8 @@ void KVINDRAReconNuc::CalibrateRings10To17()
       /* CSI ENERGY CALIBRATION */
       if (GetCodes().TestIDCode(kIDCode_CsI) && GetZ() == 4 && GetA() == 8) {
          DoBeryllium8Calibration();
-      } else
+      }
+      else
          fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
 
       if (fECsI <= 0) {
@@ -1300,19 +1345,22 @@ void KVINDRAReconNuc::CalibrateRings10To17()
             Bool_t si_transmission = kTRUE;
             if (StoppedInSiLi()) {
                si_transmission = kFALSE;
-            } else {
+            }
+            else {
                GetSiLi()->SetEResAfterDetector(ERES);
             }
             fESiLi = GetSiLi()->GetCorrectedEnergy(this, -1., si_transmission);
             if (fESiLi <= 0) {
                if (!StoppedInSiLi() && ERES > 0.0) {
                   CalculateSiLiDEFromResidualEnergy(ERES);
-               } else {
+               }
+               else {
                   SetBadCalibrationStatus();
                   return;
                }
             }
-         } else {
+         }
+         else {
             CalculateSiLiDEFromResidualEnergy(ERES);
          }
       }
@@ -1322,19 +1370,22 @@ void KVINDRAReconNuc::CalibrateRings10To17()
             Bool_t si_transmission = kTRUE;
             if (StoppedInSi75()) {
                si_transmission = kFALSE;
-            } else {
+            }
+            else {
                GetSi75()->SetEResAfterDetector(ERES);
             }
             fESi75 = GetSi75()->GetCorrectedEnergy(this, -1., si_transmission);
             if (fESi75 <= 0) {
                if (!StoppedInSi75() && ERES > 0.0) {
                   CalculateSi75DEFromResidualEnergy(ERES);
-               } else {
+               }
+               else {
                   SetBadCalibrationStatus();
                   return;
                }
             }
-         } else {
+         }
+         else {
             CalculateSi75DEFromResidualEnergy(ERES);
          }
       }
@@ -1351,7 +1402,8 @@ void KVINDRAReconNuc::CalibrateRings10To17()
          Bool_t ci_transmission = kTRUE;
          if (stopped_in_chio) {
             ci_transmission = kFALSE;
-         } else {
+         }
+         else {
             GetChIo()->SetEResAfterDetector(ERES);
          }
          fEChIo = GetChIo()->GetCorrectedEnergy(this, -1., ci_transmission);
@@ -1360,7 +1412,8 @@ void KVINDRAReconNuc::CalibrateRings10To17()
                CalculateChIoDEFromResidualEnergy(ERES);
             }
          }
-      } else {
+      }
+      else {
          if (!stopped_in_chio && ERES > 0) {
             CalculateChIoDEFromResidualEnergy(ERES);
          }

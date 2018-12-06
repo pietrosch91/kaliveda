@@ -68,11 +68,14 @@ void KVNameValueListGUI::ReadData()
       KVNamedParameter* par = theList->GetParameter(i);
       if (par->IsDouble()) {
          par->Set(dynamic_cast<TGNumberEntry*>(fData[i])->GetNumber());
-      } else if (par->IsInt()) {
+      }
+      else if (par->IsInt()) {
          par->Set((Int_t)dynamic_cast<TGNumberEntry*>(fData[i])->GetNumber());
-      } else if (par->IsString()) {
+      }
+      else if (par->IsString()) {
          par->Set(dynamic_cast<TGTextEntry*>(fData[i])->GetText());
-      } else if (par->IsBool()) {
+      }
+      else if (par->IsBool()) {
          par->Set(dynamic_cast<TGCheckButton*>(fData[i])->IsDown());
       }
    }
@@ -115,11 +118,14 @@ KVNameValueListGUI::KVNameValueListGUI(const TGWindow* main, KVNameValueList* pa
 
       if (theList->GetParameter(i)->IsInt()) {
          fData[i] = AddAInt(i, hf);
-      } else if (theList->GetParameter(i)->IsDouble()) {
+      }
+      else if (theList->GetParameter(i)->IsDouble()) {
          fData[i] = AddADouble(i, hf);
-      } else if (theList->GetParameter(i)->IsBool()) {
+      }
+      else if (theList->GetParameter(i)->IsBool()) {
          fData[i] = AddABool(i, hf);
-      } else {
+      }
+      else {
          fData[i] = AddAString(i, hf);
       }
 

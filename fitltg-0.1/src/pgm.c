@@ -119,7 +119,8 @@ float geta(float Z, int ityp)
          if (a > RS1) {
             zc = zc + RS3 * a + RS4 ;
             drv = drv + RS3 ;
-         } else {
+         }
+         else {
             zc = zc + RS2 * a * a ;
             drv = drv + RS2 * a * 2.;
          }

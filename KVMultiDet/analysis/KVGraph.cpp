@@ -147,7 +147,8 @@ void KVGraph::Draw(Option_t* chopt)
    if (fUseX) {
       xstr = TMath::MinElement(fNDivX, fDisplayDivX);
       xstp = TMath::MaxElement(fNDivX, fDisplayDivX);
-   } else {
+   }
+   else {
       xstr = xmin;
       xstp = xmax;
    }
@@ -155,7 +156,8 @@ void KVGraph::Draw(Option_t* chopt)
    if (fUseY) {
       ystr = TMath::MinElement(fNDivY, fDisplayDivY);
       ystp = TMath::MaxElement(fNDivY, fDisplayDivY);
-   } else {
+   }
+   else {
       ystr = ymin;
       ystp = ymax;
    }

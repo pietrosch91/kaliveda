@@ -164,7 +164,8 @@ Double_t KVTGIDFunctions::fede(Double_t* x, Double_t* par)
       // A given as function argument, Z is parameter
       A = x[0];
       Z = par[3];
-   } else if (ZorA == 1) {
+   }
+   else if (ZorA == 1) {
       // Z given as function argument, calculate A
       Z = x[0];
       A = KVNucleus::GetRealAFromZ(Z, (Int_t)par[3]);
@@ -192,12 +193,15 @@ Double_t KVTGIDFunctions::fede(Double_t* x, Double_t* par)
             Double_t rho = eta * Z * Z * A;
             if (rho > 0) {
                E = TMath::Sqrt(h * h + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-            } else
+            }
+            else
                E = h;
-         } else {
+         }
+         else {
             E = 0;
          }
-      } else {
+      }
+      else {
          E = par[4] - pdx;
       }
       Double_t gE = g * E;
@@ -207,7 +211,8 @@ Double_t KVTGIDFunctions::fede(Double_t* x, Double_t* par)
            + TMath::Power((lambda * TMath::Power(Z, alpha) * TMath::Power(A, beta)), gamma)
            + xi * Z * Z * TMath::Power(A, mu) * TMath::Power(gE, nu);
       yy = TMath::Power(yy, 1. / gamma) - gE + pdy;
-   } else {
+   }
+   else {
       //"standard" formula
       mu = par[7];
       g = par[8];
@@ -222,12 +227,15 @@ Double_t KVTGIDFunctions::fede(Double_t* x, Double_t* par)
             Double_t rho = eta * Z * Z * A;
             if (rho > 0) {
                E = TMath::Sqrt(h * h + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-            } else
+            }
+            else
                E = h;
-         } else {
+         }
+         else {
             E = 0;
          }
-      } else {
+      }
+      else {
          E = par[4] - pdx;
       }
       Double_t gE = g * E;
@@ -302,9 +310,11 @@ Double_t KVTGIDFunctions::tassangot_Z(Double_t* x, Double_t* par)
    if (h > 0) {
       if (rho > 0) {
          E = TMath::Sqrt(TMath::Power(h, 2) + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-      } else
+      }
+      else
          E = h;
-   } else
+   }
+   else
       E = 0;
 
    return (TMath::Power((TMath::Power((par[6] * E), gamma)
@@ -359,9 +369,11 @@ Double_t KVTGIDFunctions::pichon_Z(Double_t* x, Double_t* par)
    if (h > 0) {
       if (rho > 0) {
          E = TMath::Sqrt(TMath::Power(h, 2) + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-      } else
+      }
+      else
          E = h;
-   } else
+   }
+   else
       E = 0;
 
    Double_t gE = par[6] * E;//=g*E
@@ -401,9 +413,11 @@ Double_t KVTGIDFunctions::tassangot_A(Double_t* x, Double_t* par)
    if (h > 0) {
       if (rho > 0) {
          E = TMath::Sqrt(TMath::Power(h, 2) + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-      } else
+      }
+      else
          E = h;
-   } else
+   }
+   else
       E = 0;
 
    return (TMath::Power((TMath::Power((par[6] * E), gamma)
@@ -445,9 +459,11 @@ Double_t KVTGIDFunctions::pawlowski_Z(Double_t* x, Double_t* par)
    if (h > 0) {
       if (rho > 0) {
          E = TMath::Sqrt(TMath::Power(h, 2) + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-      } else
+      }
+      else
          E = h;
-   } else
+   }
+   else
       E = 0;
 
    Double_t gE = par[6] * E;//=g*E
@@ -487,9 +503,11 @@ Double_t KVTGIDFunctions::pawlowski_A(Double_t* x, Double_t* par)
    if (h > 0) {
       if (rho > 0) {
          E = TMath::Sqrt(TMath::Power(h, 2) + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
-      } else
+      }
+      else
          E = h;
-   } else
+   }
+   else
       E = 0;
    Double_t de = par[13] - par[8];
 

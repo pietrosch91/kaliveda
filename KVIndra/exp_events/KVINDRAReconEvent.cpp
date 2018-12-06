@@ -122,7 +122,8 @@ void KVINDRAReconEvent::Streamer(TBuffer& R__b)
             par->SetIsOK(CheckCodes(par->GetCodes()));
          }
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVINDRAReconEvent::Class(), this);
    }
 }
@@ -283,7 +284,8 @@ void KVINDRAReconEvent::IdentifyEvent()
    while ((d = GetNextParticle())) {
       if (d->IsIdentified() && d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
          d->SetIDCode(kIDCode5);   // Zmin
-      } else if (d->IsIdentified() && d->GetCodes().TestIDCode(kIDCode0)) {
+      }
+      else if (d->IsIdentified() && d->GetCodes().TestIDCode(kIDCode0)) {
          // gamma identified in CsI
          // reset analysed state of all detectors in front of CsI
          if (d->GetCsI()) {
@@ -292,11 +294,13 @@ void KVINDRAReconEvent::IdentifyEvent()
                KVDetector* det = (KVDetector*)next(); //first detector = CsI
                while ((det = (KVDetector*)next())) det->SetAnalysed(kFALSE);
                gammaGroups.Add(d->GetGroup());
-            } else {
+            }
+            else {
                Error("IdentifyEvent", "particule id gamma, no aligned detectors???");
                d->Print();
             }
-         } else {
+         }
+         else {
             Error("IdentifyEvent", "particule identified as gamma, has no CsI!!");
             d->Print();
          }
@@ -321,7 +325,8 @@ void KVINDRAReconEvent::IdentifyEvent()
       while ((d = GetNextParticle())) {
          if (d->IsIdentified() && d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             d->SetIDCode(kIDCode5);   // Zmin
-         } else if (!d->IsIdentified()) {
+         }
+         else if (!d->IsIdentified()) {
             d->SetIDCode(kIDCode14);
          }
       }
@@ -432,7 +437,8 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
                else SIX->SetIDCode(kIDCode6);
                SIX->Calibrate();
                if (SIX->IsCalibrated()) SIX->SubtractEnergyFromAllDetectors();
-            } else {
+            }
+            else {
                // failure of ChIo-Si identification: particle stopped in ChIo ?
                // estimation of Z (minimum) from energy loss (if detector is calibrated)
                UInt_t zmin = ((KVDetector*)SIX->GetDetectorList()->Last())->FindZmin(-1., SIX->GetMassFormula());

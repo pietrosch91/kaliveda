@@ -165,7 +165,8 @@ namespace MicroStat {
       TBranch* b = theTree->GetBranch(bname);
       if (!b) {
          theTree->Branch(bname, "KVEvent", event, 10000000, 0)->SetAutoDelete(kFALSE);
-      } else {
+      }
+      else {
          b->SetAddress(event);
       }
       SetBranch(theTree, "ESTAR", &ESTAR, "D");
@@ -316,7 +317,8 @@ namespace MicroStat {
       mg->Draw("apl");
       if (!strcmp(opt, "E*/A")) {
          mg->GetHistogram()->SetXTitle("E*/A (MeV)");
-      } else {
+      }
+      else {
          mg->GetHistogram()->SetXTitle("E* (MeV)");
       }
       mg->GetHistogram()->SetYTitle("Probability");
@@ -406,7 +408,8 @@ namespace MicroStat {
       mg->Draw("apl");
       if (!strcmp(opt, "E*/A")) {
          mg->GetHistogram()->SetXTitle("E*/A (MeV)");
-      } else {
+      }
+      else {
          mg->GetHistogram()->SetXTitle("E* (MeV)");
       }
       mg->GetHistogram()->SetYTitle("Multiplicity");

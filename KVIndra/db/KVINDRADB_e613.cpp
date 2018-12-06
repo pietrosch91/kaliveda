@@ -133,7 +133,8 @@ void KVINDRADB_e613::ReadChIoPressures()
       sline.ReadLine(fin);
       if (sline.BeginsWith("#")) {
 
-      } else if (sline.BeginsWith("RunRange")) {  // run range found
+      }
+      else if (sline.BeginsWith("RunRange")) {    // run range found
          if (!prev_rr) {        // New set of run ranges to read
 
             //have we just finished reading some pressures ?
@@ -169,7 +170,8 @@ void KVINDRADB_e613::ReadChIoPressures()
             for (int zz = 0; zz < 5; zz++) pressure[zz] = 0.;
             read_pressure = kFALSE;
          }
-      } else {
+      }
+      else {
          prev_rr = kFALSE;
 
          toks = sline.Tokenize("\t");
@@ -243,7 +245,8 @@ void KVINDRADB_e613::ReadGainList()
          TString det_type = "";
          if (nt <= 1) {
             Warning("ReadGainList", "format non gere");
-         } else {
+         }
+         else {
             //format : Gain_[det_type]_R[RingNumber].dat
             //exemple  : Gain_SI_R07.dat
             det_type = ((TObjString*)toks->At(1))->GetString();
@@ -251,9 +254,11 @@ void KVINDRADB_e613::ReadGainList()
             sl.reset(gIndra->GetDetectors()->GetSubListWithType(det_type.Data()));
             if (nt == 2) {
                ring = 0;
-            } else if (nt == 3) {
+            }
+            else if (nt == 3) {
                sscanf(((TObjString*)toks->At(2))->GetString().Data(), "R%d", &ring);
-            } else {
+            }
+            else {
                Warning("ReadGainList", "format non gere");
             }
             if (ring != 0)
@@ -339,7 +344,8 @@ void KVINDRADB_e613::ReadPedestalList()
             while ((rec = (TEnvRec*)it.Next())) {
                if (!strcmp(rec->GetName(), "RunRange")) {
                   nl.SetList(rec->GetValue());
-               } else {
+               }
+               else {
                   par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
                   par->SetParameter(env->GetValue(rec->GetName(), 0.0));
                   fPedestals->AddRecord(par);
@@ -425,10 +431,12 @@ void KVINDRADB_e613::ReadChannelVolt()
                      ring_run.SetValue(Form("%d", rr), TString(rec->GetValue()).Atoi());
                      Info("ReadChannelVolt", "Couronne %d, run associee %d", rr, TString(rec->GetValue()).Atoi());
                   }
-               } else if (srec.BeginsWith("Pedestal")) {
+               }
+               else if (srec.BeginsWith("Pedestal")) {
                   srec.ReplaceAll("Pedestal.", "");
                   dbpied = GetRun(TString(rec->GetValue()).Atoi());
-               } else {
+               }
+               else {
 
                   TString spar(rec->GetValue());
                   toks = spar.Tokenize(",");
@@ -451,7 +459,8 @@ void KVINDRADB_e613::ReadChannelVolt()
                         Int_t runref = ring_run.GetIntValue(Form("%d", det->GetRingNumber()));
                         if (!dbrun) {
                            dbrun = GetRun(runref);
-                        } else if (dbrun->GetNumber() != runref) {
+                        }
+                        else if (dbrun->GetNumber() != runref) {
                            dbrun = GetRun(runref);
                         }
                         if (!dbrun) {
@@ -461,7 +470,8 @@ void KVINDRADB_e613::ReadChannelVolt()
                         KVDBParameterSet* pargain = ((KVDBParameterSet*) dbrun->GetLink("Gains", rec->GetName()));
                         if (pargain) {
                            gain = pargain->GetParameter(0);
-                        } else {
+                        }
+                        else {
                            Info("ReadChannelVolt", "pas de gain defini pour le run %d et le detecteur %s", runref, rec->GetName());
                         }
 
@@ -473,7 +483,8 @@ void KVINDRADB_e613::ReadChannelVolt()
                         fChanVolt->AddRecord(par);
                         LinkRecordToRunRange(par, default_run_list);
                      }
-                  } else {
+                  }
+                  else {
                      a0 = a1 = a2 = gain = 0;
                      Warning("ReadChannelVolt", "Pb de format %s", rec->GetValue());
                   }

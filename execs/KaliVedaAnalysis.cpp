@@ -69,7 +69,8 @@ int main(int argc, char* argv[])
          printf("Unknown inheritance of analyser class: abort\n");
          return 0;
       }
-   } else
+   }
+   else
       ia = new KVDataAnalyser;
    ia->SetBatchMode();
    ia->SetBatchName(batchName.Data());

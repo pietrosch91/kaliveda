@@ -82,12 +82,14 @@ void KVDetectionSimulator::DetectEvent(KVEvent* event, const Char_t* detection_f
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NEUTRON");
-      } else if (_part->GetKE() < GetMinKECutOff()) {
+      }
+      else if (_part->GetKE() < GetMinKECutOff()) {
          det_stat.SetValue("UNDETECTED", "NO ENERGY");
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NO ENERGY");
-      } else {
+      }
+      else {
          if (IncludeTargetEnergyLoss() && GetTarget()) {
 
             GetTarget()->SetOutgoing(kTRUE);
@@ -115,7 +117,8 @@ void KVDetectionSimulator::DetectEvent(KVEvent* event, const Char_t* detection_f
                part->AddGroup("UNDETECTED");
                part->AddGroup("DEAD ZONE");
 
-            } else {
+            }
+            else {
                part->AddGroup("DETECTED");
                det_stat.SetValue("DETECTED", "OK");
             }
@@ -182,7 +185,8 @@ KVNameValueList KVDetectionSimulator::DetectParticle(KVNucleus* part)
                Error("DetectParticle",
                      "Cannot find detector %s corresponding to particle energy loss %s",
                      det_name.Data(), pname.Data());
-            } else {
+            }
+            else {
                Double_t de = param->GetDouble();
                NVL.SetValue(curDet->GetName(), de);
             }
@@ -209,7 +213,8 @@ KVNameValueList KVDetectionSimulator::DetectParticleIn(const Char_t* detname, KV
    if (kvd) {
       kvp->SetMomentum(kvp->GetEnergy(), kvd->GetRandomDirection("random"));
       return DetectParticle(kvp);
-   } else {
+   }
+   else {
       Error("DetectParticleIn", "Detector %s not found", detname);
    }
    return KVNameValueList();

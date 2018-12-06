@@ -158,8 +158,10 @@ void KVZBoundMean::Fill(KVNucleus* n)
 
    if (IsParameterSet("Zmax")) {
       if (n->GetZ() <= GetParameter("Zmax")) FillVar(n->GetZ());
-   } else if (IsParameterSet("Zmin")) {
+   }
+   else if (IsParameterSet("Zmin")) {
       if (n->GetZ() >= GetParameter("Zmin")) FillVar(n->GetZ());
-   } else FillVar(n->GetZ());
+   }
+   else FillVar(n->GetZ());
 
 }

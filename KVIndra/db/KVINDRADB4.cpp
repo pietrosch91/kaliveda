@@ -122,7 +122,8 @@ void KVINDRADB4::GoodRunLine()
       if (csv_line->HasFieldValue("TSTART"))
          run->SetStartDate(csv_line->GetField("TSTART"));
 
-   } else {
+   }
+   else {
       Error("GoodRunLine", "Run %d already exists", run_n);
    }
 }

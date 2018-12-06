@@ -58,11 +58,13 @@ public:
          pressure = 13.;
          gas = new KVMaterial("C4H10", 2.*13.0);      // en cm - 2DC
          gas->SetPressure(pressure * KVUnits::mbar);
-      } else if (option == 1) {  // case Chio
+      }
+      else if (option == 1) {    // case Chio
          pressure = 40.;
          gas = new KVMaterial("C4H10", 13.8);      // en cm
          gas->SetPressure(pressure * KVUnits::mbar);
-      } else {
+      }
+      else {
          // XXX: Undefined behaviour! terminate
          std::cerr << "Identificationv: (MyFunctionObject) Behaviour "
                    "undefined for option value of " << option << std::endl;
@@ -1215,13 +1217,16 @@ Int_t Identificationv::GetMaxMultiplicity(void)
    if (Si->EMSI >= Ic->EMIC && Si->EMSI >= CsI->EMCSI) {
       fMultiplicity_case = 1;
       return Si->EMSI;
-   } else if (CsI->EMCSI > Si->EMSI && CsI->EMCSI >= Ic->EMIC) {
+   }
+   else if (CsI->EMCSI > Si->EMSI && CsI->EMCSI >= Ic->EMIC) {
       fMultiplicity_case = 2;
       return CsI->EMCSI;
-   } else if (Ic->EMIC > Si->EMSI && Ic->EMIC > CsI->EMCSI) {
+   }
+   else if (Ic->EMIC > Si->EMSI && Ic->EMIC > CsI->EMCSI) {
       fMultiplicity_case = 0;
       return Ic->EMIC;
-   } else {
+   }
+   else {
       fMultiplicity_case = -10;
       std::cout << "Not suppose to enter here GetMaxMultiplicty()" <<
                 std::endl;
@@ -1417,7 +1422,8 @@ void Identificationv::FragPropertiesInOrder(void)
                // Fragment hit one Si and enters in the CsI behind a
                // neighbour Si. We can't identify those events in Chio-Si,
                // because the ptcle. is not stopped in Si
-            } else {
+            }
+            else {
                Code_good_event = 7;
                // No relation between the Si and the CsI. Possible?
                // Chio-Si identification if there's a chio, but we lose the
@@ -1426,7 +1432,8 @@ void Identificationv::FragPropertiesInOrder(void)
 
          }
       }
-   } else if (fMultiplicity_case == 2) {
+   }
+   else if (fMultiplicity_case == 2) {
 
       for (Int_t i = 0; i < CsI->EMCSI; i++) {
 
@@ -1505,7 +1512,8 @@ void Identificationv::FragPropertiesInOrder(void)
          ((FragDetSi->at(0) > 0) ^ (FragDetSi->at(1) > 0))
       ) {
          Code_good_event = -8;
-      } else {
+      }
+      else {
          Code_good_event = 9;
       }
 
@@ -1516,7 +1524,8 @@ void Identificationv::FragPropertiesInOrder(void)
          )
       ) {
          Code_good_event = -8;
-      } else {
+      }
+      else {
          Code_good_event = 9;
       }
 
@@ -1541,7 +1550,8 @@ void Identificationv::FragPropertiesInOrder(void)
          }
       }
 
-   } else if (fMultiplicity_case == 0) {
+   }
+   else if (fMultiplicity_case == 0) {
 
       Code_good_event = 10;
 
@@ -1604,7 +1614,8 @@ void Identificationv::FragPropertiesInOrder(void)
          nhit_chiosi = 0;
          nhit_chiocsi = 0;
       }
-   } else {
+   }
+   else {
       Code_good_event = 4;
       if (debug) {
          std::cout << "Should not happen FragPropertiesInOrder()" <<
@@ -1689,7 +1700,8 @@ void Identificationv::Calculate(void)
                // TODO: Why is identified set?
                identified = kTRUE;
 
-            } else {
+            }
+            else {
 
                if (
                   grid_kvid->IsIdentifiable(
@@ -1742,7 +1754,8 @@ void Identificationv::Calculate(void)
                      Code_Ident_Vamos->at(y) = 38;
                      ++grid_misses->sitof;
 
-                  } else {
+                  }
+                  else {
 
                      if (
                         grid_sitof->IsIdentifiable(
@@ -1784,7 +1797,8 @@ void Identificationv::Calculate(void)
                            // std::cout << "Good Z. Youppi!" <<
                            // std::endl;
 
-                        } else {
+                        }
+                        else {
                            Code_Ident_Vamos->at(y) = 39;
                            // std::cout << "Bad Z. Bou!" <<
                            // std::endl;
@@ -1797,7 +1811,8 @@ void Identificationv::Calculate(void)
                            //"   Z Chio-Si : " << id_sitof->PID
                            //<< std::endl;
                         }
-                     } else {
+                     }
+                     else {
                         Code_Ident_Vamos->at(y) = 40;
                         // std::cout << "Non identifiable
                         // Si-TOF" << std::endl;
@@ -1863,7 +1878,8 @@ void Identificationv::Calculate(void)
                Code_Ident_Vamos->at(y) = 32;
                identified = kTRUE;
 
-            } else {
+            }
+            else {
 
                if (
                   grid_chiosi->IsIdentifiable(
@@ -1944,7 +1960,8 @@ void Identificationv::Calculate(void)
                // ID failed because no Si-CsI grid
                Code_Ident_Vamos->at(y) = 31;
 
-            } else {
+            }
+            else {
 
                if (
                   grid_kvid->IsIdentifiable(
@@ -1999,7 +2016,8 @@ void Identificationv::Calculate(void)
                   if (!grid_sitof) {
                      Code_Ident_Vamos->at(y) = 38;
                      ++grid_misses->sitof;
-                  } else {
+                  }
+                  else {
 
                      if (grid_sitof->IsIdentifiable(
                               static_cast<Double_t>(
@@ -2036,10 +2054,12 @@ void Identificationv::Calculate(void)
                            )
                         ) {
                            Code_Ident_Vamos->at(y) = 1;
-                        } else {
+                        }
+                        else {
                            Code_Ident_Vamos->at(y) = 39;
                         }
-                     } else {
+                     }
+                     else {
                         Code_Ident_Vamos->at(y) = 40;
                      }
                   }
@@ -2126,7 +2146,8 @@ void Identificationv::Calculate(void)
 
             if (!grid_cutscode2) {
                ++grid_misses->cutscode2;
-            } else {
+            }
+            else {
                if ((runNumber > 510 && runNumber < 515) ||
                      runNumber == 424 || runNumber == 420 ||
                      runNumber == 423 || runNumber == 360 ||
@@ -2155,7 +2176,8 @@ void Identificationv::Calculate(void)
                            Code_Ident_Vamos->at(y) = 41;
                         }
 
-                     } else {
+                     }
+                     else {
 
                         FragTfinal->at(y) = FragTfinal->at(y) +
                                             (
@@ -2173,13 +2195,15 @@ void Identificationv::Calculate(void)
                            if (Z_corr->at(y) < 10) {
                               Code_Ident_Vamos->at(y) = 41;
                            }
-                        } else if (
+                        }
+                        else if (
                            (runNumber > 501 && runNumber < 505)
                         ) {
                            if (Z_corr->at(y) < 7)  {
                               Code_Ident_Vamos->at(y) = 41;
                            }
-                        } else if (
+                        }
+                        else if (
                            (runNumber > 504 && runNumber < 507)
                         ) {
                            if (Z_corr->at(y) < 9) {
@@ -2187,7 +2211,8 @@ void Identificationv::Calculate(void)
                            }
                         }
                      }
-                  } else {
+                  }
+                  else {
                      if (runNumber == 360) {
 
                         FragTfinal->at(y) = FragTfinal->at(y) +
@@ -2197,7 +2222,8 @@ void Identificationv::Calculate(void)
                                             );
                         assert(FragTfinal->at(y) > 0.);
 
-                     } else   {
+                     }
+                     else   {
                         // TODO: Err...why?
                         FragTfinal->at(y) = FragTfinal->at(y);
                         assert(FragTfinal->at(y) > 0.);
@@ -2274,7 +2300,8 @@ void Identificationv::Calculate(void)
             if (!grid_chiov2) {
                ++grid_misses->chiov2;
                Code_Ident_Vamos->at(y) = 38;
-            } else {
+            }
+            else {
 
                if (
                   grid_chiov2->IsIdentifiable
@@ -2310,10 +2337,12 @@ void Identificationv::Calculate(void)
                      // std::cout << "diff : " <<
                      // id_chiov2->PID+1.-PID[y]<< std::endl;
                      Code_Ident_Vamos->at(y) = 2;
-                  } else {
+                  }
+                  else {
                      Code_Ident_Vamos->at(y) = 39;
                   }
-               } else {
+               }
+               else {
                   Code_Ident_Vamos->at(y) = 40;
                }
             }
@@ -2354,7 +2383,8 @@ void Identificationv::Calculate(void)
                Rec->Brho <= Brho_max->at(runNumber)
             ) {
             Code_Vamos->at(y) = 1;
-         } else {
+         }
+         else {
             Code_Vamos->at(y) = 0;
          }
 
@@ -2566,7 +2596,8 @@ void Identificationv::Calculate(void)
 
                Code_Ident_Vamos->at(y) = 50;
             }
-         } else if (
+         }
+         else if (
             Code_Ident_Vamos->at(y) == 2 ||
             Code_Ident_Vamos->at(y) == 22
          ) {
@@ -2664,7 +2695,8 @@ void Identificationv::Calculate(void)
                Etot->at(y) = FragEChio->at(y) + FragESi->at(y) +
                              FragEGap->at(y) + FragECsI->at(y);
 
-            } else if (
+            }
+            else if (
                Code_Ident_Vamos->at(y) == 2 ||
                Code_Ident_Vamos->at(y) == 22
             ) {
@@ -2818,7 +2850,8 @@ void Identificationv::Calculate(void)
                M_straight->at(y) = Q_straight->at(y) * M_Q->at(y);
 
                Code_Ident_Vamos->at(y) = 45;
-            } else {
+            }
+            else {
 
                if (
                   grid_qaq->IsIdentifiable(
@@ -2837,7 +2870,8 @@ void Identificationv::Calculate(void)
                   M_straight->at(y) = Q_straight->at(y) *
                                       M_Q->at(y);
 
-               } else {
+               }
+               else {
                   Code_Ident_Vamos->at(y) = 46;
                }
             }
@@ -2871,7 +2905,8 @@ void Identificationv::Calculate(void)
                M_straight->at(y) = Q_straight->at(y) * M_Q->at(y);
 
                Code_Ident_Vamos->at(y) = 55;
-            } else {
+            }
+            else {
 
                if (
                   grid_qaq_chiosi->IsIdentifiable(
@@ -2892,7 +2927,8 @@ void Identificationv::Calculate(void)
                   M_straight->at(y) = Q_straight->at(y) *
                                       M_Q->at(y);
 
-               } else {
+               }
+               else {
                   Code_Ident_Vamos->at(y) = 56;
                }
             }
@@ -3097,7 +3133,8 @@ void Identificationv::GeometrySiCsICross()
    if (!gDataSet->OpenDataSetFile("geom_sicsi_biggercsi.dat", in)) {
       std::cout << "Could not open geom_sicsi_biggercsi.dat !!!" << std::endl;
       return;
-   } else {
+   }
+   else {
       while (!in.eof()) {
          sline.ReadLine(in);
          if (!in.eof()) {
@@ -3146,7 +3183,8 @@ void Identificationv::GeometryChioSi()
       std::cout << "Could not open the calibration file geom_chiosi.dat !!!"
                 << std::endl;
       return;
-   } else {
+   }
+   else {
       while (!in.eof()) {
          sline.ReadLine(in);
          if (!in.eof()) {
@@ -3191,7 +3229,8 @@ void Identificationv::GeometryChioCsI()
                 "Could not open the calibration file geom_chiocsi.dat !!!" <<
                 std::endl;
       return;
-   } else {
+   }
+   else {
       while (!in.eof()) {
          sline.ReadLine(in);
          if (!in.eof()) {
@@ -3235,7 +3274,8 @@ void Identificationv::Geometry()
       std::cout << "Could not open the calibration file geom.dat !!!" <<
                 std::endl;
       return;
-   } else {
+   }
+   else {
       while (!in.eof()) {
          sline.ReadLine(in);
          if (!in.eof()) {
@@ -3293,7 +3333,8 @@ void Identificationv::ReadQCorrection()
       L->Log << "Could not open the calibration file q_function !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       L->Log << "Reading q_function" << std::endl;
       while (file.good()) {         // reading the file
          sline.ReadLine(file);
@@ -3342,7 +3383,8 @@ void Identificationv::ReadAQCorrection()
       L->Log << "Could not open the calibration file q_function !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       L->Log << "Reading mq_function" << std::endl;
       while (file2.good()) {         // reading the file
          sline2.ReadLine(file2);
@@ -3377,7 +3419,8 @@ void Identificationv::ReadAQCorrection()
              "Could not open the calibration file mq_function_chiosi !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       L->Log << "Reading mq_function_chiosi" << std::endl;
       while (file22.good()) {         // reading the file
          sline22.ReadLine(file22);
@@ -3427,7 +3470,8 @@ void Identificationv::ReadACorrection()
       L->Log << "Could not open the calibration file m_function !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       L->Log << "Reading m_function" << std::endl;
       while (file3.good()) {         // reading the file
          sline3.ReadLine(file3);
@@ -3464,7 +3508,8 @@ void Identificationv::ReadACorrection()
       L->Log << "Could not open the calibration file m_function_chiosi !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       L->Log << "Reading m_function_chiosi" << std::endl;
       while (file33.good()) {         // reading the file
          sline33.ReadLine(file33);
@@ -3512,7 +3557,8 @@ void Identificationv::ReadFlagVamos()
       L->Log << "Could not open the calibration file Flag_CodeVamos !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       std::cout << "Reading Flag_CodeVamos" << std::endl;
 
       while (file4.good()) {         // reading the file
@@ -3574,7 +3620,8 @@ void Identificationv::ReadDoublingCorrection()
       L->Log << "Could not open the calibration file deprecated/doublepeak_mins.dat !!!"
              << std::endl;
       return;
-   } else {
+   }
+   else {
       while (file5.good()) {         // reading the file
          sline5.ReadLine(file5);
          if (!file5.eof()) {          // fin du fichier
@@ -3679,7 +3726,8 @@ void Identificationv::ReadToFCorrectionChioSi()
       L->Log << "Could not open the calibration file deprecated/Tof_corr.dat !!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       while (file5.good()) {         // reading the file
          sline5.ReadLine(file5);
 
@@ -3723,7 +3771,8 @@ void Identificationv::ReadToFCorrectionCode1()
       L->Log << "Could not open the calibration file deprecated/Tof_corr_code1.dat !!!"
              << std::endl;
       return;
-   } else {
+   }
+   else {
       while (file5.good()) {         // reading the file
          sline5.ReadLine(file5);
 
@@ -3767,7 +3816,8 @@ void Identificationv::ReadStatIndra()
       L->Log << "Could not open the calibration file  Stat_Indra!!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       while (file6.good()) {         // reading the file
          sline6.ReadLine(file6);
 
@@ -3817,7 +3867,8 @@ void Identificationv::ReadOffsetsChiosi()
                 "Offset_relativiste.cal !!!" <<
                 std::endl;
       return;
-   } else {
+   }
+   else {
       std::cout << "Reading Offset_relativiste.dat" << std::endl;
       L->Log << "Reading Offset_relativiste.dat" << std::endl;
 
@@ -3865,7 +3916,8 @@ void Identificationv::ReadStraightAQ()
       L->Log << "Could not open the calibration file  straight_fct!!!" <<
              std::endl;
       return;
-   } else {
+   }
+   else {
       while (file8.good()) {         // reading the file
          sline8.ReadLine(file8);
          if (!file8.eof()) {          // fin du fichier
@@ -3887,7 +3939,8 @@ void Identificationv::ReadStraightAQ()
       L->Log << "Could not open the calibration file  straight_fct_chiosi!!!"
              << std::endl;
       return;
-   } else {
+   }
+   else {
       while (file80.good()) {         // reading the file
          sline80.ReadLine(file80);
 

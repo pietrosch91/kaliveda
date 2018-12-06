@@ -59,7 +59,8 @@ KVVAMOSDataCorrection* KVVAMOSDataCorrection::MakeDataCorrection(const Char_t* u
    KVVAMOSDataCorrection* dc = 0;
    if (!(ph = KVBase::LoadPlugin("KVVAMOSDataCorrection", uri))) {
       dc = new KVVAMOSDataCorrection(run_number);
-   } else {
+   }
+   else {
       dc = (KVVAMOSDataCorrection*) ph->ExecPlugin(1, run_number);
    }
 

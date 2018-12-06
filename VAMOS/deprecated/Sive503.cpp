@@ -104,7 +104,8 @@ Sive503::Sive503(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("Si.cal", inf)) {
       cout << "Could not open the calibration file Si.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading Si.cal" << endl;
       L->Log << "Reading Si.cal" << endl;
@@ -126,11 +127,13 @@ Sive503::Sive503(LogFile* Log)
                }
                //L->Log<<"ECoef : "<<ECoef[tmp][0]<<" "<<"-524 : "<<ECoef[0][0]<<endl;
                tmp++;
-            } else if (tmp < 42) { //originalement tmp<42
+            }
+            else if (tmp < 42) {   //originalement tmp<42
                sscanf(line, "%f %f", &p0, &p1);  //Don't use those values 0
                //L->Log<<  "TO " <<TOff[tmp-21][0] << " " << TOff[tmp-21][1]<< endl;
                tmp++;
-            } else {
+            }
+            else {
                sscanf(line, "%f %f %f %f %f", TCoef[tmp - 42] + 0, TCoef[tmp - 42] + 1, TCoef[tmp - 42] + 2, TCoef[tmp - 42] + 3, TCoef[tmp - 42] + 4); // originalement tmp-42
                //L->Log <<  "TC " <<TCoef[tmp-42][0] << " " << TCoef[tmp-42][1]<< endl;
                tmp++;
@@ -159,7 +162,8 @@ Sive503::Sive503(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("Offset.cal", in2)) {
       cout << "Could not open the calibration file Offset.cal !!!" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading Offset.cal" << endl;
       L->Log << "Reading Offset.cal" << endl;
       while (!in2.eof()) {
@@ -189,7 +193,8 @@ Sive503::Sive503(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("Offset_relativiste.dat", in3)) {
       cout << "Could not open the calibration file Offset_relativiste.cal !!!" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading Offset_relativiste.dat" << endl;
       L->Log << "Reading Offset_relativiste.dat" << endl;
       while (!in3.eof()) {
@@ -215,7 +220,8 @@ Sive503::Sive503(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("thick.dat", in)) {
       cout << "Could not open the calibration file thick.dat !!!" << endl;
       return;
-   } else {
+   }
+   else {
       while (!in.eof()) {
          sline2.ReadLine(in);
          if (!in.eof()) {

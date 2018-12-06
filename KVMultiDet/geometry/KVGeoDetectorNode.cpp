@@ -282,7 +282,8 @@ void KVGeoDetectorNode::BuildTrajectoriesForwards(TSeqCollection* list)
       // no trajectories in list
       // add new trajectory starting here
       list->Add(new KVGeoDNTrajectory(this));
-   } else {
+   }
+   else {
       // add this node to each trajectory in list
       list->R__FOR_EACH(KVGeoDNTrajectory, AddLast)(this);
    }

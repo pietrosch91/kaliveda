@@ -327,7 +327,8 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream& ifile)
          infos[i] = sline;
          OKbit = OKbit | (1 << i);
          if (i == 0) runs.SetList(sline);
-      } else if (OKbit != 7) {
+      }
+      else if (OKbit != 7) {
          // OKbit different from 7 means RUNS, TYPE or FUNCTION are missing
          for (Int_t j = 0; j < 3; j++) {
             if (!(OKbit & (1 << j)))
@@ -335,7 +336,8 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream& ifile)
 
          }
          return kFALSE;
-      } else {
+      }
+      else {
 
          if (sline.EndsWith("\\")) {
             sline.Remove(KVString::kTrailing, '\\');
@@ -378,7 +380,8 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream& ifile)
 //             parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
                parset->SetParamName(j + 1, ((TObjString*)tok->At(j))->GetString().Data());
             }
-         } else {
+         }
+         else {
             // for calibrator without formula expression
             parset = new KVDBParameterSet(name.Data(), infos[1].Data(), tok->GetEntries() + 1);
             parset->SetParamName(0, "Npar");

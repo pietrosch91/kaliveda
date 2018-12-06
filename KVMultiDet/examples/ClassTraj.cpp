@@ -154,7 +154,8 @@ void ClassTraj::CalcDerivs(Double_t t, Double_t* Y, Double_t* DYDX)
       if (incoming && distance < fWilcke.GetRint() + 10.) {
          incoming = kFALSE;
          interacting = kTRUE;
-      } else if (interacting && distance > fWilcke.GetRint() + 10.) {
+      }
+      else if (interacting && distance > fWilcke.GetRint() + 10.) {
          interacting = kFALSE;
          outgoing = kTRUE;
       }

@@ -377,7 +377,8 @@ void KVSpIdGUI::SpiderIdentification()
 
          fGrid->Add("ID", TheLine);
          if (spline->GetZ() >= zmax) zmax = spline->GetZ();
-      } else {
+      }
+      else {
          Info("SpiderIdentification", "Z = %d has been rejected (too few points)", spline->GetZ());
       }
    }

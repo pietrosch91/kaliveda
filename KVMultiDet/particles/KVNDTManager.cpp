@@ -81,7 +81,8 @@ void KVNDTManager::SetValue(Int_t zz, Int_t aa, const Char_t* name, Double_t val
    KVNuclDataTable* tab = 0;
    if ((tab = GetTable(name))) {
       tab->SetValue(zz, aa, val);
-   } else
+   }
+   else
       Error("SetValue", "No table found with name %s", name);
 
 }

@@ -226,7 +226,8 @@ Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
 
          record_id = substr.Strip(TString::kBoth);
 
-      } else if (line_stripped.BeginsWith("+run_range:")) {
+      }
+      else if (line_stripped.BeginsWith("+run_range:")) {
          index = line_stripped.Index("=");
 
          if (index < 0) {
@@ -246,7 +247,8 @@ Bool_t KVIVDB_e503::ReadCorrectorFile(const TString& filename)
          stripped_runlist = substr.Strip(TString::kBoth);
          run_list.SetList(stripped_runlist);
 
-      } else if (line_stripped.BeginsWith("+parameter:")) {
+      }
+      else if (line_stripped.BeginsWith("+parameter:")) {
          index = line_stripped.Index("=");
 
          if (index < 0) {

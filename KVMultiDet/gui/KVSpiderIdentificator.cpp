@@ -222,7 +222,8 @@ bool KVSpiderIdentificator::TestHistogram(TH1* h_)
    if (!h_) {
       cout << "ERROR: KVSpiderIdentificator::TestHistogram(): Invalid pointer on 'TH2F' histogram !" << endl;
       return false;
-   } else if (h_->Integral() == 0) {
+   }
+   else if (h_->Integral() == 0) {
       cout << "ERROR: KVSpiderIdentificator::SetHistogram(): Invalid histogram for SpIDer identification !" << endl;
       return false;
    }
@@ -244,10 +245,12 @@ TList* KVSpiderIdentificator::CreateHistograms(double thmin_, double thmax_, int
    else if (!_is_initialized) {
       cout << "ERROR: KVSpiderIdentificator::CreateHistogram(): Invalid range of theta [" << thmin_ << ";" << thmax_ << "] !" << endl;
       return 0;
-   } else if ((thmin_ > thmax_) || (thmin_ < 0.) || (thmin_ >= 90.) || (thmax_ <= 0.) || (thmax_ > 90.)) {
+   }
+   else if ((thmin_ > thmax_) || (thmin_ < 0.) || (thmin_ >= 90.) || (thmax_ <= 0.) || (thmax_ > 90.)) {
       cout << "ERROR: KVSpiderIdentificator::CreateHistogram(): Invalid range of theta [" << thmin_ << ";" << thmax_ << "] !" << endl;
       return 0;
-   } else if (nth_ <= 0) {
+   }
+   else if (nth_ <= 0) {
       cout << "ERROR: KVSpiderIdentificator::CreateHistogram(): Invalid number of step '" << nth_ << "' !" << endl;
       return 0;
    }
@@ -256,7 +259,8 @@ TList* KVSpiderIdentificator::CreateHistograms(double thmin_, double thmax_, int
    if (alpha_ <= 0.) {
       if (_auto) aa = _alpha;
       else aa = 1.;
-   } else aa = alpha_;
+   }
+   else aa = alpha_;
 
    double min;
    double max;
@@ -265,7 +269,8 @@ TList* KVSpiderIdentificator::CreateHistograms(double thmin_, double thmax_, int
    if (cos_) {
       min  = TMath::Cos(thmax_ * TMath::DegToRad());
       max  = TMath::Cos(thmin_ * TMath::DegToRad());
-   } else {
+   }
+   else {
       min = thmin_;
       max = thmax_;
    }
@@ -295,7 +300,8 @@ TList* KVSpiderIdentificator::CreateHistograms(double thmin_, double thmax_, int
                double theta;
                if (cos_) {
                   theta = TMath::ACos(cth) * TMath::RadToDeg();
-               } else {
+               }
+               else {
                   theta = cth;
                }
                double tmax  = TMath::Tan(TMath::DegToRad() * (theta + aa));
@@ -413,7 +419,8 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
                   else              _spline = new KVSpiderLine(p, GetY0());
                   _llist.AddLast(_spline);
                }
-            } else valid = false;
+            }
+            else valid = false;
          }
 
          double caca = 0.4;
@@ -446,14 +453,16 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
             if ((p >= 10) && (d >= 1.7 * dist)) {
                valid = false;
                return true;
-            } else {
+            }
+            else {
                _spline->AddPoint(xx, yy);
                _spline->SetStatus(true);
                TrueZ = _spline->GetZ();
                TrueAss = true;
                ok++;
             }
-         } else {
+         }
+         else {
             _invalid->SetPoint(_invalid->GetN(), xx, yy);
          }
 
@@ -481,7 +490,8 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
                            assoc = true;
                            valid = false;
                            TrueAss = true;
-                        } else {
+                        }
+                        else {
                            test = true;
                         }
                      }
@@ -508,7 +518,8 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
             if ((_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d", OTZ)))) {
                ox = _spline->GetInterpolateX();
                oy = _spline->GetInterpolateY();
-            } else {
+            }
+            else {
                ox = 0.;
                oy = 0.;
             }
@@ -692,7 +703,8 @@ void KVSpiderIdentificator::Draw(Option_t* opt_)
          if (dd->GetTheta() == _ftheta) {
             ff->SetLineWidth(2);
             ff->SetLineColor(kRed);
-         } else {
+         }
+         else {
             ff->SetLineWidth(2);
             ff->SetLineColor(kRed);
          }

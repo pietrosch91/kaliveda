@@ -173,7 +173,8 @@ void KVPosition::SetPolarWidth(Double_t pw)
    if (fTheta > -1.0) {
       fTheta_min = fTheta - .5 * pw;
       fTheta_max = fTheta + .5 * pw;
-   } else {
+   }
+   else {
       fTheta_min = -180.;
       fTheta_max = fTheta_min + pw;
    }
@@ -206,7 +207,8 @@ void KVPosition::SetAzimuthalWidth(Double_t aw)
       fPhi_max = fPhi + .5 * aw;
       if (fPhi_max >= 360.)
          fPhi_max -= 360.;
-   } else {
+   }
+   else {
       fPhi_min = -180.;
       fPhi_max = fPhi_min + aw;
    }
@@ -290,7 +292,8 @@ void KVPosition::GetRandomAngles(Double_t& th, Double_t& ph, Option_t* t)
       thmax = fTheta_max * dtor;
       dtheta = thmax - thmin;
       th = gRandom->Uniform(dtheta) + thmin;
-   } else {
+   }
+   else {
       thmin = TMath::Cos(fTheta_min * dtor);
       thmax = TMath::Cos(fTheta_max * dtor);
       dtheta = thmin - thmax;

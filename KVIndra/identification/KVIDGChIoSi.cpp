@@ -208,10 +208,12 @@ void KVIDGChIoSi::Streamer(TBuffer& R__b)
          R__b >> fEmaxSi;
          Bool_t fIgnorePunchThrough;
          R__b >> fIgnorePunchThrough;
-      } else {
+      }
+      else {
          KVIDGChIoSi::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
       }
-   } else {
+   }
+   else {
       KVIDGChIoSi::Class()->WriteBuffer(R__b, this);
    }
 }
@@ -244,7 +246,8 @@ void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) 
          idr->SetComment("warning: point below punch-through line");
       }
       idr->IDquality = fICode;
-   } else if (fICode == KVIDZAGrid::kICODE7) {
+   }
+   else if (fICode == KVIDZAGrid::kICODE7) {
       // for particles above last line in grid, check if we are in fact in the Bragg zone
       if (fBragg && fBragg->WhereAmI(x, y, "left")) {
          const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;

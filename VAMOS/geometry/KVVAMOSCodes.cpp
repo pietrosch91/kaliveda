@@ -569,13 +569,16 @@ void KVVAMOSCodes::SetFPCode(Int_t nc1, Int_t nc2, Int_t ni1, Int_t ni2, Bool_t 
 
       if ((nc1 < nc2) && (nc2 < fNFPdets)) {
          idx -= fNFPdets * fNFPdets + nc2 * (nc2 - 2 * fNFPdets) - 1;
-      } else if ((ni1 != nc1) && (-1 < ni1) && (ni1 < ni2) && (ni2 < fNFPdets)) {
+      }
+      else if ((ni1 != nc1) && (-1 < ni1) && (ni1 < ni2) && (ni2 < fNFPdets)) {
          if (ni1 > nc1) {
             idx -= fNFPdets * fNFPdets + ni1 * (ni1 - 2 * (fNFPdets - 1)) - 2 * ni2 + ni1x - 1;
-         } else {
+         }
+         else {
             idx -= fNFPdets * (fNFPdets - 2) - nc1 + ni1 * (ni1 - 2 * fNFPdets + 5) - 2 * ni2 + ni1x + 3 - (ni2 < nc1 ? 2 : 0);
          }
-      } else idx = 0;
+      }
+      else idx = 0;
    }
    SetFPCodeFromIndex(idx);
 }
@@ -592,7 +595,8 @@ UChar_t KVVAMOSCodes::GetFPCodeIndex(UInt_t mask)
    do {
       mask = (mask >> 1);
       i++;
-   } while (mask);
+   }
+   while (mask);
    return i - 1;
 }
 //________________________________________________________________
@@ -608,7 +612,8 @@ UChar_t KVVAMOSCodes::GetTCodeIndex(UShort_t mask)
    do {
       mask = (mask >> 1);
       i++;
-   } while (mask);
+   }
+   while (mask);
    return i - 1;
 }
 //________________________________________________________________

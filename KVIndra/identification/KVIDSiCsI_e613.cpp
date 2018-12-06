@@ -61,7 +61,8 @@ void KVIDSiCsI_e613::Initialize()
       fGGgrid->Initialize();
       if (fPGgrid) fPGgrid->Initialize();
       fPIEDESTAL = (KVIDCutLine*)fGGgrid->GetCut("PIEDESTAL");
-   } else ResetBit(kReadyForID);
+   }
+   else ResetBit(kReadyForID);
 
 }
 
@@ -110,7 +111,8 @@ Bool_t KVIDSiCsI_e613::Identify(KVIdentificationResult* idr, Double_t x, Double_
    if (fPIEDESTAL) {
       if (fPIEDESTAL->TestPoint(lumtot, sigg)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
       else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-   } else {
+   }
+   else {
       idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
    }
 

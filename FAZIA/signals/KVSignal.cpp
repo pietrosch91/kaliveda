@@ -191,7 +191,8 @@ void KVSignal::TreateOldSignalName()
 
       fIndex = 100 * bb + 10 * qq + tt;
       fDetName.Form("%s-%d", stit.Data(), fIndex);
-   } else if (tmp.BeginsWith("RUTH")) {
+   }
+   else if (tmp.BeginsWith("RUTH")) {
       //Old FAZIA telescope denomination
       //    Rutherford telescope case for FAZIASYM experiment
       tmp.Begin("-");
@@ -220,7 +221,8 @@ void KVSignal::DeduceFromName()
       //Old FAZIA telescope denomination
       //Info("DeduceFromName","Old format %s",GetName());
       TreateOldSignalName();
-   } else {
+   }
+   else {
 
       if (tmp.GetNValues("-") == 2) {
          //new general denomination
@@ -240,10 +242,12 @@ void KVSignal::DeduceFromName()
          if (ss.IsDigit()) {
             fIndex = ss.Atoi();
             fDetName.Form("%s-%d", stit.Data(), fIndex);
-         } else {
+         }
+         else {
             fDetName.Form("%s-%s", stit.Data(), ss.Data());
          }
-      } else {
+      }
+      else {
          Warning("DeduceFromName", "Unkown format %s", GetName());
       }
    }
@@ -283,7 +287,8 @@ void KVSignal::UpdatePSAParameter(KVDBParameterList* par)
       else {
          if (nameat == "Detector" || nameat == "Signal" || nameat == "RunRange") {
 
-         } else {
+         }
+         else {
             Warning("UpdatePSAParameter", "Not supported PSA parameter : %d %s\n", ii, nameat.Data());
          }
       }
@@ -1037,9 +1042,11 @@ double KVSignal::GetDataCubicSpline(double t)
 
    if (xk_index < (dimensione / 2 - 1)) {
       samples.SetMatrixArray(data);//prendiamo i dati a partire dal primo
-   } else if (xk_index > (N - dimensione / 2 - 1)) {
+   }
+   else if (xk_index > (N - dimensione / 2 - 1)) {
       samples.SetMatrixArray(data + N - dimensione); //prendiamo 18 dati partendo dalla fine
-   } else {
+   }
+   else {
       samples.SetMatrixArray(data + xk_index - (dimensione / 2 - 1)); //perche l'interp deve avvenire tra i campioni centrali della matrice
    }
    float* samples_interp = samples.GetMatrixArray();
@@ -1053,14 +1060,18 @@ double KVSignal::GetDataCubicSpline(double t)
          cm1 = (*samples_interp) * 6 * h - ((*ck) * 4 + (*(ck + 1)));
          float caso_zero[4] = {cm1, *ck, *(ck + 1), *(ck + 2)};
          coefficienti.SetMatrixArray(caso_zero);
-      } else coefficienti.SetMatrixArray(ck + xk_index - 1);
-   } else if (xk_index > (N - dimensione / 2 - 1)) {
+      }
+      else coefficienti.SetMatrixArray(ck + xk_index - 1);
+   }
+   else if (xk_index > (N - dimensione / 2 - 1)) {
       if (xk_index == N - 2) {
          cNm1 = (*(samples_interp + dimensione - 1)) * 6 * h - (*(ck + dimensione - 1) * 4 + (*(ck + dimensione - 2)));
          float casoN[4] = {*(ck + dimensione - 3), *(ck + dimensione - 2), *(ck + dimensione - 1), cNm1};
          coefficienti.SetMatrixArray(casoN);
-      } else coefficienti.SetMatrixArray(ck + dimensione - (N - xk_index + 1));
-   } else {
+      }
+      else coefficienti.SetMatrixArray(ck + dimensione - (N - xk_index + 1));
+   }
+   else {
       coefficienti.SetMatrixArray(ck + (dimensione / 2 - 2));
    }
 
@@ -1206,8 +1217,10 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
       do {
          fmax = std::abs(-2 * roB * cos(phib - (nmax + 1) * phiz) / pow(roZ, nmax + 1));
          if (fmax * pow(2, nfloat + 1) < 1) nmax--;
-      } while (fmax * pow(2, nfloat + 1) < 1);
-   } else nmax = 50;
+      }
+      while (fmax * pow(2, nfloat + 1) < 1);
+   }
+   else nmax = 50;
    double* xvec = new double[2 * nmax + 1];
    double* yvec = new double[2 * nmax + 1];
    if (nbits > 2) {
@@ -1215,7 +1228,8 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
          yvec[nmax + i] = yvec[nmax - i] = 0;
          xvec[nmax + i] = xvec[nmax - i] = ((double)floor(-2 * roB * cos(phib - (i + 1) * phiz) / pow(roZ, i + 1) * pow(2, nfloat) + 0.5)) / pow(2, nfloat);
       }
-   } else {
+   }
+   else {
       for (i = 0; i <= nmax; i++) {
          yvec[nmax + i] = yvec[nmax - i] = 0;
          xvec[nmax + i] = xvec[nmax - i] = -2 * roB * cos(phib - (i + 1) * phiz) / pow(roZ, i + 1);
@@ -1252,7 +1266,8 @@ double KVSignal::ApplyNewton(double l, double X0)
       if (x1 == x2) {
          x1 = (x1 + x0) / 2.;
          loopcount++;
-      } else if (x1 == x3) {
+      }
+      else if (x1 == x3) {
          x1 = (x1 + x0 + x2) / 3.;
          loopcount++;
       }
@@ -1260,7 +1275,8 @@ double KVSignal::ApplyNewton(double l, double X0)
       if (loopcount == 100) fexit = 1;
       fxold1 = fx;
       fx = pow(x1, 4) + A * pow(x1, 3) + B * pow(x1, 2) + A * x1 + 1;
-   } while (((fx > 0.000000001) || (fxold1 != fx)) && (fexit == 0));
+   }
+   while (((fx > 0.000000001) || (fxold1 != fx)) && (fexit == 0));
    return x1;
 }
 /***********************************************/

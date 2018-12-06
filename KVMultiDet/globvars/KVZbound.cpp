@@ -233,13 +233,16 @@ void KVZbound::Init()
       SetBit(kZBoth); // Z>= Zmin && Z<=Zmax
       zmin = (Int_t)GetParameter("Zmin");
       zmax = (Int_t)GetParameter("Zmax");
-   } else if (IsParameterSet("Zmin")) {
+   }
+   else if (IsParameterSet("Zmin")) {
       SetBit(kZMin); // Z>= Zmin
       zmin = (Int_t)GetParameter("Zmin");
-   } else if (IsParameterSet("Zmax")) {
+   }
+   else if (IsParameterSet("Zmax")) {
       SetBit(kZMax); // Z>= Zmax
       zmax = (Int_t)GetParameter("Zmax");
-   } else {
+   }
+   else {
       //no Z parameter set
       //default is to calculate Zbound for Z>= 3
       SetBit(kZMin);
@@ -250,10 +253,12 @@ void KVZbound::Init()
       SetBit(kVBoth); // V>= Vmin && V<=Vmax
       vmin = GetParameter("Vmin");
       vmax = GetParameter("Vmax");
-   } else if (IsParameterSet("Vmin")) {
+   }
+   else if (IsParameterSet("Vmin")) {
       SetBit(kVMin); // V>= Vmin
       vmin = GetParameter("Vmin");
-   } else if (IsParameterSet("Vmax")) {
+   }
+   else if (IsParameterSet("Vmax")) {
       SetBit(kVMax); // V>= Vmax
       vmax = GetParameter("Vmax");
    }

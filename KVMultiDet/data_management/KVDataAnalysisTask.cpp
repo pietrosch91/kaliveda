@@ -194,7 +194,8 @@ void KVDataAnalysisTask::SetUserBaseClass(const Char_t* base_name)
          // base_name = uri/base
          fPluginURI = ((TObjString*)toks->At(0))->String();
          fPluginBase = ((TObjString*)toks->At(1))->String();
-      } else {
+      }
+      else {
          // base_name = uri. default plugin base class is KVDataAnalyser
          fPluginURI = base_name;
          fPluginBase = "KVDataAnalyser";
@@ -234,7 +235,8 @@ Bool_t KVDataAnalysisTask::CheckUserBaseClassIsLoaded()
       if (ph) return kTRUE;
       Error("CheckUserBaseClassIsLoaded", "Analysis task=%s : Failed to load plugin class=%s base=%s uri=%s",
             GetName(), fBaseClass.Data(), fPluginBase.Data(), fPluginURI.Data());
-   } else {
+   }
+   else {
       Error("CheckUserBaseClassIsLoaded", "Analysis task=%s : User analysis base class %s is unknown",
             GetName(), fBaseClass.Data());
    }

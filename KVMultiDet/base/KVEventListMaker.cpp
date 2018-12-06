@@ -108,10 +108,12 @@ void KVEventListMaker::Process()
             ((TEventList*) kevtlist->At(nn))->SetName(tampname.Data());
             kevtlist->At(nn)->Write();
          }
-      } else {
+      }
+      else {
          kevtlist->Write();
       }
-   } else printf("%s n existe pas\n", GetTreeName().Data());
+   }
+   else printf("%s n existe pas\n", GetTreeName().Data());
 
    delete [] variable;
 //close the file

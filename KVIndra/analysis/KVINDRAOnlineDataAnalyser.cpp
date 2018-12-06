@@ -91,7 +91,8 @@ void KVINDRAOnlineDataAnalyser::addallhistostoserver(TCollection* list, const TS
          family = family_pref + "/";
          family += obj->GetName();
          addallhistostoserver((TCollection*)obj, family);
-      } else if (obj->InheritsFrom("TH1")) {
+      }
+      else if (obj->InheritsFrom("TH1")) {
          if (fSpectraDB) {
             Info("KVINDRAOnlineDataAnalyser", "Adding histo %s to family %s", obj->GetName(), family_pref.Data());
             fSpectraDB->AddSpectrum((TH1*)obj, family_pref.Data());
@@ -178,7 +179,8 @@ void KVINDRAOnlineDataAnalyser::ProcessRun()
          fDetEv->Clear();
 
          if (!((fEventNumber) % 10000)) cout << " ++++ " << fEventNumber << " events read ++++ " << endl;
-      } else {
+      }
+      else {
          // got no event - why ?
          Int_t status = fRunFile->GetStatus();
          switch (status) {
@@ -304,7 +306,8 @@ void KVINDRAOnlineDataAnalyser::HandleCommands(TString& ordre, TSocket* theSocke
       fGoEventLoop = kFALSE;
       theSocket->Send("ok");
       return;
-   } else if (ordre == "SAVE") {
+   }
+   else if (ordre == "SAVE") {
       TString tmp_fil = com.Next();
       TString fil;
       bool send_name = kFALSE;
@@ -316,16 +319,19 @@ void KVINDRAOnlineDataAnalyser::HandleCommands(TString& ordre, TSocket* theSocke
          date.ReplaceAll(" ", "_");
          fil = Form("${ANALYSIS_RESULTS}/%s_Run%d_%s.root", GetName(), GetRunNumber(), date.Data());
          send_name = kTRUE;
-      } else fil = Form("${ANALYSIS_RESULTS}/%s", tmp_fil.Data());
+      }
+      else fil = Form("${ANALYSIS_RESULTS}/%s", tmp_fil.Data());
       SaveSpectra(fil.Data());
       if (send_name) theSocket->Send(fil.Data());
       else theSocket->Send("ok");
       return;
-   } else if (ordre == "CLEAR") {
+   }
+   else if (ordre == "CLEAR") {
       ClearAllHistos();
       theSocket->Send("ok");
       return;
-   } else if (ordre == "DUMP") {
+   }
+   else if (ordre == "DUMP") {
       TString tmp_fil = com.Next();
       tmp_fil.ToLower();
       if (tmp_fil == "yes")fDumpEvents = kTRUE;

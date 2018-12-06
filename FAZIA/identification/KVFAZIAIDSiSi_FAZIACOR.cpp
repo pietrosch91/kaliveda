@@ -46,7 +46,8 @@ void KVFAZIAIDSiSi_FAZIACOR::Initialize()
    if (fSiSiGrid) {
       SetBit(kReadyForID);
       fSiSiGrid->Initialize();
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
@@ -66,7 +67,8 @@ Bool_t KVFAZIAIDSiSi_FAZIACOR::Identify(KVIdentificationResult* idr, Double_t x,
 
    if (fSiSiGrid->IsIdentifiable(si2, si1)) {
       fSiSiGrid->Identify(si2, si1, idr);
-   } else {
+   }
+   else {
       idr->IDOK = kFALSE;
       idr->IDquality = KVIDZAGrid::kICODE8;
    }

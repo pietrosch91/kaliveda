@@ -69,7 +69,8 @@ Int_t KVZGOUBIInversePosition::GetInversePositionVectorValue(Int_t vectorpositio
 {
    if (vectorposition < 0 || vectorposition >= (Int_t) InversePositionVector.size()) {
       return -1;
-   } else {
+   }
+   else {
       return InversePositionVector[vectorposition];
    }
 }
@@ -78,7 +79,8 @@ Bool_t KVZGOUBIInversePosition::GetInversePositionVectorStatus()
 {
    if (InversePositionVector.size() == 0) {
       return false;
-   } else {
+   }
+   else {
       return true;
    }
 }

@@ -182,7 +182,8 @@ void KVTrieur::Copy(TObject& a)
          sprintf(nomc, "%s_C%d", this->GetName(), i + 1);
          new ((*tca)[i]) TNamed(nomc, c->GetTitle());
       }
-   } else {
+   }
+   else {
       ((KVTrieur&) a).noms_cases = 0;
    }
 #ifdef DEBUG_KVTrieur
@@ -220,11 +221,13 @@ const Char_t* KVTrieur::GetNomCase(Int_t i)
    if (noms_cases) {
       if (i > 0 && i <= nb_cases) {
          return ((TNamed*) noms_cases->At(i - 1))->GetTitle();
-      } else {
+      }
+      else {
          cout << "Le numero de case est incorrect..." << endl;
          return 0;
       }
-   } else {
+   }
+   else {
       cout << "Les noms de cases n'ont pas etes definis..." << endl;
       return 0;
    }
@@ -239,10 +242,12 @@ void KVTrieur::SetNomCase(Int_t i, Char_t* s)
    if (noms_cases) {
       if (i > 0 && i <= nb_cases) {
          ((TNamed*) noms_cases->At(i - 1))->SetTitle(s);
-      } else {
+      }
+      else {
          cout << "Le numero de case est incorrect..." << endl;
       }
-   } else {
+   }
+   else {
       cout << "Les noms de cases n'ont pas etes definis..." << endl;
    }
 }

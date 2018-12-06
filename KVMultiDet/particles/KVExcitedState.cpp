@@ -47,7 +47,8 @@ void KVExcitedState::set(Double_t ee, Double_t ww, Double_t jj, Int_t pi)
    if (jj - TMath::Nint(jj) > 0.1) {
       fSpin = TMath::Nint(jj * 2);
       fIsOdd = kTRUE;
-   } else {
+   }
+   else {
       fSpin = TMath::Nint(jj);
       fIsOdd = kFALSE;
    }
@@ -79,7 +80,8 @@ void KVExcitedState::computeParity()
    if ((jpi.Contains("-")) && (jpi.Contains("+"))) {
       if (jpi.Index("+") < jpi.Index("-")) fParity = 1;
       else  fParity = -1;
-   } else if (jpi.Contains("-")) fParity = -1;
+   }
+   else if (jpi.Contains("-")) fParity = -1;
    else                       fParity = 1;
 }
 
@@ -98,7 +100,8 @@ void KVExcitedState::computeSpin()
    if (jpi.Contains("/2")) {
       jpi = jpi(0, jpi.Index("/"));
       fIsOdd = kTRUE;
-   } else {
+   }
+   else {
       fIsOdd = kFALSE;
    }
    if (jpi.Contains(","))  jpi = jpi(0, jpi.Index(","));

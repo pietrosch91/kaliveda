@@ -228,7 +228,8 @@ void KVBreakUp::DefineBreakUpMethod(KVString bup_method)
       cout << "BreakUsingIndividual" << endl;
       cout << "BreakUsingLine" << endl;
       cout << "Make your choice" << endl;
-   } else {
+   }
+   else {
       SetBreakUpMethod(bup_method);
    }
 
@@ -428,7 +429,8 @@ Int_t KVBreakUp::BreakUsingIndividual(void)
             bb = TMath::Nint(alea->Uniform(0, (Mtotal) - 0.5));
             surplus[bb] += 1;
          }
-      } else {
+      }
+      else {
          for (Int_t mm = 0; mm < TMath::Abs(diff); mm += 1) {
             bb = TMath::Nint(alea->Uniform(0, (Mtotal) - 0.5));
             if (surplus[bb] > 0)
@@ -505,7 +507,8 @@ void KVBreakUp::TreatePartition()
    if (TestBit(kStorePartitions)) {
       if (Fill(partition))
          delete partition;
-   } else {
+   }
+   else {
       delete partition;
    }
 }
@@ -588,7 +591,8 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times, Double_t Ztot_moy, Double_t Z
             else {
                //cout << BreakUpMethod << " retourne " << ret << endl;
             }
-         } else {
+         }
+         else {
             nn -= 1;
          }
       }
@@ -628,7 +632,8 @@ KVEvent* KVBreakUp::BreakOnGaussian(Double_t Ztot_moy, Double_t Ztot_rms, Double
       if (ret == 1) {
          TreatePartition();
          return current_event;
-      } else {
+      }
+      else {
          return 0;
       }
    }
@@ -679,7 +684,8 @@ void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt, Int_t zmin)
                   stat_par += 1;
                   if (stat_par % 1000 == 0) printf("%d partitions generees sur %d\n", stat_par, stat_tot);
                }
-            } else {
+            }
+            else {
                cout << zt << " " << mt << endl;
             }
          }

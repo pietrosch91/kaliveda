@@ -223,7 +223,8 @@ Bool_t KVINDRARunSheetReader::ReadRunSheet(Int_t run)
                index = fTree->GetListOfBranches()->GetEntries();
                br_sca = fTree->Branch(dumstr.Data(), &fScalers[index], Form("%s/I", dumstr.Data()));
                //cout << "br_sca = fTree->Branch( \"" <<dumstr.Data()<<"\", &fScalers["<<index<<"], "<<Form("%s/I", dumstr.Data())<<");"<<endl;
-            } else {
+            }
+            else {
                index = fTree->GetListOfBranches()->IndexOf(br_sca);
             }
             //fill tableau with value

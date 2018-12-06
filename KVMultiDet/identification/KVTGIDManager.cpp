@@ -219,19 +219,24 @@ Double_t KVTGIDManager::IdentA(const Char_t* idtelescope_name, Double_t id_map_X
    if (Z == 1) {
       Amin = 1.;
       Amax = 3.;
-   } else if (Z == 2) {
+   }
+   else if (Z == 2) {
       Amin = 3;
       Amax = 8;
-   } else if (Z == 3) {
+   }
+   else if (Z == 3) {
       Amin = 6;
       Amax = 11;
-   } else if (Z == 4) {
+   }
+   else if (Z == 4) {
       Amin = 7;
       Amax = 14;
-   } else if (Z == 5) {
+   }
+   else if (Z == 5) {
       Amin = 8;
       Amax = 17;
-   } else {
+   }
+   else {
       //formula for Amin reasonable for 6<Z<20
       Amin = TMath::Max((Z + 1.), (1.8 * (Z - 2.) + 1.));
       Amax = 2.*Z + 8.;

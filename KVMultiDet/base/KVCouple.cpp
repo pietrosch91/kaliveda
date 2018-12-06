@@ -51,7 +51,8 @@ KVCouple::KVCouple(Int_t zf, Int_t zsup)
          //printf("      %d    %d %d\n",ii,z1,zfra-z1);
       }
       init = kTRUE;
-   } else {
+   }
+   else {
       //return;
       ResetVars();
    }
@@ -87,11 +88,13 @@ KVCouple::KVCouple(Int_t zf, Int_t zsup, Int_t div)
             tz2[ii]  =  zfra - z1;
          }
          init = kTRUE;
-      } else {
+      }
+      else {
          //return;
          ResetVars();
       }
-   } else {
+   }
+   else {
       nbre = zfra - zlim + 1;
       if (nbre > 0) {
 
@@ -104,7 +107,8 @@ KVCouple::KVCouple(Int_t zf, Int_t zsup, Int_t div)
             tz2[ii]  =  zfra - z1;
          }
          init = kTRUE;
-      } else {
+      }
+      else {
          //return;
          ResetVars();
       }

@@ -217,7 +217,8 @@ void KVDataAnalyser::Run()
       if (fBatchSystem && !BatchMode()) {
          //if batch mode is requested, the job is submitted to the chosen batch system
          fBatchSystem->SubmitTask(this);
-      } else {
+      }
+      else {
          if (BatchMode() && fBatchSystem && !fParent) fBatchSystem->Print("log");
          if (!RunningInLaunchDirectory() && fParent) {
             //when batch job runs in directory different to launch directory,
@@ -411,7 +412,8 @@ void KVDataAnalyser::SetUserLibraries(const Char_t* libs)
          if (ss == id) {
             Info("SetUserLibraries", "%s already load", id.Data());
             loaded = kTRUE;
-         } else {
+         }
+         else {
          }
       }
       if (!loaded) {
@@ -438,10 +440,12 @@ void KVDataAnalyser::ChooseNbEventToRead()
       if (ntr.IsDigit() || !ntr.Length()) {
          if (ntr.Length()) {
             nbEventToRead = (Long64_t) ntr.Atoi();
-         } else {
+         }
+         else {
             nbEventToRead = 0;
          }
-      } else {
+      }
+      else {
          cout << "\"" << ntr.
               Data() << "\" is not a number. Please retry." << endl;
       }
@@ -580,7 +584,8 @@ TObject* KVDataAnalyser::GetInstanceOfUserClass(const KVString& alternative_base
          gROOT->ProcessLine(cmd.Data());
          //class will be in dictionary if compilation successful
          cl = gROOT->GetClass(fUserClass.Data());
-      } else if (!cl) {
+      }
+      else if (!cl) {
          //class not in dictionary and no source files. help!
          Info("GetInstanceOfUserClass", "Class %s is unknown and no source files available",
               fUserClass.Data());
@@ -606,7 +611,8 @@ TObject* KVDataAnalyser::GetInstanceOfUserClass(const KVString& alternative_base
       }
       //EVERYTHING OK!! now instanciate an object of the new class
       return (TObject*)cl->New();
-   } else {
+   }
+   else {
       Info("GetInstanceOfUserClass", "Found plugin handler for class %s",
            fUserClass.Data());
       //load class from plugin
@@ -621,7 +627,8 @@ TObject* KVDataAnalyser::GetInstanceOfUserClass(const KVString& alternative_base
          if (obj->InheritsFrom(fTask->GetUserBaseClass())) return obj;
          Info("GetInstanceOfUserClass", "%s does not inherit from %s", fUserClass.Data(), fTask->GetUserBaseClass());
          return 0;
-      } else {
+      }
+      else {
          Info("GetInstanceOfUserClass", "constructor not OK for %s", fUserClass.Data());
          return 0;
       }
@@ -640,7 +647,8 @@ void KVDataAnalyser::SetUserClass(const Char_t* kvs, Bool_t check)
    fUserClass = kvs;
    if (check) {
       fUserClassIsOK = CheckIfUserClassIsValid();
-   } else {
+   }
+   else {
       fUserClassIsOK = kTRUE;
    }
 }
@@ -673,7 +681,8 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
       fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
       fBatchEnv->SetValue("UserClassImp", fUserClassImp);
       fBatchEnv->SetValue("UserClassDec", fUserClassDec);
-   } else {
+   }
+   else {
       // a task without a user class may still need to pass options to the predefined analysis class
       if (fUserClassOptions != "") fBatchEnv->SetValue("UserClassOptions", fUserClassOptions);
    }
@@ -709,7 +718,8 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          gDataSetManager->Init();
       }
       SetAnalysisTask(gDataSetManager->GetAnalysisTaskAny(val.Data()));
-   } else {
+   }
+   else {
       Error("ReadBatchEnvFile", "Name of analysis task not given");
       return ok;
    }
@@ -765,7 +775,8 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
          AssignAndDelete(path_trg, gSystem->ConcatFileName(gSystem->WorkingDirectory(), fUserClassDec.Data()));
          gSystem->CopyFile(path_src.Data(), path_trg.Data());
       }
-   } else {
+   }
+   else {
       // a task without a user class may still need to pass options to the predefined analysis class
       fUserClassOptions = fBatchEnv->GetValue("UserClassOptions", "");
    }
@@ -810,7 +821,8 @@ void KVDataAnalyser::SubmitTask()
    if (task_data_analyser == "UserClass") {
       //the user-provided class is to be used as analyser
       the_analyser.reset((KVDataAnalyser*)GetInstanceOfUserClass());
-   } else {
+   }
+   else {
       the_analyser.reset(GetAnalyser(fTask->GetDataAnalyser()));
    }
    if (!the_analyser.get())
@@ -821,7 +833,8 @@ void KVDataAnalyser::SubmitTask()
    if (fTask->WithUserClass()) {
       the_analyser->SetUserClass(GetUserClass(), kFALSE);
       the_analyser->SetUserClassOptions(fUserClassOptions);
-   } else if (strcmp(fTask->GetUserBaseClass(), "")) the_analyser->SetUserClass(fTask->GetUserBaseClass(), kFALSE);
+   }
+   else if (strcmp(fTask->GetUserBaseClass(), "")) the_analyser->SetUserClass(fTask->GetUserBaseClass(), kFALSE);
    if (!BatchMode()) {
       //when not in batch mode i.e. when submitting a task, we ask the user to supply
       //any further information required by the task, and then ask whether to run in
@@ -963,7 +976,8 @@ void KVDataAnalyser::ChooseRunningMode()
    do {
       cout << endl << "Run in Interactive or Batch mode (I or B) ? : ";
       tmp.ReadLine(cin);
-   } while (tmp != "i" && tmp != "I" && tmp != "b" && tmp != "B");
+   }
+   while (tmp != "i" && tmp != "I" && tmp != "b" && tmp != "B");
    tmp.ToUpper();
    //interactive mode - no more to do
    if (tmp == "I") {
@@ -975,7 +989,8 @@ void KVDataAnalyser::ChooseRunningMode()
    do {
       cout << "(enter a number) : " << endl;
       tmp.ReadLine(cin);
-   } while (!tmp.IsDigit());
+   }
+   while (!tmp.IsDigit());
    fBatchSystem = gBatchSystemManager->GetBatchSystem(tmp.Atoi());
    fBatchSystem->Clear();
 }
@@ -1019,7 +1034,8 @@ void KVDataAnalyser::CopyAnalysisResultsToLaunchDirectory()
             //copy & overwrite any existing file in launch directory
             if (gSystem->CopyFile(path_src.Data(), path_trg.Data(), kTRUE) == 0) {
                Info("CopyAnalysisResultsToLaunchDirectory", "File copied correctly");
-            } else {
+            }
+            else {
                Info("CopyAnalysisResultsToLaunchDirectory", " **** ERROR copying file !!! ");
             }
          }

@@ -55,7 +55,8 @@ void KVVAMOSReconEvent::Streamer(TBuffer& R__b)
          else
             nuc->SetIsOK(kFALSE);
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVVAMOSReconEvent::Class(), this);
    }
 }
@@ -250,7 +251,8 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
          if (d->GetStatus() == KVReconstructedNucleus::kStatusOK) {
             // identifiable particles
             d->IdentifyZ();
-         } else if (d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
+         }
+         else if (d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
             UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
@@ -270,7 +272,8 @@ void KVVAMOSReconEvent::IdentAndCalibEvent()
          if (d->GetIDCode() == 3) {
             Info("IdentAndCalibEvent", "IDCode=%d \nZident=%d, Zmeasured=%d, Ameasured=%d \nRealZ=%lf, RealA=%lf \nZ=%d, A=%d, A_CsI=%d",
                  d->GetIDCode(), (int) d->IsZidentified(), (int) d->IsZMeasured(), (int) d->IsAMeasured(), d->GetRealZ(), d->GetRealA(), d->GetZ(), d->GetA(), d->GetAMinimizer());
-         } else {
+         }
+         else {
             Info("IdentAndCalibEvent", "IDCode=%d \nZident=%d, Zmeasured=%d, Ameasured=%d \nRealZ=%lf, RealA=%lf \nZ=%d, A=%d",
                  d->GetIDCode(), (int) d->IsZidentified(), (int) d->IsZMeasured(), (int) d->IsAMeasured(), d->GetRealZ(), d->GetRealA(), d->GetZ(), d->GetA());
          }
@@ -313,7 +316,8 @@ Bool_t KVVAMOSReconEvent::IsOK()
          return (GetMult("ok") >= gVamos->GetTrigger());
       else
          return (GetMult("ok") > 0);
-   } else {
+   }
+   else {
       return (KVEvent::IsOK());
    }
    return kTRUE;

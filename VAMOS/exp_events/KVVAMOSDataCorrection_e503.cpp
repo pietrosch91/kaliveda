@@ -332,7 +332,8 @@ void KVVAMOSDataCorrection_e503::ReadHFCutFileList(std::ifstream& file, Int_t ty
                      sub_ll = (KVHashList*) ll->At(0);
                      if (type == 0) vec = &fvec_nHF_DE_ToF_sicsi;
                      else if (type == 1) vec = &fvec_nHF_DE_ToF_icsi;
-                  } else if (ss_type == "AE_AoQ") {
+                  }
+                  else if (ss_type == "AE_AoQ") {
                      kAE_AoQ_found = kTRUE;
                      sub_ll = (KVHashList*) ll->At(1);
                      if (type == 0) vec = &fvec_nHF_AE_AoQ_sicsi;
@@ -528,7 +529,8 @@ void KVVAMOSDataCorrection_e503::ReadDuplicationCutFileList(std::ifstream& file,
                   }
 
                   found = kTRUE;
-               } else if (fkverbose) {
+               }
+               else if (fkverbose) {
                   Info("ReadDuplicationCutFileList", "... Run %d is NOT the runlist '%s' of the file '%s' ...",
                        fRunNumber, runlist, file->GetName());
                }
@@ -1370,7 +1372,8 @@ void KVVAMOSDataCorrection_e503::CalibrateFromDetList(KVVAMOSReconNuc* nuc, Doub
    KVNucleus sim_nucleus; //buffer nucleus for backward propagation
    if (idr->Zident && idr->Aident) {
       sim_nucleus.SetZandA(idr->Z, idr->A);
-   } else {
+   }
+   else {
       // A Value is automatically calculated.
       sim_nucleus.SetZ(idr->Z);
    }
@@ -1588,7 +1591,8 @@ void KVVAMOSDataCorrection_e503::CalibrateFromDetList(KVVAMOSReconNuc* nuc, Doub
       total_energy += absorber_eloss;
 
       if (fkverbose) Info("CalibrateFromDetList", "... target corrections: absorber_eloss=%lf, etot=%lf ...", absorber_eloss, total_energy);
-   } else if (fkverbose) Warning("CalibrateFromDetList", "... target corrections can't be applied, target not found ...");
+   }
+   else if (fkverbose) Warning("CalibrateFromDetList", "... target corrections can't be applied, target not found ...");
 
    //Set kinetic energy before target and strip foil
    ke = total_energy;

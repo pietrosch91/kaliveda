@@ -40,6 +40,7 @@ void KVIDCsI::Initialize()
    if (GetDetectors()->GetEntries() == 1 && GetDetector(1)->IsType("CsI") && GetIDGrid()) {
       GetIDGrid()->Initialize();
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }

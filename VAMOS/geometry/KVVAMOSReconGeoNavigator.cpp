@@ -142,8 +142,10 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus* nuc)
          if (multi) {
             absorber_name.Form("%s/%s", dname.Data(), GetCurrentNode()->GetName());
             is_active = absorber_name.Contains("ACTIVE_");
-         } else absorber_name = dname;
-      } else
+         }
+         else absorber_name = dname;
+      }
+      else
          absorber_name = irmat->GetName();
 
       // Coordinates of the vector between the intersection point at the
@@ -247,7 +249,8 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc* nuc, ECalib cal
       XYZ[2] = 0.;
       nuc->GetFocalPlaneDirection().GetXYZ(XYZdir);
       gVamos->FocalToTargetVect(XYZdir, XYZdir);
-   } else {
+   }
+   else {
       fStartPath = -gVamos->GetFocalPlanePosition();
       XYZ[0] = XYZ[1] = XYZ[2] = 0.;
       XYZdir[0] = XYZdir[1] = 0.;

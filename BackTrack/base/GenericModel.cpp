@@ -240,7 +240,8 @@ namespace BackTrack {
          RooRealVar w(Form("w%d", i), Form("Fitted weight of kernel#%d", i), coef->getVal());
          if (coef->InheritsFrom(RooRealVar::Class())) {
             w.setError(((RooRealVar*)coef)->getError());
-         } else {
+         }
+         else {
             w.setError(coef->getPropagatedError(*fLastFit));
          }
          fWeights.addClone(w);

@@ -210,7 +210,8 @@ void* ThreadedMassEstimator::ThreadExec(void* thread_data)
 
       }
 
-   } else {
+   }
+   else {
 
       // Iterate backwards through the list of possible A values.
 
@@ -310,13 +311,15 @@ Int_t ThreadedMassEstimator::ThreadProcess(
 
       return me::ThreadStatus::kThreadContinue;
 
-   } else if (data->current_delta > data->minimum_delta) {
+   }
+   else if (data->current_delta > data->minimum_delta) {
       // We are maximising delta which means we are moving away from the
       // minimum point we are searching for so we stop the processing.
 
       return me::ThreadStatus::kThreadStop;
 
-   } else {
+   }
+   else {
       // Deltas are equal, this means we cannot be sure we have the correct A
       // value (the current minimum value for A will be used)
 
@@ -515,12 +518,14 @@ Bool_t ThreadedMassEstimator::EstimateA(
          delta = thread_data_[0].minimum_delta;
          result_status = kThreadZeroResult;
 
-      } else if (thread_data_[1].minimum_delta < thread_data_[0].minimum_delta) {
+      }
+      else if (thread_data_[1].minimum_delta < thread_data_[0].minimum_delta) {
          a_min = thread_data_[1].minimum_a;
          delta = thread_data_[1].minimum_delta;
          result_status = kThreadOneResult;
 
-      } else {
+      }
+      else {
          // Equal Deltas: This usually happens when the initial A value
          // provided the minimum delta. This is because both threads store
          // this point as their initial minimum reference)
@@ -530,17 +535,20 @@ Bool_t ThreadedMassEstimator::EstimateA(
          result_status = kEqualDeltas;
       }
 
-   } else if (thread_ok[0] && !thread_ok[1]) {
+   }
+   else if (thread_ok[0] && !thread_ok[1]) {
       a_min = thread_data_[0].minimum_a;
       delta = thread_data_[0].minimum_delta;
       result_status = kThreadZeroResult;
 
-   } else if (!thread_ok[0] && thread_ok[1]) {
+   }
+   else if (!thread_ok[0] && thread_ok[1]) {
       a_min = thread_data_[1].minimum_a;
       delta = thread_data_[1].minimum_delta;
       result_status = kThreadOneResult;
 
-   } else {
+   }
+   else {
 
       // IMPORTANT: Both threads failed to return a sensible result, you need
       // to handle this in your analysis class!

@@ -553,7 +553,8 @@ namespace BackTrack {
 
          if (coef->InheritsFrom(RooRealVar::Class())) {
             w.setError(((RooRealVar*)coef)->getError());
-         } else {
+         }
+         else {
             w.setError(coef->getPropagatedError(*fLastFit));
          }
 

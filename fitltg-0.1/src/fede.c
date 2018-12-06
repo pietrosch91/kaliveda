@@ -33,7 +33,8 @@ void ini_f(void)
       para003.g   = para002.scl[6];
       para002.scl[1] = para002.scl[1] * (para003.rmn + 1.);
       para002.scl[2] = para002.scl[2] * (para003.rmn + 1.);
-   } else {
+   }
+   else {
       para003.rmn = para002.scl[1];
       para003.g = para002.scl[2];
    }
@@ -66,7 +67,8 @@ float fede(float z, float a, float xxx)
       z2amu = z * z * pow(a, para002.scl[3]);
       zalm = para002.scl[0] * pow(z, para002.scl[1]) * pow(a, para002.scl[2]);
       vv = para002.scl[5] * z2amu * pow(re, para002.scl[4]);
-   } else {
+   }
+   else {
       z2amu = z * z * pow(a, para002.scl[1]);
       zalm = para002.scl[0] * z2amu;
       vv = 0.;
@@ -99,7 +101,8 @@ void FC_GLOBAL(miniuser, MINIUSER)(int* ip, double* x, double* ecart, double* gr
       if (para001.jxt != 0) {
          rmn = xt[3] + xt[4];
          g = xt[6];
-      } else {
+      }
+      else {
          rmn = xt[1];
          g = xt[2];
       }
@@ -123,7 +126,8 @@ void FC_GLOBAL(miniuser, MINIUSER)(int* ip, double* x, double* ecart, double* gr
       zal = pow(z, xt[1]) * pow(a, xt[2]) * xt[0];
       zalm = pow(zal, rmn1);
       z2amu = pow(z, 2.) * pow(a, xt[3]);
-   } else {
+   }
+   else {
       alg = log(xt[0] * a);
       z2amu = pow(z, 2.) * pow(a, rmn);
       zalm = pow(xt[0], rmn1) * z2amu;
@@ -176,7 +180,8 @@ void FC_GLOBAL(miniuser, MINIUSER)(int* ip, double* x, double* ecart, double* gr
       v1 = rea * rle + zalm * log(zal) - bra * log(bra) * rmns1;
       grd[3] = vv0 * (v1 + penu * alg);
       grd[4] = vv0 * (v1 + penu * rle);
-   } else {
+   }
+   else {
       v1 = rea * rle + zalm * log(a * xt[0]) - bra * log(bra) * rmns1;
       grd[1] = vv0 * v1;
    }
@@ -304,7 +309,8 @@ void FC_GLOBAL(fitede, FITEDE)(int* npts, float* zd, float* ad, float* xd, float
    if (*ixt == 0) {
       printf(" lambda,mu,g =%10.5f%10.5f%12.6f\n", x[0], x[1], x[2]);
       printf(" pdx =%8.1f    pdy =%8.1f    \n", x[3], x[4]);
-   } else {
+   }
+   else {
       printf(" lambda,alpha,beta =%10.5f%10.5f%10.5f\n", x[0], x[1], x[2]);
       printf(" mu,nu =%10.5f%10.5f\n", x[3], x[4]);
       printf(" xi =%14.6f\n", x[5]);

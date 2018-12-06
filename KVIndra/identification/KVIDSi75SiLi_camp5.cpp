@@ -61,7 +61,8 @@ void KVIDSi75SiLi_camp5::Initialize()
       fGGgrid->Initialize();
       if (fPGgrid) fPGgrid->Initialize();
       if (fPGZgrid) fPGZgrid->Initialize();
-   } else
+   }
+   else
       ResetBit(kReadyForID);
 }
 

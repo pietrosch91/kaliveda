@@ -58,7 +58,8 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun* kvrun)
          //      "Detector %s is unknown or does not exist at the current time...???",
          //   dbps->GetName());
          continue;
-      } else {
+      }
+      else {
          oldgain = kvd->GetGain();
          if (oldgain != dbps->GetParameter(0)) {
             kvd->SetGain(dbps->GetParameter(0));
@@ -100,7 +101,8 @@ void KVINDRAUpDater_e613::SetPedestals(KVDBRun* kvrun)
       acq = gIndra->GetACQParam(dbps->GetName());
       if (!acq) {
          //Error("SetPedestals","ACQ Parameter not defined %s",dbps->GetName());
-      } else {
+      }
+      else {
          oldped = acq->GetPedestal();
          if (oldped != Float_t(dbps->GetParameter(0))) {
             acq->SetPedestal(Float_t(dbps->GetParameter(0)));
@@ -145,7 +147,8 @@ void KVINDRAUpDater_e613::SetChVoltParameters(KVDBRun* kvrun)
       if (!kvd) {
          //    Warning("SetChVoltParameters(UInt_t)", "Dectector %s not found !",
          //            str.Data());
-      } else {                  // detector found
+      }
+      else {                    // detector found
          kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());
          if (!kvc)
             Warning("SetChVoltParameters(UInt_t)",
@@ -185,7 +188,8 @@ void KVINDRAUpDater_e613::SetParameters(UInt_t run)
       d->GetACQParam("L")->SetName("CSI_0209_L");
       d->GetACQParam("T")->SetName("CSI_0209_T");
       ((KVHashList*)gIndra->GetACQParams())->Rehash();
-   } else {
+   }
+   else {
       KVDetector* d = gIndra->GetDetector("CSI_0209");
       d->GetACQParam("R")->SetName("CSI_0209_R");
       d->GetACQParam("L")->SetName("CSI_0209_L");

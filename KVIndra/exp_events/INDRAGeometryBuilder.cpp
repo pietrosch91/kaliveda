@@ -364,7 +364,8 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
          ntotal++;
          npresent += (Int_t)CheckDetectorPresent(fDetName);
          innerMod += fInnerDmod;
-      } else {
+      }
+      else {
          if (fInnerPads == 2) {
             if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
             else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
@@ -427,7 +428,8 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
          ntotal++;
          npresent += (Int_t)CheckDetectorPresent(fDetName);
          innerMod += fInnerDmod;
-      } else {
+      }
+      else {
          if (fInnerPads == 2) {
             if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
             else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
@@ -479,7 +481,8 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
                CalculateCentre(reflex, refcent);
                MakeDetector("A3", reflex, refcent);
                PlaceDetector();
-            } else {
+            }
+            else {
                if (fInnerPads == 2) {
                   TVector3 reflex[4];
                   ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
@@ -586,7 +589,8 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, TVector3* som, TVecto
       if (multi_layer) {
          if (no_abs == fActiveLayer) vol_name = Form("ACTIVE_%s", det);
          else vol_name = Form("%s_%d_%s", det, no_abs, abs->GetName());
-      } else
+      }
+      else
          vol_name = Form("DET_%s", det);
       CorrectCoordinates(vertices, offX, offY);
       TGeoVolume* vol =
@@ -597,7 +601,8 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, TVector3* som, TVecto
          Double_t trans_z = -fTotalThickness / 2. + depth_in_det + dz; // (note: reference is CENTRE of absorber)
          TGeoTranslation* tr = new TGeoTranslation(offX, offY, trans_z);
          fDetVolume->AddNode(vol, no_abs, tr);
-      } else {
+      }
+      else {
          // single absorber: mother is absorber is detector is mother is ...
          fDetVolume = vol;
          fDetectorPosition = new TGeoTranslation(offX, offY, 0);
@@ -867,25 +872,32 @@ void INDRAGeometryBuilder::MakeEtalon(int RING)
    if (RING == 10) {
       TGeoTranslation p(1.5, 2.5, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 11) {
+   }
+   else if (RING == 11) {
       TGeoTranslation p(1.5, -1.5, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 12) {
+   }
+   else if (RING == 12) {
       TGeoTranslation p(1.5, 0, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 13) {
+   }
+   else if (RING == 13) {
       TGeoTranslation p(-4, -0.5, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 14) {
+   }
+   else if (RING == 14) {
       TGeoTranslation p(-1.7, 1.75, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 15) {
+   }
+   else if (RING == 15) {
       TGeoTranslation p(-1.7, -3, 0);
       h = rot2 * trans * p * rot1;
-   } else if (RING == 16) {
+   }
+   else if (RING == 16) {
       TGeoTranslation p(0, 2.5, 0);
       h = rot2 * trans * p * rot1;
-   } else {
+   }
+   else {
       TGeoTranslation p(0, -2.25, 0);
       h = rot2 * trans * p * rot1;
    }

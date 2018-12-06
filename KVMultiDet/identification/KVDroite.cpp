@@ -54,7 +54,8 @@ void KVDroite::Init(double min_, double max_)
    if ((_a0 == 0) && (_theta == 0.)) {
       cout << "ERROR: KVDroite::Init: you have to define theta and a0 befor initialisation !" << endl;
       return;
-   } else if (_is_initialized) {
+   }
+   else if (_is_initialized) {
       cout << "WARNING: KVDroite::Init: already initialized !" << endl;
    }
    SetName(Form("y=%lf+x*tan(%lf)", _a0, _theta));

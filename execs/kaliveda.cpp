@@ -16,7 +16,8 @@ int main(int argc, char** argv)
       if (!strcmp(argv[i], "--gitinfos")) {
          std::cout << KVBase::gitBranch() << "@" << KVBase::gitCommit() << std::endl;
          return 0;
-      } else if (!strcmp(argv[i], "--gitbranch")) {
+      }
+      else if (!strcmp(argv[i], "--gitbranch")) {
          std::cout << KVBase::gitBranch() << std::endl;
          return 0;
       }

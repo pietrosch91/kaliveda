@@ -58,13 +58,15 @@ void KVFAZIACORDetector::SetCalibrators()
       fChannelToEnergy->SetName(GetName());
       fChannelToEnergy->SetType("Channel-Energy");
 
-   } else {
+   }
+   else {
       fChannelToEnergy = new KVFAZIACalibrator(GetName(), "Channel-Energy");
       fChannelToEnergy->SetDetector(this);
       sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Energy", "");
       if (sf == "") {
          Warning("SetCalibrators", "No formula defined for Calibration Channel-Energy");
-      } else {
+      }
+      else {
          ((KVFAZIACalibrator*)fChannelToEnergy)->SetFunction(sf.Data());
       }
    }
@@ -74,7 +76,8 @@ void KVFAZIACORDetector::SetCalibrators()
    sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Volt", "");
    if (sf == "") {
       Warning("SetCalibrators", "No formula defined for Calibration Channel-Volt");
-   } else {
+   }
+   else {
       ((KVFAZIACalibrator*)fChannelToVolt)->SetFunction(sf.Data());
    }
 
@@ -83,7 +86,8 @@ void KVFAZIACORDetector::SetCalibrators()
    sf = gEnv->GetValue("FAZIADetector.Calib.Volt-Energy", "");
    if (sf == "") {
       Warning("SetCalibrators", "No formula defined for Calibration Volt-Energy");
-   } else {
+   }
+   else {
       ((KVFAZIACalibrator*)fVoltToEnergy)->SetFunction(sf.Data());
    }
 

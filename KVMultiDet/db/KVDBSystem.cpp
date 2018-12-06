@@ -260,7 +260,8 @@ void KVDBSystem::Load(istream& f)
       line.Remove(0, 1);
       SetName(line.Data());
       cout << "New System : " << line.Data() << endl;
-   } else {
+   }
+   else {
       Error("Load", "Should read system name : %s\n", line.Data());
       return;
    }
@@ -270,10 +271,12 @@ void KVDBSystem::Load(istream& f)
          line.ReadLine(f, kFALSE);
          if (sscanf(line.Data(), "%u %u %u %u %f %f", &fAbeam, &fZbeam, &fAtarget, &fZtarget, &target_thickness, &fEbeam) == 6) {
             cout << "Zproj = " << fZbeam << " Ztarg = " << fZtarget << " targ_thick = " << target_thickness << " Ebeam = " << fEbeam << endl;
-         } else if (sscanf(line.Data(), "%u %u %u %u %f", &fAbeam, &fZbeam, &fAtarget, &fZtarget, &fEbeam) == 5) {
+         }
+         else if (sscanf(line.Data(), "%u %u %u %u %f", &fAbeam, &fZbeam, &fAtarget, &fZtarget, &fEbeam) == 5) {
             cout << "Zproj = " << fZbeam << " Ztarg = " << fZtarget << " Ebeam = " << fEbeam << endl;
          }
-      } else {
+      }
+      else {
          line.ReadLine(f, kFALSE);
          if (line.BeginsWith("Target")) {
             fTarget = new KVTarget;
@@ -290,11 +293,13 @@ void KVDBSystem::Load(istream& f)
             }
             fTarget->SetAngleToBeam(angle);
             fTarget->Print();
-         } else if (line.BeginsWith("Runs")) {
+         }
+         else if (line.BeginsWith("Runs")) {
             line.Remove(0, line.Index(":") + 1);
             runlist.SetList(line.Data());
             cout << "Runs : " << line.Data() << endl;
-         } else if (line.BeginsWith("Run Range")) {
+         }
+         else if (line.BeginsWith("Run Range")) {
             line.Remove(0, line.Index(":") + 1);
             Int_t frun, lrun;
             sscanf(line.Data(), "%i %i", &frun, &lrun);
@@ -337,10 +342,12 @@ void KVDBSystem::SetRuns(KVNumberList& rl)
          if (AddLink("Runs", run)) {
             //use name of system as title of run
             run->SetTitle(GetName());
-         } else {
+         }
+         else {
             Info("SetRuns", "Could not add link for run %d", run_number);
          }
-      } else {
+      }
+      else {
          //Info("SetRuns", "Run %d not found in database", run_number);
       }
    }
@@ -365,7 +372,8 @@ void KVDBSystem::AddRun(KVDBRecord* rec)
       Info("AddRun", "Added link for run %d", run->GetNumber());
       //use name of system as title of run
       run->SetTitle(GetName());
-   } else {
+   }
+   else {
       Info("AddRun", "Could not add link for run %d", run->GetNumber());
    }
 }

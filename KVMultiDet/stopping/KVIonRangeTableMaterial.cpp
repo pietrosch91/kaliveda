@@ -74,7 +74,8 @@ KVIonRangeTableMaterial::KVIonRangeTableMaterial(const KVIonRangeTable* tab, con
       if (!ed) {
          Warning("KVIonRangeTableMaterial",
                  "No element found in density table with Z=%f, density unknown", Z);
-      } else
+      }
+      else
          fDens = ed->GetValue();
    }
 }
@@ -142,7 +143,8 @@ void KVIonRangeTableMaterial::AddCompoundElement(Int_t Z, Int_t A, Int_t Natoms)
    Int_t nel = 0;
    if (!fComposition) {
       fComposition = new KVList;
-   } else nel = fComposition->GetEntries();
+   }
+   else nel = fComposition->GetEntries();
    KVNameValueList* l = new KVNameValueList(Form("Compound element %d", nel + 1));
    l->SetValue("Z", Z);
    l->SetValue("A", A);
@@ -206,7 +208,8 @@ void KVIonRangeTableMaterial::Initialize()
          Double_t prop = nvl->GetDoubleValue("Weight");
          nvl->SetValue("NormWeight", prop / totW);
       }
-   } else {
+   }
+   else {
       // isotopically-pure elemental material
       // get mass of 1 mole of element
       KVNucleus n(fZmat, fAmat);
@@ -482,7 +485,8 @@ TGeoMaterial* KVIonRangeTableMaterial::GetTGeoMaterial() const
          float poids = nvl->GetDoubleValue("NormWeight");
          ((TGeoMixture*)gmat)->AddElement(gel, poids);
       }
-   } else {
+   }
+   else {
       gmat = new TGeoMaterial(GetTitle(), GetMass(), GetZ(), GetDensity());
    }
    // set state of material

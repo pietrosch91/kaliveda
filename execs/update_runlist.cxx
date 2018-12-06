@@ -34,7 +34,8 @@ int main(int argc, char** argv)
    gDataSetManager->GetDataSet(argv[2])->cd();
    if (argc == 5) {
       cout << "update_runlist error: no such function" << endl;
-   } else {
+   }
+   else {
       gDataSet->UpdateAvailableRuns(argv[3]);
    }
    delete gDataRepositoryManager;

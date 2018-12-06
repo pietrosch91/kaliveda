@@ -187,7 +187,8 @@ int set_debug_spectre(int val)
    if (val) {
       debug_spectra = TRUE;
       printf("Passage en mode avec debug spectra\n\r");
-   } else {
+   }
+   else {
       debug_spectra = FALSE;
       printf("Passage en mode sans debug spectra\n\r");
    }
@@ -260,11 +261,13 @@ int read_spectre_entete(char* FileName, tete_spec* SpectreEntete, int* error)
          if (FlagSwap == TRUE)
             swap_spectre_entete(SpectreEntete);
 
-      } else
+      }
+      else
          status = -3;
 
       fclose(fd);
-   } else
+   }
+   else
       status = -2;
 
    *error = status;
@@ -359,10 +362,12 @@ int read_spectre(char* FileName, tete_spec* SpectreEntete, unsigned char* Table,
                }
 
             }
-         } else
+         }
+         else
             status = -4;
 
-      } else
+      }
+      else
          status = -3;
 
       /* si tout s'est bien passe */
@@ -374,7 +379,8 @@ int read_spectre(char* FileName, tete_spec* SpectreEntete, unsigned char* Table,
       }
 
       fclose(fd);
-   } else
+   }
+   else
       status = -2;
 
    /* maj code erreur */
@@ -460,7 +466,8 @@ int swap_spectre_entete(tete_spec* SpectreEntete)
       }
       i++;
 
-   } while (SwapEntSpe[i].Type);
+   }
+   while (SwapEntSpe[i].Type);
 
 
    return 0;
@@ -540,7 +547,8 @@ int affiche_spectre_data(tete_spec* SpectreEntete, unsigned char* Table, int Nbr
          for (i = 0 ; i < NBVAL_LIG; i++)
             printf("%-5d ", TabShort[i + j * NBVAL_LIG]);
       }
-   } else {
+   }
+   else {
       for (j = 0; j < NbLig; j++) {
          printf("\n\r");
          for (i = 0; i < NBVAL_LIG; i++)
@@ -664,7 +672,8 @@ int get_offset_spectre(char* FileName, int* Offset, int* FlagSwap)
                   found = TRUE;
                   *FlagSwap = FALSE;
                   break;
-               } else {
+               }
+               else {
                   /* on tente le swap */
                   SwapInt32((unsigned int*)&SpectreEntete.taille_canal, 4);
                   if ((SpectreEntete.taille_canal == 16)
@@ -679,7 +688,8 @@ int get_offset_spectre(char* FileName, int* Offset, int* FlagSwap)
       }   /* fin if found false */
 
       fclose(fd);
-   } else
+   }
+   else
       status = -2;
 
    /* test si patt trouve */
@@ -739,14 +749,17 @@ int  save_spectre(char* FileName, tete_spec* SpectreEntete, unsigned char* Table
                status = 0;
             else
                status = -8;
-         } else
+         }
+         else
             status = -7;
-      } else
+      }
+      else
          status = -4;
 
       /* fermeture du fichier */
       fclose(fd);
-   } else
+   }
+   else
       status = -2;
 
    /* maj code erreur */

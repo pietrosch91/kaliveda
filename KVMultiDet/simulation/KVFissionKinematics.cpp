@@ -29,7 +29,8 @@ KVFissionKinematics::KVFissionKinematics(const KVNucleus& fis, Int_t Z1, Int_t A
    if (!Z1) {
       // set daughter to half of mother
       fDaughter.SetZandA(fis.GetZ() / 2, fis.GetA() / 2);
-   } else if (!A1) {
+   }
+   else if (!A1) {
       // mass of daughter not given. use N/Z ratio of mother.
       fDaughter.SetN(Z1 * fMother.GetNsurZ());
    }

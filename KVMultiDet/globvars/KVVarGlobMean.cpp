@@ -113,10 +113,12 @@ void KVVarGlobMean::CalcVar(void)
          var = svar / sw;
          if (svar2 / sw >= var * var) {
             ect = TMath::Sqrt(svar2 / sw - var * var);
-         } else {
+         }
+         else {
             ect = -1.;
          }
-      } else {
+      }
+      else {
          var = 0.;
          ect = -1.;
       }

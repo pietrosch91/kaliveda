@@ -154,7 +154,8 @@ void KVedaLossRangeFitter::DoFits(TString output_file, Int_t Zmin, Int_t Zmax)
       printf("Z = %d : fit status ", Z);
       if (fitStatus == 0) {
          printf("OK\n");
-      } else
+      }
+      else
          printf("PROBLEM (%d)\n", fitStatus);
       PrintFitParameters(Z, results);
       gPad->Modified();

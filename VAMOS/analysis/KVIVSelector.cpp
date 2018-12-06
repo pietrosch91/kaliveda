@@ -57,7 +57,8 @@ Bool_t KVIVSelector::Notify()
 
    try {
       status = KVOldINDRASelector::Notify();
-   } catch (const std::exception& e) {
+   }
+   catch (const std::exception& e) {
       // We've caught an exception from the SetParameters method! We handle
       // this event by terminating the current run.
       Error("Notify", "%s", e.what());

@@ -62,7 +62,7 @@ Int_t KVIDCsIRLLine::Compare(const TObject* obj) const
    int aline1 = GetA();
    int aline2 =
       const_cast < KVIDCsIRLLine* >(static_cast <
-                                    const KVIDCsIRLLine*
+                                    const KVIDCsIRLLine *
                                     >(obj))->GetA();
    //both same line ?
    if (zline1 == zline2 && aline1 == aline2)

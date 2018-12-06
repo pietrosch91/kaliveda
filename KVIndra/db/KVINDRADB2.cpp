@@ -167,7 +167,8 @@ void KVINDRADB2::GoodRunLine()
       if (csv_line->HasFieldValue("NB"))
          run->SetComments(csv_line->GetField("NB"));
 
-   } else {
+   }
+   else {
       Error("GoodRunLine", "Run %d already exists", run_n);
    }
 }

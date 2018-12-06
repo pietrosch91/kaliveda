@@ -324,7 +324,8 @@ void KVTGID::Streamer(TBuffer& R__b)
          SetFunction((Double_t(*)(Double_t*, Double_t*)) gROOT->
                      ProcessLineFast(fTGIDFunctionName.Data()));
       }
-   } else {
+   }
+   else {
       KVTGID::Class()->WriteBuffer(R__b, this);
    }
 }
@@ -357,7 +358,8 @@ KVTGID* KVTGID::MakeTGID(const Char_t* name, Int_t type, Int_t light, Int_t ZorA
    KVTGID* _tgid_ = 0;
    if (ZorA) {
       _tgid_ = new KVTGIDZ(name, npar, type, light, mass);
-   } else {
+   }
+   else {
       _tgid_ = new KVTGIDZA(name, npar, type, light);
    }
    npar = 6;
@@ -368,7 +370,8 @@ KVTGID* KVTGID::MakeTGID(const Char_t* name, Int_t type, Int_t light, Int_t ZorA
       _tgid_->fMu = npar++;
       _tgid_->fNu = npar++;
       _tgid_->fXi = npar++;
-   } else {
+   }
+   else {
       _tgid_->fMu = npar++;
    }
    _tgid_->fG = npar++;

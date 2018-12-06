@@ -80,7 +80,8 @@ Double_t KVLinCal::Compute(Double_t chan) const
       if (chan < 0) {
          if (!GetParam()->Fired()) return -99.;
          chan_corr = GetParam()->GetData();
-      } else chan_corr = chan;
+      }
+      else chan_corr = chan;
 
       if (fPedCorr) chan_corr -= GetParam()->GetPedestal();
 
@@ -120,7 +121,8 @@ Double_t KVLinCal::Invert(Double_t energy)
       if (fPedCorr) {
          channel = (Int_t)(0.5 + (energy - GetParameter(0)) / GetParameter(1)
                            + det->GetPedestal("GG"));
-      } else {
+      }
+      else {
          channel = (Int_t)(0.5 + (energy - GetParameter(0)) / GetParameter(1));
       }
    }

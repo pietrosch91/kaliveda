@@ -148,9 +148,11 @@ void KVPartition::Print(Option_t* option) const
       for (Int_t mm = 0; mm <= GetOrdreMax(); mm += 1) {
          Info("Print", "Moments d'ordre %d -> %1.0lf", mm, GetMoment(mm));
       }
-   } else if (!strcmp(option, "Partition")) {
+   }
+   else if (!strcmp(option, "Partition")) {
       Info("Print", "Multiplicite %d / Nombre de valeurs differentes %d", GetMult(), GetMultDiff());
-   } else {
+   }
+   else {
 
    }
 

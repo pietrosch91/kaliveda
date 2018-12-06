@@ -131,7 +131,8 @@ void KVDP2toIDGridConvertor::ReadFile(const Char_t* filename)
                line->SetA(a);
                line->Set(npoints);
                grid->Add("id", line);
-            } else {
+            }
+            else {
                //"ok" line
                KVIDLine* line = (KVIDLine*)grid->NewLine("ok");
                line->Set(npoints);

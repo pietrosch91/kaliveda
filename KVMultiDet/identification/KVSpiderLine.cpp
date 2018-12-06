@@ -174,16 +174,19 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
       if (GetX(0) < GetX()) min = GetX(0) - 10;
       else min = GetX() - 10;
       if (min <= 0.) min += 10.;
-   } else min = min_;
+   }
+   else min = min_;
    if (max_ == -1.) {
       if (GetX(0) < GetX()) max = GetX() + 10.;
       else max = GetX(0) + 10.;
-   } else max = max_;
+   }
+   else max = max_;
 
    if (!_ff) {
       _ff = new TF1(GetName(), Form("[0]*TMath::Power(x,%lf)/(TMath::Power((x+[1]),[2]))", _pow), min, max);
       _ff->SetParameters(p0, 100., 0.4);
-   } else {
+   }
+   else {
       double fmin, fmax;
       _ff->GetRange(fmin, fmax);
       if ((min <= fmin) || (max >= fmax)) {
@@ -219,7 +222,8 @@ bool KVSpiderLine::TestPoint(double x_, double y_, double dy_, bool fit)
       if ((TMath::Abs(yext - y_) >= dy)) {
          valid = false;
       }
-   } else if ((TMath::Abs(GetInterpolateY() - y_) >= dy)) valid = false;
+   }
+   else if ((TMath::Abs(GetInterpolateY() - y_) >= dy)) valid = false;
    return valid;
 }
 

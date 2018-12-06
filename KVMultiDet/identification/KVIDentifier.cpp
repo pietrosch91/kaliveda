@@ -264,12 +264,14 @@ void KVIDentifier::Scale(TF1* sx, TF1* sy)
          fX[ii] = fXp;
          fY[ii] = fYp;
       }
-   } else if (sx) {
+   }
+   else if (sx) {
       for (Int_t  ii = 0; ii < fNpoints; ii++) {
          if (sx_2d) fX[ii] = sx->Eval(fX[ii], fY[ii]);
          else fX[ii] = sx->Eval(fX[ii]);
       }
-   } else {
+   }
+   else {
       for (Int_t  ii = 0; ii < fNpoints; ii++) {
          if (sy_2d) fY[ii] = sy->Eval(fX[ii], fY[ii]);
          else fY[ii] = sy->Eval(fY[ii]);
@@ -479,7 +481,8 @@ Int_t KVIDentifier::ContinueDrawing()
          gr->GetPoint(ii, xx, yy);
          this->SetPoint(fNpoints, xx, yy);
       }
-   } else if (last < xmin) {
+   }
+   else if (last < xmin) {
       //A rajouter avant (a gauche) la ligne existante
       Double_t xx;
       for (Int_t ii = 0; ii < fNpoints; ii += 1) {
@@ -491,7 +494,8 @@ Int_t KVIDentifier::ContinueDrawing()
          gr->GetPoint(ii, xx, yy);
          this->SetPoint(ii, xx, yy);
       }
-   } else {
+   }
+   else {
       Info("ContinueDrawing", "Faire une extension a droite ou a gauche\nsans recouvrement avec la ligne existante");
    }
 

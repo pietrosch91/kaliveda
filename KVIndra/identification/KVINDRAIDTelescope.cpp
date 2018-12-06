@@ -92,7 +92,8 @@ const Char_t* KVINDRAIDTelescope::GetArrayName()
    if (!e_det || de_det->IsSmallerThan(e_det)) {
       ring = de_det->GetRingNumber();
       mod = de_det->GetNumber();
-   } else {
+   }
+   else {
       ring = e_det->GetRingNumber();
       mod = e_det->GetNumber();
    }

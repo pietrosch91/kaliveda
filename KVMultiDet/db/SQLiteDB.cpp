@@ -161,7 +161,8 @@ namespace KVSQLite {
             if (r < 0) {
                if (f == 0) std::cout << std::setw(6) << "#";
                std::cout << "|" << std::setw(column_width) << tabent->GetFieldName(f) ;
-            } else {
+            }
+            else {
                std::cout << "|" << std::setw(column_width) << row->GetField(f) ;
             }
          }
@@ -243,7 +244,8 @@ namespace KVSQLite {
                   "bulk insertion in progress for table %s; call database::commit() to terminate transaction",
                   fBulkTable->name());
             return false;
-         } else {
+         }
+         else {
             Error("database::prepare_data_insertion",
                   "bulk insertion in progress; call database::commit() to terminate transaction");
             return false;
@@ -311,7 +313,8 @@ namespace KVSQLite {
       if (fForeignKey) {
          decl += " REFERENCES ";
          decl += Form("\"%s\"(\"%s\")", fFKtable.Data(), fFKcolumn.Data());
-      } else {
+      }
+      else {
          decl += " ";
          decl += fConstraint;
       }
@@ -400,7 +403,8 @@ namespace KVSQLite {
          column_selection = "*";
          distinct = false; // don't allow 'SELECT DISTINCT * FROM ....' (?)
          fSelectedColumns = "*";
-      } else {
+      }
+      else {
          if (distinct) column_selection = "DISTINCT ";
          fSelectedColumns = "";
          // put quoted column names in column_selection, add plain column names to fSelectedColumns
@@ -434,7 +438,8 @@ namespace KVSQLite {
          fSelecting = true;
          fEmptyResultSet = false;
          return true;
-      } else if (!fSQLstmt->IsError()) {
+      }
+      else if (!fSQLstmt->IsError()) {
          // query ok, no results correspond to selection
          fSQLstmt->StoreResult();
          fSelecting = true;
@@ -467,7 +472,8 @@ namespace KVSQLite {
             for (int i = 0; i < fBulkTable->number_of_columns(); ++i) {
                (*fBulkTable)[i].set_data_from_statement(fSQLstmt.get());
             }
-         } else {
+         }
+         else {
             // only read data for selected columns
             int idx = 0;
             for (int i = 0; i < fBulkTable->number_of_columns(); ++i) {
@@ -755,7 +761,8 @@ namespace KVSQLite {
          case KVSQLite::column_type::BLOB:
             if (fIsNull) {
                fBlobSize = 0;
-            } else {
+            }
+            else {
                if (!fBlob) fBlob = (void*) new unsigned char[256];
                s->GetBinary(idx, fBlob, fBlobSize);
             }

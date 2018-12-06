@@ -186,13 +186,16 @@ void KVVAMOSDetector::SetCalibrators()
 
       if (par->IsType("E")) {
          calibtype = "channel->MeV";
-      } else if (par->IsType("Q")) {
+      }
+      else if (par->IsType("Q")) {
          calibtype = "channel->Volt";
          maxch     = 4096.;           // 12 bits
-      } else if (par->GetType()[0] == 'T') {
+      }
+      else if (par->GetType()[0] == 'T') {
          isTparam = kTRUE;
          calibtype = "channel->ns";
-      } else continue;
+      }
+      else continue;
 
       calibtype.Append(" ");
       calibtype.Append(par->GetName());

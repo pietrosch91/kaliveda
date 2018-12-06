@@ -71,7 +71,8 @@ char* GTDataParameters::CopyParam(char* Dest, char* Source) const
       if ((c == ',') || (c == 0x0d))
          c = '\0';
       *Dest++ = c;
-   } while (c != '\0');
+   }
+   while (c != '\0');
    return (Source);
 }
 

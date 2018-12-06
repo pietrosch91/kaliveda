@@ -146,7 +146,8 @@ void KVNuclDataTable::SetValue(Int_t zz, Int_t aa, Double_t val)
    KVNuclData* nd = 0;
    if ((nd = GetData(zz, aa))) {
       nd->SetValue(val);
-   } else
+   }
+   else
       Error("SetValue", "No existing entry for this nucleus: Z=%d, A=%d", zz, aa);
 
 }

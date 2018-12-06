@@ -95,7 +95,8 @@ void KVHistogram::ParseHistoTitle(const Char_t* title, KVString& exp, KVString& 
       sel.Remove(TString::kBoth, ' ');
       exp = tmp(0, ss);
       exp.Remove(TString::kBoth, ' ');
-   } else {
+   }
+   else {
       exp = tmp;
       exp.Remove(TString::kBoth, ' ');
    }

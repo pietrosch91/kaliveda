@@ -133,7 +133,8 @@ void KVIVUpDater_e503::SetParameters(UInt_t run)
 
    if (status) {
       Info("KVIVUpDater_e503::SetParameters", "Si-CsI OK");
-   } else {
+   }
+   else {
       Error("KVIVUpDater_e503::SetParameters", "Si-CsI NOT OK");
    }
 
@@ -181,7 +182,8 @@ void KVIVUpDater_e503::SetParameters(UInt_t run)
 
    if (status) {
       Info("KVIVUpDater_e503::SetParameters", "IC-Si OK");
-   } else {
+   }
+   else {
       Error("KVIVUpDater_e503::SetParameters", "IC-Si NOT OK");
    }
 

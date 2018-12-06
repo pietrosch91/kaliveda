@@ -176,7 +176,8 @@ void KVPtot::Init(void)
    if (IsParameterSet("Normalization")) {
       fNorm = GetParameter("Normalization");
       Info("Init", "Normalization factor = %g", fNorm);
-   } else fNorm = 1;
+   }
+   else fNorm = 1;
 }
 
 

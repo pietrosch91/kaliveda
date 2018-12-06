@@ -54,7 +54,8 @@ void KVChIo_e475s::SetCalibrator(KVDBParameterSet* kvdbps)
       Warning("SetCalibrator(KVDBParameterSet*)",
               "Addition of Calibrator %s %s failed !", kvdbps->GetName(), kvdbps->GetTitle());
       delete cali;
-   } else {
+   }
+   else {
       if (TString(cali->GetType()).Contains("(PG)"))  fcalibPG = cali;
       else                                            fcalibGG = cali;
    }
@@ -65,7 +66,8 @@ void KVChIo_e475s::ChangeCalibParameters(KVDBParameterSet* kvdbps)
 {
    if (TString(kvdbps->GetTitle()).Contains("PG")) {
       fcalibPG->ChangeCalibParameters(kvdbps);
-   } else {
+   }
+   else {
       fcalibGG->ChangeCalibParameters(kvdbps);
    }
 
@@ -164,7 +166,8 @@ void KVChIo_e475s::Streamer(TBuffer& R__b)
       KVChIo_e475s::Class()->ReadBuffer(R__b, this);
       fcalibPG  = (KVFunctionCal*)GetCalibrator("Channel->MeV(PG)");
       fcalibGG  = (KVFunctionCal*)GetCalibrator("Channel->MeV(GG)");
-   } else {
+   }
+   else {
       KVChIo_e475s::Class()->WriteBuffer(R__b, this);
    }
 }

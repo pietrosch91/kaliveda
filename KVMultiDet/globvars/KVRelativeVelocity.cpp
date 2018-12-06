@@ -152,7 +152,8 @@ void KVRelativeVelocity::Fill(KVNucleus* cc)
       heaviest = new TList;
       heaviest->SetOwner(kFALSE);
       heaviest->Add(cc);
-   } else {
+   }
+   else {
       for (Int_t ii = 0; ii < heaviest->GetEntries(); ii += 1) {
          TVector3 ww = cc->BoostVector() - ((KVNucleus*)heaviest->At(ii))->BoostVector();
          FillVar(ww.Mag());

@@ -212,7 +212,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
                // Trim default choice of error if within 2 sigma of limit
                if (pmax - par->getVal() < 2 * pstep) {
                   pstep = (pmax - par->getVal()) / 2 ;
-               } else if (par->getVal() - pmin < 2 * pstep) {
+               }
+               else if (par->getVal() - pmin < 2 * pstep) {
                   pstep = (par->getVal() - pmin) / 2 ;
                }
 
@@ -221,7 +222,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
                   pstep = 0.1 * (pmax - pmin);
                }
 
-            } else {
+            }
+            else {
                pstep = 1 ;
             }
             if (verbose) {
@@ -229,7 +231,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
                                                << par->GetName() << ": using " << pstep << endl;
             }
          }
-      } else {
+      }
+      else {
          pmin = par->getVal() ;
          pmax = par->getVal() ;
       }
@@ -242,7 +245,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
                                  par->getVal(),
                                  pstep,
                                  pmin, pmax));
-         } else {
+         }
+         else {
             parameters.push_back(ROOT::Fit::ParameterSettings(par->GetName(),
                                  par->getVal(),
                                  pstep));
@@ -280,7 +284,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
                                             << par->GetName() << " is now fixed." << endl ;
          }
 
-      } else if (par->isConstant() && oldFixed) {
+      }
+      else if (par->isConstant() && oldFixed) {
 
          // Parameter changes constant -> constant : update only value if necessary
          if (oldVar != par->getVal()) {
@@ -294,7 +299,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
             }
          }
 
-      } else {
+      }
+      else {
          // Parameter changes constant -> floating
          if (!par->isConstant() && oldFixed) {
             parameters[index].Release();
@@ -349,7 +355,8 @@ Bool_t NewRooMinimizerFcn::Synchronize(std::vector<ROOT::Fit::ParameterSettings>
 
          oocoutI(_context, Minimization) << "NewRooMinimizerFcn::synchronize: set of constant parameters changed, rerunning const optimizer" << endl ;
          _funct->constOptimizeTestStatistic(RooAbsArg::ConfigChange) ;
-      } else if (constValChange) {
+      }
+      else if (constValChange) {
          oocoutI(_context, Minimization) << "NewRooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer" << endl ;
          _funct->constOptimizeTestStatistic(RooAbsArg::ValueChange) ;
       }
@@ -421,7 +428,8 @@ void NewRooMinimizerFcn::BackProp(const ROOT::Fit::FitResult& results)
       if (eplus > 0 || eminus < 0) {
          // Store the asymmetric error, if it is available
          SetPdfParamErr(index, eminus, eplus);
-      } else {
+      }
+      else {
          // Clear the asymmetric error
          ClearPdfParamAsymErr(index) ;
       }
@@ -525,7 +533,8 @@ double NewRooMinimizerFcn::DoEval(const double* x) const
             oocoutW(_context, Minimization) << "NewRooMinimizerFcn: Minimized function has error status." << endl
                                             << "Returning maximum FCN so far (" << _maxFCN
                                             << ") to force MIGRAD to back out of this region. Error log follows" << endl ;
-         } else {
+         }
+         else {
             oocoutW(_context, Minimization) << "NewRooMinimizerFcn: Minimized function has error status but is ignored" << endl ;
          }
 
@@ -536,7 +545,8 @@ double NewRooMinimizerFcn::DoEval(const double* x) const
          while ((var = (RooRealVar*)iter->Next())) {
             if (first) {
                first = kFALSE ;
-            } else ooccoutW(_context, Minimization) << ", " ;
+            }
+            else ooccoutW(_context, Minimization) << ", " ;
             ooccoutW(_context, Minimization) << var->GetName() << "=" << var->getVal() ;
          }
          delete iter ;
@@ -553,7 +563,8 @@ double NewRooMinimizerFcn::DoEval(const double* x) const
       RooAbsPdf::clearEvalError() ;
       RooAbsReal::clearEvalErrorLog() ;
       _numBadNLL++ ;
-   } else if (fvalue > _maxFCN) {
+   }
+   else if (fvalue > _maxFCN) {
       _maxFCN = fvalue ;
    }
 

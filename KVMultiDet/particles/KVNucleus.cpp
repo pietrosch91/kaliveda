@@ -170,7 +170,8 @@ const Char_t* KVNucleus::GetSymbol(Option_t* opt) const
    if (0 <= GetZ() && GetZ() <= MAXZ_ELEMENT_SYMBOL) {
       if (Mpfx) symname.Form("%d%s", a, fElements[z]);
       else symname = fElements[z];
-   } else
+   }
+   else
       symname = "";
 
    return symname.Data();
@@ -190,7 +191,8 @@ const Char_t* KVNucleus::GetLatexSymbol(Option_t* opt) const
    if (0 <= GetZ() && GetZ() <= MAXZ_ELEMENT_SYMBOL) {
       if (!strcmp(opt, "ALL")) symname.Form("{}^{%d}_{%d}%s", a, z, fElements[z]);
       else                    symname.Form("^{%d}%s", a, fElements[z]);
-   } else {
+   }
+   else {
       symname = "";
    }
    return symname.Data();
@@ -233,7 +235,8 @@ void KVNucleus::Set(const Char_t* isotope)
       //name given in form "208Pb"
       SetZFromSymbol(name);
       SetA(A);
-   } else if (sscanf(tmp.Data(), "%s", name) == 1) {
+   }
+   else if (sscanf(tmp.Data(), "%s", name) == 1) {
       //name given in form "Pb"
       SetZFromSymbol(name);
    }
@@ -320,7 +323,8 @@ KVNucleus::KVNucleus(Int_t z, Int_t a, Double_t ekin)
    fZ = (UChar_t) z;
    if (z != 0 && a == 0) {
       SetA(GetAFromZ(z, fMassFormula));
-   } else {
+   }
+   else {
       SetA(a);
    }
    SetKE(ekin);
@@ -532,7 +536,8 @@ void KVNucleus::SetA(Int_t a)
    if (a > 255) {
       fA = (UChar_t)(a - 255);
       SetBit(kIsHeavy);
-   } else {
+   }
+   else {
       fA = (UChar_t) a;
       ResetBit(kIsHeavy);
    }
@@ -1100,7 +1105,8 @@ KVNucleus KVNucleus::operator-(const KVNucleus& rhs)
       KVNucleus RES;
       RES.Clear();
       return RES;
-   } else {
+   }
+   else {
       KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
       TLorentzVector q(pres, eres);
       RES.Set4Mom(q);
@@ -1170,9 +1176,11 @@ Int_t KVNucleus::Compare(const TObject* obj) const
 
    if (GetZ() > ((KVNucleus*) obj)->GetZ()) {
       return -1;
-   } else if (GetZ() < ((KVNucleus*) obj)->GetZ()) {
+   }
+   else if (GetZ() < ((KVNucleus*) obj)->GetZ()) {
       return 1;
-   } else {
+   }
+   else {
       if (GetA() == ((KVNucleus*) obj)->GetA()) return 0;
       else if (GetA() > ((KVNucleus*) obj)->GetA()) return -1;
       else  return 1;
@@ -1321,7 +1329,8 @@ Double_t KVNucleus::GetFissionVelocity(KVNucleus* nuc, Int_t formula)
    Double_t mu = 0;
    if (nuc) {
       mu = nuc->GetMass() * GetMass() / (nuc->GetMass() + GetMass());
-   } else {
+   }
+   else {
       KVNucleus ff1(0.5 * GetZ(), 0.5 * GetA());
       KVNucleus ff2(GetZ() - ff1.GetZ(), GetA() - ff1.GetA());
       mu = ff1.GetMass() * ff2.GetMass() / (ff1.GetMass() + ff2.GetMass());

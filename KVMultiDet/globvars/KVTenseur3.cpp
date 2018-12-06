@@ -307,7 +307,8 @@ Double_t KVTenseur3::GetElem(Int_t i, Int_t j) const
 //
    if (i >= 1 && i <= 3 && j >= 1 && j <= 3) {
       return tenseur[3 * (i - 1) + (j - 1)];
-   } else {
+   }
+   else {
       return 0.;
    }
 }
@@ -352,7 +353,8 @@ Double_t KVTenseur3::GetVapNorm(Int_t i)
    if (vsum > 0.) {
       if (TMath::Log(vap[i - 1]) > -100)
          val = vap[i - 1] / vsum;
-   } else {
+   }
+   else {
       val = -2.;
    }
    return val;
@@ -384,7 +386,8 @@ Double_t KVTenseur3::GetVep(Int_t i, Int_t j)
 
    if (i >= 1 && i <= 3 && j >= 1 && j <= 3) {
       return vep[3 * (i - 1) + (j - 1)];
-   } else {
+   }
+   else {
       return 0.;
    }
 }

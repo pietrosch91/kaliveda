@@ -133,7 +133,8 @@ int acq_mt_mount_c(gan_tape_desc DeviceName, int Densit, int BlocSize)
          if (Un_TZ == true) {
             Itm_Lst[3].Item_Code = 0; /* Fin de liste */
             Itm_Lst[3].Buf_Len  = 0;
-         } else {
+         }
+         else {
             Itm_Lst[3].Item_Code = MNT$_DENSITY;
             Itm_Lst[3].Buf_Len  = sizeof(Densit);
             Itm_Lst[3].Buf_Adr  = &Densit;
@@ -204,7 +205,8 @@ int acq_mt_dismount_c(gan_tape_desc DeviceName, int Option)
       Status = sys$dismou(&Descri_In, Flag);
       if (Status == SS$_NORMAL) Status = ACQ_OK;
       else if (Status == SS$_DEVNOTMOUNT) Status = ACQ_NOTMOUNT;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #endif

@@ -101,10 +101,12 @@ void KVGeoStrucElement::Add(KVBase* element)
    if (element->InheritsFrom(KVDetector::Class())) {
       fDetectors.Add(element);
       dynamic_cast<KVDetector*>(element)->AddParentStructure(this);
-   } else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
+   }
+   else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
       fStructures.Add(element);
       dynamic_cast<KVGeoStrucElement*>(element)->AddParentStructure(this);
-   } else {
+   }
+   else {
       Error("Add", "Cannot add elements of class %s", element->ClassName());
    }
 }
@@ -117,10 +119,12 @@ void KVGeoStrucElement::Remove(KVBase* element)
    if (element->InheritsFrom(KVDetector::Class())) {
       fDetectors.Remove(element);
       dynamic_cast<KVDetector*>(element)->RemoveParentStructure(this);
-   } else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
+   }
+   else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
       fStructures.Remove(element);
       dynamic_cast<KVGeoStrucElement*>(element)->RemoveParentStructure(this);
-   } else {
+   }
+   else {
       Error("Add", "Cannot add elements of class %s", element->ClassName());
    }
 }
@@ -220,7 +224,8 @@ KVGeoStrucElement* KVGeoStrucElement::GetParentStructure(const Char_t* type, con
       KVSeqCollection* strucs = fParentStrucList.GetSubListWithType(type);
       el = (KVGeoStrucElement*)strucs->FindObject(name);
       delete strucs;
-   } else
+   }
+   else
       el = (KVGeoStrucElement*)fParentStrucList.FindObjectByType(type);
    return el;
 }

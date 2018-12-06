@@ -55,9 +55,11 @@ void KVList::Streamer(TBuffer& R__b)
          TObject* obj;
          while ((obj = next())) Add(obj);
          list.Clear();
-      } else
+      }
+      else
          R__b.ReadClassBuffer(KVList::Class(), this, R__v, R__s, R__c);
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVList::Class(), this);
    }
 }

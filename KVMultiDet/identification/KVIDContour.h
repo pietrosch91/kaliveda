@@ -25,7 +25,8 @@ public:
    {
       if (GetEditable()) {
          return TCutG::InsertPoint();
-      } else {
+      }
+      else {
          return -2;
       }
    }; // *MENU*

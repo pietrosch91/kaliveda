@@ -114,15 +114,18 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
                      tmp_file << "|" << prevEntry->GetStringValue(Form("KVVersion[%d]", occIdx)) << "|" << prevEntry->GetStringValue(Form("Username[%d]", occIdx));
                   }
                   tmp_file << endl;
-               } else {
+               }
+               else {
                   // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                   tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
                }
-            } else { // no previous existing file
+            }
+            else {   // no previous existing file
                // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
                tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
             }
-         } else {
+         }
+         else {
             lnewruns.Add(run_num);
             filedate = objs->GetModTime();
             tmp_file << run_num << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;

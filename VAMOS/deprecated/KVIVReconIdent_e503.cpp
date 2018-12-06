@@ -52,7 +52,8 @@ void KVIVReconIdent_e503::InitAnalysis(void)
    fLogV = new LogFile;
    if (gBatchSystem) {
       fLogV->Open(Form("%s_vamos.log", gBatchSystem->GetJobName()));
-   } else {
+   }
+   else {
       fLogV->Open("Calibration_vamos.log");
    }
    //get VAMOS calibrator for current dataset
@@ -163,7 +164,8 @@ void KVIVReconIdent_e503::Init_e503()
 
       }
 
-   } else {
+   }
+   else {
       fLogV->Log << "Error : not reading cuts (Si-CsI)..." << endl;
    }
 
@@ -183,7 +185,8 @@ void KVIVReconIdent_e503::Init_e503()
 
       }
 
-   } else fLogV->Log << "Error : not reading cuts (ChIo-Si)..." << endl;
+   }
+   else fLogV->Log << "Error : not reading cuts (ChIo-Si)..." << endl;
 
    fAnalyseV->SetFileCutChioSi(list);
    delete cfile;
@@ -201,7 +204,8 @@ void KVIVReconIdent_e503::Init_e503()
 
       }
 
-   } else fLogV->Log << "Error : not reading cuts (Si-ToF)..." << endl;
+   }
+   else fLogV->Log << "Error : not reading cuts (Si-ToF)..." << endl;
 
    fAnalyseV->SetFileCutChioSi(list);
    delete cfile;
@@ -349,7 +353,8 @@ Bool_t KVIVReconIdent_e503::LoadGrids_e503()
    printf("Reading grid map: %s\n", grid_map);
    if (gIDGridManager->ReadAsciiFile(ds_path) != 0) {
       printf("Grids Si-CsI from Vamos loaded\n");
-   } else {
+   }
+   else {
       return 1;
    }
    //============================================================================
@@ -375,7 +380,8 @@ Bool_t KVIVReconIdent_e503::LoadGrids_e503()
    printf("Reading grid map: %s\n", grid_map2);
    if (gIDGridManager->ReadAsciiFile(ds_path2) != 0) {
       printf("Grids Chio-Si from Vamos loaded\n");
-   } else {
+   }
+   else {
       return 1;
    }
    //============================================================================
@@ -401,7 +407,8 @@ Bool_t KVIVReconIdent_e503::LoadGrids_e503()
    printf("Reading grid map: %s\n", grid_map3);
    if (gIDGridManager->ReadAsciiFile(ds_path3) != 0) {
       printf("Grids Si-Tof from Vamos loaded\n");
-   } else {
+   }
+   else {
       cout << "Can't find Si-Tof Grids" << endl;
       return 1;
    }

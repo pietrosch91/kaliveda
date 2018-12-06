@@ -85,7 +85,8 @@ int acq_get_param_env(param_id Type_param, val_ret* Retour, int Nb_lc,
                   Taille_chaine) == 0) {
          strcpy(Chaine, (Chaine + Taille_chaine + 1));
          Suite = false;
-      } else
+      }
+      else
          Suite = true;
    }
 
@@ -115,12 +116,14 @@ int acq_get_param_env(param_id Type_param, val_ret* Retour, int Nb_lc,
       if (Suite == true) {   /* Prend valeur par defaut */
          Retour->Val_INT = Struct_parametre->Val_defaut;
          Status = -1;
-      } else {
+      }
+      else {
          if (Type_param == ctrlform_id) {
             if (strcmp(Chaine, "evct_var") == 0)
                Retour->Val_INT = EVCT_VAR;
             else Retour->Val_INT = EVCT_FIX;
-         } else {
+         }
+         else {
             Retour->Val_INT = atoi(Chaine);
             Status = ACQ_OK;
          }
@@ -131,7 +134,8 @@ int acq_get_param_env(param_id Type_param, val_ret* Retour, int Nb_lc,
       if (Suite == true) {
          Logic_ret = Struct_parametre->Val_defaut;
          Status = -1;
-      } else {
+      }
+      else {
          if (strcmp(Chaine, "true") == 0)
             Logic_ret = true;
          else Logic_ret = false;

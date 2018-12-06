@@ -48,7 +48,8 @@ void KVChargeSignal::SetDefaultValues()
    if (fType.Contains("QL")) {
       SetChannelWidth(4.);
       SetTauRC(250.);
-   } else                    {
+   }
+   else                    {
       SetChannelWidth(10.);
       SetTauRC(40.);
    }

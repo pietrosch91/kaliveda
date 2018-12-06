@@ -103,7 +103,8 @@ Bool_t KVedaLoss::init_materials() const
    if (!(fp = fopen(DataFilePath.Data(), "r"))) {
       Error("init_materials()", "Range tables file %s cannot be opened", DataFilePath.Data());
       return kFALSE;
-   } else {
+   }
+   else {
       char line[132];
       while (fgets(line, 132, fp)) {    // read lines from file
 

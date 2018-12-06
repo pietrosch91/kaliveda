@@ -340,7 +340,8 @@ void KVVAMOS::MakeListOfDetectors()
       if (!detcl) {
          Error("KVVAMOS", "class %s not found in the dictionary", detname.Data());
          continue;
-      } else if (!detcl->InheritsFrom("KVVAMOSDetector")) {
+      }
+      else if (!detcl->InheritsFrom("KVVAMOSDetector")) {
          Error("KVVAMOS", "class %s does not inherits from KVVAMOSDetector", detname.Data());
       }
 
@@ -411,7 +412,8 @@ Bool_t KVVAMOS::ReadDetectorGroupFile(ifstream& ifile)
                   cur_grp->Add(det);
                   Add(cur_grp);
                }
-            } else {
+            }
+            else {
                if (det_grp && det_grp != cur_grp)
                   Warning("ReadDetectorGroupFile",
                           "Detector %s : already belongs to %s, now seems to be in %s",
@@ -431,7 +433,8 @@ Bool_t KVVAMOS::ReadDetectorGroupFile(ifstream& ifile)
             // Sort the detector list of each group
             // from the the closest from the target to the furthest.
             cur_grp->SortDetectors(kSortAscending);
-         } else Error("ReadDetectorGroupFile", "Detector %s not found", detname.Data());
+         }
+         else Error("ReadDetectorGroupFile", "Detector %s not found", detname.Data());
       }
    }
    return kTRUE;
@@ -467,7 +470,8 @@ void KVVAMOS::SetArrayACQParams()
          if (param.EndsWith("HF")) {
             par->SetType("T_HF");
             par->SetLabel("HF");
-         } else par->SetType("T");
+         }
+         else par->SetType("T");
       }
       par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
       AddACQParam(par, kTRUE);
@@ -635,7 +639,8 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner)
 //    par->SetDetector( this );
       fVACQParams->Add(par);
       par->SetUniqueID(CalculateUniqueID(par));
-   } else par->SetUniqueID(CalculateUniqueID(par, (KVVAMOSDetector*)par->GetDetector()));
+   }
+   else par->SetUniqueID(CalculateUniqueID(par, (KVVAMOSDetector*)par->GetDetector()));
 }
 //________________________________________________________________
 
@@ -740,7 +745,8 @@ KVNameValueList* KVVAMOS::DetectParticle(KVNucleus* part)
       if (file.IsZombie()) {
          Error("DetectParticle", "Impossible to open file %s with VAMOS filter", fullpath.Data());
          return NULL;
-      } else {
+      }
+      else {
          fFilter = (KVBasicVAMOSFilter*)file.Get("BasicVAMOSfilter");
          Info("DetectParticle", "VAMOS filter is Loaded from file %s", fullpath.Data());
          fFilter->Print();
@@ -992,12 +998,14 @@ void KVVAMOS::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelescope* idt
    idt->AddDetector(e);
    if (de->GetGroup()) {
       idt->SetGroup(de->GetGroup());
-   } else {
+   }
+   else {
       idt->SetGroup(e->GetGroup());
    }
    if (idtels->FindObject(idt->GetName())) {
       delete idt;
-   } else {
+   }
+   else {
       idtels->Add(idt);
    }
 }
@@ -1010,7 +1018,8 @@ void KVVAMOS::set_up_single_stage_telescope(KVDetector* det, KVIDTelescope* idt,
    idt->SetGroup(det->GetGroup());
    if (idtels->FindObject(idt->GetName())) {
       delete idt;
-   } else {
+   }
+   else {
       idtels->Add(idt);
    }
 }
@@ -1253,7 +1262,8 @@ UInt_t KVVAMOS::CalculateUniqueID(KVBase* param, KVVAMOSDetector* det)
       uid += 1000   * det->GetACQParamTypeIdx(param->GetType());
       uid += 10000  * det->GetPositionTypeIdx(param->GetLabel());
       uid += 100000 * det->GetUniqueID();
-   } else {
+   }
+   else {
       uid += 1000   * GetACQParamTypeIdx(param->GetType());
       uid += 10000  * GetPositionTypeIdx(param->GetLabel());
    }

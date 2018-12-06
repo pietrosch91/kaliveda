@@ -185,7 +185,8 @@ void KVTGIDZA::AddLineToGrid(KVIDGrid* g, Int_t Z, Int_t npoints,
                Y = 0.;          //reset Y to 0 if it ever becomes NaN
          }
       }
-   } else {
+   }
+   else {
       //Z is bigger than largest Z for which we have isotopes
       //we add one line for this Z using mass formula
 

@@ -337,7 +337,8 @@ inline Double_t KVVAMOSReconNuc::CalculateEnergy(Int_t Z, Int_t A, Int_t Q, Doub
       static KVNucleus nuc;
       nuc.SetZandA(Z, A);
       M = nuc.GetMass();
-   } else  M = A * u();
+   }
+   else  M = A * u();
    return TMath::Sqrt(M * M + 100.*TMath::Power(C() * Brho * Q, 2)) - M;
 }
 //____________________________________________________________________________________________//
@@ -366,7 +367,8 @@ inline Double_t KVVAMOSReconNuc::CalculateEnergy(Int_t Z, Int_t A, Double_t beta
       static KVNucleus nuc;
       nuc.SetZandA(Z, A);
       M = nuc.GetMass();
-   } else  M = A * u();
+   }
+   else  M = A * u();
    Double_t gamma = 1.0 / TMath::Sqrt(1 - beta * beta);
    return (gamma - 1) * M ;
 }

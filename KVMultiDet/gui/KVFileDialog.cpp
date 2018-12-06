@@ -96,7 +96,8 @@ KVFileDialog::KVFileDialog(const TGWindow* p, const TGWindow* main,
          fFileInfo->fFilename = 0;
       }
       fFileInfo->fFileTypeIdx = 0;
-   } else
+   }
+   else
       fFileInfo = file_info;
 
    if (!fFileInfo->fFileTypes)
@@ -156,7 +157,8 @@ KVFileDialog::KVFileDialog(const TGWindow* p, const TGWindow* main,
    if (dlg_type == kKVFDSave) {
       fCheckB = new TGCheckButton(fHtop, "&Overwrite", kIDF_CHECKB);
       fCheckB->SetToolTipText("Overwrite a file without displaying a message if selected");
-   } else {
+   }
+   else {
       fCheckB = new TGCheckButton(fHtop, "&Multiple files", kIDF_CHECKB);
       fCheckB->SetToolTipText("Allows multiple file selection when SHIFT is pressed");
       fCheckB->Connect("Toggled(Bool_t)", "TGFileInfo", fFileInfo, "SetMultipleSelection(Bool_t)");
@@ -364,9 +366,10 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                                      "Missing File Name", txt, kMBIconExclamation,
                                      kMBOk);
                         return kTRUE;
-                     } else if (!gSystem->AccessPathName(fTbfname->GetString(), kFileExists) &&
-                                !strcmp(fOk->GetTitle(), "Save") &&
-                                (!(fCheckB->GetState() == kButtonDown))) {
+                     }
+                     else if (!gSystem->AccessPathName(fTbfname->GetString(), kFileExists) &&
+                              !strcmp(fOk->GetTitle(), "Save") &&
+                              (!(fCheckB->GetState() == kButtonDown))) {
                         Int_t ret;
                         txt = TString::Format("File name %s already exists, OK to overwrite it?",
                                               fTbfname->GetString());
@@ -380,7 +383,8 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                         if (fFileInfo->fFilename)
                            delete [] fFileInfo->fFilename;
                         fFileInfo->fFilename = 0;
-                     } else {
+                     }
+                     else {
                         if (fFileInfo->fFilename)
                            delete [] fFileInfo->fFilename;
                         if (gSystem->IsAbsoluteFileName(fTbfname->GetString()))
@@ -512,14 +516,16 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                               fTbfname->AddText(0, e2->GetItemName()->GetString());
                            fClient->NeedRedraw(fName);
                         }
-                     } else {
+                     }
+                     else {
                         TString tmpString;
                         TList* tmp = fFc->GetSelectedItems();
                         TObjString* el;
                         TIter next(tmp);
                         if (fFileInfo->fFileNamesList != 0) {
                            fFileInfo->fFileNamesList->Delete();
-                        } else {
+                        }
+                        else {
                            fFileInfo->fFileNamesList = new TList();
                         }
                         while ((el = (TObjString*) next())) {
@@ -550,7 +556,8 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                         if (strcmp(gSystem->WorkingDirectory(), fFc->GetDirectory())) {
                            gSystem->cd(fFc->GetDirectory());
                         }
-                     } else {
+                     }
+                     else {
                         if (!strcmp(fOk->GetTitle(), "Save") &&
                               (!(fCheckB->GetState() == kButtonDown))) {
 
@@ -599,7 +606,8 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                                "Missing File Name", txt2, kMBIconExclamation,
                                kMBOk);
                   return kTRUE;
-               } else if (!gSystem->AccessPathName(fTbfname->GetString(), kFileExists)) {
+               }
+               else if (!gSystem->AccessPathName(fTbfname->GetString(), kFileExists)) {
                   FileStat_t buf;
                   if (!gSystem->GetPathInfo(fTbfname->GetString(), buf) &&
                         R_ISDIR(buf.fMode)) {
@@ -610,8 +618,9 @@ Bool_t KVFileDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                      }
                      fName->SetText("", kFALSE);
                      return kTRUE;
-                  } else if (!strcmp(fOk->GetTitle(), "Save") &&
-                             (!(fCheckB->GetState() == kButtonDown))) {
+                  }
+                  else if (!strcmp(fOk->GetTitle(), "Save") &&
+                           (!(fCheckB->GetState() == kButtonDown))) {
                      Int_t ret;
                      txt = TString::Format("File name %s already exists, OK to overwrite it?",
                                            fTbfname->GetString());

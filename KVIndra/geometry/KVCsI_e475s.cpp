@@ -65,7 +65,8 @@ void KVCsI_e475s::SetCalibrator(KVDBParameterSet* kvdbps)
       Warning("SetCalibrator(KVDBParameterSet*)",
               "Addition of Calibrator %s %s failed !", kvdbps->GetName(), kvdbps->GetTitle());
       delete cali;
-   } else {
+   }
+   else {
       if (TString(cali->GetType()).Contains("(LT)"))  fcalibLT = cali;
       else fcalibLT = 0;
    }
@@ -77,7 +78,8 @@ void KVCsI_e475s::ChangeCalibParameters(KVDBParameterSet* kvdbps)
 {
    if (TString(kvdbps->GetTitle()).Contains("LT")) {
       fcalibLT->ChangeCalibParameters(kvdbps);
-   } else {
+   }
+   else {
       printf("KVCsI_e475s::ChangeCalibParameters(KVDBParameterSet *kvdbps) : no calibrator defined for %s\n", kvdbps->GetTitle());
    }
 
@@ -179,7 +181,8 @@ void KVCsI_e475s::Streamer(TBuffer& R__b)
       KVCsI_e475s::Class()->ReadBuffer(R__b, this);
       fcalibLT  = (KVFunctionCal*)GetCalibrator("Channel->MeV(LT)");
       //printf("")
-   } else {
+   }
+   else {
       KVCsI_e475s::Class()->WriteBuffer(R__b, this);
    }
 }

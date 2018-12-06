@@ -189,10 +189,12 @@ void KVIDZALine::Streamer(TBuffer& R__b)
          UShort_t a;
          R__b >> a;
          SetA(a);
-      } else {
+      }
+      else {
          R__b.ReadClassBuffer(KVIDZALine::Class(), this, R__v, R__s, R__c);
       }
-   } else {
+   }
+   else {
       R__b.WriteClassBuffer(KVIDZALine::Class(), this);
    }
 }

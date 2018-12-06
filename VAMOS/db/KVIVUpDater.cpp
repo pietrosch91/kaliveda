@@ -294,7 +294,8 @@ void KVIVUpDater::SetChIoSiPedestals(KVDBRun* kvrun)
             Warning("KVIVUpDater::SetChIoSiPedestals"
                     , "Bad Format in line :\n%s\nUnable to read",
                     line.Data());
-         } else  {
+         }
+         else  {
 
             KVDetector* det = gIndra->GetDetectorByType(cou, mod, type);
             if (det) {
@@ -373,7 +374,8 @@ void KVIVUpDater::SetSi75SiLiPedestals(KVDBRun* kvrun)
             Warning("KVIVUpDater::SetSi75SiLiPedestals"
                     , "Bad Format in line :\n%s\nUnable to read",
                     line.Data());
-         } else  {
+         }
+         else  {
             KVDetector* det = gIndra->GetDetectorByType(cou, mod, type);
 
             if (det) {

@@ -98,7 +98,8 @@ void KVLevelScheme::ReadLevels(const char* file)
          jpi.ReplaceAll("AP", "");
          jpi.ReplaceAll(" OR ", "or");
          jpi.ReplaceAll(" TO ", "to");
-      } else jpi = "";
+      }
+      else jpi = "";
 
       gamma = "";
       if (npars == 6) {
@@ -225,7 +226,8 @@ int KVLevelScheme::getPI(TString jpi)
    if ((jpi.Contains("-")) && (jpi.Contains("+"))) {
       if (jpi.Index("+") < jpi.Index("-")) pi = 1;
       else  pi = -1;
-   } else if (jpi.Contains("-")) pi = -1;
+   }
+   else if (jpi.Contains("-")) pi = -1;
    else                       pi = 1;
 
    return pi;

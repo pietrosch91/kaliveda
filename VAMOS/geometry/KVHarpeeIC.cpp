@@ -239,7 +239,8 @@ Double_t KVHarpeeIC::GetCalibE()
       if (cal->GetACQParam()->Fired("P")) {
          if (cal->GetStatus()) {
             E += cal->Compute();
-         } else ok = kFALSE;
+         }
+         else ok = kFALSE;
       }
    }
    return (ok ? E : 0.);

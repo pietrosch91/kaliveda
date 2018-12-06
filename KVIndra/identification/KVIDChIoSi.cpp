@@ -123,7 +123,8 @@ void KVIDChIoSi::Initialize()
    if (ChIoSiGrid) {
       ChIoSiGrid->Initialize();
       SetBit(kReadyForID);
-   } else
+   }
+   else
       ResetBit(kReadyForID);
    if (!gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
 }

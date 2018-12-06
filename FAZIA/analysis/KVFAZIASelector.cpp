@@ -187,7 +187,8 @@ void KVFAZIASelector::SetAutomaticManagementOfOutputs(Bool_t automatic)
          fAutomatic = kFALSE;
          fOutputPath = "";
          return;
-      } else if (gSystem->Exec(Form("test -d %s", fOutputPath.Data())) != 0) {
+      }
+      else if (gSystem->Exec(Form("test -d %s", fOutputPath.Data())) != 0) {
          Info("SetAutomaticManagementOfOutputs", "Creation of %s directory", fOutputPath.Data());
          if (gSystem->mkdir(fOutputPath.Data(), kTRUE) != 0) {
             Info("SetAutomaticManagementOfOutputs", "Error in the %s directory creation", fOutputPath.Data());
@@ -379,7 +380,8 @@ void KVFAZIASelector::MergeListOfEndedRuns(const Char_t* kvsname, const Char_t* 
                    op.Data(),
                    slist.Data()
                   );
-      } else if (lpersyst->GetNValues() == 1) {
+      }
+      else if (lpersyst->GetNValues() == 1) {
          inst.Form("hadd -f -k -v 0 %s/%s.root %s/R%d.root",
                    op.Data(),
                    sname.Data(),
@@ -529,15 +531,18 @@ void KVFAZIASelector::CheckBatchOutputFiles(const Char_t* kvsname, Bool_t erasea
             line.ReplaceAll("Info in <KVFAZIAReconDataAnalyser::SetRuns>: Accepted runs :", "");
             linit.Add(line.Data());
             linit_all.Add(line.Data());
-         } else if (line.BeginsWith("Info in <KVFAZIAReconDataAnalyser::SubmitTask>: treatment of run#")) {
+         }
+         else if (line.BeginsWith("Info in <KVFAZIAReconDataAnalyser::SubmitTask>: treatment of run#")) {
             line.ReplaceAll("Info in <KVFAZIAReconDataAnalyser::SubmitTask>: treatment of run#", "");
             num = line.Atoi();
             lstarted.Add(num);
             lstarted_all.Add(num);
-         } else if (line.BeginsWith(Form("Info in <%s::Process>: End of file reached after ", kvsname))) {
+         }
+         else if (line.BeginsWith(Form("Info in <%s::Process>: End of file reached after ", kvsname))) {
             lended.Add(num);
             lended_all.Add(num);
-         } else if (line.BeginsWith("CpuSys = ")) {
+         }
+         else if (line.BeginsWith("CpuSys = ")) {
             sscanf(line.Data(), " CpuSys = %lf  s.    CpuUser = %lf s.    ResMem = %lf MB   VirtMem = %lf MB",
                    &sys_time, &cpu_time, &res_mem, &virt_mem);
 
@@ -562,7 +567,8 @@ void KVFAZIASelector::CheckBatchOutputFiles(const Char_t* kvsname, Bool_t erasea
          lstarted.Remove(lended);
          if (lstarted.GetNValues() > 0)
             printf("in %s : runs not ended : %s\n", file.Data(), lstarted.AsString());
-      } else {
+      }
+      else {
          printf("in %s : initial run list is empty\n", file.Data());
       }
       nf += 1;

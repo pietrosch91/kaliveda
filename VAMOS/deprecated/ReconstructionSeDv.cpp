@@ -64,7 +64,8 @@ ReconstructionSeDv::ReconstructionSeDv(LogFile* Log, SeD12v* SeD12)
    if (!gDataSet->OpenDataSetFile("ReconstructionSeD.cal", inf)) {
       cout << "Could not open the calibration file ReconstructionSeD.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading ReconstructionSeD.cal" << endl;
       L->Log << "Reading ReconstructionSeD.cal" << endl;
@@ -92,7 +93,8 @@ ReconstructionSeDv::ReconstructionSeDv(LogFile* Log, SeD12v* SeD12)
          if (!gDataSet->OpenDataSetFile(fname, inf1)) {
             cout << "Could not open the calibration file " << fname << endl;
             return;
-         } else {
+         }
+         else {
             cout.setf(ios::showpoint);
             cout << "Reading " << fname << endl;
             L->Log << "Reading " << fname << endl;

@@ -133,7 +133,8 @@ public:
       Double_t dzeta = zeta - zeta0;
       if (zeta <= zeta1) {
          Phi = -0.5 * pow(dzeta, 2) - Kprox * pow(dzeta, 3);
-      } else {
+      }
+      else {
          Phi = -3.437 * exp(-zeta / 0.75);
       }
       return PROXFACTOR * Phi;
@@ -242,7 +243,8 @@ public:
       Double_t D;
       if (zpzt < 500) {
          D = 0.3117 * pow(zpzt, 0.2122);
-      } else {
+      }
+      else {
          D = 1.096 + 1.391e-04 * zpzt;
       }
       return InteractionRadius(ap, at) - D;
@@ -324,7 +326,8 @@ public:
       if (l > 0) {
          totpot = GetCentrifugalPotential(l);
          totpot->SetTitle(Form("HIPOT l=%3.0f", l));
-      } else totpot = GetTotalPotential();
+      }
+      else totpot = GetTotalPotential();
       totpot->SetNpx(1000);
       GetBSSCoulombPotential()->SetNpx(1000);
       GetNuclearProximityPotential()->SetNpx(1000);

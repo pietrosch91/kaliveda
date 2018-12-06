@@ -259,19 +259,22 @@ int*   pCtrlForm; /* control event format address */
                      err = R_SEVID; /* erreur sur l'ident de l'interface */
                      errl = sev_cpl->cpl_typ;
                      cont = FALSE;
-                  } else {
+                  }
+                  else {
                      nbcoupl++; /* incrementer le nombre de coupleurs traites */
                      if ((ct_evt->ct_stat[nbcoupl] = ss_evt->ss_s2) < 0) {
                         /* set bit erreur dans ct_stat[0] si erreur */
                         ct_evt->ct_stat[0] = ct_evt->ct_stat || 0x80;
                         err = R_NOEVT;
                         cont = FALSE; /*  aucun traitement pour l'instant */
-                     } else {
+                     }
+                     else {
                         ssevend = evtcour + ss_evt->ss_len;
                         evtcour = &ss_evt->ss_par;
                         if (typcpl == CAM_COUPL) {
                            sev_fct = (SEV_FCT*)&sev_cpl->cpl_deblam[ss_evt->ss_s2];
-                        } else {
+                        }
+                        else {
                            sev_fct = (SEV_FCT*)&sev_cpl->cpl_deblam[0];
                         }
                      }
@@ -377,7 +380,8 @@ int*   pCtrlForm; /* control event format address */
                               *ctcour++ = *evtcour++;
                               break;
                         }
-                     } else {
+                     }
+                     else {
                         /* entree non initialisee dans table de conversion */
 #ifdef EVCTDBG
                         printf("\n entree %d non initialisee dans table de conversion"
@@ -519,7 +523,8 @@ int*   pCtrlForm; /* control event format address */
 
       }/*1*/ while ((sev_fct = sev_fct->sev_next) != (SEV_FCT*)0);
 
-   } while ((sev_fct = SevFctCpl->sev_next) != 0 && cont);
+   }
+   while ((sev_fct = SevFctCpl->sev_next) != 0 && cont);
 
    if (err != GR_OK) {
       /* ----------------------------------------------------------------- */

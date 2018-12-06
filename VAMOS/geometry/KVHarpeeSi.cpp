@@ -394,7 +394,8 @@ void KVHarpeeSi::Streamer(TBuffer& R__b)
          else if (cal->InheritsFrom(KVFunctionCal::Class()))
             fCanalE = (KVFunctionCal*)cal;
       }
-   } else {
+   }
+   else {
       KVHarpeeSi::Class()->WriteBuffer(R__b, this);
    }
 }

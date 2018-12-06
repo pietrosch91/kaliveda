@@ -162,7 +162,8 @@ NewRooMinuit::NewRooMinuit(RooAbsReal& function)
    if (RooMsgService::instance().silentMode()) {
       setWarnLevel(-1) ;
       setPrintLevel(-1) ;
-   } else {
+   }
+   else {
       setWarnLevel(1) ;
       setPrintLevel(1) ;
    }
@@ -581,7 +582,8 @@ Int_t NewRooMinuit::setWarnLevel(Int_t newLevel)
 
    if (newLevel >= 0) {
       _theFitter->ExecuteCommand("SET WARNINGS", &arg, 1);
-   } else {
+   }
+   else {
       Double_t arg2(0) ;
       _theFitter->ExecuteCommand("SET NOWARNINGS", &arg2, 1);
    }
@@ -680,7 +682,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
                // Trim default choice of error if within 2 sigma of limit
                if (pmax - par->getVal() < 2 * pstep) {
                   pstep = (pmax - par->getVal()) / 2 ;
-               } else if (par->getVal() - pmin < 2 * pstep) {
+               }
+               else if (par->getVal() - pmin < 2 * pstep) {
                   pstep = (par->getVal() - pmin) / 2 ;
                }
 
@@ -689,7 +692,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
                   pstep = 0.1 * (pmax - pmin);
                }
 
-            } else {
+            }
+            else {
                pstep = 1 ;
             }
             if (_verbose) {
@@ -697,7 +701,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
                                    << par->GetName() << ": using " << pstep << endl;
             }
          }
-      } else {
+      }
+      else {
          pmin = par->getVal() ;
          pmax = par->getVal() ;
       }
@@ -736,7 +741,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
             coutI(Minimization) << "NewRooMinuit::synchronize: parameter " << par->GetName() << " is now fixed." << endl ;
          }
 
-      } else if (par->isConstant() && oldFixed) {
+      }
+      else if (par->isConstant() && oldFixed) {
 
          // Parameter changes constant -> constant : update only value if necessary
          if (oldVar != par->getVal()) {
@@ -751,7 +757,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
             }
          }
 
-      } else {
+      }
+      else {
 
          if (!par->isConstant() && oldFixed) {
             _theFitter->ReleaseParameter(index) ;
@@ -799,7 +806,8 @@ Bool_t NewRooMinuit::synchronize(Bool_t verbose)
 
          coutI(Minimization) << "NewRooMinuit::synchronize: set of constant parameters changed, rerunning const optimizer" << endl ;
          _func->constOptimizeTestStatistic(RooAbsArg::ConfigChange) ;
-      } else if (constValChange) {
+      }
+      else if (constValChange) {
          coutI(Minimization) << "NewRooMinuit::synchronize: constant parameter values changed, rerunning const optimizer" << endl ;
          _func->constOptimizeTestStatistic(RooAbsArg::ValueChange) ;
       }
@@ -828,13 +836,16 @@ void NewRooMinuit::optimizeConst(Int_t flag)
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinuit::optimizeConst: deactivating const optimization" << endl ;
       _func->constOptimizeTestStatistic(RooAbsArg::DeActivate, flag > 1) ;
       _optConst = flag ;
-   } else if (!_optConst && flag) {
+   }
+   else if (!_optConst && flag) {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinuit::optimizeConst: activating const optimization" << endl ;
       _func->constOptimizeTestStatistic(RooAbsArg::Activate, flag > 1) ;
       _optConst = flag ;
-   } else if (_optConst && flag) {
+   }
+   else if (_optConst && flag) {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinuit::optimizeConst: const optimization already active" << endl ;
-   } else {
+   }
+   else {
       if (_printLevel > -1) coutI(Minimization) << "NewRooMinuit::optimizeConst: const optimization wasn't active" << endl ;
    }
 
@@ -902,7 +913,8 @@ NewRooFitResult* NewRooMinuit::save(const char* userName, const char* userTitle)
    fitRes->setFinalParList(saveFloatFinalList) ;
    if (!_extV) {
       fitRes->fillCorrMatrix() ;
-   } else {
+   }
+   else {
       fitRes->setCovarianceMatrix(*_extV) ;
    }
 
@@ -967,7 +979,8 @@ RooPlot* NewRooMinuit::contour(RooRealVar& var1, RooRealVar& var2, Double_t n1, 
          TGraph* graph = (TGraph*)gMinuit->Contour(50, index1, index2);
          if (!graph) {
             coutE(Minimization) << "NewRooMinuit::contour(" << GetName() << ") ERROR: MINUIT did not return a contour graph for n=" << n[ic] << endl ;
-         } else {
+         }
+         else {
             graph->SetName(Form("contour_%s_n%f", _func->GetName(), n[ic])) ;
             graph->SetLineStyle(ic + 1) ;
             graph->SetLineWidth(2) ;
@@ -1133,7 +1146,8 @@ void NewRooMinuit::backProp()
       if (eplus > 0 || eminus < 0) {
          // Store the asymmetric error, if it is available
          setPdfParamErr(index, eminus, eplus);
-      } else {
+      }
+      else {
          // Clear the asymmetric error
          clearPdfParamAsymErr(index) ;
       }
@@ -1212,7 +1226,8 @@ void RooMinuitGlue(Int_t& /*np*/, Double_t* /*gin*/,
             oocoutW(context, Minimization) << "RooMinuitGlue: Minimized function has error status." << endl
                                            << "Returning maximum FCN so far (" << maxFCN
                                            << ") to force MIGRAD to back out of this region. Error log follows" << endl ;
-         } else {
+         }
+         else {
             oocoutW(context, Minimization) << "RooMinuitGlue: Minimized function has error status but is ignored" << endl ;
          }
 
@@ -1223,7 +1238,8 @@ void RooMinuitGlue(Int_t& /*np*/, Double_t* /*gin*/,
          while ((var = (RooRealVar*)iter->Next())) {
             if (first) {
                first = kFALSE ;
-            } else ooccoutW(context, Minimization) << ", " ;
+            }
+            else ooccoutW(context, Minimization) << ", " ;
             ooccoutW(context, Minimization) << var->GetName() << "=" << var->getVal() ;
          }
          delete iter ;
@@ -1240,7 +1256,8 @@ void RooMinuitGlue(Int_t& /*np*/, Double_t* /*gin*/,
       RooAbsPdf::clearEvalError() ;
       RooAbsReal::clearEvalErrorLog() ;
       context->_numBadNLL++ ;
-   } else if (f > maxFCN) {
+   }
+   else if (f > maxFCN) {
       maxFCN = f ;
    }
 

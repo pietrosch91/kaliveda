@@ -345,17 +345,20 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 4;
       STRB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "STR_12", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 5;
       STRB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "STR_21", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 6;
       STRB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "STR_22", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 7;
@@ -371,17 +374,20 @@ void Parameters::Check(void)
       strncmp(fParameterName[fNumberofParameters - 1].Name + 8, "OLD", 3) == 0
    ) {
       fNumberofParameters--;   //Removing from the Tree
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ECHI_A", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 1;
       EchiB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ECHI_B", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 2;
       EchiB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ECHI_C", 6) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 3;
@@ -401,7 +407,8 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 8;
       ECCEB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ECC", 3) == 0 &&
       (
          strncmp(fParameterName[fNumberofParameters - 1].Name + 7, "TAC", 3) == 0 ||
@@ -438,7 +445,8 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 21;
       GOCCEEB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "GOCCE", 5) == 0 &&
       (
          strncmp(fParameterName[fNumberofParameters - 1].Name + 11, "T", 1) == 0 ||
@@ -465,49 +473,57 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 25;
       ICSILB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI_", 4) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 8, "_R", 2) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 26;
       ICSIRB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI_", 4) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 8, "_T", 2) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 27;
       ICSITB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "SI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_PG", 3) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 28;
       ISILB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "SI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_GG", 3) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 29;
       ISIHB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "SI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_T", 2) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 30;
       ISITB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_PG", 3) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 31;
       ICILB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_GG", 3) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 32;
       ICIHB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CI_", 3) == 0 &&
       strncmp((fParameterName[fNumberofParameters - 1]).Name + 7, "_T", 2) == 0
    ) {
@@ -522,7 +538,8 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 24;
       WCSIEB = true;
-   } else if (
+   }
+   else if (
       strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI", 3) == 0
       && sscanf((fParameterName[fNumberofParameters - 1]).Name, "CSI%02d", &num_csi) == 1
    ) {
@@ -545,7 +562,8 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 10;
       ESSQB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ESS", 3) == 0 &&
       (
          strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "TDC", 3) == 0 ||
@@ -554,7 +572,8 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 11;
       ESSTB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "ESS", 3) == 0 &&
       (
          strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "PAT", 3) == 0 ||
@@ -571,17 +590,20 @@ void Parameters::Check(void)
    ) {
       fParameterType[fNumberofParameters - 1] = 12;
       SEDB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "SED1_Y_", 7) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 13;
       SEDB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "SED2_X_", 7) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 14;
       SEDB = true;
-   } else if (
+   }
+   else if (
       strncmp(fParameterName[fNumberofParameters - 1].Name, "SED2_Y_", 7) == 0
    ) {
       fParameterType[fNumberofParameters - 1] = 15;
@@ -603,30 +625,32 @@ void Parameters::Check(void)
            ) {
       fParameterType[fNumberofParameters - 1] = 16;
       CSIEB = true;
-   } else if ((
-                 strncmp((fParameterName[fNumberofParameters - 1]).Name, "CsI", 3) == 0
-                 ||
-                 strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI", 3) == 0
-              ) &&
-              (
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "Tim", 3) == 0 ||
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "TIM", 3) == 0 ||
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "TIM", 3) == 0 ||
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "Tim", 3) == 0
-              )
-             ) {
+   }
+   else if ((
+               strncmp((fParameterName[fNumberofParameters - 1]).Name, "CsI", 3) == 0
+               ||
+               strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI", 3) == 0
+            ) &&
+            (
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "Tim", 3) == 0 ||
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "TIM", 3) == 0 ||
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "TIM", 3) == 0 ||
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "Tim", 3) == 0
+            )
+           ) {
       fParameterType[fNumberofParameters - 1] = 17;
       CSITB = true;
-   } else if ((
-                 strncmp((fParameterName[fNumberofParameters - 1]).Name, "CsI", 3) == 0
-                 ||
-                 strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI", 3) == 0
-              ) &&
-              (
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "PI", 2) == 0 ||
-                 strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "PI", 2) == 0
-              )
-             ) {
+   }
+   else if ((
+               strncmp((fParameterName[fNumberofParameters - 1]).Name, "CsI", 3) == 0
+               ||
+               strncmp((fParameterName[fNumberofParameters - 1]).Name, "CSI", 3) == 0
+            ) &&
+            (
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 5, "PI", 2) == 0 ||
+               strncmp(fParameterName[fNumberofParameters - 1].Name + 6, "PI", 2) == 0
+            )
+           ) {
       fParameterType[fNumberofParameters - 1] = 18;
       CSIPB = true;
    }
@@ -968,7 +992,8 @@ void Parameters::Set(TTree* theTree)
                   cout << "Unknown Index " << Index << endl;
                   exit(EXIT_FAILURE);
                }
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp(fParameterName[i].Name + 6, "A", 1) == 0)
@@ -1003,7 +1028,8 @@ void Parameters::Set(TTree* theTree)
                   cout << "Unknown Index " << fParameterName[i].Name << Index << endl;
                   exit(EXIT_FAILURE);
                }
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp((fParameterName[i]).Name + 6, "A", 1) == 0)
@@ -1040,7 +1066,8 @@ void Parameters::Set(TTree* theTree)
                   cout << "Unknown Index " << Index << endl;
                   exit(EXIT_FAILURE);
                }
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp(fParameterName[i].Name + 6, "A", 1) == 0)
@@ -1078,7 +1105,8 @@ void Parameters::Set(TTree* theTree)
                   cout << "Unknown Index " << Index << endl;
                   exit(EXIT_FAILURE);
                }
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp(fParameterName[i].Name + 11, "A", 1) == 0)
@@ -1101,7 +1129,8 @@ void Parameters::Set(TTree* theTree)
             if (strncmp(fParameterName[i].Name + 4, "_", 1) == 0) {
                sscanf(fParameterName[i].Name + 3, "%1d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
             }
@@ -1129,7 +1158,8 @@ void Parameters::Set(TTree* theTree)
                }
                sscanf(fParameterName[i].Name + 9, "%1d", &tmp);
                Index1 = (UShort_t) tmp;
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 5, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp(fParameterName[i].Name + 8, "A", 1) == 0)
@@ -1169,7 +1199,8 @@ void Parameters::Set(TTree* theTree)
                }
                sscanf(fParameterName[i].Name + 9, "%1d", &tmp);
                Index1 = (UShort_t) tmp;
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 5, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
                if (strncmp(fParameterName[i].Name + 8, "A", 1) == 0)
@@ -1251,7 +1282,8 @@ void Parameters::Set(TTree* theTree)
             if (strncmp((fParameterName[i]).Name + 4, "_", 1) == 0) {
                sscanf(fParameterName[i].Name + 3, "%1d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
-            } else {
+            }
+            else {
                sscanf(fParameterName[i].Name + 3, "%2d", &tmp);
                fParameterMap[fParameterNumber[i]] = tmp;
             }
@@ -1376,7 +1408,8 @@ void Parameters::GetData(Short_t* data)
                ECCENr[ECCEM] = fParameterMap[data[0]];
                ECCE[ECCEM] = data[1];
                ECCEM++;
-            } else
+            }
+            else
                cout << "ECCEM: " << ECCEM << endl;
             break;
          case 9:
@@ -1384,7 +1417,8 @@ void Parameters::GetData(Short_t* data)
                ECCTNr[ECCTM] = fParameterMap[data[0]];
                ECCT[ECCTM] = data[1];
                ECCTM++;
-            } else
+            }
+            else
                cout << "ECCTM: " << ECCTM << endl;
             break;
 #endif
@@ -1394,7 +1428,8 @@ void Parameters::GetData(Short_t* data)
                ECC20ENr[ECC20EM] = fParameterMap[data[0]];
                ECC20E[ECC20EM] = data[1];
                ECC20EM++;
-            } else
+            }
+            else
                cout << "ECC20EM: " << ECC20EM << endl;
             break;
 #endif
@@ -1404,7 +1439,8 @@ void Parameters::GetData(Short_t* data)
                GOCCEENr[GOCCEEM] = fParameterMap[data[0]];
                GOCCEE[GOCCEEM] = data[1];
                GOCCEEM++;
-            } else
+            }
+            else
                cout << "GOCCEEM: " << GOCCEEM << endl;
             break;
          case 22:
@@ -1412,7 +1448,8 @@ void Parameters::GetData(Short_t* data)
                GOCCETNr[GOCCETM] = fParameterMap[data[0]];
                GOCCET[GOCCETM] = data[1];
                GOCCETM++;
-            } else
+            }
+            else
                cout << "GOCETM: " << GOCCETM << endl;
             break;
 #endif
@@ -1422,7 +1459,8 @@ void Parameters::GetData(Short_t* data)
                ESSQNr[ESSQM] = fParameterMap[data[0]];
                ESSQ[ESSQM] = data[1];
                ESSQM++;
-            } else
+            }
+            else
                cout << "ESSQM: " << ESSQM << endl;
             break;
          case 11:
@@ -1430,7 +1468,8 @@ void Parameters::GetData(Short_t* data)
                ESSTNr[ESSTM] = fParameterMap[data[0]];
                ESST[ESSTM] = data[1];
                ESSTM++;
-            } else
+            }
+            else
                cout << "ESSTM: " << ESSTM << endl;
             break;
 #endif
@@ -1556,7 +1595,8 @@ void Parameters::GetData(Short_t* data)
             cout << "Should not happen Parameter Number : " << data[0] << " Map:" << fParameterMapT[data[0]] << endl;
             break;
       }
-   } else
+   }
+   else
       cout << "Parameter Number " << data[0] << " out of range (" << fMaxParameterNumber << ")" << endl;
 
 }
@@ -1688,7 +1728,8 @@ char* Parameters::CopyParam(char* Dest, char* Source) const
          *Dest++ = c;
       else
          *Dest = '\0';
-   } while (c != '\0');
+   }
+   while (c != '\0');
    /* Verifier qu'on n'a pas plusieurs 0x0D de suite */
    while (*Source == 0x0d) {
       *Source = '\0';
@@ -1728,7 +1769,8 @@ void Parameters::Fill(const char* buffParam)
       sscanf(tmp, "%hu", &fParameterBits[fNumberofParameters - 1]);
       if (!((fParameterNumber[fNumberofParameters - 1] == 0) || (fParameterBits[fNumberofParameters - 1] == 0))) {
          Check();
-      } else
+      }
+      else
          fNumberofParameters--;
    }
 

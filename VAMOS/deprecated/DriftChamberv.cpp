@@ -79,7 +79,8 @@ DriftChamberv::DriftChamberv(LogFile* Log, Sive503* SiD):
    if (!gDataSet->OpenDataSetFile("DriftChamber_time.cal", in2)) {
       cout << "Could not open the calibration file Offset.cal !!!" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading DriftChamber_time.cal" << endl;
       L->Log << "Reading DriftChamber_time.cal" << endl;
       while (!in2.eof()) {
@@ -100,7 +101,8 @@ DriftChamberv::DriftChamberv(LogFile* Log, Sive503* SiD):
    if (!gDataSet->OpenDataSetFile("DriftChamberRef.cal", inf1)) {
       cout << "Could not open the Reference file DriftChamberRef.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading DriftChamberRef.cal" << endl;
       L->Log << "Reading DriftChamberRef.cal" << endl;
@@ -178,7 +180,8 @@ DriftChamberv::DriftChamberv(LogFile* Log, Sive503* SiD):
    if (!gDataSet->OpenDataSetFile("DriftChamber.cal", inf)) {
       cout << "Could not open the calibration file DriftChamber.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout.setf(ios::showpoint);
       cout << "Reading DriftChamber.cal" << endl;
       L->Log << "Reading DriftChamber.cal" << endl;
@@ -344,7 +347,8 @@ void DriftChamberv::SetMatX(void)
    if (Det == 0.0) {
       cout << "DriftChamberv::SetMatX: Det == 0 !" << endl;
       exit(EXIT_FAILURE);
-   } else {
+   }
+   else {
       MatX[0][0] = A[1][1] / Det;
       MatX[1][1] = A[0][0] / Det;
       MatX[1][0] = -1.0 * A[0][1] / Det;
@@ -385,7 +389,8 @@ void DriftChamberv::SetMatY(void)
    if (Det == 0.0) {
       cout << "DriftChamberv::SetMatY: Det == 0 !" << endl;
       exit(EXIT_FAILURE);
-   } else {
+   }
+   else {
       MatY[0][0] = A[1][1] / Det;
       MatY[1][1] = A[0][0] / Det;
       MatY[0][1] = -1.0 * A[1][0] / Det;
@@ -499,7 +504,8 @@ void DriftChamberv::Calibrate(void)
    if (T[0] > 0.0 && T[1] > 0.0) { //E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
       PresentWires = true;
       Counter[5]++;
-   } else {
+   }
+   else {
       E[0] = E[1] = T[0] = T[1] = 0.0;
    }
    //L->Log<<"PresentWires : ::Calibrate() : "<<PresentWires<<endl;
@@ -520,7 +526,8 @@ void DriftChamberv::Calibrate(void)
                   N[Mult[i] - 1][i] = Q_Raw_Nr[j + i * 64];
                }
             }
-         } else {
+         }
+         else {
             for (j = 0; j < Q_RawM[i]; j++) { //loop over strips
                QTmp = 0.0;
                Rnd->Next();
@@ -568,7 +575,8 @@ void DriftChamberv::Focal(void)
             Yf > -500. && Pf > -500.) {
          Present = true;
          Counter[13]++;
-      } else
+      }
+      else
          Xf = Xf1 = Yf = Tf = Pf = -500.0;
    }
 
@@ -667,7 +675,8 @@ void DriftChamberv::FocalSubseqX(void)
             XS[i] = X[i] *= 6.3; //Goes mm
             if (!(X[i] < 500. && X[i] > 0.)) XS[i] = X[i] = -500.;
             if (X[i] > 0.) Counter1[i][1]++;
-         } else { // the case of Weighted Average
+         }
+         else {   // the case of Weighted Average
 #ifdef WEIGHTEDAVERAGE
             if (Mult[i] > NStrips) {
                //Looking for entire peak for W.A.
@@ -679,9 +688,11 @@ void DriftChamberv::FocalSubseqX(void)
                      if ((Q[j][i] <= Q[j + 1][i])) {
                         StripsWA++;
                         FStrip[StripsWA] = j;
-                     } else
+                     }
+                     else
                         break;
-                  } else
+                  }
+                  else
                      break;
 
                for (j = FStrip[0]; j < Mult[i] - 1; j++)
@@ -689,9 +700,11 @@ void DriftChamberv::FocalSubseqX(void)
                      if (Q[j][i] >= Q[j + 1][i]) {
                         StripsWA++;
                         FStrip[StripsWA] = j + 1;
-                     } else
+                     }
+                     else
                         break;
-                  } else
+                  }
+                  else
                      break;
 
                if (StripsWA >= NStrips) {
@@ -732,7 +745,8 @@ void DriftChamberv::FocalSubseqX(void)
          XWA[i] -= (Float_t) XRef[i][0];
       }
       Counter[7]++;
-   } else {
+   }
+   else {
       for (i = 0; i < 4; i++)
          X[i] = -500.0;
    }
@@ -762,7 +776,8 @@ void DriftChamberv::FocalSubseqY(void)
          Y[i] *= -1.0;
          //    cout << "aa " << i <<" " <<  Y[i] << " " << T[i] <<  " "<<DriftVelocity << " " << YRef[i][0] << endl;
       }
-   } else {
+   }
+   else {
       for (i = 0; i < 2; i++)
          Y[i] = -500.0;
    }
@@ -795,12 +810,14 @@ void DriftChamberv::FocalX(void)
    if ((TanFocal[0] - B[0]) != 0.) {
       Xf = (Float_t)(B[0] * (TanFocal[0] * FocalPos + B[1]) / (TanFocal[0] - B[0]) + B[1]);
       Counter[10]++;
-   } else
+   }
+   else
       Xf = -500.0;
 
    if ((TanFocal1[0] - B[0]) != 0.) {
       Xf1 = (Float_t)(B[0] * (TanFocal1[0] * FocalPos + B[1]) / (TanFocal1[0] - B[0]) + B[1]);
-   } else
+   }
+   else
       Xf1 = -500.0;
 
 
@@ -837,7 +854,8 @@ void DriftChamberv::FocalY(void)
       Yf -= fabs(tan(Pf / 1000.)) * 50.;
       //      cout << Yf << endl;
       Counter[12]++;
-   } else
+   }
+   else
       Yf = -500.0;
 }
 

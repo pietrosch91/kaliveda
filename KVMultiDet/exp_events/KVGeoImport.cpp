@@ -184,7 +184,8 @@ void KVGeoImport::PropagateParticle(KVNucleus* nuc, TVector3* TheOrigin)
             fCurrentTrajectory.AddLast(fLastDetector->GetNode());
          }
          fCurrentTrajectory.ReverseOrder();
-      } else {
+      }
+      else {
          fCurrentTrajectory.AddLast(fLastDetector->GetNode());
       }
       if (!fArray->GetTrajectories()->FindObject(fCurrentTrajectory.GetName())) {
@@ -226,7 +227,8 @@ KVDetector* KVGeoImport::GetCurrentDetector()
          // add entry to correspondance list between physical nodes and detectors (all layers)
          fDetectorPaths.Add(new KVGeoDetectorPath(GetCurrentPath(), det));
       }
-   } else {
+   }
+   else {
       if (!det) {
          det = BuildDetector(detector_name, detector_volume);
          if (det) {
@@ -273,7 +275,8 @@ KVDetector* KVGeoImport::GetCurrentDetector()
                ELEM->Add(det);
             }
          }
-      } else {
+      }
+      else {
          // Detector already built, are we now in its active layer ?
          TString vol_name(GetCurrentVolume()->GetName());
          if (!multilay || vol_name.BeginsWith("ACTIVE_")) {
@@ -328,7 +331,8 @@ KVDetector* KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
    TPluginHandler* ph = NULL;
    if (fDetectorPlugin == "" || !(ph = LoadPlugin("KVDetector", fDetectorPlugin))) {
       d = new KVDetector;
-   } else {
+   }
+   else {
       d = (KVDetector*)ph->ExecPlugin(0);
    }
 
@@ -339,7 +343,8 @@ KVDetector* KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
       for (int i = 0; i < nlayer; i++) {
          AddLayer(d, det_vol->GetNode(i)->GetVolume());
       }
-   } else
+   }
+   else
       AddLayer(d, det_vol);
    TString type = d->GetActiveLayer()->GetName();
    //type.ToUpper();
@@ -375,7 +380,8 @@ void KVGeoImport::AddLayer(KVDetector* det, TGeoVolume* vol)
       Double_t p = material->GetPressure();
       Double_t T = material->GetTemperature();
       absorber = new KVMaterial(irmat->GetType(), width, p, T);
-   } else
+   }
+   else
       absorber = new KVMaterial(irmat->GetType(), width);
    det->AddAbsorber(absorber);
    if (vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer(absorber);

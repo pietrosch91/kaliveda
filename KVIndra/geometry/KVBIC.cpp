@@ -260,7 +260,8 @@ void KVBIC::Streamer(TBuffer& R__b)
    if (R__b.IsReading()) {
       KVBIC::Class()->ReadBuffer(R__b, this);
       fLinCal = (KVLinCal*)GetCalibrator("Linear calibration PG");
-   } else {
+   }
+   else {
       KVBIC::Class()->WriteBuffer(R__b, this);
    }
 }

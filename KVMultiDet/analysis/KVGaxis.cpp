@@ -304,7 +304,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
    Int_t idF = fTimeFormat.Index("%F");
    if (idF >= 0) {
       timeformat = fTimeFormat(0, idF);
-   } else {
+   }
+   else {
       timeformat = fTimeFormat;
    }
 
@@ -336,7 +337,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
             //restore TZ
             if (tz.Length()) {
                gSystem->Setenv("TZ", tz.Data());
-            } else {
+            }
+            else {
                if (isUTC) gSystem->Setenv("TZ", "");
                else       gSystem->Unsetenv("TZ");
             }
@@ -350,10 +352,12 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                sscanf(sdp.Data(), "%g", &dp);
                timeoffset += dp;
             }
-         } else {
+         }
+         else {
             Error(where, "Time offset has not the right format");
          }
-      } else {
+      }
+      else {
          timeoffset = gStyle->GetTimeOffset();
       }
       wmin += timeoffset - (int)(timeoffset);
@@ -441,14 +445,16 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
          xxmax = xmax;
          yymin = rtyw * (binLow - wmin)  + ymin;
          yymax = rtyw * (binHigh - wmin) + ymin;
-      } else {
+      }
+      else {
          rtxw  = (xmax - xmin) / (wmax - wmin);
          xxmin = rtxw * (binLow - wmin)  + xmin;
          xxmax = rtxw * (binHigh - wmin) + xmin;
          if (ymax == ymin) {
             yymin = ymin;
             yymax = ymax;
-         } else {
+         }
+         else {
             alfa  = (ymax - ymin) / (xmax - xmin);
             beta  = (ymin * xmax - ymax * xmin) / (xmax - xmin);
             yymin = alfa * xxmin + beta;
@@ -460,7 +466,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
          yymax = ymax;
          xxmin = xmin;
          xxmax = xmax;
-      } else {
+      }
+      else {
          wmin = binLow;
          wmax = binHigh;
       }
@@ -552,7 +559,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
    if (x0 == x1) {
       phi  = 0.5 * kPI;
       phil = phi;
-   } else {
+   }
+   else {
       phi = TMath::ATan2((y1 - y0), (x1 - x0));
       Int_t px0 = gPad->UtoPixel(x0);
       Int_t py0 = gPad->VtoPixel(y0);
@@ -646,7 +654,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
             if (TestBit(TAxis::kCenterTitle)) textaxis->SetTextAlign(22);
             else                              textaxis->SetTextAlign(12);
             Rotate(axispos, ylabel, cosphi, sinphi, x0, y0, xpl1, ypl1);
-         } else {
+         }
+         else {
             if (TestBit(TAxis::kCenterTitle)) textaxis->SetTextAlign(22);
             else                                 textaxis->SetTextAlign(32);
             Rotate(axispos, ylabel, cosphi, sinphi, x0, y0, xpl1, ypl1);
@@ -656,12 +665,14 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                               phil = (kPI + phil) * 180 / kPI,
                               GetTitleSize(),
                               GetTitle());
-      } else {
+      }
+      else {
          if (x1 >= x0) {
             if (TestBit(TAxis::kCenterTitle)) textaxis->SetTextAlign(22);
             else                              textaxis->SetTextAlign(32);
             Rotate(axispos, ylabel, cosphi, sinphi, x0, y0, xpl1, ypl1);
-         } else {
+         }
+         else {
             if (TestBit(TAxis::kCenterTitle)) textaxis->SetTextAlign(22);
             else                                 textaxis->SetTextAlign(12);
             Rotate(axispos, ylabel, cosphi, sinphi, x0, y0, xpl1, ypl1);
@@ -730,8 +741,9 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                                     angle,
                                     textaxis->GetTextSize(),
                                     fAxis->GetBinLabel(i));
-            } else if ((!strcmp(fAxis->GetName(), "yaxis") && !gPad->TestBit(kHori))
-                       || (!strcmp(fAxis->GetName(), "xaxis") &&  gPad->TestBit(kHori))) {
+            }
+            else if ((!strcmp(fAxis->GetName(), "yaxis") && !gPad->TestBit(kHori))
+                     || (!strcmp(fAxis->GetName(), "xaxis") &&  gPad->TestBit(kHori))) {
                Double_t s = -3;
                if (xmin == gPad->GetUxmax()) {
                   textaxis->SetTextAlign(12);
@@ -742,7 +754,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                                     0,
                                     textaxis->GetTextSize(),
                                     fAxis->GetBinLabel(i));
-            } else {
+            }
+            else {
                textaxis->PaintLatex(xmin - 3 * fAxis->GetLabelOffset() * (gPad->GetUxmax() - gPad->GetUxmin()),
                                     ymin + (i - 0.5) * (ymax - ymin) / nl,
                                     0,
@@ -773,7 +786,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
    if (optionLeft)  xalign = 1;
    if (TMath::Abs(cosphi) > 0.9) {
       xalign = 2;
-   } else {
+   }
+   else {
       if (cosphi * sinphi > 0)  xalign = 1;
       if (cosphi * sinphi < 0)  xalign = 3;
    }
@@ -784,26 +798,31 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
       if (optionPlus && !optionMinus) {
          if (optionEqual) ylabel =  fLabelOffset / 2 + atick[0];
          else             ylabel = -fLabelOffset;
-      } else {
+      }
+      else {
          ylabel = fLabelOffset;
          if (lside < 0)  ylabel += atick[0];
       }
-   } else if (y0 == y1) {
+   }
+   else if (y0 == y1) {
       if (optionMinus && !optionPlus) {
          if ((GetLabelFont() % 10) == 3) {
             ylabel = fLabelOffset + 0.5 *
                      ((gPad->AbsPixeltoY(0) - gPad->AbsPixeltoY((Int_t)fLabelSize)) /
                       (gPad->GetY2() - gPad->GetY1()));
-         } else {
+         }
+         else {
             ylabel = fLabelOffset + 0.5 * fLabelSize;
          }
          ylabel += TMath::Abs(atick[0]);
-      } else {
+      }
+      else {
          ylabel = -fLabelOffset;
          if (mside <= 0) ylabel -= TMath::Abs(atick[0]);
       }
       if (optionLog)  ylabel -= 0.5 * charheight;
-   } else {
+   }
+   else {
       if (mside + lside >= 0) ylabel =  fLabelOffset;
       else                  ylabel = -fLabelOffset;
    }
@@ -815,7 +834,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
          if (fNbins) nticks = fNbins;
          if (fFunction) {
             dxtick = (binHigh - binLow) / Double_t(nticks - 1);
-         } else {
+         }
+         else {
             if (optionNoopt && !optionInt) dxtick = axis_length / Double_t(nticks - 1);
             else                           dxtick = axis_lengthN / Double_t(nticks - 1);
             if (fNbins) dxtick = axis_length / (fWmax - fWmin);
@@ -828,7 +848,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                Double_t xf = binLow + Double_t(k) * dxtick;
                Double_t zz = fFunction->Eval(xf) - rwmi;
                xtick = zz * axis_length / TMath::Abs(rwma - rwmi);
-            } else {
+            }
+            else {
                if (fNbins) xtick = (fBins[k] - fWmin) * dxtick;
                else xtick = Double_t(k) * dxtick;
             }
@@ -837,7 +858,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
             if (optionNoopt && !optionInt) {
                Rotate(xtick, ytick, cosphi, sinphi, x0, y0, xpl2, ypl2);
                Rotate(xtick, atick[ltick], cosphi, sinphi, x0, y0, xpl1, ypl1);
-            } else {
+            }
+            else {
                Rotate(xtick, ytick, cosphi, sinphi, xx0, yy0, xpl2, ypl2);
                Rotate(xtick, atick[ltick], cosphi, sinphi, xx0, yy0, xpl1, ypl1);
             }
@@ -847,7 +869,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                      xpl1 = xpl2;
                      if (cosphi > 0) ypl1 = ypl2 + atick[ltick];
                      else            ypl1 = ypl2 - atick[ltick];
-                  } else {
+                  }
+                  else {
                      xpl1 = 0.5 * (xpl1 + xpl2);
                      xpl2 = xpl1;
                      ypl1 = 0.5 * (ypl1 + ypl2) + atick[ltick];
@@ -862,7 +885,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                   if (optionNoopt && !optionInt) {
                      Rotate(xtick, 0, cosphi, sinphi, x0, y0, xpl2, ypl2);
                      Rotate(xtick, grid_side * gridlength, cosphi, sinphi, x0, y0, xpl1, ypl1);
-                  } else {
+                  }
+                  else {
                      Rotate(xtick, 0, cosphi, sinphi, xx0, yy0, xpl2, ypl2);
                      Rotate(xtick, grid_side * gridlength, cosphi, sinphi, xx0, yy0, xpl1, ypl1);
                   }
@@ -895,7 +919,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                         xpl1 = xpl2;
                         if (cosphi > 0) ypl1 = ypl2 + atick[ltick];
                         else            ypl1 = ypl2 - atick[ltick];
-                     } else {
+                     }
+                     else {
                         xpl1 = 0.5 * (xpl1 + xpl2);
                         xpl2 = xpl1;
                         ypl1 = 0.5 * (ypl1 + ypl2) + atick[ltick];
@@ -938,7 +963,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                         xpl1 = xpl2;
                         if (cosphi > 0) ypl1 = ypl2 + atick[ltick];
                         else            ypl1 = ypl2 - atick[ltick];
-                     } else {
+                     }
+                     else {
                         xpl1 = 0.5 * (xpl1 + xpl2);
                         xpl2 = xpl1;
                         ypl1 = 0.5 * (ypl1 + ypl2) + atick[ltick];
@@ -1050,7 +1076,8 @@ void KVGaxis::PaintAxis(Double_t xmin, Double_t ymin, Double_t xmax, Double_t ym
                   if (wdyn <= 0.999 && na < maxDigits - 2) {
                      na++;
                      ndyn /= 10;
-                  } else break;
+                  }
+                  else break;
                }
 
                if2 = na;
@@ -1079,7 +1106,8 @@ L110:
                char* dot = strchr(chtemp, '.');
                if (dot) {
                   ndecimals = chtemp + strlen(chtemp) - dot;
-               } else {
+               }
+               else {
                   char* exp;
                   exp = strstr(chtemp, "e-");
                   if (exp) {
@@ -1098,7 +1126,8 @@ L110:
                   Double_t zz = fFunction->Eval(xf) - rwmi;
                   wlabel = xf;
                   xlabel = zz * axis_length / TMath::Abs(rwma - rwmi);
-               } else {
+               }
+               else {
                   if (fNbins) xlabel = dxlabel * (fBins[k] - fWmin);
                   else       xlabel = dxlabel * k;
                }
@@ -1132,7 +1161,8 @@ L110:
                   if (ndecimals) {
                      char* adot = strchr(label, '.');
                      if (adot) adot[ndecimals] = 0;
-                  } else {
+                  }
+                  else {
                      while (label[last] == '0') {
                         label[last] = 0;
                         last--;
@@ -1163,7 +1193,8 @@ L110:
                   timelabel = (time_t)((Long_t)(timed));
                   if (optionTime == 1) {
                      utctis = localtime(&timelabel);
-                  } else {
+                  }
+                  else {
                      utctis = gmtime(&timelabel);
                   }
                   TString timeformattmp;
@@ -1224,14 +1255,16 @@ L110:
                                           textaxis->GetTextSize(),
                                           chtemp);
 //                            Info(where,"label : %s,%s",chtemp,fLabels[k]);
-                  } else  {
+                  }
+                  else  {
                      if (optionText == 1) textaxis->PaintLatex(gPad->GetX1() + xx * (gPad->GetX2() - gPad->GetX1()),
                               gPad->GetY1() + yy * (gPad->GetY2() - gPad->GetY1()),
                               0,
                               textaxis->GetTextSize(),
                               fAxis->GetBinLabel(k + fAxis->GetFirst()));
                   }
-               } else {
+               }
+               else {
 
                   //*-*-       Text alignment is down
                   if (!optionText)     lnlen = last - first + 1;
@@ -1261,7 +1294,8 @@ L110:
                if (x0 != x1) {
                   xfactor = x1 - x0 + 0.1 * charheight;
                   yfactor = 0;
-               } else          {
+               }
+               else          {
                   xfactor = y1 - y0 + 0.1 * charheight;
                   yfactor = 0;
                }
@@ -1337,7 +1371,8 @@ L110:
                   xpl1 = xpl2;
                   if (cosphi > 0) ypl1 = ypl2 + atick[0];
                   else            ypl1 = ypl2 - atick[0];
-               } else {
+               }
+               else {
                   xpl1 = 0.5 * (xpl1 + xpl2);
                   xpl2 = xpl1;
                   ypl1 = 0.5 * (ypl1 + ypl2) + atick[0];
@@ -1370,7 +1405,8 @@ L110:
                   label[last] = 0;
                   last--;
                }
-            } else {
+            }
+            else {
                snprintf(label, 256, "%d", labelnumber);
                LabelsLimits(label, first, last);
             }
@@ -1381,7 +1417,8 @@ L110:
                      if (labelnumber == 0) nch = 1;
                      else                  nch = 2;
                      xx    += nch * charheight;
-                  } else {
+                  }
+                  else {
                      xx += 0.25 * charheight;
                   }
                }
@@ -1397,12 +1434,15 @@ L110:
                   && (j % kmod == 0))) {
                if (labelnumber == 0) {
                   textaxis->PaintTextNDC(xx, yy, "1");
-               } else if (labelnumber == 1) {
+               }
+               else if (labelnumber == 1) {
                   textaxis->PaintTextNDC(xx, yy, "10");
-               } else {
+               }
+               else {
                   if (noExponent) {
                      textaxis->PaintTextNDC(xx, yy, &label[first]);
-                  } else {
+                  }
+                  else {
                      snprintf(chtemp, 256, "10^{%d}", labelnumber);
                      textaxis->PaintLatex(gPad->GetX1() + xx * (gPad->GetX2() - gPad->GetX1()),
                                           gPad->GetY1() + yy * (gPad->GetY2() - gPad->GetY1()),
@@ -1431,7 +1471,8 @@ L160:
                      xpl1 = xpl2;
                      if (cosphi > 0) ypl1 = ypl2 + atick[1];
                      else            ypl1 = ypl2 - atick[1];
-                  } else {
+                  }
+                  else {
                      xpl1 = 0.5 * (xpl1 + xpl2);
                      xpl2 = xpl1;
                      ypl1 = 0.5 * (ypl1 + ypl2) + atick[1];
@@ -1449,12 +1490,15 @@ L160:
                   if (noExponent) {
                      rlab = Double_t(k) * TMath::Power(10, labelnumber - 1);
                      snprintf(chtemp, 256, "%g", rlab);
-                  } else {
+                  }
+                  else {
                      if (labelnumber - 1 == 0) {
                         snprintf(chtemp, 256, "%d", k);
-                     } else if (labelnumber - 1 == 1) {
+                     }
+                     else if (labelnumber - 1 == 1) {
                         snprintf(chtemp, 256, "%d", 10 * k);
-                     } else {
+                     }
+                     else {
                         snprintf(chtemp, 256, "%d#times10^{%d}", k, labelnumber - 1);
                      }
                   }
@@ -1465,7 +1509,8 @@ L160:
                            if (labelnumber == 0) nch = 1;
                            else                  nch = 2;
                            xx    += nch * charheight;
-                        } else {
+                        }
+                        else {
                            if (labelnumber >= 0) xx    += 0.25 * charheight;
                            else                  xx    += 0.50 * charheight;
                         }
@@ -1493,14 +1538,16 @@ L160:
                      yi1 = gPad->YtoAbsPixel(v);
                      firstintlab = kFALSE;
                      textaxis->PaintLatex(u, v, 0, textaxis->GetTextSize(), chtemp);
-                  } else {
+                  }
+                  else {
                      xi2 = gPad->XtoAbsPixel(u);
                      yi2 = gPad->YtoAbsPixel(v);
                      xl = TMath::Min(xi1, xi2);
                      xh = TMath::Max(xi1, xi2);
                      if ((x0 == x1 && yi1 - hi <= yi2) || (y0 == y1 && xl + wi >= xh)) {
                         overlap = kTRUE;
-                     } else {
+                     }
+                     else {
                         xi1 = xi2;
                         yi1 = yi2;
                         textaxis->GetBoundingBox(wi, hi);

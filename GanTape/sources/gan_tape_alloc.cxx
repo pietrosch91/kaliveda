@@ -75,7 +75,8 @@ int acq_mt_alloc_c(gan_tape_desc DeviceName)
       else if (Status == SS$_DEVALLOC)
 
          Status = ACQ_NOTALLOC;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #elif defined ( __unix__ ) || ( __unix )
@@ -131,7 +132,8 @@ int acq_mt_dealloc_c(gan_tape_desc DeviceName)
       else if (Status == SS$_DEVNOTALLOC)
          Status = ACQ_NOTALLOC;
 
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #elif defined ( __unix__ ) || ( __unix )
 

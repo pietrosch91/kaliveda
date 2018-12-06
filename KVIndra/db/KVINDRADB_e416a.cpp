@@ -104,7 +104,8 @@ void KVINDRADB_e416a::ReadBICPressures()
             Warning("ReadBICPressures()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-         } else {
+         }
+         else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
             run_ranges[rr_number][1] = lrun;

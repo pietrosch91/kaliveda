@@ -58,7 +58,8 @@ void KVIDChIoCsI_camp5::Initialize()
       SetBit(kReadyForID);
       fGGgrid->Initialize();
       if (fPGgrid) fPGgrid->Initialize();
-   } else ResetBit(kReadyForID);
+   }
+   else ResetBit(kReadyForID);
 }
 
 
@@ -85,7 +86,8 @@ Double_t KVIDChIoCsI_camp5::GetIDMapY(Option_t* opt)
    Double_t si;
    if (!strcmp(opt, "GG")) {
       si = (Double_t)fChIo->GetGG();
-   } else {
+   }
+   else {
       si = (Double_t)fChIo->GetPG();
    }
    return si;

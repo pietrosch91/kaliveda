@@ -75,7 +75,8 @@ IonisationChamberv::IonisationChamberv(LogFile* Log)
    if (!gDataSet->OpenDataSetFile("IonisationChamber.cal", inf)) {
       cout << "Could not open the calibration file IonisationChamber.cal !" << endl;
       return;
-   } else {
+   }
+   else {
       cout << "Reading IonisationChamber.cal" << endl;
       while (!inf.eof()) {
          sline.ReadLine(inf);

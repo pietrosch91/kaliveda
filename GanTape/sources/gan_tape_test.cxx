@@ -174,7 +174,8 @@ int acq_get_tape_type_c(gan_tape_desc DeviceName, char* ChaineRetour)
          ChaineRetour[--Index] = '\0';
          Status = ACQ_OK;
       }
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
    /* Cette fonctionnalite n'est pas utilisee sous UNIX ... */
 #elif defined ( __osf__ )
@@ -187,8 +188,10 @@ int acq_get_tape_type_c(gan_tape_desc DeviceName, char* ChaineRetour)
       if (Status != -1) {
          strcpy(ChaineRetour, Devget.device);
          Status = ACQ_OK;
-      } else Status = ACQ_ERRPARAM;
-   } else Status = ACQ_ISNOTATAPE;
+      }
+      else Status = ACQ_ERRPARAM;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #else
@@ -256,7 +259,8 @@ int acq_real_dev_name_c(gan_tape_desc DeviceName, char* ChaineRetour)
 
          Status = ACQ_OK;
       }
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #else
 
@@ -309,7 +313,8 @@ int acq_dev_is_alloc_c(gan_tape_desc DeviceName)
             Status = ACQ_NOTALLOC;
          else Status = ACQ_OK;
 
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #else
 
@@ -415,7 +420,8 @@ int acq_dev_is_wr_protect_c(gan_tape_desc DeviceName)
             Status = ACQ_DEVWRITLOCK;
          else Status = ACQ_OK;
 
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 
 #elif defined ( __osf__ )
@@ -429,7 +435,8 @@ int acq_dev_is_wr_protect_c(gan_tape_desc DeviceName)
             Status = ACQ_DEVWRITLOCK;
          else Status = ACQ_OK;
       else Status = ACQ_ERRPARAM;
-   } else Status = ACQ_ISNOTATAPE;
+   }
+   else Status = ACQ_ISNOTATAPE;
 
 #else
 
@@ -441,7 +448,8 @@ int acq_dev_is_wr_protect_c(gan_tape_desc DeviceName)
       if (!(Status <= 0)) {  /* Non protege en ecriture */
          Status = close(Status);
          Status = ACQ_OK;
-      } else Status = ACQ_DEVWRITLOCK;
+      }
+      else Status = ACQ_DEVWRITLOCK;
    }
 
 #endif

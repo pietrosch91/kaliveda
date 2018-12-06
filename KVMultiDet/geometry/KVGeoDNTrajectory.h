@@ -208,7 +208,8 @@ public:
             Int_t idx = fIter_idx;
             fIter_idx += fIter_delta;
             return GetNodeAt(idx);
-         } else {
+         }
+         else {
             // last node
             fIter_idx = -1;
             return GetNodeAt(fIter_limit);

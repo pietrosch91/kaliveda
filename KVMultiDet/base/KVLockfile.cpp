@@ -104,7 +104,8 @@ Bool_t KVLockfile::FindExecutable(TString& exec, const Char_t* path)
       if (!gSystem->AccessPathName(expandexec)) {
          exec = expandexec;
          return kTRUE;
-      } else {
+      }
+      else {
          //try with ".exe" in case of Windows system
          if (!expandexec.EndsWith(".exe")) {
             expandexec += ".exe";
@@ -182,7 +183,8 @@ Bool_t KVLockfile::Lock(const Char_t* filename)
       //cout << "<Info in KVLockfile::Lock : Locked " << fFile.Data() << ">" << endl;
       locked = kTRUE;
       return kTRUE;
-   } else {
+   }
+   else {
       cout << "<Error in KVLockfile::Lock: can't get a lock for file " << fFile.Data() << ">" << endl;
       locked = kFALSE;
       return kFALSE;

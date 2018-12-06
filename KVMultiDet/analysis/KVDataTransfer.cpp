@@ -298,7 +298,8 @@ void KVDataTransfer::set_dataset_name(const Char_t* name)
    KVDataSet* ds = fSourceRep->GetDataSetManager()->GetDataSet(name);
    if (!ds) {
       Error("SetDataSet", "Unknown dataset %s", name);
-   } else {
+   }
+   else {
       SetDataSet(ds);
    }
 }

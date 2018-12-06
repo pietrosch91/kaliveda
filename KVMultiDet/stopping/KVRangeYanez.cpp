@@ -119,7 +119,8 @@ void KVRangeYanez::Print(Option_t*) const
    if (n) {
       printf("\nEnergy loss & range tables loaded for %d materials:\n\n", fMaterials->GetEntries());
       fMaterials->Print();
-   } else
+   }
+   else
       printf("\nEnergy loss & range tables loaded for 0 materials.\n");
 }
 
@@ -161,7 +162,8 @@ void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a)
    KVIonRangeTableMaterial* mat;
    if (!a) {
       mat = MakeNaturallyOccuringElementMixture(z);
-   } else {
+   }
+   else {
       if (!gNDTManager) {
          Error("AddElementalMaterial",
                "Nuclear data tables have not been initialised");
@@ -289,7 +291,8 @@ void KVRangeYanez::ReadPredefinedMaterials(const Char_t* filename)
          if (line.BeginsWith("COMPOUND")) {
             compound = kTRUE;
             mixture = kFALSE;
-         } else if (line.BeginsWith("MIXTURE")) {
+         }
+         else if (line.BeginsWith("MIXTURE")) {
             compound = kFALSE;
             mixture = kTRUE;
          }

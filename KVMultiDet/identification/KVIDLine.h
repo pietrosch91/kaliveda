@@ -91,7 +91,8 @@ inline Double_t KVIDLine::DistanceToLine(Double_t px, Double_t py,
             distance = d;
             inear1 = i;
          }
-      } else {
+      }
+      else {
          //point not between endpoints of segment
          if (-d < dist2) {
             dist2 = -d;
@@ -205,11 +206,14 @@ inline Bool_t KVIDLine::PosRelToLine(Option_t* opt, Double_t px,
    Bool_t result = kFALSE;
    if (!strcmp(opt, "left")) {
       result = (phi > 90. && phi < 270.);
-   } else if (!strcmp(opt, "right")) {
+   }
+   else if (!strcmp(opt, "right")) {
       result = (phi < 90. || phi > 270.);
-   } else if (!strcmp(opt, "above")) {
+   }
+   else if (!strcmp(opt, "above")) {
       result = (phi > 0. && phi < 180.);
-   } else if (!strcmp(opt, "below")) {
+   }
+   else if (!strcmp(opt, "below")) {
       result = (phi > 180. && phi < 360.);
    }
    return result;
@@ -235,24 +239,28 @@ inline Bool_t KVIDLine::WhereAmI(Double_t px, Double_t py, Option_t* opt)
       xx = py;
       YY = fX;
       yy = px;
-   } else if (!strcmp(opt, "right")) {
+   }
+   else if (!strcmp(opt, "right")) {
       XX = fY;
       xx = py;
       YY = fX;
       yy = px;
       sign = -1;
-   } else if (!strcmp(opt, "above")) {
+   }
+   else if (!strcmp(opt, "above")) {
       XX = fX;
       xx = px;
       YY = fY;
       yy = py;
       sign = -1;
-   } else if (!strcmp(opt, "below")) {
+   }
+   else if (!strcmp(opt, "below")) {
       XX = fX;
       xx = px;
       YY = fY;
       yy = py;
-   } else return kFALSE;
+   }
+   else return kFALSE;
 
    Int_t i_start     = 0;
    Int_t i_stop      = fNpoints - 1;
@@ -264,7 +272,8 @@ inline Bool_t KVIDLine::WhereAmI(Double_t px, Double_t py, Option_t* opt)
       else if (same_sign) {
          i_start = i_stop;
          i_stop  = prev_i_stop;
-      } else {
+      }
+      else {
          prev_i_stop = i_stop;
          i_stop = (Int_t)((i_start + i_stop) / 2 + 0.5);
       }
@@ -328,7 +337,8 @@ inline Bool_t KVIDLine::IsBetweenEndPoints(Double_t x, Double_t y,
    Bool_t in_range_y = (y <= ymax && y >= ymin);
    if (ax == "X") {
       return in_range_x;
-   } else if (ax == "Y") {
+   }
+   else if (ax == "Y") {
       return in_range_y;
    }
 
