@@ -16,6 +16,7 @@
 #include <map>
 #include <KVNameValueList.h>
 #include <KVNumberList.h>
+#include "TGraph.h"
 
 namespace KVSQLite {
    namespace column_type {
@@ -391,6 +392,7 @@ namespace KVSQLite {
                               const TString& selection = "", const TString& anything_else = "");
       KVNameValueList get_name_value_list(const TString& table, const TString& name_column, const TString& value_column,
                                           const TString& selection = "", const TString& anything_else = "");
+      TGraph* create_graph(const TString& tablename, const TString& Xcolumn, const TString& Ycolumn, const TString& selection = "");
 
       void clear_table(const TString& name);
 

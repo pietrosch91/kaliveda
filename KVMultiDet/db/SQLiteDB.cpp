@@ -539,6 +539,25 @@ namespace KVSQLite {
       return result;
    }
 
+   TGraph* database::create_graph(const TString& tablename, const TString& Xcolumn, const TString& Ycolumn, const TString& selection)
+   {
+      // Create and fill a TGraph from values Xcolumn and Ycolumn in table,
+      // using the selection if required
+
+      if (select_data(tablename, Form("%s,%s", Xcolumn.Data(), Ycolumn.Data()), selection)) {
+         TGraph* g = new TGraph;
+         int i = 0;
+         table& tb = (*this)[tablename];
+         column& Xcol = tb[Xcolumn];
+         column& Ycol = tb[Ycolumn];
+         while (get_next_result()) {
+            g->SetPoint(i++, Xcol.get_data<double>(), Ycol.get_data<double>());
+         }
+         return g;
+      }
+      return nullptr;
+   }
+
    void database::clear_table(const TString& name)
    {
       // Delete all data from table
