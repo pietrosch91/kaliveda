@@ -20,13 +20,27 @@ endfunction()
 #---------------------------------------------------------------------------------------------------
 function(CHANGE_LIST_TO_STRING mystring)
 
-	CMAKE_PARSE_ARGUMENTS(ARG "" "" "" ${ARGN})
-	set(mylist ${ARG_UNPARSED_ARGUMENTS})
-	set(stringy)
-   foreach(l ${mylist})
-		set(stringy "${stringy}${l} ")
-   endforeach()
-	set(${mystring} "${stringy}" PARENT_SCOPE)
+        CMAKE_PARSE_ARGUMENTS(ARG "" "" "" ${ARGN})
+        set(mylist ${ARG_UNPARSED_ARGUMENTS})
+        set(stringy)
+        foreach(l ${mylist})
+                set(stringy "${stringy}${l} ")
+        endforeach()
+        set(${mystring} "${stringy}" PARENT_SCOPE)
+
+endfunction()
+#---------------------------------------------------------------------------------------------------
+#---CHANGE_LIST_TO_COLONATED_STRING(mystring list1 list2 list3)
+#---------------------------------------------------------------------------------------------------
+function(CHANGE_LIST_TO_COLONATED_STRING mystring)
+
+        CMAKE_PARSE_ARGUMENTS(ARG "" "" "" ${ARGN})
+        set(mylist ${ARG_UNPARSED_ARGUMENTS})
+        set(stringy)
+        foreach(l ${mylist})
+                set(stringy "${stringy}${l}:")
+        endforeach()
+        set(${mystring} "${stringy}" PARENT_SCOPE)
 
 endfunction()
 

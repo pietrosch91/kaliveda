@@ -40,7 +40,9 @@ include_directories(${CMAKE_BINARY_DIR})
 
 include(KaliVedaMacros)
 
-#set(CMAKE_VERBOSE_MAKEFILE ON)
+# use to add any extra paths to headers that will need to be added to ROOT_INCLUDE_PATH
+# (for ROOT6) in order for interpreter to work correctly
+set(EXTRA_ROOT_INCLUDE_PATH)
 
 #---Version control informations
 set(WITH_GIT_INFOS)
@@ -127,6 +129,7 @@ if(USE_MFM)
     if(mfmlib_FOUND)
        include_directories(${mfmlib_INCLUDE_DIRS})
        set(WITH_MFM yes)
+       list(APPEND EXTRA_ROOT_INCLUDE_PATH ${mfmlib_INCLUDE_DIRS})
     else(mfmlib_FOUND)
        message(STATUS "You need to install the mfmlib package in order to enable this option")
        message(STATUS "You can clone the sources from: https://gitlab.in2p3.fr/jdfcode/mfmlib.git")
@@ -345,7 +348,10 @@ configure_file(kaliveda-config.in kaliveda-config @ONLY)
 install(PROGRAMS ${CMAKE_BINARY_DIR}/kaliveda-config DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 #---install scripts from tools/ directory in ${CMAKE_INSTALL_BINDIR}
-install(PROGRAMS tools/thiskaliveda.sh tools/thiskaliveda.csh
+CHANGE_LIST_TO_COLONATED_STRING(EXTRA_ROOT_INCLUDE_PATH ${EXTRA_ROOT_INCLUDE_PATH})
+configure_file(tools/thiskaliveda.sh.in thiskaliveda.sh @ONLY)
+configure_file(tools/thiskaliveda.csh.in thiskaliveda.csh @ONLY)
+install(PROGRAMS ${CMAKE_BINARY_DIR}/thiskaliveda.sh ${CMAKE_BINARY_DIR}/thiskaliveda.csh
    DESTINATION ${CMAKE_INSTALL_BINDIR})
 #---install other stuff from tools/ directory in ${CMAKE_INSTALL_SYSCONFDIR}
 install(FILES tools/nedit.cf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})

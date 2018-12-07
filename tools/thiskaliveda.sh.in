@@ -108,6 +108,9 @@ if [ -z "${ROOT_INCLUDE_PATH}" ]; then
 else
    ROOT_INCLUDE_PATH=`$KVROOT/bin/kaliveda-config --incdir`:$ROOT_INCLUDE_PATH; export ROOT_INCLUDE_PATH
 fi
+if [ ! -z "@EXTRA_ROOT_INCLUDE_PATH@" ]; then
+   ROOT_INCLUDE_PATH=@EXTRA_ROOT_INCLUDE_PATH@$ROOT_INCLUDE_PATH; export ROOT_INCLUDE_PATH
+fi
 
 unset old_KVROOT
 unset thiskaliveda

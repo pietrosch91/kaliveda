@@ -109,6 +109,10 @@ if ($?ROOT_INCLUDE_PATH) then
 else
    setenv ROOT_INCLUDE_PATH `$KVROOT/bin/kaliveda-config --incdir`
 endif
+set extra_root_include_path="@EXTRA_ROOT_INCLUDE_PATH@"
+if ("x$extra_root_include_path" != "x") then
+   setenv ROOT_INCLUDE_PATH ${extra_root_include_path}${ROOT_INCLUDE_PATH}
+endif
 
 endif # if ("$thiskaliveda" != "")
 
