@@ -48,7 +48,7 @@ void KVRawDataReconstructor::InitRun()
 
    fRecFile = OutputDataset->NewRunfile("recon", fRunNumber);
 
-   cout << "Writing \"recon\" events in ROOT file " << fRecFile->GetName() << endl;
+   std::cout << "Writing \"recon\" events in ROOT file " << fRecFile->GetName() << std::endl;
 
    //tree for reconstructed events
    fRecTree = new TTree("ReconEvents", Form("%s : %s : %s",

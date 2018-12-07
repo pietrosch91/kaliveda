@@ -38,9 +38,9 @@ void KVFAZIAUpDater::SetCalibParameters(KVDBRun* dbrun)
    SetCalibrations(dbrun);
    CheckStatusOfDetectors(dbrun);
 
-   cout << endl << endl << endl;
+   std::cout << std::endl << std::endl << std::endl;
    Info("SetCalibParameters", "called !");
-   cout << endl << endl << endl;
+   std::cout << std::endl << std::endl << std::endl;
 
 
 }
