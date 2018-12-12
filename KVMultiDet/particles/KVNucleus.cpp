@@ -135,7 +135,7 @@ ClassImp(KVNucleus);
 
 UInt_t KVNucleus::fNb_nuc = 0;
 
-#define MAXZ_ELEMENT_SYMBOL 111
+#define MAXZ_ELEMENT_SYMBOL 118
 Char_t KVNucleus::fElements[][3] = {
    "n", "H", "He", "Li", "Be", "B", "C", "N", "O",
    "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca",
@@ -152,7 +152,9 @@ Char_t KVNucleus::fElements[][3] = {
    "Fr",
    "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es",
    "Fm", "Md",
-   "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg"
+   "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Ed",
+   "Fl", "Ef",
+   "Lv", "Eh", "Ei"
 };
 
 const Char_t* KVNucleus::GetSymbol(Option_t* opt) const
