@@ -988,6 +988,24 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
    return nlb;
 }
 
+KVNumberList KVNucleus::GetMeasuredARange(Int_t zz) const
+{
+   //returns range of a measured mass for a given element
+
+   if (zz == -1) zz = GetZ();
+   KVNumberList nla;
+   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   KVNumberList nlb;
+   nla.Begin();
+   while (!nla.End()) {
+      Int_t aa = nla.Next();
+      if (GetMassExcessPtr(zz, aa) &&  GetMassExcessPtr(zz, aa)->IsMeasured())
+         nlb.Add(aa);
+   }
+   return nlb;
+
+}
+
 const Char_t* KVNucleus::GetIsotopesList(Int_t zmin, Int_t zmax, Double_t tmin) const
 {
    //returns list of isotopes separated by commas
