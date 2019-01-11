@@ -174,12 +174,12 @@ KVIDTelescope::~KVIDTelescope()
 {
    //delete this ID telescope
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
-      fDetectors->Clear();
+      fDetectors->Clear("nodelete");
       delete fDetectors;
    }
    fDetectors = 0;
    fGroup = 0;
-   fIDGrids->Clear();
+   fIDGrids->Clear("nodelete");
    SafeDelete(fIDGrids);
    SafeDelete(fMassIDValidity);
 }

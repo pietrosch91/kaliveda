@@ -41,9 +41,7 @@ public:
    KVACQParam();
    KVACQParam(const Char_t*);
    KVACQParam(const KVACQParam&);
-   virtual ~ KVACQParam()
-   {
-   };
+   virtual ~ KVACQParam() {}
 
    inline void SetDetector(KVDetector* kd);
    inline KVDetector* GetDetector() const

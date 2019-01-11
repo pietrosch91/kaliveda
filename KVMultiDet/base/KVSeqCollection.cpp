@@ -184,6 +184,16 @@ KVSeqCollection::~KVSeqCollection()
       while (fgCleanups->Remove(this))
          ;
    }
+   if (fCollection && !IsOwner()) {
+      // ROOT6: when Clear() is called for a TList/THashList containing invalid pointers
+      // (i.e. addresses of previously deleted objects), even if the list is not the owner
+      // of the objects (i.e. the Clear() should not attempt to delete anything), then
+      // calling Clear() without the option "nodelete" leads to false-positive warnings
+      // like this: Error in <***::Clear>: A list is accessing an object (0x5632b51c08b0) already deleted...
+      //   As the TList and THashList destructors contain a call to their Clear() method,
+      // here we pre-emptively Clear("nodelete") the collection before deleting it
+      fCollection->Clear("nodelete");
+   }
    SafeDelete(fCollection);
    --fgCounter;//decrease instance count
    if (fgCounter == 0 && fgCleanups) {
@@ -270,7 +280,16 @@ void KVSeqCollection::Clear(Option_t* option)
          SetCleanup(kFALSE);
       }
    }
-   fCollection->Clear(option);
+   if (!IsOwner()) {
+      // ROOT6: when Clear() is called for a TList/THashList containing invalid pointers
+      // (i.e. addresses of previously deleted objects), even if the list is not the owner
+      // of the objects (i.e. the Clear() should not attempt to delete anything), then
+      // calling Clear() without the option "nodelete" leads to false-positive warnings
+      // like this: Error in <***::Clear>: A list is accessing an object (0x5632b51c08b0) already deleted...
+      fCollection->Clear("nodelete");
+   }
+   else
+      fCollection->Clear(option);
    if (cleaner) SetCleanup();
    Changed();
 }
@@ -840,6 +859,8 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
 {
    // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
    // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
+
+   //if(enable && IsOwner()) Warning("SetCleanup","List %s will be both owner & cleanup",GetName());
    SetBit(kCleanup, enable);
    if (enable) {
       fgCleanups->Add(this);
@@ -849,6 +870,12 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
       fgCleanups->Remove(this);
    }
 }
+
+void KVSeqCollection::RehashCleanupList()
+{
+   ((THashList*)fgCleanups)->Rehash(fgCleanups->GetSize());
+}
+
 //______________________________________________________________________________
 void KVSeqCollection::Streamer(TBuffer& R__b)
 {
@@ -857,8 +884,16 @@ void KVSeqCollection::Streamer(TBuffer& R__b)
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      if (R__v) { }
       TSeqCollection::Streamer(R__b);
+      if (R__v < 3) {
+         // correct legacy BIT(16) used for fCleanup
+         SetCleanup(TestBit(BIT(16)));
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+         // for ROOT6 we reset BIT(16) if it was set, assuming that
+         // default is 0 (used by TCollection::IsUsingRWLock())
+         ResetBit(BIT(16));
+#endif
+      }
       fQObject.Streamer(R__b);
       if (fCollection) {
          Bool_t owns = fCollection->IsOwner();

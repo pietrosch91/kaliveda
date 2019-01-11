@@ -72,6 +72,8 @@ void KVGeoStrucElement::ClearDetectors(const Char_t* type)
          if (fDetectors.IsOwner()) delete d;
       }
    }
+   // avoid spurious warnings from TList::Clear with ROOT6
+   dummy.Clear("nodelete");
 }
 
 void KVGeoStrucElement::ClearStructures(const Char_t* type)
@@ -89,6 +91,8 @@ void KVGeoStrucElement::ClearStructures(const Char_t* type)
          if (fStructures.IsOwner()) delete e;
       }
    }
+   // avoid spurious warnings from TList::Clear with ROOT6
+   dummy.Clear("nodelete");
 }
 
 void KVGeoStrucElement::Add(KVBase* element)
@@ -132,6 +136,7 @@ void KVGeoStrucElement::Remove(KVBase* element)
 void KVGeoStrucElement::Clear(Option_t*)
 {
    // Empty lists of detectors, daughter structures, and parent structures
+
    fDetectors.Clear();
    fStructures.Clear();
    fParentStrucList.Clear();

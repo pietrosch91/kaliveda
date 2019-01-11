@@ -57,6 +57,7 @@ KVIDGridManager::~KVIDGridManager()
    if (gIDGridManager == this)
       gIDGridManager = 0;
    fGrids->Disconnect("Modified()", this, "Modified()");
+   fLastReadGrids.Clear();
    fGrids->Delete();
    delete fGrids;
 }

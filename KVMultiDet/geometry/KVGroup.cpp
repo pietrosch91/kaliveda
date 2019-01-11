@@ -40,6 +40,7 @@ KVGroup::~KVGroup()
       fReconstructedNuclei = 0;
    }
    fReconstructedNuclei = 0;
+   fTrajectories.Clear();
 }
 
 UInt_t KVGroup::GetNumberOfDetectorLayers()

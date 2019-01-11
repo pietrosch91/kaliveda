@@ -125,6 +125,9 @@ void KVMultiDetArray::init()
 
    // all trajectories belong to us
    fTrajectories.SetOwner();
+
+   //all detectors belong to us
+   SetOwnsDetectors();
 }
 
 //___________________________________________________________________________________
@@ -167,7 +170,6 @@ KVMultiDetArray::~KVMultiDetArray()
 
    if (fNavigator) {
       if (gGeoManager) {
-         Info("~KVMultiDetArray()", "Deleting ROOT geometry");
          delete gGeoManager;
          gGeoManager = nullptr;
       }
@@ -175,9 +177,6 @@ KVMultiDetArray::~KVMultiDetArray()
       fNavigator = nullptr;
    }
    SafeDelete(fUpDater);
-
-   // Detectors belong to multidetector array. Our responsibility to delete.
-   fDetectors.Delete();
 }
 
 
@@ -2955,6 +2954,7 @@ void KVMultiDetArray::DeduceGroupsFromTrajectories()
    if (stl.get() && stl->GetEntries()) {
       Info("DeduceGroupsFromTrajectories", "Deleting existing %d groups in array", stl->GetEntries());
       ClearStructures("GROUP");
+      Info("DeduceGroupsFromTrajectories", "Done");
    }
    KVDetector* det;
    KVUniqueNameList tried_trajectories;//avoid double-counting/infinite loops
