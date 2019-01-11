@@ -11,11 +11,11 @@ class KVIntegerList : public TNamed {
 
 protected:
 
-   TArrayI* fRegle;  //!      tableau d'entiers où sont stockée l'occurence des valeurs
+   TArrayI* fRegle;  //!      tableau d'entiers oÃ¹ sont stockÃ©e l'occurence des valeurs
    Int_t fLimiteRegle;  //!-> taille max de fRegle
-   Int_t fPop; //!            population de la liste/partition consideree, permet le comptage de partitions identiques dansun lot de donée
-   Int_t fMult;//!            Nombre d'éléments dans la liste
-   Ssiz_t fLength; //!        Longueur du nom de la liste/partition usilisée dans Compare
+   Int_t fPop; //!            population de la liste/partition consideree, permet le comptage de partitions identiques dansun lot de donÃ©e
+   Int_t fMult;//!            Nombre d'Ã©lÃ©ments dans la liste
+   Ssiz_t fLength; //!        Longueur du nom de la liste/partition usilisÃ©e dans Compare
 
    void init();
    Bool_t ToBeUpdated();
