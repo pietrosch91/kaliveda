@@ -214,7 +214,9 @@ KVDetector::~KVDetector()
    fIDTelAlign->Clear();
    SafeDelete(fIDTelAlign);
    SafeDelete(fIDTele4Ident);
+   if (fAlignedDetectors[0]) fAlignedDetectors[0]->Clear("nodelete");
    SafeDelete(fAlignedDetectors[0]);
+   if (fAlignedDetectors[1]) fAlignedDetectors[1]->Clear("nodelete");
    SafeDelete(fAlignedDetectors[1]);
 }
 

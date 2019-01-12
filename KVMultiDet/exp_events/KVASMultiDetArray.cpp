@@ -184,7 +184,9 @@ void KVASMultiDetArray::MakeListOfDetectors()
                   k4->SetName(k4->GetArrayName());  //set name of detector
                Add(k4);
             }
+            ((KVUniqueNameList*)k3->GetDetectors())->Rehash();//keep consistency if any detector names changed
          }
+         ((KVUniqueNameList*)k2->GetStructures())->Rehash();//keep consistency if any telescope names changed
       }
    }
    // rehash detector node lists due to change of names of all detectors

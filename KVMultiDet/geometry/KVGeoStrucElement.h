@@ -38,6 +38,20 @@ public:
       fDetectors.SetOwner(yes);
    }
 
+   bool OwnsDaughters() const
+   {
+      // kTRUE: all daughter structures will be deleted by this
+      // kFALSE: daughter structures will not be deleted by this
+      return fStructures.IsOwner();
+   }
+
+   bool OwnsDetectors() const
+   {
+      // kTRUE: all detectors will be deleted by this
+      // kFALSE: detectors will not be deleted by this
+      return fDetectors.IsOwner();
+   }
+
    void Sort(Bool_t order = kSortAscending)
    {
       SortStructures(order);

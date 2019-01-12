@@ -137,8 +137,8 @@ void KVGeoStrucElement::Clear(Option_t*)
 {
    // Empty lists of detectors, daughter structures, and parent structures
 
-   fDetectors.Clear();
    fStructures.Clear();
+   fDetectors.Clear();
    fParentStrucList.Clear();
 }
 
@@ -146,9 +146,8 @@ KVGeoStrucElement* KVGeoStrucElement::GetStructure(const Char_t* type, Int_t num
 {
    // Get structure with type and number
 
-   KVSeqCollection* typelist = GetStructureTypeList(type);
+   unique_ptr<KVSeqCollection> typelist(GetStructureTypeList(type));
    KVGeoStrucElement* elem = (KVGeoStrucElement*)typelist->FindObjectByNumber(num);
-   delete typelist;
    return elem;
 }
 
@@ -182,7 +181,7 @@ KVDetector* KVGeoStrucElement::GetDetectorByType(const Char_t* type) const
 KVSeqCollection* KVGeoStrucElement::GetDetectorTypeList(const Char_t* type) const
 {
    // Create and fill a list with all detectors of given type in this structure.
-   // DELETE LIST AFTER USE
+   // DELETE LIST AFTER USE - or, better: unique_ptr<KVSeqCollection> list(toto->GetDetectorTypeList(...))
 
    return fDetectors.GetSubListWithType(type);
 }
