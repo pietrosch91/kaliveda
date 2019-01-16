@@ -106,7 +106,7 @@ public:
       return fCanWrite;
    }
    virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet* dataset,
-         const Char_t* datatype = "");
+         const Char_t* datatype = "", const Char_t* subdir = "");
 
    virtual void CopyFileFromRepository(const KVDataSet* dataset,
                                        const Char_t* datatype,

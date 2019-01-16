@@ -17,7 +17,7 @@ public:
    virtual ~KVDMSDataRepository();
 
    virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet*,
-         const Char_t* datatype = "");
+         const Char_t* datatype = "", const Char_t* subdir = "");
    virtual Bool_t CheckSubdirExists(const Char_t* dir,
                                     const Char_t* subdir = 0);
    virtual void CopyFileFromRepository(const KVDataSet*,

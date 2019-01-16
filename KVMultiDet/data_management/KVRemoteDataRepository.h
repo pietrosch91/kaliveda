@@ -48,7 +48,7 @@ public:
    virtual void MakeSubdirectory(const KVDataSet* ds,
                                  const Char_t* datatype = "");
    virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet* ds,
-         const Char_t* datatype = "");
+         const Char_t* datatype = "", const Char_t* subdir = "");
    virtual void DeleteFile(const KVDataSet* ds,
                            const Char_t* datatype,
                            const Char_t* filename, Bool_t confirm =

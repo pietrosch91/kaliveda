@@ -541,17 +541,18 @@ void KVDataRepository::MakeSubdirectory(const KVDataSet* dataset,
 //___________________________________________________________________________
 
 KVUniqueNameList* KVDataRepository::GetDirectoryListing(const KVDataSet* dataset,
-      const Char_t* datatype)
+      const Char_t* datatype, const Char_t* subdir)
 {
    //Use the access protocol defined by DataRepository.AccessProtocol (=local by default)
    //in order to open the directory
    //
-   //      /root_of_data_repository/[datasetdir]/[datatype]
+   //      /root_of_data_repository/[datasetdir]/[datatype]/[subdir]
+   //      /root_of_data_repository/[datasetdir]/[datatype]         (if subdir="", default value)
    //      /root_of_data_repository/[datasetdir]                    (if datatype="", default value)
    //
    //and fill a TList with one KVBase object for each entry in the directory,
    //excluding "." and ".."
-   //User must delete the TList after use (list will delete its members)
+   //User must delete the KVUniqueNameList after use (list will delete its members)
 
    TString path, tmp;
    AssignAndDelete(path,
@@ -560,6 +561,10 @@ KVUniqueNameList* KVDataRepository::GetDirectoryListing(const KVDataSet* dataset
    if (strcmp(datatype, "")) {
       AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), dataset->GetDataTypeSubdir(datatype)));
       path = tmp;
+      if (strcmp(subdir, "")) {
+         AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), subdir));
+         path = tmp;
+      }
    }
    //open directory
    void* dirp = gSystem->OpenDirectory(path.Data());

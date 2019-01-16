@@ -18,7 +18,7 @@ ClassImp(KVProtobufDataReader)
 
 #define KV_PROTOBUF_MSG_SIZE 4
 
-bool KVProtobufDataReader::read_next_event()
+Bool_t KVProtobufDataReader::GetNextEvent()
 {
    // Prepare to read next event in buffer.
    //  - if a new buffer is needed, we read one from the file
@@ -32,7 +32,10 @@ bool KVProtobufDataReader::read_next_event()
    //  - if this method returns false, then either a major problem occurred when reading
    //    the file, or we have reached the end and there are no more events/messages to read
 
-   if (fReachedEndOfFile) return false;
+   if (fReachedEndOfFile) {
+      // derived classes may override read_buffer() so that it opens a new file
+      if (!read_buffer()) return false;
+   }
 
    // do we have enough bytes left (4) in buffer to read size of next event?
    if (get_remaining_readable_buffer() < KV_PROTOBUF_MSG_SIZE) fNeedToReadBuffer = true;
@@ -47,11 +50,11 @@ bool KVProtobufDataReader::read_next_event()
       google::protobuf::io::CodedInputStream codedIStream((const uint8_t*)(fBuffer + fEvOffset), KV_PROTOBUF_MSG_SIZE);
       codedIStream.ReadLittleEndian32(&fEvSize);
       if (fEvSize == 0) {
-         Error("read_next_buffer", "read zero size event");
+         Error("GetNextEvent", "read zero size event");
          return false;
       }
    }
-   Info("read_next_buffer", "event size=%d bytes", fEvSize);
+   //Info("GetNextEvent", "event size=%d bytes", fEvSize);
 
    fEvOffset += KV_PROTOBUF_MSG_SIZE;
    // do we have enough bytes left to read the event?
@@ -60,7 +63,10 @@ bool KVProtobufDataReader::read_next_event()
       if (!read_buffer()) return false;
    }
 
-   if (!parse_event_from_message()) return false;
+   if (!parse_event_from_message()) {
+      fEvOffset += fEvSize;
+      return false;
+   }
 
    fEvOffset += fEvSize;
 
@@ -75,22 +81,21 @@ bool KVProtobufDataReader::read_buffer()
       // last read reached end of file
       return false;
    }
+   ptrdiff_t fFillOffset = 0;
    // if fEvOffset>0 we need to copy the remaining bytes of the last buffer to the
    // beginning of the buffer and adjust fFillOffset accordingly
-   if (fEvOffset > 0) {
-      Info("read_buffer", "Copying last %d bytes of old buffer to beginning of new buffer", get_remaining_readable_buffer());
+   if (fEvOffset > 0 && get_remaining_readable_buffer()) {
+      //Info("read_buffer", "Copying last %d bytes of old buffer to beginning of new buffer", get_remaining_readable_buffer());
       memcpy(fBuffer, (fBuffer + fEvOffset), get_remaining_readable_buffer());
       fFillOffset = get_remaining_readable_buffer();
    }
-   else
-      fFillOffset = 0;
    Int_t bytes_to_read = fBufSize - fFillOffset;
    if (bytes_to_read > fFileSize) bytes_to_read = fFileSize;
-   Info("read_buffer", "fFillOffset:%ld      bytes to read:%d bytes", fFillOffset, bytes_to_read);
+   //Info("read_buffer", "fFillOffset:%ld      bytes to read:%d bytes", fFillOffset, bytes_to_read);
    Long64_t old_bytes = fFile->GetBytesRead();
    fFile->ReadBuffer((char*)(fBuffer + fFillOffset), bytes_to_read);
    Long64_t bytes_read = fFile->GetBytesRead() - old_bytes;
-   Info("read_buffer", "Read %d bytes from file", (Int_t)bytes_read);
+   //Info("read_buffer", "Read %d bytes from file", (Int_t)bytes_read);
    fFileSize -= bytes_read;
    if (bytes_read == 0 || fFileSize == 0 || bytes_read < (Int_t)(fBufSize - fFillOffset)) fReachedEndOfFile = true;
    fNeedToReadBuffer = false;
@@ -98,9 +103,21 @@ bool KVProtobufDataReader::read_buffer()
    return (bytes_read > 0);
 }
 
+void KVProtobufDataReader::open_file(const Char_t* filepath)
+{
+   TString fp(filepath);
+   fp.Append("?filetype=raw");
+   fFile.reset(TFile::Open(fp));
+   fFileSize = fFile->GetSize();
+   Info("open_file", "%s : size of file = %lld bytes", filepath, fFileSize);
+   fEvOffset = 0;
+   fNeedToReadBuffer = true;
+   fReachedEndOfFile = false;
+}
+
 KVProtobufDataReader::KVProtobufDataReader(const Char_t* filepath, Int_t bufSiz)
    : KVRawDataReader(),
-     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fEvSize(0), fEvOffset(0), fFillOffset(0), fNeedToReadBuffer(true),
+     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
      fReachedEndOfFile(false)
 {
    // Open Google protobuf file for reading. Filepath URL will be passed to TFile::Open
@@ -108,24 +125,22 @@ KVProtobufDataReader::KVProtobufDataReader(const Char_t* filepath, Int_t bufSiz)
    // Default buffer size: 16MB
    // Note: buffer size given as Int_t, as this is argument type required by TFile::ReadBuffer
 
-   TString fp(filepath);
-   fp.Append("?filetype=raw");
-   fFile.reset(TFile::Open(fp));
-   fFileSize = fFile->GetSize();
-   Info("ctor", "size of file = %lld bytes", fFileSize);
+   open_file(filepath);
 }
 
+KVProtobufDataReader::KVProtobufDataReader(Int_t bufSiz)
+   : KVRawDataReader(),
+     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fFileSize(0), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
+     fReachedEndOfFile(false)
+{
+   // Create file reader of given buffer size, do not open any files yet
+}
 //____________________________________________________________________________//
 
 KVProtobufDataReader::~KVProtobufDataReader()
 {
    // Destructor
    delete [] fBuffer;
-}
-
-Bool_t KVProtobufDataReader::GetNextEvent()
-{
-   return read_next_event();
 }
 
 KVSeqCollection* KVProtobufDataReader::GetFiredDataParameters() const

@@ -65,6 +65,7 @@ DataSet.RunFile.DoNotDelete: all
 #
 # Default base classes for reading runfiles of different types
 # DataSet.RunFileClass.online:    KVRawDataReader
+DataSet.RunFileClass.bin:    KVProtobufDataReader
 DataSet.RunFileClass.raw:    KVRawDataReader
 DataSet.RunFileClass.recon:    TFile
 DataSet.RunFileClass.ident:    TFile
@@ -73,7 +74,7 @@ DataSet.RunFileClass.root:    TFile
 # Plugins for reading raw data
 # Syntax:
 # Plugin.KVRawDataReader:    name_of_plugin    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetexp_events    "KVGANILDataReader(const char*)"
+Plugin.KVRawDataReader:    GANIL    KVGANILDataReader     KVMultiDetdaq_cec    "KVGANILDataReader(const char*)"
 +Plugin.KVRawDataReader:    MFM    KVMFMDataFileReader     KVMultiDetdaq_cec    "KVMFMDataFileReader(const char*)"
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.

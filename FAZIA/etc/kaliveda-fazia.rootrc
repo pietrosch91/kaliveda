@@ -37,6 +37,9 @@
 #---------Definition of default data repository
 #DataRepository.Default:  myrepo
 
+# plugin for reading FAZIA DAQ data
+Plugin.KVProtobufDataReader:    FZDATA    KVFzDataReader     FAZIAdaq_cec    "KVFzDataReader(const char*)"
+
 #
 # Geometries
 FAZIASYM.GeoType:        compact
@@ -124,6 +127,7 @@ FAZIACOR.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
 FAZIACOR.KVDataSet.DataType.Subdir.recon:  recon
 FAZIACOR.KVDataSet.DataType.Subdir.root:  root
 FAZIACOR.DataSet.RunFile.DoNotDelete: bin
+FAZIACOR.DataSet.RunFileClass.bin:    FZDATA
 
 +DataSet:   FAZIAPRE
 FAZIAPRE.DataSet.Title:   FAZIA-PRE experiment at LNS (feb. 2018)

@@ -171,7 +171,7 @@ void KVRemoteDataRepository::MakeSubdirectory(const KVDataSet*,
 //___________________________________________________________________________
 
 KVUniqueNameList* KVRemoteDataRepository::GetDirectoryListing(const KVDataSet*,
-      const Char_t*)
+      const Char_t*, const Char_t*)
 {
    //Impossible on distant data repositories.
    //Will return 0 (null pointer).

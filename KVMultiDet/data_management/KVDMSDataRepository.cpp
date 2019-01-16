@@ -32,11 +32,12 @@ KVDMSDataRepository::~KVDMSDataRepository()
 }
 
 KVUniqueNameList* KVDMSDataRepository::GetDirectoryListing(const KVDataSet* ds,
-      const Char_t* datatype)
+      const Char_t* datatype, const Char_t* subdir)
 {
    //Use the DMS catalogue in order to examine the directory
    //
-   //      /root_of_data_repository/[datasetdir]/[datatypedir]
+   //      /root_of_data_repository/[datasetdir]/[datatype]/[subdir]
+   //      /root_of_data_repository/[datasetdir]/[datatype]         (if subdir="", default value)
    //      /root_of_data_repository/[datasetdir]                    (if datatype="", default value)
    //
    //and fill a TList with one KVDMSFile_t object for each entry in the directory,
@@ -49,6 +50,10 @@ KVUniqueNameList* KVDMSDataRepository::GetDirectoryListing(const KVDataSet* ds,
    if (strcmp(datatype, "")) {
       AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
       path = tmp;
+      if (strcmp(subdir, "")) {
+         AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), subdir));
+         path = tmp;
+      }
    }
 
    return fDMS->GetFullListing(path.Data());

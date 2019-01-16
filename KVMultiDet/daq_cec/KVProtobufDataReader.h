@@ -14,12 +14,10 @@ protected:
    Long64_t fFileSize;//! size of file in bytes
    UInt_t fEvSize;//! size of next event in buffer
    ptrdiff_t fEvOffset;//! next position to read in buffer
-   ptrdiff_t fFillOffset;//! next position in buffer to fill from file
    bool fNeedToReadBuffer;//! true when the buffer is empty/incomplete
    bool fReachedEndOfFile;//! true when we have read all bytes from file
 
-   bool read_next_event();
-   bool read_buffer();
+   virtual bool read_buffer();
 
    UInt_t get_remaining_readable_buffer() const
    {
@@ -30,7 +28,10 @@ protected:
 
    virtual bool parse_event_from_message() = 0;
 
+   void open_file(const Char_t* filepath);
+
 public:
+   KVProtobufDataReader(Int_t bufSiz = 16 * 1024 * 1024);
    KVProtobufDataReader(const Char_t* filepath, Int_t bufSiz = 16 * 1024 * 1024);
    virtual ~KVProtobufDataReader();
 
