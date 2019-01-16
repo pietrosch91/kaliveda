@@ -49,6 +49,9 @@
 #include "KVMFMDataFileReader.h"
 #include "MFMEbyedatFrame.h"
 #endif
+#ifdef WITH_PROTOBUF
+#include "KVProtobufDataReader.h"
+#endif
 using namespace std;
 
 KVMultiDetArray* gMultiDetArray = 0x0;
@@ -3086,7 +3089,11 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    if (rawdata->GetDataFormat() == "MFM") ok = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
    else
 #endif
-      if (rawdata->GetDataFormat() == "EBYEDAT") ok = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
+#ifdef WITH_PROTOBUF
+      if (rawdata->GetDataFormat() == "PROTOBUF") ok = handle_raw_data_event_protobuf((KVProtobufDataReader&)(*rawdata));
+      else
+#endif
+         if (rawdata->GetDataFormat() == "EBYEDAT") ok = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
    if (ok) {
       copy_fired_parameters_to_recon_param_list();
    }
@@ -3360,6 +3367,14 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    }
 
    return ok;
+}
+#endif
+
+#ifdef WITH_PROTOBUF
+Bool_t KVMultiDetArray::handle_raw_data_event_protobuf(KVProtobufDataReader&)
+{
+   AbstractMethod("handle_raw_data_event_protobuf");
+   return kFALSE;
 }
 #endif
 

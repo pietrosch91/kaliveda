@@ -71,6 +71,7 @@ protected:
 
    void CreateCorrespondence();
 #ifdef WITH_PROTOBUF
+   Bool_t handle_raw_data_event_protobuf(KVProtobufDataReader&);
 #ifndef __CINT__
    Bool_t treat_event(const DAQ::FzEvent&);
 #endif

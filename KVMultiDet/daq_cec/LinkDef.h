@@ -17,4 +17,7 @@
 #ifdef WITH_MFM
 #pragma link C++ class KVMFMDataFileReader+;
 #endif
+#ifdef WITH_PROTOBUF
+#pragma link C++ class KVProtobufDataReader+;
+#endif
 #endif

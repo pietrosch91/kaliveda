@@ -5,7 +5,7 @@ set(ignored GANIL_2010 LNL_2007 LNS_2009 LNS_2011 LNS_2012)
 if(WITH_PROTOBUF)
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/protobuf)
 else(WITH_PROTOBUF)
-    set(ignored ${ignored} protobuf)
+    set(ignored ${ignored} protobuf daq_cec)
 endif(WITH_PROTOBUF)
 
 #---set paths to find all KVMultiDet headers

@@ -8,6 +8,11 @@ if(NOT WITH_MFM)
 else()
     set(libs_to_link ${libs_to_link} ${mfmlib_LIBRARIES})
 endif()
+if(NOT WITH_PROTOBUF)
+    set(excluded_classes ${excluded_classes} KVProtobufDataReader)
+else()
+    set(libs_to_link ${libs_to_link} ${PROTOBUF_LIBRARIES})
+endif()
 
 BUILD_KALIVEDA_MODULE(daq_cec
 	PARENT ${KVSUBPROJECT}

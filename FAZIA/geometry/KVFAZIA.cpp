@@ -25,6 +25,7 @@
 
 #ifdef WITH_PROTOBUF
 #include "FzEventSet.pb.h"
+#include "KVFzDataReader.h"
 #endif
 
 ClassImp(KVFAZIA)
@@ -423,6 +424,11 @@ TString KVFAZIA::GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig)
 }
 
 #ifdef WITH_PROTOBUF
+Bool_t KVFAZIA::handle_raw_data_event_protobuf(KVProtobufDataReader& R)
+{
+   return treat_event(((KVFzDataReader&)R).get_fazia_event());
+}
+
 Double_t KVFAZIA::TreatEnergy(Int_t sigid, Int_t eid, UInt_t val)
 {
    Int_t value = (val << 2);
@@ -545,8 +551,8 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
    }
 
 //   cout << "good=" << good << endl;
-//   fParameters.ls();
-//   fSignals.ls();
+   fFPGAParameters.ls();
+   fSignals.ls();
 
    return good;
 }

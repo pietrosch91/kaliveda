@@ -37,6 +37,9 @@ class MFMMergeFrameManager;
 class KVMFMDataFileReader;
 class MFMEbyedatFrame;
 #endif
+#ifdef WITH_PROTOBUF
+class KVProtobufDataReader;
+#endif
 class KVExpSetUp;
 class KVExpDB;
 class KVDBTable;
@@ -134,6 +137,9 @@ protected:
    virtual Bool_t handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager&);
    virtual Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
    virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
+#endif
+#ifdef WITH_PROTOBUF
+   virtual Bool_t handle_raw_data_event_protobuf(KVProtobufDataReader&);
 #endif
    virtual Bool_t handle_raw_data_event_ebyedat(KVGANILDataReader&);
    virtual void prepare_to_handle_new_raw_data();
