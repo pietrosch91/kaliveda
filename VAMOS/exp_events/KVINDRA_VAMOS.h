@@ -28,7 +28,7 @@ public:
    virtual KVGroup* GetGroupWithAngles(Float_t theta, Float_t phi);
 
    virtual void SetFilterType(Int_t t);
-   virtual void   SetParameters(UShort_t n);
+   virtual void   SetParameters(UInt_t n);
    virtual void SetROOTGeometry(Bool_t on = kTRUE);
 
    KVVAMOS* GetVAMOS()

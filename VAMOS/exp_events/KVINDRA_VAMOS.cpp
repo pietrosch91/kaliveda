@@ -144,8 +144,7 @@ KVNameValueList* KVINDRA_VAMOS::DetectParticle(KVNucleus* part)
 
    if (IsROOTGeometry()) {
       return DetectParticle_TGEO(part);
-   }
-   else {
+   } else {
       gIndra->SetROOTGeometry(kFALSE);
       return gIndra->DetectParticle(part);
    }
@@ -231,8 +230,7 @@ void KVINDRA_VAMOS::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_event,
          // its detection in INDRA
          part->Clear();
 
-      }
-      else _part->SetMomentum(*_part->GetPInitial());
+      } else _part->SetMomentum(*_part->GetPInitial());
 
       SafeDelete(nvl);
    }     //fin de loop over particles
@@ -282,7 +280,7 @@ void KVINDRA_VAMOS::SetFilterType(Int_t t)
 
 //________________________________________________________________
 
-void KVINDRA_VAMOS::SetParameters(UShort_t n)
+void KVINDRA_VAMOS::SetParameters(UInt_t n)
 {
    //Set identification and calibration parameters for run.
    //This can only be done if gDataSet has been set i.e. a dataset has been chosen

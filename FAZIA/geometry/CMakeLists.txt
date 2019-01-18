@@ -1,6 +1,6 @@
-set(deps calibration signals daq_cec)
+set(deps calibration signals)
 if(WITH_PROTOBUF)
-    set(deps ${deps} protobuf)
+    set(deps ${deps} daq_cec protobuf)
 endif(WITH_PROTOBUF)
 
 BUILD_KALIVEDA_MODULE(geometry

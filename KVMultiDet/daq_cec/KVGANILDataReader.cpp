@@ -17,8 +17,8 @@ ClassImp(KVGANILDataReader)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVGANILDataReader</h2>
-<h4>Reads GANIL acquisition files</h4>
-   Open and initialise a GANIL data file for reading.
+<h4>Reads GANIL acquisition files (EBYEDAT)</h4>
+   Open and initialise a GANIL data file in EBYEDAT format for reading.
    If file cannot be opened, this object will be made a zombie. Do not use.
    To test if file is open, use IsOpen().
    The basename of the file (excluding any path) can be obtained using GetName()
