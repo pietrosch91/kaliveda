@@ -257,7 +257,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
             }
          }
          else {
-            Error("GetDetectedEvent", "Unknown detector %s !!!", par->GetDetectorName());
+            //Error("GetDetectedEvent", "Unknown detector %s !!!", par->GetDetectorName());
          }
       }
    }
@@ -551,8 +551,8 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
    }
 
 //   cout << "good=" << good << endl;
-   fFPGAParameters.ls();
-   fSignals.ls();
+//   fFPGAParameters.ls();
+//   fSignals.ls();
 
    return good;
 }

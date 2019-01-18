@@ -38,7 +38,7 @@
 #DataRepository.Default:  myrepo
 
 # plugin for reading FAZIA DAQ data
-Plugin.KVProtobufDataReader:    FZDATA    KVFzDataReader     FAZIAdaq_cec    "KVFzDataReader(const char*)"
++Plugin.KVRawDataReader:    FZDATA    KVFzDataReader     FAZIAdaq_cec    "KVFzDataReader(const char*)"
 
 #
 # Geometries
@@ -120,14 +120,14 @@ LNS_2016.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIACOR
 FAZIACOR.DataSet.Title:   FAZIA-COR experiment at LNS (2017)
 FAZIACOR.DataSet.RepositoryDir:   FAZIACOR
-FAZIACOR.DataSet.RunFileName.raw:    run%06d.root
 FAZIACOR.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIACOR.DataSet.RunFileClass.raw:    TFile
 FAZIACOR.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
-FAZIACOR.KVDataSet.DataType.Subdir.recon:  recon
 FAZIACOR.KVDataSet.DataType.Subdir.root:  root
-FAZIACOR.DataSet.RunFile.DoNotDelete: bin
-FAZIACOR.DataSet.RunFileClass.bin:    FZDATA
+FAZIACOR.KVDataSet.DataType.Subdir.raw:  bin
+FAZIACOR.DataSet.RunFile.DoNotDelete: raw
+FAZIACOR.DataSet.RunFileClass.raw:    FZDATA
+FAZIACOR.DataSet.RunFileName.raw:    run%06d
 
 +DataSet:   FAZIAPRE
 FAZIAPRE.DataSet.Title:   FAZIA-PRE experiment at LNS (feb. 2018)
@@ -307,8 +307,6 @@ FAZIASYM.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIASYM.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 LNS_2016.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2016.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
-FAZIACOR.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
-FAZIACOR.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 TESTLNS17.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 TESTLNS17.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 FAZIAPRE.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
@@ -320,7 +318,6 @@ FAZIAZERO.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 FAZIADEM.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIADEM.RawAnalysis.DataAnalysisTask.UserClass.Base:     FAZIAReader/TSelector
 
-+Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIAanalysis "KVFAZIARawDataAnalyser()"
 +Plugin.TSelector:  FAZIAReader    KVFAZIAReader      FAZIAanalysis    "KVFAZIAReader()"
 ############
 LNS_2014.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
@@ -331,8 +328,6 @@ FAZIASYM.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIASYM.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 LNS_2016.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 LNS_2016.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
-FAZIACOR.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
-FAZIACOR.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 FAZIAPRE.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
 FAZIAPRE.Reconstruction.DataAnalysisTask.UserClass.Base:     FAZIARawDataRecon/TSelector
 FAZIAPRE-MAY2018.Reconstruction.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
@@ -354,8 +349,6 @@ FAZIASYM.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 FAZIASYM.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 LNS_2016.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 LNS_2016.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
-FAZIACOR.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
-FAZIACOR.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 FAZIAPRE.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData
 FAZIAPRE.ReconAnalysis.DataAnalysisTask.UserClass.Base:     FAZIASelector/KVEventSelector
 FAZIAPRE-MAY2018.ReconAnalysis.DataAnalysisTask.Analyser:     FAZIAReconData

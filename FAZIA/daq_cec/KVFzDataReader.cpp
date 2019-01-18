@@ -57,8 +57,8 @@ KVFzDataReader::KVFzDataReader(const Char_t* filepath, Int_t bufSiz)
 
    fFullFilePath = filepath;
    fFullFilePath += "/";
-   fListOfFiles.reset(gDataRepository->GetDirectoryListing(gDataSet, "bin", gSystem->BaseName(filepath)));
-   run_number = gDataSet->GetAvailableRunsFile("bin")->IsRunFileName(gSystem->BaseName(filepath));
+   fListOfFiles.reset(gDataRepository->GetDirectoryListing(gDataSet, "raw", gSystem->BaseName(filepath)));
+   run_number = gDataSet->GetAvailableRunsFile("raw")->IsRunFileName(gSystem->BaseName(filepath));
 
    // each run has a set of files with names like
    //   FzEventSet-1490951242-9758.pb
