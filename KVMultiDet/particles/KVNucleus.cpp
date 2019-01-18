@@ -135,7 +135,7 @@ ClassImp(KVNucleus);
 
 UInt_t KVNucleus::fNb_nuc = 0;
 
-#define MAXZ_ELEMENT_SYMBOL 111
+#define MAXZ_ELEMENT_SYMBOL 118
 Char_t KVNucleus::fElements[][3] = {
    "n", "H", "He", "Li", "Be", "B", "C", "N", "O",
    "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca",
@@ -152,7 +152,9 @@ Char_t KVNucleus::fElements[][3] = {
    "Fr",
    "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es",
    "Fm", "Md",
-   "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg"
+   "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Ed",
+   "Fl", "Ef",
+   "Lv", "Eh", "Ei"
 };
 
 const Char_t* KVNucleus::GetSymbol(Option_t* opt) const
@@ -990,6 +992,24 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
       if (IsKnown(zz, aa) && (GetLifeTime(zz, aa) >= tmin)) nlb.Add(aa);
    }
    return nlb;
+}
+
+KVNumberList KVNucleus::GetMeasuredARange(Int_t zz) const
+{
+   //returns range of a measured mass for a given element
+
+   if (zz == -1) zz = GetZ();
+   KVNumberList nla;
+   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   KVNumberList nlb;
+   nla.Begin();
+   while (!nla.End()) {
+      Int_t aa = nla.Next();
+      if (GetMassExcessPtr(zz, aa) &&  GetMassExcessPtr(zz, aa)->IsMeasured())
+         nlb.Add(aa);
+   }
+   return nlb;
+
 }
 
 const Char_t* KVNucleus::GetIsotopesList(Int_t zmin, Int_t zmax, Double_t tmin) const
