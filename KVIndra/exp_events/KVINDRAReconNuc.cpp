@@ -314,7 +314,7 @@ KVChIo* KVINDRAReconNuc::GetChIo()
 {
    //Return pointer to the ChIo the particle passed through.
    //Pointer is null if not.
-   KVChIo* chio = (KVChIo*) GetDetectorList()->FindObjectByType("CI");
+   KVChIo* chio = (KVChIo*) GetDetector("CI");
    return chio;
 }
 
@@ -323,7 +323,7 @@ KVSilicon* KVINDRAReconNuc::GetSi()
    //Return pointer to the Silicon the particle passed through.
    //Pointer is null if not.
    KVSilicon* chio =
-      (KVSilicon*) GetDetectorList()->FindObjectByType("SI");
+      (KVSilicon*) GetDetector("SI");
    return chio;
 }
 
@@ -332,7 +332,7 @@ KVSi75* KVINDRAReconNuc::GetSi75()
    //Return pointer to the Silicon-75 the particle passed through.
    //Pointer is null if not.
    KVSi75* chio =
-      (KVSi75*) GetDetectorList()->FindObjectByType("SI75");
+      (KVSi75*) GetDetector("SI75");
    return chio;
 }
 
@@ -341,7 +341,7 @@ KVSiLi* KVINDRAReconNuc::GetSiLi()
    //Return pointer to the Silicon-Lithium the particle passed through.
    //Pointer is null if not.
    KVSiLi* chio =
-      (KVSiLi*) GetDetectorList()->FindObjectByType("SILI");
+      (KVSiLi*) GetDetector("SILI");
    return chio;
 }
 
@@ -349,7 +349,7 @@ KVCsI* KVINDRAReconNuc::GetCsI()
 {
    //Return pointer to the CsI the particle passed through.
    //Pointer is null if not.
-   KVCsI* csi = (KVCsI*) GetDetectorList()->FindObjectByType("CSI");
+   KVCsI* csi = (KVCsI*) GetDetector("CSI");
    return csi;
 }
 

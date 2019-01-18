@@ -80,6 +80,14 @@ public:
       }
       return &fDetList;
    }
+   KVDetector* GetDetector(const TString& label) const
+   {
+      // Return detector with given label on particle's reconstruction trajectory
+      if (fReconTraj) return fReconTraj->GetDetector(label);
+      // backwards compatibility ?
+      if (GetDetectorList()) return (KVDetector*)GetDetectorList()->FindObjectByLabel(label);
+      return nullptr;
+   }
    KVDetector* GetDetector(int i) const
    {
       //Returns the detectors hit by the particle.
