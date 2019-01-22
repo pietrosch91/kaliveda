@@ -107,7 +107,12 @@ void KVProtobufDataReader::open_file(const Char_t* filepath)
 {
    TString fp(filepath);
    fp.Append("?filetype=raw");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    fFile.reset(TFile::Open(fp));
+#else
+   SafeDelete(fFile);
+   fFile = TFile::Open(fp);
+#endif
    fFileSize = fFile->GetSize();
    Info("open_file", "%s : size of file = %lld bytes", filepath, fFileSize);
    fEvOffset = 0;
@@ -117,7 +122,7 @@ void KVProtobufDataReader::open_file(const Char_t* filepath)
 
 KVProtobufDataReader::KVProtobufDataReader(const Char_t* filepath, Int_t bufSiz)
    : KVRawDataReader(),
-     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
+     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fFile(nullptr), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
      fReachedEndOfFile(false)
 {
    // Open Google protobuf file for reading. Filepath URL will be passed to TFile::Open
@@ -130,7 +135,7 @@ KVProtobufDataReader::KVProtobufDataReader(const Char_t* filepath, Int_t bufSiz)
 
 KVProtobufDataReader::KVProtobufDataReader(Int_t bufSiz)
    : KVRawDataReader(),
-     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fFileSize(0), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
+     fBufSize(bufSiz), fBuffer(new char[bufSiz]), fFile(nullptr), fFileSize(0), fEvSize(0), fEvOffset(0), fNeedToReadBuffer(true),
      fReachedEndOfFile(false)
 {
    // Create file reader of given buffer size, do not open any files yet
@@ -141,6 +146,9 @@ KVProtobufDataReader::~KVProtobufDataReader()
 {
    // Destructor
    delete [] fBuffer;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+   SafeDelete(fFile);
+#endif
 }
 
 KVSeqCollection* KVProtobufDataReader::GetFiredDataParameters() const

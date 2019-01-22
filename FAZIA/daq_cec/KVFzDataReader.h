@@ -15,8 +15,13 @@ namespace DAQ {
 
 class KVFzDataReader : public KVProtobufDataReader {
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    unique_ptr<KVUniqueNameList> fListOfFiles;//! list of files for run
    unique_ptr<TIter> fFileListIterator;//! iterator for file list
+#else
+   KVUniqueNameList* fListOfFiles;//! list of files for run
+   TIter* fFileListIterator;//! iterator for file list
+#endif
    KVString fFullFilePath;//! full path to files including "root:" etc. and "/run000000/"
    int run_number;//! run number deduced from filename
 
@@ -24,9 +29,15 @@ class KVFzDataReader : public KVProtobufDataReader {
    bool read_buffer();
 
 public:
-   KVFzDataReader() {}
+   KVFzDataReader() : fListOfFiles(nullptr), fFileListIterator(nullptr) {}
    KVFzDataReader(const Char_t* filepath, Int_t bufSiz = 16 * 1024 * 1024);
-   virtual ~KVFzDataReader() {}
+   virtual ~KVFzDataReader()
+   {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+      SafeDelete(fListOfFiles);
+      SafeDelete(fFileListIterator);
+#endif
+   }
 
 #ifndef __CINT__
    const DAQ::FzEvent& get_fazia_event() const;

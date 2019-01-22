@@ -49,7 +49,7 @@ bool KVFzDataReader::read_buffer()
 }
 
 KVFzDataReader::KVFzDataReader(const Char_t* filepath, Int_t bufSiz)
-   : KVProtobufDataReader(bufSiz)
+   : KVProtobufDataReader(bufSiz), fListOfFiles(nullptr), fFileListIterator(nullptr)
 {
    // Open set of FAZIA DAQ files for reading. Filepath URL will be passed to TFile::Open
    // therefore can use same plugins eg. "root://" etc.
@@ -57,7 +57,12 @@ KVFzDataReader::KVFzDataReader(const Char_t* filepath, Int_t bufSiz)
 
    fFullFilePath = filepath;
    fFullFilePath += "/";
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    fListOfFiles.reset(gDataRepository->GetDirectoryListing(gDataSet, "raw", gSystem->BaseName(filepath)));
+#else
+   SafeDelete(fListOfFiles);
+   fListOfFiles = gDataRepository->GetDirectoryListing(gDataSet, "raw", gSystem->BaseName(filepath));
+#endif
    run_number = gDataSet->GetAvailableRunsFile("raw")->IsRunFileName(gSystem->BaseName(filepath));
 
    // each run has a set of files with names like
@@ -69,7 +74,12 @@ KVFzDataReader::KVFzDataReader(const Char_t* filepath, Int_t bufSiz)
    // the final number (i.e. 9758, 9759, 9760 in the example above)
 
    std::map<int, std::string> filelist;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    fFileListIterator.reset(new TIter(fListOfFiles.get()));
+#else
+   SafeDelete(fFileListIterator);
+   fFileListIterator = new TIter(fListOfFiles);
+#endif
    KVBase* b;
    while ((b = (KVBase*)fFileListIterator->operator()())) {
       KVString bb(b->GetName());

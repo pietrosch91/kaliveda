@@ -10,7 +10,11 @@ class KVProtobufDataReader : public KVRawDataReader {
 protected:
    Int_t fBufSize;//! buffer size
    char* fBuffer;//! current buffer
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
    unique_ptr<TFile> fFile;//! TFile plugin handle
+#else
+   TFile* fFile;//! TFile plugin handle
+#endif
    Long64_t fFileSize;//! size of file in bytes
    UInt_t fEvSize;//! size of next event in buffer
    ptrdiff_t fEvOffset;//! next position to read in buffer

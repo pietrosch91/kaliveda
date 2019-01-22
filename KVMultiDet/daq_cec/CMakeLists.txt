@@ -11,9 +11,8 @@ endif()
 if(NOT WITH_PROTOBUF)
     set(excluded_classes ${excluded_classes} KVProtobufDataReader)
 else()
-    set(libs_to_link ${libs_to_link} ${PROTOBUF_LIBRARIES})
+    set(libs_to_link ${libs_to_link} ${PROTOBUF_LIBRARY})
 endif()
-
 BUILD_KALIVEDA_MODULE(daq_cec
 	PARENT ${KVSUBPROJECT}
         KVMOD_DEPENDS base geometry
