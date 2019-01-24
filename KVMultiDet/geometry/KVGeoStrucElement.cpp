@@ -72,6 +72,8 @@ void KVGeoStrucElement::ClearDetectors(const Char_t* type)
          if (fDetectors.IsOwner()) delete d;
       }
    }
+   // avoid spurious warnings from TList::Clear with ROOT6
+   dummy.Clear("nodelete");
 }
 
 void KVGeoStrucElement::ClearStructures(const Char_t* type)
@@ -89,6 +91,8 @@ void KVGeoStrucElement::ClearStructures(const Char_t* type)
          if (fStructures.IsOwner()) delete e;
       }
    }
+   // avoid spurious warnings from TList::Clear with ROOT6
+   dummy.Clear("nodelete");
 }
 
 void KVGeoStrucElement::Add(KVBase* element)
@@ -101,10 +105,12 @@ void KVGeoStrucElement::Add(KVBase* element)
    if (element->InheritsFrom(KVDetector::Class())) {
       fDetectors.Add(element);
       dynamic_cast<KVDetector*>(element)->AddParentStructure(this);
-   } else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
+   }
+   else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
       fStructures.Add(element);
       dynamic_cast<KVGeoStrucElement*>(element)->AddParentStructure(this);
-   } else {
+   }
+   else {
       Error("Add", "Cannot add elements of class %s", element->ClassName());
    }
 }
@@ -117,10 +123,12 @@ void KVGeoStrucElement::Remove(KVBase* element)
    if (element->InheritsFrom(KVDetector::Class())) {
       fDetectors.Remove(element);
       dynamic_cast<KVDetector*>(element)->RemoveParentStructure(this);
-   } else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
+   }
+   else if (element->InheritsFrom(KVGeoStrucElement::Class())) {
       fStructures.Remove(element);
       dynamic_cast<KVGeoStrucElement*>(element)->RemoveParentStructure(this);
-   } else {
+   }
+   else {
       Error("Add", "Cannot add elements of class %s", element->ClassName());
    }
 }
@@ -128,8 +136,9 @@ void KVGeoStrucElement::Remove(KVBase* element)
 void KVGeoStrucElement::Clear(Option_t*)
 {
    // Empty lists of detectors, daughter structures, and parent structures
-   fDetectors.Clear();
+
    fStructures.Clear();
+   fDetectors.Clear();
    fParentStrucList.Clear();
 }
 
@@ -137,9 +146,8 @@ KVGeoStrucElement* KVGeoStrucElement::GetStructure(const Char_t* type, Int_t num
 {
    // Get structure with type and number
 
-   KVSeqCollection* typelist = GetStructureTypeList(type);
+   unique_ptr<KVSeqCollection> typelist(GetStructureTypeList(type));
    KVGeoStrucElement* elem = (KVGeoStrucElement*)typelist->FindObjectByNumber(num);
-   delete typelist;
    return elem;
 }
 
@@ -173,7 +181,7 @@ KVDetector* KVGeoStrucElement::GetDetectorByType(const Char_t* type) const
 KVSeqCollection* KVGeoStrucElement::GetDetectorTypeList(const Char_t* type) const
 {
    // Create and fill a list with all detectors of given type in this structure.
-   // DELETE LIST AFTER USE
+   // DELETE LIST AFTER USE - or, better: unique_ptr<KVSeqCollection> list(toto->GetDetectorTypeList(...))
 
    return fDetectors.GetSubListWithType(type);
 }
@@ -220,7 +228,8 @@ KVGeoStrucElement* KVGeoStrucElement::GetParentStructure(const Char_t* type, con
       KVSeqCollection* strucs = fParentStrucList.GetSubListWithType(type);
       el = (KVGeoStrucElement*)strucs->FindObject(name);
       delete strucs;
-   } else
+   }
+   else
       el = (KVGeoStrucElement*)fParentStrucList.FindObjectByType(type);
    return el;
 }

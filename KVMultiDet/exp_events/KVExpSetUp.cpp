@@ -31,7 +31,8 @@ void KVExpSetUp::init()
    fBuildTarget = kFALSE;
    fCloseGeometryNow = kFALSE;
    //modification of the owner mode compare to Mother classes
-   fStructures.SetOwner(kFALSE);
+   SetOwnsDaughters(kFALSE);
+   SetOwnsDetectors(kFALSE);
    fIDTelescopes->SetOwner(kFALSE);
 }
 

@@ -123,6 +123,9 @@ void KVMultiDetArray::init()
 
    // all trajectories belong to us
    fTrajectories.SetOwner();
+
+   //all detectors belong to us
+   SetOwnsDetectors();
 }
 
 //___________________________________________________________________________________
@@ -173,9 +176,6 @@ KVMultiDetArray::~KVMultiDetArray()
       fNavigator = nullptr;
    }
    SafeDelete(fUpDater);
-
-   // Detectors belong to multidetector array. Our responsibility to delete.
-   fDetectors.Delete();
 }
 
 
@@ -2621,7 +2621,6 @@ void KVMultiDetArray::FillListOfIDTelescopes(KVIDGraph* gr) const
          KVIDTelescope* idt = GetIDTelescope(tel_name.Data()) ;
          if (idt) {
             gr->AddIDTelescope(idt);
-            cout << "Filled " << tel_name.Data() << endl;
          }
       }
    }

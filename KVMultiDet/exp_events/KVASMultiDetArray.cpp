@@ -184,7 +184,9 @@ void KVASMultiDetArray::MakeListOfDetectors()
                   k4->SetName(k4->GetArrayName());  //set name of detector
                Add(k4);
             }
+            ((KVUniqueNameList*)k3->GetDetectors())->Rehash();//keep consistency if any detector names changed
          }
+         ((KVUniqueNameList*)k2->GetStructures())->Rehash();//keep consistency if any telescope names changed
       }
    }
    // rehash detector node lists due to change of names of all detectors
@@ -320,8 +322,9 @@ void KVASMultiDetArray::AddToGroups(KVTelescope* kt1, KVTelescope* kt2)
       kvg->SetDimensions(kt1, kt2);     // set group dimensions from telescopes
       //add to list
       Add(kvg);
-   } else if ((kvg = (KVASGroup*)(kt1->GetParentStructure("GROUP")))
-              && !kt2->GetParentStructure("GROUP")) {  // case b) - kt1 is already in a group
+   }
+   else if ((kvg = (KVASGroup*)(kt1->GetParentStructure("GROUP")))
+            && !kt2->GetParentStructure("GROUP")) {  // case b) - kt1 is already in a group
 #ifdef KV_DEBUG
       cout << "Adding " << kt2->GetName() << " to group " << kvg->
            GetNumber() << endl;
@@ -330,8 +333,9 @@ void KVASMultiDetArray::AddToGroups(KVTelescope* kt1, KVTelescope* kt2)
       kvg->Add(kt2);
       kvg->Sort();              // sort telescopes
       kvg->SetDimensions(kvg, kt2);     //adjust dimensions depending on kt2
-   } else if ((kvg = (KVASGroup*)(kt2->GetParentStructure("GROUP")))
-              && !kt1->GetParentStructure("GROUP")) {  // case b) - kt2 is already in a group
+   }
+   else if ((kvg = (KVASGroup*)(kt2->GetParentStructure("GROUP")))
+            && !kt1->GetParentStructure("GROUP")) {  // case b) - kt2 is already in a group
 #ifdef KV_DEBUG
       cout << "Adding " << kt1->GetName() << " to group " << kvg->
            GetNumber() << endl;
@@ -340,7 +344,8 @@ void KVASMultiDetArray::AddToGroups(KVTelescope* kt1, KVTelescope* kt2)
       kvg->Add(kt1);
       kvg->Sort();              // sort telescopes
       kvg->SetDimensions(kvg, kt1);     //adjust dimensions depending on kt1
-   } else if (kt1->GetParentStructure("GROUP") != kt2->GetParentStructure("GROUP")) {     //both telescopes already in different groups
+   }
+   else if (kt1->GetParentStructure("GROUP") != kt2->GetParentStructure("GROUP")) {       //both telescopes already in different groups
 #ifdef KV_DEBUG
 //         cout << "Merging " << kt1->GetGroup()->
 //         GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
@@ -504,12 +509,14 @@ void KVASMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTele
    idt->AddDetector(e);
    if (de->GetGroup()) {
       idt->SetGroup(de->GetGroup());
-   } else {
+   }
+   else {
       idt->SetGroup(e->GetGroup());
    }
    if (idtels->FindObject(idt->GetName())) {
       delete idt;
-   } else {
+   }
+   else {
       idtels->Add(idt);
    }
 }
@@ -522,7 +529,8 @@ void KVASMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTeles
    idt->SetGroup(det->GetGroup());
    if (idtels->FindObject(idt->GetName())) {
       delete idt;
-   } else {
+   }
+   else {
       idtels->Add(idt);
    }
 }
@@ -564,7 +572,8 @@ void KVASMultiDetArray::AnalyseGroupAndReconstructEvent(KVReconstructedEvent* ev
          }
       }
 
-   } else {
+   }
+   else {
       //single layer group
 #ifdef KV_DEBUG
       Info("AnalyseGroup", "Single layer group");

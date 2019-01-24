@@ -184,6 +184,16 @@ KVSeqCollection::~KVSeqCollection()
       while (fgCleanups->Remove(this))
          ;
    }
+   if (fCollection && !IsOwner()) {
+      // ROOT6: when Clear() is called for a TList/THashList containing invalid pointers
+      // (i.e. addresses of previously deleted objects), even if the list is not the owner
+      // of the objects (i.e. the Clear() should not attempt to delete anything), then
+      // calling Clear() without the option "nodelete" leads to false-positive warnings
+      // like this: Error in <***::Clear>: A list is accessing an object (0x5632b51c08b0) already deleted...
+      //   As the TList and THashList destructors contain a call to their Clear() method,
+      // here we pre-emptively Clear("nodelete") the collection before deleting it
+      fCollection->Clear("nodelete");
+   }
    SafeDelete(fCollection);
    --fgCounter;//decrease instance count
    if (fgCounter == 0 && fgCleanups) {
@@ -270,7 +280,16 @@ void KVSeqCollection::Clear(Option_t* option)
          SetCleanup(kFALSE);
       }
    }
-   fCollection->Clear(option);
+   if (!IsOwner()) {
+      // ROOT6: when Clear() is called for a TList/THashList containing invalid pointers
+      // (i.e. addresses of previously deleted objects), even if the list is not the owner
+      // of the objects (i.e. the Clear() should not attempt to delete anything), then
+      // calling Clear() without the option "nodelete" leads to false-positive warnings
+      // like this: Error in <***::Clear>: A list is accessing an object (0x5632b51c08b0) already deleted...
+      fCollection->Clear("nodelete");
+   }
+   else
+      fCollection->Clear(option);
    if (cleaner) SetCleanup();
    Changed();
 }
@@ -462,25 +481,29 @@ TObject* KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue, const Cha
                      if (RV == ret) {
                         return obj;
                      }
-                  } else {
+                  }
+                  else {
                      if (KVString(ret).Match(RV)) {
                         return obj;
                      }
                   }
                }
-            } else if (mt.ReturnType() == TMethodCall::kLong) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kLong) {
                Long_t ret;
                mt.Execute(obj, "", ret);
                if (ret == RV.Atoi()) {
                   return obj;
                }
-            } else if (mt.ReturnType() == TMethodCall::kDouble) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kDouble) {
                Double_t ret;
                mt.Execute(obj, "", ret);
                if (ret == RV.Atof()) {
                   return obj;
                }
-            } else Error("FindObjectWithMethod", "Return type %d is not supported", (int)mt.ReturnType());
+            }
+            else Error("FindObjectWithMethod", "Return type %d is not supported", (int)mt.ReturnType());
          }
       }
    }
@@ -635,7 +658,8 @@ KVSeqCollection* KVSeqCollection::GetSubListWithClass(const Char_t* class_name) 
 
    if (class_name) {
       return GetSubListWithClass(TClass::GetClass(class_name));
-   } else return nullptr;
+   }
+   else return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -685,18 +709,22 @@ void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollec
                mt.Execute(ob, "", &ret);
                if (!wildcard) {
                   if (RV == ret) outputList->Add(ob);
-               } else {
+               }
+               else {
                   if (KVString(ret).Match(RV)) outputList->Add(ob);
                }
-            } else if (mt.ReturnType() == TMethodCall::kLong) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kLong) {
                Long_t ret;
                mt.Execute(ob, "", ret);
                if (ret == RV.Atoi()) outputList->Add(ob);
-            } else if (mt.ReturnType() == TMethodCall::kDouble) {
+            }
+            else if (mt.ReturnType() == TMethodCall::kDouble) {
                Double_t ret;
                mt.Execute(ob, "", ret);
                if (ret == RV.Atof()) outputList->Add(ob);
-            } else std::cout << "this type is not supported " << (int)mt.ReturnType() << std::endl;
+            }
+            else std::cout << "this type is not supported " << (int)mt.ReturnType() << std::endl;
          }
       }
    }
@@ -765,7 +793,8 @@ KVSeqCollection* KVSeqCollection::MakeListFromFile(TFile* file)
    if (!file) {
       TIter next_ps(gDirectory->GetListOfKeys());
       while ((key = (TKey*) next_ps())) ll->Add(key->ReadObj());
-   } else {
+   }
+   else {
       TIter next_ps(file->GetListOfKeys());
       while ((key = (TKey*) next_ps())) ll->Add(key->ReadObj());
 
@@ -830,14 +859,23 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
 {
    // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
    // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
+
+   //if(enable && IsOwner()) Warning("SetCleanup","List %s will be both owner & cleanup",GetName());
    SetBit(kCleanup, enable);
    if (enable) {
       fgCleanups->Add(this);
       fCollection->R__FOR_EACH(TObject, SetBit)(kMustCleanup);
-   } else {
+   }
+   else {
       fgCleanups->Remove(this);
    }
 }
+
+void KVSeqCollection::RehashCleanupList()
+{
+   ((THashList*)fgCleanups)->Rehash(fgCleanups->GetSize());
+}
+
 //______________________________________________________________________________
 void KVSeqCollection::Streamer(TBuffer& R__b)
 {
@@ -846,23 +884,34 @@ void KVSeqCollection::Streamer(TBuffer& R__b)
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      if (R__v) { }
       TSeqCollection::Streamer(R__b);
+      if (R__v < 3) {
+         // correct legacy BIT(16) used for fCleanup
+         SetCleanup(TestBit(BIT(16)));
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+         // for ROOT6 we reset BIT(16) if it was set, assuming that
+         // default is 0 (used by TCollection::IsUsingRWLock())
+         ResetBit(BIT(16));
+#endif
+      }
       fQObject.Streamer(R__b);
       if (fCollection) {
          Bool_t owns = fCollection->IsOwner();
          fCollection->SetOwner(kFALSE);
          fCollection->Streamer(R__b);
          fCollection->SetOwner(owns);
-      } else R__b >> fCollection;
+      }
+      else R__b >> fCollection;
       R__b.CheckByteCount(R__s, R__c, KVSeqCollection::IsA());
-   } else {
+   }
+   else {
       R__c = R__b.WriteVersion(KVSeqCollection::IsA(), kTRUE);
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
       if (fCollection) {
          fCollection->Streamer(R__b);
-      } else R__b << fCollection;
+      }
+      else R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
 }

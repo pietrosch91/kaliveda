@@ -100,6 +100,9 @@ KVINDRA::KVINDRA()
    gIndra = this;
    fPHDSet = kFALSE;
    fSelecteur = 0;
+   // unlike a normal multidetector, INDRA does not own its detectors
+   // they are owned by the TELESCOPE structures
+   SetOwnsDetectors(kFALSE);
 }
 
 //_________________________________________________________________________________

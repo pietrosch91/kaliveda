@@ -14,7 +14,8 @@ class KVSeqCollection : public TSeqCollection {
 
    enum {
       kSignals = BIT(15), // bit flag for sending 'Modified()' signal on changes
-      kCleanup = BIT(16) // set when objects in list are in ROOT cleanup list
+      // in ROOT v6 BIT(16) is used by TCollection - without changing the class version
+      kCleanup = BIT(17) // set when objects in list are in ROOT cleanup list
    };
 
    static Long64_t fSCCounter; // counter used to give unique names to all lists
@@ -161,6 +162,7 @@ public:
    }
    virtual void SetOwner(Bool_t enable = kTRUE)
    {
+      //if(enable&&IsCleanup()) Warning("SetOwner","List %s will be both owner & cleanup",GetName());
       TSeqCollection::SetOwner(enable);
       fCollection->SetOwner(enable);
    }
@@ -176,6 +178,7 @@ public:
       // which get deleted elsewhere are removed from this list
       return TestBit(kCleanup);
    }
+   static void RehashCleanupList();
 
    virtual TObject* FindObject(const char* name) const
    {
@@ -244,7 +247,7 @@ public:
       return fCollection;
    }
 
-   ClassDef(KVSeqCollection, 2) //KaliVeda extensions to ROOT collections
+   ClassDef(KVSeqCollection, 3) //KaliVeda extensions to ROOT collections
 };
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)
