@@ -2,13 +2,9 @@
 
 ## 0. Prerequisites
 ### ROOT
-At least version 5.32, works with version 6 from 6.02 onwards.
-ROOT6: v6 of ROOT is (for the moment) incompatible with gcc v5, and can only be compiled with clang.
-If you have a clang-compiled ROOT6, you must compile KaliVeda with clang also, by modifying the
-'cmake' invocation below to:
-    
-    $ cmake S -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=I
-    
+Works with any version of ROOT 5.xx, we recommend the latest 5.34 version
+Works with ROOT6, at least with 6.14 (we recommend the latest version of 6.14)
+
 ### CMake
 At least version 2.8.11 of cmake is required.
 
@@ -83,26 +79,19 @@ with a call to the 'rehash' system function before proceeding. After doing this 
     Usage: kaliveda-config [--version] [--libs] [--incdir] [--libdir] [--bindir] [--help]
     
     $ kaliveda
-      *******************************************
-      *                                         *
-      *        W E L C O M E  to  R O O T       *
-      *                                         *
-      *   Version   5.34/25   12 January 2015   *
-      *                                         *
-      *  You are welcome to visit our Web site  *
-      *          http://root.cern.ch            *
-      *                                         *
-      *******************************************
-    
-    ROOT 5.34/25 (heads/v5-34-00-patches@v5-34-24-89-g05f58e1, Feb 16 2015, 15:19:00 on linuxx8664gcc)
-    
-    CINT/ROOT C/C++ Interpreter version 5.18.00, July 2, 2010
-    Type ? for help. Commands must be C++ statements.
-    Enclose multiple statements between { }.
-    Info in <KVBase::InitEnvironment>: Initialising KaliVeda environment...
-    Info in <KVBase::InitEnvironment>: Using KaliVeda version 1.10/00 built on 2015-03-13
-    Info in <KVBase::InitEnvironment>: (git : bzr/1.10/heads/master@b5ddd55)
-    root [0] 
+    ***********************************************************
+    *                    HI COQUINE !!!                       *
+    *                                                         *
+    *         W E L C O M E     to     K A L I V E D A        *
+    *                                                         *
+    * Version: 1.10/15                      Built: 2019-01-24 *
+    * git: heads/1.10@release-1.10.15-268-g7f166f14           *
+    *                                                         *
+    *               For help, see the website :               *
+    *             http://indra.in2p3.fr/kaliveda              *
+    *                                                         *
+    *                          ENJOY !!!                      *
+    ***********************************************************
 
 To setup the KaliVeda paths every time you login to your system, place the call to thiskaliveda.(c)sh
 at the end of whatever login script is appropriate for your shell,
