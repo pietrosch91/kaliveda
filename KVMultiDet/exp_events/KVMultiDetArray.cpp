@@ -3100,6 +3100,27 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    return ok;
 }
 
+#ifdef WITH_MFM
+Bool_t KVMultiDetArray::HandleRawDataBuffer(MFMBufferReader& bufrdr)
+{
+   // Update array according to last event read from MFM buffer
+   // (it is assumed that MFMBufferReader::ReadNextFrame() was called before calling this method)
+   //
+   // Return kTRUE if raw data was treated
+   //
+   // All fired acquisition parameters are written in the fReconParameters list,
+   // ready to be copied to the reconstructed event
+
+   prepare_to_handle_new_raw_data();
+   bool ok = false;
+   ok = handle_raw_data_event_mfmfile(bufrdr);
+   if (ok) {
+      copy_fired_parameters_to_recon_param_list();
+   }
+   return ok;
+}
+#endif
+
 void KVMultiDetArray::SetRawDataFromReconEvent(KVNameValueList& l)
 {
    // Take values 'ACQPAR.[array_name].[par_name]' in the parameter list and use them to set
@@ -3296,7 +3317,7 @@ void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDB
 
 
 #ifdef WITH_MFM
-Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(KVMFMDataFileReader& mfmreader)
+Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(MFMBufferReader& mfmreader)
 {
    // Update array according to last event read using the KVMFMDataFileReader object
    // (it is assumed that KVRawDataReader::GetNextEvent() was called before calling this method)

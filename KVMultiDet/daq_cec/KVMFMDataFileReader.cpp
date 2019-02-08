@@ -31,7 +31,6 @@ KVMFMDataFileReader::KVMFMDataFileReader(const Char_t* filepath)
       MakeZombie();
       return;
    }
-   fMergeFrame.SetRunFileName(filepath);
    if (GetFrameReadType() != MFM_XML_FILE_HEADER_FRAME_TYPE) {
       Warning("KVMFMDataFileReader", "First frame in file is not MFM_XML_FILE_HEADER_FRAME_TYPE: type is %s",
               GetFrameReadTypeSymbol().c_str());

@@ -36,6 +36,7 @@ class MFMCommonFrame;
 class MFMMergeFrameManager;
 class KVMFMDataFileReader;
 class MFMEbyedatFrame;
+class MFMBufferReader;
 #endif
 #ifdef WITH_PROTOBUF
 class KVProtobufDataReader;
@@ -133,7 +134,7 @@ protected:
    void DeduceGroupsFromTrajectories();
 
 #ifdef WITH_MFM
-   virtual Bool_t handle_raw_data_event_mfmfile(KVMFMDataFileReader&);
+   virtual Bool_t handle_raw_data_event_mfmfile(MFMBufferReader&);
    virtual Bool_t handle_raw_data_event_mfmmergeframe(const MFMMergeFrameManager&);
    virtual Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
    virtual Bool_t handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame&);
@@ -437,6 +438,9 @@ public:
 
    void InitialiseRawDataReading(KVRawDataReader*);
    Bool_t HandleRawDataEvent(KVRawDataReader*);
+#ifdef WITH_MFM
+   Bool_t HandleRawDataBuffer(MFMBufferReader&);
+#endif
    Bool_t HandledRawData() const
    {
       return fHandledRawData;
