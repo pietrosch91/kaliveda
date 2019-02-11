@@ -369,7 +369,7 @@ void KVDBSystem::AddRun(KVDBRecord* rec)
    KVDBRun* run = (KVDBRun*)rec;
    if (run->GetSystem()) run->GetSystem()->RemoveRun(run);
    if (AddLink("Runs", run)) {
-      Info("AddRun", "Added link for run %d", run->GetNumber());
+      //Info("AddRun", "Added link for run %d", run->GetNumber());
       //use name of system as title of run
       run->SetTitle(GetName());
    }
