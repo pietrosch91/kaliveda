@@ -281,7 +281,14 @@ const Char_t* KVDataSet::GetFullPathToDB() const
    static TString dbfile_fullpath;
    TString tmp;
 
-   AssignAndDelete(tmp, gSystem->ConcatFileName(GetDATABASEFilePath(), GetName()));
+   // If this dataset is just an alias for another dataset i.e. if DataSet.Directory
+   // is set with just the name of another dataset (not a full path to dataset files)
+   // then the database file should be written/found under the name of the alias.
+   TString dataset_alias = GetDataSetEnv("DataSet.Directory", GetName());
+   TString db_alias = GetName();
+   if (!gSystem->IsAbsoluteFileName(dataset_alias)) db_alias = dataset_alias;
+
+   AssignAndDelete(tmp, gSystem->ConcatFileName(GetDATABASEFilePath(), db_alias.Data()));
    AssignAndDelete(dbfile_fullpath, gSystem->ConcatFileName(tmp.Data(), dbfile.Data()));
    return dbfile_fullpath.Data();
 }
