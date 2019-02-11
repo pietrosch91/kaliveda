@@ -2276,7 +2276,8 @@ void KVMultiDetArray::SetDetectorThicknesses()
       return;
    }
    TString fullpath;
-   if (!SearchKVFile(filename.Data(), fullpath, gDataSet->GetName())) {
+   if ((fullpath = gDataSet->GetFullPathToDataSetFile(filename)) == "") {
+//   if (!SearchKVFile(filename.Data(), fullpath, gDataSet->GetName())) {
       Info("SetDetectorThicknesses", "File %s not found", filename.Data());
       return;
    }

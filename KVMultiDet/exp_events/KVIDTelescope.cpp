@@ -561,10 +561,11 @@ Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray* multide
       return kFALSE;
    }
    TString path;
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())) {
+   if ((path = gDataSet->GetFullPathToDataSetFile(filename)) == "") {
+//   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())) {
       Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
+            "File %s not found. Should be in %s",
+            filename.Data(), gDataSet->GetDataSetDir());
       return kFALSE;
    }
    //read grids from file
