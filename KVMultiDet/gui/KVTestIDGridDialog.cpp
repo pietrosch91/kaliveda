@@ -380,7 +380,7 @@ void KVTestIDGridDialog::TestGrid()
    gPad->SetGridx();
    gPad->SetGridy();
    hzreal->SetStats(kFALSE);
-   hzreal->Draw();
+   hzreal->Draw("hist");
 
    C = new KVCanvas;
    C->SetLogz(kTRUE);
