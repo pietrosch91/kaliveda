@@ -1507,9 +1507,17 @@ void KVDataSet::MakeAnalysisClass(const Char_t* task, const Char_t* classname)
 
 Bool_t KVDataSet::OpenDataSetFile(const Char_t* filename, ifstream& file)
 {
-   //Look for (and open for reading, if found) the named file in the directory which
-   //contains the files for this dataset
-   return SearchAndOpenKVFile(filename, file, GetName());
+   // Look for (and open for reading, if found) the named file in the directory which
+   // contains the files for this dataset (given by GetDataSetDir())
+
+   // is dataset directory a subdirectory of GetDATADIRFilePath() ?
+   TString dsdir = gSystem->DirName(GetDataSetDir());
+   if (dsdir == GetDATADIRFilePath()) return SearchAndOpenKVFile(filename, file, gSystem->BaseName(GetDataSetDir()));
+   // dataset directory is outside of standard KV installation directories
+   // use absolute path to search for file
+   TString abspath;
+   abspath.Form("%s/%s", GetDataSetDir(), filename);
+   return SearchAndOpenKVFile(abspath, file);
 }
 
 TString KVDataSet::GetFullPathToDataSetFile(const Char_t* filename)
@@ -1519,10 +1527,19 @@ TString KVDataSet::GetFullPathToDataSetFile(const Char_t* filename)
 
 TString KVDataSet::GetFullPathToDataSetFile(const TString& dataset, const Char_t* filename)
 {
-   // Static method to find a file in the dataset directory
+   // Static method to find a file in the dataset directory (given by GetDataSetDir())
    TString fullpath;
-   if (!SearchKVFile(filename, fullpath, dataset)) {
-      ::Warning("KVDataSet::GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, dataset.Data());
+   TString datasetdir = KVBase::GetDataSetEnv(dataset, "DataSet.Directory", dataset);
+   if (gSystem->IsAbsoluteFileName(datasetdir)) {
+      TString abspath;
+      abspath.Form("%s/%s", datasetdir.Data(), filename);
+      if (!SearchKVFile(abspath, fullpath)) {
+         ::Warning("KVDataSet::GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, datasetdir.Data());
+      }
+      return fullpath;
+   }
+   if (!SearchKVFile(filename, fullpath, datasetdir)) {
+      ::Warning("KVDataSet::GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, datasetdir.Data());
    }
    return fullpath;
 }
