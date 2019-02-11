@@ -2,10 +2,9 @@
 //Author: bonnet,,,
 
 #include "KVExpDB.h"
-
 #include "KVDBSystem.h"
 #include "KVNumberList.h"
-
+#include "TSystem.h"
 #include <KVFileReader.h>
 #include <iostream>
 using namespace std;
@@ -326,9 +325,8 @@ Bool_t KVExpDB::OpenCalibFile(const Char_t* type, ifstream& fs) const
    //# Default name for file describing systems for each dataset.
    //INDRADB.Systems:     Systems.dat
    //
-   //A file with the given name will be looked for in $KVROOT/KVFiles/name_of_dataset
-   //where name_of_dataset is given by KVDataBase::fDataSet.Data()
-   //i.e. the name of the associated dataset.
+   //A file with the given name will be looked for in the dataset calibration file
+   //directory given by GetDataSetDir()
    //
    //Filenames specific to a given dataset may also be defined:
    //
@@ -337,7 +335,8 @@ Bool_t KVExpDB::OpenCalibFile(const Char_t* type, ifstream& fs) const
    //where 'INDRA_camp5' is the name of the dataset in question.
    //GetDBEnv() always returns the correct filename for the currently active dataset.
 
-   return KVBase::SearchAndOpenKVFile(GetDBEnv(type), fs, fDataSet.Data());
+   TString fullpath = Form("%s/%s", GetDataSetDir(), GetCalibFileName(type));
+   return KVBase::SearchAndOpenKVFile(fullpath, fs);
 }
 
 //__________________________________________________________________________________________________________________
@@ -432,9 +431,8 @@ void KVExpDB::ReadComments()
 
    TString comments_file = GetCalibFileName("Comments");
    if (comments_file == "") return;
-   TString fullpath;
-   if (!KVBase::SearchKVFile(comments_file, fullpath, fDataSet)) return;
-
+   TString fullpath = Form("%s/%s", GetDataSetDir(), comments_file.Data());
+   if (gSystem->AccessPathName(fullpath)) return;
    Info("ReadComments", "Reading run comments in file %s...", fullpath.Data());
 
    KVFileReader fr;

@@ -1510,24 +1510,39 @@ Bool_t KVDataSet::OpenDataSetFile(const Char_t* filename, ifstream& file)
    // Look for (and open for reading, if found) the named file in the directory which
    // contains the files for this dataset (given by GetDataSetDir())
 
-   // is dataset directory a subdirectory of GetDATADIRFilePath() ?
-   TString dsdir = gSystem->DirName(GetDataSetDir());
-   if (dsdir == GetDATADIRFilePath()) return SearchAndOpenKVFile(filename, file, gSystem->BaseName(GetDataSetDir()));
-   // dataset directory is outside of standard KV installation directories
-   // use absolute path to search for file
-   TString abspath;
-   abspath.Form("%s/%s", GetDataSetDir(), filename);
-   return SearchAndOpenKVFile(abspath, file);
+   return OpenDataSetFile(GetName(), filename, file);
+}
+
+Bool_t KVDataSet::OpenDataSetFile(const TString& dataset, const Char_t* filename, ifstream& file)
+{
+   // Static method to look for (and open for reading, if found) the named file in the directory which
+   // contains the files for the dataset
+
+   TString datasetdir = KVBase::GetDataSetEnv(dataset, "DataSet.Directory", dataset);
+   if (gSystem->IsAbsoluteFileName(datasetdir)) {
+      // dataset directory is outside of standard KV installation directories
+      // use absolute path to search for file
+      TString abspath;
+      abspath.Form("%s/%s", datasetdir.Data(), filename);
+      return SearchAndOpenKVFile(abspath, file);
+   }
+   // dataset directory is a subdirectory of GetDATADIRFilePath()
+   return SearchAndOpenKVFile(filename, file, datasetdir);
 }
 
 TString KVDataSet::GetFullPathToDataSetFile(const Char_t* filename)
 {
+   // Find a file in the dataset directory (given by GetDataSetDir())
+   // Returns full path to file if found, empty string if not
+
    return GetFullPathToDataSetFile(GetName(), filename);
 }
 
 TString KVDataSet::GetFullPathToDataSetFile(const TString& dataset, const Char_t* filename)
 {
    // Static method to find a file in the dataset directory (given by GetDataSetDir())
+   // Returns full path to file if found, empty string if not
+
    TString fullpath;
    TString datasetdir = KVBase::GetDataSetEnv(dataset, "DataSet.Directory", dataset);
    if (gSystem->IsAbsoluteFileName(datasetdir)) {
@@ -1542,6 +1557,32 @@ TString KVDataSet::GetFullPathToDataSetFile(const TString& dataset, const Char_t
       ::Warning("KVDataSet::GetFullPathToDataSetFile", "File %s not found in dataset subdirectory %s", filename, datasetdir.Data());
    }
    return fullpath;
+}
+
+Bool_t KVDataSet::FindDataSetFile(const TString& dataset, const Char_t* filename)
+{
+   // Static method to find a file in the dataset directory (given by GetDataSetDir())
+   // Returns kTRUE if found, kFALSE if not
+
+   TString fullpath;
+   TString datasetdir = KVBase::GetDataSetEnv(dataset, "DataSet.Directory", dataset);
+   if (gSystem->IsAbsoluteFileName(datasetdir)) {
+      TString abspath;
+      abspath.Form("%s/%s", datasetdir.Data(), filename);
+      if (!SearchKVFile(abspath, fullpath)) {
+         return kFALSE;
+      }
+      return kTRUE;
+   }
+   return SearchKVFile(filename, fullpath, datasetdir);
+}
+
+Bool_t KVDataSet::FindDataSetFile(const Char_t* filename)
+{
+   // Find a file in the dataset directory (given by GetDataSetDir())
+   // Returns kTRUE if found, kFALSE if not
+
+   return FindDataSetFile(GetName(), filename);
 }
 
 //___________________________________________________________________________

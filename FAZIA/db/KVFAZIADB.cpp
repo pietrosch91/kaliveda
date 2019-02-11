@@ -80,8 +80,6 @@ void KVFAZIADB::Build()
 
    //get full path to runlist file, using environment variables for the current dataset
 
-   TString runlist_fullpath;
-   KVBase::SearchKVFile(GetDBEnv("Runlist"), runlist_fullpath, fDataSet.Data());
    kFirstRun = 999999;
    kLastRun = 0;
 
@@ -106,197 +104,189 @@ void KVFAZIADB::ReadNewRunList()
    KVFAZIADBRun* run = 0;
    TObjArray* toks = 0;
 
+   std::ifstream fin;
+   if (!OpenCalibFile("Runlist", fin)) {
+      Error("ReadNewRunList()", "Could not open file %s",
+            GetCalibFileName("Runlist"));
+      return;
+   }
+   Info("ReadNewRunList()", "Reading run list ...");
 
-   TString fp;
-   if (gDataSet->SearchKVFile(GetCalibFileName("Runlist"), fp, gDataSet->GetName())) {
+   while (fin.good() && !fin.eof()) {
+      line.ReadLine(fin);
+      if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
+         run = new KVFAZIADBRun;
 
-      std::ifstream fin;
-      if (!OpenCalibFile("Runlist", fin)) {
-         Error("ReadNewRunList()", "Could not open file %s",
-               GetCalibFileName("Runlist"));
-         return;
+         toks = line.Tokenize("|");
+         for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
+            KVString couple = ((TObjString*)toks->At(ii))->GetString();
+            couple.Begin("=");
+            KVString name = couple.Next();
+            name = name.Strip(TString::kBoth);
+            KVString value = "";
+            if (!couple.End()) {
+               value = couple.Next();
+               value = value.Strip(TString::kBoth);
+            }
+            if (name == "run") {
+               run->SetNumber(value.Atoi());
+            }
+            else if (name == "read events") {
+               run->SetEvents(value.Atoi());
+            }
+            else if (name == "good events") {
+               run->SetGoodEvents(value.Atoi());
+            }
+            else if (name == "starting date") {
+               run->SetStartDate(value);
+            }
+            else if (name == "stopping date") {
+               run->SetEndDate(value);
+            }
+            else if (name == "aqcuisition status") {
+               run->SetACQStatus(value);
+            }
+            else if (name == "wrong number of blocks") {   //events rejected due to the wrong number of blocks
+               run->SetError_WrongNumberOfBlocks(value.Atoi());
+            }
+            else if (name == "block errors") {   //events rejected due to internal error in one block
+               run->SetError_InternalBlockError(value.Atoi());
+            }
+            else if (name == "nfiles") {   //number of acquisition files
+               run->SetNumberOfAcqFiles(value.Atoi());
+            }
+            else if (name == "duration") {   //duration in seconds of the run
+               run->SetDuration(value.Atof());
+            }
+            else if (name == "frequency") {   //number of evts per seconds (aquisition rate)
+               run->SetFrequency(value.Atof());
+            }
+            else if (name == "triggerrate") {   //trigger rate
+               run->SetTriggerRate(value.Atof());
+            }
+            else if (name == "mtrigger") {   //trigger multiplicity
+               run->SetTrigger(value.Atof());
+            }
+            else if (name == "deadtime") {   //deadtime of the acquisition between 0 and 1
+               run->SetDeadTime(value.Atof());
+            }
+            else if (name == "trig info") {   //number of trigger block in the acquisition file
+               run->SetNumberOfTriggerBlocks(value.Atoi());
+            }
+            else if (name == "size(GB)") {   //size in GB
+               run->SetSize(value.Atof());
+            }
+            else {
+               //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
+            }
+         }
+         delete toks;
+         if (run->GetNumber() < 1) {
+            delete run;
+         }
+         else {
+            //run->ReadRunSheet();
+            AddRun(run);
+            kLastRun = TMath::Max(kLastRun, run->GetNumber());
+            kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
+         }
       }
-      Info("ReadNewRunList()", "Reading run list ...");
+   }
+   fin.close();
 
-      while (fin.good() && !fin.eof()) {
-         line.ReadLine(fin);
-         if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
-            run = new KVFAZIADBRun;
+   std::ifstream ffin;
+   if (!OpenCalibFile("Runsheets", ffin)) {
+      Error("ReadNewRunList()", "Could not open file %s",
+            GetCalibFileName("Runsheets"));
+      return;
+   }
+   Info("ReadNewRunList()", "Reading run sheets ...");
 
-            toks = line.Tokenize("|");
-            for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
-               KVString couple = ((TObjString*)toks->At(ii))->GetString();
-               couple.Begin("=");
-               KVString name = couple.Next();
-               name = name.Strip(TString::kBoth);
-               KVString value = "";
-               if (!couple.End()) {
-                  value = couple.Next();
-                  value = value.Strip(TString::kBoth);
-               }
-               if (name == "run") {
-                  run->SetNumber(value.Atoi());
-               }
-               else if (name == "read events") {
-                  run->SetEvents(value.Atoi());
-               }
-               else if (name == "good events") {
-                  run->SetGoodEvents(value.Atoi());
-               }
-               else if (name == "starting date") {
-                  run->SetStartDate(value);
-               }
-               else if (name == "stopping date") {
-                  run->SetEndDate(value);
-               }
-               else if (name == "aqcuisition status") {
-                  run->SetACQStatus(value);
-               }
-               else if (name == "wrong number of blocks") {   //events rejected due to the wrong number of blocks
-                  run->SetError_WrongNumberOfBlocks(value.Atoi());
-               }
-               else if (name == "block errors") {   //events rejected due to internal error in one block
-                  run->SetError_InternalBlockError(value.Atoi());
-               }
-               else if (name == "nfiles") {   //number of acquisition files
-                  run->SetNumberOfAcqFiles(value.Atoi());
-               }
-               else if (name == "duration") {   //duration in seconds of the run
-                  run->SetDuration(value.Atof());
-               }
-               else if (name == "frequency") {   //number of evts per seconds (aquisition rate)
-                  run->SetFrequency(value.Atof());
-               }
-               else if (name == "triggerrate") {   //trigger rate
-                  run->SetTriggerRate(value.Atof());
-               }
-               else if (name == "mtrigger") {   //trigger multiplicity
-                  run->SetTrigger(value.Atof());
-               }
-               else if (name == "deadtime") {   //deadtime of the acquisition between 0 and 1
-                  run->SetDeadTime(value.Atof());
-               }
-               else if (name == "trig info") {   //number of trigger block in the acquisition file
-                  run->SetNumberOfTriggerBlocks(value.Atoi());
-               }
-               else if (name == "size(GB)") {   //size in GB
-                  run->SetSize(value.Atof());
-               }
-               else {
-                  //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
+   Bool_t newrun = kFALSE;
+   while (ffin.good() && !ffin.eof()) {
+      line.ReadLine(ffin);
+      if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
+
+         toks = line.Tokenize("|");
+         for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
+            KVString couple = ((TObjString*)toks->At(ii))->GetString();
+            couple.Begin("=");
+            KVString name = couple.Next();
+            name = name.Strip(TString::kBoth);
+            KVString value = "";
+            if (!couple.End()) {
+               value = couple.Next();
+               value = value.Strip(TString::kBoth);
+            }
+            if (name == "run") {
+               Int_t number = value.Atoi();
+               newrun = kFALSE;
+               if (!(run = GetRun(number))) {
+                  run = new KVFAZIADBRun();
+                  run->SetNumber(number);
+                  newrun = kTRUE;
                }
             }
-            delete toks;
+            else if (name == "read events") {
+               run->SetEvents(value.Atoi());
+            }
+            else if (name == "good events") {
+               run->SetGoodEvents(value.Atoi());
+            }
+            else if (name == "starting date") {
+               run->SetStartDate(value);
+            }
+            else if (name == "stopping date") {
+               run->SetEndDate(value);
+            }
+            else if (name == "aqcuisition status") {
+               run->SetACQStatus(value);
+            }
+            else if (name == "wrong number of blocks") {   //events rejected due to the wrong number of blocks
+               run->SetError_WrongNumberOfBlocks(value.Atoi());
+            }
+            else if (name == "block errors") {   //events rejected due to internal error in one block
+               run->SetError_InternalBlockError(value.Atoi());
+            }
+            else if (name == "nfiles") {   //number of acquisition files
+               run->SetNumberOfAcqFiles(value.Atoi());
+            }
+            else if (name == "duration") {   //duration in seconds of the run
+               run->SetDuration(value.Atof());
+            }
+            else if (name == "frequency") {   //number of evts per seconds (aquisition rate)
+               run->SetFrequency(value.Atof());
+            }
+            else if (name == "triggerrate") {   //trigger rate
+               run->SetTriggerRate(value.Atof());
+            }
+            else if (name == "mtrigger") {   //trigger multiplicity
+               run->SetTrigger(value.Atof());
+            }
+            else if (name == "deadtime") {   //deadtime of the acquisition between 0 and 1
+               run->SetDeadTime(value.Atof());
+            }
+            else if (name == "trig info") {   //number of trigger block in the acquisition file
+               run->SetNumberOfTriggerBlocks(value.Atoi());
+            }
+            else {
+               //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
+            }
+         }
+         delete toks;
+         if (newrun) {
             if (run->GetNumber() < 1) {
                delete run;
             }
             else {
-               //run->ReadRunSheet();
                AddRun(run);
                kLastRun = TMath::Max(kLastRun, run->GetNumber());
                kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
             }
          }
       }
-      fin.close();
    }
-
-   if (gDataSet->SearchKVFile(GetCalibFileName("Runsheets"), fp, gDataSet->GetName())) {
-
-      std::ifstream fin;
-      if (!OpenCalibFile("Runsheets", fin)) {
-         Error("ReadNewRunList()", "Could not open file %s",
-               GetCalibFileName("Runsheets"));
-         return;
-      }
-      Info("ReadNewRunList()", "Reading run sheets ...");
-
-      Bool_t newrun = kFALSE;
-      while (fin.good() && !fin.eof()) {
-         line.ReadLine(fin);
-         if (line.Length() > 1 && !line.BeginsWith("#") && !line.BeginsWith("Version")) {
-
-            toks = line.Tokenize("|");
-            for (Int_t ii = 0; ii < toks->GetEntries(); ii += 1) {
-               KVString couple = ((TObjString*)toks->At(ii))->GetString();
-               couple.Begin("=");
-               KVString name = couple.Next();
-               name = name.Strip(TString::kBoth);
-               KVString value = "";
-               if (!couple.End()) {
-                  value = couple.Next();
-                  value = value.Strip(TString::kBoth);
-               }
-               if (name == "run") {
-                  Int_t number = value.Atoi();
-                  newrun = kFALSE;
-                  if (!(run = GetRun(number))) {
-                     run = new KVFAZIADBRun();
-                     run->SetNumber(number);
-                     newrun = kTRUE;
-                  }
-               }
-               else if (name == "read events") {
-                  run->SetEvents(value.Atoi());
-               }
-               else if (name == "good events") {
-                  run->SetGoodEvents(value.Atoi());
-               }
-               else if (name == "starting date") {
-                  run->SetStartDate(value);
-               }
-               else if (name == "stopping date") {
-                  run->SetEndDate(value);
-               }
-               else if (name == "aqcuisition status") {
-                  run->SetACQStatus(value);
-               }
-               else if (name == "wrong number of blocks") {   //events rejected due to the wrong number of blocks
-                  run->SetError_WrongNumberOfBlocks(value.Atoi());
-               }
-               else if (name == "block errors") {   //events rejected due to internal error in one block
-                  run->SetError_InternalBlockError(value.Atoi());
-               }
-               else if (name == "nfiles") {   //number of acquisition files
-                  run->SetNumberOfAcqFiles(value.Atoi());
-               }
-               else if (name == "duration") {   //duration in seconds of the run
-                  run->SetDuration(value.Atof());
-               }
-               else if (name == "frequency") {   //number of evts per seconds (aquisition rate)
-                  run->SetFrequency(value.Atof());
-               }
-               else if (name == "triggerrate") {   //trigger rate
-                  run->SetTriggerRate(value.Atof());
-               }
-               else if (name == "mtrigger") {   //trigger multiplicity
-                  run->SetTrigger(value.Atof());
-               }
-               else if (name == "deadtime") {   //deadtime of the acquisition between 0 and 1
-                  run->SetDeadTime(value.Atof());
-               }
-               else if (name == "trig info") {   //number of trigger block in the acquisition file
-                  run->SetNumberOfTriggerBlocks(value.Atoi());
-               }
-               else {
-                  //Info("ReadNewRunList","Unknown field %s=%s",name.Data(),value.Data());
-               }
-            }
-            delete toks;
-            if (newrun) {
-               if (run->GetNumber() < 1) {
-                  delete run;
-               }
-               else {
-                  AddRun(run);
-                  kLastRun = TMath::Max(kLastRun, run->GetNumber());
-                  kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
-               }
-            }
-         }
-      }
-      fin.close();
-   }
+   ffin.close();
 }
 
 //____________________________________________________________________________
@@ -484,7 +474,7 @@ const Char_t* KVFAZIADB::GetFileName(const Char_t* meth, const Char_t* keyw)
    }
    Info(meth, "Search for %s for dataset %s ...", basic_name.Data(), gDataSet->GetName());
    static TString fp;
-   gDataSet->SearchKVFile(basic_name.Data(), fp, gDataSet->GetName());
+   fp = gDataSet->GetFullPathToDataSetFile(basic_name.Data());
    if (fp == "") {
       Info(meth, "\tNo file found ...");
       return "";
