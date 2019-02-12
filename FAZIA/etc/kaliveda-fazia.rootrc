@@ -402,6 +402,9 @@ FAZIADB.RutherfordCrossSection:			crosssection_rutherford.env
 # liste des detecteurs ne marchant pas ou eteints (out of order)
 FAZIADB.OoODet:    OoODetectors.env
 
+# specific values for datasets
+FAZIACOR.FAZIADB.CalibrationFiles:    CalibrationFiles.dat
+FAZIACOR.FAZIADB.Comments:            Comment.txt
 
 # definition of the calibration function for detectors
 FAZIADetector.Calib.Channel-Volt: pol2

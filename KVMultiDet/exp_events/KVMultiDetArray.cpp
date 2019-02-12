@@ -1812,7 +1812,7 @@ KVUpDater* KVMultiDetArray::GetUpDater()
       if (alt_updater != "") fUpDater = KVUpDater::MakeUpDater(alt_updater, this);
       else fUpDater = KVUpDater::MakeUpDater(fDataSet, this);
    }
-   Info("GetUpDater", "updater class: %s", fUpDater->Class_Name());
+   Info("GetUpDater", "updater class for dataset %s: %s", fDataSet.Data(), fUpDater->IsA()->GetName());
    return fUpDater;
 }
 

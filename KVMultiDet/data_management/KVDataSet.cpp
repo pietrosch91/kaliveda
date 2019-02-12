@@ -462,7 +462,7 @@ void KVDataSet::OpenDataBase(Option_t* opt) const
       // open the database file and read in the database
 
       //load plugin for database
-      if (!LoadPlugin("KVExpDB", GetName())) {
+      if (!LoadPlugin("KVExpDB", GetDBName())) {
          Error("GetDataBase", "Cannot load required plugin library");
          return;
       }
