@@ -264,7 +264,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 0-1
 +Plugin.KVIDTelescope:    ^ISOFAZIA.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIASYM.Si-CsI$                KVFAZIAIDSiCsI_FAZIASYM          FAZIAidentification           "KVFAZIAIDSiCsI_FAZIASYM()"
-+Plugin.KVIDTelescope:    ^FAZIACOR.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
++Plugin.KVIDTelescope:    ^FAZIACOR.Si-Si$                 KVFAZIAIDSiSi_FAZIACOR            FAZIAidentification           "KVFAZIAIDSiSi_FAZIACOR()"
 +Plugin.KVIDTelescope:    ^FAZIAPRE.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIAZERO.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^FAZIAPRE-MAY2018.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
