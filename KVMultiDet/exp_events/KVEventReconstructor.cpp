@@ -75,10 +75,14 @@ KVEventReconstructor::KVEventReconstructor(KVMultiDetArray* a, KVReconstructedEv
    KVGroupReconstructor::SetDoCalibration(GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE));
    Info("KVEventReconstructor", "Initialised for %u groups of multidetector %s", N, fArray->GetName());
    if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE) || GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE)) {
-      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE))
+      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoIdentification", kTRUE)) {
          Info("KVEventReconstructor", " -- identification of events will be performed");
-      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE))
+         fArray->PrintStatusOfIDTelescopes();
+      }
+      if (GetDataSetEnv(fArray->GetDataSet(), "EventReconstruction.DoCalibration", kTRUE)) {
          Info("KVEventReconstructor", " -- calibration of events will be performed");
+         fArray->PrintCalibStatusOfDetectors();
+      }
    }
    else
       Info("KVEventReconstructor", " -- no identification or calibration will be performed");
