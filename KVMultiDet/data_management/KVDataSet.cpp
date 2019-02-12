@@ -680,7 +680,13 @@ void KVDataSet::SetName(const char* name)
    TNamed::SetName(name);
    TString path = GetDataSetEnv("DataSet.Directory", name);
    if (gSystem->IsAbsoluteFileName(path)) fCalibDir = path;
-   else fCalibDir = GetDATADIRFilePath(path);
+   else {
+      // in this case (not an absolute path but just the name of another dataset)
+      // this dataset is an alias for another dataset.
+      fCalibDir = GetDATADIRFilePath(path);
+      // the name of the database object is the name of the "true" dataset
+      SetDBName(path);
+   }
 }
 
 const Char_t* KVDataSet::GetDataSetDir() const
