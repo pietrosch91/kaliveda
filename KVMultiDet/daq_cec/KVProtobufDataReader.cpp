@@ -64,8 +64,9 @@ Bool_t KVProtobufDataReader::GetNextEvent()
    }
 
    if (!parse_event_from_message()) {
+      // problem parsing event - try to read next event
       fEvOffset += fEvSize;
-      return false;
+      return GetNextEvent();
    }
 
    fEvOffset += fEvSize;
