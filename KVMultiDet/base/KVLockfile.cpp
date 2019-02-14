@@ -86,6 +86,9 @@ void KVLockfile::init()
    //Look for 'lockfile' executable and store path if found
    //Set value of have_exec accordingly
    have_exec = FindExecutable(fLockfile);
+   if (!have_exec) {
+      Warning("init", "Unix 'lockfile' command not found on system. You should install it.");
+   }
    sleeptime = 8; //time to wait before retrying lock
    retries = -1; //number of times to retry
    locktimeout = 0; //time after which lock automatically opens
