@@ -968,6 +968,7 @@ Bool_t KVAvailableRunsFile::OpenAvailableRunsFile()
    fRunlist.clear();            // clear any error flags (EOF etc.) before trying to open file
    if (!SearchAndOpenKVFile(runlist, fRunlist, "", &runlist_lock)) {
       //no runlist exists. we therefore have to create it.
+      Warning("OpenAvailableRunsFile", "runlist file does not exist...");
       Update(kTRUE);
       if (!SearchAndOpenKVFile(runlist, fRunlist, "", &runlist_lock)) {
          Error("OpenAvailableRunsFile",
