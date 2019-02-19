@@ -4,32 +4,34 @@ KaliVeda is an object-oriented toolkit based on ROOT for the analysis of heavy-i
 
 ## Build & Install
 
-See INSTALL file for details. ROOT v5.34 or v6.10 are recommended. CMake (v2.8.11 or greater) is required.
+See INSTALL file for details. ROOT v5.34 or v6.14 are recommended. CMake (v2.8.11 or greater) is required.
 
 ## Use in ROOT interactive session
 
 The 'kaliveda' command launches a ROOT session with dynamic shared library paths set up so that all classes will be loaded as & when needed by the ROOT interpreter (either Cint or Cling). Example of use:
 
     $ kaliveda
+    
     ***********************************************************
     *                    HI COQUINE !!!                       *
     *                                                         *
     *         W E L C O M E     to     K A L I V E D A        *
     *                                                         *
-    * Version: 1.10/15                      Built: 2018-03-27 *
-    * git: heads/1.10@release-1.10.15-173-gb31f90df           *
+    * Version: 1.11/00                      Built: 2019-02-14 *
+    * git: heads/master@release-1.10.15-379-g3f87b236         *
     *                                                         *
     *               For help, see the website :               *
     *             http://indra.in2p3.fr/kaliveda              *
     *                                                         *
     *                          ENJOY !!!                      *
     ***********************************************************
+
     kaliveda [0] 
 
 ## Compiling & linking with KaliVeda & ROOT libraries
 
-    $ g++ `root-config --cflags` -I`kaliveda-config --incdir` -c MyCode.cxx
-    $ g++ `root-config --ldflags` MyCode.o -L`kaliveda-config --libdir` `kaliveda-config --libs` `root-config --glibs`
+    $ g++ `kaliveda-config --cflags` -c MyCode.cxx
+    $ g++ MyCode.o `kaliveda-config --linklibs` 
 
 ## Use in CMake-based project
 
