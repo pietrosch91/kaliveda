@@ -76,9 +76,11 @@ Points with code kICODE8 are totally out of range.
 KVIDZAFromZGrid::KVIDZAFromZGrid()
 {
    // Default constructor
-//    Info("KVIDZAFromZGrid","called...");
+   // Grid is declared as a 'ZOnlyGrid' by default (this is internal mechanics)
+
    init();
    fTables.SetOwner(kTRUE);
+   SetOnlyZId();
 }
 
 KVIDZAFromZGrid::~KVIDZAFromZGrid()
