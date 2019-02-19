@@ -38,9 +38,9 @@
 #include "KVRangeTableGeoNavigator.h"
 #include <KVDataAnalyser.h>
 #include <KVNamedParameter.h>
-#ifdef WITH_OPENGL
 #include <KVCalibrator.h>
 #include <KVDBParameterSet.h>
+#ifdef WITH_OPENGL
 #include <TGLViewer.h>
 #include <TVirtualPad.h>
 #endif
