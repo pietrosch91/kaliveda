@@ -10,6 +10,7 @@ $Date: 2008/03/12 11:21:58 $
 #include "KVLockfile.h"
 #include "TSystem.h"
 #include "Riostream.h"
+#include "KVError.h"
 
 using namespace std;
 
@@ -87,7 +88,7 @@ void KVLockfile::init()
    //Set value of have_exec accordingly
    have_exec = FindExecutable(fLockfile);
    if (!have_exec) {
-      Warning("init", "Unix 'lockfile' command not found on system. You should install it.");
+      Warning(KV__ERROR(init), "Unix 'lockfile' command not found on system. You should install it.");
    }
    sleeptime = 8; //time to wait before retrying lock
    retries = -1; //number of times to retry
@@ -107,8 +108,7 @@ Bool_t KVLockfile::FindExecutable(TString& exec, const Char_t* path)
       if (!gSystem->AccessPathName(expandexec)) {
          exec = expandexec;
          return kTRUE;
-      }
-      else {
+      } else {
          //try with ".exe" in case of Windows system
          if (!expandexec.EndsWith(".exe")) {
             expandexec += ".exe";
@@ -186,8 +186,7 @@ Bool_t KVLockfile::Lock(const Char_t* filename)
       //cout << "<Info in KVLockfile::Lock : Locked " << fFile.Data() << ">" << endl;
       locked = kTRUE;
       return kTRUE;
-   }
-   else {
+   } else {
       cout << "<Error in KVLockfile::Lock: can't get a lock for file " << fFile.Data() << ">" << endl;
       locked = kFALSE;
       return kFALSE;
