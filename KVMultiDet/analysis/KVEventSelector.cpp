@@ -1,5 +1,6 @@
 #define KVEventSelector_cxx
 #include "KVEventSelector.h"
+#include <KVClassMonitor.h>
 #include <TStyle.h>
 #include "TPluginManager.h"
 #include "TSystem.h"
@@ -331,6 +332,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
          printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
                 pid.fCpuSys, pid.fCpuUser, pid.fMemResident / 1024., pid.fMemVirtual / 1024.);
       }
+      KVClassMonitor::GetInstance()->Check();
    }
    GetEntry(entry);
    if (gDataAnalyser) gDataAnalyser->preAnalysis();
@@ -955,6 +957,9 @@ Bool_t KVEventSelector::Notify()
    if (gDataAnalyser) gDataAnalyser->preInitRun();
    InitRun();                   //user initialisations for run
    if (gDataAnalyser) gDataAnalyser->postInitRun();
+
+   KVClassMonitor::GetInstance()->SetInitStatistics();
+
    return kTRUE;
 }
 
