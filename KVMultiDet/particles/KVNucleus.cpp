@@ -29,7 +29,7 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
-Double_t KVNucleus::kMe = 0.510988;
+Double_t KVNucleus::kMe = 0.510998;
 // hbar*c in MeV.fm = 197.33....
 Double_t KVNucleus::hbar = TMath::Hbarcgs() * TMath::Ccgs() / TMath::Qe();
 // e^2/(4.pi.epsilon_0) in MeV.fm = 1.44... = hbar*alpha (fine structure constant)
