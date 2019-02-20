@@ -208,6 +208,8 @@ void HeaderConverter(const KVString& in_header, const KVString& out_header)
          else
             output_file << original_line << endl;
       }
+      else if (line_is_comment && source_line.BeginsWith("//"))
+         output_file << "   /" << source_line << endl;
       else
          output_file << original_line << endl;
       source_line.ReadToDelim(source_file, '\n');
