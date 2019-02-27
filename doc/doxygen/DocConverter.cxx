@@ -22,6 +22,10 @@ void ClassDescriptionConverter(vector<KVString>& classname, KVString& briefdesc,
       else if (l.BeginsWith("<!--")) l.Remove(0, 4);
       l.ReplaceAll("BEGIN_HTML", "");
       l.ReplaceAll("END_HTML", "");
+      l.ReplaceAll("BEGIN_LATEX", "\\f[");
+      l.ReplaceAll("END_LATEX", "\\f]");
+      l.ReplaceAll("begin_latex", "\\f[");
+      l.ReplaceAll("end_latex", "\\f]");
       l.ReplaceAll("<!--", "");
       l.ReplaceAll("-->", "");
       l.ReplaceAll("*/", "");

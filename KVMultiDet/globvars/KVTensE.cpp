@@ -19,7 +19,7 @@ BEGIN_HTML
 We calculate the tensor:
 END_HTML
 BEGIN_LATEX
-Q_{ij} = #sum_{#nu} #frac{p^{i}_{#nu} p^{j}_{#nu}}{m_{#nu}(#gamma_{#nu}+1)}
+Q_{ij} = \sum_{\nu} \frac{p^{i}_{\nu} p^{j}_{\nu}}{m_{\nu}(\gamma_{\nu}+1)}
 END_LATEX
 BEGIN_HTML
 from particle momenta.

@@ -15,12 +15,10 @@ the impact parameter in order to transform distributions of said observable into
 impact parameter distributions (using the method of C. Cavata <I>et al.</I>, <I>Phys. Rev.</I> <B>C42</B>, 1760 (1990)), and to calculate the evolution of other quantities as a function
 of the impact parameter.<br>
 To use, start with a pointer to a 1-D histogram of the observable, TH1* data:<br>
-<pre>
 <code>
 KVImpactParameter ip(data);
 ip.MakeScale(npoints, bmax);
 </code>
-</pre>
 The <a href="#KVImpactParameter:MakeScale">MakeScale</a> method calculates the relationship between the observable and the
 impact parameter, using
 END_HTML
@@ -31,18 +29,14 @@ BEGIN_HTML
 To obtain the impact parameter distribution for some selection of events,
 you need the distribution of the observable for the selection, TH1* obs_sel,
 and then use:<br>
-<pre>
 <code>
 TH1* ip_dist_sel = ip.GetIPDistribution(obs_sel);
 </code>
-</pre>
 To obtain the impact-parameter evolution of some quantity, take a TH2* obscor, containing
 the bidimensional plot of the quantity as a function of the observable, and then use<br>
-<pre>
 <code>
 TGraph* ip_evol = ip.GetIPEvolution(obscor, "GetMean");
-<code>
-</pre>
+</code>
 e.g. to have the mean value of the quantity as a function of impact parameter.
 END_HTML
 */
@@ -51,9 +45,11 @@ END_HTML
 KVImpactParameter::KVImpactParameter(TH1* data, Option_t* evol)
 {
    // Default constructor
+   //
    // Argument 'data' is pointer to data histogram containing distribution of the observable
    // which is used to calculate the impact parameter. Usually, this will be an observable
    // which is supposed to increase or decrease monotonically as a function of b.
+   //
    // By default, evol = "D" which means observable increases as b decreases.
    // Call with evol = "C" if the observable increases as b increases.
    fData = data;
@@ -74,6 +70,7 @@ void KVImpactParameter::MakeScale(Int_t npoints, Double_t bmax)
 {
    // Calculate the relationship between the impact parameter and the observable
    // whose distribution is contained in the histogram fData.
+   //
    // For a given value X of the observable x, the reduced impact parameter
    // b_hat is calculated from the distribution of x, Y(x), using the following formula:
    /*
@@ -82,9 +79,12 @@ void KVImpactParameter::MakeScale(Int_t npoints, Double_t bmax)
    END_LATEX
    */
    // npoints = number of points for which to calculate the impact parameter.
+   //
    // The greater the number of points, the more accurate the results.
    // Default value is 100. Maximum value is number of bins in histogram of observable, fData.
+   //
    // bmax is the maximum reduced impact parameter for the data.
+   //
    // To obtain absolute values of impact parameter/cross-section,
    // use MakeAbsoluteScale.
 
@@ -129,6 +129,7 @@ void KVImpactParameter::MakeAbsoluteScale(Int_t npoints, Double_t bmax)
 {
    // Calculate the relationship between the impact parameter and the observable
    // whose distribution is contained in the histogram fData.
+   //
    // For a given value X of the observable x, the reduced impact parameter
    // b_hat is calculated from the distribution of x, Y(x), using the following formula:
    /*
@@ -137,9 +138,12 @@ void KVImpactParameter::MakeAbsoluteScale(Int_t npoints, Double_t bmax)
    END_LATEX
    */
    // npoints = number of points for which to calculate the impact parameter.
+   //
    // The greater the number of points, the more accurate the results.
    // Default value is 100. Maximum value is number of bins in histogram of observable, fData.
+   //
    // bmax is the maximum absolute impact parameter for the data in [fm].
+   //
    // To obtain values of reduced impact parameter/cross-section, use MakeScale.
 
    Bmax = bmax;
@@ -152,6 +156,7 @@ Double_t KVImpactParameter::BTransform(Double_t* x, Double_t*)
    // Function using the TGraph calculated with MakeScale/MakeAbsoluteScale in order to
    // transform distributions of the observable histogrammed in fData
    // into distributions of the impact parameter.
+   //
    // This function is used to generate the TF1 fObsTransform
 
    return fIPScale->Eval(*x);
@@ -162,6 +167,7 @@ Double_t KVImpactParameter::XTransform(Double_t* x, Double_t*)
    // Function using the TGraph calculated with MakeScale/MakeAbsoluteScale in order to
    // transform distributions of the observable histogrammed in fData
    // into distributions of cross-section.
+   //
    // This function is used to generate the TF1 fObsTransformXsec
 
    return fXSecScale->Eval(*x);
@@ -173,9 +179,9 @@ TH1* KVImpactParameter::GetIPDistribution(TH1* obs, Int_t nbinx, Option_t* norm)
    // into a distribution of the impact parameter.
    // User's responsibility to delete histo.
    //
-   // nbinx = number of bins in I.P. histo (default = 100)
-   //  norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
-   //  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
+   //  * nbinx = number of bins in I.P. histo (default = 100)
+   //  * norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
+   //  * norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
    //                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
 
    if (!fObsTransform) {
@@ -189,9 +195,11 @@ TGraph* KVImpactParameter::GetIPEvolution(TH2* obscor, TString moment, TString a
 {
    // obscor = pointer to histogram containing bidim correlating some observable Y with
    // the observable used to calculate the impact parameter.
+   //
    // Return pointer to TGraph giving evolution of any given moment of Y as a function
    // of the impact parameter, with moment = "GetMean", "GetRMS", "GetKurtosis", etc.
    // (methods of TH1)
+   //
    // If the impact parameter observable is on the Y-axis of obscor, use axis="X"
    // (by default axis="Y", i.e. we assume that the I.P. observable is on the x axis).
 
@@ -212,9 +220,9 @@ TH1* KVImpactParameter::GetXSecDistribution(TH1* obs, Int_t nbinx, Option_t* nor
    // into a distribution of cross-section
    // User's responsibility to delete histo.
    //
-   // nbinx = number of bins in I.P. histo (default = 100)
-   //  norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
-   //  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
+   //  * nbinx = number of bins in I.P. histo (default = 100)
+   //  * norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
+   //  * norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
    //                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
 
    if (!fObsTransformXSec) {
@@ -228,9 +236,11 @@ TGraph* KVImpactParameter::GetXSecEvolution(TH2* obscor, TString moment, TString
 {
    // obscor = pointer to histogram containing bidim correlating some observable Y with
    // the observable used to calculate the impact parameter.
+   //
    // Return pointer to TGraph giving evolution of any given moment of Y as a function
    // of cross section, with moment = "GetMean", "GetRMS", "GetKurtosis", etc.
    // (methods of TH1)
+   //
    // If the impact parameter observable is on the Y-axis of obscor, use axis="X"
    // (by default axis="Y", i.e. we assume that the I.P. observable is on the x axis).
 
@@ -251,7 +261,7 @@ std::vector<Double_t> KVImpactParameter::SliceXSec(Int_t nslices, Double_t totXs
    //    totXsec/nslices.
    // Note that the vector will contain (nslices-1) values
    //
-   // Example:
+   //~~~~~~~~~~~~{.cpp}
    //     KVImpactParameter ip(data);    // histo containing observable distribution
    //     ip.MakeAbsoluteScale(100,ip.GetIPFromXSec(data->Integral()))
    //     std::vector<Double_t> slices = ip.SliceXSec(5, Xsec);
@@ -267,6 +277,7 @@ std::vector<Double_t> KVImpactParameter::SliceXSec(Int_t nslices, Double_t totXs
    //     } else {
    //            // most peripheral events (obs < slices[3])
    //     }
+   //~~~~~~~~~~~~
 
    Double_t xsecSlice = totXsec / double(nslices);
    std::vector<Double_t> slices(nslices - 1);
