@@ -1647,7 +1647,7 @@ Double_t KVINDRADB::GetTotalCrossSection(KVNumberList runs,
 //____________________________________________________________________________
 void KVINDRADB::ReadAbsentDetectors()
 {
-   //Lit le fichier ou sont listés les détecteurs retirés au cours
+   //Lit le fichier ou sont listÃ©s les dÃ©tecteurs retirÃ©s au cours
    //de la manip
    TString fp;
    if (!KVBase::SearchKVFile(GetCalibFileName("AbsentDet"), fp, fDataSet.Data())) {
@@ -1690,7 +1690,7 @@ void KVINDRADB::ReadAbsentDetectors()
 void KVINDRADB::ReadOoODetectors()
 {
 
-   //Lit le fichier ou sont listés les détecteurs ne marchant plus au cours
+   //Lit le fichier ou sont listÃ©s les dÃ©tecteurs ne marchant plus au cours
    //de la manip
    TString fp;
    if (!KVBase::SearchKVFile(GetCalibFileName("OoODet"), fp, fDataSet.Data())) {
@@ -1733,7 +1733,7 @@ void KVINDRADB::ReadOoODetectors()
 void KVINDRADB::ReadOoOACQParams()
 {
 
-   //Lit le fichier ou sont listés les parametres d acquisition ne marchant plus au cours
+   //Lit le fichier ou sont listÃ©s les parametres d acquisition ne marchant plus au cours
    //de la manip
    TString fp;
    if (!KVBase::SearchKVFile(GetCalibFileName("OoOACQPar"), fp, fDataSet.Data())) {
