@@ -388,9 +388,11 @@ FAZIACOR.IdentificationParameterFile.Si:       ID_SI1PSA_ZandA.dat
 FAZIACOR.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIACOR_ZA8.dat
 FAZIACOR.ActiveIdentifications:                CsI Si-CsI Si-Si Si
 
-FAZIAPRE.IdentificationParameterFile.Si-Si:    ID_SI1_SI2_FAZIAPRE.dat
-FAZIAPRE.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIAPRE.dat
-FAZIAPRE.ActiveIdentifications:                Si-CsI Si-Si
+FAZIAPRE.IdentificationParameterFile.Si-Si:    ID_SI1_SI2_FAZIAPRE_4025.dat
+FAZIAPRE.IdentificationParameterFile.CsI:      ID_CSI_FAZIAPRE.dat
+FAZIAPRE.IdentificationParameterFile.Si:       ID_SI1_FAZIAPRE_4025.dat
+FAZIAPRE.IdentificationParameterFile.Si-CsI:   ID_SI2_CSI_FAZIAPRE_4025.dat
+FAZIAPRE.ActiveIdentifications:                CsI Si-CsI Si-Si Si
 
 # file which gather all calibration files
 FAZIADB.CalibrationFiles:     FAZIA.CalibrationFiles.dat
@@ -693,4 +695,4 @@ FAZIAPRE.Q3.PZCorrection:  		  0
 #LNS_2012.DataSet.RunFileName.raw:    run_%04d.root
 #LNS_2012.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 #LNS_2012.ReconstructedEventClassName:   KVINDRAReconEvent
-#LNS_2012.DataSet.RunFileClass.raw:    TFile
+#LNS_2012.DataSet.RunFileClass.raw: TFile
