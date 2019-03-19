@@ -150,6 +150,13 @@ if(COMPILER_SUPPORTS_CXX11)
         endif(PROTOBUF_FOUND)
 endif()
 
+#---optional support for zeroMQ sockets
+find_package(ZMQ)
+if(ZMQ_FOUND)
+    include_directories(${ZMQ_INCLUDE_DIRS})
+    set(WITH_ZMQ yes)
+endif(ZMQ_FOUND)
+
 #---Ricardo Yanez 'range' tables
 option(USE_RANGE
 		"Build classes using Ricardo Yanez's 'range' library"
