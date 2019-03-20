@@ -64,6 +64,12 @@ public:
       kViola1966
    };
 
+   enum {
+      kNN,
+      knn,
+      kpp,
+      knp
+   };
 
    static Double_t kAMU;        //atomic mass unit in MeV
    static Double_t kMe;        //electron mass in MeV/c2
@@ -123,6 +129,8 @@ public:
    Int_t GetZ() const;
    Int_t GetA() const;
    Int_t GetN() const;
+
+   Int_t GetNpairs(Int_t type = kNN) const;
 
    Double_t GetAsurZ() const
    {
