@@ -8,6 +8,7 @@
 class KVZMQMessage : public TMessage {
    unique_ptr<TObject> fObject;
    Bool_t fReadNewObject;
+   zmq::message_t fMessage;
 
 public:
    KVZMQMessage()
@@ -24,16 +25,21 @@ public:
       fReadNewObject = kTRUE;
    }
    virtual ~KVZMQMessage() {}
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,12,0)
+   virtual void WriteObject(const TObject* obj)
+   {
+      TMessage::WriteObject(obj);
+#else
    virtual void WriteObject(const TObject* obj, Bool_t cacheReuse = kTRUE)
    {
       TMessage::WriteObject(obj, cacheReuse);
+#endif
       SetLength();
    }
-   zmq::message_t GetMessage()
+   zmq::message_t& GetMessage()
    {
-      zmq::message_t m(Length());
-      memcpy(m.data(), Buffer(), Length());
-      return m;
+      fMessage.rebuild(Buffer(), Length());
+      return fMessage;
    }
    TObject* GetObject()
    {
