@@ -180,6 +180,11 @@ void GTGanilData::InitDefault(const Int_t argc, char** argv)
 
    fEventBrut = new UShort_t[fEvbsize];
    fEventCtrl = new UShort_t[fEvcsize];
+
+   // calculate size of CTRL_EVNT header to be subtracted from size of event
+   // returned by acq_ebyedat_get_next_event in order to calculate number of
+   // label-value parameter pairs
+   fCTRLEVNT_HD = sizeof(CTRL_EVENT) / 2 - 1;
 }
 
 //______________________________________________________________________________
@@ -514,15 +519,15 @@ bool GTGanilData::EventUnravelling(CTRL_EVENT* pCtrlEvent)
 
    Short_t* brutData     = &(pCtrlEvent->ct_par);
 
-   Int_t eventLength = pCtrlEvent->ct_len;
-   //Info("EventUnravelling","eventLength=%d",eventLength);
+   Int_t eventLength = pCtrlEvent->ct_len - fCTRLEVNT_HD;
+   //printf("EventUnravelling :  eventLength=%d sizeof(CTRL_EVENT)=%d\n",eventLength,sizeof(CTRL_EVENT));
 
    for (Int_t i = 1; i <= fDataArraySize; i++) {
       fDataArray[i] = (Short_t) - 1;
    }
 
    for (Int_t i = 0; i < eventLength; i += 2) {
-      // cout << "Param index=" << brutData[i] << " Value=" << brutData[i+1]<<endl;
+      //cout << dec << i+1 << " -- " << hex << brutData[i] << " = " << brutData[i+1] << endl;
       if (brutData[i] <= fDataArraySize && brutData[i] >= 1) {
          fDataArray[brutData[i]] = brutData[i + 1];
       }

@@ -144,6 +144,7 @@ protected:
    GTScalers*     fScaler;        //! Scaler array
    TTree*         fScalerTree;    // Scaler tree for automatic filling
    TString        fDateStart;     // Date/time of start of run read from file
+   Int_t          fCTRLEVNT_HD;   // size (in 16-bit words) of CTRL_EVNT header
 public:
    ClassDef(GTGanilData, 0)       // Interface to a GANIL formated Tape or File
 };
