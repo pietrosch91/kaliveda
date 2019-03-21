@@ -151,6 +151,10 @@ KVPSAResult* KVQ3::GetPSAResult() const
    if (!fPSAIsDone) return 0;
 
    KVPSAResult* psa = new KVPSAResult();
+   psa->SetValue(Form("%s.%s.TrapRiseTime", fDetName.Data(), fType.Data()), fTrapRiseTime);
+   psa->SetValue(Form("%s.%s.TrapFlatTop", fDetName.Data(), fType.Data()), fTrapFlatTop);
+   psa->SetValue(Form("%s.%s.FastTrapRiseTime", fDetName.Data(), fType.Data()), fFastTrapRiseTime);
+   psa->SetValue(Form("%s.%s.FastTrapFlatTop", fDetName.Data(), fType.Data()), fFastTrapFlatTop);
    psa->SetValue(Form("%s.%s.BaseLine", fDetName.Data(), fType.Data()), fBaseLine);
    psa->SetValue(Form("%s.%s.SigmaBaseLine", fDetName.Data(), fType.Data()), fSigmaBase);
    psa->SetValue(Form("%s.%s.Amplitude", fDetName.Data(), fType.Data()), fAmplitude);
