@@ -56,6 +56,8 @@ INDRAFAZIA.T18_02.FAZIA.BlockPositions: 5,9
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
 
 INDRAFAZIA.T18_02.IdentificationParameterFile.SI-CSI:       INDRA_SICSI.dat
 INDRAFAZIA.T18_02.IdentificationParameterFile.CSI:          INDRA_CSI.dat
