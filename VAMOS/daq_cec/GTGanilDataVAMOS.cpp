@@ -114,7 +114,7 @@ bool GTGanilDataVAMOS::EventUnravelling(CTRL_EVENT* pCtrlEvent)
    //    check no parameters occur twice in same event (if so, the VAMOS treatment is skipped)
 
    Short_t* brutData     = &(pCtrlEvent->ct_par);
-   Int_t eventLength = pCtrlEvent->ct_len;
+   Int_t eventLength = pCtrlEvent->ct_len - fCTRLEVNT_HD;
 
    for (Int_t i = 1; i <= fDataArraySize; i++) {
       fDataArray[i] = (Short_t) - 1;
@@ -126,8 +126,8 @@ bool GTGanilDataVAMOS::EventUnravelling(CTRL_EVENT* pCtrlEvent)
    fOK = true;
 
    //VAMOS double parameter check
-   for (Int_t k = 0; k < eventLength - 6 - 2; k += 2) {
-      for (Int_t l = k + 2; l < eventLength - 6; l += 2) {
+   for (Int_t k = 0; k < eventLength - 2; k += 2) {
+      for (Int_t l = k + 2; l < eventLength; l += 2) {
          if (brutData[k] == brutData[l]) {
             fOK = false;
          }
@@ -140,7 +140,7 @@ bool GTGanilDataVAMOS::EventUnravelling(CTRL_EVENT* pCtrlEvent)
          fDataArray[brutData[i]] = brutData[i + 1];
       }
       //VAMOS treatment
-      if ((i < (eventLength - 6)) && fOK) {
+      if (fOK) {
          if (brutData[i] > 0 && brutData[i + 1] > 0) {
             Par->GetData(brutData + i);
          }
