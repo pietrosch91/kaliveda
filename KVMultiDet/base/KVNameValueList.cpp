@@ -228,7 +228,7 @@ void KVNameValueList::SetValue64bit(const Char_t* name, ULong64_t x)
    SetValue(parname, (Int_t)((x << 32) >> 32));
 }
 
-ULong64_t KVNameValueList::GetValue64bit(const Char_t* name)
+ULong64_t KVNameValueList::GetValue64bit(const Char_t* name) const
 {
    // Return a 64-bit integer stored as two 32-bit parameters with
    // names 'name_up' and 'name_lo'
@@ -244,7 +244,7 @@ ULong64_t KVNameValueList::GetValue64bit(const Char_t* name)
    return x;
 }
 
-Bool_t KVNameValueList::HasValue64bit(const Char_t* name)
+Bool_t KVNameValueList::HasValue64bit(const Char_t* name) const
 {
    // Returns kTRUE if 'name' is stored as a 64-bit value i.e. if
    // integer parameters 'name_lo' and 'name_hi' are defined

@@ -614,21 +614,14 @@ void KVINDRA::PerformClosedROOTGeometryOperations(Int_t)
 Bool_t KVINDRA::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& f)
 {
    // Override base method to retrieve CENTRUM timestamp from data if present.
-   // It will be added to fReconParameters as a 64-bit value "INDRA.TS"
-   //
-   // Timestamps are corrected if they do not increase consecutively
-   // (problem due to a bit which does not pass when reading out the CENTRUM)
-
-   static ULong64_t last_ts = 0;
-   static ULong64_t bit_corrector = 0x000008000000;
+   // It will be added to fReconParameters as a 64-bit value "INDRA.TS" (if != 0)
+   // Event number is retrieved and stored as "INDRA.EN" (if != 0)
 
    if (!KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(f)) return kFALSE;
    ULong64_t ts = f.GetCENTRUMTimestamp();
-   if (ts != 0) {
-      if (ts < last_ts) ts |= bit_corrector;
-      fReconParameters.SetValue64bit("INDRA.TS", ts);
-      last_ts = ts;
-   }
+   if (ts != 0) fReconParameters.SetValue64bit("INDRA.TS", ts);
+   ULong64_t en = f.GetEventNumber();
+   if (en != 0) fReconParameters.SetValue64bit("INDRA.EN", en);
    return kTRUE;
 }
 #endif
@@ -1009,6 +1002,14 @@ KVGroupReconstructor* KVINDRA::GetReconstructorForGroup(const KVGroup* g) const
       }
    }
    return gr;
+}
+
+void KVINDRA::SetReconParametersInEvent(KVReconstructedEvent* e) const
+{
+   // If "INDRA.EN" parameter has been set, we use it to set the event number
+
+   KVASMultiDetArray::SetReconParametersInEvent(e);
+   if (GetReconParameters().HasValue64bit("INDRA.EN")) e->SetNumber(GetReconParameters().GetValue64bit("INDRA.EN"));
 }
 
 

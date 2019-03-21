@@ -219,7 +219,8 @@ void KVExpSetUp::SetReconParametersInEvent(KVReconstructedEvent* e) const
    TIter next_array(&fMDAList);
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
-      *(e->GetParameters()) += mda->GetReconParameters();
+      //*(e->GetParameters()) += mda->GetReconParameters();
+      mda->SetReconParametersInEvent(e);
    }
 }
 
