@@ -385,7 +385,7 @@ INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 INDRADB.Codeurs:    Codeurs.dat
 # liste des detecteurs physiquement absents
 INDRADB.AbsentDet:	AbsentDetectors.dat
-# liste des detecteurs ne marchant pas ou éteints (out of order)
+# liste des detecteurs ne marchant pas ou Ã©teints (out of order)
 INDRADB.OoODet:    OoODetectors.dat
 # liste des parametres d acquisition ne marchant pas (-1 sur l ensemble d un run)
 INDRADB.OoOACQPar:    OoOACQParameters.dat

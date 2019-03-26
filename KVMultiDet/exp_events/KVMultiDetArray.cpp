@@ -263,20 +263,20 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    // Attempt to find a plugin KVIDTelescope class for making an ID telescope from detectors de & e.
    // We look for plugins with the following signatures (uri):
    //
-   //       [de-type]-[e-type]
+   //       [de-type][thickness]-[e-type][thickness]
    //       [de-type][thickness]-[e-type]
    //       [de-type]-[e-type][thickness]
-   //       [de-type][thickness]-[e-type][thickness]
+   //       [de-type]-[e-type]
    //
    // where 'type' is the type of the detector in UPPER or lowercase letters
    // 'thickness' is the nearest-integer thickness of the detector.
    // In addition, if a dataset is set (gDataSet!=nullptr) we try also for dataset-specific
    // plugins:
    //
-   //       [dataset].[de-type]-[e-type]
+   //       [dataset].[de-type][thickness]-[e-type][thickness]
    //       [dataset].[de-type][thickness]-[e-type]
    //       [dataset].[de-type]-[e-type][thickness]
-   //       [dataset].[de-type][thickness]-[e-type][thickness]
+   //       [dataset].[de-type]-[e-type]
    //
    // if no plugin is found, we return a KVIDTelescope base class object
    //
@@ -287,7 +287,7 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    TString de_thick = Form("%d", TMath::Nint(de->GetThickness()));
    TString e_thick = Form("%d", TMath::Nint(e->GetThickness()));
 
-   TString uri = de_type + "-" + e_type;
+   TString uri = de_type + de_thick + "-" + e_type + e_thick;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    uri = de_type + de_thick + "-" + e_type;
@@ -296,7 +296,7 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    uri = de_type + "-" + e_type + e_thick;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
-   uri = de_type + de_thick + "-" + e_type + e_thick;
+   uri = de_type + "-" + e_type;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    // default id telescope object
