@@ -147,6 +147,11 @@ if(COMPILER_SUPPORTS_CXX11)
         if(PROTOBUF_FOUND)
            set(WITH_PROTOBUF yes)
            include_directories(${PROTOBUF_INCLUDE_DIRS})
+           if(${ROOT_VERSION} VERSION_LESS 6)
+               # kludge to fix bug with ROOT5/CINT when protobuf installed in system directories
+               # in this case rootmap autoloading fails if libprotobuf directory not in LD_LIBRARY_PATH
+               get_filename_component(ADD_PROTOBUF_DYN_PATH ${PROTOBUF_LIBRARY} PATH)
+           endif()
         endif(PROTOBUF_FOUND)
 endif()
 

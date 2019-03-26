@@ -267,6 +267,10 @@ void KVBase::InitEnvironment()
       TString incdir = GetINCDIRFilePath();
       incdir.Prepend("-I");
       gSystem->AddIncludePath(incdir);
+#ifdef ADD_PROTOBUF_DYN_PATH
+      // add path to libprotobuf.so to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
+      gSystem->AddDynamicPath(ADD_PROTOBUF_DYN_PATH);
+#endif
 
       //set up environment using kvrootrc file
       if (!gEnv->Defined("DataSet.DatabaseFile")) {
