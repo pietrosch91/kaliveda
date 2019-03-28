@@ -88,15 +88,21 @@ const Char_t* KVAvailableRunsFile::GetFileName() const
 {
    // Filename of text file containing information on available runs
    // i.e. [repository].available_runs.[dataset subdir].[dattype subdir]
+   //
+   // If [dataset subdir] contains "/" (i.e. if data is grouped into subdirectories)
+   // we replace them by "_"
 
    static TString filename;
    if (!fDataSet) {
       Error("GetFileName", "Dataset has not been set for this file.");
       filename = "";
    }
-   else
-      filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDataPathSubdir(),
+   else {
+      KVString datapath = fDataSet->GetDataPathSubdir();
+      datapath.ReplaceAll("/", "_");
+      filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), datapath.Data(),
                     fDataSet->GetDataTypeSubdir(GetDataType()));
+   }
    return filename.Data();
 }
 
