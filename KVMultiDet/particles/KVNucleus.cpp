@@ -1251,6 +1251,33 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
    return (939.55 * XNEU + 938.77 * Z - TOTA);
 }
 
+//________________________________________________________________________________________
+
+Double_t KVNucleus::LiquidDrop_Weizsacker()
+{
+   //Liquid drop mass formula used for nuclei not in mass table (extrapolation).
+   //Parameters are from Brack and Guet (copied from Simon code)
+
+   Double_t av   = 1.531e+01;
+   Double_t as   = 1.654e+01;
+   Double_t ac   = 6.882e-01;
+   Double_t aa   = 2.225e+01;
+   Double_t ap   = 9.399e+00;
+   Double_t kap  = 6.056e-01;
+
+   Double_t eb = 0;
+   eb += av * GetA();
+   eb -= as * TMath::Power(GetA(), 2. / 3.);
+   eb -= ac * GetZ() * (GetZ() - 1) / TMath::Power(GetA(), 1. / 3.);
+   eb -= aa * TMath::Power(GetN() - GetZ(), 2.) / GetA();
+
+   if (TMath::Even(GetA()))
+      eb += ap * (TMath::Power(-1, GetN()) + TMath::Power(-1, GetZ())) / TMath::Power(GetA(), kap);
+
+   return eb;
+
+}
+
 //_______________________________________________________________________________________
 
 Int_t KVNucleus::Compare(const TObject* obj) const
