@@ -10,10 +10,21 @@ class KVFAZIETO : public KVFAZIA {
 
    virtual void BuildFAZIA();
    virtual void GetGeometryParameters();
+   std::map<int, double>  fBlocCentreTheta; // polar angle of block centres
+   std::map<int, double>  fBlocCentrePhi;  // phi angle of block centres
 
 public:
    KVFAZIETO();
    virtual ~KVFAZIETO();
+
+   double GetBlockCentreTheta(int i)
+   {
+      return fBlocCentreTheta[i];
+   }
+   double GetBlockCentrePhi(int i)
+   {
+      return fBlocCentrePhi[i];
+   }
 
    ClassDef(KVFAZIETO, 1) //description of the FAZIA-12B demonstrator
 };

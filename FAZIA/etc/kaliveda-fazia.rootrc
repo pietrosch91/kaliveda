@@ -62,6 +62,17 @@ FAZIAZERO.GeoType:        compact
 FAZIAZERO.DistanceFAZIA:   100
 FAZIAZERO.ThetaMinCompactGeo: 1
 
+# default parameters for KVFAZIETO i.e. the 12-block FAZIA demonstrator
+FAZIETO.GeoType:             compact
+FAZIETO.DistanceZ:       100.0
+FAZIETO.DistanceX:       0.0
+FAZIETO.DistanceY:       0.0
+FAZIETO.ThetaMinCompactGeo:  1.4
+FAZIETO.NBlocks:             12
+FAZIETO.BlockNumbers:        0,1,2,3,4,5,6,7,8,9,10,11
+FAZIETO.BlockPositions:      0,1,2,3,4,5,6,7,8,9,10,11
+FAZIETO.InterBlockPadding:   0.41
+
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
 LNS_2014.DataSet.RepositoryDir:   LNS_2014

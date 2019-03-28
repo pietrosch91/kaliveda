@@ -39,6 +39,9 @@ protected:
    Double_t fImport_ThetaMax;//! for geometry import
    Double_t fImport_PhiMin;//! for geometry import
    Double_t fImport_PhiMax;//! for geometry import
+   Double_t fImport_Xorg;//! for geometry import
+   Double_t fImport_Yorg;//! for geometry import
+   Double_t fImport_Zorg;//! for geometry import
    int fQuartet[8][2];//! quartet number from #FEE and #FPGA
    int fTelescope[8][2];//! telescope number from #FEE and #FPGA
    TClonesArray fSignals;//! for reading raw data
@@ -106,15 +109,20 @@ public:
       return fSignalTypes.Data();
    }
 
-   void SetGeometryImportParameters(Double_t dt = 0.25, Double_t dp = 1.0, Double_t tmin = 2., Double_t pmin = 0, Double_t tmax = 20., Double_t pmax = 360.)
+   void SetGeometryImportParameters(Double_t dt = 0.25, Double_t dp = 1.0, Double_t tmin = 2., Double_t pmin = 0, Double_t tmax = 20., Double_t pmax = 360.,
+                                    Double_t xorg = 0, Double_t yorg = 0, Double_t zorg = 0)
    {
       // Set angular arguments for call to KVGeoImport::ImportGeometry in KVFAZIA::Build
+      // Also set origin for geometry import to (xorg,yorg,zorg) [default: (0,0,0)]
       fImport_dPhi = dp;
       fImport_dTheta = dt;
       fImport_PhiMax = pmax;
       fImport_PhiMin = pmin;
       fImport_ThetaMax = tmax;
       fImport_ThetaMin = tmin;
+      fImport_Xorg = xorg;
+      fImport_Yorg = yorg;
+      fImport_Zorg = zorg;
    }
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
 

@@ -98,7 +98,7 @@ KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
    Double_t shift_bld = (side_si + inter_si) / 2.;
 ///Croix inter quartet
 //
-// Separation des 4 télescopes
+// Separation des 4 tÃ©lescopes
 //
 //
    blindage = gGeoManager->MakeBox("DEADZONE_BLINDAGE_1", Plomb, inter_si / 2, (side_si + inter_si / 2), thick_bld / 2.);
@@ -114,7 +114,7 @@ KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
 
 ///Contour de l ensemble du quartet
 //
-//Délimiation des bords exterieurs
+//DÃ©limiation des bords exterieurs
 //
 //
    shift_bld = (side_si + inter_si);
@@ -132,7 +132,7 @@ KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
    quartet->AddNode(blindage, nbl++, tr);
 
    fTotSidWBlind = 4 * side_si + 5 * inter_si;
-//Coordonnées extraite des côtes données par Yvan M.
+//CoordonnÃ©es extraite des cÃ´tes donnÃ©es par Yvan M.
 //vecteur pointant le milieu d un quartet
 //X=-2.231625
 //Y=-2.230525

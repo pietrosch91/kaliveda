@@ -26,8 +26,8 @@ INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
 # Beam test T18_02 2 blocks June/July 2018
 #
 +DataSet:	  INDRAFAZIA.T18_02
-INDRAFAZIA.T18_02.DataSet.Title:    Test 18_02 (June/July 2018)
-INDRAFAZIA.T18_02.DataSet.RepositoryDir:	t18_02
+INDRAFAZIA.T18_02.DataSet.Title:    Test T18-02 (June/July 2018)
+INDRAFAZIA.T18_02.DataSet.RepositoryDir:	INDRAFAZIA/T18_02
 INDRAFAZIA.T18_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRAFAZIA.T18_02.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.T18_02.DataSet.RunFileClass.raw:    MFM
@@ -49,8 +49,8 @@ INDRAFAZIA.T18_02.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
 
 +Plugin.KVDetector:      ^INDRAFAZIA.T18_02.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
 
-INDRAFAZIA.T18_02.FAZIA.NBlocks: 2
-INDRAFAZIA.T18_02.FAZIA.BlockPositions: 5,9
+INDRAFAZIA.T18_02.FAZIETO.NBlocks: 2
+INDRAFAZIA.T18_02.FAZIETO.BlockPositions: 5,9
 
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.T18_02.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
@@ -72,3 +72,78 @@ INDRAFAZIA.T18_02.Q3.ShaperFlatTop:        10.
 INDRAFAZIA.T18_02.Q3.BaseLineLength:       100
 INDRAFAZIA.T18_02.Q3.FastShaperRiseTime:   .5
 INDRAFAZIA.T18_02.Q3.ShaperRiseTime:       .5
+
+###############################################################################
+# Beam test E789 3/4 April 2019
+#
++DataSet:	  INDRAFAZIA.E789_test
+INDRAFAZIA.E789_test.DataSet.Title:  E789 Test (3/4 April 2019)
+INDRAFAZIA.E789_test.DataSet.RepositoryDir:	INDRAFAZIA/E789_test
+INDRAFAZIA.E789_test.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.E789_test.DataSet.RunFile.DoNotDelete: raw
+INDRAFAZIA.E789_test.DataSet.RunFileClass.raw:    MFM
+INDRAFAZIA.E789_test.ReconstructedEventClassName:	KVReconstructedEvent
+INDRAFAZIA.E789_test.KVDataSet.DataType.Subdir.recon:  recon
+INDRAFAZIA.E789_test.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
+INDRAFAZIA.E789_test.EventReconstruction.DoCalibration: no
+INDRAFAZIA.E789_test.EventReconstruction.DoIdentification: no
+INDRAFAZIA.E789_test.ReconIdent.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789_test.IdentRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789_test.ReconRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789_test.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789_test.HasCalibIdentInfos:   no
+INDRAFAZIA.E789_test.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
+INDRAFAZIA.E789_test.SI-CSI.MassID: yes
+INDRAFAZIA.E789_test.SI-CSI.MassID.Validity:  Z<=6
+
++Plugin.KVMultiDetArray:    INDRAFAZIA.E789_test    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
++Plugin.KVExpDB:   INDRAFAZIA.E789_test    KVExpSetUpDB     KVMultiDetexp_events   "KVExpSetUpDB(const Char_t*)"
++Plugin.KVFAZIA:    INDRAFAZIA.E789_test    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
++Plugin.KVINDRA:    INDRAFAZIA.E789_test    KVINDRA    KVIndraexp_events    "KVINDRA()"
+
++Plugin.KVDetector:      ^INDRAFAZIA.E789_test.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
+
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
+
+###############################################################################
+# Experiment E789 19 April - 29 May 2019
+#
++DataSet:	  INDRAFAZIA.E789
+INDRAFAZIA.E789.DataSet.Title:  E789 (April/May 2019)
+INDRAFAZIA.E789.DataSet.RepositoryDir:	INDRAFAZIA/E789
+INDRAFAZIA.E789.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.E789.DataSet.RunFile.DoNotDelete: raw
+INDRAFAZIA.E789.DataSet.RunFileClass.raw:    MFM
+INDRAFAZIA.E789.ReconstructedEventClassName:	KVReconstructedEvent
+INDRAFAZIA.E789.KVDataSet.DataType.Subdir.recon:  recon
+INDRAFAZIA.E789.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
+INDRAFAZIA.E789.EventReconstruction.DoCalibration: no
+INDRAFAZIA.E789.EventReconstruction.DoIdentification: no
+INDRAFAZIA.E789.ReconIdent.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789.IdentRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789.ReconRoot.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
+INDRAFAZIA.E789.HasCalibIdentInfos:   no
+INDRAFAZIA.E789.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
+INDRAFAZIA.E789.SI-CSI.MassID: yes
+INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
+
++Plugin.KVMultiDetArray:    INDRAFAZIA.E789    KVExpSetUp    KVMultiDetexp_events    "KVExpSetUp()"
++Plugin.KVExpDB:   INDRAFAZIA.E789    KVExpSetUpDB     KVMultiDetexp_events   "KVExpSetUpDB(const Char_t*)"
++Plugin.KVFAZIA:    INDRAFAZIA.E789    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
++Plugin.KVINDRA:    INDRAFAZIA.E789    KVINDRA    KVIndraexp_events    "KVINDRA()"
+
++Plugin.KVDetector:      ^INDRAFAZIA.E789.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
+
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
+

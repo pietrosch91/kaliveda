@@ -65,7 +65,7 @@ ClassImp(KVGeoImport)
 // (the "STRUCT_" and "DET_" parts are stripped off).
 ////////////////////////////////////////////////////////////////////////////////
 
-KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray* m, Bool_t create) : KVGeoNavigator(g), fCreateArray(create)
+KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray* m, Bool_t create) : KVGeoNavigator(g), fCreateArray(create), fOrigin(nullptr)
 {
    // Import geometry described by TGeoManager into KVMultiDetArray object
    // if create=kFALSE, we do not create any detectors etc., but just set up
@@ -74,11 +74,13 @@ KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray* m,
    fRangeTable = r;
    fCurrentTrajectory.SetAddToNodes(kFALSE);
    fCurrentTrajectory.SetPathInTitle(kFALSE);
+   fCheckDetVolNames = kFALSE;
 }
 
 KVGeoImport::~KVGeoImport()
 {
    // Destructor
+   SafeDelete(fOrigin);
 }
 
 void KVGeoImport::ParticleEntersNewVolume(KVNucleus*)
@@ -100,8 +102,8 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                                  Double_t ThetaMin, Double_t PhiMin, Double_t ThetaMax, Double_t PhiMax)
 {
    // Scan the geometry in order to find all detectors and detector alignments.
-   // This is done by sending out "particles" from (0,0,0) in all directions between
-   // (ThetaMin,ThetaMax) - with respect to Z-axis - and (PhiMin,PhiMax) - cylindrical
+   // This is done by sending out "particles" from (0,0,0) or (x,y,z) (if SetOrigin(x,y,z) was called)
+   // in all directions between (ThetaMin,ThetaMax) - with respect to Z-axis - and (PhiMin,PhiMax) - cylindrical
    // angle in the (X,Y)-plane, over a grid of step dTheta in Theta and dPhi in Phi.
 
    Int_t ndets0 = fArray->GetDetectors()->GetEntries();
@@ -112,6 +114,9 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
 
    Info("ImportGeometry",
         "Importing geometry in angular ranges : Theta=[%f,%f:%f] Phi=[%f,%f:%f]", ThetaMin, ThetaMax, dTheta, PhiMin, PhiMax, dPhi);
+   if (fOrigin)
+      Info("ImportGeometry",
+           "Origin for geometry = (%f,%f,%f)", fOrigin->x(), fOrigin->y(), fOrigin->z());
    Int_t count = 0;
    if (!KVDataAnalyser::IsRunningBatchAnalysis())
       std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
@@ -120,7 +125,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
          nuc->SetTheta(theta);
          nuc->SetPhi(phi);
          fLastDetector = nullptr;
-         PropagateEvent(evt.get());
+         PropagateEvent(evt.get(), fOrigin);
          count++;
          if (!KVDataAnalyser::IsRunningBatchAnalysis())
             std::cout << "\xd" << "Info in <KVGeoImport::ImportGeometry>: tested " << count << " directions" << std::flush;
@@ -195,17 +200,42 @@ void KVGeoImport::PropagateParticle(KVNucleus* nuc, TVector3* TheOrigin)
    }
 }
 
+void KVGeoImport::AddAcceptedDetectorName(const char* name)
+{
+   // Add to list of acceptable detector names when scanning geometry
+   // Each detector volume name will be tested; if it doesn't contain
+   // any of the (partial) detector names in the list, it will be ignored
+
+   fCheckDetVolNames = kTRUE;
+   fAcceptedDetectorNames.SetValue(name, 1);
+}
+
 KVDetector* KVGeoImport::GetCurrentDetector()
 {
    // Returns pointer to KVDetector corresponding to current location
    // in geometry. Detector is created and added to array if needed.
    // We also set up any geometry structure elements (from nodes beginning with "STRUCT_")
+   // Any detector volume with a name not recognised by comparison with the list
+   // fAcceptedDetectorNames (if defined) will be ignored.
 
    KVString detector_name;
    Bool_t multilay;
    TGeoVolume* detector_volume = GetCurrentDetectorNameAndVolume(detector_name, multilay);
    // failed to identify current volume as part of a detector
+
    if (!detector_volume) return 0;
+   // check volume belongs to us
+   if (fCheckDetVolNames) {
+      int nn = fAcceptedDetectorNames.GetNpar();
+      bool reject_volume = true;
+      for (int i = 0; i < nn; ++i) {
+         if (detector_name.Contains(fAcceptedDetectorNames.GetNameAt(i))) {
+            reject_volume = false;
+            break;
+         }
+      }
+      if (reject_volume) return 0;
+   }
 
    // has detector already been built ? if not, do it now
    KVDetector* det = fArray->GetDetector(detector_name);

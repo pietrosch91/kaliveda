@@ -133,10 +133,14 @@ void KVFAZIA::PerformClosedROOTGeometryOperations(Int_t run)
    // geometry to be closed
 
    KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this, kTRUE);
+   if (fImport_Xorg != 0 || fImport_Yorg != 0 || fImport_Zorg != 0) imp.SetOrigin(fImport_Xorg, fImport_Yorg, fImport_Zorg);
    imp.SetDetectorPlugin(ClassName());
    imp.SetNameCorrespondanceList(fCorrespondanceFile.Data());
    // any additional structure name formatting definitions
    DefineStructureFormats(imp);
+   imp.AddAcceptedDetectorName("SI1-");
+   imp.AddAcceptedDetectorName("SI2-");
+   imp.AddAcceptedDetectorName("CSI-");
 
    // the following parameters are optimized for a 12-block compact
    // geometry placed at 80cm with rings 1-5 of INDRA removed.
