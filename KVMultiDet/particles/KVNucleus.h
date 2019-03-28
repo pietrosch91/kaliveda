@@ -23,6 +23,7 @@ class KVLifeTime;
 class KVMassExcess;
 class KVAbundance;
 class KVChargeRadius;
+class KVSpinParity;
 
 class KVNucleus: public KVParticle {
 
@@ -190,6 +191,10 @@ public:
 
    Double_t GetLifeTime(Int_t z = -1, Int_t a = -1) const;
    KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1) const;
+
+   Double_t GetSpin(Int_t z = -1, Int_t a = -1) const;
+   Double_t GetParity(Int_t z = -1, Int_t a = -1) const;
+   KVSpinParity* GetSpinParityPtr(Int_t z = -1, Int_t a = -1) const;
 
    Double_t GetAbundance(Int_t z = -1, Int_t a = -1) const;
    KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;

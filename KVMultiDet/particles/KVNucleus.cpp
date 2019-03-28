@@ -25,6 +25,7 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 #include "KVMassExcess.h"
 #include "KVAbundance.h"
 #include "KVChargeRadius.h"
+#include "KVSpinParity.h"
 
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
@@ -639,7 +640,7 @@ Int_t KVNucleus::GetNpairs(Int_t type) const
    if (type == kNN)       return GetA() * (GetA() - 1) / 2;
    else if (type == knn)  return GetN() * (GetN() - 1) / 2;
    else if (type == kpp)  return GetZ() * (GetZ() - 1) / 2;
-   else if (type == knp)  return GetNpairs(kNN) - (GetNpairs(kpp) + GetNpairs(knn));
+   else if (type == knp)  return GetZ() * GetN();
    else return 0;
 }
 
@@ -727,6 +728,54 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
    //required nucleus.
    CheckZAndA(z, a);
    return (KVMassExcess*)gNDTManager->GetData(z, a, "MassExcess");
+
+}
+
+//________________________________________________________________________________________
+
+KVSpinParity* KVNucleus::GetSpinParityPtr(Int_t z, Int_t a) const
+{
+   //Returns pointer of corresponding KVSpinParity object
+   //0 if the Z,A couple is not in the table
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   CheckZAndA(z, a);
+   return (KVSpinParity*)gNDTManager->GetData(z, a, "SpinParity");
+
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetSpin(Int_t z, Int_t a) const
+{
+   //Returns spin value for this nucleus.
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   //If the nucleus is not included in the mass table, -1 is returned
+
+   CheckZAndA(z, a);
+
+   Double_t val = gNDTManager->GetValue(z, a, "SpinParity");
+   if (val == -555)
+      return -1;
+   return TMath::Abs(val);
+
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetParity(Int_t z, Int_t a) const
+{
+   //Returns parity value (-1 or +1) for this nucleus.
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   //If the nucleus is not included in the mass table, O is returned
+
+   CheckZAndA(z, a);
+   Double_t val = gNDTManager->GetValue(z, a, "SpinParity");
+   if (val == -555)
+      return 0;
+   return TMath::Sign(-1, val);
 
 }
 
@@ -993,7 +1042,10 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
    //tmin=-1 include also nuclei for which lifetime is unknown
    if (zz == -1) zz = GetZ();
    KVNumberList nla;
-   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   if (zz == 0)
+      nla.Add(1);
+   else
+      nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
    KVNumberList nlb;
    nla.Begin();
    while (!nla.End()) {
@@ -1009,7 +1061,10 @@ KVNumberList KVNucleus::GetMeasuredARange(Int_t zz) const
 
    if (zz == -1) zz = GetZ();
    KVNumberList nla;
-   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   if (zz == 0)
+      nla.Add(1);
+   else
+      nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
    KVNumberList nlb;
    nla.Begin();
    while (!nla.End()) {
