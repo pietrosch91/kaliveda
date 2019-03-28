@@ -92,7 +92,7 @@ INDRAFAZIA.E789_test.IdentRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.ReconRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.HasCalibIdentInfos:   no
-INDRAFAZIA.E789_test.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
+INDRAFAZIA.E789_test.ActiveIdentifications:      CSI SI-CSI Si-Si Si-CsI Si CsI
 INDRAFAZIA.E789_test.SI-CSI.MassID: yes
 INDRAFAZIA.E789_test.SI-CSI.MassID.Validity:  Z<=6
 
@@ -129,7 +129,7 @@ INDRAFAZIA.E789.IdentRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.ReconRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.HasCalibIdentInfos:   no
-INDRAFAZIA.E789.ActiveIdentifications:      CSI SI-CSI CI-SI CI-CSI Si-Si Si-CsI Si CsI
+INDRAFAZIA.E789.ActiveIdentifications:      CSI SI-CSI Si-Si Si-CsI Si CsI
 INDRAFAZIA.E789.SI-CSI.MassID: yes
 INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
 
