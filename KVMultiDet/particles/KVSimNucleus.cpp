@@ -10,14 +10,14 @@ ClassImp(KVSimNucleus)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVSimNucleus</h2>
-<h4>Classe dérivée de KVNucleus pour gérer des simulations dans KaliVeda</h4>
+<h4>Classe dÃ©rivÃ©e de KVNucleus pour gÃ©rer des simulations dans KaliVeda</h4>
 <!-- */
 // --> END_HTML
-//Deux TVector3 sont ajoutés en champs de la classe :
+//Deux TVector3 sont ajoutÃ©s en champs de la classe :
 // - le vecteur position
 // - le vecteur moment angulaire
 //
-//Cette classe est couplée à KVSimEvent
+//Cette classe est couplÃ©e Ã  KVSimEvent
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -74,13 +74,13 @@ void KVSimNucleus::SetAngMom(Double_t lx, Double_t ly, Double_t lz)
 
 //________________________________________________________________________________________
 
-KVSimNucleus KVSimNucleus::operator+(const KVSimNucleus& rhs)
+KVSimNucleus KVSimNucleus::operator+(const KVSimNucleus& rhs) const
 {
    // KVNucleus addition operator.
    // Add two nuclei together to form a compound nucleus whose Z, A, momentum
    // and excitation energy are calculated from energy and momentum conservation.
 
-   KVSimNucleus& lhs = *this;
+   const KVSimNucleus& lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus&) rhs).GetA();
    KVSimNucleus CN(ztot, atot);

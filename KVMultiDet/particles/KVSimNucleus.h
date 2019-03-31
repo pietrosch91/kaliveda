@@ -82,7 +82,7 @@ public:
 
    void Print(Option_t* t = "") const;
 
-   KVSimNucleus operator+(const KVSimNucleus& rhs);
+   KVSimNucleus operator+(const KVSimNucleus& rhs) const;
    KVSimNucleus& operator+=(const KVSimNucleus& rhs);
 
    ClassDef(KVSimNucleus, 4) //Nuclear particle in a simulated event
