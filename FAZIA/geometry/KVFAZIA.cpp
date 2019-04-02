@@ -239,7 +239,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* det
    if (!dets || !dets->GetEntries()) {
       if (fFiredACQParams.GetEntries()) {
          dets = &fFiredACQParams;
-         Info("GetDetectorEvent", "using internal list");
+         //Info("GetDetectorEvent", "using internal list");
       }
    }
    if (dets && dets->GetEntries()) {
@@ -253,7 +253,7 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* det
       }
    }
    else {
-      Info("GetDetectorEvent", "Calling base method");
+      //Info("GetDetectorEvent", "Calling base method");
       KVMultiDetArray::GetDetectorEvent(detev, 0);
    }
 }
