@@ -1,4 +1,4 @@
-set(do_not_build KVRawDataAnalyser KVGRUNetClientGanilReader KVGRUTapeGanilReader KVRTGIDManager)
+set(do_not_build KVOnlineReconDataAnalyser KVRawDataAnalyser KVGRUNetClientGanilReader KVGRUTapeGanilReader KVRTGIDManager)
 if(WITH_GRULIB)
 	list(REMOVE_ITEM do_not_build KVGRUTapeGanilReader)
 endif()
@@ -8,6 +8,10 @@ endif()
 if(WITH_FITLTG)
 	list(REMOVE_ITEM do_not_build KVRTGIDManager)
 endif()
+if(WITH_DATAFLOW AND WITH_ZMQ)
+    list(REMOVE_ITEM do_not_build KVOnlineReconDataAnalyser)
+endif()
+
 #---do we have ROOT with OpenGL support for KVMultiDetArray geometry/track viewing ?
 if(ROOT_opengl_FOUND)
    set(extra_lib ${ROOT_RGL_LIBRARY})

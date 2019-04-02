@@ -127,9 +127,17 @@ ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     5000
 ReconAnalysis.DataAnalysisTask.Analyser:     ReconDataAnalyser
 ReconAnalysis.DataAnalysisTask.UserClass.Base:     ReconEventSelector/TSelector
 
++DataAnalysisTask:     OnlineReconAnalysis
+OnlineReconAnalysis.DataAnalysisTask.Title:     Online analysis of reconstructed events (online)
+OnlineReconAnalysis.DataAnalysisTask.Prereq:     *
+OnlineReconAnalysis.DataAnalysisTask.UserClass:     yes
+OnlineReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     5
+OnlineReconAnalysis.DataAnalysisTask.Analyser:     OnlineReconDataAnalyser
+OnlineReconAnalysis.DataAnalysisTask.UserClass.Base:     ReconEventSelector/TSelector
+
 # +DataAnalysisTask:     OnlineAnalysis
 # OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
-# OnlineAnalysis.DataAnalysisTask.Prereq:     online
+# OnlineAnalysis.DataAnalysisTask.Prereq:     *
 # OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
 # OnlineAnalysis.DataAnalysisTask.UserClass:     yes
 # OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
@@ -179,6 +187,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   SimDirFilterAnalyser         KVSimDirFilterAnalyser        KVMultiDetexp_events   "KVSimDirFilterAnalyser()"
 +Plugin.KVDataAnalyser:   RawDataReconstructor         KVRawDataReconstructor        KVMultiDetexp_events   "KVRawDataReconstructor()"
 +Plugin.KVDataAnalyser:   ReconDataAnalyser         KVReconDataAnalyser     KVMultiDetexp_events "KVReconDataAnalyser()"
++Plugin.KVDataAnalyser:   OnlineReconDataAnalyser         KVOnlineReconDataAnalyser     KVMultiDetexp_events "KVOnlineReconDataAnalyser()"
 
 +Plugin.TSelector:    EventSelector    KVEventSelector    KVMultiDetanalysis   "KVEventSelector()"
 +Plugin.TSelector:    EventFilter    KVEventFiltering    KVMultiDetexp_events   "KVEventFiltering()"

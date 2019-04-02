@@ -162,6 +162,10 @@ public:
    {
       return Event;
    }
+   void SetEvent(KVEvent* e)
+   {
+      Event = e;
+   }
 
    /* user entry points */
    virtual void InitAnalysis()

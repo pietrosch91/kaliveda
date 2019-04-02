@@ -862,9 +862,10 @@ void KVDataAnalysisLauncher::SetRunsList()
 
    KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(cbTask->GetSelected() + 1);
    KVDBSystem* system = 0;
-   if (!noSystems) {
+   if (!noSystems || !strcmp(task->GetPrereq(), "*")) {
       // case where systems are defined for dataset and user has
       // selected a specific system
+      // OR for online analysis (prereq data type="*")
       system = lastSelectedSystem;
       GetDataAnalyser()->SetSystem(system);
       if (!system) {
@@ -946,6 +947,7 @@ void KVDataAnalysisLauncher::Process(void)
 
    KVDataAnalysisTask* task = gDataSet->GetAnalysisTask(cbTask->GetSelected() + 1);
    KVDataSetAnalyser* datan = GetDataAnalyser(task);
+   bool online_analysis = !strcmp(task->GetPrereq(), "*");
 
    //set global pointer to analyser
    gDataAnalyser = datan;
@@ -956,7 +958,7 @@ void KVDataAnalysisLauncher::Process(void)
       datan->SetRuns(listOfRuns, kFALSE);
       datan->SetFullRunList(listOfRuns);
    }
-   else {
+   else if (!online_analysis) {
       WarningBox("Empty Run List", "The list of runs to process is empty.");
       return;
    }

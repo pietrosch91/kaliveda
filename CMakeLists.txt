@@ -162,6 +162,18 @@ if(ZMQ_FOUND)
     set(WITH_ZMQ yes)
 endif(ZMQ_FOUND)
 
+#---online analysis of reconstructed data
+#---give path to 'dataflow' installation directory -DDATAFLOW_INSTALL_DIR=/...
+if(DEFINED DATAFLOW_INSTALL_DIR)
+    message(STATUS "Checking for DataFlow installation in ${DATAFLOW_INSTALL_DIR}...")
+    find_file(DATAFLOW_PORTS_HDR dataflowports.h PATHS ${DATAFLOW_INSTALL_DIR}/include)
+    if(DATAFLOW_PORTS_HDR)
+        message(STATUS "---found header file ${DATAFLOW_PORTS_HDR}")
+        set(WITH_DATAFLOW yes)
+        include_directories(${DATAFLOW_INSTALL_DIR}/include)
+    endif()
+endif()
+
 #---Ricardo Yanez 'range' tables
 option(USE_RANGE
 		"Build classes using Ricardo Yanez's 'range' library"

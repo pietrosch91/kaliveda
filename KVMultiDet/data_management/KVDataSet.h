@@ -114,9 +114,11 @@ public:
    virtual Bool_t HasDataType(const Char_t* data_type) const
    {
       // Returns kTRUE if data files of the given type are stored in the data repository
+      // If data_type="*" this method always returns kTRUE
+
       KVString _dt = data_type;
       _dt.Remove(TString::kBoth, ' ');
-      return fDatatypes.Contains(_dt);
+      return (_dt == "*" || fDatatypes.Contains(_dt));
    }
 
    virtual void ls(Option_t* opt = "") const;
