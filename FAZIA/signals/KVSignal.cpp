@@ -114,6 +114,12 @@ KVSignal* KVSignal::ConvertTo(const Char_t* type)
    return sig;
 }
 
+bool KVSignal::IsOK()
+{
+   if (fLastBL > GetN()) return kFALSE;
+   else               return kTRUE;
+}
+
 
 //________________________________________________________________
 
@@ -128,6 +134,11 @@ void KVSignal::Copy(TObject&) const
 
    //TGraph::Copy((TGraph&)obj);
    //KVSignal& CastedObj = (KVSignal&)obj;
+}
+
+Bool_t KVSignal::IsLongEnough() const
+{
+   return (GetN() > fLastBL + 10);
 }
 
 void KVSignal::Set(Int_t n)
@@ -388,6 +399,11 @@ Double_t KVSignal::ComputeBaseLine()
 {
    //compute mean value of the signal and the rms between
    // limits defined by fFirstBL and fLastBL
+   if (fLastBL >= GetN()) {
+      fBaseLine = -1;
+      fSigmaBase = -1;
+      return -1;
+   }
    ComputeMeanAndSigma(fFirstBL, fLastBL, fBaseLine, fSigmaBase);
    return fBaseLine;
 }
@@ -440,6 +456,10 @@ Double_t KVSignal::ComputeEndLine()
 {
    //same as ComputeBaseLine method but made on the end of the signal
    //in the same length as for the base line
+   if ((fLastBL - fFirstBL) >= GetN()) {
+      fEndLine = -1;
+      fSigmaEnd = -1;
+   }
    ComputeMeanAndSigma(GetN() - (fLastBL - fFirstBL), GetN(), fEndLine, fSigmaEnd);
    return fEndLine;
 }
@@ -1501,5 +1521,18 @@ void KVSignal::TestDraw()
 {
    this->Draw();
    getchar();
+}
+
+KVSignal* KVSignal::MakeSignal(const char* sig_type)
+{
+   // Create new KVSignal instance corresponding to sig_type
+
+   TPluginHandler* ph = KVBase::LoadPlugin("KVSignal", sig_type);
+   if (!ph) {
+      ::Error("KVSignal::MakeSignal", "No plugin found for : %s", sig_type);
+      return nullptr;
+   }
+   KVSignal* sig = (KVSignal*)ph->ExecPlugin(0);
+   return sig;
 }
 

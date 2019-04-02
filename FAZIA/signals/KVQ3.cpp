@@ -123,7 +123,7 @@ void KVQ3::UpdatePSAParameter(KVDBParameterList* par)
 
 void KVQ3::TreateSignal()
 {
-   if (GetN() == 0) return;
+   if (!IsLongEnough()) return;
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 

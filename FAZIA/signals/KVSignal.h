@@ -24,7 +24,6 @@ public:
       kUNKDT
    };
 
-
 protected:
    Int_t fIndex;        //!index deduced from block, quartet and telescope numbering
    Int_t fChannel;      //! signal type (see KVSignal::SignalType enum)
@@ -77,6 +76,8 @@ public:
    KVSignal(const TString& name, const TString& title);
    virtual ~KVSignal();
    void Copy(TObject& obj) const;
+
+   Bool_t IsLongEnough() const;
 
    //
    //routines to link signal to its detector in kaliveda framework
@@ -143,6 +144,8 @@ public:
    virtual void SetDefaultValues();
    virtual void UpdatePSAParameter(KVDBParameterList* par);
    KVSignal* ConvertTo(const Char_t* type);
+
+   virtual bool IsOK();
 
    //
    //routines to launch and control PSA
@@ -397,6 +400,8 @@ public:
    void ShiftLeft(double);//shift in ns
    void ShiftRight(double);//shift in ns
    void TestDraw();
+
+   static KVSignal* MakeSignal(const char* sig_type);
 
    ClassDef(KVSignal, 4) //Base class for FAZIA signal processing
 

@@ -104,7 +104,7 @@ Double_t KVI2::ComputeBaseLine()
 
 void KVI2::TreateSignal()
 {
-   if (GetN() == 0) return;
+   if (!IsLongEnough()) return;
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 

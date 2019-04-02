@@ -44,7 +44,7 @@ static Char_t const* const FzDataType_str[] = { "QH1", "I1", "QL1", "Q2", "I2", 
 static Char_t const* const FzDetector_str[] = { "SI1", "SI1", "SI1", "SI2", "SI2", "CSI" };
 
 KVFAZIA::KVFAZIA(const Char_t* title)
-   : KVMultiDetArray("FAZIA", title), fSignals("KVSignal", 1000)
+   : KVMultiDetArray("FAZIA", title)
 {
    // Default constructor
    fStartingBlockNumber = 0;
@@ -54,13 +54,25 @@ KVFAZIA::KVFAZIA(const Char_t* title)
    SetGeometryImportParameters();
    CreateCorrespondence();
 
-   // values of trapezoidal filter rise time set in the fpgas
-   // to be linked with a database...
-   fQH1risetime    = 2.;
-   fQ2risetime     = 2.;
-   fQ3slowrisetime = 0.5;
-   fQ3fastrisetime = 10.;
+   // values of trapezoidal filter rise time set in the fpgas to be linked with a database...
+   fQH1risetime    = GetSetupParameter("QH1.FPGARiseTime");
+   fQ2risetime     = GetSetupParameter("Q2.FPGARiseTime");
+   fQ3slowrisetime = GetSetupParameter("Q3.slow.FPGARiseTime");
+   fQ3fastrisetime = GetSetupParameter("Q3.fast.FPGARiseTime");
+
+   Info("KVFAZIA", "fpga shapers: %lf %lf %lf %lf", fQH1risetime, fQ2risetime, fQ3slowrisetime, fQ3fastrisetime);
 }
+
+//________________________________________________________________
+Double_t KVFAZIA::GetSetupParameter(const Char_t* parname)
+{
+
+   Double_t lval = -1;
+   if (gDataSet)  lval = gDataSet->GetDataSetEnv(parname, 0.0);
+   else           lval = gEnv->GetValue(parname, 0.0);
+   return lval;
+}
+
 
 KVFAZIA::~KVFAZIA()
 {
@@ -209,7 +221,7 @@ void KVFAZIA::Build(Int_t run)
    }
 }
 
-void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sigs)
+void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* dets)
 {
    // First step in event reconstruction based on current status of detectors in array.
    // Fills the given KVDetectorEvent with the list of all groups which have fired.
@@ -224,52 +236,26 @@ void KVFAZIA::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* sig
       //Info("GetDetectorEvent","i didnt handle any data...");
       return;
    }
-   if (!sigs || !sigs->GetEntries()) {
-      //Info("GetDetectorEvent","external list empty");
+   if (!dets || !dets->GetEntries()) {
       if (fFiredACQParams.GetEntries()) {
-         sigs = &fFiredACQParams;
-         //Info("GetDetectorEvent","using internal list");
+         dets = &fFiredACQParams;
+         Info("GetDetectorEvent", "using internal list");
       }
    }
-   if (sigs && sigs->GetEntries()) {
-      //Info("GetDetectorEvent","Got signals in list");
-      // list of fired acquisition parameters given
-      TIter next_par(sigs);
+   if (dets && dets->GetEntries()) {
+      TIter next_det(dets);
 
-      KVSignal* par = 0;
       KVDetector* det = 0;
-      KVGroup* grp = 0;
-      while ((par = (KVSignal*)next_par())) {
-         if (!(par->GetN() > 0))
-            Info("GetDetectorEvent", "%s empty", par->GetName());
-         par->DeduceFromName();
-         //          if (!(det = GetDetector(par->GetDetectorName()))) {
-         //             det = GetDetector(KVFAZIADetector::GetNewName(par->GetDetectorName()));
-         //          }
-         //cout << "Deduced name: " << par->GetDetectorName();
-         det = GetDetector(par->GetDetectorName());
-         if (det) {
-            //cout << "Setting signal for " << det->GetName() << endl;
-            ((KVFAZIADetector*)det)->SetSignal(par, par->GetType());
-            if ((!(((KVFAZIADetector*)det)->GetSignal(par->GetType())->GetN() > 0)))
-               Warning("Error", "%s %s empty signal is returned", det->GetName(), par->GetType());
-            if ((grp = det->GetGroup())) {
-               detev->AddGroup(grp);
-            }
-            else {
-               Warning("GetDetectorEvent", "No group defined for detector %s", det->GetName());
-            }
-         }
-         else {
-            //Error("GetDetectedEvent", "Unknown detector %s !!!", par->GetDetectorName());
-         }
+      while ((det = (KVDetector*)next_det())) {
+
+         if (det->GetGroup()->Fired()) detev->AddGroup(det->GetGroup());
+
       }
    }
    else {
-      //Info("GetDetectorEvent","Calling base method");
+      Info("GetDetectorEvent", "Calling base method");
       KVMultiDetArray::GetDetectorEvent(detev, 0);
    }
-   //detev->ls();
 }
 
 void KVFAZIA::FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames)
@@ -385,21 +371,6 @@ KVGroupReconstructor* KVFAZIA::GetReconstructorForGroup(const KVGroup* g) const
    return gr;
 }
 
-Double_t KVFAZIA::GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signaltype, Int_t idx)
-{
-
-   TString sene = "";
-   sene.Form("ENER%d-%s-%d", idx, signaltype.Data(), 100 * blk + 10 * qua + tel);
-   //rustines for RUTHERFORD Telescope
-   if (blk == 0 && qua == 0 && tel == 0)
-      sene.Form("ENER%d-RUTH-%s", idx, signaltype.Data());
-
-   if (fFPGAParameters.HasDoubleParameter(sene.Data()))
-      return fFPGAParameters.GetValue<Double_t>(sene.Data());
-   else
-      return 0.0;
-}
-
 TString KVFAZIA::GetSignalName(Int_t bb, Int_t qq, Int_t tt, Int_t idsig)
 {
 
@@ -499,35 +470,31 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
                int fIdQuartet = fQuartet[fIdFee][fIdTel];
                int fIdTelescope = fTelescope[fIdFee][fIdTel];
 
+               KVFAZIADetector* det = (KVFAZIADetector*)gFazia->GetDetector(Form("%s-%d", FzDetector_str[fIdSignal], 100 * fIdBlk + 10 * fIdQuartet + fIdTelescope));
+
                if (!rdata.has_energy() && !rdata.has_waveform()) {
-                  Warning("treat_event", "[NO DATA]");
+                  Warning("treat_event", "[NO DATA] [%s %s]", det->GetName(), FzDataType_str[fIdSignal]);
                   continue;
                }
-               if (rdata.has_energy() && !rdata.has_waveform()) {
-                  Warning("treat_event", "ENERGY WITHOUT SIGNAL");
-               }
+
                if (rdata.has_energy()) {
                   const DAQ::Energy& ren = rdata.energy();
                   for (Int_t ee = 0; ee < ren.value_size(); ee++) {
                      Double_t energy = TreatEnergy(fIdSignal, ee, ren.value(ee));
-                     fFPGAParameters.SetValue(Form("ENER%d-%s", ee, GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal).Data()), energy);
+                     det->SetFPGAEnergy(fIdSignal, ee, energy);
                   }
+                  fFiredACQParams.Add(det);
                }
-
                if (rdata.has_waveform()) {
                   const DAQ::Waveform& rwf = rdata.waveform();
                   Int_t supp;
 
                   if (fIdSignal <= 5) {
-                     TString sname = GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal);
+                     TString sname = GetSignalName(fIdBlk, fIdQuartet, fIdTelescope, fIdSignal);//QH1-123 etc.
                      if (sname == "")
                         Warning("treat_event", "signal name is empty !!! blk=%d qua=%d tel=%d\n", fIdBlk, fIdQuartet, fIdTelescope);
 
-                     KVSignal* sig = (KVSignal*)fSignals.ConstructedAt(fSignals.GetEntries());
-                     sig->SetNameTitle(sname, FzDetector_str[fIdSignal]);
-                     sig->Set(rwf.sample_size());
-
-                     fFiredACQParams.Add(sig);
+                     TGraph sig(rwf.sample_size());
 
                      for (Int_t nn = 0; nn < rwf.sample_size(); nn++) {
                         if (fIdSignal != DAQ::FzData::ADC) {
@@ -541,8 +508,9 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
                         else {
                            supp = rwf.sample(nn);
                         }
-                        sig->SetPoint(nn, nn, supp);
+                        sig.SetPoint(nn, nn, supp);
                      }
+                     det->SetSignal(&sig, sname);
                   }
                   else {
                      if (fIdSignal > 5)
@@ -593,14 +561,6 @@ Bool_t KVFAZIA::handle_raw_data_event_mfmframe(const MFMCommonFrame& f)
    return kTRUE;
 }
 #endif
-
-void KVFAZIA::prepare_to_handle_new_raw_data()
-{
-   // reset signals, fpga parameters etc. before reading new raw data event
-   KVMultiDetArray::prepare_to_handle_new_raw_data();
-   fSignals.Clear();
-   fFPGAParameters.Clear();
-}
 
 void KVFAZIA::CreateCorrespondence()
 {

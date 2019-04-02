@@ -9,6 +9,7 @@
 #include "KVPSAResult.h"
 #include "TClass.h"
 #include "KVLightEnergyCsIFull.h"
+#include "KVDataSet.h"
 
 ClassImp(KVFAZIADetector)
 
@@ -35,6 +36,8 @@ ClassImp(KVFAZIADetector)
 void KVFAZIADetector::init()
 {
    //default initialisations
+   fSignals.SetOwner();
+
    fBlock = -1;
    fIdentifier = kOTHER;
    fQuartet = -1;
@@ -42,13 +45,29 @@ void KVFAZIADetector::init()
    fIndex = -1;
    fIsRutherford = kFALSE;
 
-   fSignals = 0;
    fChannelToEnergy = 0;
    fChannelToVolt = 0;
    fVoltToEnergy = 0;
    fLabel = -1;
    fChannel = 0;
    fVolt = 0;
+
+   fQH1Threshold = GetSetupParameter("QH1.MinimumAmplitude");
+//   fQL1Threshold = GetSetupParameter("QH1.MinimumAmplitude");
+   fQ2Threshold = GetSetupParameter("Q2.MinimumAmplitude");
+   fQ3Threshold = GetSetupParameter("Q3.MinimumAmplitude");
+
+}
+
+//________________________________________________________________
+Double_t KVFAZIADetector::GetSetupParameter(const Char_t* parname)
+{
+
+   Double_t lval = -1;
+   if (gDataSet)  lval = gDataSet->GetDataSetEnv(parname, 0.0);
+   else           lval = gEnv->GetValue(parname, 0.0);
+   return lval;
+
 }
 
 //________________________________________________________________
@@ -69,8 +88,6 @@ KVFAZIADetector::KVFAZIADetector(const Char_t* type, const Float_t thick) : KVDe
 KVFAZIADetector::~KVFAZIADetector()
 {
    // Destructor
-   delete fSignals;
-
 }
 
 //________________________________________________________________
@@ -233,9 +250,7 @@ void  KVFAZIADetector::Clear(Option_t*)
 {
 
    KVDetector::Clear("");
-   if (fSignals) {
-      fSignals->Execute("Set", "0");
-   }
+   fSignals.Execute("Set", "0");
 
 }
 
@@ -286,9 +301,7 @@ Bool_t KVFAZIADetector::SetProperties()
 
    KVSignal* sig = 0;
    //"QH1", "I1", "QL1", "Q2", "I2", "Q3
-   if (fSignals)
-      delete fSignals;
-   fSignals = new KVList(kTRUE);
+   fSignals.Clear();
    KVString lsignals = "";
    if (!strcmp(GetLabel(), "SI1")) {
       lsignals = "QH1,I1,QL1";
@@ -303,20 +316,19 @@ Bool_t KVFAZIADetector::SetProperties()
       Warning("SetProperties", "Unknown label \"%s\" for this detector : %s\n", GetLabel(), GetName());
       lsignals = "";
    }
-   TClass* cl = 0;
    lsignals.Begin(",");
    while (!lsignals.End()) {
 
       KVString ssig = lsignals.Next();
-      cl = TClass::GetClass(Form("KV%s", ssig.Data()));
-      sig = (KVSignal*)cl->New();
-      sig->SetName(ssig.Data());
+      sig = KVSignal::MakeSignal(ssig);
+
+      sig->SetName(Form("%s-%s", ssig.Data(), tmp.Data()));
       sig->SetType(ssig.Data());
 
       sig->LoadPSAParameters();
       sig->SetDetectorName(GetName());
 
-      fSignals->Add(sig);
+      fSignals.Add(sig);
    }
 
    SetCalibrators();
@@ -375,50 +387,68 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer
 
-   KVSignal* sig;
-   if (fSignals) {
-      TIter next(fSignals);
-      while ((sig = (KVSignal*)next())) {
-         if (sig->GetN() > 0) {
-            if (sig->IsCharge()) {
-
-               //pre process to use the test method KVSignal::IsFired()
-               sig->ComputeEndLine();
-               sig->TreateSignal();
-
-               if (sig->IsFired()) {
-                  return kTRUE;
-               }
-               else {
-
-               }
-            }
-         }
-         else {
-            //Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
-         }
-      }
+   switch (GetIdentifier()) {
+      case kSI1:
+         if (fFPGAEnergyQH1 > fQH1Threshold) return kTRUE;
+         else return kFALSE;
+         break;
+      case kSI2:
+         if (fFPGAEnergyQ2 > fQ2Threshold) return kTRUE;
+         else return kFALSE;
+         break;
+      case kCSI:
+         if (fFPGAEnergyQ3 > fQ3Threshold) return kTRUE;
+         else return kFALSE;
+         break;
+      default:
+         return kFALSE;
+         break;
    }
-   else {
-      Warning("Fired", "%s : No signal attached to this detector ...", GetName());
-   }
+
+//   hereafter : old way of doing...
+//   KVSignal* sig;
+//   if (fSignals) {
+//      TIter next(fSignals);
+//      while ((sig = (KVSignal*)next())) {
+//         if (sig->IsOK()) {
+//            if (sig->IsCharge()) {
+
+//               //pre process to use the test method KVSignal::IsFired()
+//               sig->ComputeEndLine();
+//               sig->TreateSignal();
+
+//               if (sig->IsFired()) {
+//                  return kTRUE;
+//               }
+//               else {
+
+//               }
+//            }
+//         }
+//         else {
+//            //Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
+//         }
+//      }
+//   }
+//   else {
+//      Warning("Fired", "%s : No signal attached to this detector ...", GetName());
+//   }
 
    return kFALSE;
 }
 
 //_________________________________________________________________________________
-void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
+void KVFAZIADetector::SetSignal(TGraph* signal, const Char_t* signal_name)
 {
-   if (!fSignals) {
-      Error("SetSignal", "%s List of signals not defined", GetName());
-      return;
-   }
-   KVSignal* sig = GetSignal(type);
+   // Copy waveform data from TGraph into the signal with the given name (QH1-345 etc.)
+   // Then calculate Ymin/ymax, ADC data, shit, blabla
+
+   KVSignal* sig = GetSignal(signal_name);
    if (sig) {
       sig->SetData(signal->GetN(), signal->GetX(), signal->GetY());
    }
    else {
-      Warning("SetSignal", "%s : No signal of type #%s# is available", GetName(), type);
+      Warning("SetSignal", "%s : No signal of name #%s# is available", GetName(), signal_name);
    }
 }
 
@@ -426,26 +456,22 @@ void KVFAZIADetector::SetSignal(KVSignal* signal, const Char_t* type)
 Bool_t KVFAZIADetector::HasSignal() const
 {
    // Returns kTRUE if detector has at least 1 associated signal
-   return (fSignals && fSignals->GetEntries() > 0);
+   return (fSignals.GetEntries() > 0);
 }
 
 //_________________________________________________________________________________
 KVSignal* KVFAZIADetector::GetSignal(const Char_t* name) const
 {
    // Access detector signal by name, i.e. as in FAZIA raw data
-   // e.g. "T1-Q3-B001-QL1"
-   if (fSignals)
-      return (KVSignal*)fSignals->FindObject(name);
-   return nullptr;
+   // e.g. "QL1-231"
+   return (KVSignal*)fSignals.FindObject(name);
 }
 
 //_________________________________________________________________________________
 KVSignal* KVFAZIADetector::GetSignalByType(const Char_t* type) const
 {
    // Access detector signal of given type: "I1", "I2", "Q2", "Q3", "QH1", "QL1"
-   if (fSignals)
-      return (KVSignal*)fSignals->FindObjectWithMethod(type, "GetType");
-   return nullptr;
+   return (KVSignal*)fSignals.FindObjectByType(type);
 }
 
 //_________________________________________________________________________________
@@ -453,23 +479,21 @@ KVSignal* KVFAZIADetector::GetSignal(Int_t idx) const
 {
    // Access signal with given index in list of detector's signals
    // 0 <= idx < KVFAZIADetector::GetNumberOfSignals()
-   if (fSignals && 0 <= idx && idx < fSignals->GetEntries())
-      return (KVSignal*)fSignals->At(idx);
-   return 0;
+   if (0 <= idx && idx < fSignals.GetEntries())
+      return (KVSignal*)fSignals.At(idx);
+   return nullptr;
 }
 
 //_________________________________________________________________________________
 Int_t KVFAZIADetector::GetNumberOfSignals() const
 {
-   if (fSignals)
-      return fSignals->GetEntries();
-   return 0;
+   return fSignals.GetEntries();
 }
 
 //_________________________________________________________________________________
-KVList* KVFAZIADetector::GetListOfSignals() const
+const KVSeqCollection* KVFAZIADetector::GetListOfSignals() const
 {
-   return fSignals;
+   return &fSignals;
 }
 
 //_________________________________________________________________________________
@@ -481,4 +505,45 @@ void KVFAZIADetector::ComputePSA()
    while ((sig = (KVSignal*)nexts())) {
       sig->TreateSignal();
    }
+}
+
+void KVFAZIADetector::SetFPGAEnergy(int sigid, Int_t idx, Double_t energy)
+{
+   switch (sigid) {
+      case KVSignal::kQH1:
+         if (idx == 0) SetQH1FPGAEnergy(energy);
+         break;
+      case KVSignal::kI1:
+         break;
+      case KVSignal::kQL1:
+         break;
+      case KVSignal::kQ2:
+         if (idx == 0) SetQ2FPGAEnergy(energy);
+         break;
+      case KVSignal::kI2:
+         break;
+      case KVSignal::kQ3:
+         if (idx == 0) SetQ3FPGAEnergy(energy);
+         if (idx == 1) SetQ3FastFPGAEnergy(energy);
+         break;
+   }
+}
+
+KVNameValueList* KVFAZIADetector::GetFPGAEnergyList()
+{
+   KVNameValueList* fpga = new KVNameValueList();
+
+   switch (GetIdentifier()) {
+      case kSI1:
+         fpga->SetValue(Form("%s.%s.%s", GetName(), "QH1", "FPGAEnergy"), GetQH1FPGAEnergy());
+         break;
+      case kSI2:
+         fpga->SetValue(Form("%s.%s.%s", GetName(), "Q2", "FPGAEnergy"), GetQ2FPGAEnergy());
+         break;
+      case kCSI:
+         fpga->SetValue(Form("%s.%s.%s", GetName(), "Q3", "FPGAEnergy"), GetQ3FPGAEnergy());
+         fpga->SetValue(Form("%s.%s.%s", GetName(), "Q3", "FastFPGAEnergy"), GetQ3FastFPGAEnergy());
+         break;
+   }
+   return fpga;
 }

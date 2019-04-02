@@ -10,7 +10,7 @@ class KVSignal;
 
 class KVFAZIADetector : public KVDetector {
 protected:
-   KVList* fSignals;         //list of electronics signal (current, charge, etc... )
+   KVUniqueNameList fSignals;         //list of electronics signal (current, charge, etc... )
 
    Int_t fBlock;
    Int_t fQuartet;
@@ -66,11 +66,17 @@ protected:
    Double_t fSigmaBaseLineQ3;
    Double_t fRiseTimeQ3;
 
+   //thresholds defined for this detector
+   Double_t fQH1Threshold;
+   Double_t fQL1Threshold;
+   Double_t fQ2Threshold;
+   Double_t fQ3Threshold;
+
    KVCalibrator* fChannelToEnergy;//!To obtain energy from charge
    KVCalibrator* fChannelToVolt;//!To obtain volt from channel
    KVCalibrator* fVoltToEnergy;//!To obtain energy from volt
 
-   void init();   //initialisatino method called by the constructors
+   void init();   //initialisation method called by the constructors
    Bool_t SetProperties();
 
 
@@ -98,16 +104,19 @@ public:
    Double_t GetEnergy();
    Double_t GetCalibratedVolt();
 
-   void SetSignal(KVSignal* signal, const Char_t* type);
+   void SetSignal(TGraph* signal, const Char_t* signal_name);
    Bool_t HasSignal() const;
    KVSignal* GetSignal(const Char_t* name) const;
    KVSignal* GetSignalByType(const Char_t* type) const;
    KVSignal* GetSignal(Int_t idx) const;
    Int_t GetNumberOfSignals() const;
-   KVList* GetListOfSignals() const;
+   const KVSeqCollection* GetListOfSignals() const;
    virtual void SetCalibrators();
    virtual Bool_t IsCalibrated() const;
    void ComputePSA();
+
+   void SetFPGAEnergy(int sigid, Int_t idx /* Si: alway 0, CsI: 0=max 1=fast */, Double_t energy);
+   KVNameValueList* GetFPGAEnergyList();
 
    Int_t GetIdentifier() const
    {
@@ -428,6 +437,8 @@ public:
    {
       return fFastFPGAEnergyQ3;
    }
+
+   Double_t GetSetupParameter(const Char_t* parname);
 
 
    ClassDef(KVFAZIADetector, 1) //Base class for FAZIA detector

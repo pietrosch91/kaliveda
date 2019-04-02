@@ -88,7 +88,7 @@ void KVQL1::LoadPSAParameters()
 
 void KVQL1::TreateSignal()
 {
-   if (GetN() == 0) return;
+   if (!IsLongEnough()) return;
    if (!TestWidth())
       ChangeChannelWidth(GetChannelWidth());
 

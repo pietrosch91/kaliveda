@@ -8,6 +8,7 @@
 
 #include <KVGeoImport.h>
 #include <KVEnv.h>
+#include <KVSignal.h>
 
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,32,0)
 #include "TGeoMatrix.h"
@@ -44,11 +45,8 @@ protected:
    Double_t fImport_Zorg;//! for geometry import
    int fQuartet[8][2];//! quartet number from #FEE and #FPGA
    int fTelescope[8][2];//! telescope number from #FEE and #FPGA
-   TClonesArray fSignals;//! for reading raw data
-   KVNameValueList fFPGAParameters;//! for reading raw data
 
-   // values of trapezoidal filter rise time set in the fpgas
-   // to be linked with a database...
+   // values of trapezoidal filter rise time set in the fpgas defined in .kvrootrc
    Double_t fQH1risetime;
    Double_t fQ2risetime;
    Double_t fQ3slowrisetime;
@@ -68,7 +66,6 @@ protected:
 #ifdef WITH_MFM
    Bool_t handle_raw_data_event_mfmframe(const MFMCommonFrame&);
 #endif
-   void prepare_to_handle_new_raw_data();
 
    void PerformClosedROOTGeometryOperations(Int_t run = -1);
 
@@ -90,7 +87,7 @@ public:
    virtual void Build(Int_t run = -1);
    //void SortIDTelescopes();
 
-   void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params);
+   void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* dets);
    Int_t GetNumberOfBlocks() const
    {
       return fNblocks;
@@ -127,7 +124,7 @@ public:
    void FillDetectorList(KVReconstructedNucleus* rnuc, KVHashList* DetList, const KVString& DetNames);
 
    KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
-   Double_t GetFPGAEnergy(Int_t blk, Int_t qua, Int_t tel, TString signaltype, Int_t idx = 0);
+   Double_t GetSetupParameter(const Char_t* parname);
 
    ClassDef(KVFAZIA, 1) //Base class for description of the FAZIA set up
 };

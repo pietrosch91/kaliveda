@@ -40,6 +40,13 @@
 # plugin for reading FAZIA DAQ data
 +Plugin.KVRawDataReader:    FZDATA    KVFzDataReader     FAZIAdaq_cec    "KVFzDataReader(const char*)"
 
+# plugins for FAZIA signal treatment
+Plugin.KVSignal:     QH1     KVQH1      FAZIAsignals    "KVQH1()"
++Plugin.KVSignal:     I1     KVI1      FAZIAsignals    "KVI1()"
++Plugin.KVSignal:     QL1     KVQL1      FAZIAsignals    "KVQL1()"
++Plugin.KVSignal:     Q2     KVQ2      FAZIAsignals    "KVQ2()"
++Plugin.KVSignal:     I2     KVI2      FAZIAsignals    "KVI2()"
++Plugin.KVSignal:     Q3     KVQ3      FAZIAsignals    "KVQ3()"
 #
 # Geometries
 FAZIASYM.GeoType:        compact

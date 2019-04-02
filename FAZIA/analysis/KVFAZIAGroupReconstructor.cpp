@@ -169,27 +169,17 @@ void KVFAZIAGroupReconstructor::PostReconstructionProcessing()
       while ((node = rnuc->GetReconstructionTrajectory()->GetNextNode())) {
 
          KVFAZIADetector* det = (KVFAZIADetector*)node->GetDetector();
+
+         unique_ptr<KVNameValueList> fpga(det->GetFPGAEnergyList());
+         if (fpga.get()) {
+            *(rnuc->GetParameters()) += (KVNameValueList&) * fpga;
+         }
+
+
          TIter next_s(det->GetListOfSignals());
          KVSignal* sig;
          while ((sig = (KVSignal*)next_s())) {
-            if (sig->HasFPGA()) {
-               for (Int_t ii = 0; ii < sig->GetNFPGAValues(); ii += 1) {
-                  KVString label = "";
-                  if (ii == 0) label = "FPGAEnergy";
-                  if (ii == 1) label = "FPGAFastEnergy"; //only for CsI Q3
-                  Double_t ene = ((KVFAZIA*)GetGroup()->GetArray())->GetFPGAEnergy(
-                                    det->GetBlockNumber(),
-                                    det->GetQuartetNumber(),
-                                    det->GetTelescopeNumber(),
-                                    sig->GetType(),
-                                    ii
-                                 );
 
-                  rnuc->SetParameter(
-                     Form("%s.%s.%s", det->GetName(), sig->GetName(), label.Data()), ene
-                  );
-               }
-            }
             if (!sig->PSAHasBeenComputed()) {
                sig->TreateSignal();
             }
