@@ -14,7 +14,11 @@
 #pragma link C++ class KVGroupReconstructor+;
 #pragma link C++ class KVRawDataReconstructor+;
 #pragma link C++ class KVReconDataAnalyser+;
+#ifdef WITH_DATAFLOW
+#ifdef WITH_ZMQ
 #pragma link C++ class KVOnlineReconDataAnalyser+;
+#endif
+#endif
 #pragma link C++ class KVReconEventSelector+;
 #pragma link C++ class KVReconNucTrajectory+;
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
