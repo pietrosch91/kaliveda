@@ -27,6 +27,7 @@ KVOnlineReconDataAnalyser::KVOnlineReconDataAnalyser()
    : KVReconDataAnalyser()
 {
    // Default constructor
+   SetStatusUpdateInterval(2.5);
 }
 
 //____________________________________________________________________________//
@@ -92,6 +93,7 @@ void KVOnlineReconDataAnalyser::SubmitTask()
    int nevt = 0;
    TDatime fTimeStamp;
    Double_t fStartTime = fTimeStamp.Convert();
+   fUpdate = false;
 
    while (1) {
 
@@ -110,10 +112,11 @@ void KVOnlineReconDataAnalyser::SubmitTask()
       }
       fTimeStamp.Set();
       Double_t time = fTimeStamp.Convert();
-      if ((time - fStartTime) >= 5.) {
+      if ((time - fStartTime) >= GetStatusUpdateInterval()) {
          cout << "~" << (int)(nev / (time - fStartTime)) << " events/s. tot = " << nevt << endl;
          fStartTime = time;
          nev = 0;
+         fUpdate = true;
       }
 
    }
@@ -135,5 +138,21 @@ void KVOnlineReconDataAnalyser::preAnalysis()
    // Set minimum (trigger) multiplicity for array
 
    gMultiDetArray->SetMinimumOKMultiplicity(fSelector->GetEvent());
+}
+
+Bool_t KVOnlineReconDataAnalyser::CheckStatusUpdateInterval(Int_t) const
+{
+   // This method returns true every fStatusUpdateInterval seconds, according to the check performed in SubmitTask
+   // You can change this value in your analysis class by calling
+   //
+   //     gDataAnalyser->SetStatusUpdateInterval(...);
+   //
+   // with the required value in seconds before the processing loop starts
+
+   if (fUpdate) {
+      fUpdate = false;
+      return true;
+   }
+   return false;
 }
 

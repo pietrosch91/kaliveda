@@ -52,6 +52,8 @@ private:
    static Bool_t fCleanAbort;//flag to force abort of processing
    Bool_t fUseBaseClassSubmitTask;
 
+   Double_t fStatusUpdateInterval;
+
 protected:
    void ScanWorkingDirectory(TList**);
    void CopyAnalysisResultsToLaunchDirectory();
@@ -175,7 +177,16 @@ public:
    {
       return 0;
    }
-   Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
+   virtual Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
+   void SetStatusUpdateInterval(double t)
+   {
+      fStatusUpdateInterval = t;
+   }
+   Double_t GetStatusUpdateInterval() const
+   {
+      return fStatusUpdateInterval;
+   }
+
    void DoStatusUpdate(Int_t nevents) const;
 
    KVDataAnalysisTask* GetAnalysisTask() const

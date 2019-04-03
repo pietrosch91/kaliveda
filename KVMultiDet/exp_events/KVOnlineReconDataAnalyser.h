@@ -7,6 +7,7 @@
 #include "KVReconDataAnalyser.h"
 
 class KVOnlineReconDataAnalyser : public KVReconDataAnalyser {
+   mutable Bool_t fUpdate;
 public:
    KVOnlineReconDataAnalyser();
    virtual ~KVOnlineReconDataAnalyser();
@@ -23,6 +24,8 @@ public:
    void preInitAnalysis();
    void preInitRun() {}
    void preAnalysis();
+
+   Bool_t CheckStatusUpdateInterval(Int_t) const;
 
    ClassDef(KVOnlineReconDataAnalyser, 1) //Online analysis of reconstructed data
 };
