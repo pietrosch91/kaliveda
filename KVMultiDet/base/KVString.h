@@ -87,7 +87,7 @@ public:
    KVString Next(Bool_t strip_whitespace = kFALSE) const;
    void RBegin(TString delim) const;
    KVString RNext(Bool_t strip_whitespace = kFALSE) const;
-   virtual Int_t GetNValues(TString delim);
+   Int_t GetNValues(TString delim) const;
    std::vector<KVString> Vectorize(TString delim, Bool_t strip_whitespace = kFALSE);
 
 #ifdef __WITH_KVSTRING_ISWHITESPACE

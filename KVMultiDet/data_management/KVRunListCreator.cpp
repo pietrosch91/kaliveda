@@ -10,6 +10,9 @@ ClassImp(KVRunListCreator)
 KVRunListCreator::KVRunListCreator(const TString& dir, const TString& datatype, const TString& fmt)
 {
    // Give directory to scan, optional format for runfile names
+   // "datatype" should correspond to a known plugin for reading raw data files,
+   // see available plugins for KVRawDataReader (output of method KVBase::GetListOfPluginURIs("KVRawDataReader"))
+
    SetRunDir(dir);
    if (fmt != "") SetFileFormat(fmt);
    else SetFileFormat(gEnv->GetValue("DataSet.RunFileName.raw", "run_%04d.dat%*"));
@@ -36,7 +39,7 @@ Int_t KVRunListCreator::ScanDirectory()
          if (KVAvailableRunsFile::ExtractDateFromFileName(GetFileFormat(), sysfile->GetName(), when)) {
             ++howmany;
             KVNameValueList* infos = new KVNameValueList;
-            infos->SetName(Form("run%06d", run_num));
+            infos->SetName(Form("run%010d", run_num));
             infos->SetValue("Run", run_num);
             infos->SetValue("Start", when.AsSQLString());
             infos->SetValue("End", sysfile->GetDate());
@@ -45,16 +48,16 @@ Int_t KVRunListCreator::ScanDirectory()
                infos->SetValue("Size", x);
             else
                infos->SetValue64bit("Size", sysfile->GetSize());
-            if (fDataType != "") {
-               fReader.reset(KVRawDataReader::OpenFile(fDataType, Form("%s/%s", sysdir.GetTitle(), sysfile->GetName())));
-               ULong64_t events = 0;
-               while (fReader->GetNextEvent()) ++events;
-               Int_t x = events;
-               if (x == events)
-                  infos->SetValue("Events", x);
-               else
-                  infos->SetValue64bit("Events", events);
-            }
+//            if (fDataType != "") {
+//               fReader.reset(KVRawDataReader::OpenFile(fDataType, Form("%s/%s", sysdir.GetTitle(), sysfile->GetName())));
+//               ULong64_t events = 0;
+//               while (fReader->GetNextEvent()) ++events;
+//               Int_t x = events;
+//               if (x == events)
+//                  infos->SetValue("Events", x);
+//               else
+//                  infos->SetValue64bit("Events", events);
+//            }
             infos->ls();
             fRunInfos.Add(infos);
          }

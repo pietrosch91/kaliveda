@@ -1014,6 +1014,13 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
    // Return whitespace-separated list of all plugin classes defined for
    // the given base class.
    //
+   // E.g. if plugins exist for BaseClass:
+   //
+   //  Plugin.BaseClass:    URI     PluginClass     PluginLibrary    "PluginClassConstructor(arguments)"
+   //  +Plugin.BaseClass:    URI2     PluginClass2     PluginLibrary2    "PluginClass2Constructor(arguments)"
+   //
+   // then KVBase::GetListOfPlugins("BaseClass") will return "PluginClass PluginClass2"
+   //
    // Most of the code is copied from `TPluginManager::LoadHandlersFromEnv`
 
    TIter next(gEnv->GetTable());
@@ -1054,6 +1061,28 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
    }
    //remove final trailing whitespace
    tmp.Remove(TString::kTrailing, ' ');
+   return tmp;
+}
+
+const Char_t* KVBase::GetListOfPluginURIs(const Char_t* base)
+{
+   // For a given base class, return a whitespace-separated list of plugin identifiers
+   // which are known/defined.
+   // E.g. if plugins exist for BaseClass:
+   //
+   //  Plugin.BaseClass:    URI     PluginClass     PluginLibrary    "PluginClassConstructor(arguments)"
+   //  +Plugin.BaseClass:    URI2     PluginClass2     PluginLibrary2    "PluginClass2Constructor(arguments)"
+   //
+   // then KVBase::GetListOfPluginURIs("BaseClass") will return "URI URI2"
+
+   static TString tmp;
+   KVString plugs = KVBase::GetListOfPlugins(base);
+   plugs.Begin(" ");
+   tmp = "";
+   while (!plugs.End()) {
+      if (tmp != "") tmp += " ";
+      tmp += KVBase::GetPluginURI(base, plugs.Next());
+   }
    return tmp;
 }
 

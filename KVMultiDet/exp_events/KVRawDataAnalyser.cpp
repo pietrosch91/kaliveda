@@ -55,11 +55,13 @@ void KVRawDataAnalyser::ProcessRun()
 
    //warning! real number of run may be different from that deduced from file name
    //we get the real run number from the data and use it to name any new files
-   Int_t newrun = fRunFile->GetRunNumberReadFromFile();
-   if (newrun && newrun != fRunNumber) {
-      cout << " *** WARNING *** run number read from file = " << newrun << endl;
-      fRunNumber = newrun;
-   }
+   //// Not possible for INDRAFAZIA MFM data (we use 'fake' run numbers)
+   /// Is this still necessary? (which dataset was concerned? camp5?)
+//   Int_t newrun = fRunFile->GetRunNumberReadFromFile();
+//   if (newrun && newrun != fRunNumber) {
+//      cout << " *** WARNING *** run number read from file = " << newrun << endl;
+//      fRunNumber = newrun;
+//   }
 
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), fRunNumber);
 

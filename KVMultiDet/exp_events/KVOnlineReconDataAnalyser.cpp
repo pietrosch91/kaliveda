@@ -52,8 +52,8 @@ void KVOnlineReconDataAnalyser::SubmitTask()
    fSelector = dynamic_cast<KVReconEventSelector*>(GetInstanceOfUserClass());
 
    if (!fSelector || !fSelector->InheritsFrom("TSelector")) {
-      cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
-      cout << "Process aborted." << endl;
+      std::cout << "The selector \"" << GetUserClass() << "\" is not valid." << std::endl;
+      std::cout << "Process aborted." << std::endl;
       SafeDelete(fSelector);
       return;
    }
@@ -113,7 +113,7 @@ void KVOnlineReconDataAnalyser::SubmitTask()
       fTimeStamp.Set();
       Double_t time = fTimeStamp.Convert();
       if ((time - fStartTime) >= GetStatusUpdateInterval()) {
-         cout << "~" << (int)(nev / (time - fStartTime)) << " events/s. tot = " << nevt << endl;
+         std::cout << "~" << (int)(nev / (time - fStartTime)) << " events/s. tot = " << nevt << std::endl;
          fStartTime = time;
          nev = 0;
          fUpdate = true;

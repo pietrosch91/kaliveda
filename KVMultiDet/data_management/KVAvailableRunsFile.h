@@ -28,6 +28,8 @@ class KVNameValueList;
 
 class KVAvailableRunsFile: public KVBase {
 
+   static KVString date_read_from_filename;//!
+
 protected:
    std::ifstream fRunlist;     //for reading runlist file
    KVLockfile runlist_lock;   //for locking runlist file
@@ -66,7 +68,7 @@ public:
       return GetName();
    }
    Int_t IsRunFileName(const Char_t* filename);
-   static Int_t IsRunFileName(const TString& fmt, const Char_t* filename);
+   static Int_t IsRunFileName(const KVString& fmt, const Char_t* filename, const Char_t* separators = ".");
    Bool_t ExtractDateFromFileName(const Char_t* name, KVDatime& date);
    static Bool_t ExtractDateFromFileName(const TString& fmt, const Char_t* name, KVDatime& date);
    virtual void Update(Bool_t no_existing_file = kFALSE);

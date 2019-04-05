@@ -553,9 +553,18 @@ TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t)
    str.Begin(" ");
    while (!str.End()) {
       Iter = str.Next(kTRUE);
+      if (Iter.EqualTo(TheGrid->GetName())) {
+         result = Iter.Data();
+         return result;
+      }
+   }
+
+   str.Begin(" ");
+   while (!str.End()) {
+      Iter = str.Next(kTRUE);
       if (Iter.Contains(TheGrid->GetName())) {
          result = Iter.Data();
-         break;
+         return result;
       }
    }
 

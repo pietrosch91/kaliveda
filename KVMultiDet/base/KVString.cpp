@@ -658,7 +658,7 @@ KVString KVString::RNext(Bool_t strip_whitespace) const
    return st;
 }
 
-Int_t KVString::GetNValues(TString delim)
+Int_t KVString::GetNValues(TString delim) const
 {
    // Count the number of substrings in this string separated by the given character(s)
    // e.g. given a string "one | two | three", GetNValues("|") returns 3

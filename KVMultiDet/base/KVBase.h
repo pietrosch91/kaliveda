@@ -124,6 +124,7 @@ public:
                                      const Char_t* uri = "0");
    static const Char_t* GetPluginURI(const Char_t* base, const Char_t* plugin);
    static const Char_t* GetListOfPlugins(const Char_t* base);
+   static const Char_t* GetListOfPluginURIs(const Char_t* base);
    static Bool_t IsThisAPlugin(const TString& uri, TString& base);
    static void OpenTempFile(TString& base, std::ofstream& fp);       /* open temp file with basename 'base' */
    static void GetTempFileName(TString& base);

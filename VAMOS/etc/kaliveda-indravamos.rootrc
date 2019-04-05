@@ -4,7 +4,7 @@
 +DataSet:    INDRA_e503
 INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
 INDRA_e503.DataSet.RepositoryDir:   e503
-INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e503.DataSet.RunFileName.raw:    run_%R.dat%*
 INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:       IVRawDataRecon
 INDRA_e503.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
@@ -26,7 +26,7 @@ INDRA_e503.KVDataSet.DataType.Subdir.root:   root3
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
 INDRA_e494s.DataSet.RepositoryDir:   e494s
-INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e494s.DataSet.RunFileName.raw:    run_%R.dat%*
 INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:       IVRawDataRecon
 INDRA_e494s.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector

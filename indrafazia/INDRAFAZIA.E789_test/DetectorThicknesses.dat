@@ -1,3 +1,10 @@
+# FAZIA SI2 in Block2 Quartet3 were 300um instead of 500um
+
+SI2-231: 0.0300
+SI2-232: 0.0300
+SI2-233: 0.0300
+SI2-234: 0.0300
+
 # INDRA Silicon detector thicknesses for E789 test beam
 # copied from E613
 

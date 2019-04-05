@@ -28,7 +28,7 @@ INDRAFAZIA.SI-CSI.MassID.Validity:  Z<=8
 +DataSet:	  INDRAFAZIA.T18_02
 INDRAFAZIA.T18_02.DataSet.Title:    Test T18-02 (June/July 2018)
 INDRAFAZIA.T18_02.DataSet.RepositoryDir:	INDRAFAZIA/T18_02
-INDRAFAZIA.T18_02.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.T18_02.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
 INDRAFAZIA.T18_02.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.T18_02.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.T18_02.ReconstructedEventClassName:	KVReconstructedEvent
@@ -79,19 +79,18 @@ INDRAFAZIA.T18_02.Q3.ShaperRiseTime:       .5
 +DataSet:	  INDRAFAZIA.E789_test
 INDRAFAZIA.E789_test.DataSet.Title:  E789 Test (3/4 April 2019)
 INDRAFAZIA.E789_test.DataSet.RepositoryDir:	INDRAFAZIA/E789_test
-INDRAFAZIA.E789_test.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.E789_test.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
 INDRAFAZIA.E789_test.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789_test.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.E789_test.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.E789_test.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.E789_test.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
-INDRAFAZIA.E789_test.EventReconstruction.DoCalibration: no
-INDRAFAZIA.E789_test.EventReconstruction.DoIdentification: no
+INDRAFAZIA.E789_test.EventReconstruction.DoCalibration: yes
+INDRAFAZIA.E789_test.EventReconstruction.DoIdentification: yes
 INDRAFAZIA.E789_test.ReconIdent.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.IdentRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.ReconRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789_test.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
-INDRAFAZIA.E789_test.HasCalibIdentInfos:   no
 INDRAFAZIA.E789_test.ActiveIdentifications:      CSI SI-CSI Si-Si Si-CsI Si CsI
 INDRAFAZIA.E789_test.SI-CSI.MassID: yes
 INDRAFAZIA.E789_test.SI-CSI.MassID.Validity:  Z<=6
@@ -109,6 +108,9 @@ INDRAFAZIA.E789_test.SI-CSI.MassID.Validity:  Z<=6
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789_test.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
+
+INDRAFAZIA.E789_test.IdentificationParameterFile.Si-Si:        ID_SI1_SI2_B0_3.dat
+INDRAFAZIA.E789_test.IdentificationParameterFile.Si-CsI:       ID_SI2_CSI_B0_3.dat
 
 INDRAFAZIA.E789_test.QL1.BaseLineLength:            100
 INDRAFAZIA.E789_test.QL1.TauRC:                     250
@@ -172,7 +174,7 @@ INDRAFAZIA.E789_test.Q3.slow.FPGARiseTime:      2.
 +DataSet:	  INDRAFAZIA.E789
 INDRAFAZIA.E789.DataSet.Title:  E789 (April/May 2019)
 INDRAFAZIA.E789.DataSet.RepositoryDir:	INDRAFAZIA/E789
-INDRAFAZIA.E789.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRAFAZIA.E789.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
 INDRAFAZIA.E789.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.E789.ReconstructedEventClassName:	KVReconstructedEvent

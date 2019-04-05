@@ -271,7 +271,6 @@ void KVFAZIAGroupReconstructor::PostReconstructionProcessing()
 
       }
    }
-
 }
 
 void KVFAZIAGroupReconstructor::IdentifyParticle(KVReconstructedNucleus& PART)

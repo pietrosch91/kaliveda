@@ -847,7 +847,7 @@ const Char_t* KVDataSet::GetBaseFileName(const Char_t* type, Int_t run) const
    //The filename corresponds to one of the formats defined in $KVROOT/KVFiles/.kvrootrc
    //by variables like:
    //
-   //[dataset].DataSet.RunFileName.[type]:    run%d.dat
+   //[dataset].DataSet.RunFileName.[type]:    run%R.dat
    //
    //The actual name of the file, if it has already been written in the data repository,
    //is contained in the available_runs.*.* file; if the file has not been written, or it is to
@@ -857,6 +857,7 @@ const Char_t* KVDataSet::GetBaseFileName(const Char_t* type, Int_t run) const
    static TString tmp;
    //get format string
    TString fmt = GetDataSetEnv(Form("DataSet.RunFileName.%s", type));
+   fmt.ReplaceAll("%R", "%d");
    if (fmt != "") {
       tmp.Form(fmt, run);
    }

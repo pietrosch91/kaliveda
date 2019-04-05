@@ -22,6 +22,8 @@ $Date: 2009/03/12 14:01:02 $
 
 using namespace std;
 
+KVString KVAvailableRunsFile::date_read_from_filename = "";
+
 ClassImp(KVAvailableRunsFile)
 ////////////////////////////////////////////////////////////////////////////////
 //Handles text files containing list of available runs for different datasets and types of data
@@ -181,35 +183,17 @@ Bool_t KVAvailableRunsFile::CheckDirectoryForAvailableRunsFile()
 
 Int_t KVAvailableRunsFile::IsRunFileName(const Char_t* filename)
 {
-   //This method tests the string given as 'filename' to see if it could be the name of a runfile
-   //of the datatype of this available runs file (GetDataType()), for its parent dataset, fDataSet.
-   //Any protocol and/or path information in the filename is first removed, i.e. if
-   //e.g. "run8805.ident.root.2006-12-06_19:41:56" is a valid run filename, then the following
-   //are also valid and will return the run number 8805:
+   // This method tests the string given as 'filename' to see if it could be the name of a runfile
+   // of the datatype of this available runs file (GetDataType()), for its parent dataset, fDataSet.
+   // Any protocol and/or path information in the filename is first removed.
    //
-   //    "/hpss/in2p3.fr/group/indra/campagne5/ident/run8805.ident.root.2006-12-06_19:41:56"
-   //    "root://ccxroot.in2p3.fr:1999//hpss/in2p3.fr/group/indra/campagne5/ident/run8805.ident.root.2006-12-06_19:41:56"
-   //    "rfio:cchpssindra:/hpss/in2p3.fr/group/indra/campagne5/ident/run8805.ident.root.2006-12-06_19:41:56"
+   // The format for a given dataset is defined by variable
    //
-   //The decision as to whether the filename is valid or not is based on whether it corresponds
-   //to one of the formats defined in $KVROOT/KVFiles/.kvrootrc, e.g. :
-   //
-   //# Default formats for runfile names (run number is used to replace integer format)
-   //DataSet.RunFileName.raw:    run%d.raw
-   //DataSet.RunFileName.recon:    run%d.recon.root
-   //DataSet.RunFileName.ident:    run%d.ident.root
-   //DataSet.RunFileName.root:    run%d.root
-   //
-   //We also test, for each format, "format%*", in case the filename has the file creation date
-   //string appended to it.
-   //
-   //If a working format is found, we return the run number deduced from the filename.
-   //If not, we return 0.
+   // [dataset].DataSet.RunFileName.raw:    [format]
 
-   //get format string for current dataset
    TString fmt =
       fDataSet->
-      GetDataSetEnv(Form("DataSet.RunFileName.%s", GetDataType()));
+      GetDataSetEnv(Form("DataSet.RunFileName.%s", GetDataType()));   //get format string for current dataset
    if (fmt == "") {
       Error("IsRunFileName", "No default format set for datatype: %s",
             GetDataType());
@@ -218,25 +202,106 @@ Int_t KVAvailableRunsFile::IsRunFileName(const Char_t* filename)
    return IsRunFileName(fmt, filename);
 }
 
-Int_t KVAvailableRunsFile::IsRunFileName(const TString& fmt, const Char_t* filename)
+Int_t KVAvailableRunsFile::IsRunFileName(const KVString& fmt, const Char_t* filename, const Char_t* separators)
 {
-   //This method tests the string given as 'filename' to see if it could be the name of a runfile.
-   //The decision as to whether the filename is valid or not is based on whether it corresponds
-   //to the given format string, e.g. run_%04d.dat
-   //We also test, for each format, "format%*", in case the filename has the file creation date
-   //string appended to it.
-   //If a working format is found, we return the run number deduced from the filename.
-   //If not, we return 0.
+   // This method tests the string given as 'filename' to see if it could be the name of a runfile.
+   // Any protocol and/or path information in the filename is first removed.
+   // The decision as to whether the filename is valid or not is based on whether it corresponds
+   // to the given format string, e.g. run_%04d.dat
+   // If good, we return the run number for the file (may be an effective run number in case
+   // of files with an index; see below)
+   // If not, we return 0.
+   //
+   // KNOWN CASES:
+   //
+   // dataset         example filename                   format
+   // =======         ================                   =====================
+   // INDRA_camp1     run127.raw                         run%R.raw
+   // INDRA_camp2     run127.raw                         run%R.raw
+   // INDRA_camp4     run127.raw                         run%R.raw
+   // INDRA_camp5     run127.raw                         run%R.raw
+   // INDRA_e416a     Run356_06-Oct-05_12_44_12.dat      Run%R_%D.dat
+   // INDRA_e475s     run_0085.dat.13-Mar-06.12:46:24    run_%R.dat.%D1.%D2
+   // INDRA_e494s     run_0026.dat.04-May-07.20:33:00    run_%R.dat.%D1.%D2
+   // INDRA_e503      run_0026.dat.04-May-07.20:33:00    run_%R.dat.%D1.%D2
+   // INDRA_e613      run_0022.dat.08Sep11_00h54m47s     run_%R.dat.%D
+   // INDRAFAZIA.E789 run_0017.dat.04-04-19_08h25m57s.1  run_%R.dat.%D.%I
+   // FAZIA*          run000345                          run%R
+   //
+   //    %R      :   run number
+   //    %D      :   date and time
+   //    %D1.%D2 :   date and time separated by '.'
+   //    %I      :   file index number. WARNING: the first file has NO index, the
+   //                second file has index '1', etc.
+   //
+   // The filename will be broken up according to the separators (default: ".")
+   // Then the different parts will be analysed according to the given format string
 
-   Int_t run;
-   //Test format of filename
    KVString _file(gSystem->BaseName(filename));  //Remove protocol and/or path
-   if (_file.Sscanf(fmt.Data(), &run))
+
+   // the filename should contain the same number of "."-separated parts as the format
+   // string, unless the format contains "%I", in which case it can have one less part
+   // (case of first file for run with no index)
+   int np_fmt = fmt.GetNValues(separators);
+   bool with_index = fmt.Contains("%I");
+   bool two_part_date = false;
+   bool got_date = false;
+   int np_fn = _file.GetNValues(separators);
+   date_read_from_filename = "";
+
+   if (np_fmt == np_fn || (with_index && np_fn == np_fmt - 1)) {
+      _file.Begin(separators);
+      fmt.Begin(separators);
+      int index(0), run(0);
+      char date1[100], date2[100];
+      if (fmt.Contains("%D1") && fmt.Contains("%D2")) two_part_date = true;
+
+      while (!_file.End()) {
+         KVString run_part = _file.Next();
+         KVString fmt_part = fmt.Next();
+
+         if (fmt_part.Contains("%R")) {
+            fmt_part.ReplaceAll("%R", "%d");
+            if (fmt_part.Contains("%D")) {
+               fmt_part.ReplaceAll("%D", "%s");
+               sscanf(run_part.Data(), fmt_part.Data(), &run, date1);
+               got_date = true;
+            }
+            else
+               sscanf(run_part.Data(), fmt_part.Data(), &run);
+         }
+         else if (fmt_part.Contains("%I")) {
+            fmt_part.ReplaceAll("%I", "%d");
+            sscanf(run_part.Data(), fmt_part.Data(), &index);
+         }
+         else if (fmt_part.Contains("%D1")) {
+            fmt_part.ReplaceAll("%D1", "%s");
+            sscanf(run_part.Data(), fmt_part.Data(), date1);
+            got_date = true;
+         }
+         else if (fmt_part.Contains("%D2")) {
+            fmt_part.ReplaceAll("%D2", "%s");
+            sscanf(run_part.Data(), fmt_part.Data(), date2);
+            got_date = true;
+         }
+         else if (fmt_part.Contains("%D")) {
+            fmt_part.ReplaceAll("%D", "%s");
+            sscanf(run_part.Data(), fmt_part.Data(), date1);
+            got_date = true;
+         }
+      }
+      if (with_index) run = 100 * run + index;
+      if (got_date) {
+         if (two_part_date) date_read_from_filename.Form("%s.%s", date1, date2);
+         else date_read_from_filename = date1;
+      }
       return run;
-   //wtih date at end ?
-   TString Fmt = fmt + "%*";
-   if (_file.Sscanf(Fmt.Data(), &run))
-      return run;
+   }
+   else {
+      ::Warning("KVAvailableRunsFile::IsRunFileName",
+                "%s is not a runfile name according to format %s [separators: %s]",
+                _file.Data(), fmt.Data(), separators);
+   }
    return 0;
 }
 
@@ -244,7 +309,8 @@ Int_t KVAvailableRunsFile::IsRunFileName(const TString& fmt, const Char_t* filen
 
 Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime& date)
 {
-   // We assume that 'name' is the name of a run of the type of this available runs file.
+   // We assume that 'name' is the name of a run of the type of this available runs file
+   // (see KVAvailableRunsFile::IsRunFileName for accepted formats for runfile names with dates).
    // We attempt several methods to try to extract a date from 'name'.
    // If successful, we return kTRUE and 'date' contains the result.
 
@@ -255,41 +321,35 @@ Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime
    return ExtractDateFromFileName(fmt, name, date);
 }
 
-Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const TString& Fmt, const Char_t* name, KVDatime& date)
+Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const TString& fmt, const Char_t* name, KVDatime& date)
 {
    // We assume that 'name' is the name of a runfile according to given format 'fmt'.
+   // (see KVAvailableRunsFile::IsRunFileName for accepted formats for runfile names with dates).
    // We attempt several methods to try to extract a date from 'name'.
    // If successful, we return kTRUE and 'date' contains the result.
 
-   TString fmt(Fmt);
-   Int_t rubbish = fmt.Index("%*");
-   if (rubbish > -1) fmt.Remove(rubbish, fmt.Length());
    Int_t run = IsRunFileName(fmt, name);
    if (!run) return kFALSE;
-   TString basename;
-   basename.Form(fmt.Data(), run);
-   TString fullname(name);
-   if (!fullname.Contains(basename)) return kFALSE;
-   if (fullname.Length() == basename.Length()) return kFALSE;
-   fullname.Remove(0, basename.Length() + 1);
-   fullname.ReplaceAll("_", " ");
-   fullname.ToUpper();
-   if (KVDatime::IsSQLFormat(fullname.Data())) {
-      date.SetSQLDate(fullname.Data());
+   // if runfile name contains a date, it is now in variable date_read_from_filename
+   if (date_read_from_filename == "") return kFALSE;
+   date_read_from_filename.ReplaceAll("_", " ");
+   date_read_from_filename.ToUpper();
+   if (KVDatime::IsSQLFormat(date_read_from_filename.Data())) {
+      date.SetSQLDate(date_read_from_filename.Data());
       return kTRUE;
    }
    else {
-      fullname.ReplaceAll(".", " ");
-      if (KVDatime::IsGANACQFormat(fullname.Data())) {
-         date.SetGanacqDate(fullname.Data());
+      date_read_from_filename.ReplaceAll(".", " ");
+      if (KVDatime::IsGANACQFormat(date_read_from_filename.Data())) {
+         date.SetGanacqDate(date_read_from_filename.Data());
          return kTRUE;
       }
-      else if (KVDatime::IsGANACQ2010Format(fullname.Data())) {
-         date.SetGanacq2010Date(fullname.Data());
+      else if (KVDatime::IsGANACQ2010Format(date_read_from_filename.Data())) {
+         date.SetGanacq2010Date(date_read_from_filename.Data());
          return kTRUE;
       }
-      else if (KVDatime::IsGANACQNarvalFormat(fullname.Data())) {
-         date.SetGanacqNarvalDate(fullname.Data());
+      else if (KVDatime::IsGANACQNarvalFormat(date_read_from_filename.Data())) {
+         date.SetGanacqNarvalDate(date_read_from_filename.Data());
          return kTRUE;
       }
    }
