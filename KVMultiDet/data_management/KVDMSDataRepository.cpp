@@ -61,7 +61,7 @@ KVUniqueNameList* KVDMSDataRepository::GetDirectoryListing(const KVDataSet* ds,
 
 //___________________________________________________________________________
 
-Bool_t KVDMSDataRepository::CheckSubdirExists(const Char_t* dir,
+Bool_t KVDMSDataRepository:: CheckSubdirExists(const Char_t* dir,
       const Char_t* subdir)
 {
    //Returns kTRUE if the following path is valid
@@ -75,6 +75,12 @@ Bool_t KVDMSDataRepository::CheckSubdirExists(const Char_t* dir,
    else {
       path = fAccessroot.Data();
       dirname = dir;
+      // check that 'dir' is not a path containing several directories
+      // in this case all but the last have to be put in 'path'
+      if (dirname.Contains("/")) {
+         AssignAndDelete(path, gSystem->ConcatFileName(fAccessroot.Data(), gSystem->DirName(dir)));
+         dirname = gSystem->BaseName(dir);
+      }
    }
    return fDMS->DirectoryContains(dirname.Data(), path.Data());
 }
