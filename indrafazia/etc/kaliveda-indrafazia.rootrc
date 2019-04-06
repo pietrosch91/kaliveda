@@ -82,6 +82,7 @@ INDRAFAZIA.E789_test.DataSet.RepositoryDir:	INDRAFAZIA/E789_test
 INDRAFAZIA.E789_test.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
 INDRAFAZIA.E789_test.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789_test.DataSet.RunFileClass.raw:    MFM
+INDRAFAZIA.E789_test.MFM.WithEbyedat:  yes
 INDRAFAZIA.E789_test.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.E789_test.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.E789_test.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
@@ -177,6 +178,7 @@ INDRAFAZIA.E789.DataSet.RepositoryDir:	INDRAFAZIA/E789
 INDRAFAZIA.E789.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
 INDRAFAZIA.E789.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789.DataSet.RunFileClass.raw:    MFM
+INDRAFAZIA.E789.MFM.WithEbyedat:  yes
 INDRAFAZIA.E789.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.E789.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.E789.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA

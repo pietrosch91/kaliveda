@@ -752,7 +752,22 @@ TObject* KVDataSet::open_runfile(const Char_t* type, Int_t run)
    // Returns a pointer to the opened file; if the file is not available, we return nullptr.
    // The user must cast the returned pointer to the correct class, which will
    // depend on the data type and the dataset (see $KVROOT/KVFiles/.kvrootrc)
+   //
+   // SPECIAL CASE: MFM data with EBYEDAT frames
+   // If the variable
+   //   [dataset].MFM.WithEbyedat:   yes
+   // is set, then we expect to find the necessary ACTIONS_* files in the dataset directory
+   // in subdirectory 'ebyedat'
 
+   if (!strcmp(type, "raw") && !strcmp(GetDataSetEnv("MFM.WithEbyedat", ""), "yes")) {
+      TString ebydir = GetDataSetDir();
+      ebydir += "/ebyedat";
+      gEnv->SetValue("KVMFMDataFileReader.ActionsDirectory", ebydir);
+      TObject* f = GetRepository()->OpenDataSetRunFile(this, type, run, GetName());
+      // reset in case another dataset opens a raw MFM file without EBYEDAT data
+      gEnv->SetValue("KVMFMDataFileReader.ActionsDirectory", "");
+      return f;
+   }
    return GetRepository()->OpenDataSetRunFile(this, type, run, GetName());
 }
 

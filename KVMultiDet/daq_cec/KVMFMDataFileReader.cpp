@@ -25,7 +25,14 @@ KVMFMDataFileReader::KVMFMDataFileReader(const Char_t* filepath)
 {
    // Open the datafile with given path
    // Read the first frame in the file (should be a MFMXmlFileHeaderFrame) and extract informations
+   //
+   // If the variable
+   //    KVMFMDataFileReader.ActionsDirectory
+   // has been set, it will be used to search for EBYEDAT actions files in order to
+   // decode any EBYEDAT data in the file
 
+   std::string actions_dir = gEnv->GetValue("KVMFMDataFileReader.ActionsDirectory", "");
+   if (actions_dir != "") SetActionsDirectory(actions_dir);
    if (!ReadNextFrame()) {
       Error("KVMFMDataFileReader", "Cannot read file %s", filepath);
       MakeZombie();
