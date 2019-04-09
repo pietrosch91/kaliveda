@@ -213,9 +213,12 @@ void KVFAZIAReconNuc::Identify()
    // This continues until a successful identification is achieved or there are no more ID telescopes to try.
    // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-   //cout << "Dentro il mio Identify" << endl;
+   cout << "Dentro il mio Identify" << endl;
 
    KVList* idt_list = GetStoppingDetector()->GetIDTelescopes();
+
+   idt_list->Print();
+
    KVIdentificationResult* IDR = 0;
    Int_t idnumber = 1;
 
@@ -254,7 +257,6 @@ void KVFAZIAReconNuc::Identify()
             IDR->IDattempted = kFALSE;
          }
          idnumber += 1;
-
       }
 
       KVIdentificationResult partID;
