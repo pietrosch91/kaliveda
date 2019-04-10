@@ -864,17 +864,19 @@ const Char_t* KVDataSet::GetBaseFileName(const Char_t* type, Int_t run) const
    //
    //[dataset].DataSet.RunFileName.[type]:    run%R.dat
    //
-   //The actual name of the file, if it has already been written in the data repository,
-   //is contained in the available_runs.*.* file; if the file has not been written, or it is to
-   //be updated, a new name will be generated from this base, adding the date and time
-   //to the end.
+   //%R will be replaced with the run number
+   //IF the format contains '%D' it will be replaced with the current date and time
 
    static TString tmp;
    //get format string
    TString fmt = GetDataSetEnv(Form("DataSet.RunFileName.%s", type));
-   fmt.ReplaceAll("%R", "%d");
-   if (fmt != "") {
-      tmp.Form(fmt, run);
+   TString run_num(Form("%d", run));
+   KVDatime now;
+   TString date(now.AsSQLString());
+   tmp = fmt;
+   tmp.ReplaceAll("%R", run_num);
+   if (fmt.Contains("%D")) {
+      tmp.ReplaceAll("%D", date);
    }
    return tmp.Data();
 }
@@ -901,14 +903,10 @@ TFile* KVDataSet::NewRunfile(const Char_t* type, Int_t run)
 {
    // Create a new runfile for the dataset of given datatype.
    // (only if this dataset is associated with a data repository)
-   // The name of the new file will be a concatenation of GetBaseFileName(type,run)
-   // and the current date and time (TDatime::AsSQLString).
    // Once the file has been filled, use CommitRunfile to submit it to the repository.
 
    if (!fRepository) return nullptr;
-   TDatime now;
-   TString tmp;
-   tmp.Form("%s.%s", GetBaseFileName(type, run), now.AsSQLString());
+   TString tmp = GetBaseFileName(type, run);
    //turn any spaces into "_"
    tmp.ReplaceAll(" ", "_");
    return fRepository->CreateNewFile(this, type, tmp.Data());

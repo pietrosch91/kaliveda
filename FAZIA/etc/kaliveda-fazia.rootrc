@@ -83,7 +83,7 @@ FAZIETO.InterBlockPadding:   0.41
 +DataSet:   LNS_2014
 LNS_2014.DataSet.Title:    FAZIA commissioning at LNS (2014)
 LNS_2014.DataSet.RepositoryDir:   LNS_2014
-LNS_2014.DataSet.RunFileName.raw:    run%R.root
+LNS_2014.DataSet.RunFileName.raw:    run%R.root.%D
 LNS_2014.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2014.DataSet.RunFileClass.raw:    TFile
 LNS_2014.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -94,7 +94,7 @@ LNS_2014.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIASYM
 FAZIASYM.DataSet.Title:    FAZIASYM experiment at LNS (2015)
 FAZIASYM.DataSet.RepositoryDir:   FAZIASYM
-FAZIASYM.DataSet.RunFileName.raw:    run%R.root
+FAZIASYM.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIASYM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIASYM.DataSet.RunFileClass.raw:    TFile
 FAZIASYM.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -105,7 +105,7 @@ FAZIASYM.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   ISOFAZIA
 ISOFAZIA.DataSet.Title:    ISOFAZIA experiment at LNS (2015)
 ISOFAZIA.DataSet.RepositoryDir:   ISOFAZIA
-ISOFAZIA.DataSet.RunFileName.raw:    run%R.root
+ISOFAZIA.DataSet.RunFileName.raw:    run%R.root.%D
 ISOFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 ISOFAZIA.DataSet.RunFileClass.raw:    TFile
 ISOFAZIA.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -116,7 +116,7 @@ ISOFAZIA.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIANFS
 FAZIANFS.DataSet.Title:    Neutron detection efficiency at NFS (2017-)
 FAZIANFS.DataSet.RepositoryDir:   FAZIANFS
-FAZIANFS.DataSet.RunFileName.raw:    run%R.root
+FAZIANFS.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIANFS.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIANFS.DataSet.RunFileClass.raw:    TFile
 FAZIANFS.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -127,7 +127,7 @@ FAZIANFS.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   LNS_2016
 LNS_2016.DataSet.Title:   Test done at LNS during July 2016
 LNS_2016.DataSet.RepositoryDir:   LNS_2016
-LNS_2016.DataSet.RunFileName.raw:    run%R.root
+LNS_2016.DataSet.RunFileName.raw:    run%R.root.%D
 LNS_2016.ReconstructedEventClassName:	KVReconstructedEvent
 LNS_2016.DataSet.RunFileClass.raw:    TFile
 LNS_2016.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -150,7 +150,7 @@ FAZIACOR.DataSet.RunFileName.raw:    run%R
 +DataSet:   FAZIAPRE
 FAZIAPRE.DataSet.Title:   FAZIA-PRE experiment at LNS (feb. 2018)
 FAZIAPRE.DataSet.RepositoryDir:   FAZIAPRE
-FAZIAPRE.DataSet.RunFileName.raw:    run%R.root
+FAZIAPRE.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIAPRE.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIAPRE.DataSet.RunFileClass.raw:    TFile
 FAZIAPRE.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -161,7 +161,7 @@ FAZIAPRE.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIAPRE-MAY2018
 FAZIAPRE-MAY2018.DataSet.Title:   FAZIAPRE-MAY2018 experiment at LNS (may. 2018)
 FAZIAPRE-MAY2018.DataSet.RepositoryDir:   FAZIAPRE-MAY2018
-FAZIAPRE-MAY2018.DataSet.RunFileName.raw:    run%R.root
+FAZIAPRE-MAY2018.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIAPRE-MAY2018.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIAPRE-MAY2018.DataSet.RunFileClass.raw:    TFile
 FAZIAPRE-MAY2018.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -172,7 +172,7 @@ FAZIAPRE-MAY2018.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIAZERO
 FAZIAZERO.DataSet.Title:   FAZIAZERO experiment at LNS (may. 2018)
 FAZIAZERO.DataSet.RepositoryDir:   FAZIAZERO
-FAZIAZERO.DataSet.RunFileName.raw:    run%R.root
+FAZIAZERO.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIAZERO.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIAZERO.DataSet.RunFileClass.raw:    TFile
 FAZIAZERO.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -184,7 +184,7 @@ FAZIAZERO.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   TESTLNS17
 TESTLNS17.DataSet.Title:   Test done at LNS during July 2016
 TESTLNS17.DataSet.RepositoryDir:   TESTLNS17
-TESTLNS17.DataSet.RunFileName.raw:    run%R.root
+TESTLNS17.DataSet.RunFileName.raw:    run%R.root.%D
 TESTLNS17.ReconstructedEventClassName:	KVReconstructedEvent
 TESTLNS17.DataSet.RunFileClass.raw:    TFile
 TESTLNS17.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis
@@ -195,7 +195,7 @@ TESTLNS17.DataSet.RunFile.DoNotDelete: bin
 +DataSet:   FAZIADEM
 FAZIADEM.DataSet.Title:   FAZIA Demonstrator 12 Blocks
 FAZIADEM.DataSet.RepositoryDir:   FAZIADEM
-FAZIADEM.DataSet.RunFileName.raw:    run%R.root
+FAZIADEM.DataSet.RunFileName.raw:    run%R.root.%D
 FAZIADEM.ReconstructedEventClassName:	KVReconstructedEvent
 FAZIADEM.DataSet.RunFileClass.raw:    TFile
 FAZIADEM.DataAnalysisTask:     RawAnalysis Reconstruction ReconAnalysis

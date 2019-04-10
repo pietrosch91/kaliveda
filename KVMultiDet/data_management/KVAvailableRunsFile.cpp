@@ -561,34 +561,19 @@ void KVAvailableRunsFile::GetRunInfos(Int_t run, KVList* dates,
       if (line.BeginsWith(Form("%d|", run))) {
 
          //found it
-         TObjArray* toks = line.Tokenize('|');  // split into fields
+         unique_ptr<TObjArray> toks(line.Tokenize('|'));  // split into fields
          // check date is not identical to a previous entry
          // i.e. there are spurious duplicate entries
          TObjString* rundate = (TObjString*)toks->At(1)->Clone();
          if (dates->FindObject(rundate->GetName())) {
-            delete toks;
             delete rundate;
             line.ReadLine(fRunlist);
             continue;
          }
          //add date string
          dates->Add(toks->At(1)->Clone());
-
-         //backwards compatibility
-         //an old available_runs file will not have the filename field
-         //in this case we assume that the name of the file is given by the
-         //dataset's base file name (i.e. with no date/time suffix)
-         if (toks->GetEntries() > 2) {
-            files->Add(toks->At(2)->Clone());
-         }
-         else {
-            files->
-            Add(new
-                TObjString(fDataSet->
-                           GetBaseFileName(GetDataType(), run)));
-         }
-         delete toks;
-
+         //add filename
+         files->Add(toks->At(2)->Clone());
       }
       line.ReadLine(fRunlist);
    }
@@ -714,7 +699,7 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
 
    while (fRunlist.good()) {
 
-      TObjArray* toks = fLine.Tokenize('|');    // split into fields
+      unique_ptr<TObjArray> toks(fLine.Tokenize('|'));    // split into fields
       if (toks->GetSize()) {
 
          KVString kvs(((TObjString*) toks->At(0))->GetString());
@@ -727,12 +712,8 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
             kvversion = username = "";
             TString tmp = ((TObjString*) toks->At(1))->GetString();
             fDatime = TDatime(tmp.Data());
-            if (toks->GetEntries() > 2) {
-               filename = ((TObjString*) toks->At(2))->String();
-            }
-            else {
-               filename = GetBaseRunFileName(fRunNumber);
-            }
+            filename = ((TObjString*) toks->At(2))->String();
+
             if (toks->GetEntries() > 3) {
                kvversion = ((TObjString*) toks->At(3))->GetString();
                username = ((TObjString*) toks->At(4))->GetString();
@@ -778,7 +759,6 @@ TList* KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem*
             }
          }
       }
-      delete toks;
       fLine.ReadLine(fRunlist);
    }
 
@@ -823,19 +803,8 @@ void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t* filename, const C
       //with the right filename & number
       if (line.BeginsWith(Form("%d|", run))) {
 
-         TObjArray* toks = line.Tokenize('|');       // split into fields
-         TString ReadFileName;
-         //backwards compatibility
-         //an old available_runs file will not have the filename field
-         //in this case we assume that the name of the file is given by the
-         //dataset's base file name (i.e. with no date/time suffix)
-         if (toks->GetEntries() > 2) {
-            ReadFileName = ((TObjString*) toks->At(2))->String();
-         }
-         else {
-            ReadFileName =
-               fDataSet->GetBaseFileName(GetDataType(), run);
-         }
+         unique_ptr<TObjArray> toks(line.Tokenize('|'));       // split into fields
+         TString ReadFileName = ((TObjString*) toks->At(2))->String();
 
          if (ReadFileName != FileName) {
             //copy line
@@ -845,7 +814,6 @@ void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t* filename, const C
             // replace existing infos
             tmp_file << run << "|" << ((TObjString*) toks->At(1))->String() << "|" << filename << "|" << kvversion << "|" << username << endl;
          }
-         delete toks;
 
       }
       else {
@@ -912,20 +880,9 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t* filename)
          //with the right filename & number
          if (line.BeginsWith(Form("%d|", run))) {
 
-            TObjArray* toks = line.Tokenize('|');       // split into fields
+            unique_ptr<TObjArray> toks(line.Tokenize('|'));       // split into fields
             TString ReadFileName;
-            //backwards compatibility
-            //an old available_runs file will not have the filename field
-            //in this case we assume that the name of the file is given by the
-            //dataset's base file name (i.e. with no date/time suffix)
-            if (toks->GetEntries() > 2) {
-               ReadFileName = ((TObjString*) toks->At(2))->String();
-            }
-            else {
-               ReadFileName =
-                  fDataSet->GetBaseFileName(GetDataType(), run);
-            }
-            delete toks;
+            ReadFileName = ((TObjString*) toks->At(2))->String();
 
             if (ReadFileName != FileName) {
                //copy line
@@ -1167,7 +1124,7 @@ void KVAvailableRunsFile::ReadFile()
 
    while (fRunlist.good()) {
 
-      TObjArray* toks = fLine.Tokenize('|');    // split into fields
+      unique_ptr<TObjArray> toks(fLine.Tokenize('|'));    // split into fields
 
       // number of fields can vary
       // nfields = 2: run number, date
@@ -1203,7 +1160,6 @@ void KVAvailableRunsFile::ReadFile()
             }
          }
          if (!ok) {
-            delete toks;
             line_number++;
             fLine.ReadLine(fRunlist);
             continue;
@@ -1214,17 +1170,7 @@ void KVAvailableRunsFile::ReadFile()
 
       NVL->SetValue(Form("Date[%d]", Occurs - 1), datestring.Data());
 
-      //backwards compatibility
-      //an old available_runs file will not have the filename field
-      //in this case we assume that the name of the file is given by the
-      //dataset's base file name (i.e. with no date/time suffix)
-      KVString filename;
-      if (nfields > 2) {
-         filename = ((TObjString*) toks->At(2))->GetString();
-      }
-      else {
-         filename = fDataSet->GetBaseFileName(GetDataType(), fRunNumber);
-      }
+      KVString filename = ((TObjString*) toks->At(2))->GetString();
       NVL->SetValue(Form("Filename[%d]", Occurs - 1), filename.Data());
       KVString kvversion, username;
       if (nfields > 4) {
@@ -1233,7 +1179,6 @@ void KVAvailableRunsFile::ReadFile()
          NVL->SetValue(Form("KVVersion[%d]", Occurs - 1), kvversion.Data());
          NVL->SetValue(Form("Username[%d]", Occurs - 1), username.Data());
       }
-      delete toks;
 
       line_number++;
       fLine.ReadLine(fRunlist);
