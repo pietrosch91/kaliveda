@@ -288,8 +288,7 @@ public:
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning fRealZ" << std::endl;
          return fRealZ;
-      }
-      else {
+      } else {
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning GetZ() because fRealZ=" << fRealZ << std::endl;
          return (Float_t) GetZ();
@@ -361,7 +360,8 @@ public:
       //         if(GetIdentificationResult(i)){ // always true }
       KVIdentificationResult* id = nullptr;
       if (i) id = (KVIdentificationResult*)fIDResults.ConstructedAt(i - 1);
-      id->SetNumber(i);
+      printf("id=%p\n", id);
+      if (id != nullptr) id->SetNumber(i);
       return id;
    }
    Int_t GetNumberOfIdentificationResults() const

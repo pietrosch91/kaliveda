@@ -215,6 +215,9 @@ void KVFAZIAReconNuc::Identify()
 
    KVList* idt_list = GetStoppingDetector()->GetIDTelescopes();
 
+   GetStoppingDetector()->Print();
+   int STOPID = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
+
    idt_list->Print();
 
    KVIdentificationResult* IDR = 0;
@@ -228,9 +231,11 @@ void KVFAZIAReconNuc::Identify()
       while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
          cout << "NExt Telescope\n";
          idt->Print();
-         if (StoppedInSI1() && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
-         if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
+         printf("Checking stopped detector %s\n", idt->GetType());
+         if (STOPID == KVFAZIADetector::kSI1 && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
+         if (STOPID == KVFAZIADetector::kSI2 && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
 
+         printf("Initializing IDR\n");
          IDR = GetIdentificationResult(idnumber);
          printf("Initialized IDR=%p\n", IDR);
          IDR->SetName(idt->GetName());
