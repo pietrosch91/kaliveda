@@ -15,13 +15,12 @@ protected:
    Int_t fBlock;
    Int_t fQuartet;
    Int_t fTelescope;
-   Int_t fIdentifier;   //to difference SI1 SI2 CSI detectors
+   Int_t fIdentifier;   // SI1=0(kSI1) SI2=1(kSI2) CSI=2(kCSI)
    Int_t fIndex;   //!100*block+10*quartet+telescope
    Bool_t fIsRutherford;   //!
 
    Double_t fChannel;
    Double_t fVolt;
-
 
    //values defined for SI1 detectors
 
@@ -68,9 +67,10 @@ protected:
 
    //thresholds defined for this detector
    Double_t fQH1Threshold;
-   Double_t fQL1Threshold;
    Double_t fQ2Threshold;
    Double_t fQ3Threshold;
+
+   Bool_t fIsFiredFromSignals;
 
    KVCalibrator* fChannelToEnergy;//!To obtain energy from charge
    KVCalibrator* fChannelToVolt;//!To obtain volt from channel
@@ -78,7 +78,6 @@ protected:
 
    void init();   //initialisation method called by the constructors
    Bool_t SetProperties();
-
 
 public:
    enum {                       //determine identification of the detector
@@ -127,6 +126,7 @@ public:
       //   KVFAZIADetector::kOTHER
       return fIdentifier;
    }
+
    Int_t GetBlockNumber() const
    {
       return fBlock;

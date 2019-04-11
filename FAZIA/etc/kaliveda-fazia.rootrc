@@ -429,6 +429,11 @@ FAZIADetector.Calib.Channel-Volt: pol2
 FAZIADetector.Calib.Volt-Energy: pol2
 FAZIADetector.Calib.Channel-Energy: pol2
 
+SI1.IsFiredFromSignal:  1
+SI2.IsFiredFromSignal:  1
+CSI.IsFiredFromSignal:  1
+
+
 #
 # parameters for the filter for signal processing
 # if you want to change these parameters for an other dataset

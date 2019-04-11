@@ -163,6 +163,11 @@ INDRAFAZIA.E789_test.QH1.MinimumAmplitude:          2
 INDRAFAZIA.E789_test.Q2.MinimumAmplitude:           2
 INDRAFAZIA.E789_test.Q3.MinimumAmplitude:           3
 
+INDRAFAZIA.E789_test.SI1.IsFiredFromSignal:  0
+INDRAFAZIA.E789_test.SI2.IsFiredFromSignal:  0
+INDRAFAZIA.E789_test.CSI.IsFiredFromSignal:  0
+
+
 INDRAFAZIA.E789_test.QH1.FPGARiseTime:          2.
 INDRAFAZIA.E789_test.Q2.FPGARiseTime:           2.
 INDRAFAZIA.E789_test.Q3.fast.FPGARiseTime:      2.

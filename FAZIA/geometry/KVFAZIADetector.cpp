@@ -52,11 +52,6 @@ void KVFAZIADetector::init()
    fChannel = 0;
    fVolt = 0;
 
-   fQH1Threshold = GetSetupParameter("QH1.MinimumAmplitude");
-//   fQL1Threshold = GetSetupParameter("QH1.MinimumAmplitude");
-   fQ2Threshold = GetSetupParameter("Q2.MinimumAmplitude");
-   fQ3Threshold = GetSetupParameter("Q3.MinimumAmplitude");
-
 }
 
 //________________________________________________________________
@@ -284,6 +279,15 @@ Bool_t KVFAZIADetector::SetProperties()
 
    gFazia->AddDetectorLabel(GetLabel());
 
+   // read thresholds to be applied on FPGA energies to decide if detector is fired
+   fQH1Threshold = GetSetupParameter("QH1.MinimumAmplitude");
+   fQ2Threshold = GetSetupParameter("Q2.MinimumAmplitude");
+   fQ3Threshold = GetSetupParameter("Q3.MinimumAmplitude");
+
+   // if f[DET]FiredFromSignals = true, use the signal to decide if detector is fired
+   // instead of FPGA energies (old fashion)
+   fIsFiredFromSignals = GetSetupParameter(Form("%s.IsFiredFromSignal", GetLabel())) > 0.5;
+
    tmp = sname.Next();
    if (tmp == "RUTH") {
       fIsRutherford = kTRUE;
@@ -387,53 +391,51 @@ Bool_t KVFAZIADetector::Fired(Option_t*)
    if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
    if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss() > 0.); // simulation mode: detector fired if energy lost in active layer
 
-   switch (GetIdentifier()) {
-      case kSI1:
-         if (fFPGAEnergyQH1 > fQH1Threshold) return kTRUE;
-         else return kFALSE;
-         break;
-      case kSI2:
-         if (fFPGAEnergyQ2 > fQ2Threshold) return kTRUE;
-         else return kFALSE;
-         break;
-      case kCSI:
-         if (fFPGAEnergyQ3 > fQ3Threshold) return kTRUE;
-         else return kFALSE;
-         break;
-      default:
-         return kFALSE;
-         break;
+   if (!fIsFiredFromSignals) {
+      switch (GetIdentifier()) {
+         case kSI1:
+            if (fFPGAEnergyQH1 > fQH1Threshold) return kTRUE;
+            else return kFALSE;
+            break;
+         case kSI2:
+            if (fFPGAEnergyQ2 > fQ2Threshold) return kTRUE;
+            else return kFALSE;
+            break;
+         case kCSI:
+            if (fFPGAEnergyQ3 > fQ3Threshold) return kTRUE;
+            else return kFALSE;
+            break;
+         default:
+            return kFALSE;
+            break;
+      }
    }
 
 //   hereafter : old way of doing...
-//   KVSignal* sig;
-//   if (fSignals) {
-//      TIter next(fSignals);
-//      while ((sig = (KVSignal*)next())) {
-//         if (sig->IsOK()) {
-//            if (sig->IsCharge()) {
-
-//               //pre process to use the test method KVSignal::IsFired()
-//               sig->ComputeEndLine();
-//               sig->TreateSignal();
-
-//               if (sig->IsFired()) {
-//                  return kTRUE;
-//               }
-//               else {
-
-//               }
-//            }
-//         }
-//         else {
-//            //Warning("Fired","%s has empty signal %s",GetName(),sig->GetName());
-//         }
-//      }
-//   }
-//   else {
-//      Warning("Fired", "%s : No signal attached to this detector ...", GetName());
-//   }
-
+   KVSignal* sig;
+   if (fSignals.GetSize()) {
+      TIter next(&fSignals);
+      while ((sig = (KVSignal*)next())) {
+         if (sig->IsOK()) {
+            if (sig->IsCharge()) {
+               //pre process to use the test method KVSignal::IsFired()
+               sig->ComputeEndLine();
+               sig->TreateSignal();
+               if (sig->IsFired()) {
+                  return kTRUE;
+               }
+               else {
+               }
+            }
+         }
+         else {
+            Warning("Fired", "%s has empty signal %s", GetName(), sig->GetName());
+         }
+      }
+   }
+   else {
+      Warning("Fired", "%s : No signal attached to this detector ...", GetName());
+   }
    return kFALSE;
 }
 
