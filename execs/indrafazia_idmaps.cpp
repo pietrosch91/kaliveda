@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
    KVDataRepositoryManager drm;
    drm.Init();
-   gDataSetManager->GetDataSet("INDRAFAZIA")->cd();
+   gDataSetManager->GetDataSet("INDRAFAZIA.E789_test")->cd();
 
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName());
    gMultiDetArray->InitializeIDTelescopes();
@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
    TFile f(Form("idmaps_%d.root", first_frame), "recreate");
 
    KVHashList my_hists;
-   TString idtypes[] = {"Si-Si", "Si-CsI", "CsI", "CSI", "SI-CSI", ""};
+//   TString idtypes[] = {"Si-Si", "Si-CsI", "CsI", "CSI", "SI-CSI", ""};
+   TString idtypes[] = {"Si-CsI", ""};
    int iid = 0;
    while (idtypes[iid] != "") {
       f.mkdir(idtypes[iid]);
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
          KVIDTelescope* idt;
          while ((idt = (KVIDTelescope*)nxt_csi())) {
             if (idt->GetDetector(1)->InheritsFrom("KVFAZIADetector")) {
-               if (((KVFAZIADetector*)idt->GetDetector(1))->GetBlockNumber() == 1) {
+               if (1) {
 
                   if (idtypes[iid] == "Si-Si") my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 1000, 2000, 0, 1000));
                   else if (idtypes[iid] == "Si-CsI") my_hists.Add(new TH2F(idt->GetName(), idt->GetName(), 2000, 0, 4000, 2000, 0, 500));
