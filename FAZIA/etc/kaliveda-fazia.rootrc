@@ -256,6 +256,7 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 0-1
 +Plugin.KVDetector:      KVFAZIALNS2016      KVFAZIADetector      FAZIAgeometry      "KVFAZIADetector()"
 +Plugin.KVDetector:      KVFAZIACOR      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
 +Plugin.KVDetector:      KVFAZIALNS17      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
++Plugin.KVDetector:      KVFAZIAPRE      KVFAZIACORDetector      FAZIAgeometry      "KVFAZIACORDetector()"
 
 #gerer automatiquement par KVMultiDetArray::GetIDTelescopes
 +Plugin.KVIDTelescope:    ^ISOFAZIA.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
@@ -282,8 +283,8 @@ FAZIA.ReconstructedNuclei.AcceptECodes: 0-1
 +Plugin.KVIDTelescope:    ^LNS_2016.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^LNS_2016.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^LNS_2016.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
-+Plugin.KVIDTelescope:    ^FAZIACOR.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification
-+Plugin.KVIDTelescope:    ^FAZIAPRE.Si-CsI$                  KVFAZIAIDSiCsI_FAZIASYM          FAZIAidentification           "KVFAZIAIDSiCsI_FAZIASYM()"
++Plugin.KVIDTelescope:    ^FAZIACOR.Si-CsI$              KVFAZIAIDSiCsI            FAZIAidentification        "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^FAZIAPRE.Si-CsI$                  KVFAZIAIDSiCsI            FAZIAidentification        "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^FAZIAPRE-MAY2018.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^FAZIAZERO.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
 +Plugin.KVIDTelescope:    ^FAZIACOR.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"

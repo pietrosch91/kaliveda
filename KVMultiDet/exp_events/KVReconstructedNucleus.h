@@ -360,7 +360,7 @@ public:
       //         if(GetIdentificationResult(i)){ // always true }
       KVIdentificationResult* id = nullptr;
       if (i) id = (KVIdentificationResult*)fIDResults.ConstructedAt(i - 1);
-      printf("id=%p\n", id);
+      //printf("id=%p\n", id);
       if (id != nullptr) id->SetNumber(i);
       return id;
    }

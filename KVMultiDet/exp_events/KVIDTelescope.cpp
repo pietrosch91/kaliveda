@@ -155,8 +155,7 @@ void KVIDTelescope::Initialize(void)
    if (GetDetectors()->GetEntries() == 2 && GetIDGrid()) {
       GetIDGrid()->Initialize();
       SetBit(kReadyForID);
-   }
-   else if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
+   } else if (gDataSet && !gDataSet->HasCalibIdentInfos()) SetBit(kReadyForID);
    else ResetBit(kReadyForID);
 
    if (gDataSet) {
@@ -197,8 +196,7 @@ void KVIDTelescope::AddDetector(KVDetector* d)
       if (GetSize() > 1)
          SetName(Form("ID_%s_%s", GetDetector(1)->GetName(), GetDetector(2)->GetName()));
       else SetName(Form("ID_%s", GetDetector(1)->GetName()));
-   }
-   else {
+   } else {
       Warning("AddDetector", "Called with null pointer");
    }
 }
@@ -218,8 +216,7 @@ void KVIDTelescope::Print(Option_t* opt) const
          if (obj->Fired() || obj->GetEnergy())
             obj->Print("data");
       }
-   }
-   else {
+   } else {
       cout << "\n" << opt << "Structure of KVIDTelescope object: " <<
            GetName() << " " << GetType() << endl;
       cout << opt <<
@@ -327,8 +324,7 @@ TGraph* KVIDTelescope::MakeIDLine(KVNucleus* nuc, Double_t Emin,
       //otherwise miss a step and reduce number of points in graph
       if (x[step] > 0 && y[step] > 0) {
          step++;
-      }
-      else {
+      } else {
          nsteps--;
       }
 
@@ -367,8 +363,7 @@ Bool_t KVIDTelescope::Identify(KVIdentificationResult* idr, Double_t x, Double_t
 
    if (grid->IsIdentifiable(e, de)) {
       grid->Identify(e, de, idr);
-   }
-   else {
+   } else {
       idr->IDOK = kFALSE;
    }
 
@@ -510,7 +505,7 @@ KVIDTelescope* KVIDTelescope::MakeIDTelescope(const Char_t* uri)
    // #    [name_of_dataset].de_detector_type[de detector thickness]
    // #    [name_of_dataset].e_detector_type[e detector thickness]
    // # then we add also an instance of this 1-detector identification telescope.
-
+   //printf("In MakeIDTelescope %s\n",uri);
    //check and load plugin library
    TPluginHandler* ph;
    if (!(ph = LoadPlugin("KVIDTelescope", uri)))
@@ -522,7 +517,7 @@ KVIDTelescope* KVIDTelescope::MakeIDTelescope(const Char_t* uri)
       //set label of telescope with URI used to find plugin (minus dataset name)
       mda->SetLabelFromURI(uri);
    }
-
+   //printf("In MakeIDTelescope %s\n",uri);
    return mda;
 }
 
@@ -684,8 +679,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus* nuc)
          //status code
          fCalibStatus = kCalibStatus_Calculated;
       }
-   }
-   else {  //1st detector is calibrated too: get corrected energy loss
+   } else { //1st detector is calibrated too: get corrected energy loss
 
       e1 = d1->GetCorrectedEnergy(nuc);
 
@@ -709,8 +703,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus* nuc)
          //status code
          fCalibStatus = kCalibStatus_Calculated;
       }
-   }
-   else if (d2) {   //2nd detector is calibrated too: get corrected energy loss
+   } else if (d2) { //2nd detector is calibrated too: get corrected energy loss
 
       e2 = d2->GetCorrectedEnergy(nuc, -1, kFALSE);//N.B.: transmission=kFALSE because particle assumed to stop in d2
       // recalculate corrected energy in first stage using info on Eres
@@ -748,8 +741,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus* nuc)
             det->SetEResAfterDetector(einc);
             dE = det->GetCorrectedEnergy(nuc);
             einc += dE;
-         }
-         else {
+         } else {
             // Uncalibrated/unfired/multihit detector. Calculate energy loss.
             //calculate energy of particle before detector from energy after detector
             e1 = det->GetDeltaEFromERes(z, a, einc);
@@ -763,8 +755,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus* nuc)
                }
                //status code
                fCalibStatus = kCalibStatus_Multihit;
-            }
-            else if (!det->Fired() || !det->IsCalibrated()) {
+            } else if (!det->Fired() || !det->IsCalibrated()) {
                //Info("CalculateParticleEnergy",
                //    "Detector %s uncalibrated/not fired. Calculated energy loss for particle %f MeV",
                //    det->GetName(), e1);
@@ -880,8 +871,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange, Int_t delta
                   //particle got through - decrease energy
                   E1max = E1;
                   E1 = (E1max + E1min) / 2.;
-               }
-               else {
+               } else {
                   //particle stopped - increase energy
                   E1min = E1;
                   E1 = (E1max + E1min) / 2.;
@@ -911,8 +901,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange, Int_t delta
                   //particle got through - decrease energy
                   E2max = E2;
                   E2 = (E2max + E2min) / 2.;
-               }
-               else {
+               } else {
                   //particle stopped - increase energy
                   E2min = E2;
                   E2 = (E2max + E2min) / 2.;
@@ -1030,13 +1019,11 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz, Bool_t Zonly, Int_t 
       Int_t nA = nlA.GetNValues();
       if (nA == 0) {
          Warning("CalculateDeltaE_EGrid", "no count for Z=%d", zz);
-      }
-      else {
+      } else {
          if (Zonly) {
             nlA.Clear();
             nlA.Add(TMath::Nint(sumA));
-         }
-         else {
+         } else {
             if (nA == 1) {
                Int_t aref = nlA.Last();
                nlA.Add(aref - 1);
@@ -1077,8 +1064,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz, Bool_t Zonly, Int_t 
                      //particle got through - decrease energy
                      E1max = E1;
                      E1 = (E1max + E1min) / 2.;
-                  }
-                  else {
+                  } else {
                      //particle stopped - increase energy
                      E1min = E1;
                      E1 = (E1max + E1min) / 2.;
@@ -1108,8 +1094,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz, Bool_t Zonly, Int_t 
                      //particle got through - decrease energy
                      E2max = E2;
                      E2 = (E2max + E2min) / 2.;
-                  }
-                  else {
+                  } else {
                      //particle stopped - increase energy
                      E2min = E2;
                      E2 = (E2max + E2min) / 2.;
@@ -1268,8 +1253,7 @@ void KVIDTelescope::SetIdentificationStatus(KVReconstructedNucleus* n)
       double e = n->GetE();
       n->SetZ(n->GetZ());// use mass formula for A
       n->SetE(e);
-   }
-   else {
+   } else {
       if (fMassIDValidity) n->SetAMeasured(fMassIDValidity->Test(n)); // test expression for mass ID validity
       else n->SetAMeasured();   // no expression set; all nuclei are identified in mass
       if (!n->IsAMeasured()) {

@@ -147,17 +147,34 @@ KVFAZIADetector* KVFAZIAReconNuc::Get(const Char_t* label) const
 KVFAZIADetector* KVFAZIAReconNuc::GetCSI() const
 {
    // Access CSI detector hit by particle. If particle stopped before CSI, returns null pointer.
-   return Get("CSI");
+//   return Get("CSI");
+   int IDSTOP = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
+   // if(IDSTOP==KVFAZIADetector::kSI1) return (KVFAZIADetector*)GetDetector(0);
+   // if(IDSTOP==KVFAZIADetector::kSI2) return (KVFAZIADetector*)GetDetector(1);
+   if (IDSTOP == KVFAZIADetector::kCSI) return (KVFAZIADetector*)GetDetector(0);
+   return nullptr;
 }
+
 KVFAZIADetector* KVFAZIAReconNuc::GetSI1() const
 {
    // Access SI1 detector hit by particle.
-   return Get("SI1");
+   //return Get("SI1");
+   int IDSTOP = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
+   if (IDSTOP == KVFAZIADetector::kSI1) return (KVFAZIADetector*)GetDetector(0);
+   if (IDSTOP == KVFAZIADetector::kSI2) return (KVFAZIADetector*)GetDetector(1);
+   if (IDSTOP == KVFAZIADetector::kCSI) return (KVFAZIADetector*)GetDetector(2);
+   return nullptr;
 }
+
 KVFAZIADetector* KVFAZIAReconNuc::GetSI2() const
 {
    // Access SI2 detector hit by particle. If particle stopped in SI1, returns null pointer.
-   return Get("SI2");
+   //return Get("SI2");
+   int IDSTOP = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
+   // if(IDSTOP==KVFAZIADetector::kSI1) return (KVFAZIADetector*)GetDetector(0);
+   if (IDSTOP == KVFAZIADetector::kSI2) return (KVFAZIADetector*)GetDetector(0);
+   if (IDSTOP == KVFAZIADetector::kCSI) return (KVFAZIADetector*)GetDetector(1);
+   return nullptr;
 }
 
 Int_t KVFAZIAReconNuc::GetIndex() const
@@ -211,39 +228,46 @@ void KVFAZIAReconNuc::Identify()
    // This continues until a successful identification is achieved or there are no more ID telescopes to try.
    // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-   cout << "Dentro il mio Identify" << endl;
+   //cout << "Dentro il mio Identify" << endl;
 
    KVList* idt_list = GetStoppingDetector()->GetIDTelescopes();
 
-   GetStoppingDetector()->Print();
+   // GetStoppingDetector()->Print();
    int STOPID = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
 
-   idt_list->Print();
+   //idt_list->Print();
 
    KVIdentificationResult* IDR = 0;
    Int_t idnumber = 1;
 
    if (idt_list && idt_list->GetSize() > 0) {
-      cout << "LOOP over telescopes\n";
+      // cout << "LOOP over telescopes\n";
       KVIDTelescope* idt;
       TIter next(idt_list);
 
       while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
-         cout << "NExt Telescope\n";
-         idt->Print();
-         printf("Checking stopped detector %s\n", idt->GetType());
+         //cout << "NExt Telescope\n";
+         //idt->Print();
+         //printf("Checking stopped detector %s\n", idt->GetType());
          if (STOPID == KVFAZIADetector::kSI1 && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
          if (STOPID == KVFAZIADetector::kSI2 && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
 
-         printf("Initializing IDR\n");
+         //printf("Initializing IDR\n");
          IDR = GetIdentificationResult(idnumber);
-         printf("Initialized IDR=%p\n", IDR);
+         //printf("Initialized IDR=%p\n", IDR);
          IDR->SetName(idt->GetName());
          IDR->SetType(idt->GetType());
+         /* if(!strcmp(idt->GetType(), "Si-CsI")){
+             printf("Attempting id with %s tel\n",idt->GetType());
+             if(!idt->IsReadyForID()) printf("iDT not ready\n");
+          }*/
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
+            // printf("Attempting id with telescope:\n");
+            // idt->Print();
             IDR->IDattempted = kTRUE;
             IDR->IDOK = kFALSE;
             idt->Identify(IDR);
+            if (!strcmp(idt->GetType(), "Si-CsI")) IDR->Print();
             if (IDR->IDOK && !(IDR->Z >= 3 && IDR->IDcode == 33)) { //Correspond to Quality code <=3 !!!!!Condizione rigetto Z>3 da CSI
                SetIdentification(IDR);
                SetIdentifyingTelescope(idt);
@@ -264,11 +288,12 @@ void KVFAZIAReconNuc::Identify()
 
       KVIdentificationResult partID;
       Bool_t ok = kFALSE;
-      if (StoppedInSI1()) {
+      //printf("Beginning Coherency check\n");
+      if (STOPID == KVFAZIADetector::kSI1) {
          ok = CoherencySi(partID);
-      } else if (StoppedInSI2()) {
+      } else if (STOPID == KVFAZIADetector::kSI2) {
          ok = CoherencySiSi(partID);
-      } else if (StoppedInCSI()) {
+      } else if (STOPID == KVFAZIADetector::kCSI) {
          ok = CoherencySiCsI(partID);
       }
       if (ok) {
@@ -317,6 +342,7 @@ Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
 
 Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 {
+   // printf("Check CSI\n");
    KVIdentificationResult* IDcsi = GetIdentificationResult("CsI");
    KVIdentificationResult* IDsicsi = GetIdentificationResult("Si-CsI");
    fCoherent = kTRUE;
