@@ -85,6 +85,14 @@ RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 RawAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
++DataAnalysisTask:     ReconRawAnalysis
+ReconRawAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed raw data
+ReconRawAnalysis.DataAnalysisTask.Prereq:     raw
+ReconRawAnalysis.DataAnalysisTask.Analyser:     UserClass
+ReconRawAnalysis.DataAnalysisTask.UserClass:     yes
+ReconRawAnalysis.DataAnalysisTask.UserClass.Base:     ReconRawDataAnalyser
+ReconRawAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
+
 # analysis of TTree containing KVEvent objects using KVEventSelector
 +DataAnalysisTask:     SimEventAnalysis
 SimEventAnalysis.DataAnalysisTask.Title:     Analysis of simulated events in tree
@@ -183,6 +191,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDetanalysis    "KVRootB
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDetexp_events "KVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   ReconRawDataAnalyser        KVReconRawDataAnalyser   KVMultiDetexp_events "KVReconRawDataAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirAnalyser         KVSimDirAnalyser        KVMultiDetanalysis   "KVSimDirAnalyser()"
 +Plugin.KVDataAnalyser:   SimDirFilterAnalyser         KVSimDirFilterAnalyser        KVMultiDetexp_events   "KVSimDirFilterAnalyser()"
 +Plugin.KVDataAnalyser:   RawDataReconstructor         KVRawDataReconstructor        KVMultiDetexp_events   "KVRawDataReconstructor()"

@@ -192,7 +192,6 @@ void KVRawDataAnalyser::Make(const Char_t* kvsname)
    //Analysis
    body = "   //Analysis method called for each event\n";
    body += "   //  GetEventNumber() returns current event number\n";
-   body += "   //  GetDetectorEvent() gives pointer to list of hit groups (KVDetectorEvent) for current event\n";
    body += "   //  Processing will stop if this method returns kFALSE\n";
    body += "   return kTRUE;";
    cf.AddMethodBody("Analysis", body);

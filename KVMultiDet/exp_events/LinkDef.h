@@ -14,6 +14,7 @@
 #pragma link C++ class KVGroupReconstructor+;
 #pragma link C++ class KVRawDataReconstructor+;
 #pragma link C++ class KVReconDataAnalyser+;
+#pragma link C++ class KVReconRawDataAnalyser+;
 #ifdef WITH_DATAFLOW
 #ifdef WITH_ZMQ
 #pragma link C++ class KVOnlineReconDataAnalyser+;
