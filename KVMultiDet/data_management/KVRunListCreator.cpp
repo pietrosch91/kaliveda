@@ -48,16 +48,21 @@ Int_t KVRunListCreator::ScanDirectory()
                infos->SetValue("Size", x);
             else
                infos->SetValue64bit("Size", sysfile->GetSize());
-//            if (fDataType != "") {
-//               fReader.reset(KVRawDataReader::OpenFile(fDataType, Form("%s/%s", sysdir.GetTitle(), sysfile->GetName())));
-//               ULong64_t events = 0;
-//               while (fReader->GetNextEvent()) ++events;
-//               Int_t x = events;
-//               if (x == events)
-//                  infos->SetValue("Events", x);
-//               else
-//                  infos->SetValue64bit("Events", events);
-//            }
+            if (fDataType != "") {
+               fReader.reset(KVRawDataReader::OpenFile(fDataType, Form("%s/%s", sysdir.GetTitle(), sysfile->GetName())));
+               ULong64_t events = 0;
+               // correct start date/time from infos in file (GANIL/MFM data) ?
+               if (fReader->GetRunInfos().HasStringParameter("FileCreationTime")) {
+                  when.SetGanacqNarvalDate(fReader->GetRunInfos().GetStringValue("FileCreationTime"));
+                  infos->SetValue("Start", when.AsSQLString());
+               }
+               while (fReader->GetNextEvent()) ++events;
+               Int_t x = events;
+               if (x == events)
+                  infos->SetValue("Events", x);
+               else
+                  infos->SetValue64bit("Events", events);
+            }
             infos->ls();
             fRunInfos.Add(infos);
          }

@@ -13,7 +13,13 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVBase.h"
 #include "KVSeqCollection.h"
 
+#include <KVNameValueList.h>
+
 class KVRawDataReader : public KVBase {
+
+protected:
+   KVNameValueList fRunInfos;//! informations on run extracted from file
+
 public:
 
    KVRawDataReader();
@@ -38,6 +44,10 @@ public:
    virtual Int_t GetRunNumberReadFromFile() const = 0;
 
    static KVRawDataReader* OpenFile(const TString& type, const TString& filename);
+   const KVNameValueList& GetRunInfos() const
+   {
+      return fRunInfos;
+   }
 
    ClassDef(KVRawDataReader, 0) //Base class for reading raw data
 };

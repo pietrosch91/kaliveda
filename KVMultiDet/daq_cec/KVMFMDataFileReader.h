@@ -10,8 +10,6 @@
 
 class KVMFMDataFileReader : public KVRawDataReader, public MFMFileReader {
 
-   KVNameValueList fRunInfos;//! informations on run extracted from XML header frame
-
 public:
    KVMFMDataFileReader(const Char_t* filepath);
    virtual ~KVMFMDataFileReader() {}
@@ -25,11 +23,6 @@ public:
    KVSeqCollection* GetFiredDataParameters() const
    {
       return nullptr;
-   }
-
-   const KVNameValueList& GetRunInfos() const
-   {
-      return fRunInfos;
    }
 
    static KVMFMDataFileReader* Open(const Char_t* filepath, Option_t* = "");
