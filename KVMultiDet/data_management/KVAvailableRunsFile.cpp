@@ -189,20 +189,29 @@ Int_t KVAvailableRunsFile::IsRunFileName(const Char_t* filename)
    //
    // The format for a given dataset is defined by variable
    //
-   // [dataset].DataSet.RunFileName.raw:    [format]
+   // [dataset].DataSet.RunFileName.[datatype]:    [format]
+   //
+   // If this format contains an index ("%I" field) then you must also define the multiplier
+   // used to generate effective run numbers: run = run_number*multiplier+index:
+   //
+   // [dataset].DataSet.RunFileIndexMultiplier.[datatype]:   [integer]
 
-   TString fmt =
-      fDataSet->
-      GetDataSetEnv(Form("DataSet.RunFileName.%s", GetDataType()));   //get format string for current dataset
+   TString fmt = fDataSet->GetDataSetEnv(Form("DataSet.RunFileName.%s", GetDataType()), "");  //get format string for current dataset
    if (fmt == "") {
       Error("IsRunFileName", "No default format set for datatype: %s",
             GetDataType());
       return 0;
    }
-   return IsRunFileName(fmt, filename);
+   int imult = fDataSet->GetDataSetEnv(Form("DataSet.RunFileIndexMultiplier.%s", GetDataType()), -1.0);
+   if (fmt.Contains("%I") && (imult < 0)) {
+      Error("IsRunFileName", "No index multiplier set for datatype: %s with format: %s",
+            GetDataType(), fmt.Data());
+      return 0;
+   }
+   return IsRunFileName(fmt, filename, imult);
 }
 
-Int_t KVAvailableRunsFile::IsRunFileName(const KVString& fmt, const Char_t* filename, const Char_t* separators)
+Int_t KVAvailableRunsFile::IsRunFileName(const KVString& fmt, const Char_t* filename, Int_t index_multiplier, const Char_t* separators)
 {
    // This method tests the string given as 'filename' to see if it could be the name of a runfile.
    // Any protocol and/or path information in the filename is first removed.
@@ -232,7 +241,9 @@ Int_t KVAvailableRunsFile::IsRunFileName(const KVString& fmt, const Char_t* file
    //    %D      :   date and time
    //    %D1.%D2 :   date and time separated by '.'
    //    %I      :   file index number. WARNING: the first file has NO index, the
-   //                second file has index '1', etc.
+   //                second file has index '1', etc. In this case the index_multiplier
+   //                will be used to generate (and return) an effective run number,
+   //                given by index_multiplier*run + index
    //
    // The filename will be broken up according to the separators (default: ".")
    // Then the different parts will be analysed according to the given format string
@@ -290,18 +301,18 @@ Int_t KVAvailableRunsFile::IsRunFileName(const KVString& fmt, const Char_t* file
             got_date = true;
          }
       }
-      if (with_index) run = 100 * run + index;
+      if (with_index) run = index_multiplier * run + index;
       if (got_date) {
          if (two_part_date) date_read_from_filename.Form("%s.%s", date1, date2);
          else date_read_from_filename = date1;
       }
       return run;
    }
-   else {
-      ::Warning("KVAvailableRunsFile::IsRunFileName",
-                "%s is not a runfile name according to format %s [separators: %s]",
-                _file.Data(), fmt.Data(), separators);
-   }
+//   else {
+//      ::Warning("KVAvailableRunsFile::IsRunFileName",
+//                "%s is not a runfile name according to format %s [separators: %s]",
+//                _file.Data(), fmt.Data(), separators);
+//   }
    return 0;
 }
 

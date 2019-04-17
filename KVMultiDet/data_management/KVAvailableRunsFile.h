@@ -68,7 +68,7 @@ public:
       return GetName();
    }
    Int_t IsRunFileName(const Char_t* filename);
-   static Int_t IsRunFileName(const KVString& fmt, const Char_t* filename, const Char_t* separators = ".");
+   static Int_t IsRunFileName(const KVString& fmt, const Char_t* filename, Int_t index_multiplier = 10, const Char_t* separators = ".");
    Bool_t ExtractDateFromFileName(const Char_t* name, KVDatime& date);
    static Bool_t ExtractDateFromFileName(const TString& fmt, const Char_t* name, KVDatime& date);
    virtual void Update(Bool_t no_existing_file = kFALSE);

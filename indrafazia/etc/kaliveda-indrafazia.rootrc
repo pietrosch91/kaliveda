@@ -80,6 +80,7 @@ INDRAFAZIA.T18_02.Q3.ShaperRiseTime:       .5
 INDRAFAZIA.E789_test.DataSet.Title:  E789 Test (3/4 April 2019)
 INDRAFAZIA.E789_test.DataSet.RepositoryDir:	INDRAFAZIA/E789_test
 INDRAFAZIA.E789_test.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
+INDRAFAZIA.E789_test.DataSet.RunFileIndexMultiplier.raw:    100
 INDRAFAZIA.E789_test.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789_test.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.E789_test.MFM.WithEbyedat:  yes
@@ -181,6 +182,7 @@ INDRAFAZIA.E789_test.Q3.slow.FPGARiseTime:      2.
 INDRAFAZIA.E789.DataSet.Title:  E789 (April/May 2019)
 INDRAFAZIA.E789.DataSet.RepositoryDir:	INDRAFAZIA/E789
 INDRAFAZIA.E789.DataSet.RunFileName.raw:    run_%R.dat.%D.%I
+INDRAFAZIA.E789.DataSet.RunFileIndexMultiplier.raw:    1000
 INDRAFAZIA.E789.DataSet.RunFile.DoNotDelete: raw
 INDRAFAZIA.E789.DataSet.RunFileClass.raw:    MFM
 INDRAFAZIA.E789.MFM.WithEbyedat:  yes
