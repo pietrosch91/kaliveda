@@ -75,3 +75,9 @@ Int_t KVMFMDataFileReader::GetRunNumberReadFromFile() const
 
    return fRunInfos.GetIntValue("RunNumber");
 }
+
+TString KVMFMDataFileReader::GetPathToLastEbyedatActionsFile()
+{
+   // Returns full path to last ACTIONS file used to decode Ebyedat parameters
+   return GetFrameLibrary().GetLastEbyedatActionsFile().c_str();
+}

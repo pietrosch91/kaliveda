@@ -34,6 +34,8 @@ public:
    void SetActionsDirectory(const string&);
    Int_t GetRunNumberReadFromFile() const;
 
+   TString GetPathToLastEbyedatActionsFile();
+
    ClassDef(KVMFMDataFileReader, 0) //Read MFM format acquisition data
 };
 
