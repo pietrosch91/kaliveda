@@ -9,7 +9,7 @@ endif()
 set(build_targets
 	analyse_logs delete_logs kvdatanalyser kvtreeanalyzer
 	KaliVedaAnalysis update_runlist kaliveda kaliveda-sim
-        KaliVedaGUI
+        KaliVedaGUI irods_uploader
 )
 if(USE_INDRA)
     list(APPEND build_targets KVDataBaseGUI test_reconstruction)
@@ -50,6 +50,8 @@ set(KaliVedaAnalysis_SRC KaliVedaAnalysis.cpp)
 set(KaliVedaGUI_SRC KaliVedaGUI.cpp)
 
 set(update_runlist_SRC update_runlist.cxx)
+
+set(irods_uploader_SRC irods_uploader.cpp)
 
 foreach(t ${build_targets})
 	add_executable(${t} ${${t}_SRC})
