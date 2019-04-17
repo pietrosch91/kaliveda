@@ -147,7 +147,7 @@ void KVRemoteDataRepository::CopyFileFromRepository(const KVDataSet*,
 
 //___________________________________________________________________________
 
-void KVRemoteDataRepository::CopyFileToRepository(const Char_t*,
+int KVRemoteDataRepository::CopyFileToRepository(const Char_t*,
       const KVDataSet*,
       const Char_t*,
       const Char_t*)
@@ -156,6 +156,7 @@ void KVRemoteDataRepository::CopyFileToRepository(const Char_t*,
    //For remote repositories, this uses the bbftp protocol (if available).
    //NEEDS IMPLEMENTATION.
    Info("CopyFileToRepository", "Not implemented yet");
+   return -1;
 }
 
 //___________________________________________________________________________

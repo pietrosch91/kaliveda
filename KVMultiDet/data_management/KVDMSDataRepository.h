@@ -24,10 +24,10 @@ public:
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
-   virtual void CopyFileToRepository(const Char_t* source,
-                                     const KVDataSet*,
-                                     const Char_t* datatype,
-                                     const Char_t* filename);
+   virtual int CopyFileToRepository(const Char_t* source,
+                                    const KVDataSet*,
+                                    const Char_t* datatype,
+                                    const Char_t* filename);
    virtual Bool_t CheckFileStatus(const KVDataSet*,
                                   const Char_t* datatype,
                                   const Char_t* runfile);

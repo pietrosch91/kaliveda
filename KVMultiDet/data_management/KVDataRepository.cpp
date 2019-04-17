@@ -493,13 +493,14 @@ void KVDataRepository::CopyFileFromRepository(const KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-void KVDataRepository::CopyFileToRepository(const Char_t* source,
+int KVDataRepository::CopyFileToRepository(const Char_t* source,
       const KVDataSet* dataset,
       const Char_t* datatype,
       const Char_t* filename)
 {
    //Copy file [source] to [datasetdir]/[datatypedir]/[filename] in the repository
    //The file access permissions are set to '664 (u:rw, g:rw, o:r)
+   //Returns status of file transfer command
 
    TString path, tmp;
    AssignAndDelete(path,
@@ -508,9 +509,16 @@ void KVDataRepository::CopyFileToRepository(const Char_t* source,
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
 
    //copy file
-   CopyFile(source, path.Data());
-   //change file access permissions to 664
-   Chmod(path.Data(), CHMODE(6, 6, 4));
+   int status = CopyFile(source, path.Data());
+   if (status == 0) {
+      //change file access permissions to 664
+      Chmod(path.Data(), CHMODE(6, 6, 4));
+   }
+   else {
+      Error("CopyFileToRepository", "Problem copying file %s to repository (%d)",
+            source, status);
+   }
+   return status;
 }
 
 //___________________________________________________________________________

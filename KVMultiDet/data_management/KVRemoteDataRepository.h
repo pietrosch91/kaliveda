@@ -41,10 +41,10 @@ public:
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
-   virtual void CopyFileToRepository(const Char_t* source,
-                                     const KVDataSet* ds,
-                                     const Char_t* datatype,
-                                     const Char_t* filename);
+   virtual int CopyFileToRepository(const Char_t* source,
+                                    const KVDataSet* ds,
+                                    const Char_t* datatype,
+                                    const Char_t* filename);
    virtual void MakeSubdirectory(const KVDataSet* ds,
                                  const Char_t* datatype = "");
    virtual KVUniqueNameList* GetDirectoryListing(const KVDataSet* ds,

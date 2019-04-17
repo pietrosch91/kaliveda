@@ -112,10 +112,10 @@ public:
                                        const Char_t* datatype,
                                        const Char_t* filename,
                                        const Char_t* destination);
-   virtual void CopyFileToRepository(const Char_t* source,
-                                     const KVDataSet* dataset,
-                                     const Char_t* datatype,
-                                     const Char_t* filename);
+   virtual int CopyFileToRepository(const Char_t* source,
+                                    const KVDataSet* dataset,
+                                    const Char_t* datatype,
+                                    const Char_t* filename);
 
    virtual TFile* CreateNewFile(const KVDataSet* dataset,
                                 const Char_t* datatype,

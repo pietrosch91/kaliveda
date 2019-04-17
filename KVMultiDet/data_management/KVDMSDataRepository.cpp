@@ -108,12 +108,13 @@ void KVDMSDataRepository::CopyFileFromRepository(const KVDataSet* ds,
 
 //___________________________________________________________________________
 
-void KVDMSDataRepository::CopyFileToRepository(const Char_t* source,
+int KVDMSDataRepository::CopyFileToRepository(const Char_t* source,
       const KVDataSet* ds,
       const Char_t* datatype,
       const Char_t* filename)
 {
    // Copy file [source] to [datasetdir]/[datatypedir]/[filename] in the repository
+   // Returns status of file transfer command
 
    TString path, tmp;
    AssignAndDelete(path,
@@ -122,7 +123,7 @@ void KVDMSDataRepository::CopyFileToRepository(const Char_t* source,
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
 
    //copy file
-   fDMS->put(source, path.Data());
+   return fDMS->put(source, path.Data());
 }
 
 //___________________________________________________________________________
