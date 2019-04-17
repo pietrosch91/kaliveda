@@ -48,12 +48,8 @@ TString IRODS::longlist(const Char_t* directory)
 {
    // returns long-format listing of current directory (default) or given directory.
    // returns empty string if directory is unknown.
-#ifdef CCIN2P3_BUILD
    buildCommand("ils", directory, "-l");
    return pipeCommand();
-#else
-   return list(directory);//outside of CCIN2P3, only short-format list works
-#endif
 }
 
 Int_t IRODS::cd(const Char_t* directory)
@@ -78,7 +74,7 @@ Int_t IRODS::put(const Char_t* source, const Char_t* target)
 
    TString args;
    args.Form("%s %s", source, target);
-   buildCommand("iput", args.Data(), "-N0");
+   buildCommand("iput", args.Data(), "-KP");
    return execCommand();
 }
 
@@ -134,18 +130,11 @@ void IRODS::ExtractFileInfos(TString& s, DMSFile_t* f) const
    //   indramgr          0 diskcache2              208224256 2009-10-06.16:56 & run_0003.dat.15-Feb-07.20:21:50
    //   indramgr          1 HPSS2                   208224256 2009-10-06.16:56 & run_0003.dat.15-Feb-07.20:21:50
    //
-   // note that when used outside of CCIN2P3, only 'ils' works, not 'ils -l', so the listing looks like:
-   //   run_0002.dat.15-Feb-07.18:00:58
-   //   run_0003.dat.15-Feb-07.20:21:50
 
-#ifdef CCIN2P3_BUILD
    TObjArray* fstats = s.Tokenize(" ");
    f->SetName(((TObjString*)(*fstats)[fstats->GetEntries() - 1])->String().Remove(TString::kBoth, ' ').Data());
    f->SetSize((UInt_t)((TObjString*)(*fstats)[3])->String().Remove(TString::kBoth, ' ').Atoi());
    KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth, ' ').Data(), KVDatime::kIRODS);
    f->SetModTime(mt);
    delete fstats;
-#else
-   f->SetName(s.Remove(TString::kBoth, ' '));
-#endif
 }
