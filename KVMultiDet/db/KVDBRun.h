@@ -18,9 +18,11 @@
 #include <RQ_OBJECT.h>
 
 #define KV__GET_INT(__param) return (fParameters.HasIntParameter(__param) ? fParameters.GetIntValue(__param) : 0);
+#define KV__GET_ULONG(__param) return (fParameters.HasValue64bit(__param) ? fParameters.GetValue64bit(__param) : 0);
 #define KV__GET_DBL(__param) return (fParameters.HasDoubleParameter(__param) ? fParameters.GetDoubleValue(__param) : 0.);
 #define KV__GET_STR(__param) return (fParameters.HasStringParameter(__param) ? fParameters.GetStringValue(__param) : "");
 #define KV__SET_INT(__param,__val) fParameters.SetValue(__param,__val);
+#define KV__SET_ULONG(__param,__val) fParameters.SetValue64bit(__param,__val);
 #define KV__SET_DBL(__param,__val) fParameters.SetValue(__param,__val);
 #define KV__SET_STR(__param,__val) fParameters.SetValue(__param,__val);
 
@@ -122,9 +124,9 @@ public:
       return (GetSystem() ? GetSystem()->GetName() : "");
    };
 
-   Int_t GetEvents() const
+   ULong64_t GetEvents() const
    {
-      return GetScaler("Events");
+      return GetScaler64("Events");
    };
    Double_t GetTime() const
    {
@@ -158,9 +160,9 @@ public:
       return (GetSystem() ? GetSystem()->GetTarget() : 0);
    };
 
-   void SetEvents(Int_t evt_number)
+   void SetEvents(ULong64_t evt_number)
    {
-      SetScaler("Events", evt_number);
+      SetScaler64("Events", evt_number);
    };
    void SetTime(Double_t time)
    {
@@ -206,6 +208,17 @@ public:
    virtual Int_t GetScaler(const Char_t* name) const
    {
       KV__GET_INT(name)
+   };
+   //Set value for 64-bit scaler with the given name for this run
+   virtual void SetScaler64(const Char_t* name, ULong64_t val)
+   {
+      KV__SET_ULONG(name, val)
+      Modified();
+   };
+   //Get value of 64-bit scaler with the given name for this run
+   virtual ULong64_t GetScaler64(const Char_t* name) const
+   {
+      KV__GET_ULONG(name)
    };
    //Set numerical (non-scaler) characteristic of run
    void Set(const Char_t* param, Double_t val)

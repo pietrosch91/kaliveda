@@ -57,11 +57,8 @@ Int_t KVRunListCreator::ScanDirectory()
                   infos->SetValue("Start", when.AsSQLString());
                }
                while (fReader->GetNextEvent()) ++events;
-               Int_t x = events;
-               if (x == events)
-                  infos->SetValue("Events", x);
-               else
-                  infos->SetValue64bit("Events", events);
+
+               infos->SetValue64bit("Events", events);
             }
             infos->ls();
             fRunInfos.Add(infos);

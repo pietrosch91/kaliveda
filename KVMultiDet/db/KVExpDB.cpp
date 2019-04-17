@@ -361,7 +361,7 @@ void KVExpDB::PrintRuns(KVNumberList& nl) const
    while (!nl.End()) {
       KVDBRun* run = GetDBRun(nl.Next());
       if (!run) continue;
-      printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
+      printf("%4d\t%-30s\t%s\t\t%llu\t\t%s\n",
              run->GetNumber(), (run->GetSystem() ? run->GetSystem()->GetName() : "            "), run->GetTriggerString(),
              run->GetEvents(), run->GetComments());
    }

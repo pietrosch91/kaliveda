@@ -1036,7 +1036,7 @@ KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString& datatype)
          dbrun = (KVINDRADBRun*)GetDataSet()->GetDataBase()->GetDBRun(all_runs.Next());
          if (dbrun->GetTrigger() == *it) {
             cout << "    " << Form("%4d", dbrun->GetNumber());
-            cout << Form("\t(%7d events)", dbrun->GetEvents());
+            cout << Form("\t(%9llu events)", dbrun->GetEvents());
             cout << "\t[File written: " << dbrun->GetDatime().
                  AsString() << "]";
             if (dbrun->GetComments())

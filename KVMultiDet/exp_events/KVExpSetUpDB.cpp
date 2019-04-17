@@ -97,9 +97,7 @@ void KVExpSetUpDB::FillRunsTable()
             dbrun->SetSize(run->GetIntValue("Size") / 1024. / 1024.);
 
          if (run->HasValue64bit("Events")) {
-            Warning("FillRunsTable", "64-bit value for number of events in run %d", run->GetIntValue("Run"));
-            Warning("FillRunsTable", "Database can only handle 32-bit signed values!");
-            dbrun->SetEvents((Int_t)run->GetValue64bit("Events"));
+            dbrun->SetEvents(run->GetValue64bit("Events"));
          }
          else
             dbrun->SetEvents(run->GetIntValue("Events"));
