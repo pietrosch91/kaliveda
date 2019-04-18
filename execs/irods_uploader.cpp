@@ -192,6 +192,7 @@ int main(int argc, char* argv[])
    while (1) {
       while ((got_next_file = FILE_H.find_next_sequential_file(current_run, current_index, current_file, next_run, next_index, next_file))
              || all_files) {
+         totalsleep = 0;
          if (current_run > 0) {
             // check if current run has been uploaded
             FileStat_t fs;
