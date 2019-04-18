@@ -3,9 +3,10 @@
 //
 // Usage:
 //
-//  irods_uploader [-D] [directory to scan] [dataset]
+//  irods_uploader [-D][-A] [directory to scan] [dataset]
 //
 //    options: -D  - if given, delete each file which has been successfully transferred
+//             -A  - if given, treat last file found (only use when data taking is finished)
 //
 //    for each run R, there can be a series of files:
 //        run_R.dat.[date/time]
@@ -157,23 +158,23 @@ public:
 
 int main(int argc, char* argv[])
 {
-   if (argc < 3 || argc > 4) {
-      cout << "Usage: irods_uploader [-D] [directory to scan] [dataset]" << endl << endl;
+   if (argc < 3 || argc > 5) {
+      cout << "Usage: irods_uploader [-D][-A] [directory to scan] [dataset]" << endl << endl;
       cout << "  options: -D  - if given, delete each file which has been successfully transferred" << endl;
+      cout << "           -A  - if given, treat last file found (only use when data taking is finished)" << endl;
       exit(1);
    }
    file_helper FILE_H;
-   bool delete_files = !strcmp(argv[1], "-D");
-   if (delete_files) {
-      FILE_H.scan_dir = argv[2];
-      FILE_H.dataset = argv[3];
-   }
-   else {
-      FILE_H.scan_dir = argv[1];
-      FILE_H.dataset = argv[2];
-   }
+   bool delete_files = !strcmp(argv[1], "-D") || !strcmp(argv[2], "-D");
+   bool all_files = !strcmp(argv[1], "-A") || !strcmp(argv[2], "-A");
+   int first_arg = 1;
+   first_arg += (int)delete_files + (int)all_files;
+   FILE_H.scan_dir = argv[first_arg];
+   FILE_H.dataset = argv[first_arg + 1];
+
    cout << "Directory to scan: " << FILE_H.scan_dir << "  dataset: " << FILE_H.dataset << endl;
    if (delete_files) cout << "Any transferred files will be deleted from local disk" << endl;
+   if (all_files) cout << "All files including the last one will be treated (data-taking is finished)" << endl;
 
    KVDataRepositoryManager drm;
    drm.Init();
@@ -187,8 +188,10 @@ int main(int argc, char* argv[])
    runfile_t current_file;
    int next_run(0), next_index(0);
    runfile_t next_file;
+   bool got_next_file;
    while (1) {
-      while (FILE_H.find_next_sequential_file(current_run, current_index, current_file, next_run, next_index, next_file)) {
+      while ((got_next_file = FILE_H.find_next_sequential_file(current_run, current_index, current_file, next_run, next_index, next_file))
+             || all_files) {
          if (current_run > 0) {
             // check if current run has been uploaded
             FileStat_t fs;
@@ -225,6 +228,9 @@ int main(int argc, char* argv[])
                   cout << "            *************** ERROR uploading file *************** " << endl;
                }
             }
+         }
+         if (all_files && !got_next_file) { //last file has been treated
+            exit(0);
          }
          current_run = next_run;
          current_index = next_index;
