@@ -82,26 +82,29 @@ void KVExpSetUpDB::FillRunsTable()
    TFile runinfos_file(runinfos);
    TIter it(runinfos_file.GetListOfKeys());
    TKey* run_key;
-   KVUniqueNameList garbage;
+   KVList garbage;
    while ((run_key = (TKey*)it())) {
       if (TString(run_key->GetClassName()) == "KVNameValueList") {
-         KVNameValueList* run = (KVNameValueList*)run_key->ReadObj();
-         garbage.Add(run);
-         KVDBRun* dbrun = new KVDBRun;
-         dbrun->SetNumber(run->GetIntValue("Run"));
-         dbrun->SetStartDate(run->GetStringValue("Start"));
-         dbrun->SetEndDate(run->GetStringValue("End"));
-         if (run->HasValue64bit("Size"))
-            dbrun->SetSize(run->GetValue64bit("Size") / 1024. / 1024.);
-         else
-            dbrun->SetSize(run->GetIntValue("Size") / 1024. / 1024.);
+         // make sure we only use the highest cycle number of each key
+         if (run_key->GetCycle() == runinfos_file.GetKey(run_key->GetName())->GetCycle()) {
+            KVNameValueList* run = (KVNameValueList*)run_key->ReadObj();
+            garbage.Add(run);
+            KVDBRun* dbrun = new KVDBRun;
+            dbrun->SetNumber(run->GetIntValue("Run"));
+            dbrun->SetStartDate(run->GetStringValue("Start"));
+            dbrun->SetEndDate(run->GetStringValue("End"));
+            if (run->HasValue64bit("Size"))
+               dbrun->SetSize(run->GetValue64bit("Size") / 1024. / 1024.);
+            else
+               dbrun->SetSize(run->GetIntValue("Size") / 1024. / 1024.);
 
-         if (run->HasValue64bit("Events")) {
-            dbrun->SetEvents(run->GetValue64bit("Events"));
+            if (run->HasValue64bit("Events")) {
+               dbrun->SetEvents(run->GetValue64bit("Events"));
+            }
+            else
+               dbrun->SetEvents(run->GetIntValue("Events"));
+            AddRun(dbrun);
          }
-         else
-            dbrun->SetEvents(run->GetIntValue("Events"));
-         AddRun(dbrun);
       }
    }
 }
