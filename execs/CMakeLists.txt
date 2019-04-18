@@ -9,13 +9,13 @@ endif()
 set(build_targets
 	analyse_logs delete_logs kvdatanalyser kvtreeanalyzer
 	KaliVedaAnalysis update_runlist kaliveda kaliveda-sim
-        KaliVedaGUI irods_uploader
+        KaliVedaGUI
 )
 if(USE_INDRA)
     list(APPEND build_targets KVDataBaseGUI test_reconstruction)
 endif()
 if(USE_INDRAFAZIA AND WITH_MFM)
-    list(APPEND build_targets test_indrafazia indrafazia_reconstruction indrafazia_idmaps)
+    list(APPEND build_targets test_indrafazia indrafazia_reconstruction indrafazia_idmaps irods_uploader)
     KALIVEDA_SET_INCLUDE_DIRS(FAZIA MODULES ${FAZIA_MOD_LIST})
 endif()
 
