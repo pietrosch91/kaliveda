@@ -59,7 +59,7 @@ public:
       return true;
    }
 
-   bool find_next_sequential_file(int run0, int index0, int& run, int& index, runfile_t& runfile)
+   bool find_next_sequential_file(int run0, int index0, runfile_t& runfile0, int& run, int& index, runfile_t& runfile)
    {
       // look for next file after (run0,index0) in directory
       // return false if no file found
@@ -92,6 +92,11 @@ public:
             }
          }
       }
+      // update infos on current file (whose size may have changed since it was first seen)
+      // unless this method was called with run=0 (in which case now run=1 & index=0)
+      // the current file was previously found with this method therefore it exists
+      if (!(run == 1 && index == 0)) runfile0 = runs[run0].files[index0];
+
       // now look for (run,index)
       // if not found, look for (run+1,0)
       map<int, run_t>::iterator find_run = runs.find(run);
@@ -176,21 +181,30 @@ int main(int argc, char* argv[])
    KVDataSet* dataset = gDataSetManager->GetDataSet(FILE_H.dataset);
    FILE_H.file_format = dataset->GetDataSetEnv("DataSet.RunFileName.raw", "");
    FILE_H.index_multiplier = dataset->GetDataSetEnv("DataSet.RunFileIndexMultiplier.raw", -1.);
-   cout << "format " << FILE_H.file_format << " mult " << FILE_H.index_multiplier << endl;
 
+   int sleeptime(10), totalsleep(0);
    int current_run(0), current_index(0);
    runfile_t current_file;
    int next_run(0), next_index(0);
    runfile_t next_file;
    while (1) {
-      while (FILE_H.find_next_sequential_file(current_run, current_index, next_run, next_index, next_file)) {
+      while (FILE_H.find_next_sequential_file(current_run, current_index, current_file, next_run, next_index, next_file)) {
          if (current_run > 0) {
             // check if current run has been uploaded
             FileStat_t fs;
             if (gDataRepository->GetFileInfo(dataset, "raw", current_file.name, fs)) {
                // check size of uploaded file
                if (fs.fSize == current_file.size) {
-                  cout << "File " << current_file.name << " has been uploaded successfully & can be deleted" << endl;
+                  cout << "File " << current_file.name << " has been uploaded successfully & ";
+                  if (delete_files) {
+                     cout << "will be deleted" << endl;
+                     KVString path;
+                     path.Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data());
+                     gSystem->Unlink(path);
+                     cout << "File deleted: " << path << endl;
+                  }
+                  else
+                     cout << "can be deleted" << endl;
                }
                else {
                   cout << "File " << current_file.name << " partially uploaded, size IRODS=" << fs.fSize << " size local disk=" << current_file.size << endl;
@@ -216,7 +230,8 @@ int main(int argc, char* argv[])
          current_index = next_index;
          current_file = next_file;
       }
-      cout << "Waiting for next file after " << current_file.name << " ... " << endl;
-      sleep(5);
+      cout << "Waiting " << totalsleep << " sec. for next file after " << current_file.name << " ... " << endl;
+      sleep(sleeptime);
+      totalsleep += sleeptime;
    }
 }
