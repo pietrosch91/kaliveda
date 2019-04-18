@@ -258,3 +258,7 @@ INDRAFAZIA.E789.QL1.MinimumAmplitude:          2
 INDRAFAZIA.E789.Q2.MinimumAmplitude:           2
 INDRAFAZIA.E789.QH1.MinimumAmplitude:          2
 INDRAFAZIA.E789.Q3.MinimumAmplitude:           3
+
+INDRAFAZIA.E789.SI1.IsFiredFromSignal:  0
+INDRAFAZIA.E789.SI2.IsFiredFromSignal:  0
+INDRAFAZIA.E789.CSI.IsFiredFromSignal:  0
