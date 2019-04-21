@@ -38,7 +38,6 @@ public:
 
    void GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params = nullptr);
    KVGroupReconstructor* GetReconstructorForGroup(const KVGroup*) const;
-   Bool_t HandleRawDataEvent(KVRawDataReader*);
    void SetRawDataFromReconEvent(KVNameValueList&);
    void SetReconParametersInEvent(KVReconstructedEvent*) const;
 

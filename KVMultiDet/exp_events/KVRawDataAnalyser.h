@@ -6,8 +6,9 @@
 
 #include "KVDataSetAnalyser.h"
 #include "KVHashList.h"
-#include "KVDetectorEvent.h"
 #include "KVRawDataReader.h"
+
+class KVDetectorEvent;
 
 class KVRawDataAnalyser : public KVDataSetAnalyser {
 protected:
@@ -15,7 +16,6 @@ protected:
    KVRawDataReader* fRunFile;    //currently analysed run file
    Int_t fRunNumber;             //run number of current file
    Long64_t fEventNumber;        //event number in current run
-   KVDetectorEvent* fDetEv;      //list of hit groups for current event
    KVHashList fHistoList;        //list of histograms of user analysis
 
    virtual void ProcessRun();
@@ -34,16 +34,18 @@ public:
    KVRawDataAnalyser();
    virtual ~KVRawDataAnalyser();
 
+   KVDetectorEvent* GetDetectorEvent() const
+   {
+      Obsolete("GetDetectorEvent", "1.11", "2.0");
+      return nullptr;
+   }
+
    virtual void InitAnalysis() = 0;
    virtual void InitRun() = 0;
    virtual Bool_t Analysis() = 0;
    virtual void EndRun() = 0;
    virtual void EndAnalysis() = 0;
 
-   const KVDetectorEvent* GetDetectorEvent() const
-   {
-      return fDetEv;
-   }
    Int_t GetRunNumber() const
    {
       return fRunNumber;
@@ -65,6 +67,11 @@ public:
    TH1* FindHisto(const Char_t* path);
 
    void CalculateTotalEventsToRead();
+
+   const KVRawDataReader& GetRunFileReader() const
+   {
+      return *fRunFile;
+   }
 
    ClassDef(KVRawDataAnalyser, 1) //Abstract base class for user analysis of raw data
 };

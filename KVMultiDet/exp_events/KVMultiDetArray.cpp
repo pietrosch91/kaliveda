@@ -131,6 +131,8 @@ void KVMultiDetArray::init()
 
    //all detectors belong to us
    SetOwnsDetectors();
+
+   fHandledRawData = false;
 }
 
 //___________________________________________________________________________________
@@ -3045,6 +3047,7 @@ void KVMultiDetArray::prepare_to_handle_new_raw_data()
    while ((acqpar = (KVACQParam*)it())) acqpar->Clear();
    fReconParameters.Clear();
    fFiredACQParams.Clear();
+   fHandledRawData = false;
 }
 
 void KVMultiDetArray::PerformClosedROOTGeometryOperations(Int_t)
@@ -3085,20 +3088,23 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    // ready to be copied to the reconstructed event
 
    prepare_to_handle_new_raw_data();
-   bool ok = false;
+   if (rawdata->GetDataFormat() == "MFM") {
 #ifdef WITH_MFM
-   if (rawdata->GetDataFormat() == "MFM") ok = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
-   else
+      fHandledRawData = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
 #endif
+   }
+   else if (rawdata->GetDataFormat() == "PROTOBUF") {
 #ifdef WITH_PROTOBUF
-      if (rawdata->GetDataFormat() == "PROTOBUF") ok = handle_raw_data_event_protobuf((KVProtobufDataReader&)(*rawdata));
-      else
+      fHandledRawData = handle_raw_data_event_protobuf((KVProtobufDataReader&)(*rawdata));
 #endif
-         if (rawdata->GetDataFormat() == "EBYEDAT") ok = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
-   if (ok) {
+   }
+   else if (rawdata->GetDataFormat() == "EBYEDAT") {
+      fHandledRawData = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
+   }
+   if (fHandledRawData) {
       copy_fired_parameters_to_recon_param_list();
    }
-   return ok;
+   return fHandledRawData;
 }
 
 #ifdef WITH_MFM
@@ -3125,7 +3131,7 @@ Bool_t KVMultiDetArray::HandleRawDataBuffer(MFMBufferReader& bufrdr)
 void KVMultiDetArray::SetRawDataFromReconEvent(KVNameValueList& l)
 {
    // Take values 'ACQPAR.[array_name].[par_name]' in the parameter list and use them to set
-   // values of raw acquisition parameters
+   // values of raw acquisition parameters (EBYEDAT)
 
    int N = l.GetNpar();
    for (int i = 0; i < N; ++i) {
@@ -3373,6 +3379,10 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    // (first set all parameter values to (UShort_t)-1).
    // Fills list of hit acquisition parameters.
    // Returns kTRUE if at least one parameter belonging to the array is present.
+   //
+   // Any unknown parameters in the event (i.e. ones for which no KVACQParam object
+   // has been defined) are written in the fReconParameters list with names
+   //    "ACQPAR.[array name].[parameter name]"
 
    uint16_t val;
    string lab;
@@ -3386,6 +3396,8 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
          fFiredACQParams.Add(acqpar);
          ok = kTRUE;
       }
+      else
+         fReconParameters.SetValue(Form("ACQPAR.%s.%s", GetName(), lab.c_str()), val);
    }
 
    return ok;

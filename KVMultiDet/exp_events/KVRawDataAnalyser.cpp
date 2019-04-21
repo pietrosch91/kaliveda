@@ -25,7 +25,6 @@ KVRawDataAnalyser::KVRawDataAnalyser()
 {
    // Default constructor
    fRunFile = 0;
-   fDetEv = 0;
    TotalEntriesToRead = 0;
 }
 
@@ -39,7 +38,10 @@ void KVRawDataAnalyser::ProcessRun()
    // Perform treatment of a given run
    // Before processing each run, after opening the associated file, user's InitRun() method is called.
    // After each run, user's EndRun() is called.
-   // For each event of each run, user's Analysis() method is called.
+   // For each event of each run, user's Analysis() method is called just after calling
+   // gMultiDetArray->HandleRawDataEvent(fRunfile). In the Analysis() method the user can
+   // test gMultiDetArray->HandledRawData() to know if some pertinent data was found in
+   // the event or not.
    //
    // For further customisation, the pre/post-methods are called just before and just after
    // each of these methods (preInitRun(), postAnalysis(), etc. etc.)
@@ -85,28 +87,19 @@ void KVRawDataAnalyser::ProcessRun()
    InitRun();
    postInitRun();
 
-   fDetEv = new KVDetectorEvent;
-
    //loop over events in file
    while ((nevents-- ? fRunFile->GetNextEvent() : kFALSE) && !AbortProcessingLoop()) {
 
-      //reconstruct hit groups
-//      KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
-//      gMultiDetArray->GetDetectorEvent(fDetEv, fired);
-
       preAnalysis();
+      gMultiDetArray->HandleRawDataEvent(fRunFile);
       //call user's analysis. stop if returns kFALSE.
       if (!Analysis()) break;
       postAnalysis();
-
-      fDetEv->Clear();
 
       if (CheckStatusUpdateInterval(fEventNumber)) DoStatusUpdate(fEventNumber);
 
       fEventNumber += 1;
    }
-
-   delete fDetEv;
 
    cout << "Ending analysis of run " << fRunNumber << " on : ";
    TDatime now2;
@@ -192,6 +185,8 @@ void KVRawDataAnalyser::Make(const Char_t* kvsname)
    //Analysis
    body = "   //Analysis method called for each event\n";
    body += "   //  GetEventNumber() returns current event number\n";
+   body += "   //  GetRunFileReader() returns object used to read data (KVRawDataReader child class)\n";
+   body += "   //  gMultiDetArray->HandledRawData() returns kTRUE if interesting data was read\n";
    body += "   //  Processing will stop if this method returns kFALSE\n";
    body += "   return kTRUE;";
    cf.AddMethodBody("Analysis", body);

@@ -65,7 +65,7 @@ void KVRawDataReconstructor::InitRun()
 
 Bool_t KVRawDataReconstructor::Analysis()
 {
-   if (gMultiDetArray->HandleRawDataEvent(fRunFile)) {
+   if (gMultiDetArray->HandledRawData()) {
       fEvRecon->ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
       fEvRecon->GetEvent()->SetNumber(GetEventNumber());
       fRecTree->Fill();

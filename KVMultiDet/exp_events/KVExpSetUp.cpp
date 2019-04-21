@@ -193,17 +193,6 @@ KVGroupReconstructor* KVExpSetUp::GetReconstructorForGroup(const KVGroup* g) con
    return gr;
 }
 
-Bool_t KVExpSetUp::HandleRawDataEvent(KVRawDataReader* g)
-{
-   TIter next_array(&fMDAList);
-   KVMultiDetArray* mda;
-   while ((mda = (KVMultiDetArray*)next_array())) {
-      mda->fHandledRawData = false;
-      mda->fReconParameters.Clear();
-   }
-   return (fHandledRawData = KVMultiDetArray::HandleRawDataEvent(g));
-}
-
 void KVExpSetUp::SetRawDataFromReconEvent(KVNameValueList& l)
 {
    TIter next_array(&fMDAList);
@@ -312,6 +301,6 @@ void KVExpSetUp::copy_fired_parameters_to_recon_param_list()
    TIter next_array(&fMDAList);
    KVMultiDetArray* mda;
    while ((mda = (KVMultiDetArray*)next_array())) {
-      mda->copy_fired_parameters_to_recon_param_list();
+      if (mda->HandledRawData()) mda->copy_fired_parameters_to_recon_param_list();
    }
 }
