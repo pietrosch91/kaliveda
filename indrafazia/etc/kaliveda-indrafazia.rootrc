@@ -190,12 +190,12 @@ INDRAFAZIA.E789.ReconstructedEventClassName:	KVReconstructedEvent
 INDRAFAZIA.E789.KVDataSet.DataType.Subdir.recon:  recon
 INDRAFAZIA.E789.DataSet.ExpSetUp.ClassList: KVFAZIA KVINDRA
 INDRAFAZIA.E789.EventReconstruction.DoCalibration: no
-INDRAFAZIA.E789.EventReconstruction.DoIdentification: no
+INDRAFAZIA.E789.EventReconstruction.DoIdentification: yes
 INDRAFAZIA.E789.ReconIdent.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.IdentRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.ReconRoot.DataAnalysisTask.Prereq:     xxx
 INDRAFAZIA.E789.GeneAnalysis.DataAnalysisTask.Prereq:     xxx
-INDRAFAZIA.E789.HasCalibIdentInfos:   no
+INDRAFAZIA.E789.HasCalibIdentInfos:   yes
 INDRAFAZIA.E789.ActiveIdentifications:      CSI SI-CSI Si-Si Si-CsI Si CsI
 INDRAFAZIA.E789.SI-CSI.MassID: yes
 INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
@@ -214,16 +214,18 @@ INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.SI-CSI$       KVIDSiCsI            KVIndraidentification           "KVIDSiCsI()"
 
+INDRAFAZIA.E789.IdentificationParameterFile.Si-CsI:       IDGrids_SI_CSI.dat
+
 INDRAFAZIA.E789.QL1.BaseLineLength:            100
 INDRAFAZIA.E789.QL1.TauRC:                     250
-INDRAFAZIA.E789.I2.ChannelWidth:               4
+INDRAFAZIA.E789.QL1.ChannelWidth:               4
 INDRAFAZIA.E789.QL1.ShaperRiseTime:            2
 INDRAFAZIA.E789.QL1.ShaperFlatTop:             2
 INDRAFAZIA.E789.QL1.PZCorrection:              0
 
 INDRAFAZIA.E789.QH1.BaseLineLength:            100
 INDRAFAZIA.E789.QH1.TauRC:                     40
-INDRAFAZIA.E789.I2.ChannelWidth:               10
+INDRAFAZIA.E789.QH1.ChannelWidth:               10
 INDRAFAZIA.E789.QH1.ShaperRiseTime:            2
 INDRAFAZIA.E789.QH1.ShaperFlatTop:             2
 INDRAFAZIA.E789.QH1.PZCorrection:              0
