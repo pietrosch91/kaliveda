@@ -616,12 +616,34 @@ Bool_t KVINDRA::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatFrame& f)
    // Override base method to retrieve CENTRUM timestamp from data if present.
    // It will be added to fReconParameters as a 64-bit value "INDRA.TS" (if != 0)
    // Event number is retrieved and stored as "INDRA.EN" (if != 0)
+   // Any parameter which appears as [name] and [name]_UP is an unsigned 32-bit value
+   // split into two 16-bit words. We replace the two parameters with a 64-bit
+   // value (to hold correctly all unsigned 32-bit values) with [name].
 
    if (!KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(f)) return kFALSE;
    ULong64_t ts = f.GetCENTRUMTimestamp();
    if (ts != 0) fReconParameters.SetValue64bit("INDRA.TS", ts);
    ULong64_t en = f.GetEventNumber();
    if (en != 0) fReconParameters.SetValue64bit("INDRA.EN", en);
+   int npars = fReconParameters.GetNpar();
+   std::vector<TString> names;
+   for (int i = 0; i < npars; ++i) {
+      TString name = fReconParameters.GetParameter(i)->GetName();
+      if (name.EndsWith("_UP")) names.push_back(name);
+   }
+   if (names.size()) {
+      for (std::vector<TString>::iterator it = names.begin(); it != names.end(); ++it) {
+         TString name = (*it);
+         name.Remove(name.Index("_UP"), 3);
+         TString name_up = (*it);
+         ULong64_t par_up = fReconParameters.GetIntValue(name_up);
+         ULong64_t par = fReconParameters.GetIntValue(name);
+         UInt_t par32 = (par_up << 16) + par;
+         fReconParameters.RemoveParameter(name_up);
+         fReconParameters.RemoveParameter(name);
+         fReconParameters.SetValue64bit(name, par32);
+      }
+   }
    return kTRUE;
 }
 #endif
