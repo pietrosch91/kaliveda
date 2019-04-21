@@ -402,6 +402,23 @@ KVExpDB* KVExpDB::MakeDataBase(const Char_t* name, const Char_t* datasetdir)
    return mda;
 }
 
+ULong64_t KVExpDB::GetTotalEvents(int first_run, int last_run) const
+{
+   // Return total number of events in range [first_run,last_run]
+   // (if last_run=-1, go to last known run)
+
+   ULong64_t total = 0;
+   TIter next(GetRuns());
+   KVDBRun* dbr;
+   while ((dbr = (KVDBRun*)next())) {
+      if (dbr->GetNumber() >= first_run) {
+         if ((last_run > 0 && dbr->GetNumber() <= last_run)
+               || last_run == -1) total += dbr->GetEvents();
+      }
+   }
+   return total;
+}
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVExpDB::GetDBEnv(const Char_t* type) const
