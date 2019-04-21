@@ -60,21 +60,14 @@ public:
       return true;
    }
 
-   bool find_next_sequential_file(int run0, int index0, runfile_t& runfile0, int& run, int& index, runfile_t& runfile)
+   bool find_next_sequential_file(int& run0, int& index0, runfile_t& runfile0, int& run, int& index, runfile_t& runfile)
    {
       // look for next file after (run0,index0) in directory
       // return false if no file found
 
       KVSystemDirectory dir("data", scan_dir);
       TList* files = dir.GetListOfFiles();
-      if (run0) {
-         run = run0;
-         index = index0 + 1;
-      }
-      else {
-         run = 1;
-         index = 0;
-      }
+
       // sort files into ordered map run[index]=filename
       map<int, run_t> runs;
       TIter nxt(files);
@@ -93,10 +86,23 @@ public:
             }
          }
       }
+
+      if (!runs.size()) return false; // there are no run files in the directory
+
+      if (!run0) {
+         // use first file found in directory as current run
+         map<int, run_t>::iterator first_run = runs.begin();
+         run0 = first_run->first;
+         map<int, runfile_t>::iterator first_index = first_run->second.files.begin();
+         index0 = first_index->first;
+      }
       // update infos on current file (whose size may have changed since it was first seen)
-      // unless this method was called with run=0 (in which case now run=1 & index=0)
+      // unless this method was called with run0=0
       // the current file was previously found with this method therefore it exists
-      if (!(run == 1 && index == 0)) runfile0 = runs[run0].files[index0];
+      runfile0 = runs[run0].files[index0];
+
+      run = run0;
+      index = index0 + 1;
 
       // now look for (run,index)
       // if not found, look for (run+1,0)
@@ -193,43 +199,45 @@ int main(int argc, char* argv[])
       while ((got_next_file = FILE_H.find_next_sequential_file(current_run, current_index, current_file, next_run, next_index, next_file))
              || all_files) {
          totalsleep = 0;
-         if (current_run > 0) {
-            // check if current run has been uploaded
-            FileStat_t fs;
-            if (gDataRepository->GetFileInfo(dataset, "raw", current_file.name, fs)) {
-               // check size of uploaded file
-               if (fs.fSize == current_file.size) {
-                  cout << "File " << current_file.name << " has been uploaded successfully & ";
-                  if (delete_files) {
-                     cout << "will be deleted" << endl;
-                     KVString path;
-                     path.Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data());
-                     gSystem->Unlink(path);
-                     cout << "File deleted: " << path << endl;
-                  }
-                  else
-                     cout << "can be deleted" << endl;
+
+         // check if current run has been uploaded
+         FileStat_t fs;
+         if (gDataRepository->GetFileInfo(dataset, "raw", current_file.name, fs)) {
+            // check size of uploaded file
+            if (1) { //(fs.fSize == current_file.size) {
+               cout << "File " << current_file.name << " has been uploaded successfully & ";
+               if (delete_files) {
+                  cout << "will be deleted" << endl;
+                  KVString path;
+                  path.Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data());
+                  gSystem->Unlink(path);
+                  cout << "File deleted: " << path << endl;
                }
-               else {
-                  cout << "File " << current_file.name << " partially uploaded, size IRODS=" << fs.fSize << " size local disk=" << current_file.size << endl;
-               }
+               else
+                  cout << "can be deleted" << endl;
             }
             else {
-               cout << "File " << current_file.name << " ready for upload [next file: " << next_file.name << "]" << endl;
-               FILE_H.read_and_store_infos_on_file(current_file);
-               if (gDataRepository->CopyFileToRepository(
-                        Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data()),
-                        dataset, "raw", current_file.name.Data()
-                     ) == 0) {
-                  // successful transfer
-                  cout << "File upload successful" << endl;
-                  continue;
-               }
-               else {
-                  cout << "            *************** ERROR uploading file *************** " << endl;
-               }
+               cout << "File " << current_file.name << " partially uploaded, size IRODS=" << fs.fSize << " size local disk=" << current_file.size << endl;
             }
          }
+         else {
+            cout << "File " << current_file.name << " ready for upload [next file: " << next_file.name << "]" << endl;
+            //FILE_H.read_and_store_infos_on_file(current_file);
+            if (1)
+               //(gDataRepository->CopyFileToRepository(
+               //      Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data()),
+               //      dataset, "raw", current_file.name.Data()
+               //   ) == 0)
+            {
+               // successful transfer
+               cout << "File upload successful" << endl;
+               continue;
+            }
+            else {
+               cout << "            *************** ERROR uploading file *************** " << endl;
+            }
+         }
+
          if (all_files && !got_next_file) { //last file has been treated
             exit(0);
          }
