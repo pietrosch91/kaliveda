@@ -90,8 +90,8 @@ void KVRawDataAnalyser::ProcessRun()
    //loop over events in file
    while ((nevents-- ? fRunFile->GetNextEvent() : kFALSE) && !AbortProcessingLoop()) {
 
-      preAnalysis();
       gMultiDetArray->HandleRawDataEvent(fRunFile);
+      preAnalysis();
       //call user's analysis. stop if returns kFALSE.
       if (!Analysis()) break;
       postAnalysis();
