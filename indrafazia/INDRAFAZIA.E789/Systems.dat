@@ -1,11 +1,11 @@
 +Alpha Source plus Cosmic Rays
-Runs: 1000-14999
+Runs : 1000-14999
 
 +58Ni + 197Au 52 MeV/A
 58 28 197 79 1.7 52.2
 Target : 1 0.0
 197Au 1.7
-Runs : 15000-15999 34000-34999
+Runs : 15000-15999 34000-34999 45000-45999
 
 +58Ni + natNi 52 MeV/A
 58 28 58 28 0.3 52.2
@@ -29,4 +29,13 @@ Runs : 35000-38999
 58 28 64 28 0.3 52.2
 Target : 1 0.0
 64Ni 0.32
-Runs : 39000-39999
+Runs : 39000-44999
+
++58Ni + EmptyFrame 52 MeV/A
+58 28 0 0 0 52.2
+Target : 1 0.0
+EmptyFrame 0.0
+Runs : 47000-47999
+
++NotGood
+Runs : 46000-46999
