@@ -2,7 +2,6 @@
 //Author: ,,,
 
 #include "KVFAZIAIDSiCsI_e789.h"
-#include "KVDataSet.h"
 
 ClassImp(KVFAZIAIDSiCsI_e789)
 
@@ -10,136 +9,8 @@ ClassImp(KVFAZIAIDSiCsI_e789)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVFAZIAIDSiCsI_e789</h2>
-<h4>id telescope to manage FAZIA Si-CsI identification</h4>
+<h4>id telescope to manage E789 FAZIA Si-CsI identification</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVFAZIAIDSiCsI_e789::KVFAZIAIDSiCsI_e789()
-{
-   // Default constructor
-   SetType("Si-CsI");
-   fBelowProton = 0;
-   fSiThreshold = 0;
-
-}
-
-KVFAZIAIDSiCsI_e789::~KVFAZIAIDSiCsI_e789()
-{
-   // Destructor
-}
-
-//____________________________________________________________________________________
-
-Double_t KVFAZIAIDSiCsI_e789::GetIDMapX(Option_t*)
-{
-   //X-coordinate for Si2-CsI identification map :
-   // computed fast componment
-   // of the charge signal of CsI detector
-   return fCsI->GetQ3FPGAEnergy();
-}
-
-//____________________________________________________________________________________
-
-Double_t KVFAZIAIDSiCsI_e789::GetIDMapY(Option_t*)
-{
-   //Y-coordinate for Si2-CsI identification map :
-   // computed amlpitude
-   // of the charge signal od Si2 detector
-   return fSi2->GetQ2FPGAEnergy();
-}
-
-//____________________________________________________________________________________
-
-Bool_t KVFAZIAIDSiCsI_e789::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
-{
-   //Particle identification and code setting using identification grid (class KVIDZAGrid).
-
-   idr->SetIDType(GetType());
-   idr->IDattempted = kTRUE;
-
-   //perform identification
-   Double_t si2 = (y < 0. ? GetIDMapY() : y);
-   Double_t csi = (x < 0. ? GetIDMapX() : x);
-
-   //test if line below proton and si threshold are there
-   //if yes test the position of the point respect to
-   //these lines
-   //Bool_t OKproton = ((fBelowProton && fBelowProton->TestPoint(csi, si2)) || !fBelowProton);
-   //Bool_t OKthreshold = ((fSiThreshold && fSiThreshold->TestPoint(csi, si2)) || !fSiThreshold);
-   //if (OKproton && OKthreshold){
-
-
-   if (fBelowProton) {
-      if (fBelowProton->TestPoint(csi, si2)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
-      else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-   }
-   else {
-      idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
-   }
-
-   if (TheGrid->IsIdentifiable(csi, si2)) {
-      TheGrid->Identify(csi, si2, idr);
-   }
-   else {
-      idr->IDOK = kFALSE;
-      idr->IDquality = KVIDZAGrid::kICODE8;
-   }
-
-   // set general ID code
-   idr->IDcode = GetIDCode();
-
-   return kTRUE;
-
-}
-
-//____________________________________________________________________________________
-
-void KVFAZIAIDSiCsI_e789::Initialize()
-{
-   // Initialisation of telescope before identification.
-   // This method MUST be called once before any identification is attempted.
-   // Initialisation of grid is performed here.
-   // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
-
-   TheGrid = (KVIDZAGrid*) GetIDGrid();
-   fSi2 = (KVFAZIADetector*)GetDetector(1);
-   fCsI = (KVFAZIADetector*)GetDetector(2);
-   if (TheGrid) {
-      SetHasMassID(TheGrid->IsOnlyZId());
-      TheGrid->Initialize();
-      fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
-      fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
-      SetBit(kReadyForID);
-   }
-   else {
-      ResetBit(kReadyForID);
-   }
-   if (!gDataSet->HasCalibIdentInfos()) {// for filtering simulations
-      SetBit(kReadyForID);
-      SetHasMassID();// in principle mass identification always possible
-   }
-}
-
-void KVFAZIAIDSiCsI_e789::SetIdentificationStatus(KVReconstructedNucleus* n)
-{
-   // For filtering simulations
-   //
-   // Z-dependence of A identification:
-   //    all ok if Z<=14, decreasing probability for 15<=Z<=18
-   //    no A identification for Z>18
-   //
-   // If A is not measured, we make sure the KE of the particle corresponds to the simulated one
-
-   n->SetZMeasured();
-   fMassIDProb->SetParameters(16.5, .4);
-   Bool_t okmass = (n->GetZ() <= 14) || (n->GetZ() < 19 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
-   if (okmass) {
-      n->SetAMeasured();
-   }
-   else {
-      double e = n->GetE();
-      n->SetZ(n->GetZ());
-      n->SetE(e);
-   }
-}

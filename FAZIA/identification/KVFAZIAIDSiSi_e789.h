@@ -4,33 +4,27 @@
 #ifndef __KVFAZIAIDSiSi_e789_H
 #define __KVFAZIAIDSiSi_e789_H
 
-#include "KVFAZIAIDTelescope.h"
-#include "KVIdentificationResult.h"
+#include "KVFAZIAIDSiSi.h"
+#include "KVFAZIADetector.h"
 
-class KVFAZIADetector;
-class KVIDZAGrid;
-
-class KVFAZIAIDSiSi_e789 : public KVFAZIAIDTelescope {
-private:
-
-   KVIDZAGrid* fSiSiGrid;//! telescope's grid
-   KVFAZIADetector* fSi1;//!
-   KVFAZIADetector* fSi2;//!
+class KVFAZIAIDSiSi_e789 : public KVFAZIAIDSiSi {
 
 public:
-   KVFAZIAIDSiSi_e789();
-   virtual ~KVFAZIAIDSiSi_e789();
-   virtual UShort_t GetIDCode()
+   KVFAZIAIDSiSi_e789() {}
+   virtual ~KVFAZIAIDSiSi_e789() {}
+
+   Double_t GetIDMapX(Option_t* /*opt*/ = "")
    {
-      return kSi1Si2;
-   };
-   virtual void   Initialize();
-   Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
+      //X-coordinate is SI2 Q2 amplitude from FPGA
+      return fSi2->GetQ2FPGAEnergy();
+   }
+   Double_t GetIDMapY(Option_t* /*opt*/ = "")
+   {
+      //Y-coordinate is SI1 QH1 amplitude from FPGA
+      return fSi1->GetQH1FPGAEnergy();
+   }
 
-   Double_t GetIDMapX(Option_t* opt = "");
-   Double_t GetIDMapY(Option_t* opt = "");
-
-   ClassDef(KVFAZIAIDSiSi_e789, 1) //identification telescope for FAZIA Si-Si idcards
+   ClassDef(KVFAZIAIDSiSi_e789, 1) //identification telescope for E789 FAZIA Si-Si idcards
 };
 
 #endif

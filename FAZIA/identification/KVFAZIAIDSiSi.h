@@ -11,8 +11,8 @@ class KVFAZIADetector;
 class KVIDZAGrid;
 
 class KVFAZIAIDSiSi : public KVFAZIAIDTelescope {
-private:
 
+protected:
    KVIDZAGrid* fSiSiGrid;//! telescope's grid
    KVFAZIADetector* fSi1;//!
    KVFAZIADetector* fSi2;//!

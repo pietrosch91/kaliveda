@@ -4,41 +4,30 @@
 #ifndef __KVFAZIAIDCsI_e789_H
 #define __KVFAZIAIDCsI_e789_H
 
-#include "KVFAZIAIDTelescope.h"
-#include "KVIDGCsI.h"
+#include "KVFAZIAIDCsI.h"
+#include "KVFAZIADetector.h"
 
-class KVFAZIADetector;
-
-class KVFAZIAIDCsI_e789 : public KVFAZIAIDTelescope {
-
-protected:
-   KVIDGCsI* CsIGrid;//! telescope's grid
-   KVFAZIADetector* fCsI;//!
+class KVFAZIAIDCsI_e789 : public KVFAZIAIDCsI {
 
 public:
-   KVFAZIAIDCsI_e789();
-   virtual ~KVFAZIAIDCsI_e789();
+   KVFAZIAIDCsI_e789() {}
+   virtual ~KVFAZIAIDCsI_e789() {}
 
-   virtual UShort_t GetIDCode()
+   Double_t GetIDMapX(Option_t* /*opt*/ = "")
    {
-      return kCsI;
-   };
-   virtual Bool_t Identify(KVIdentificationResult*, Double_t x = -1., Double_t y = -1.);
-
-   Double_t GetIDMapX(Option_t* opt = "");
-   Double_t GetIDMapY(Option_t* opt = "");
-
-   virtual void Initialize();
-   virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
+      //X-coordinate for CsI identification map :
+      // computed slow componment
+      // of the charge signal (Q3FPGAEnergy)
+      return fCsI->GetQ3FPGAEnergy();
+   }
+   Double_t GetIDMapY(Option_t* /*opt*/ = "")
    {
-      // Used for filtering simulations
-      // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
-      // without considering thresholds etc.
-      // For CsI Rapide-Lente detectors, identification is typically possible up to Z=4
-      return (Z < 5);
+      //Y-coordinate for CsI identification map :
+      // Q3FastFPGAEnergy / Q3FPGAEnergy
+      return fCsI->GetQ3FastFPGAEnergy() / fCsI->GetQ3FPGAEnergy();
    }
 
-   ClassDef(KVFAZIAIDCsI_e789, 1) //id telescope to manage FAZIA CsI identification
+   ClassDef(KVFAZIAIDCsI_e789, 1) //id telescope to manage E789 FAZIA CsI identification
 };
 
 #endif
