@@ -222,13 +222,11 @@ int main(int argc, char* argv[])
          }
          else {
             cout << "File " << current_file.name << " ready for upload [next file: " << next_file.name << "]" << endl;
-            //FILE_H.read_and_store_infos_on_file(current_file);
-            if (1)
-               //(gDataRepository->CopyFileToRepository(
-               //      Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data()),
-               //      dataset, "raw", current_file.name.Data()
-               //   ) == 0)
-            {
+            FILE_H.read_and_store_infos_on_file(current_file);
+            if (gDataRepository->CopyFileToRepository(
+                     Form("%s/%s", FILE_H.scan_dir.Data(), current_file.name.Data()),
+                     dataset, "raw", current_file.name.Data()
+                  ) == 0) {
                // successful transfer
                cout << "File upload successful" << endl;
                continue;
