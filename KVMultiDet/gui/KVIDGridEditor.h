@@ -103,6 +103,8 @@ protected:
    Bool_t venermode;       //true si mode select
    Bool_t ready;
 
+   Bool_t is_col;
+
    Double_t xmin, xmax, ymin, ymax; //utilises pour les differents zooms
    Double_t oldx, oldy;       //utilises pour les differents zooms
    Bool_t   moved;         //utilise pour les differents zooms

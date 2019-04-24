@@ -160,6 +160,7 @@ void KVIDGridEditor::SetDefault()
    venermode  = false;
    fDebug     = false;
    ready      = false;
+   is_col     = false;
 
    fSVGMode   = false;
    fSVGIndex  = 0;

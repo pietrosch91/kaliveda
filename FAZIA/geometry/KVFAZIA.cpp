@@ -440,7 +440,7 @@ Bool_t KVFAZIA::treat_event(const DAQ::FzEvent& e)
 
       // check block errors
       if (e.block(b).len_error() || e.block(b).crc_error() || (!good)) {
-         Warning("treat_event", "BLOCK LEN OR CRC ERROR B%03d", e.block(b).blkid());
+         //Warning("treat_event", "BLOCK LEN OR CRC ERROR B%03d", e.block(b).blkid());
          good = kFALSE;
          break;  //stop iteration on blocks
       }

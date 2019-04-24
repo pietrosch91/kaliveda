@@ -207,8 +207,8 @@ INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
 
 +Plugin.KVDetector:      ^INDRAFAZIA.E789.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
 
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-Si$                 KVFAZIAIDSiSi            FAZIAidentification           "KVFAZIAIDSiSi()"
-+Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-CsI$                 KVFAZIAIDSiCsI            FAZIAidentification           "KVFAZIAIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-Si$                 KVFAZIAIDSiSi_e789            FAZIAidentification           "KVFAZIAIDSiSi_e789()"
++Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-CsI$                 KVFAZIAIDSiCsI_e789            FAZIAidentification           "KVFAZIAIDSiCsI_e789()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si$                 KVFAZIAIDSiPSA            FAZIAidentification           "KVFAZIAIDSiPSA()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.CsI$                 KVFAZIAIDCsI            FAZIAidentification           "KVFAZIAIDCsI()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.CSI$          KVIDINDRACsI         KVIndraidentification         "KVIDINDRACsI()"
@@ -255,6 +255,11 @@ INDRAFAZIA.E789.Q3.ShaperFlatTop:              10
 INDRAFAZIA.E789.Q3.PZCorrection:               0
 INDRAFAZIA.E789.Q3.FastShaperRiseTime:         2
 INDRAFAZIA.E789.Q3.FastShaperFlatTop:          0.5
+
+INDRAFAZIA.E789.QH1.FPGARiseTime:          2.
+INDRAFAZIA.E789.Q2.FPGARiseTime:           2.
+INDRAFAZIA.E789.Q3.fast.FPGARiseTime:      2.
+INDRAFAZIA.E789.Q3.slow.FPGARiseTime:      2.
 
 INDRAFAZIA.E789.QL1.MinimumAmplitude:          2
 INDRAFAZIA.E789.Q2.MinimumAmplitude:           2

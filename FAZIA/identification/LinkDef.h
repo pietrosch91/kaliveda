@@ -9,4 +9,7 @@
 #pragma link C++ class KVFAZIAIDSiCsI+;
 #pragma link C++ class KVFAZIAIDSiCsI_FAZIASYM+;
 #pragma link C++ class KVFAZIAIDSiSi_FAZIACOR+;
+#pragma link C++ class KVFAZIAIDSiSi_e789+;
+#pragma link C++ class KVFAZIAIDSiCsI_e789+;
+#pragma link C++ class KVFAZIAIDCsI_e789+;
 #endif
