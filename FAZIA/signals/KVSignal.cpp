@@ -1166,18 +1166,16 @@ void KVSignal::BuildSmoothingSplineSignal(double taufinal, double l, int nbits)
    const double tau = fChannelWidth;
 
    KVSignal coeff;
-   this->ApplyModifications(&coeff);
+   ApplyModifications(&coeff);
    coeff.SetADCData();
    if (coeff.FIR_ApplySmoothingSpline(l, nbits) != 0) return;
 
    fChannelWidthInt = taufinal;
    TArrayF interpo;
    interpo.Set((int)(Nsa * tau / taufinal));
-//   int nlast = interpo.GetSize() - (int)(3 * tau / taufinal);
    int nlast = interpo.GetSize() - (int)(3 * tau);
    if (nlast <= 0) return;
 
-//   for (int i = 0; i < interpo.GetSize()-3*tau; i++) interpo.AddAt(GetDataSmoothingSplineLTI(i * taufinal), i);
    for (int i = 0; i < interpo.GetSize() - (int)(53 * tau / taufinal); i++) interpo.AddAt(coeff.GetDataSmoothingSplineLTI(i * taufinal), i);
    fAdc.Set(0);
    fAdc.Set(interpo.GetSize());
@@ -1194,6 +1192,10 @@ void KVSignal::BuildSmoothingSplineSignal()
 
 int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
 {
+   // This method is never called with nbits>2, therefore nmax=50 ALWAYS
+   // and dynamic arrays xvec & yvec can safely be of fixed size
+   // If ever we want to use nbits>2, this will have to be changed
+
    if (l < 0.1) return -1;
    int i;
    double x0 = ApplyNewton(l, 1000);
@@ -1223,7 +1225,7 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
    roB = sqrt(czr * czr + czi * czi);
    double roZ = sqrt(x0);
    int nfloat = 0;
-   int nmax;
+   int nmax(50);
    double imax, fmax;
    if (nbits > 2) {
       //Determination of best notation
@@ -1240,7 +1242,6 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
       }
       while (fmax * pow(2, nfloat + 1) < 1);
    }
-   else nmax = 50;
    double* xvec = new double[2 * nmax + 1];
    double* yvec = new double[2 * nmax + 1];
    if (nbits > 2) {
@@ -1256,7 +1257,9 @@ int KVSignal::FIR_ApplySmoothingSpline(double l, int nbits)
       }
    }
    FIR_ApplyRecursiveFilter(0, 2 * nmax + 1, xvec, yvec, 0);
-   this->ShiftLeft(nmax * fChannelWidth);
+   ShiftLeft(nmax * fChannelWidth);
+   delete [] xvec;
+   delete [] yvec;
    return 0;
 }
 

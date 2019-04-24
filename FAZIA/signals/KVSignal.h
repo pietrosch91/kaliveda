@@ -158,7 +158,7 @@ public:
    }
 
    //
-   //Indicate the value in (ns or µs) of TGraph X axis width
+   //Indicate the value in (ns or us) of TGraph X axis width
    //
    void SetChannelWidth(double width)
    {
