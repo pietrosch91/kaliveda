@@ -44,7 +44,7 @@ void KVSilicon::init()
 
 //______________________________________________________
 
-KVSilicon::KVSilicon()
+KVSilicon::KVSilicon(): KVINDRADetector("Si")
 {
    //Default ctor
    //This ctor (which in turn calls the KVDetector default ctor) must exist in
