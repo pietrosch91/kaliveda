@@ -20,7 +20,7 @@ void KVReconRawDataAnalyser::preInitRun()
 
 void KVReconRawDataAnalyser::preAnalysis()
 {
-   if ((fHandledRawData = gMultiDetArray->HandledRawData())) {
+   if (gMultiDetArray->HandledRawData()) {
       fEvRecon->ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
       fEvRecon->GetEvent()->SetNumber(GetEventNumber());
    }
@@ -47,7 +47,7 @@ void KVReconRawDataAnalyser::Make(const Char_t* kvsname)
    //Analysis
    body = "   //Analysis method called for each event\n";
    body += "   //  GetEventNumber() returns current event number\n";
-   body += "   //  if HandledRawData() returns kTRUE, an event was reconstructed and\n";
+   body += "   //  if gMultiDetArray->HandledRawData() returns kTRUE, an event was reconstructed and\n";
    body += "   //  can be accessed through GetReconstructedEvent()\n";
    body += "   //  Processing will stop if this method returns kFALSE\n";
    body += "   return kTRUE;";
