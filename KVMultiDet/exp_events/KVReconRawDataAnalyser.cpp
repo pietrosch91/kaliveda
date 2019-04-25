@@ -23,6 +23,7 @@ void KVReconRawDataAnalyser::preAnalysis()
    if (gMultiDetArray->HandledRawData()) {
       fEvRecon->ReconstructEvent(gMultiDetArray->GetFiredDataParameters());
       fEvRecon->GetEvent()->SetNumber(GetEventNumber());
+      gMultiDetArray->SetRawDataFromReconEvent(*(fEvRecon->GetEvent()->GetParameters()));
    }
 }
 
