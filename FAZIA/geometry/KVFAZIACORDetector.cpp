@@ -94,5 +94,4 @@ void KVFAZIACORDetector::SetCalibrators()
    AddCalibrator(fChannelToEnergy);
    AddCalibrator(fChannelToVolt);
    AddCalibrator(fVoltToEnergy);
-
 }

@@ -59,6 +59,8 @@ public:
    void AddRun(KVDBRun* r)
    {
       fRuns->AddRecord(r);
+      if (!kFirstRun) kFirstRun = r->GetNumber();
+      if (r->GetNumber() > kLastRun) kLastRun = r->GetNumber();
    }
    virtual KVSeqCollection* GetRuns() const
    {

@@ -2,7 +2,7 @@
 $Id: KVDBParameterSet.cpp,v 1.11 2007/04/18 14:30:20 ebonnet Exp $
                           KVDBParameterSet.cpp  -  description
                              -------------------
-    begin                : jeu fév 13 2003
+    begin                : jeu fÃ©v 13 2003
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
  ***************************************************************************/
@@ -27,7 +27,7 @@ ClassImp(KVDBParameterSet);
 
 //___________________________________________________________________________
 //      Jeu de parametres pour la calibration
-//      Cette classe est juste un "wraper" pour un tableau de paramètre
+//      Cette classe est juste un "wraper" pour un tableau de paramÃ¨tre
 //
 //
 
@@ -105,10 +105,20 @@ Double_t KVDBParameterSet::GetParameter(TString name)  const
    return fParameters.GetDoubleValue(name);
 }
 
+TString KVDBParameterSet::GetStringParameter(const TString& name) const
+{
+   return fParameters.GetTStringValue(name);
+}
+
 //____________________________________________________________________________
 void KVDBParameterSet::SetParameter(TString name, Double_t val)
 {
    fParameters.SetValue(name, val);
+}
+
+void KVDBParameterSet::SetParameter(const TString& name, const char* value)
+{
+   fParameters.SetValue(name, value);
 }
 
 //____________________________________________________________________________

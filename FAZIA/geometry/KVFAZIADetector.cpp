@@ -65,6 +65,13 @@ Double_t KVFAZIADetector::GetSetupParameter(const Char_t* parname)
 
 }
 
+void KVFAZIADetector::RefreshCalibratorPointers()
+{
+   fChannelToEnergy = GetCalibrator("Channel-Energy");
+   fChannelToVolt = GetCalibrator("Channel-Volt");
+   fVoltToEnergy = GetCalibrator("Volt-Energy");
+}
+
 //________________________________________________________________
 KVFAZIADetector::KVFAZIADetector()
 {

@@ -111,6 +111,7 @@ public:
    };
 
    void DeduceACQParameters(KVEvent*, KVNumberList&);
+   void RefreshCalibratorPointers();
 
    ClassDef(KVCsI, 5)           // The CsI(Tl) detectors of the INDRA array
 };

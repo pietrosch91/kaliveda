@@ -463,11 +463,32 @@ Bool_t KVDetector::AddCalibrator(KVCalibrator* cal)
    //it will not be added to the list
    //(avoids duplicate calibrators) and the method returns kFALSE.
 
+   if (!cal) return kFALSE;
    if (!fCalibrators)
       fCalibrators = new KVList();
    if (fCalibrators->FindObject(cal)) return kFALSE;
    fCalibrators->Add(cal);
+   cal->SetDetector(this);
+   RefreshCalibratorPointers();
    return kTRUE;
+}
+
+Bool_t KVDetector::ReplaceCalibrator(const Char_t* type, KVCalibrator* cal)
+{
+   // Replace calibrator of given type with the given calibrator object
+   // The calibrator object should not be shared with any other detectors: it now belongs
+   // to this detector, which will delete it when necessary.
+   // If an exising calibrator with the same type is already defined, it will be
+   // deleted and removed from the detector's calibrator list
+   //
+   // Returns kFALSE in case of problems.
+
+   KVCalibrator* old_cal = GetCalibrator(type);
+   if (old_cal) {
+      fCalibrators->Remove(old_cal);
+      delete old_cal;
+   }
+   return AddCalibrator(cal);
 }
 
 //_______________________________________________________________________________

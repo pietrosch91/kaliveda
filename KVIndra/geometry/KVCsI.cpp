@@ -727,3 +727,9 @@ void KVCsI::DeduceACQParameters(KVEvent* e, KVNumberList& index)
    GetACQParam("T")->SetData(Mt);
 
 }
+
+void KVCsI::RefreshCalibratorPointers()
+{
+   fCalZ1 = (KVLightEnergyCsI*)GetCalibrator("Light-Energy CsI Z=1");
+   fCal = (KVLightEnergyCsI*)GetCalibrator("Light-Energy CsI Z>1");
+}

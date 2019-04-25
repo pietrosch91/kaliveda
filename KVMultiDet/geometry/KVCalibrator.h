@@ -80,6 +80,10 @@ public:
    virtual Double_t Compute(Double_t x) const = 0;
    virtual Double_t operator()(Double_t x) = 0;
    virtual Double_t Invert(Double_t x) = 0;
+   virtual Double_t InvertDouble(Double_t)
+   {
+      return 0;
+   }
    virtual TGraph* MakeGraph(Double_t xmin, Double_t xmax, Int_t npoints =
                                 50) const;
 
@@ -88,6 +92,9 @@ public:
 #else
    virtual void Copy(TObject&);
 #endif
+
+   static KVCalibrator* MakeCalibrator(const Char_t* type);
+   virtual void SetOptions(const KVNameValueList&);
 
    ClassDef(KVCalibrator, 1)    //Base class for calibration of detectors
 };

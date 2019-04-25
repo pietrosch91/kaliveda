@@ -25,10 +25,13 @@ class KVSilicon: public KVINDRADetector {
 
 protected:
 
-   KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
-   KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
-   KVVoltEnergy* fVoltE;//!volt-energy conversion
+//   KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
+//   KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
+//   KVVoltEnergy* fVoltE;//!volt-energy conversion
    KVPulseHeightDefect* fPHD;//!pulse height defect
+   KVCalibrator* fChVoltGG;//!channel-volt conversion (GG)
+   KVCalibrator* fChVoltPG;//!channel-volt conversion (PG)
+   KVCalibrator* fVoltE;//!volt-energy conversion
 
    void init();
 
@@ -78,6 +81,8 @@ public:
    }
    void DeduceACQParameters(KVEvent*, KVNumberList&);
    Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
+
+   void RefreshCalibratorPointers();
 
    ClassDef(KVSilicon, 9)       //INDRA forward-rings silicon detector
 };

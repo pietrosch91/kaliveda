@@ -19,7 +19,7 @@ void KVSilicon_GG_Energy::SetCalibrators()
    //Set up calibrators for this detector. Call once name has been set.
    KVCalibrator* c = new KVChannelEnergyAlpha("GG", this);
    if (!AddCalibrator(c)) delete c;
-   fCalib = (KVChannelEnergyAlpha*) GetCalibrator("Channel-Energy alpha GG");
+   RefreshCalibratorPointers();
 }
 
 //__________________________________________________________________________________________
@@ -31,4 +31,9 @@ Double_t KVSilicon_GG_Energy::GetCalibratedEnergy()
    if (IsCalibrated() && Fired("any"))
       return (fCalib->Compute(GetGG() - GetPedestal("GG")));
    return 0;
+}
+
+void KVSilicon_GG_Energy::RefreshCalibratorPointers()
+{
+   fCalib = (KVChannelEnergyAlpha*) GetCalibrator("Channel-Energy alpha GG");
 }

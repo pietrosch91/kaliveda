@@ -19,9 +19,10 @@ $Date: 2009/03/23 11:30:54 $
 
 class KVFunctionCal : public KVCalibrator {
 
-   TF1*     fcalibfunction;//calibration function
-   Bool_t      fPedCorr;      //true if pedestal correction is required
+   TF1*     fcalibfunction;    //calibration function
+   Bool_t      fPedCorr;       //true if pedestal correction is required
    KVACQParam*  fACQpar;       //! corresponding ACQ parameter
+   Bool_t   fUseInverseFunction;//true if inverse i.e. TF1::GetX should be used for Compute()
 protected:
 
    void SetParametersWithFunction();
@@ -50,12 +51,12 @@ public:
    {
       KVCalibrator::SetParameter(i, par_val);
       if (fcalibfunction) fcalibfunction->SetParameter(i, par_val);
-   };
+   }
 
    void  WithPedestalCorrection(Bool_t yes)
    {
       fPedCorr = yes;
-   };
+   }
    TF1*  GetFunction()
    {
       return fcalibfunction;
@@ -69,11 +70,17 @@ public:
    inline KVACQParam* GetACQParam() const
    {
       return fACQpar;
-   };
+   }
    inline void SetACQParam(KVACQParam* par)
    {
       fACQpar = par;
-   };
+   }
+   void SetOptions(const KVNameValueList& opt);
+
+   void SetUseInverseFunction(Bool_t yes = kTRUE)
+   {
+      fUseInverseFunction = yes;
+   }
 
    ClassDef(KVFunctionCal, 1) //analytic function calibration E = f(channel)
 };

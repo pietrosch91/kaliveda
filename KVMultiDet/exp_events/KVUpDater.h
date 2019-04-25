@@ -33,6 +33,6 @@ public:
 
    static KVUpDater* MakeUpDater(const Char_t* uri, KVMultiDetArray*);
 
-   ClassDef(KVUpDater, 0)       //Abstract base class handling setting of multidetector parameters for each run
+   ClassDef(KVUpDater, 0)       //Base class handling setting of multidetector parameters for each run
 };
 #endif

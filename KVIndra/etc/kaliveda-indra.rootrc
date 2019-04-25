@@ -740,3 +740,9 @@ INDRA_camp4.GDir.Freq: 185.6*(x<4500)+(184.462+(x-4500)*0.00331259)*(x>4500 && x
 # in fact there appear to be (at least) 2 regimes, with the other (minoritaire) having a very wide distribution
 # around 160-170Hz.
 INDRA_camp5.GDir.Freq: 186.2
+
+# Plugins for detector calibration
++Plugin.KVCalibrator: ChannelVolt  KVChannelVolt   KVIndracalibration "KVChannelVolt()"
++Plugin.KVCalibrator: ChannelEnergyAlpha  KVChannelEnergyAlpha   KVIndracalibration "KVChannelEnergyAlpha()"
++Plugin.KVCalibrator: FunctionCal  KVFunctionCal   KVIndracalibration "KVFunctionCal()"
++Plugin.KVCalibrator: VoltEnergy  KVVoltEnergy   KVIndracalibration "KVVoltEnergy()"

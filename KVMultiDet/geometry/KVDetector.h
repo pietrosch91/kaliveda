@@ -232,6 +232,7 @@ public:
    virtual void SetPedestal(const Char_t* /*name*/, Float_t);
 
    Bool_t AddCalibrator(KVCalibrator* cal);
+   Bool_t ReplaceCalibrator(const Char_t* type, KVCalibrator* cal);
    KVCalibrator* GetCalibrator(const Char_t* name,
                                const Char_t* type) const;
    KVCalibrator* GetCalibrator(const Char_t* type) const;
@@ -239,6 +240,7 @@ public:
    {
       return fCalibrators;
    }
+   virtual void RefreshCalibratorPointers() {}
    virtual Bool_t IsCalibrated() const;
 
    virtual void Clear(Option_t* opt = "");

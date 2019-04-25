@@ -1,0 +1,7 @@
+run=1000 | INDRA gains: G=sqrt(2) 6/7, G=2 (8/9)
+run=3000 | with FAZIA timestamps
+run=5000 | all INDRA Si gains at max
+run=9000 | only silicon (INDRA/FAZIA)
+run=11000 | PG ramp
+run=12000 | GG ramp
+run=13000 | new alpha source 150 Hz FAZIA (Only Si1) 1800Hz INDRA (Si ring 6-7 and 8-9)

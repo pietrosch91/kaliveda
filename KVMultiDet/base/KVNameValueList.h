@@ -117,7 +117,7 @@ public:
    }
 
    template <typename value_type>
-   Bool_t IsValue(const Char_t* name, value_type value)
+   Bool_t IsValue(const Char_t* name, value_type value) const
    {
       // Returns kTRUE if parameter with given name exists and is equal to given value
       KVNamedParameter* par = FindParameter(name);

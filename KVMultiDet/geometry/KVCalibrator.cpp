@@ -139,6 +139,26 @@ void KVCalibrator::Copy(TObject& obj)
    ((KVCalibrator&) obj).SetStatus(GetStatus());
 }
 
+KVCalibrator* KVCalibrator::MakeCalibrator(const Char_t* type)
+{
+   // Create a new KVCalibrator object with class given by the plugin of given type
+
+   TPluginHandler* ph = LoadPlugin("KVCalibrator", type);
+   if (!ph) {
+      ::Error("KVCalibrator::MakeCalibrator", "No plugin for KVCalibrator with type %s", type);
+      return nullptr;
+   }
+   // execute default constructor
+   KVCalibrator* c = (KVCalibrator*)ph->ExecPlugin(0);
+   return c;
+}
+
+void KVCalibrator::SetOptions(const KVNameValueList&)
+{
+   // Method called to set up a calibrator that was created by calling its default constructor.
+   // See methods in child classes for specific cases.
+}
+
 //____________________________________________________________________________
 void KVCalibrator::SetNumberParams(Int_t npar)
 {

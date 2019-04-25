@@ -1442,12 +1442,48 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
    TIter nxt_link(run_links);
    KVDBParameterSet* dbps;
    while ((dbps = (KVDBParameterSet*)nxt_link())) {
+
       KVDetector* det = GetDetector(dbps->GetName());
       if (!det) {
          Warning("SetCalibratorParameters", "Got parameters for unknown detector: %s", dbps->GetName());
          continue;
       }
       KVCalibrator* cal = det->GetCalibrator(dbps->GetTitle());
+      // Check if calibrator has right class if one was specified in parameter set
+      // This also allows to create the calibrator if it does not exist
+      if (dbps->HasParameter("CalibClass")) {
+
+         KVNameValueList class_options;
+         KVString clop = dbps->GetStringParameter("CalibOptions");
+         if (clop != "") {
+            clop.Begin(",");
+            while (!clop.End()) {
+               KVString clopp = clop.Next(true);
+               clopp.Begin("=");
+               KVString par(clopp.Next(true)), val(clopp.Next(true));
+               class_options.SetValue(par, val);
+            }
+         }
+         // make sure calibrator exists & is of right class
+         // if not we replace it
+         if (cal) {
+            if (dbps->GetStringParameter("CalibClass") != cal->ClassName()) {
+               // detector has calibrator of wrong class
+               cal = KVCalibrator::MakeCalibrator(dbps->GetStringParameter("CalibClass"));
+               cal->SetType(dbps->GetTitle());
+               if (clop != "") cal->SetOptions(class_options);
+               det->ReplaceCalibrator(dbps->GetTitle(), cal);
+            }
+         }
+         else {
+            // detector had no calibrator of right type
+            cal = KVCalibrator::MakeCalibrator(dbps->GetStringParameter("CalibClass"));
+            cal->SetType(dbps->GetTitle());
+            if (clop != "") cal->SetOptions(class_options);
+            det->AddCalibrator(cal);
+         }
+      }
+
       if (!cal) {
          Warning("SetCalibratorParameters", "Detector %s has no calibrator of type: %s", dbps->GetName(), dbps->GetTitle());
          continue;
@@ -1455,6 +1491,7 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
       if (dbps->GetParamNumber() > cal->GetNumberParams()) {
          Warning("SetCalibratorParameters", "Wrong number of parameters (%d) for calibrator %s for detector %s : should be %d",
                  dbps->GetParamNumber(), dbps->GetTitle(), dbps->GetName(), cal->GetNumberParams());
+         dbps->Print();
          continue;
       }
       for (int i = 0; i < dbps->GetParamNumber(); ++i) {
@@ -3240,6 +3277,30 @@ void KVMultiDetArray::ReadPedestalFiles(KVExpDB* db)
 
 void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTable* calib_table)
 {
+   // Read a calibration file with the format
+   //
+   //RunList:                                 0-999999
+   //Signal:                                  PG
+   //CalibType:                               Channel-Volt PG
+   //CalibClass:                              FunctionCal
+   //CalibOptions:                            func=pol3,min=0,max=1
+   //[detector]: 0.0,0.261829,0.0
+   //[detector]: 0.1,0.539535,1.2
+   //
+   //The [RunList] is optional: if not given, the calibration will be applied to all runs in the database.
+   //If different parameters are required for different sets of runs, they should be written in different
+   //files (all of which are listed in CalibrationFiles.dat or [array].CalibrationFiles.dat).
+   //
+   //The [CalibClass] is optional: if given, it should correspond to a KVCalibrator plugin.
+   //If any detector has a calibrator of type [CalibType] which is not of the given class
+   //it will be replaced with a new calibrator corresponding to the plugin.
+   //
+   //The [CalibOptions] is optional: if [CalibClass] is given, list in [CalibOptions] will be used
+   //to complete set-up of any new calibrator objects by calling the KVCalibrator::SetOptions(const KVNameValueList&)
+   //method. [CalibOptions] should hold a comma-separated list of 'parameter=value' pairs which will be used
+   //to fill a KVNameValueList for the method call. See the SetOptions(const KVNameValueList&) method of the
+   //specific class to see which options should/can be given.
+
 
    TString fullpath = "";
    if (!SearchKVFile(filename, fullpath, fDataSet)) {
@@ -3250,41 +3311,71 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
    Info("ReadCalibFile", "file : %s found", fullpath.Data());
    TEnv env;
    env.ReadFile(fullpath, kEnvAll);
-   TIter next(env.GetTable());
-   TEnvRec* rec = 0;
-   KVDBParameterSet* par = 0;
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
 
-   TString ssignal = "";
-   TString stype = "";
+   // read options from file
+   KVNameValueList options;
+   KVString opt_list = "RunList Signal CalibType CalibClass CalibOptions";
+   opt_list.Begin(" ");
+   while (!opt_list.End()) {
+      KVString opt = opt_list.Next();
+      options.SetValue(opt, env.GetValue(opt, ""));
+   }
 
-   while ((rec = (TEnvRec*)next())) {
-      TString sname(rec->GetName());
-      if (sname == "Signal") {
-         ssignal = rec->GetValue();
-      }
-      else if (sname == "CalibType") {
-         stype = rec->GetValue();
-      }
-      else if (sname == "RunList") {
-         default_run_list.Set(rec->GetValue());
-      }
+   if (options.GetTStringValue("Signal") == "") {
+      Error("ReadCalibFile", "No signal defined");
+      return;
+   }
+   if (options.GetTStringValue("CalibType") == "") {
+      Error("ReadCalibFile", "No calibration type defined");
+      return;
+   }
+   Bool_t check_class(options.GetTStringValue("CalibClass") != "");
+   TString calibrator_class;
+   if (check_class) {
+      TPluginHandler* ph = LoadPlugin("KVCalibrator", options.GetStringValue("CalibClass"));
+      if (ph) calibrator_class = ph->GetClass();
       else {
-         KVString lval(rec->GetValue());
-         par = new KVDBParameterSet(sname.Data(), stype.Data(), lval.GetNValues(","));
-         Int_t np = 0;
-         lval.Begin(",");
-         while (!lval.End()) {
-            par->SetParameter(np++, lval.Next().Atof());
-         }
-         calib_table->AddRecord(par);
-         db->LinkRecordToRunRange(par, default_run_list);
+         Error("ReadCalibFile", "No calibrator plugin of type %s", options.GetStringValue("CalibClass"));
+         return;
       }
    }
 
-   if (ssignal == "") Error("ReadCalibFile", "No signal defined");
-   if (stype == "") Error("ReadCalibFile", "No calibration type defined");
+   KVString clop = options.GetStringValue("CalibOptions");
+
+   KVNumberList default_run_list;
+   if (options.GetTStringValue("RunList") != "")
+      default_run_list.Set(options.GetTStringValue("RunList"));
+   else
+      default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
+   default_run_list.Print();
+
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+
+   while ((rec = (TEnvRec*)next())) {
+
+      TString sname(rec->GetName());
+      KVDetector* det = GetDetector(sname);
+      if (!det) continue;
+
+      KVString lval(rec->GetValue());
+      par = new KVDBParameterSet(sname.Data(), options.GetStringValue("CalibType"), lval.GetNValues(","));
+      if (check_class) {
+         // put infos on required calibrator class into database so that it can be replaced
+         // as needed in SetCalibratorParameters
+         par->SetParameter("CalibClass", options.GetStringValue("CalibClass"));
+         if (clop != "") par->SetParameter("CalibOptions", options.GetStringValue("CalibOptions"));
+      }
+      Int_t np = 0;
+      lval.Begin(",");
+      while (!lval.End()) {
+         par->SetParameter(np++, lval.Next().Atof());
+      }
+      calib_table->AddRecord(par);
+      db->LinkRecordToRunRange(par, default_run_list);
+
+   }
 }
 
 void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDBTable* pedestal_table)

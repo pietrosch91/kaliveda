@@ -59,6 +59,7 @@ void KVFunctionCal::init()
    fPedCorr = kTRUE;
    fReady = kTRUE;
    fACQpar = 0;
+   fUseInverseFunction = false;
 }
 
 //------------------------------
@@ -165,8 +166,16 @@ Double_t KVFunctionCal::Compute(Option_t* opt) const
 Double_t KVFunctionCal::Compute(Double_t from) const
 //------------------------------
 {
-   // Give the calibration result for a giving value
-   if (fcalibfunction) return fcalibfunction->Eval(from);
+   // Give the calibration result for a given value
+   // if fUseInverseFunction=true we inverse the calibration function
+   if (fcalibfunction) {
+      if (fUseInverseFunction) {
+         Double_t xmin, xmax;
+         fcalibfunction->GetRange(xmin, xmax);
+         return fcalibfunction->GetX(from, xmin, xmax);
+      }
+      return fcalibfunction->Eval(from);
+   }
    else return -666;
 }
 
@@ -175,7 +184,11 @@ Double_t KVFunctionCal::Invert(Double_t to)
 //------------------------------
 {
    // Give the original value from a calibrated value
+   // if fUseInverseFunction=true we use the calibration function without inversion
    if (fcalibfunction) {
+      if (fUseInverseFunction) {
+         return fcalibfunction->Eval(to);
+      }
       Double_t xmin, xmax;
       fcalibfunction->GetRange(xmin, xmax);
       return fcalibfunction->GetX(to, xmin, xmax);
@@ -197,4 +210,17 @@ Double_t KVFunctionCal::operator()(Double_t chan)
    //
    //        Float_t calibrated_volts = calibrator.Compute(channel);
    return Compute(chan);
+}
+
+void KVFunctionCal::SetOptions(const KVNameValueList& opt)
+{
+   // Used to set up a function calibrator from infos in a calibration parameter file.
+   // Use an option string like this:
+   //
+   // CalibOptions:   func=[function],min=[minimum of X],max=[maximum of X]
+   //
+   // An optional option is 'inverse=true' which will call SetUseInverseFunction(true)
+
+   SetExpFormula(opt.GetStringValue("func"), opt.GetTStringValue("min").Atof(), opt.GetTStringValue("max").Atof());
+   SetUseInverseFunction(opt.IsValue("inverse", "true"));
 }

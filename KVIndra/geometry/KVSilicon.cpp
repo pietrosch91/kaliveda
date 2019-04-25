@@ -149,10 +149,7 @@ void KVSilicon::SetCalibrators()
    if (!AddCalibrator(c)) delete c;
    c = new KVPulseHeightDefect(this);
    if (!AddCalibrator(c)) delete c;
-   fVoltE = (KVVoltEnergy*) GetCalibrator("Volt-Energy");
-   fChVoltPG  = (KVChannelVolt*) GetCalibrator("Channel-Volt PG");
-   fChVoltGG  = (KVChannelVolt*) GetCalibrator("Channel-Volt GG");
-   fPHD  = (KVPulseHeightDefect*) GetCalibrator("Pulse Height Defect");
+   RefreshCalibratorPointers();
 }
 
 //__________________________________________________________________________________________
@@ -393,6 +390,14 @@ Double_t KVSilicon::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    if (fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z, A)->Eval(Einc);
 
    return KVDetector::GetDeltaE(Z, A, Einc);
+}
+
+void KVSilicon::RefreshCalibratorPointers()
+{
+   fVoltE = (KVVoltEnergy*) GetCalibrator("Volt-Energy");
+   fChVoltPG  = (KVChannelVolt*) GetCalibrator("Channel-Volt PG");
+   fChVoltGG  = (KVChannelVolt*) GetCalibrator("Channel-Volt GG");
+   fPHD  = (KVPulseHeightDefect*) GetCalibrator("Pulse Height Defect");
 }
 
 

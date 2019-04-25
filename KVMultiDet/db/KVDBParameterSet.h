@@ -35,22 +35,28 @@ public:
                     UShort_t pnum);
    virtual ~ KVDBParameterSet();
 
-   virtual Int_t GetParamNumber() const
+   Int_t GetParamNumber() const
    {
       return fParamNumber;
    }
-   virtual Double_t GetParameter(UShort_t i = 0) const;
-   virtual Double_t GetParameter(TString name) const;
-   virtual const Char_t* GetParamName(UShort_t i = 0) const;
-   virtual KVRList* GetRuns() const;
-   virtual void SetParameter(UShort_t i, Double_t val);
-   virtual void SetParameter(Double_t val);
-   virtual void SetParameter(TString name, Double_t val);
-   virtual void SetParameters(Double_t val, ...);
-   virtual void SetParameters(const std::vector<Double_t>* const pars);
-   virtual void SetParamName(UShort_t i, const Char_t* name);
-   virtual void SetParamNames(const Char_t* name, ...);
-   virtual void Print(Option_t* option = "") const;
+   Double_t GetParameter(UShort_t i = 0) const;
+   Double_t GetParameter(TString name) const;
+   TString GetStringParameter(const TString& name) const;
+   const Char_t* GetParamName(UShort_t i = 0) const;
+   Bool_t HasParameter(const Char_t* name) const
+   {
+      return fParameters.HasParameter(name);
+   }
+   KVRList* GetRuns() const;
+   void SetParameter(UShort_t i, Double_t val);
+   void SetParameter(Double_t val);
+   void SetParameter(TString name, Double_t val);
+   void SetParameter(const TString& name, const char* value);
+   void SetParameters(Double_t val, ...);
+   void SetParameters(const std::vector<Double_t>* const pars);
+   void SetParamName(UShort_t i, const Char_t* name);
+   void SetParamNames(const Char_t* name, ...);
+   void Print(Option_t* option = "") const;
 
    ClassDef(KVDBParameterSet, 1)       // Set of parameters for calibration
 };

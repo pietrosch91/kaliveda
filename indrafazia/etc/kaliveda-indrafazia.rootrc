@@ -205,7 +205,7 @@ INDRAFAZIA.E789.SI-CSI.MassID.Validity:  Z<=6
 +Plugin.KVFAZIA:    INDRAFAZIA.E789    KVFAZIETO    FAZIAgeometry    "KVFAZIETO()"
 +Plugin.KVINDRA:    INDRAFAZIA.E789    KVINDRA    KVIndraexp_events    "KVINDRA()"
 
-+Plugin.KVDetector:      ^INDRAFAZIA.E789.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
+#+Plugin.KVDetector:      ^INDRAFAZIA.E789.SI$      KVSilicon_GG_Energy      KVIndrageometry      "KVSilicon_GG_Energy(Float_t)"
 
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-Si$                 KVFAZIAIDSiSi_e789            FAZIAidentification           "KVFAZIAIDSiSi_e789()"
 +Plugin.KVIDTelescope:    ^INDRAFAZIA.E789.Si-CsI$                 KVFAZIAIDSiCsI_e789            FAZIAidentification           "KVFAZIAIDSiCsI_e789()"
