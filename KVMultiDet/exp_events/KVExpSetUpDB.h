@@ -17,6 +17,7 @@ public:
 
    void Build();
    void FillRunsTable();
+   void ReadScalerInfos();
 
    ClassDef(KVExpSetUpDB, 1) //Database for dataset using KVExpSetUp
 };

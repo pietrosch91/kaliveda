@@ -67,9 +67,35 @@ void KVExpSetUpDB::Build()
    FillRunsTable();
    ReadComments();
    ReadSystemList();
+   ReadScalerInfos();
 
    KVMultiDetArray::MakeMultiDetector(fDataSet);
    gMultiDetArray->MakeCalibrationTables(this);
+}
+
+void KVExpSetUpDB::ReadScalerInfos()
+{
+   // Look for file scalers.root and read scalers from it
+   // scalers are assumed to be stored as 64-bit parameters in the list
+
+   TString runinfos = KVDataSet::GetFullPathToDataSetFile(fDataSet, "scalers.root");
+   if (runinfos == "") return;
+
+   Info("ReadScalerInfos", "Reading scaler infos from %s", runinfos.Data());
+   TFile runinfos_file(runinfos);
+   TIter it_run(GetRuns());
+   KVDBRun* run;
+   while ((run = (KVDBRun*)it_run())) {
+      KVNameValueList* scalist = (KVNameValueList*)runinfos_file.Get(Form("run_%06d", run->GetNumber()));
+      if (scalist) {
+         int npar = scalist->GetNpar();
+         for (int i = 0; i < npar; i += 2) {
+            TString parname = scalist->GetParameter(i)->GetName();
+            parname.Remove(parname.Index("_hi"), 3);
+            run->SetScaler64(parname, scalist->GetValue64bit(parname));
+         }
+      }
+   }
 }
 
 void KVExpSetUpDB::FillRunsTable()
