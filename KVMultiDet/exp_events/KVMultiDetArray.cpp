@@ -3493,3 +3493,22 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    return ok;
 }
 #endif
+
+#ifdef WITH_PROTOBUF
+Bool_t KVMultiDetArray::handle_raw_data_event_protobuf(KVProtobufDataReader&)
+{
+   AbstractMethod("handle_raw_data_event_protobuf");
+   return kFALSE;
+}
+#endif
+
+void KVMultiDetArray::CalculateIdentificationGrids()
+{
+   // For each IDtelescope in array, calculate an identification grid
+
+   TIter nxtid(GetListOfIDTelescopes());
+   KVIDTelescope* idt;
+   while ((idt = (KVIDTelescope*) nxtid())) {
+      idt->CalculateDeltaE_EGrid("1-92", 0, 20);
+   }
+}
