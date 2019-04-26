@@ -27,6 +27,14 @@ void KVReconRawDataAnalyser::preAnalysis()
    }
 }
 
+void KVReconRawDataAnalyser::postEndRun()
+{
+   // the multidetector will be deleted and rebuilt at the beginning of the next run
+   // (if there is one). the reconstructed event will contain stale pointers to the old
+   // detectors etc. if we don't clear it now
+   fRecev->Clear();
+}
+
 void KVReconRawDataAnalyser::Make(const Char_t* kvsname)
 {
    //Automatic generation of derived class for raw data analysis
