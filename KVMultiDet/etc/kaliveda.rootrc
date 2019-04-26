@@ -288,6 +288,12 @@ KVNDTManager.ElementDensityTable:      KVElementDensityTable
 +Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDetparticles   "KVElementDensityTable()"
 ElementDensity.DataFile:	element_densities.data
 
+# Spin and Parity table used by KVNDTManager
+KVNDTManager.SpinParityTable:       KVSpinParityTable
++Plugin.KVNuclDataTable:   KVSpinParityTable    KVSpinParityTable    KVMultiDetparticles   "KVSpinParityTable()"
+SpinParity.DataFile:	spinparity_nudat2.data
+
+
 # Classes for fitting identification grids
 # To change the default fitter class, change the value of the following variable:
 KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter

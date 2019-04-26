@@ -28,5 +28,7 @@
 #pragma link C++ class KVElementDensityTable+;
 #pragma link C++ class KVChargeRadiusTable+;
 #pragma link C++ class KVExcitedState+;
+#pragma link C++ class KVSpinParity+;
+#pragma link C++ class KVSpinParityTable+;
 #pragma link C++ class KVLevelScheme+;
 #endif

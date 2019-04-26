@@ -280,10 +280,10 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    // In addition, if a dataset is set (gDataSet!=nullptr) we try also for dataset-specific
    // plugins:
    //
-   //       [dataset].[de-type]-[e-type]
+   //       [dataset].[de-type][thickness]-[e-type][thickness]
    //       [dataset].[de-type][thickness]-[e-type]
    //       [dataset].[de-type]-[e-type][thickness]
-   //       [dataset].[de-type][thickness]-[e-type][thickness]
+   //       [dataset].[de-type]-[e-type]
    //
    // if no plugin is found, we return a KVIDTelescope base class object
    //
@@ -294,7 +294,7 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    TString de_thick = Form("%d", TMath::Nint(de->GetThickness()));
    TString e_thick = Form("%d", TMath::Nint(e->GetThickness()));
 
-   TString uri = de_type + "-" + e_type;
+   TString uri = de_type + de_thick + "-" + e_type + e_thick;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    uri = de_type + de_thick + "-" + e_type;
@@ -303,7 +303,7 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    uri = de_type + "-" + e_type + e_thick;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
-   uri = de_type + de_thick + "-" + e_type + e_thick;
+   uri = de_type + "-" + e_type;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    // default id telescope object
@@ -3467,7 +3467,6 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
 {
    // General method for reading raw data in MFM-encapsulated ebyedat format
    // Values of all KVACQParam objects appearing in the event are updated
-   // (first set all parameter values to (UShort_t)-1).
    // Fills list of hit acquisition parameters.
    // Returns kTRUE if at least one parameter belonging to the array is present.
    //
@@ -3494,22 +3493,3 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
    return ok;
 }
 #endif
-
-#ifdef WITH_PROTOBUF
-Bool_t KVMultiDetArray::handle_raw_data_event_protobuf(KVProtobufDataReader&)
-{
-   AbstractMethod("handle_raw_data_event_protobuf");
-   return kFALSE;
-}
-#endif
-
-void KVMultiDetArray::CalculateIdentificationGrids()
-{
-   // For each IDtelescope in array, calculate an identification grid
-
-   TIter nxtid(GetListOfIDTelescopes());
-   KVIDTelescope* idt;
-   while ((idt = (KVIDTelescope*) nxtid())) {
-      idt->CalculateDeltaE_EGrid("1-92", 0, 20);
-   }
-}

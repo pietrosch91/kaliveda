@@ -16,7 +16,7 @@ ClassImp(KVFlowTensor)
 // This global variable class implements the kinetic energy flow tensor of
 // M. Gyulassy et al., Phys. Lett. 110B(1982)185:
 // BEGIN_LATEX
-// $F_{ij}=\sum_{\nu=1}^{N}w_{\nu}p_{i}(\nu)p_{j}(\nu)$
+// F_{ij}=\sum_{\nu=1}^{N}w_{\nu}p_{i}(\nu)p_{j}(\nu)
 // END_LATEX
 // which is built from the components of the momenta of all (or a selection of)
 // reaction products in each event.
@@ -25,7 +25,7 @@ ClassImp(KVFlowTensor)
 // fragments are produced. To correctly weight composite fragments, Gyulassy
 // et al. proposed to use the weight
 // BEGIN_LATEX
-// $w_{\nu}=(2m_{\nu})^{-1}$
+// w_{\nu}=(2m_{\nu})^{-1}
 // END_LATEX
 // in which case F becomes the (non-relativistic) kinetic energy flow tensor
 // (the trace of F is the total non-relativistic kinetic energy of the products).
@@ -36,7 +36,7 @@ ClassImp(KVFlowTensor)
 //     "RKE" : relativistic kinetic energy tensor
 //     i.e. with
 // BEGIN_LATEX
-// $w_{\nu}={1}\over{m_{\nu}(\gamma_{\nu}+1)}$
+// w_{\nu}={1 \over {m_{\nu}(\gamma_{\nu}+1)}}
 // END_LATEX
 //
 //     "ONE","1", or "" : weight w=1
@@ -255,7 +255,7 @@ void KVFlowTensor::Calculate()
    }
 
    // check orientation of flow axis
-   // by symmetry/convention, we allow FlowAngle between 0 & 90° i.e. flow vector always
+   // by symmetry/convention, we allow FlowAngle between 0 & 90Â° i.e. flow vector always
    // points in the forward beam direction.
    if (fEVec[0].Theta() > TMath::PiOver2()) {
       fEVec[0] = -fEVec[0];

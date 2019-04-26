@@ -25,11 +25,12 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 #include "KVMassExcess.h"
 #include "KVAbundance.h"
 #include "KVChargeRadius.h"
+#include "KVSpinParity.h"
 
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
-Double_t KVNucleus::kMe = 0.510988;
+Double_t KVNucleus::kMe = 0.510998;
 // hbar*c in MeV.fm = 197.33....
 Double_t KVNucleus::hbar = TMath::Hbarcgs() * TMath::Ccgs() / TMath::Qe();
 // e^2/(4.pi.epsilon_0) in MeV.fm = 1.44... = hbar*alpha (fine structure constant)
@@ -633,6 +634,16 @@ Int_t KVNucleus::GetA() const
       return ((Int_t) fA + 255);
    return (Int_t) fA;
 }
+//___________________________________________________________________________________________
+Int_t KVNucleus::GetNpairs(Int_t type) const
+{
+
+   if (type == kNN)       return GetA() * (GetA() - 1) / 2;
+   else if (type == knn)  return GetN() * (GetN() - 1) / 2;
+   else if (type == kpp)  return GetZ() * (GetZ() - 1) / 2;
+   else if (type == knp)  return GetZ() * GetN();
+   else return 0;
+}
 
 //_______________________________________________________________________________________
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
@@ -718,6 +729,54 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
    //required nucleus.
    CheckZAndA(z, a);
    return (KVMassExcess*)gNDTManager->GetData(z, a, "MassExcess");
+
+}
+
+//________________________________________________________________________________________
+
+KVSpinParity* KVNucleus::GetSpinParityPtr(Int_t z, Int_t a) const
+{
+   //Returns pointer of corresponding KVSpinParity object
+   //0 if the Z,A couple is not in the table
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   CheckZAndA(z, a);
+   return (KVSpinParity*)gNDTManager->GetData(z, a, "SpinParity");
+
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetSpin(Int_t z, Int_t a) const
+{
+   //Returns spin value for this nucleus.
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   //If the nucleus is not included in the mass table, -1 is returned
+
+   CheckZAndA(z, a);
+
+   Double_t val = gNDTManager->GetValue(z, a, "SpinParity");
+   if (val == -555)
+      return -1;
+   return TMath::Abs(val);
+
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetParity(Int_t z, Int_t a) const
+{
+   //Returns parity value (-1 or +1) for this nucleus.
+   //If optional arguments (z,a) are given we return the value for the
+   //required nucleus.
+   //If the nucleus is not included in the mass table, O is returned
+
+   CheckZAndA(z, a);
+   Double_t val = gNDTManager->GetValue(z, a, "SpinParity");
+   if (val == -555)
+      return 0;
+   return TMath::Sign(-1, val);
 
 }
 
@@ -984,7 +1043,10 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
    //tmin=-1 include also nuclei for which lifetime is unknown
    if (zz == -1) zz = GetZ();
    KVNumberList nla;
-   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   if (zz == 0)
+      nla.Add(1);
+   else
+      nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
    KVNumberList nlb;
    nla.Begin();
    while (!nla.End()) {
@@ -1000,7 +1062,10 @@ KVNumberList KVNucleus::GetMeasuredARange(Int_t zz) const
 
    if (zz == -1) zz = GetZ();
    KVNumberList nla;
-   nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
+   if (zz == 0)
+      nla.Add(1);
+   else
+      nla.SetMinMax(TMath::Max(zz, 1), 6 * TMath::Max(zz, 1));
    KVNumberList nlb;
    nla.Begin();
    while (!nla.End()) {
@@ -1185,6 +1250,33 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
       AVOL * A + ASUR * TMath::Power(A, 2. / 3.) + AC * X13 + AZER;
    Double_t TOTA = EE1 + EE2 + EE3 + EE4;
    return (939.55 * XNEU + 938.77 * Z - TOTA);
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::LiquidDrop_Weizsacker()
+{
+   //Liquid drop mass formula used for nuclei not in mass table (extrapolation).
+   //Parameters are from Brack and Guet (copied from Simon code)
+
+   Double_t av   = 1.531e+01;
+   Double_t as   = 1.654e+01;
+   Double_t ac   = 6.882e-01;
+   Double_t aa   = 2.225e+01;
+   Double_t ap   = 9.399e+00;
+   Double_t kap  = 6.056e-01;
+
+   Double_t eb = 0;
+   eb += av * GetA();
+   eb -= as * TMath::Power(GetA(), 2. / 3.);
+   eb -= ac * GetZ() * (GetZ() - 1) / TMath::Power(GetA(), 1. / 3.);
+   eb -= aa * TMath::Power(GetN() - GetZ(), 2.) / GetA();
+
+   if (TMath::Even(GetA()))
+      eb += ap * (TMath::Power(-1, GetN()) + TMath::Power(-1, GetZ())) / TMath::Power(GetA(), kap);
+
+   return eb;
+
 }
 
 //_______________________________________________________________________________________
