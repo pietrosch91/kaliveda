@@ -57,8 +57,8 @@ void KVRawDataAnalyser::ProcessRun()
 
    //warning! real number of run may be different from that deduced from file name
    //we get the real run number from the data and use it to name any new files
-   //// Not possible for INDRAFAZIA MFM data (we use 'fake' run numbers)
-   /// Is this still necessary? (which dataset was concerned? camp5?)
+   // Not possible for INDRAFAZIA MFM data (we use 'fake' run numbers)
+   // Is this still necessary? (which dataset was concerned? camp5?)
 //   Int_t newrun = fRunFile->GetRunNumberReadFromFile();
 //   if (newrun && newrun != fRunNumber) {
 //      cout << " *** WARNING *** run number read from file = " << newrun << endl;
@@ -66,6 +66,7 @@ void KVRawDataAnalyser::ProcessRun()
 //   }
 
    KVMultiDetArray::MakeMultiDetector(gDataSet->GetName(), fRunNumber);
+   fCurrentRun = gExpDB->GetDBRun(fRunNumber);
 
    fEventNumber = 1; //event number
 
@@ -81,6 +82,8 @@ void KVRawDataAnalyser::ProcessRun()
    cout << "Starting analysis of run " << fRunNumber << " on : ";
    TDatime now;
    cout <<  now.AsString() << endl << endl;
+
+   fCurrentRun->Print();
 
    preInitRun();
    //call user's beginning of run
@@ -181,6 +184,7 @@ void KVRawDataAnalyser::Make(const Char_t* kvsname)
    //initrun
    body = "   //Initialisation performed at beginning of each run\n";
    body += "   //  GetRunNumber() returns current run number";
+   body += "   //  GetCurrentRun() returns KVDBRun pointer to current run in database";
    cf.AddMethodBody("InitRun", body);
    //Analysis
    body = "   //Analysis method called for each event\n";

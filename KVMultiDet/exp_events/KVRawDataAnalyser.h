@@ -7,6 +7,7 @@
 #include "KVDataSetAnalyser.h"
 #include "KVHashList.h"
 #include "KVRawDataReader.h"
+#include "KVDBRun.h"
 
 class KVDetectorEvent;
 
@@ -17,6 +18,7 @@ protected:
    Int_t fRunNumber;             //run number of current file
    Long64_t fEventNumber;        //event number in current run
    KVHashList fHistoList;        //list of histograms of user analysis
+   KVDBRun* fCurrentRun;         //poiner to current run
 
    virtual void ProcessRun();
    void clearallhistos(TCollection*);
@@ -53,6 +55,10 @@ public:
    Long64_t GetEventNumber() const
    {
       return fEventNumber;
+   }
+   KVDBRun* GetCurrentRun() const
+   {
+      return fCurrentRun;
    }
 
    virtual Bool_t FileHasUnknownParameters() const
