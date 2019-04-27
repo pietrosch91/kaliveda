@@ -160,9 +160,7 @@ Double_t KVRangeYanezMaterial::RangeFunc(Double_t* E, Double_t*)
 void KVRangeYanezMaterial::PrepareRangeLibVariables(Int_t Z, Int_t A)
 {
    nelem = fNelem;
-#ifdef WITH_MODIFIED_RANGE_YANEZ
    is_gas = (int)IsGas(); // special treatment for effective charge in gases (M.F. Rivet, R. Bimbot et al)
-#endif
    if (iabso < 0) {
       //cout << "nelem="<<nelem<<endl;
       for (register int k = 0; k < fNelem; k++) {
