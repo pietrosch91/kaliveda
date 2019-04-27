@@ -35,9 +35,6 @@ Target : 1 0.0
 Runs : 39000-44999
 
 +58Ni + EmptyFrame 52 MeV/A
-58 28 0 0 0 52.2
-Target : 1 0.0
-EmptyFrame 0.0
 Runs : 47000-47999
 
 +NotGood
