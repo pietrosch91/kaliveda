@@ -174,37 +174,6 @@ if(DEFINED DATAFLOW_INSTALL_DIR)
     endif()
 endif()
 
-#---Ricardo Yanez 'range' tables
-option(USE_RANGE
-		"Build classes using Ricardo Yanez's 'range' library"
-		OFF)
-add_feature_info(range USE_RANGE "Build classes using Ricardo Yanez's 'range' library")
-if(USE_RANGE)
-	find_package(Range)
-	if(RANGE_FOUND)
-		set(WITH_RANGE_YANEZ yes)
-		include_directories(${RANGE_INC_DIR})
-		link_directories(${RANGE_LIB_DIR})
-        else()
-                set(USE_RANGE OFF CACHE BOOL "" FORCE)
-        endif()
-endif(USE_RANGE)
-
-if(NOT USE_RANGE)
-    set(USE_MODIFIED_RANGE OFF CACHE BOOL "" FORCE)
-endif(NOT USE_RANGE)
-
-CMAKE_DEPENDENT_OPTION(USE_MODIFIED_RANGE
-	"Using modified version of range library with special treatment of gaseous materials..."
-	OFF
-	"WITH_RANGE_YANEZ"
-	OFF
-	)
-
-if(USE_MODIFIED_RANGE)
-	set(WITH_MODIFIED_RANGE_YANEZ yes)
-endif()
-
 #---Gemini++ interface
 option(USE_GEMINI "Build interface to Gemini++ statistical decay code" ON)
 if(USE_GEMINI)

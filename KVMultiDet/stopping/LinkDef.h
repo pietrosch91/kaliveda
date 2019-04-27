@@ -14,8 +14,6 @@
 #pragma link C++ class KVedaLoss+;
 #pragma link C++ class KVedaLossRangeFitter+;
 #pragma link C++ class KVedaLossInverseRangeFunction+;
-#ifdef WITH_RANGE_YANEZ
 #pragma link C++ class KVRangeYanez+;
 #pragma link C++ class KVRangeYanezMaterial+;
-#endif
 #endif
