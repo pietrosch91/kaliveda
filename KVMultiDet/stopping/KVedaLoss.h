@@ -42,6 +42,7 @@ public:
    }
 
    Bool_t CheckIon(Int_t Z, Int_t A) const;
+   Bool_t ReadMaterials(const Char_t* path) const;
 
    ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };

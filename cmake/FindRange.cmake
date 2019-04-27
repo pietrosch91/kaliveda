@@ -25,9 +25,9 @@ if(RANGE_LIB)
 	#---now find headers
 	get_filename_component(searchpath1 ${RANGE_LIB_DIR} DIRECTORY)
 	if(RANGE_DIR)
-		set(some_hints ${RANGE_DIR}/include)
+                set(some_hints ${RANGE_DIR}/include/range)
 	endif()
-	find_file(RANGE_INC_DIR range.h HINTS ${searchpath1}/include ${some_hints})
+        find_file(RANGE_INC_DIR range.h HINTS ${searchpath1}/include/range ${some_hints})
 	if(RANGE_INC_DIR)
 		
 		get_filename_component(RANGE_INC_DIR ${RANGE_INC_DIR} DIRECTORY)

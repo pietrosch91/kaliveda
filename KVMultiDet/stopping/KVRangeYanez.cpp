@@ -49,7 +49,7 @@ KVRangeYanez::KVRangeYanez()
       nextPath = DataFilePaths.Next();
       if (nextPath == lastPath) break; //check for double occurrence of last file : TEnv bug?
       lastPath = nextPath;
-      ReadPredefinedMaterials(nextPath);
+      ReadMaterials(nextPath);
    }
 }
 
@@ -139,7 +139,7 @@ TObjArray* KVRangeYanez::GetListOfMaterials()
    }
    return list;
 }
-void KVRangeYanez::CheckMaterialsList()
+void KVRangeYanez::CheckMaterialsList() const
 {
    if (!fMaterials) {
       fMaterials = new KVHashList;
@@ -189,7 +189,7 @@ void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a)
 
 void KVRangeYanez::AddCompoundMaterial(
    const Char_t* name, const Char_t* symbol,
-   Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t density)
+   Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t density) const
 {
    // Adds a compound material with a simple formula composed of different elements
    // For solids, give the density (in g/cm**3)
@@ -209,7 +209,7 @@ void KVRangeYanez::AddCompoundMaterial(
 
 void KVRangeYanez::AddMixedMaterial(
    const Char_t* name, const Char_t* symbol,
-   Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t* proportion, Double_t density)
+   Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t* proportion, Double_t density) const
 {
    // Adds a material which is a mixture of either elements or compounds:
    //   nelem = number of elements in mixture
@@ -267,7 +267,7 @@ KVIonRangeTableMaterial* KVRangeYanez::MakeNaturallyOccuringElementMixture(Int_t
 }
 //____________________________________________________________________________
 
-void KVRangeYanez::ReadPredefinedMaterials(const Char_t* filename)
+Bool_t KVRangeYanez::ReadMaterials(const Char_t* filename) const
 {
    // Read materials from file whose name is given
 
@@ -276,7 +276,7 @@ void KVRangeYanez::ReadPredefinedMaterials(const Char_t* filename)
    ifstream filestream;
    if (!SearchAndOpenKVFile(DataFilePath, filestream, "data")) {
       Error("ReadPredefinedMaterials", "Cannot open %s for reading", DataFilePath.Data());
-      return;
+      return kFALSE;
    }
    Info("ReadPredefinedMaterials", "Reading materials in file : %s", filename);
 
@@ -335,4 +335,5 @@ void KVRangeYanez::ReadPredefinedMaterials(const Char_t* filename)
          }
       }
    }
+   return kTRUE;
 }

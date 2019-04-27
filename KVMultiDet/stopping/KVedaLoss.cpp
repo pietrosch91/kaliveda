@@ -77,11 +77,6 @@ Bool_t KVedaLoss::init_materials() const
    // properties, read from file given by TEnv variable KVedaLoss.RangeTables
 
    Info("init_materials", "Initialising KVedaLoss...");
-//    printf("\n");
-//    printf("\t*************************************************************************\n");
-//    printf("\t*                VEDALOSS STOPPING POWER & RANGE TABLES                 *\n");
-//    printf("\t*                                                                       *\n");
-   int mat_count = 0;
    fMaterials = new KVHashList;
    fMaterials->SetName("VEDALOSS materials list");
    fMaterials->SetOwner();
@@ -92,16 +87,24 @@ Bool_t KVedaLoss::init_materials() const
       return kFALSE;
    }
 
+   return ReadMaterials(DataFilePath);
+}
+
+Bool_t KVedaLoss::ReadMaterials(const Char_t* DataFilePath) const
+{
+   // Read and add range tables for materials in file
+
    Char_t name[25], gtype[25], state[10];
    Float_t Amat = 0.;
    Float_t Dens = 0.;
    Float_t MoleWt = 0.;
    Float_t Temp = 19.;
    Float_t Zmat = 0.;
+   int mat_count = 0;
 
    FILE* fp;
-   if (!(fp = fopen(DataFilePath.Data(), "r"))) {
-      Error("init_materials()", "Range tables file %s cannot be opened", DataFilePath.Data());
+   if (!(fp = fopen(DataFilePath, "r"))) {
+      Error("init_materials()", "Range tables file %s cannot be opened", DataFilePath);
       return kFALSE;
    }
    else {
@@ -119,37 +122,23 @@ Bool_t KVedaLoss::init_materials() const
                           gtype, name, state, &Dens, &Zmat, &Amat,
                           &MoleWt, &Temp)
                      != 8) {
-                  Error("init_materials()", "Problem reading file %s", DataFilePath.Data());
+                  Error("init_materials()", "Problem reading file %s", DataFilePath);
                   fclose(fp);
                   return kFALSE;
                }
-//found a new material
+               //found a new material
                KVedaLossMaterial* tmp_mat = new KVedaLossMaterial(this, name, gtype, state, Dens,
                      Zmat, Amat, MoleWt);
                fMaterials->Add(tmp_mat);
                if (!tmp_mat->ReadRangeTable(fp)) return kFALSE;
                tmp_mat->Initialize();
                ++mat_count;
-//               Double_t rho = 0.;
                if (tmp_mat->IsGas()) tmp_mat->SetTemperatureAndPressure(19., 1.*KVUnits::atm);
-//               rho = tmp_mat->GetDensity();
-//                printf("\t*  %2d.  %-7s %-18s  Z=%2d A=%5.1f  rho=%6.3f g/cm**3    *\n",
-//                       mat_count, tmp_mat->GetType(), tmp_mat->GetName(),
-//                       (int)tmp_mat->GetZ(), tmp_mat->GetMass(),
-//                       rho);
                break;
          }
       }
       fclose(fp);
    }
-//    printf("\t*                                                                       *\n");
-//    printf("\t*     TF1::Range::Npx = %4d            TF1::EnergyLoss::Npx = %4d     *\n",
-//           gEnv->GetValue("KVedaLoss.Range.Npx", 100), gEnv->GetValue("KVedaLoss.EnergyLoss.Npx", 100));
-//    printf("\t*                      TF1::ResidualEnergy::Npx = %4d                  *\n",
-//           gEnv->GetValue("KVedaLoss.ResidualEnergy.Npx", 100));
-//    printf("\t*                                                                       *\n");
-//    printf("\t*                       INITIALISATION COMPLETE                         *\n");
-//    printf("\t*************************************************************************\n");
    return kTRUE;
 }
 

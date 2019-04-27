@@ -124,6 +124,19 @@ KVIonRangeTable* KVMaterial::GetRangeTable()
    return fIonRangeTable;
 }
 
+KVIonRangeTable* KVMaterial::ChangeRangeTable(const Char_t* name)
+{
+   // Static method
+   // Changes the default range table used for energy loss calculations
+   // The name must correspond to a Plugin defined for class KVIonRangeTable
+
+   if (fIonRangeTable) delete fIonRangeTable;
+   fIonRangeTable = KVIonRangeTable::GetRangeTable(name);
+   if (!fIonRangeTable)
+      ::Error("KVMaterial::ChangeRangeTable", "No plugin %s defined for KVIonRangeTable", name);
+   return fIonRangeTable;
+}
+
 //___________________________________________________________________________________
 void KVMaterial::SetMaterial(const Char_t* mat_type)
 {

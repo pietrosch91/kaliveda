@@ -81,7 +81,7 @@ public:
       fNoLimits = on;
    };
 
-   void GetParameters(Int_t Zion, Int_t& Aion, std::vector<Double_t> rangepar);
+   void GetParameters(Int_t Zion, Int_t& Aion, std::vector<Double_t>& rangepar);
    static Bool_t CheckIon(Int_t Z)
    {
       return (Z > 0 && Z <= ZMAX_VEDALOSS);

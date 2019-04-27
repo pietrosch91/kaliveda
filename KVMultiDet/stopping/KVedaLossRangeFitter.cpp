@@ -75,7 +75,9 @@ void KVedaLossRangeFitter::SetInitialParameters(Int_t Z)
    std::vector<Double_t> pars;
    fClosestVedaMat->GetParameters(Z, Aref, pars);
    int npar = fRangeFunction->GetNpar();
-   for (int i = 0; i < npar; ++i) fRangeFunction->SetParameter(i, pars[i]);
+   for (int i = 0; i < npar; ++i) {
+      fRangeFunction->SetParameter(i, pars[i]);
+   }
 }
 
 TGraph* KVedaLossRangeFitter::GenerateRangeTable(Int_t Z)

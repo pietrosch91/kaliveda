@@ -38,7 +38,7 @@ public:
    };
    virtual void AddCompoundMaterial(
       const Char_t* /*name*/, const Char_t* /* symbol */,
-      Int_t /* nelem */, Int_t* /* z */, Int_t* /* a */, Int_t* /* natoms */, Double_t /* density */ = -1.0)
+      Int_t /* nelem */, Int_t* /* z */, Int_t* /* a */, Int_t* /* natoms */, Double_t /* density */ = -1.0) const
    {
       // Adds a compound material:
       //   nelem = number of elements in compound
@@ -48,7 +48,7 @@ public:
    virtual void AddMixedMaterial(
       const Char_t* /* name */, const Char_t* /* symbol */,
       Int_t /* nelem */, Int_t* /* z */, Int_t* /* a */, Int_t* /* natoms */, Double_t* /* proportion */,
-      Double_t /* density */ = -1.0)
+      Double_t /* density */ = -1.0) const
    {
       // Adds a material which is a mixture of either elements or compounds:
       //   nelem = number of elements in mixture
@@ -149,6 +149,7 @@ public:
       AbstractMethod("CheckIon");
       return kTRUE;
    }
+   virtual Bool_t ReadMaterials(const Char_t*) const = 0;
 
    ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };

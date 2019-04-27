@@ -62,6 +62,7 @@ public:
    KVMaterial(const KVMaterial&);
 
    static KVIonRangeTable* GetRangeTable();
+   static KVIonRangeTable* ChangeRangeTable(const Char_t* name);
 
    void init();
    virtual ~ KVMaterial();
