@@ -11,6 +11,7 @@
 class KVSystemFile : public TSystemFile {
    FileStat_t fFileInfos;
    UserGroup_t* fUserInfo;
+   TString fFullPath;
 
 public:
    KVSystemFile();
@@ -37,6 +38,10 @@ public:
    {
       TDatime when(fFileInfos.fMtime);
       return when.AsSQLString();
+   }
+   const Char_t* GetFullPath() const
+   {
+      return fFullPath;
    }
 
    ClassDef(KVSystemFile, 1) //TSystemFile with added info on file size etc.

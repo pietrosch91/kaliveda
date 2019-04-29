@@ -28,9 +28,8 @@ KVSystemFile::KVSystemFile(const Char_t* filename, const Char_t* dirname)
    : TSystemFile(filename, dirname)
 {
    // Get file infos
-   TString path;
-   AssignAndDelete(path, gSystem->ConcatFileName(dirname, filename));
-   gSystem->GetPathInfo(path, fFileInfos);
+   AssignAndDelete(fFullPath, gSystem->ConcatFileName(dirname, filename));
+   gSystem->GetPathInfo(fFullPath, fFileInfos);
    fUserInfo = gSystem->GetUserInfo(fFileInfos.fUid);
 }
 
