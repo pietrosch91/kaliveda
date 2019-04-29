@@ -38,13 +38,7 @@ public:
       return fIndependentIdentifications;
    }
    void ls(Option_t* = "") const;
-   KVDetector* GetDetector(const TString& label) const
-   {
-      // Returns detector with given label (NOT type: several detectors of same type may occur on
-      // trajectory, geometry should be defined so that labels are unique on all trajectories)
-      // on this trajectory
-      return fDetLabels.find(label.Data()) != fDetLabels.end() ? fDetLabels.at(label.Data()) : nullptr;
-   }
+   KVDetector* GetDetector(const TString& label) const;
 
    ClassDef(KVReconNucTrajectory, 1) //Reconstructed trajectory of nucleus detected by array
 };

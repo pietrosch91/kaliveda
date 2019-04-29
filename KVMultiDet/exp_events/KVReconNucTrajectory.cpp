@@ -86,4 +86,18 @@ void KVReconNucTrajectory::ls(Option_t*) const
    }
 }
 
+KVDetector* KVReconNucTrajectory::GetDetector(const TString& label) const
+{
+   // Returns detector with given label (NOT type: several detectors of same type may occur on
+   // trajectory, geometry should be defined so that labels are unique on all trajectories)
+   // on this trajectory
+
+#ifdef WITH_CPP11
+   auto it
+#else
+   std::map<std::string, KVDetector*>::const_iterator it
+#endif
+      = fDetLabels.find(label.Data());
+   return it != fDetLabels.end() ? it->second : nullptr;
+}
 
