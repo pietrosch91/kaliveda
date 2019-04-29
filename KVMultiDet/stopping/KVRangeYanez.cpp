@@ -101,28 +101,14 @@ void KVRangeYanez::Copy(TObject& obj) const
    //KVRangeYanez& CastedObj = (KVRangeYanez&)obj;
 }
 
-KVIonRangeTableMaterial* KVRangeYanez::GetMaterialWithNameOrType(const Char_t* material)
+KVIonRangeTableMaterial* KVRangeYanez::GetMaterialWithNameOrType(const Char_t* material) const
 {
-   // Returns pointer to material of given name or type.
-   // Note that any request for an element of the periodic table will cause
-   // the corresponding material to be created (if not already done).
-   // If given in the form of an isotope ("48Ca", "124Sn", etc.) this material will
-   // be isotopically pure. If not ("Ca", "natSn", etc.) the material generated will be
-   // a mixture of the most abundant naturally-occurring isotopes.
+   // Returns pointer to material of given name or type if it has been defined.
 
    CheckMaterialsList();
    KVIonRangeTableMaterial* M = (KVIonRangeTableMaterial*)fMaterials->FindObject(material);
    if (!M) {
       M = (KVIonRangeTableMaterial*)fMaterials->FindObjectByType(material);
-   }
-   if (!M) {
-      // is the requested material an atomic element?
-      Int_t A = KVNucleus::IsMassGiven(material);
-      if (A > -1) {
-         KVNucleus n(material);
-         AddElementalMaterial(n.GetZ(), A);
-         M = (KVIonRangeTableMaterial*)fMaterials->FindObjectByType(material);
-      }
    }
    return M;
 }
@@ -162,7 +148,7 @@ void KVRangeYanez::CheckMaterialsList() const
       fMaterials->SetOwner();
    }
 }
-void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a) const
+KVIonRangeTableMaterial* KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a) const
 {
    // Adds a material composed of a single isotope of a chemical element.
    // If the isotope (a) is not specified, we create a material containing the naturally
@@ -175,21 +161,18 @@ void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a) const
    // mixtures of atomic elements ("Ca", "Calcium", etc.).
 
    KVIonRangeTableMaterial* mat;
-   if (!a) {
-      mat = MakeNaturallyOccuringElementMixture(z);
-      if (!mat) return;
-   }
-   else {
+   if (!a) mat = MakeNaturallyOccuringElementMixture(z, a); // this may set a!=0 if only one isotope exists in nature
+   if (a) {
       if (!gNDTManager) {
          Error("AddElementalMaterial",
                "Nuclear data tables have not been initialised");
-         return;
+         return nullptr;
       }
       KVElementDensity* ed = (KVElementDensity*)gNDTManager->GetData(z, a, "ElementDensity");
       if (!ed) {
          Error("AddElementalMaterial",
                "No element found in ElementDensity NDT-table with Z=%d", z);
-         return;
+         return nullptr;
       }
       TString state = "solid";
       if (ed->IsGas()) state = "gas";
@@ -201,10 +184,10 @@ void KVRangeYanez::AddElementalMaterial(Int_t z, Int_t a) const
    CheckMaterialsList();
    fMaterials->Add(mat);
    if (!fDoNotSaveMaterials) SaveMaterial(mat);
-   mat->ls();
+   return mat;
 }
 
-void KVRangeYanez::AddCompoundMaterial(
+KVIonRangeTableMaterial* KVRangeYanez::AddCompoundMaterial(
    const Char_t* name, const Char_t* symbol,
    Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t density) const
 {
@@ -222,10 +205,10 @@ void KVRangeYanez::AddCompoundMaterial(
    CheckMaterialsList();
    fMaterials->Add(mat);
    if (!fDoNotSaveMaterials) SaveMaterial(mat);
-   mat->ls();
+   return mat;
 }
 
-void KVRangeYanez::AddMixedMaterial(
+KVIonRangeTableMaterial* KVRangeYanez::AddMixedMaterial(
    const Char_t* name, const Char_t* symbol,
    Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t* proportion, Double_t density) const
 {
@@ -245,16 +228,16 @@ void KVRangeYanez::AddMixedMaterial(
    CheckMaterialsList();
    fMaterials->Add(mat);
    if (!fDoNotSaveMaterials) SaveMaterial(mat);
-   mat->ls();
+   return mat;
 }
 
-KVIonRangeTableMaterial* KVRangeYanez::MakeNaturallyOccuringElementMixture(Int_t z) const
+KVIonRangeTableMaterial* KVRangeYanez::MakeNaturallyOccuringElementMixture(Int_t z, Int_t& a) const
 {
    // create a material containing the naturally occuring isotopes of the given element,
    // weighted according to their abundance.
    //
-   // if there is only one naturally occurring isotope of the element this becomes an
-   // isotopic material (as if we had called AddElementalMaterial(z,a)).
+   // if there is only one naturally occurring isotope of the element we set 'a' to this isotope
+   // and don't create any material
 
    if (!gNDTManager) {
       Error("MakeNaturallyOccuringElementMixture",
@@ -274,7 +257,7 @@ KVIonRangeTableMaterial* KVRangeYanez::MakeNaturallyOccuringElementMixture(Int_t
    while (!isotopes.End()) {
       nuc.SetA(isotopes.Next());
       if (nuc.GetAbundance() == 100.) {
-         AddElementalMaterial(z, nuc.GetA());
+         a = nuc.GetA();
          return nullptr;
       }
    }

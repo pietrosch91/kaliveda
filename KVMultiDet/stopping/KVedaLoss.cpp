@@ -3,9 +3,12 @@
 
 #include "KVedaLoss.h"
 #include "KVedaLossMaterial.h"
+#include "KVedaLossRangeFitter.h"
 #include <TString.h>
 #include <TSystem.h>
 #include <TEnv.h>
+#include <KVSystemDirectory.h>
+#include <KVSystemFile.h>
 #include "TGeoMaterial.h"
 
 ClassImp(KVedaLoss)
@@ -61,6 +64,8 @@ KVedaLoss::KVedaLoss()
                      "Calculation of range and energy loss of charged particles in matter using VEDALOSS range tables")
 {
    // Default constructor
+
+   fLocalMaterialsDirectory = GetWORKDIRFilePath("vedaloss");
    if (!CheckMaterialsList()) {
       Error("KVedaLoss", "Problem reading range tables. Do not use.");
    }
@@ -75,6 +80,9 @@ Bool_t KVedaLoss::init_materials() const
 {
    // PRIVATE method - called to initialize fMaterials list of all known materials
    // properties, read from file given by TEnv variable KVedaLoss.RangeTables
+   //
+   // any files in $(WORKING_DIR)/vedaloss/*.dat will also be read, these contain
+   // materials added by the user(s)
 
    Info("init_materials", "Initialising KVedaLoss...");
    fMaterials = new KVHashList;
@@ -87,7 +95,18 @@ Bool_t KVedaLoss::init_materials() const
       return kFALSE;
    }
 
-   return ReadMaterials(DataFilePath);
+   bool ok = ReadMaterials(DataFilePath);
+
+   if (!gSystem->AccessPathName(fLocalMaterialsDirectory)) {
+      // read all user materials in directory
+      KVSystemDirectory matDir("matDir", fLocalMaterialsDirectory);
+      TIter nxtfil(matDir.GetListOfFiles());
+      KVSystemFile* fil;
+      while ((fil = (KVSystemFile*)nxtfil())) {
+         if (TString(fil->GetName()).EndsWith(".dat")) ok = ok && ReadMaterials(fil->GetFullPath());
+      }
+   }
+   return ok;
 }
 
 Bool_t KVedaLoss::ReadMaterials(const Char_t* DataFilePath) const
@@ -142,9 +161,53 @@ Bool_t KVedaLoss::ReadMaterials(const Char_t* DataFilePath) const
    return kTRUE;
 }
 
+KVIonRangeTableMaterial* KVedaLoss::AddElementalMaterial(Int_t Z, Int_t A) const
+{
+   // Use the RANGE tables to generate a new material of a given element.
+   // If A is given only one isotope will be used, by default the natural abundance
+   // of each isotope is used to generate a mixture
+
+   unique_ptr<KVIonRangeTable> yanez(KVIonRangeTable::GetRangeTable("RANGE"));
+   KVIonRangeTableMaterial* mat = yanez->AddElementalMaterial(Z, A);
+   AddMaterial(mat);
+   return GetMaterial(mat->GetName());
+}
+
+Bool_t KVedaLoss::AddRANGEMaterial(const Char_t* name) const
+{
+   // If the given material is defined in the RANGE tables, import it into VEDALOSS
+
+   unique_ptr<KVIonRangeTable> yanez(KVIonRangeTable::GetRangeTable("RANGE"));
+   if (yanez->GetMaterial(name)) {
+      AddMaterial(yanez->GetMaterial(name));
+      return kTRUE;
+   }
+   return kFALSE;
+}
+
+KVIonRangeTableMaterial* KVedaLoss::AddCompoundMaterial(const Char_t* name, const Char_t* symbol, Int_t nel, Int_t* Z, Int_t* A, Int_t* nat, Double_t dens) const
+{
+   // Use the RANGE tables to generate a new compound material
+
+   unique_ptr<KVIonRangeTable> yanez(KVIonRangeTable::GetRangeTable("RANGE"));
+   KVIonRangeTableMaterial* mat = yanez->AddCompoundMaterial(name, symbol, nel, Z, A, nat, dens);
+   AddMaterial(mat);
+   return GetMaterial(mat->GetName());
+}
+
+KVIonRangeTableMaterial* KVedaLoss::AddMixedMaterial(const Char_t* name, const Char_t* symbol, Int_t nel, Int_t* Z, Int_t* A, Int_t* nat, Double_t* prop, Double_t dens) const
+{
+   // Use the RANGE tables to generate a new mixed material
+
+   unique_ptr<KVIonRangeTable> yanez(KVIonRangeTable::GetRangeTable("RANGE"));
+   KVIonRangeTableMaterial* mat = yanez->AddMixedMaterial(name, symbol, nel, Z, A, nat, prop, dens);
+   AddMaterial(mat);
+   return GetMaterial(mat->GetName());
+}
+
 //________________________________________________________________________________//
 
-KVIonRangeTableMaterial* KVedaLoss::GetMaterialWithNameOrType(const Char_t* material)
+KVIonRangeTableMaterial* KVedaLoss::GetMaterialWithNameOrType(const Char_t* material) const
 {
    // Returns pointer to material of given name or type.
    KVIonRangeTableMaterial* M = (KVIonRangeTableMaterial*)fMaterials->FindObject(material);
@@ -152,6 +215,28 @@ KVIonRangeTableMaterial* KVedaLoss::GetMaterialWithNameOrType(const Char_t* mate
       M = (KVIonRangeTableMaterial*)fMaterials->FindObjectByType(material);
    }
    return M;
+}
+
+void KVedaLoss::AddMaterial(KVIonRangeTableMaterial* mat) const
+{
+   // Add a material (taken from a different range table) to VEDALOSS
+   // This means fitting the ranges for Z=1-100 and writing the parameters in a
+   // file which will be stored in
+   //
+   //    $(WORKING_DIR)/vedaloss/[name].dat
+   //
+   // which will be read at each initialisation to include the new material
+
+   KVedaLossRangeFitter vlfit;
+   vlfit.SetMaterial(mat);
+   TString matname = mat->GetName();
+   matname.ReplaceAll(" ", "_"); //no spaces in filename
+   matname += ".dat";
+   // check directory exists & make it if necessary
+   if (gSystem->AccessPathName(fLocalMaterialsDirectory))
+      gSystem->mkdir(fLocalMaterialsDirectory, true);
+   vlfit.DoFits(GetWORKDIRFilePath(Form("vedaloss/%s", matname.Data())));
+   ReadMaterials(GetWORKDIRFilePath(Form("vedaloss/%s", matname.Data())));
 }
 
 void KVedaLoss::Print(Option_t*) const
