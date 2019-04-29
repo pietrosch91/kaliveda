@@ -29,7 +29,7 @@ public:
 
    static KVIonRangeTable* GetRangeTable(const Char_t* name);
 
-   virtual void AddElementalMaterial(Int_t /*z*/, Int_t /*a*/ = 0)
+   virtual void AddElementalMaterial(Int_t /*z*/, Int_t /*a*/ = 0) const
    {
       // Adds a material composed of a single isotope of a chemical element.
       // If the isotope (a) is not specified, we create a material containing the naturally

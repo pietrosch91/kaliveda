@@ -8,6 +8,8 @@
 #include "KVNameValueList.h"
 #include "Riostream.h"
 #include "KVConfig.h"
+
+#include <KVNucleus.h>
 using namespace std;
 
 namespace range {
@@ -252,6 +254,43 @@ Double_t KVRangeYanezMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t E
    return egassap(fTableType, Zp, Ap, iabso, fAbsorb[0].z, fAbsorb[0].a, e / KVUnits::mg, Eres, &error);
 }
 
+void KVRangeYanezMaterial::SaveMaterial(ofstream& matfile)
+{
+   // Write definition of material in a file in the directory
+   //
+   //  $(WORKING_DIR)/range_yanez/[name].dat
+   //
+   // All files in this directory are read when the table is initialised
+
+   matfile << "// " << GetName() << " (" << GetSymbol() << ") generated ";
+   TDatime now;
+   matfile << now.AsString() << endl << endl;
+   if (IsCompound()) matfile << "COMPOUND" << endl;
+   else if (IsMixture()) matfile << "MIXTURE" << endl;
+   else matfile << "ELEMENT" << endl;
+   matfile << "name=" << GetName() << endl;
+   matfile << "symbol=" << GetSymbol() << endl;
+   matfile << "state=";
+   if (IsGas()) matfile << "gas" << endl;
+   else {
+      matfile << "solid" << endl;
+      matfile << "density=" << GetDensity() << endl;
+   }
+   if (IsCompound() || IsMixture()) {
+      matfile << "nelem=" << GetNElem() << endl;
+      TString listname = (IsCompound() ? "Compound element %d" : "Mixture element %d");
+
+      for (int nel = 1; nel <= GetNElem(); ++nel) {
+         KVNameValueList* compo = (KVNameValueList*)fComposition->FindObject(Form(listname.Data(), nel));
+         KVNucleus nuc(compo->GetIntValue("Z"), compo->GetIntValue("A"));
+         matfile << nuc.GetSymbol() << " " << compo->GetIntValue("Natoms");
+         if (IsMixture()) matfile << " " << compo->GetDoubleValue("Proportion");
+         matfile << endl;
+      }
+   }
+   matfile << endl;
+}
+
 namespace range {
    /*
      Author: Ricardo Yanez
@@ -490,19 +529,19 @@ namespace range {
 
       double elog[62] = {
          -2.0000000000, -1.9030899870, -1.7958800173, -1.6989700043, -1.6020599913,
-            -1.4948500217, -1.3979400087, -1.3010299957, -1.2218487496, -1.1549019600,
-            -1.0969100130, -1.0457574906, -1.0000000000, -0.9030899870, -0.7958800173,
-            -0.6989700043, -0.6020599913, -0.4948500217, -0.3979400087, -0.3010299957,
-            -0.2218487496, -0.1549019600, -0.0969100130, -0.0457574906, 0.0000000000,
-            0.0969100130, 0.2041199827, 0.3010299957, 0.3979400087, 0.5051499783,
-            0.6020599913, 0.6989700043, 0.7781512504, 0.8450980400, 0.9030899870,
-            0.9542425094, 1.0000000000, 1.0413926852, 1.0791812460, 1.1760912591,
-            1.3010299957, 1.3979400087, 1.4771212547, 1.5440680444, 1.6020599913,
-            1.6532125138, 1.6989700043, 1.7781512504, 1.8450980400, 1.9030899870,
-            1.9542425094, 2.0000000000, 2.0413926852, 2.0791812460, 2.1760912591,
-            2.3010299957, 2.3979400087, 2.4771212547, 2.5440680444, 2.6020599913,
-            2.6532125138, 2.6989700043
-         };
+         -1.4948500217, -1.3979400087, -1.3010299957, -1.2218487496, -1.1549019600,
+         -1.0969100130, -1.0457574906, -1.0000000000, -0.9030899870, -0.7958800173,
+         -0.6989700043, -0.6020599913, -0.4948500217, -0.3979400087, -0.3010299957,
+         -0.2218487496, -0.1549019600, -0.0969100130, -0.0457574906, 0.0000000000,
+         0.0969100130, 0.2041199827, 0.3010299957, 0.3979400087, 0.5051499783,
+         0.6020599913, 0.6989700043, 0.7781512504, 0.8450980400, 0.9030899870,
+         0.9542425094, 1.0000000000, 1.0413926852, 1.0791812460, 1.1760912591,
+         1.3010299957, 1.3979400087, 1.4771212547, 1.5440680444, 1.6020599913,
+         1.6532125138, 1.6989700043, 1.7781512504, 1.8450980400, 1.9030899870,
+         1.9542425094, 2.0000000000, 2.0413926852, 2.0791812460, 2.1760912591,
+         2.3010299957, 2.3979400087, 2.4771212547, 2.5440680444, 2.6020599913,
+         2.6532125138, 2.6989700043
+      };
 
       int ntalel;
       double dedxt[NELMAX][NMAX];

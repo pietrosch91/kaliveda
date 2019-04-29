@@ -52,6 +52,12 @@ public:
 
    virtual Double_t GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0.);
 
+   Int_t GetNElem() const
+   {
+      return fNelem;
+   }
+   void SaveMaterial(ofstream& matfile);
+
    ClassDef(KVRangeYanezMaterial, 1) //Description of absorber for the Range dE/dx and range library (Ricardo Yanez)
 };
 
