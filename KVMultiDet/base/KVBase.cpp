@@ -271,6 +271,11 @@ void KVBase::InitEnvironment()
       // add path to libprotobuf.so to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
       gSystem->AddDynamicPath(ADD_PROTOBUF_DYN_PATH);
 #endif
+#ifdef ADD_ZMQ_DYN_PATH
+      // add path to libzmq.so to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
+      gSystem->AddDynamicPath(ADD_ZMQ_DYN_PATH);
+#endif
+
 
       //set up environment using kvrootrc file
       if (!gEnv->Defined("DataSet.DatabaseFile")) {

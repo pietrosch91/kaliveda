@@ -9,6 +9,7 @@
 #cmakedefine WITH_GEMINI
 #cmakedefine WITH_MFM
 #cmakedefine WITH_ZMQ
+#cmakedefine ADD_ZMQ_DYN_PATH "${ADD_ZMQ_DYN_PATH}"
 #cmakedefine WITH_DATAFLOW
 #cmakedefine WITH_PROTOBUF
 #cmakedefine ADD_PROTOBUF_DYN_PATH "${ADD_PROTOBUF_DYN_PATH}"

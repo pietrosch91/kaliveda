@@ -160,6 +160,11 @@ find_package(ZMQ)
 if(ZMQ_FOUND)
     include_directories(${ZMQ_INCLUDE_DIRS})
     set(WITH_ZMQ yes)
+    if(${ROOT_VERSION} VERSION_LESS 6)
+        # kludge to fix bug with ROOT5/CINT when zeromq installed in system directories
+        # in this case rootmap autoloading fails if libzmq directory not in LD_LIBRARY_PATH
+        get_filename_component(ADD_ZMQ_DYN_PATH ${ZMQ_LIBRARIES} PATH)
+    endif()
 endif(ZMQ_FOUND)
 
 #---online analysis of reconstructed data
