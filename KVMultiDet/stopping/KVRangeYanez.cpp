@@ -55,7 +55,7 @@ KVRangeYanez::KVRangeYanez()
    }
 
    // directory where any materials defined by user are stored
-   fLocalMaterialsDirectory = GetWORKDIRFilePath("range_yanez");
+   fLocalMaterialsDirectory = GetWORKDIRFilePath("RANGE");
    if (!gSystem->AccessPathName(fLocalMaterialsDirectory)) {
       // read all materials in directory if it exists
       KVSystemDirectory matDir("matDir", fLocalMaterialsDirectory);
@@ -376,7 +376,7 @@ void KVRangeYanez::SaveMaterial(KVIonRangeTableMaterial* mat) const
 {
    // Write definition of material in a file in the directory
    //
-   //  $(WORKING_DIR)/range_yanez
+   //  $(WORKING_DIR)/RANGE
    //
    // All files in this directory are read when the table is initialised
 

@@ -65,7 +65,7 @@ KVedaLoss::KVedaLoss()
 {
    // Default constructor
 
-   fLocalMaterialsDirectory = GetWORKDIRFilePath("vedaloss");
+   fLocalMaterialsDirectory = GetWORKDIRFilePath("VEDALOSS");
    if (!CheckMaterialsList()) {
       Error("KVedaLoss", "Problem reading range tables. Do not use.");
    }
@@ -223,7 +223,7 @@ void KVedaLoss::AddMaterial(KVIonRangeTableMaterial* mat) const
    // This means fitting the ranges for Z=1-100 and writing the parameters in a
    // file which will be stored in
    //
-   //    $(WORKING_DIR)/vedaloss/[name].dat
+   //    $(WORKING_DIR)/VEDALOSS/[name].dat
    //
    // which will be read at each initialisation to include the new material
 
@@ -233,10 +233,12 @@ void KVedaLoss::AddMaterial(KVIonRangeTableMaterial* mat) const
    matname.ReplaceAll(" ", "_"); //no spaces in filename
    matname += ".dat";
    // check directory exists & make it if necessary
-   if (gSystem->AccessPathName(fLocalMaterialsDirectory))
+   if (gSystem->AccessPathName(fLocalMaterialsDirectory)) {
       gSystem->mkdir(fLocalMaterialsDirectory, true);
-   vlfit.DoFits(GetWORKDIRFilePath(Form("vedaloss/%s", matname.Data())));
-   ReadMaterials(GetWORKDIRFilePath(Form("vedaloss/%s", matname.Data())));
+      gSystem->Chmod(fLocalMaterialsDirectory, 0755);
+   }
+   vlfit.DoFits(Form("%s/%s", fLocalMaterialsDirectory.Data(), matname.Data()));
+   ReadMaterials(Form("%s/%s", fLocalMaterialsDirectory.Data(), matname.Data()));
 }
 
 void KVedaLoss::Print(Option_t*) const
