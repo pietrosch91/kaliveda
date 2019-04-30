@@ -20,7 +20,7 @@ ClassImp(KVVAMOSWeightFinder)
 ////////////////////////////////////////////////////////////////////////////////
 KVVAMOSWeightFinder* gVAMOSWeightFinder = 0;
 
-KVVAMOSWeightFinder::KVVAMOSWeightFinder(Int_t run_number = -1) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
+KVVAMOSWeightFinder::KVVAMOSWeightFinder(Int_t run_number) : KVBase("VAMOSWeightFinder", "Normalisation weight estimator of VAMOS events")
 {
    // Default constructor
    fRunNumber = run_number;
@@ -115,7 +115,8 @@ void KVVAMOSWeightFinder::Init()
       ReadTransCoefFileListInDataSet();
       if (CheckTransCoefSteps()) fkIsInit = kTRUE;
       gVAMOSWeightFinder = this;
-   } else fkIsInit = kFALSE;
+   }
+   else fkIsInit = kFALSE;
 
    if (!fkIsInit) Warning("Init", "... problem in initialisation: runlist is empty OR/AND current run number<0 OR/AND run list doesn't contain the current run ...");
    return;

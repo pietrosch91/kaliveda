@@ -72,7 +72,7 @@ protected:
    static Bool_t SortVectors(const std::vector<Float_t>& vector1, const std::vector<Float_t>& vector2);
 
 public:
-   KVVAMOSWeightFinder(Int_t run_number);
+   KVVAMOSWeightFinder(Int_t run_number = -1);
    KVVAMOSWeightFinder(Int_t run_number, Float_t tc_min, Float_t tc_max);
    KVVAMOSWeightFinder(const KVVAMOSWeightFinder&);
    virtual ~KVVAMOSWeightFinder();

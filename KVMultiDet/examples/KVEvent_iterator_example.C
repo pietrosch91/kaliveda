@@ -89,8 +89,8 @@ void iterator_examples()
    KVNucleus boron;
    boron.SetZ(5);
 #if !defined(__ROOTCINT__) && !defined(__ROOTCLING__)
-   KVEvent::Iterator found = std::find(Event.begin(), Event.end(), boron);
-   (*found).Print();
+//   KVEvent::Iterator found = std::find(Event.begin(), Event.end(), boron);
+//   (*found).Print();
 #endif
 
    cout << "\nFind largest Z in RANDOM group using std::max_element:" << endl;

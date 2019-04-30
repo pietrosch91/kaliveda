@@ -68,7 +68,7 @@ protected:
    Bool_t IdentifyCorrectedNucleus(KVVAMOSReconNuc*);
 
 public:
-   KVVAMOSDataCorrection_e503(Int_t run_number);
+   KVVAMOSDataCorrection_e503(Int_t run_number = -1);
    virtual ~KVVAMOSDataCorrection_e503();
    virtual void Copy(TObject&) const;
 
