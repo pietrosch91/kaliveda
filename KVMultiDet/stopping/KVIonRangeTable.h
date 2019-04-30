@@ -7,6 +7,11 @@
 #include "KVBase.h"
 #include "KVUnits.h"
 
+/**
+ \class KVIonRangeTable
+ \ingroup Stopping
+ \brief Abstract base class for calculation of range & energy loss of charged particles in matter
+ */
 class TGeoMaterial;
 class KVIonRangeTableMaterial;
 class TGeoManager;

@@ -3,6 +3,11 @@
 
 #ifndef __KVRANGEYANEZMATERIAL_H
 #define __KVRANGEYANEZMATERIAL_H
+/**
+ \class KVRangeYanezMaterial
+ \ingroup Stopping
+ \brief Description of absorber for the Range dE/dx and range library (Ricardo Yanez)
+ */
 
 #include "KVIonRangeTableMaterial.h"
 using namespace std;
