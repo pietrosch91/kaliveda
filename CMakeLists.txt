@@ -44,6 +44,10 @@ include(KaliVedaMacros)
 # (for ROOT6) in order for interpreter to work correctly
 set(EXTRA_ROOT_INCLUDE_PATH)
 
+# kludge to fix bug with ROOT5/CINT when utility libraries are installed in system directories
+# in this case rootmap autoloading fails if system directories not in LD_LIBRARY_PATH
+set(ADD_DYN_PATH)
+
 #---Version control informations
 set(WITH_GIT_INFOS)
 set(WITH_BZR_INFOS)
@@ -151,6 +155,7 @@ if(COMPILER_SUPPORTS_CXX11)
                # kludge to fix bug with ROOT5/CINT when protobuf installed in system directories
                # in this case rootmap autoloading fails if libprotobuf directory not in LD_LIBRARY_PATH
                get_filename_component(ADD_PROTOBUF_DYN_PATH ${PROTOBUF_LIBRARY} PATH)
+               list(APPEND ADD_DYN_PATH ${ADD_PROTOBUF_DYN_PATH})
            endif()
         endif(PROTOBUF_FOUND)
 endif()
@@ -164,6 +169,7 @@ if(ZMQ_FOUND)
         # kludge to fix bug with ROOT5/CINT when zeromq installed in system directories
         # in this case rootmap autoloading fails if libzmq directory not in LD_LIBRARY_PATH
         get_filename_component(ADD_ZMQ_DYN_PATH ${ZMQ_LIBRARIES} PATH)
+        list(APPEND ADD_DYN_PATH ${ADD_ZMQ_DYN_PATH})
     endif()
 endif(ZMQ_FOUND)
 

@@ -260,6 +260,14 @@ void KVBase::InitEnvironment()
       // and also to be able to compile with kaliveda in the interpreter
       TString libdir = GetLIBDIRFilePath();
       gSystem->AddDynamicPath(libdir);
+#ifdef ADD_DYN_PATH
+      // add paths to utility libraries to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
+      KVString add_dyn_path(ADD_DYN_PATH);
+      add_dyn_path.Begin(";");
+      while (!add_dyn_path.End()) {
+         gSystem->AddDynamicPath(add_dyn_path.Next(kTRUE));
+      }
+#endif
       // force re-reading of rootmap files in new dynamic path
       gInterpreter->LoadLibraryMap();
       // Add path to kaliveda header files
@@ -267,15 +275,6 @@ void KVBase::InitEnvironment()
       TString incdir = GetINCDIRFilePath();
       incdir.Prepend("-I");
       gSystem->AddIncludePath(incdir);
-#ifdef ADD_PROTOBUF_DYN_PATH
-      // add path to libprotobuf.so to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
-      gSystem->AddDynamicPath(ADD_PROTOBUF_DYN_PATH);
-#endif
-#ifdef ADD_ZMQ_DYN_PATH
-      // add path to libzmq.so to dynamic path to avoid bug with on-demand class loading for ROOT5/CINT
-      gSystem->AddDynamicPath(ADD_ZMQ_DYN_PATH);
-#endif
-
 
       //set up environment using kvrootrc file
       if (!gEnv->Defined("DataSet.DatabaseFile")) {
