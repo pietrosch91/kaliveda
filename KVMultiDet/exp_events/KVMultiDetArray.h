@@ -315,9 +315,7 @@ public:
 
    virtual void SetIdentifications();
    virtual void InitializeIDTelescopes();
-   virtual void UpdateIDTelescopes();
-   virtual void UpdateIdentifications();
-   virtual void UpdateCalibrators();
+   Bool_t ReadGridsFromAsciiFile(const Char_t*) const;
 
    virtual Double_t GetTotalSolidAngle(void)
    {

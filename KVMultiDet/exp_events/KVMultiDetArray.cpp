@@ -1532,23 +1532,6 @@ void KVMultiDetArray::SetPedestalParameters(KVDBRun* r, const TString& myname)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateCalibrators()
-{
-   //This method can be used to update the calibrations of the detectors of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the class(es) which is now obsolete.
-   //The existing calibrator objects (read in from the file) are first removed from the array's
-   //detectors, and then SetCalibrators() is called in order to set new calibrators as defined
-   //in the current version of the class(es).
-   //In order to set the parameters of the new calibrators for a given run,
-   //SetParameters or SetRunCalibrationParameters must be called after this method.
-
-   const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, RemoveCalibrators)();
-   SetCalibrators();
-}
-
-//_________________________________________________________________________________
-
 void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollection* fired_params)
 {
    // First step in event reconstruction based on current status of detectors in array.
@@ -1962,50 +1945,6 @@ void KVMultiDetArray::SetIdentifications()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateIdentifications()
-{
-   //This method can be used to update the identifications of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the identification parameters which are now obsolete.
-   //We remove/destroy the existing identification parameters and replace them with the current versions.
-   //In order to set the parameters of the new identifications for a given run,
-   //SetParameters or SetRunIdentificationParameters must be called after this method.
-
-   //remove existing identification objects/parameters
-   fIDTelescopes->R__FOR_EACH(KVIDTelescope, RemoveIdentificationParameters)();
-
-   //reset identifications
-   SetIdentifications();
-}
-
-//_________________________________________________________________________________
-
-void KVMultiDetArray::UpdateIDTelescopes()
-{
-   //This method can be used to update the identification telescopes of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the classes which are now obsolete, or for which new KVIDTelescope classes
-   //are now available.
-   //In order to set the parameters of the new identifications for a given run,
-   //SetParameters or SetRunIdentificationParameters must be called after this method.
-
-   //destroy old ID telescopes
-   fIDTelescopes->Delete();
-   //now read list of groups and create list of ID telescopes
-   KVGroup* grp;
-   KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
-
-   TIter ngrp(fGroups);
-   while ((grp = (KVGroup*) ngrp())) {
-      GetIDTelescopesForGroup(grp, fIDTelescopes);
-   }
-   delete fGroups;
-   //reset identifications
-   SetIdentifications();
-}
-
-//_________________________________________________________________________________
-
 void KVMultiDetArray::InitializeIDTelescopes()
 {
    // Calls Initialize() method of each identification telescope (see KVIDTelescope
@@ -2014,6 +1953,27 @@ void KVMultiDetArray::InitializeIDTelescopes()
    TIter next(fIDTelescopes);
    KVIDTelescope* idt;
    while ((idt = (KVIDTelescope*)next())) idt->Initialize();
+}
+
+Bool_t KVMultiDetArray::ReadGridsFromAsciiFile(const Char_t* grids) const
+{
+   // Read all identification grids from the file and add them to the IDGridManager object
+   // used by this array. This method sets up the links between each grid and the
+   // IDtelescope(s) it is to be used for, unlike calling
+   //
+   //    gIDGridManager->ReadAsciiFile(grids)
+   //
+   // which does not.
+   //
+   // Returns kFALSE if there is a problem reading the file
+
+   if (gIDGridManager->ReadAsciiFile(grids)) {
+      TIter next(gIDGridManager->GetLastReadGrids());
+      KVIDGraph* gr;
+      while ((gr = (KVIDGraph*)next())) FillListOfIDTelescopes(gr);
+      return kTRUE;
+   }
+   return kFALSE;
 }
 
 //_________________________________________________________________________________

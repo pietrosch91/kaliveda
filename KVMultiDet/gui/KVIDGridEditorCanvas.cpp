@@ -17,10 +17,10 @@ ClassImp(KVIDGridEditorCanvas)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVIDGridEditorCanvas</h2>
-Classe basée sur TCanvas avec surcharge de la méthode 'HandleInput'
-de manière à être sensible au mouvement de molette (kWheelUp/kWheelDown),
-et à suprimer la sensibilité des TPavaLabel.
-Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
+Classe basÃ©e sur TCanvas avec surcharge de la mÃ©thode 'HandleInput'
+de maniÃ¨re Ã  Ãªtre sensible au mouvement de molette (kWheelUp/kWheelDown),
+et Ã  suprimer la sensibilitÃ© des TPavaLabel.
+Cette Classe Ã  Ã©tÃ© crÃ©Ã©e pour Ãªtre urilisÃ©e par la classe KVIDGridEditor.
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

@@ -530,14 +530,10 @@ void KVIDGridManagerGUI::OpenFile()
    new TGFileDialog(fClient->GetDefaultRoot(), this, kFDOpen, &fi);
    if (fi.fFilename) {
       int ngri = gIDGridManager->GetGrids()->GetEntries();
-      if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
-         if (gMultiDetArray) {
-            // set pointers to id telescopes in grids
-            TIter next(gIDGridManager->GetGrids());
-            KVIDGraph* gr = 0;
-            while ((gr = (KVIDGraph*) next())) gMultiDetArray->FillListOfIDTelescopes(gr);
-            UpdateListOfGrids();
-         }
+      bool ok = gMultiDetArray ? gMultiDetArray->ReadGridsFromAsciiFile(fi.fFilename)
+                : gIDGridManager->ReadAsciiFile(fi.fFilename);
+      if (ok) {
+         UpdateListOfGrids();
          //read file ok no problem.
          int ngriread = gIDGridManager->GetGrids()->GetEntries() - ngri;
          SetStatus(Form("Read %d grids from file %s", ngriread, fi.fFilename));
@@ -694,6 +690,7 @@ void KVIDGridManagerGUI::NewGrid()
    // For a given type of ID telescope, several types of grid may be
    // applicable. If so, we ask the user to choose one.
 
+   Info("NewGrid", "There are %d grids in the manager", gIDGridManager->GetGrids()->GetSize());
    TString default_class = "KVIDZAGrid";
    TList* telescopes = new TList;
    if (gMultiDetArray) {
@@ -859,6 +856,7 @@ void KVIDGridManagerGUI::UpdateTabs()
    // create a tab for each type of ID telescope
    // put a list box for ID grid names on each tab
    //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : starting..." << endl;
+
    KVString labels("");
    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
    else {
@@ -947,23 +945,23 @@ void KVIDGridManagerGUI::UpdateTabs()
          fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs() - 1, kTRUE);
       }
       else {   //existing tab
-         //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : existing tab '" << lab.Data() << "'..." << endl;
+         //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : existing tab '" << lab.Data() << "'..." << endl;
          TGCompositeFrame* cf = fGridListTabs->GetTabContainer(lab.Data());
          if (!cf) {
             cout << "cf = 0x0 : label=" << lab.Data() << " tab name=" <<
                  fGridListTabs->GetTabTab(lab.Data())->GetText()->GetString() << endl;
          }
          else {
-            //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup tab '" << cf->GetName() << "'..." << endl;
+            //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup tab '" << cf->GetName() << "'..." << endl;
             TGFrameElement* el = (TGFrameElement*)cf->GetList()->At(0);
-            //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup element '" << el->GetName() << "'..." << endl;
+            //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup element '" << el->GetName() << "'..." << endl;
             fIDGridList = (KVListView*)el->fFrame;
-            //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup view list '" << fIDGridList->GetName() << "'..." << endl;
+            //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup view list '" << fIDGridList->GetName() << "'..." << endl;
             KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
-            //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup list de telescope'" << grids->GetName() << "'..." << endl;
+            //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup list de telescope'" << grids->GetName() << "'..." << endl;
             //grids->ls();
             fIDGridList->Display(grids);
-            //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : display list of grids in the viewerlist..." << endl;
+            //cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : display list of grids in the viewerlist..." << endl;
 
             if (grids) delete grids;
             //  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : deleting the list..." << endl;

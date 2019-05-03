@@ -98,6 +98,9 @@ Bool_t KVIDGridManager::ReadAsciiFile(const Char_t* filename)
    //note: any existing grids are not destroyed, use Clear() beforehand if you want to
    //start afresh and anew (ais athat aOK?)
    //
+   // N.B. the links between each grid and the IDtelescope(s) for which it is to be used
+   //      are not set up by this method.
+   //
    //the list of grids created by reading the file can be accessed with method
    //GetLastReadGrids() after calling this method
 
@@ -204,9 +207,11 @@ void KVIDGridManager::GetListOfIDTelescopeLabels(KVString& list)
    KVIDGraph* grid = 0;
    KVString lab;
    while ((grid = (KVIDGraph*) next())) {
+      cout << "grid=" << grid->GetName() << " label=" << grid->GetIDTelescopeLabel() << endl;
       lab.Form("/%s/", grid->GetIDTelescopeLabel());
       if (!list.Contains(lab)) list.Append(lab);
    }
+   cout << "list=" << list << endl;
    list.ReplaceAll("//", ",");
    list.ReplaceAll("/", "");
    if (list.EqualTo(",")) list = "";
