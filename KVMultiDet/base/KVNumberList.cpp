@@ -808,6 +808,23 @@ const Char_t* KVNumberList::AsString(Int_t maxlen) const
    return fTMPSTR.Data();
 }
 
+const Char_t* KVNumberList::AsHumanReadableString() const
+{
+   KVString tmp = AsString();
+   int nws = tmp.GetNValues(" ");
+   fTMPSTR = "";
+
+   if (nws == 1) fTMPSTR = tmp;
+   else {
+      tmp.Begin(" ");
+      for (int ii = 0; ii < nws - 1; ii++) fTMPSTR += Form("%s%s", tmp.Next().Data(), (ii == nws - 2) ? "" : ", ");
+      fTMPSTR += Form(" and %s", tmp.Next().Data());
+   }
+   fTMPSTR.ReplaceAll("-", " to ");
+   return fTMPSTR.Data();
+}
+
+
 Int_t KVNumberList::GetRandom() const
 {
    // Draw number at random from list
