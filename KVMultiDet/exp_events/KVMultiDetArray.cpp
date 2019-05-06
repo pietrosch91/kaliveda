@@ -3302,12 +3302,9 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
 
    KVString clop = options.GetStringValue("CalibOptions");
 
-   KVNumberList default_run_list;
+   KVNumberList run_list = db->GetRunList();
    if (options.GetTStringValue("RunList") != "")
-      default_run_list.Set(options.GetTStringValue("RunList"));
-   else
-      default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
-   default_run_list.Print();
+      run_list.Set(options.GetTStringValue("RunList"));
 
    TIter next(env.GetTable());
    TEnvRec* rec = 0;
@@ -3333,7 +3330,7 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
          par->SetParameter(np++, lval.Next().Atof());
       }
       calib_table->AddRecord(par);
-      db->LinkRecordToRunRange(par, default_run_list);
+      db->LinkRecordToRunRange(par, run_list);
 
    }
 }
@@ -3353,22 +3350,21 @@ void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDB
    TIter next(env.GetTable());
    TEnvRec* rec = 0;
    KVDBParameterSet* par = 0;
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
+   KVNumberList run_list = db->GetRunList();
 
    while ((rec = (TEnvRec*)next())) {
 
       TString sname(rec->GetName());
 
       if (sname == "RunList") {
-         default_run_list.Set(rec->GetValue());
+         run_list.Set(rec->GetValue());
       }
       else {
          KVString lval(rec->GetValue());
          par = new KVDBParameterSet(sname.Data(), "Pedestal", 1);
          par->SetParameter(0, lval.Atof());
          pedestal_table->AddRecord(par);
-         db->LinkRecordToRunRange(par, default_run_list);
+         db->LinkRecordToRunRange(par, run_list);
       }
    }
 }

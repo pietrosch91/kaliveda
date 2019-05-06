@@ -63,8 +63,6 @@ void KVINDRADB_e613::Build()
    GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
                                GetDBEnv("Runlist.Events"));
 
-   kFirstRun = 999999;
-   kLastRun = 0;
    ReadRunList(runlist_fullpath.Data());
    //new style runlist
    if (IsNewRunList()) {
@@ -327,8 +325,7 @@ void KVINDRADB_e613::ReadPedestalList()
    TEnvRec* rec = 0;
    KVDBParameterSet* par = 0;
 
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(kFirstRun, kLastRun);
+   KVNumberList default_run_list = GetRunList();
    Info("ReadPedestalList", "liste des runs par defaut %s", default_run_list.AsString());
 
    while (flist.IsOK()) {
@@ -375,8 +372,7 @@ void KVINDRADB_e613::ReadChannelVolt()
    if (!gIndra->IsBuilt())
       gIndra->Build();
 
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(kFirstRun, kLastRun);
+   KVNumberList default_run_list = GetRunList();
    Info("ReadChannelVolt", "liste des runs par defaut %s", default_run_list.AsString());
 
    KVFileReader flist;
@@ -522,8 +518,7 @@ void KVINDRADB_e613::ReadVoltEnergyChIoSi()
    KVDBParameterSet* par = 0;
    TObjArray* toks = 0;
 
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(kFirstRun, kLastRun);
+   KVNumberList default_run_list = GetRunList();
    Info("ReadVoltEnergyChIoSi", "liste des runs par defaut %s", default_run_list.AsString());
 
    while (flist.IsOK()) {

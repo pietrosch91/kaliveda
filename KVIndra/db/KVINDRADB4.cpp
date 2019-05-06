@@ -64,8 +64,6 @@ void KVINDRADB4::Build()
    SetRLSeparatorChar('|');
    GetLineReader()->SetFieldKeys(3, "RUN", "BEAM", "TARGET");
    GetLineReader()->SetRunKeys(2, "RUN", "EVENTS");
-   kFirstRun = 999999;
-   kLastRun = 0;
    ReadRunList(runlist_fullpath.Data());
    ReadSystemList();
    ReadChIoPressures();
@@ -91,8 +89,6 @@ void KVINDRADB4::GoodRunLine()
       GetLineReader()->Print();
       return;
    }
-   kLastRun = TMath::Max(kLastRun, run_n);
-   kFirstRun = TMath::Min(kFirstRun, run_n);
 
 
    /*********************************************

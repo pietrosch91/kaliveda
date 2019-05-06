@@ -16,8 +16,7 @@ protected:
    TString fDataSetDir;//the directory containing the dataset files
    TString fDBType;//used by GetDBEnv
 
-   Int_t kFirstRun;
-   Int_t kLastRun;
+   KVNumberList fListOfRuns;//list of all run numbers
    KVDBTable* fRuns;            //-> table of runs
    KVDBTable* fSystems;         //-> table of systems
 
@@ -52,15 +51,14 @@ public:
                                       UInt_t run_ranges[][2]);
    virtual void LinkRecordToRunRange(KVDBRecord* rec, UInt_t first_run,
                                      UInt_t last_run);
-   virtual void LinkListToRunRange(TList* list, KVNumberList nl);
-   virtual void LinkRecordToRunRange(KVDBRecord* rec,  KVNumberList nl);
+   virtual void LinkListToRunRange(TList* list, const KVNumberList& nl);
+   virtual void LinkRecordToRunRange(KVDBRecord* rec,  const KVNumberList& nl);
    virtual void LinkRecordToRun(KVDBRecord* rec,  Int_t run);
 
    void AddRun(KVDBRun* r)
    {
       fRuns->AddRecord(r);
-      if (!kFirstRun) kFirstRun = r->GetNumber();
-      if (r->GetNumber() > kLastRun) kLastRun = r->GetNumber();
+      fListOfRuns.Add(r->GetNumber());
    }
    virtual KVSeqCollection* GetRuns() const
    {
@@ -70,15 +68,11 @@ public:
    {
       return (KVDBRun*)fRuns->GetRecord(number);
    }
-   Int_t GetFirstRunNumber() const
+   const KVNumberList& GetRunList() const
    {
-      return kFirstRun;
+      // list of numbers of all runs in database
+      return fListOfRuns;
    }
-   Int_t GetLastRunNumber() const
-   {
-      return kLastRun;
-   }
-
    virtual KVDBSystem* GetSystem(const Char_t* system) const
    {
       return (KVDBSystem*) fSystems->GetRecord(system);

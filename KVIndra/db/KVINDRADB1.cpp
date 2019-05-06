@@ -49,8 +49,6 @@ void KVINDRADB1::Build()
       SetRLSeparatorChar(GetDBEnv("Runlist.Separator")[0]);
    GetLineReader()->SetFieldKeys(3, "tape", "run", "events");
    GetLineReader()->SetRunKeys(2, "run", "events");
-   kFirstRun = 999999;
-   kLastRun = 0;
    ReadRunList(runlist_fullpath.Data());
 
    ReadSystemList();
@@ -78,8 +76,6 @@ void KVINDRADB1::GoodRunLine()
       GetLineReader()->Print();
       return;
    }
-   kLastRun = TMath::Max(kLastRun, run_n);
-   kFirstRun = TMath::Min(kFirstRun, run_n);
 
    /*********************************************
    IF LINE HAS A TAPE NUMBER WE

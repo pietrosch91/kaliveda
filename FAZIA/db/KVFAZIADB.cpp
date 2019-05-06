@@ -80,9 +80,6 @@ void KVFAZIADB::Build()
 
    //get full path to runlist file, using environment variables for the current dataset
 
-   kFirstRun = 999999;
-   kLastRun = 0;
-
    ReadNewRunList();
    ReadSystemList();
    ReadExceptions();
@@ -187,8 +184,6 @@ void KVFAZIADB::ReadNewRunList()
          else {
             //run->ReadRunSheet();
             AddRun(run);
-            kLastRun = TMath::Max(kLastRun, run->GetNumber());
-            kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
          }
       }
    }
@@ -280,8 +275,6 @@ void KVFAZIADB::ReadNewRunList()
             }
             else {
                AddRun(run);
-               kLastRun = TMath::Max(kLastRun, run->GetNumber());
-               kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
             }
          }
       }
@@ -714,8 +707,7 @@ void KVFAZIADB::ReadCalibFile(const Char_t* filename)
    TIter next(env.GetTable());
    TEnvRec* rec = 0;
    KVDBParameterSet* par = 0;
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(GetFirstRunNumber(), GetLastRunNumber());
+   KVNumberList run_list = GetRunList();
 
    TString ssignal = "";
    TString stype = "";
@@ -744,7 +736,7 @@ void KVFAZIADB::ReadCalibFile(const Char_t* filename)
             par->SetParameter(np++, lval.Next().Atof());
          }
          fCalibrations->AddRecord(par);
-         LinkRecordToRunRange(par, default_run_list);
+         LinkRecordToRunRange(par, run_list);
       }
    }
 

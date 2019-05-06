@@ -795,8 +795,6 @@ void KVINDRADB::Build()
    GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
                                GetDBEnv("Runlist.Events"));
 
-   kFirstRun = 999999;
-   kLastRun = 0;
    ReadRunList(runlist_fullpath.Data());
    //new style runlist
    if (IsNewRunList()) {
@@ -851,8 +849,6 @@ void KVINDRADB::ReadNewRunList()
          }
          else {
             AddRun(run);
-            kLastRun = TMath::Max(kLastRun, run->GetNumber());
-            kFirstRun = TMath::Min(kFirstRun, run->GetNumber());
          }
       }
    }
@@ -879,8 +875,6 @@ void KVINDRADB::GoodRunLine()
       GetLineReader()->Print();
       return;
    }
-   kLastRun = TMath::Max(kLastRun, run_n);
-   kFirstRun = TMath::Min(kFirstRun, run_n);
 
    /*********************************************
    IF LINE HAS A TAPE NUMBER WE
@@ -1564,11 +1558,7 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
    fin.close();
 
    //these calibrators are valid for all runs
-   UInt_t nranges, r_ranges[MAX_NUM_RUN_RANGES][2];
-   nranges = 1;
-   r_ranges[0][0] = kFirstRun;
-   r_ranges[0][1] = kLastRun;
-   LinkListToRunRanges(par_list, nranges, r_ranges);
+   LinkListToRunRange(par_list, GetRunList());
    par_list->Clear();
    delete par_list;
 }

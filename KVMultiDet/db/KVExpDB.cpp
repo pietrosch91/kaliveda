@@ -24,8 +24,6 @@ ClassImp(KVExpDB)
 void KVExpDB::init()
 {
    //default initialisations
-   kFirstRun = 0;
-   kLastRun = 0;
 
    fRuns = AddTable("Runs", "List of available runs");
    fRuns->SetDefaultFormat("Run %d"); // default format for run names
@@ -78,7 +76,7 @@ void KVExpDB::LinkRecordToRunRange(KVDBRecord* rec, UInt_t first_run,
    }
 }
 //_____________________________________________________________________
-void KVExpDB::LinkRecordToRunRange(KVDBRecord* rec, KVNumberList nl)
+void KVExpDB::LinkRecordToRunRange(KVDBRecord* rec, const KVNumberList& nl)
 {
    //If the KVDBRecord 'rec' (i.e. set of calibration parameters, reaction system, etc.) is
    //associated to, or valid for, a range of runs, we use this method in order to link the record
@@ -151,7 +149,7 @@ void KVExpDB::LinkListToRunRanges(TList* list, UInt_t rr_number,
    }
 }
 //______________________________________________________________________________
-void KVExpDB::LinkListToRunRange(TList* list, KVNumberList nl)
+void KVExpDB::LinkListToRunRange(TList* list, const KVNumberList& nl)
 {
    //Link the records contained in the list to the set of runs (see LinkRecordToRunRanges).
 
