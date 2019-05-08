@@ -413,6 +413,7 @@ void KVDigitalFilter::ApplyTo(double* datax, const int NSamples, int reverse) co
       case -1: // bidirectional
          ApplyTo(datax, NSamples, 0);
          ApplyTo(datax, NSamples, 1);
+         delete [] datay;
          return;
       default:
          printf("ERROR in %s: reverse=%d not supported\n", __PRETTY_FUNCTION__, reverse);

@@ -917,6 +917,8 @@ TH1* KVSignal::FFT2Histo(int output, TH1* hh)  // 0 modulo, 1 modulo db (normali
    int NFFT = FFT(0, re, im);
    if (NFFT < 0) {
       printf("ERROR in %s: FFT returned %d!\n", __PRETTY_FUNCTION__, NFFT);
+      delete [] re;
+      delete [] im;
       return NULL;
    }
    int NF = NFFT / 2;
@@ -1427,6 +1429,7 @@ void KVSignal::FIR_ApplyRecursiveFilter(double a0, int N, double* a, double* b, 
       case -1: // bidirectional
          FIR_ApplyRecursiveFilter(a0, N, a, b, 0);
          FIR_ApplyRecursiveFilter(a0, N, a, b, 1);
+         delete [] datay;
          return;
       default:
          printf("ERROR in %s: reverse=%d not supported\n", __PRETTY_FUNCTION__, reverse);
