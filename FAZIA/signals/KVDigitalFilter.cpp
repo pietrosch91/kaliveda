@@ -381,7 +381,7 @@ void KVDigitalFilter::ApplyTo(double* datax, const int NSamples, int reverse) co
    // Copiato +- da KVSignal.cxx
    // Diversa la convenzione per a0 b0!
 
-   long double* datay = new long double[NSamples];
+   vector<long double> datay(NSamples);
    int i = 0, k = 0;
    switch (reverse) {
       case 0:// direct
@@ -413,16 +413,16 @@ void KVDigitalFilter::ApplyTo(double* datax, const int NSamples, int reverse) co
       case -1: // bidirectional
          ApplyTo(datax, NSamples, 0);
          ApplyTo(datax, NSamples, 1);
-         delete [] datay;
          return;
       default:
          printf("ERROR in %s: reverse=%d not supported\n", __PRETTY_FUNCTION__, reverse);
    }// end of reverse switch.
    /*----------------------------------------------*/
    //   void *memcpy(void *dest, const void *src, size_t n);
-   memcpy(datax, datay, NSamples * sizeof(double));
-   delete [] datay;
-
+   //memcpy(datax, datay, NSamples * sizeof(double));
+   // can't use memcpy: datax & datay have different type sizes!
+   for (int i = 0; i < NSamples; i++)
+      datax[i] = (double)datay[i];
 }
 //=============================================
 void KVDigitalFilter::ApplyTo(float* datax, const int NSamples, int reverse) const
@@ -430,7 +430,7 @@ void KVDigitalFilter::ApplyTo(float* datax, const int NSamples, int reverse) con
    // Copiato +- da KVSignal.cxx
    // Diversa la convenzione per a0 b0!
 
-   long double* datay = new long double[NSamples];
+   vector<long double> datay(NSamples);
    int i = 0, k = 0;
    switch (reverse) {
       case 0:// direct
@@ -470,9 +470,6 @@ void KVDigitalFilter::ApplyTo(float* datax, const int NSamples, int reverse) con
    //   void *memcpy(void *dest, const void *src, size_t n);
    for (int i = 0; i < NSamples; i++)
       datax[i] = (float)datay[i];
-
-   delete [] datay;
-
 }
 //=============================================
 void KVDigitalFilter::ApplyTo(int* datax, const int NSamples, int reverse) const
@@ -480,7 +477,7 @@ void KVDigitalFilter::ApplyTo(int* datax, const int NSamples, int reverse) const
    // Copiato +- da KVSignal.cxx
    // Diversa la convenzione per a0 b0!
 
-   long double* datay = new long double[NSamples];
+   vector<long double> datay(NSamples);
    int i = 0, k = 0;
    switch (reverse) {
       case 0:// direct
@@ -520,8 +517,6 @@ void KVDigitalFilter::ApplyTo(int* datax, const int NSamples, int reverse) const
    //   void *memcpy(void *dest, const void *src, size_t n);
    for (int i = 0; i < NSamples; i++)
       datax[i] = (int)datay[i];
-   delete [] datay;
-
 }
 /**********************************************/
 void KVDigitalFilter::Compress()
@@ -969,7 +964,7 @@ void KVDigitalFilter::FIRApplyTo(float* datax, const int NSamples, int reverse) 
    // Copiato +- da KVSignal.cxx
    // Diversa la convenzione per a0 b0!
 
-   long double* datay = new long double[NSamples];
+   vector<long double> datay(NSamples);
    int i = 0, k = 0;
    switch (reverse) {
       case 0:// direct
@@ -1007,9 +1002,6 @@ void KVDigitalFilter::FIRApplyTo(float* datax, const int NSamples, int reverse) 
    //   void *memcpy(void *dest, const void *src, size_t n);
    for (int i = 0; i < NSamples; i++)
       datax[i] = (float)datay[i];
-
-   delete [] datay;
-
 }
 //=============================================
 void KVDigitalFilter::FIRApplyTo(double* datax, const int NSamples, int reverse) const
@@ -1017,7 +1009,7 @@ void KVDigitalFilter::FIRApplyTo(double* datax, const int NSamples, int reverse)
    // Copiato +- da KVSignal.cxx
    // Diversa la convenzione per a0 b0!
 
-   long double* datay = new long double[NSamples];
+   vector<long double> datay(NSamples);
    int i = 0, k = 0;
    switch (reverse) {
       case 0:// direct
@@ -1053,7 +1045,9 @@ void KVDigitalFilter::FIRApplyTo(double* datax, const int NSamples, int reverse)
    }// end of reverse switch.
    /*----------------------------------------------*/
    //   void *memcpy(void *dest, const void *src, size_t n);
-   memcpy(datax, datay, NSamples * sizeof(double));
-   delete [] datay;
-
+   // can't use memcpy: datax & datay have different sized types
+   // (double=64bits & long double=128bits)
+   //memcpy(datax, datay, NSamples * sizeof(double));
+   for (int i = 0; i < NSamples; i++)
+      datax[i] = (double)datay[i];
 }
