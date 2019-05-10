@@ -775,7 +775,7 @@ Double_t KVNucleus::GetParity(Int_t z, Int_t a) const
    Double_t val = gNDTManager->GetValue(z, a, "SpinParity");
    if (val == -555)
       return 0;
-   return TMath::Sign(-1, val);
+   return TMath::Sign(-1., val);
 
 }
 
