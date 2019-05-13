@@ -2449,7 +2449,7 @@ ID:Z=5 A=11
 1661.85   3286.27
 1979.05   3817.45
 +KVIDCutLine
-OK:Gamma_line
+OK:gamma_line
 above
 16
 29.3274   24.169
@@ -42216,7 +42216,7 @@ ID:Z=3 A=7
 712.941   1399.92
 809.474   1558.73
 +KVIDCutLine
-OK:gama_line
+OK:gamma_line
 above
 23
 23.3723   13.4792
@@ -44745,7 +44745,7 @@ ID:Z=3 A=7
 560.181   1016.57
 665.65   1171.68
 +KVIDCutLine
-OK:gammaa_line
+OK:gamma_line
 above
 26
 15.7939   9.05469

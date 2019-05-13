@@ -207,11 +207,11 @@ void KVIDGridManager::GetListOfIDTelescopeLabels(KVString& list)
    KVIDGraph* grid = 0;
    KVString lab;
    while ((grid = (KVIDGraph*) next())) {
-      cout << "grid=" << grid->GetName() << " label=" << grid->GetIDTelescopeLabel() << endl;
+      //cout << "grid=" << grid->GetName() << " label=" << grid->GetIDTelescopeLabel() << endl;
       lab.Form("/%s/", grid->GetIDTelescopeLabel());
       if (!list.Contains(lab)) list.Append(lab);
    }
-   cout << "list=" << list << endl;
+   //cout << "list=" << list << endl;
    list.ReplaceAll("//", ",");
    list.ReplaceAll("/", "");
    if (list.EqualTo(",")) list = "";

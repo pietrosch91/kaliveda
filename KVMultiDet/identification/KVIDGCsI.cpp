@@ -603,7 +603,18 @@ void KVIDGCsI::Initialize()
    if (imfline) fIdentifiers->Remove(imfline); // remove to avoid problems with CalculateLineWidths
    KVIDZAGrid::Initialize();
    GammaLine = (KVIDLine*)GetCut("gamma_line");
+   if (!GammaLine) {
+      GetName();
+      Error("Initialize", "%s: Cut 'gamma_line' not found in grid. Not a valid CsI R-L grid. Listing existing cuts:",
+            GetName());
+      GetCuts()->ls();
+   }
    IMFLine = (KVIDLine*)GetCut("IMF_line");
+   if (!IMFLine) {
+      Error("Initialize", "%s: Cut 'IMF_line' not found in grid. Not a valid CsI R-L grid. Listing existing cuts:",
+            GetName());
+      GetCuts()->ls();
+   }
 }
 
 //___________________________________________________________________________________
