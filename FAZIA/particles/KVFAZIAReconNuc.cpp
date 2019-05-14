@@ -94,14 +94,16 @@ void KVFAZIAReconNuc::Print(Option_t*) const
       if (((KVFAZIAReconNuc*) this)->IsAMeasured()) cout << " Areal=" << ((KVFAZIAReconNuc*) this)->GetRealA();
       else cout << " Zreal=" << GetRealZ();
 
-   } else {
+   }
+   else {
       cout << "(unidentified)" << endl;
    }
    if (IsCalibrated()) {
       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
 
-   } else {
+   }
+   else {
       cout << "(uncalibrated)" << endl;
    }
 
@@ -276,14 +278,16 @@ void KVFAZIAReconNuc::Identify()
                SetIdentifyingTelescope(idt);
                SetIsIdentified();
                //return;
-            } else {
+            }
+            else {
                SetIdentification(IDR);
                SetIdentifyingTelescope(idt);
                //SetIDCode(0);
                //SetZandA(0, 0);
                //SetIsIdentified();
             }
-         } else {
+         }
+         else {
             IDR->IDattempted = kFALSE;
          }
          idnumber += 1;
@@ -294,9 +298,11 @@ void KVFAZIAReconNuc::Identify()
       //printf("Beginning Coherency check\n");
       if (STOPID == KVFAZIADetector::kSI1) {
          ok = CoherencySi(partID);
-      } else if (STOPID == KVFAZIADetector::kSI2) {
+      }
+      else if (STOPID == KVFAZIADetector::kSI2) {
          ok = CoherencySiSi(partID);
-      } else if (STOPID == KVFAZIADetector::kCSI) {
+      }
+      else if (STOPID == KVFAZIADetector::kCSI) {
          ok = CoherencySiCsI(partID);
       }
       if (ok) {
@@ -325,7 +331,8 @@ Bool_t KVFAZIAReconNuc::CoherencySi(KVIdentificationResult& theID)
       theID = *IDsi;
       //cout << "PSA IDCode" << theID.IDcode << endl;
       return kTRUE;
-   } else return kFALSE;
+   }
+   else return kFALSE;
 }
 
 Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
@@ -336,11 +343,13 @@ Bool_t KVFAZIAReconNuc::CoherencySiSi(KVIdentificationResult& theID)
       theID = *IDsisi;
       //cout << "SiSi IDCode" << theID.IDcode << endl;
       return kTRUE;
-   } else if (IDsi && IDsi->IDOK) {
+   }
+   else if (IDsi && IDsi->IDOK) {
       theID = *IDsi;
       // cout << "Si (daSiSi) IDCode" << theID.IDcode << endl;
       return kTRUE;
-   } else return kFALSE;
+   }
+   else return kFALSE;
 }
 
 Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
@@ -361,7 +370,8 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
    if (IDsicsi && IDsicsi->IDOK)    {
       theID = *IDsicsi;
       return kTRUE;
-   } else if (IDcsi && IDcsi->IDOK && IDcsi->Z <= 2) {
+   }
+   else if (IDcsi && IDcsi->IDOK && IDcsi->Z <= 2) {
       theID = *IDcsi;
       return kTRUE;
    }
@@ -500,8 +510,9 @@ void KVFAZIAReconNuc::Calibrate()
    if (STOPID == KVFAZIADetector::kSI2) ntot = 2;
    if (STOPID == KVFAZIADetector::kCSI) ntot = 3;
 
-   if (ntot < 1)
+   if (ntot < 1) {
       return;
+   }
    Bool_t punch_through = kFALSE;
    Bool_t incoherency = kFALSE;
    Bool_t pileup = kFALSE;
@@ -520,49 +531,54 @@ void KVFAZIAReconNuc::Calibrate()
 
    while (det = (KVFAZIADetector*)GetDetector(idet)) {
       // printf("Det %d of %d (%s)\n",idet,ntot,det->GetType());
-      if (det->IsCalibrated() && GetZ() <= 2) {
-         if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
+      if (det->IsCalibrated()) {
+         if (GetZ() <= 2) {
+            if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
 
-            if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsIFull")) {
-               KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
-               calib->SetZ(GetZ());
-               calib->SetA(GetA());
-               eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
-               //cout << detname << " " << calib->GetParameter(0) << endl;
+               if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsIFull")) {
+                  KVLightEnergyCsIFull* calib = (KVLightEnergyCsIFull*)det->GetCalibrator("Channel-Energy");
+                  calib->SetZ(GetZ());
+                  calib->SetA(GetA());
+                  eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+                  //cout << detname << " " << calib->GetParameter(0) << endl;
 
-            } else if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsI") && GetZ()) {
-               KVLightEnergyCsI* calib = (KVLightEnergyCsI*)det->GetCalibrator("Channel-Energy");
-               calib->SetZ(GetZ());
-               calib->SetA(GetA());
-               //cout << detname << " " << calib->GetParameter(0) << endl;
-               eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+               }
+               else if (det->GetCalibrator("Channel-Energy")->InheritsFrom("KVLightEnergyCsI") && GetZ()) {
+                  KVLightEnergyCsI* calib = (KVLightEnergyCsI*)det->GetCalibrator("Channel-Energy");
+                  calib->SetZ(GetZ());
+                  calib->SetA(GetA());
+                  //cout << detname << " " << calib->GetParameter(0) << endl;
+                  eloss[ntot - ndet - 1] = calib->Compute(det->GetQ3Amplitude());
+               }
             }
-         } else eloss[ntot - ndet - 1] = det->GetEnergy();
+            else eloss[ntot - ndet - 1] = det->GetEnergy();
 
-         if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
-         else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
-         else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
-         etot += eloss[ntot - ndet - 1];
-         ndet_calib += 1;
+            if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
+            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
+            else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
+            etot += eloss[ntot - ndet - 1];
+            ndet_calib += 1;
+         }
       }
-      if (det->IsCalibrated() && GetZ() > 2 && det->GetIdentifier() != KVFAZIADetector::kCSI) {
-         eloss[ntot - ndet - 1] = det->GetEnergy();
-         if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
-         else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
-         else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
-         etot += eloss[ntot - ndet - 1];
-         ndet_calib += 1;
+      else {
+         if (det->GetIdentifier() != KVFAZIADetector::kCSI) {
+            eloss[ntot - ndet - 1] = det->GetEnergy();
+            if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
+            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
+            else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
+            etot += eloss[ntot - ndet - 1];
+            ndet_calib += 1;
+         }
       }
       ndet += 1;
       idet += 1;
       if (idet == ntot) break;
       /*if(GetZ()==8&& (detname==234||detname==221)){
-      cout << det->GetName() << " " <<GetZ() << " " << GetA() << " " << fESI1 << " " << fESI2 << " " << fECSI << endl;
-      cout << ndet << " = " << ndet_calib << endl;
+       *     cout << det->GetName() << " " <<GetZ() << " " << GetA() << " " << fESI1 << " " << fESI2 << " " << fECSI << endl;
+       *     cout << ndet << " = " << ndet_calib << endl;
       }*/
    }
    //printf("Starting Eloss recon\n");
-
    if (ndet == ndet_calib) {
       Double_t E_targ = 0;
       SetEnergy(etot);
@@ -585,12 +601,15 @@ void KVFAZIAReconNuc::Calibrate()
 
          if ((avatar.GetKE() / GetKE()) > 0.0) {
             punch_through = kTRUE;
-         } else if (chi2 > 10.) {
+         }
+         else if (chi2 > 10.) {
             incoherency = kTRUE;
-         } else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
+         }
+         else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
             if (StoppedInCSI() && (fECSI / etot) < 0.03) pileup = kTRUE;
             else check_error = kTRUE;
-         } else {
+         }
+         else {
             // if(avatar.GetZ()==15 && avatar.GetA()==32 && detname==242  && sono_dentro==1) {cout << "CODE 0!!!!!!\n\n\n\n"; getchar();}
             //chi2 /= ndet;
          }
@@ -612,76 +631,82 @@ void KVFAZIAReconNuc::Calibrate()
       if (pileup)          SetECode(4); //
 
       SetIsCalibrated();
-   } else {
-      if (StoppedInCSI() && /*!(GetCSI()->IsCalibrated()) &&*/ ndet_calib == 2) {
-         if (GetZ() > 2) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo
-            if (!IsAMeasured()) {
+   }
+   else if (ndet_calib > 0) {
+      if (StoppedInCSI()) {
+         if (ndet_calib == 2) {
+            if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo //b
+               //by default this means Si1 and Si2 are working
+               if (!IsAMeasured()) {
 
-               if (GetZ() == 1)       SetA(1);
-               else if (GetZ() == 2)  SetA(4);
-               else if (GetZ() == 20) SetA(48);
-               else {
-                  SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+                  if (GetZ() == 1)       SetA(1);
+                  else if (GetZ() == 2)  SetA(4);
+                  else if (GetZ() == 20) SetA(48);
+                  else {
+                     SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+                  }
+               }
+
+               Double_t E_targ = 0;
+               fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+               SetEnergy(fECSI + fESI1 + fESI2);
+
+               E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+               Double_t E_tot = GetEnergy() + E_targ;
+               SetECode(1);
+               SetIsCalibrated();
+               SetEnergy(E_tot);
+               GetAnglesFromStoppingDetector();
+            }
+            else {
+               if (GetCSI()->IsCalibrated() && !(GetSI1()->IsCalibrated())) {
+                  Double_t E_targ = 0;
+                  fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
+                  SetEnergy(fECSI + fESI2 + fESI1);
+
+                  E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+                  Double_t E_tot = GetEnergy() + E_targ;
+                  SetECode(1);
+                  SetIsCalibrated();
+                  SetEnergy(E_tot);
+                  GetAnglesFromStoppingDetector();
+
                }
             }
-
-            Double_t E_targ = 0;
-            fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
-            SetEnergy(fECSI + fESI1 + fESI2);
-
-            E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-            Double_t E_tot = GetEnergy() + E_targ;
-            SetECode(1);
-            SetIsCalibrated();
-            SetEnergy(E_tot);
-            GetAnglesFromStoppingDetector();
-         } else if (GetCSI()->IsCalibrated() && !(GetSI1()->IsCalibrated())) {
-            Double_t E_targ = 0;
-            fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
-            SetEnergy(fECSI + fESI2 + fESI1);
-
-            E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-            Double_t E_tot = GetEnergy() + E_targ;
-            SetECode(1);
-            SetIsCalibrated();
-            SetEnergy(E_tot);
-            GetAnglesFromStoppingDetector();
-
          }
-      }
-      if (StoppedInCSI() && !(GetSI1()->IsCalibrated()) && ndet_calib == 1) { //se ho solo SI2-CSI e il Si2 Calibrato, quando il Si1 è morto
-         if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo
-            if (!IsAMeasured()) {
+         else { //ndet_calib==1
+            if (!(GetSI1()->IsCalibrated())) {
+               if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo
+                  if (!IsAMeasured()) {
 
-               if (GetZ() == 1)       SetA(1);
-               else if (GetZ() == 2)  SetA(4);
-               else if (GetZ() == 20) SetA(48);
-               else {
-                  SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+                     if (GetZ() == 1)       SetA(1);
+                     else if (GetZ() == 2)  SetA(4);
+                     else if (GetZ() == 20) SetA(48);
+                     else {
+                        SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+                     }
+                  }
+
+                  Double_t E_targ = 0;
+                  fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+                  fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
+                  SetEnergy(fECSI + fESI2 + fESI1);
+
+                  E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+                  Double_t E_tot = GetEnergy() + E_targ;
+                  SetECode(1);
+                  SetIsCalibrated();
+                  SetEnergy(E_tot);
+                  GetAnglesFromStoppingDetector();
                }
             }
-
-            Double_t E_targ = 0;
-            fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
-            fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
-            SetEnergy(fECSI + fESI2 + fESI1);
-
-            E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-            Double_t E_tot = GetEnergy() + E_targ;
-            SetECode(1);
-            SetIsCalibrated();
-            SetEnergy(E_tot);
-            GetAnglesFromStoppingDetector();
          }
       }
    }
-
-   /* if(GetZ()==8&& (detname==234||detname==221)){
-    cout << fESI1 << " " << fESI2 << " " << fECSI << " " << GetEnergy() << endl;
-    }*/
-
    delete [] eloss;
 }
+
+
 void KVFAZIAReconNuc::ComputePSA()
 {
    // Perform Pulse Shape Analysis for all detectors hit by this particle
