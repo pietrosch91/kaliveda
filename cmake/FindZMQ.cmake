@@ -4,7 +4,7 @@
 # ZMQ_INCLUDE_DIRS - The ZMQ include directories
 # ZMQ_LIBRARIES - The libraries needed to use ZMQ
 
-find_path ( ZMQ_INCLUDE_DIR zmq.h )
+find_path ( ZMQ_INCLUDE_DIR zmq.hpp )
 find_library ( ZMQ_LIBRARY NAMES zmq )
 set ( ZMQ_LIBRARIES ${ZMQ_LIBRARY} )
 set ( ZMQ_INCLUDE_DIRS ${ZMQ_INCLUDE_DIR} )
