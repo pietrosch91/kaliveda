@@ -202,19 +202,18 @@ void KVIDGrid::ReadIdentifierFromAsciiFile(TString& name, TString& type, TString
 
 //________________________________________________________________________________________//
 
-Int_t KVIDGrid::GetIDLinesEmbracingPoint(const Char_t* direction,
-      Double_t x, Double_t y, TList& tmp) const
+Int_t KVIDGrid::GetIDLinesEmbracingPoint(const Char_t* direction, Double_t x, Double_t y) const
 {
-   //Replaces contents of TList 'tmp' with subset of ID lines for which IsBetweenEndPoints(x,y,direction) == kTRUE.
+   //Replaces contents of fEmbracingLines with subset of ID lines for which IsBetweenEndPoints(x,y,direction) == kTRUE.
    //nlines = number of lines in list
 
    TIter next(GetIdentifiers());
    Int_t nlines = 0;
    KVIDLine* line;
-   tmp.Clear();
+   fEmbracingLines.Clear();
    while ((line = (KVIDLine*) next())) {
       if (line->IsBetweenEndPoints(x, y, direction)) {
-         tmp.Add(line);
+         fEmbracingLines.Add(line);
          nlines++;
       }
    }

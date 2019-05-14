@@ -14,7 +14,7 @@ $Id: KVIDGrid.h,v 1.51 2009/04/03 14:30:27 franklan Exp $
 #include "KVIDGraph.h"
 #include "KVIDLine.h"
 #include "Riostream.h"
-#include "TList.h"
+#include "TObjArray.h"
 #include <TPad.h>
 #include "TGWindow.h"
 #include "TF1.h"
@@ -22,6 +22,8 @@ $Id: KVIDGrid.h,v 1.51 2009/04/03 14:30:27 franklan Exp $
 #include "TMath.h"
 
 class KVIDGrid : public KVIDGraph {
+
+   mutable TObjArray fEmbracingLines;//! temporary array used by GetIDLinesEmbracingPoint
 
 protected:
 
@@ -33,12 +35,11 @@ public:
    KVIDGrid();
    virtual ~ KVIDGrid();
 
-   virtual KVIDLine* NewLine(const Char_t* idline_class = "");
-   Int_t GetIDLinesEmbracingPoint(const Char_t* direction, Double_t x,
-                                  Double_t y, TList&) const;
+   KVIDLine* NewLine(const Char_t* idline_class = "");
+   Int_t GetIDLinesEmbracingPoint(const Char_t* direction, Double_t x, Double_t y) const;
 
-   virtual KVIDLine* FindNearestIDLineFast(Double_t x, Double_t y, const Char_t* position,
-                                           Int_t& idx, Int_t& idx_min, Int_t& idx_max, Double_t& dist, Double_t& dist_min, Double_t& dist_max) const
+   KVIDLine* FindNearestIDLineFast(Double_t x, Double_t y, const Char_t* position,
+                                   Int_t& idx, Int_t& idx_min, Int_t& idx_max, Double_t& dist, Double_t& dist_min, Double_t& dist_max) const
    {
       //Fast algorithm for finding the ID line the closest to a given point (x,y) by dichotomy.
       //
@@ -107,19 +108,17 @@ public:
       dist = dist_min;
       idx = idx_min;
       return lower;
-   };
+   }
 
-   virtual KVIDLine* FindNearestEmbracingIDLine(Double_t x, Double_t y, const Char_t* position, const Char_t* axis,
-         Int_t& idx, Int_t& idx_min, Int_t& idx_max, Double_t& dist, Double_t& dist_min, Double_t& dist_max) const
+   KVIDLine* FindNearestEmbracingIDLine(Double_t x, Double_t y, const Char_t* position, const Char_t* axis,
+                                        Int_t& idx, Int_t& idx_min, Int_t& idx_max, Double_t& dist, Double_t& dist_min, Double_t& dist_max) const
    {
       // This is the same as FindNearestIDLineFast except that only lines for which
       // KVIDLine::IsBetweenEndPoints(x,y,axis) returns kTRUE are considered.
       // As we only consider lines between whose endpoints our point lies, this method
       // always gives the correct answer.
 
-      static TList emL;
-
-      Int_t nlines = GetIDLinesEmbracingPoint(axis, x, y, emL);
+      Int_t nlines = GetIDLinesEmbracingPoint(axis, x, y);
       if (!nlines) return 0;   // no lines
       idx_min = 0;                 //minimum index
       idx_max = nlines - 1;        // maximum index
@@ -128,7 +127,7 @@ public:
 
       while (idx_max > idx_min + 1) {
 
-         KVIDLine* line = (KVIDLine*)emL.At(idx);
+         KVIDLine* line = (KVIDLine*)fEmbracingLines.UncheckedAt(idx);
          Bool_t point_above_line = line->WhereAmI(x, y, position);
 
          if (point_above_line) {
@@ -143,8 +142,8 @@ public:
          }
       }
       //calculate distance of point to the two lines above and below
-      KVIDLine* upper = (KVIDLine*)emL.At(idx_max);
-      KVIDLine* lower = (KVIDLine*)emL.At(idx_min);
+      KVIDLine* upper = (KVIDLine*)fEmbracingLines.UncheckedAt(idx_max);
+      KVIDLine* lower = (KVIDLine*)fEmbracingLines.UncheckedAt(idx_min);
       Int_t dummy = 0;
       //if idx_max = nlines-1, the point may be above the last line
       //in which case we put idx_max = -1 (no line above point)
@@ -182,7 +181,7 @@ public:
       dist = dist_min;
       idx = idx_min;
       return lower;
-   };
+   }
 
    KVIDLine* FindNextEmbracingLine(Int_t& index, Int_t inc_index, Double_t x, Double_t y, const Char_t* axis) const
    {
@@ -207,21 +206,21 @@ public:
       }
       index = ii;
       return l;
-   };
+   }
 
 
    void Initialize();
 
-   virtual void CalculateLineWidths() {};
+   virtual void CalculateLineWidths() {}
 
    virtual TClass* DefaultIDLineClass()
    {
       return TClass::GetClass("KVIDLine");
-   };
+   }
    virtual TClass* DefaultOKLineClass()
    {
       return TClass::GetClass("KVIDLine");
-   };
+   }
 
 
    ClassDef(KVIDGrid, 5)        //Base class for 2D identification grids
