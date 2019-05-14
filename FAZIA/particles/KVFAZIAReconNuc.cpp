@@ -561,15 +561,15 @@ void KVFAZIAReconNuc::Calibrate()
             etot += eloss[ntot - ndet - 1];
             ndet_calib += 1;
          }
-      }
-      else {
-         if (det->GetIdentifier() != KVFAZIADetector::kCSI) {
-            eloss[ntot - ndet - 1] = det->GetEnergy();
-            if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
-            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
-            else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
-            etot += eloss[ntot - ndet - 1];
-            ndet_calib += 1;
+         else {
+            if (det->GetIdentifier() != KVFAZIADetector::kCSI) {
+               eloss[ntot - ndet - 1] = det->GetEnergy();
+               if (det->GetIdentifier() == KVFAZIADetector::kSI1)   fESI1 = eloss[ntot - ndet - 1];
+               else if (det->GetIdentifier() == KVFAZIADetector::kSI2) fESI2 = eloss[ntot - ndet - 1];
+               else if (det->GetIdentifier() == KVFAZIADetector::kCSI) fECSI = eloss[ntot - ndet - 1];
+               etot += eloss[ntot - ndet - 1];
+               ndet_calib += 1;
+            }
          }
       }
       ndet += 1;
