@@ -529,6 +529,8 @@ void KVFAZIAReconNuc::Calibrate()
    Int_t ndet_calib = 0;
    Double_t etot = 0;
 
+   fESI1 = fESI2 = fECSI = 0;
+
    while (det = (KVFAZIADetector*)GetDetector(idet)) {
       // printf("Det %d of %d (%s)\n",idet,ntot,det->GetType());
       if (det->IsCalibrated()) {
@@ -577,6 +579,9 @@ void KVFAZIAReconNuc::Calibrate()
        *     cout << det->GetName() << " " <<GetZ() << " " << GetA() << " " << fESI1 << " " << fESI2 << " " << fECSI << endl;
        *     cout << ndet << " = " << ndet_calib << endl;
       }*/
+   }
+   if (GetZ() == 3) {
+      cout << ndet << " " << ndet_calib << endl;
    }
    //printf("Starting Eloss recon\n");
    if (ndet == ndet_calib) {
@@ -637,6 +642,7 @@ void KVFAZIAReconNuc::Calibrate()
          if (ndet_calib == 2) {
             if (GetZ() > 0) { //per Z=1 e Z=2 questa cosa porta a valori assurdi! Se il CSI non è calibrato per loro non prendo //b
                //by default this means Si1 and Si2 are working
+               if (GetZ() == 3) cout << "Sono entrato nel posto giusto \n";
                if (!IsAMeasured()) {
 
                   if (GetZ() == 1)       SetA(1);
