@@ -63,6 +63,10 @@ protected:
    TGLabel* fPiedLabel;
    TGComboBox* fPiedChoice;
 
+   TGHorizontalFrame* fNPointsFrame;
+   TGLabel* fNPointsLabel;
+   TGNumberEntry* fNPointsEntry;
+
    TGHorizontalFrame* fDebugFrame;
    TGCheckButton* fDebugBut;
    TGCheckButton* fCutBut;
@@ -104,6 +108,7 @@ protected:
    static Int_t    fAnglesDown;
    static Int_t    fMatrixType;
    static Int_t    fPiedType;
+   static Int_t    fNPoints;
 
    Double_t fXm;
    Double_t fYm;

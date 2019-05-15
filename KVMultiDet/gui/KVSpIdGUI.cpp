@@ -30,6 +30,7 @@ Int_t  KVSpIdGUI::fAnglesUp = 20;
 Int_t  KVSpIdGUI::fAnglesDown = 40;
 Int_t  KVSpIdGUI::fMatrixType = 0;
 Int_t  KVSpIdGUI::fPiedType = 0;
+Int_t  KVSpIdGUI::fNPoints = 50;
 
 ClassImp(KVSpIdGUI)
 
@@ -121,6 +122,14 @@ KVSpIdGUI::KVSpIdGUI(KVIDGraph* g, TH2* data_histo, Double_t xm, Double_t ym, Do
    fTypeFrame->AddFrame(fTypeLabel, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
    fTypeFrame->AddFrame(fTypeChoice, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
 
+
+   fNPointsLabel = new TGLabel(fTypeFrame, "Np : ");
+   fNPointsEntry = new TGNumberEntry(fTypeFrame, fNPoints, 4, 0,
+                                     TGNumberFormat::kNESInteger, TGNumberFormat::kNEAAnyNumber);
+
+   fTypeFrame->AddFrame(fNPointsEntry, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
+   fTypeFrame->AddFrame(fNPointsLabel, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
+
    fPiedLabel = new TGLabel(fTypeFrame, "  Piedestal   ");
 
    fPiedChoice = new TGComboBox(fTypeFrame);
@@ -132,6 +141,7 @@ KVSpIdGUI::KVSpIdGUI(KVIDGraph* g, TH2* data_histo, Double_t xm, Double_t ym, Do
 
    fTypeFrame->AddFrame(fPiedChoice, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
    fTypeFrame->AddFrame(fPiedLabel, new TGLayoutHints(kLHintsRight, 2, 2, 2, 2));
+
    fOptFrame->AddFrame(fTypeFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
 
    fDebugFrame = new TGHorizontalFrame(fOptFrame);
@@ -272,6 +282,7 @@ void KVSpIdGUI::SpiderIdentification()
    if (!fUserParameter) fSpFactor = GetFactor();
    else fSpFactor = fSpiderFactorEntry->GetNumber();
 
+   fNPoints    = fNPointsEntry->GetIntNumber();
    fAnglesUp   = fAngleUpEntry->GetIntNumber();
    fAnglesDown = fAngleDownEntry->GetIntNumber();
    fAlpha      = fApertureUpEntry->GetNumber();
@@ -366,12 +377,15 @@ void KVSpIdGUI::SpiderIdentification()
          TheLine->SetZ(spline->GetZ());
          double min, max;
          ff1->GetRange(min, max);
-         double step = TMath::Min((max - min) * 0.05, 20.); //20.;
-         double stepmax = (max - min) * 0.2; //800.;
+         max = TMath::Min(max, fHisto->GetXaxis()->GetXmax() * 0.95);
+//         double step = TMath::Min((max - min) /fNPoints, 20.); //20.;
+         double step = (max - min) / fNPoints; //20.;
+         double stepmax = 5.*step; //800.;
+
          double x = 0.;
-         for (x = min + 1; x < max + step; x += step) {
-            if (step <= stepmax) step *= 1.3;
-            if (ff1->Eval(x) < 4000) TheLine->SetPoint(TheLine->GetN(), x, ff1->Eval(x));
+         for (x = min + 1; x < max; x += step) {
+            if (step < stepmax) step *= 1.2;
+            TheLine->SetPoint(TheLine->GetN(), x, ff1->Eval(x));
          }
          if (max > x) TheLine->SetPoint(TheLine->GetN(), max, ff1->Eval(max));
 
