@@ -36,6 +36,7 @@ ClassImp(KVGANILDataReader)
 KVGANILDataReader* runfile = new KVGANILDataReader("run1.dat");
 TFile* file = new TFile("run1.root","recreate");
 TTree* T = new TTree("Run1", "Raw data for Run1");
+runfile->ConnectRawDataParameters();
 runfile->SetUserTree(T);
 while( runfile->GetNextEvent() ) ;
 file->Write();
@@ -300,7 +301,9 @@ void KVGANILDataReader::OpenFile(const Char_t* file, Option_t* dataset)
 void KVGANILDataReader::ConnectRawDataParameters(const TSeqCollection* list_acq_params)
 {
    //Call this method in order to initialise links between data in file and KVACQParam
-   //objects associated with detectors.
+   //objects associated with detectors if defined. Call with no argument in order to
+   //generate all required KVACQParam objects corresponding to parameters in file
+   //(case where no KVMultiDetArray is defined).
    //
    //fParameters is filled with a KVACQParam for every acquisition parameter in the file.
    //The list contains all KVACQParams defined for the detectors of a multidetector array.
@@ -333,7 +336,7 @@ KVACQParam* KVGANILDataReader::CheckACQParam(const TSeqCollection* list_acq_para
    //If none is found, we create a new acq param which is added to the list of "unknown parameters"
 
    KVACQParam* par;
-   if (!(par = (KVACQParam*)list_acq_params->FindObject(par_name))) {
+   if (!list_acq_params || !(par = (KVACQParam*)list_acq_params->FindObject(par_name))) {
       //create new unknown parameter
       par = new KVACQParam;
       par->SetName(par_name);

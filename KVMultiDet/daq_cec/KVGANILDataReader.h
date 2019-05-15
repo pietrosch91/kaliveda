@@ -37,7 +37,7 @@ public:
    }
    KVGANILDataReader(const Char_t*, Option_t*);
    void OpenFile(const Char_t*, Option_t* dataset);
-   void ConnectRawDataParameters(const TSeqCollection* list_acq_params);
+   void ConnectRawDataParameters(const TSeqCollection* list_acq_params = nullptr);
    virtual ~KVGANILDataReader();
 
    void init();
