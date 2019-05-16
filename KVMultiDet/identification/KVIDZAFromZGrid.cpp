@@ -81,6 +81,7 @@ KVIDZAFromZGrid::KVIDZAFromZGrid()
    init();
    fTables.SetOwner(kTRUE);
    SetOnlyZId();
+//   fHasMassCut = kFALSE;
 }
 
 KVIDZAFromZGrid::~KVIDZAFromZGrid()
@@ -115,10 +116,10 @@ void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
 //   }
 
    fPIDRange = kFALSE;
-   fHasMassCut = kFALSE;
+//   fHasMassCut = kFALSE;
    KVIDGraph::ReadFromAsciiFile(gridfile);
 
-   if (GetIdentifier("MassID")) fHasMassCut = kTRUE;
+//   if (GetIdentifier("MassID")) fHasMassCut = kTRUE;
 
    if (GetParameters()->HasParameter("PIDRANGE")) {
       fPIDRange = kTRUE;
@@ -309,7 +310,7 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
    bool isotopic_identification_failure = have_pid_range_for_Z && outside_pid_range_for_Z;
 
    if (((idr->IDOK) && isotopic_identification_possible)
-         && ((!fHasMassCut) || (fHasMassCut && GetIdentifier("MassID")->IsInside(x, y)))) {
+         && ((!GetIdentifier("MassID")) || (GetIdentifier("MassID") && GetIdentifier("MassID")->IsInside(x, y)))) {
       //Info("Identify","Z=%d try mass ID..",idr->Z);
       const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr); // IDQuality and comments assigned here
       //Info("Identify","idr->IDquality=%d",idr->IDquality);

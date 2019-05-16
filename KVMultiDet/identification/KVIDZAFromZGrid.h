@@ -29,7 +29,7 @@ public:
    Int_t  fZmaxInt;
    Bool_t fPIDRange;
    Int_t  fZminInt;
-   Bool_t fHasMassCut;
+//   Bool_t fHasMassCut;
    KVList fTables;
 
 public:
