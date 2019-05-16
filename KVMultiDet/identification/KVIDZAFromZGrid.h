@@ -13,6 +13,8 @@ class interval;
 class interval_set;
 
 class KVIDZAFromZGrid : public KVIDZAGrid {
+protected:
+   int is_inside(double pid);
 public:
    enum PIDType {
       kNone,
@@ -52,9 +54,6 @@ public:
    void ClearPIDIntervals();
 
    void Initialize();
-protected:
-   int is_inside(double pid);
-
 
    ClassDef(KVIDZAFromZGrid, 1) //Compute Z and A only from Z lines...
 };
@@ -152,7 +151,7 @@ public:
    {
       return &fIntervals;
    }
-   const char* GetListOfMasses();
+   TString GetListOfMasses();
 
    interval_set(int zz, int type);
    void   add(int aa, double pid, double pidmin = -1., double pidmax = -1.);

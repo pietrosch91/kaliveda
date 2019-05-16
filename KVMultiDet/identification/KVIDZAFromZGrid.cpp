@@ -301,11 +301,18 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
    idr->Z = Zint;
    idr->PID = Z;
    idr->Aident = kFALSE;
+   //Info("Identify","quality=%d z=%d is_inside=%d",fICode,idr->Z,const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z));
 
-   if ((fPIDRange && (idr->IDOK) && (idr->Z <= fZmaxInt) && (idr->Z > fZminInt - 1) && (const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z)))
+   bool have_pid_range_for_Z = fPIDRange && (idr->Z <= fZmaxInt) && (idr->Z > fZminInt - 1);
+   bool outside_pid_range_for_Z = have_pid_range_for_Z && !(const_cast < KVIDZAFromZGrid* >(this)->is_inside(Z));
+   bool isotopic_identification_possible = have_pid_range_for_Z && !outside_pid_range_for_Z;
+   bool isotopic_identification_failure = have_pid_range_for_Z && outside_pid_range_for_Z;
+
+   if (((idr->IDOK) && isotopic_identification_possible)
          && ((!fHasMassCut) || (fHasMassCut && GetIdentifier("MassID")->IsInside(x, y)))) {
-//       Info("Identify","try mass ID..");
+      //Info("Identify","Z=%d try mass ID..",idr->Z);
       const_cast < KVIDZAFromZGrid* >(this)->DeduceAfromPID(idr); // IDQuality and comments assigned here
+      //Info("Identify","idr->IDquality=%d",idr->IDquality);
       if (idr->IDquality < kICODE4) { // should always be true: to be verified...
          if (const_cast < KVIDZAFromZGrid* >(this)->GetIntervalSet(idr->Z)->GetNPID() > 1) idr->Aident = kTRUE;
          idr->IDOK = kTRUE;
@@ -313,6 +320,12 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
       else if (idr->IDquality == kICODE4) idr->IDquality = kICODE3;
    }
    else {
+      if (isotopic_identification_failure) {
+         // failed isotopic identification - change code
+         const_cast<KVIDZAFromZGrid*>(this)->fICode = kICODE4;
+         idr->IDOK = false;
+         idr->IDquality = fICode;
+      }
       switch (fICode) {
          case kICODE0:
             idr->SetComment("ok");
@@ -348,6 +361,7 @@ void KVIDZAFromZGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* i
 double KVIDZAFromZGrid::DeduceAfromPID(KVIdentificationResult* idr)
 {
    int zint = is_inside(idr->PID);
+   //Info("DeduceAfromPID","zint=%d",zint);
    if (zint != idr->Z) idr->Z = zint;
 
    double res = 0.;
@@ -366,17 +380,20 @@ double interval_set::eval(KVIdentificationResult* idr)
    int ares = 0;
 
    if (fType == KVIDZAFromZGrid::kIntType) {
+      //Info("eval","IntType");
       for (int ii = 0; ii < fNPIDs; ii++) {
          if (((interval*)fIntervals.At(ii))->is_inside(pid)) {
             ares = ((interval*)fIntervals.At(ii))->GetA();
             break;
          }
       }
+      //Info("eval","ares=%d",ares);
       if (ares != 0) {
          idr->A = ares;
          idr->PID = res;
          idr->IDquality = KVIDZAGrid::kICODE0;
          idr->SetComment("ok");
+         //Info("eval","quality=0");
       }
       else {
          ares = TMath::Nint(res);
@@ -384,23 +401,28 @@ double interval_set::eval(KVIdentificationResult* idr)
          idr->PID = res;
          if (pid > ((interval*)fIntervals.At(0))->GetPIDmin() && pid < ((interval*)fIntervals.At(fNPIDs - 1))->GetPIDmax()) {
             idr->IDquality = KVIDZAGrid::kICODE3;
+            //Info("eval","quality=3");
             idr->SetComment("slight ambiguity of A, which could be larger or smaller");
          }
          else {
             idr->IDquality = KVIDZAGrid::kICODE4;
             idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
+            //Info("eval","quality=4");
          }
       }
    }
    else {
+      //Info("eval","fType=%d",fType);
       ares = TMath::Nint(res);
       idr->A = ares;
       idr->PID = res;
       if (ares > fPIDs.GetX()[0] && ares < fPIDs.GetX()[fNPIDs - 1]) {
          idr->IDquality = KVIDZAGrid::kICODE0;
+         Info("eval", "quality=0");
          idr->SetComment("ok");
       }
       else {
+         //Info("eval","quality=4");
          idr->IDquality = KVIDZAGrid::kICODE4;
          idr->SetComment("point out of mass identification intervals, strong ambiguity of A");
       }
@@ -427,7 +449,7 @@ bool interval_set::is_above(double pid)
 }
 
 
-const char* interval_set::GetListOfMasses()
+TString interval_set::GetListOfMasses()
 {
    if (!GetNPID()) return "-";
    KVNumberList alist;
