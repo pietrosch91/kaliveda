@@ -1243,7 +1243,7 @@ void KVIDGraph::TestIdentification(TH2F* data, TH1F* id_real,
    Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
    Int_t percent = 0, cumul = 0;
-   Bool_t zaMap = (!IsOnlyZId()) && (z_a_real);
+   Bool_t zaMap = /*(!IsOnlyZId()) &&*/ (z_a_real);
 
    //loop over data in histo
    for (int i = 1; i <= data->GetNbinsX(); i++) {

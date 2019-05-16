@@ -74,7 +74,7 @@ protected:
       // (given by GetQualityCode()).
       // For a general (Z,A) grid we only include particles with GetQualityCode() < 4 as being "well-identified"
       return (fICode < kICODE4);
-   };
+   }
 
 public:
    KVIDZAGrid();

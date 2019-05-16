@@ -324,9 +324,10 @@ void KVTestIDGridDialog::TestGrid()
       new TH2F(fNameZvsE.Data(), "PID vs. E_{res}", hzvsexbins, hzvsexmin,
                hzvsexmax, hzvseybins, hzvseymin, hzvseymax);
 
-   // A vs Z map in caze of !IsOnlyZId()
+   // A vs Z map in case of mass identification
    TH2F* hazreal = 0;
-   if (!fSelectedGrid->IsOnlyZId()) hazreal = new TH2F("AZMap", "Z vs. A", 30 * (hnmax - hnmin + 0.5), hnmin - 0.5, hnmax + 1, 30 * (hzrealxmax - hzrealxmin + 1), hzrealxmin - 1, hzrealxmax + 1);
+   if (!fSelectedGrid->IsOnlyZId() || fSelectedGrid->InheritsFrom("KVIDZAFromZGrid")) // WARNING: KLUDGE!!!
+      hazreal = new TH2F("AZMap", "Z vs. A", 30 * (hnmax - hnmin + 0.5), hnmin - 0.5, hnmax + 1, 30 * (hzrealxmax - hzrealxmin + 1), hzrealxmin - 1, hzrealxmax + 1);
 
    //progress bar set up
    fProgressBar->SetRange(0, hdata->GetSum());

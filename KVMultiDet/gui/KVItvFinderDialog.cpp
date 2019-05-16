@@ -659,7 +659,7 @@ void KVItvFinderDialog::UpdateLists()
 
 void KVItvFinderDialog::TestIdent()
 {
-   fGrid->SetOnlyZId(0);
+   //fGrid->SetOnlyZId(0);
    fGrid->Initialize();
    ExportToGrid();
 
