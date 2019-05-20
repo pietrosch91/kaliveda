@@ -72,6 +72,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
       const char* xpms[] = {
          "filesaveas.xpm",
          "ed_new.png",
+         "bld_copy.png",
          "sm_delete.xpm",
          "profile_t.xpm",
          "refresh2.xpm",
@@ -84,6 +85,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
       const char* tips[] = {
          "Save intervals in current grid",
          "Create a new interval",
+         "Create a new interval set",
          "Remove selected intervals",
          "Find intervals",
          "Update list views",
@@ -99,6 +101,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
          0,
          0,
          0,
+         0,
          280,
          0,
          0
@@ -106,6 +109,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
       const char* method[] = {
          "SaveGrid()",
          "NewInterval()",
+         "NewIntervalSet()",
          "RemoveInterval()",
          "Identify()",
          "UpdateLists()",
@@ -532,6 +536,14 @@ void KVItvFinderDialog::NewInterval()
 
    fCanvas->Modified();
    fCanvas->Update();
+}
+
+void KVItvFinderDialog::NewIntervalSet()
+{
+   if (fGrid->GetIntervalSets()->GetSize() == 0) fNextIntervalZ = 1;
+   else fNextIntervalZ = ((interval_set*)fGrid->GetIntervalSets()->Last())->GetZ() + 1;
+//   KVBase::OpenContextMenu("SetNextIntervalZ()",this);
+   fGrid->GetIntervalSets()->Add(new interval_set(fNextIntervalZ, KVIDZAFromZGrid::kIntType));
 }
 
 void KVItvFinderDialog::RemoveInterval()

@@ -727,8 +727,8 @@ void KVIDGraph::Draw(Option_t*)
    // connect canvas' Closed() signal to KVIDGraph::ResetPad so that if the
    // canvas GUI is closed (thereby deleting the fPad object), we reset fPad
    // and do not try to Undraw in a non-existent canvas
-   fPad->Connect("Closed()",  "KVIDGraph", this, "ResetPad()");
-   if (fPad->GetCanvas()) fPad->GetCanvas()->Connect("Cleared(TVirtualPad*)", "KVIDGraph", this, "ClearPad(TVirtualPad*)");
+//   fPad->Connect("Closed()",  "KVIDGraph", this, "ResetPad()");
+//   if (fPad->GetCanvas()) fPad->GetCanvas()->Connect("Cleared(TVirtualPad*)", "KVIDGraph", this, "ClearPad(TVirtualPad*)");
 }
 
 //_______________________________________________________________________________________________//
@@ -740,26 +740,26 @@ void KVIDGraph::UnDraw()
    //gPad->GetListOfPrimitives()->Remove() as long as gPad->GetListOfPrimitives()->FindObject()
    //returns kTRUE for each identifier.
 
-   if (!fPad) {
-      Error("UnDraw", "Cannot undraw, no pad stored ??");
-      return;
-   }
-   TIter next_id(fIdentifiers);
-   KVIDentifier* line;
-   //remove the rest of the lines
-   while ((line = (KVIDentifier*) next_id())) {
-      while (fPad->GetListOfPrimitives()->FindObject(line))
-         fPad->GetListOfPrimitives()->Remove(line);
-   }
-   TIter next_ok(fCuts);
-   while ((line = (KVIDentifier*) next_ok())) {
-      while (fPad->GetListOfPrimitives()->FindObject(line))
-         fPad->GetListOfPrimitives()->Remove(line);
-   }
-   fPad->Modified();
-   fPad->Update();
-   fPad->Disconnect("Closed()", this, "ResetPad()");
-   if (fPad->GetCanvas()) fPad->GetCanvas()->Disconnect("Cleared(TVirtualPad*)", this, "ClearPad(TVirtualPad*)");
+//   if (!fPad) {
+//      Error("UnDraw", "Cannot undraw, no pad stored ??");
+//      return;
+//   }
+//   TIter next_id(fIdentifiers);
+//   KVIDentifier* line;
+//   //remove the rest of the lines
+//   while ((line = (KVIDentifier*) next_id())) {
+//      while (fPad->GetListOfPrimitives()->FindObject(line))
+//         fPad->GetListOfPrimitives()->Remove(line);
+//   }
+//   TIter next_ok(fCuts);
+//   while ((line = (KVIDentifier*) next_ok())) {
+//      while (fPad->GetListOfPrimitives()->FindObject(line))
+//         fPad->GetListOfPrimitives()->Remove(line);
+//   }
+//   fPad->Modified();
+//   fPad->Update();
+//   fPad->Disconnect("Closed()", this, "ResetPad()");
+//   if (fPad->GetCanvas()) fPad->GetCanvas()->Disconnect("Cleared(TVirtualPad*)", this, "ClearPad(TVirtualPad*)");
    fPad = 0;
 }
 

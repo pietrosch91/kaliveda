@@ -79,6 +79,8 @@ public:
    TList     fFunc;
    Int_t     fNpeaks[30];
 
+   Int_t fNextIntervalZ;
+
    Double_t fSig, fRat;
 
 
@@ -86,6 +88,14 @@ public:
    KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh);
    virtual ~KVItvFinderDialog();
 
+   int  GetNextIntevalZ()
+   {
+      return fNextIntervalZ;
+   }
+   void SetNextIntevalZ(int zz)
+   {
+      fNextIntervalZ = zz;
+   }
 
    void DisplayPIDint();
    void SelectionITVChanged();
@@ -108,6 +118,7 @@ public:
    void SaveGrid();//{fGrid->GetIntervalSets()->ls(); fGrid->GetParameters()->ls();}
    void ExportToGrid();
    void NewInterval();//{Info("NewInterval","Not yet implemented");}
+   void NewIntervalSet();//{Info("NewIntervalSet","Not yet implemented");}
    void RemoveInterval();//{Info("RemoveInterval","Not yet implemented");}
    void MassesUp();//{Info("ChangeMasses","Not yet implemented");}
    void MassesDown();//{Info("ChangeMasses","Not yet implemented");}
