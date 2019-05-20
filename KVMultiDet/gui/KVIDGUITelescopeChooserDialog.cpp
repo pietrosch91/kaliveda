@@ -38,6 +38,9 @@ KVIDGUITelescopeChooserDialog::KVIDGUITelescopeChooserDialog(KVMultiDetArray* MD
 
    fSelection = selection;
    fMultiDet = MDA;
+
+   if (!MDA) return;
+
    fCancelPress = cancel_pressed;
    *fCancelPress = kTRUE;
 
