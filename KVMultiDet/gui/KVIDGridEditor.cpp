@@ -484,14 +484,17 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
    //   - all open files
    //   - all canvases
    //   - any instance of KVTreeAnalyzer
+   // The list is sorted lexographically
 
-   TString HistosNames = "";
+   KVString HistosNames = "";
+   KVList histos;
 
    // histos in memory
    TIter nextmem(gROOT->GetList());
    TObject* obj;
    while ((obj = nextmem())) {
-      if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
+      //if (obj->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
+      if (obj->InheritsFrom("TH2")) histos.Add(new TObjString(obj->GetName()));
    }
 
    // histos in files
@@ -502,6 +505,12 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
       if (!strcmp(gSystem->BaseName(f->GetName()), "DataBase.root")) continue;
       RecurseFileStructureFindHistos(HistosNames, f);
    }
+   HistosNames.Begin(" ");
+   while (!HistosNames.End()) {
+      KVString g = HistosNames.Next();
+      if (g != "gIDGridEditorDefaultHistogram") histos.Add(new TObjString(g.Data()));
+   }
+   HistosNames = "";
 
    // histos in canvases
    TIter nextc(gROOT->GetListOfCanvases());
@@ -519,12 +528,14 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
                while ((obj2 = next_step2())) {
                   printf("%s\n", obj2->GetName());
                   if (obj2->InheritsFrom("TH2")) {
-                     HistosNames += Form(" %s", obj2->GetName());
+                     //HistosNames += Form(" %s", obj2->GetName());
+                     histos.Add(new TObjString(obj2->GetName()));
                   }
                }
             }
             else if (obj1->InheritsFrom("TH2")) {
-               HistosNames += Form(" %s", ((TH2*)obj1)->GetName());
+               //HistosNames += Form(" %s", ((TH2*)obj1)->GetName());
+               histos.Add(new TObjString(obj1->GetName()));
             }
          }
       }
@@ -536,10 +547,24 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
       TIter nexthist(gTreeAnalyzer->GetHistoList());
       KVHistogram* obj = 0;
       while ((obj = (KVHistogram*)nexthist())) {
-         if (obj->IsType("Histo") && obj->GetHisto()->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
+         if (obj->IsType("Histo") && obj->GetHisto()->InheritsFrom("TH2")) {
+            //HistosNames += Form(" %s", obj->GetName());
+            histos.Add(new TObjString(obj->GetName()));
+         }
       }
    }
-   if (HistosNames.Contains("gIDGridEditorDefaultHistogram")) HistosNames.ReplaceAll("gIDGridEditorDefaultHistogram", "");
+   //if (HistosNames.Contains("gIDGridEditorDefaultHistogram")) HistosNames.ReplaceAll("gIDGridEditorDefaultHistogram", "");
+   TObjString* s = (TObjString*)histos.FindObject("gIDGridEditorDefaultHistogram");
+   if (s) {
+      histos.Remove(s);
+      delete s;
+   }
+   // sort list of histograms by name
+   histos.Sort();
+   TIter ith(&histos);
+   while ((s = (TObjString*)ith())) {
+      HistosNames += Form(" %s", s->GetString().Data());
+   }
 
    return HistosNames;
 }
