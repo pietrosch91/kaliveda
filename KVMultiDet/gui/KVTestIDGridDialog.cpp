@@ -497,7 +497,6 @@ void KVTestIDGridDialog::TestGrid()
       cc->SetLogz();
       adist_aident->Draw("col");
 
-      gStyle->SetOptTitle(1);
       // show results in canvas
       cc = new KVCanvas;
       cc->SetTitle("AIDENT Quality Code Maps");
@@ -536,7 +535,6 @@ void KVTestIDGridDialog::TestGrid()
    hzvse->SetStats(kFALSE);
    hzvse->Draw("zcol");
 
-   gStyle->SetOptTitle(1);
    // show results in canvas
    TCanvas* cc = new TCanvas;
    cc->SetTitle("ZIDENT Quality Code Maps");
