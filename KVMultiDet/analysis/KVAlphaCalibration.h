@@ -24,6 +24,7 @@ $Author: lemarie $
 #include <iostream>
 #include <limits>
 
+
 class KVAlphaCalibration {
 
 protected :
@@ -38,6 +39,8 @@ protected :
    std::vector<double> PeakFitResultsError; //Array that contains the error of the results of the final fit
    std::vector<double> PeakFitResultsErrorTemp;
    double FunctionToFit(double* x, double* par); //the model we use to fit the peak
+   std::vector<double> PeakSpectrum;
+
 
 private :
    TH1* histo; //histogram that contains the data to fit. Set by user
