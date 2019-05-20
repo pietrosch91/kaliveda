@@ -333,6 +333,7 @@ void KVAlphaCalibration::FitLinear(bool debug_)
       PeakSpectrum.push_back(xpos[i]);
    }
 
+   std::sort(PeakSpectrum.begin(), PeakSpectrum.end());
    std::sort(PeakMean.begin(), PeakMean.end());
    std::sort(PeakNorm.begin(), PeakNorm.end());
 
