@@ -558,11 +558,11 @@ void KVIDGridManagerGUI::UpdateListOfGrids()
    UpdateTabs();
    //  cout << "DEBUG: KVIDGridManagerGUI::UpdateListOfGrids(): tabs has been updated !" << endl;
    //update all canvases
-   TSeqCollection* Clist = gROOT->GetListOfCanvases();
-   if (Clist && Clist->GetEntries()) {
-      Clist->R__FOR_EACH(TCanvas, Modified)();
-      Clist->R__FOR_EACH(TCanvas, Update)();
-   }
+//   TSeqCollection* Clist = gROOT->GetListOfCanvases();
+//   if (Clist && Clist->GetEntries()) {
+//      Clist->R__FOR_EACH(TCanvas, Modified)();
+//      Clist->R__FOR_EACH(TCanvas, Update)();
+//   }
    //  cout << "DEBUG: KVIDGridManagerGUI::UpdateListOfGrids(): canvas has been updated !" << endl;
 }
 
@@ -1085,7 +1085,7 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
       // only one grid selected
       fTBStartEditor->SetEnabled();
       fTBCopyG->SetEnabled();
-      fTBSetIDG->SetEnabled();
+      if (gMultiDetArray) fTBSetIDG->SetEnabled();
    }
 }
 
