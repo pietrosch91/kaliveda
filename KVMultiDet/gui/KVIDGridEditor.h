@@ -114,6 +114,9 @@ protected:
    TString  fSpiderOption;
    Bool_t   fAutoZoomMode;
 
+   Int_t fPointStyle;
+   Double_t fPointSize;
+
 protected:
 
    Double_t GetX0();
@@ -200,6 +203,17 @@ public:
    void CanvasWasClosed();     // called when GUI is used to close the canvas
    void ForceUpdate();                 //rafraichit toute l'interface de force
    void SaveCurrentGrid();             //'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
+
+   void   SetPointStyle(int pstyle);
+   int    GetPointStyle()
+   {
+      return fPointStyle;
+   }
+   void   SetPointSize(double psize);
+   double GetPointSize()
+   {
+      return fPointSize;
+   }
 
    void SetHisto(TH2* hh);             //donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo = true);  //donne la grille a l'editeur

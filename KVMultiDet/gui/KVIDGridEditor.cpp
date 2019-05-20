@@ -56,6 +56,8 @@ KVIDGridEditor::KVIDGridEditor()
    gStyle->SetOptTitle(0);
    gROOT->ForceStyle();
 
+   fPointStyle = 20;
+   fPointSize = 0.8;
 
    gIDGridEditor = this;
 
@@ -72,6 +74,8 @@ KVIDGridEditor::KVIDGridEditor()
    AddMethod("MakeScaleX");
    AddMethod("MakeScaleY");
    AddMethod("SetSelectedColor");
+   AddMethod("SetPointStyle");
+   AddMethod("SetPointSize");
    AddMethod("SetVarXVarY");
    AddMethod("SetRunList");
    AddMethod("AddParameter");
@@ -2351,6 +2355,26 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
    else if (color == kRed) label->SetFillColor(kWhite);
 
    return;
+}
+
+void KVIDGridEditor::SetPointStyle(int pstyle)
+{
+   fPointStyle = pstyle;
+   TheGrid->GetIdentifiers()->Execute("SetMarkerStyle", Form("%d", fPointStyle));
+   //   KVList* ll = TheGrid->GetIdentifiers();
+//   for(int ii=0; ii<ll->GetSize(); ii++) ((TGraph*)ll->At(0))->SetMarkerStyle(fPointStyle);
+   fPad->Modified();
+   fPad->Update();
+}
+
+void KVIDGridEditor::SetPointSize(double psize)
+{
+   fPointSize = psize;
+   TheGrid->GetIdentifiers()->Execute("SetMarkerSize", Form("%lf", fPointSize));
+//   KVList* ll = TheGrid->GetIdentifiers();
+//   for(int ii=0; ii<ll->GetSize(); ii++) ((TGraph*)ll->At(0))->SetMarkerSize(fPointSize);
+   fPad->Modified();
+   fPad->Update();
 }
 
 void KVIDGridEditor::FindZALines()
