@@ -215,7 +215,7 @@ double KVAlphaCalibration::GetLinearFitParameter(int j)
    //Get the initialization parameter of the model.
    //0 for the slope
    //1 for the ordinate at the origin
-   if (j != 0 || j != 1) {
+   if (j != 0 && j != 1) {
       std::cerr << "ERROR in KVAlphaCalibration::GetLinerFitParameter : You asked for a wrong parameter value, it needs to be 1 or 0"
                 << std::endl
                 << "-> Ignoring command" << std::endl;
@@ -440,7 +440,7 @@ double KVAlphaCalibration::FunctionToFit(double* x, double* par)
    for (int i = 0; i < NPeak; i++) {
 
       gauss[i] = par[i + 3] / PeakMean[i] * S * TMath::Sqrt(2 * TMath::Pi())
-                 * TMath::Exp(-TMath::Power(x[0] - factor_ * PeakMean[i] - b, 2) / (2 * TMath::Power(PeakMean[i] * S, 2)));
+                 * TMath::Exp(-TMath::Power(x[0] - factor_ * PeakMean[i] - b, 2) / (2 * TMath::Power(S, 2)));
       result += gauss[i];
 
    }
