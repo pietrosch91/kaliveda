@@ -40,6 +40,8 @@ public:
 
 //   virtual void ReadAsciiFile(const Char_t* filename);
    virtual void ReadFromAsciiFile(std::ifstream& gridfile);
+   virtual void WriteToAsciiFile(std::ofstream& gridfile);
+
    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
    virtual double DeduceAfromPID(KVIdentificationResult* idr) const;
    void LoadPIDRanges();
@@ -52,6 +54,7 @@ public:
 
    void PrintPIDLimits();
    void ClearPIDIntervals();
+   void ExportToGrid();
 
    void Initialize();
 

@@ -139,6 +139,12 @@ void KVIDZAFromZGrid::ReadFromAsciiFile(std::ifstream& gridfile)
 
 }
 
+void KVIDZAFromZGrid::WriteToAsciiFile(std::ofstream& gridfile)
+{
+   ExportToGrid();
+   KVIDGraph::WriteToAsciiFile(gridfile);
+}
+
 void KVIDZAFromZGrid::LoadPIDRanges()
 {
    fZminInt = 100000;
@@ -358,6 +364,35 @@ double KVIDZAFromZGrid::DeduceAfromPID(KVIdentificationResult* idr) const
 }
 
 
+void KVIDZAFromZGrid::ExportToGrid()
+{
+   ClearPIDIntervals();
+   KVNumberList pids;
+   interval_set* itvs = 0;
+   TIter npid(GetIntervalSets());
+   while ((itvs = (interval_set*)npid())) {
+      if (!itvs->GetNPID()) continue;
+      pids.Add(itvs->GetZ());
+   }
+   GetParameters()->SetValue("PIDRANGE", pids.AsString());
+
+   itvs = 0;
+   TIter next(GetIntervalSets());
+   while ((itvs = (interval_set*)next())) {
+      if (!itvs->GetNPID()) continue;
+      KVString par = Form("PIDRANGE%d", itvs->GetZ());
+      KVString val = "";
+      interval* itv = 0;
+      TIter ni(itvs->GetIntervals());
+      while ((itv = (interval*)ni())) {
+         val += Form("%d:%lf,%lf,%lf|", itv->GetA(), itv->GetPIDmin(), itv->GetPID(), itv->GetPIDmax());
+      }
+      val.Remove(val.Length() - 1);
+      GetParameters()->SetValue(par.Data(), val.Data());
+   }
+}
+
+
 
 double interval_set::eval(KVIdentificationResult* idr)
 {
@@ -482,3 +517,6 @@ void interval_set::add(int aa, double pid, double pidmin, double pidmax)
    }
    fNPIDs++;
 }
+
+
+
