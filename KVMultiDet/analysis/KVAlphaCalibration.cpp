@@ -328,13 +328,11 @@ void KVAlphaCalibration::FitLinear(bool debug_)
 #endif
 
    PeakSpectrum.clear();
-   for (unsigned int i = 0; i < sizeof(xpos) / sizeof(xpos[0]); i++) {
+   for (unsigned int i = 0; i <= sizeof(xpos) / sizeof(xpos[0]); i++) {
 
       PeakSpectrum.push_back(xpos[i]);
-
    }
 
-   std::sort(PeakSpectrum.begin(), PeakSpectrum.end());
    std::sort(PeakMean.begin(), PeakMean.end());
    std::sort(PeakNorm.begin(), PeakNorm.end());
 
