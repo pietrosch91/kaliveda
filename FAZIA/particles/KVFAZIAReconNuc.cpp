@@ -498,10 +498,11 @@ Bool_t KVFAZIAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 //_________________________________________________________________________________
 
 void KVFAZIAReconNuc::Calibrate()
-Int_t STOPID = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
-if (STOPID == KVFAZIADetector::kSI1) CalibrateSi1();
-if (STOPID == KVFAZIADetector::kSI2) CalibrateSi2();
-if (STOPID == KVFAZIADetector::kCSI) CalibrateCsI();
+{
+   Int_t STOPID = ((KVFAZIADetector*)GetStoppingDetector())->GetIdentifier();
+   if (STOPID == KVFAZIADetector::kSI1) CalibrateSi1();
+   if (STOPID == KVFAZIADetector::kSI2) CalibrateSi2();
+   if (STOPID == KVFAZIADetector::kCSI) CalibrateCsI();
 }
 
 void KVFAZIAReconNuc::CalibrateSi1()
