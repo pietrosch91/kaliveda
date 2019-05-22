@@ -558,7 +558,7 @@ void KVFAZIAReconNuc::CalibrateSi1()
          det = (KVFAZIADetector*)GetDetector(0);
          Double_t temp = det->GetELostByParticle(&avatar);
          etot_avatar += temp;
-         chi2 += TMath::Power((eloss[ntot - 1 - nn] - temp) / eloss[ntot - 1 - nn], 2.);
+         chi2 += TMath::Power((eloss[0] - temp) / eloss[0], 2.);
          avatar.SetKE(avatar.GetKE() - temp);
          error_si1 = (fESI1 - temp) / fESI1;
 
