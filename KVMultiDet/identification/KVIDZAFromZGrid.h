@@ -13,8 +13,7 @@ class interval;
 class interval_set;
 
 class KVIDZAFromZGrid : public KVIDZAGrid {
-public:
-   int is_inside(double pid) const;
+
 public:
    enum PIDType {
       kNone,
@@ -22,23 +21,21 @@ public:
       kIntType
    };
 
-public:
-//  std::vector<interval> toto;
-
-public:
+protected:
    Int_t  fZmaxInt;
    Bool_t fPIDRange;
    Int_t  fZminInt;
    KVIDentifier* fMassCut;//!
    KVList fTables;
 
+   int is_inside(double pid) const;
+
 public:
    KVIDZAFromZGrid();
    virtual ~KVIDZAFromZGrid();
-public:
+
    void Copy(TObject& obj) const;
 
-//   virtual void ReadAsciiFile(const Char_t* filename);
    virtual void ReadFromAsciiFile(std::ifstream& gridfile);
    virtual void WriteToAsciiFile(std::ofstream& gridfile);
 

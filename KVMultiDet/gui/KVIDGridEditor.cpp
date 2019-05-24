@@ -56,7 +56,7 @@ KVIDGridEditor::KVIDGridEditor()
    gStyle->SetOptTitle(0);
    gROOT->ForceStyle();
 
-   fPointStyle = 20;
+   fPointStyle = 4;
    fPointSize = 0.8;
 
    gIDGridEditor = this;
@@ -1296,6 +1296,7 @@ void KVIDGridEditor::SelectLines(const Char_t* label)
       ListOfLines->AddAll(TheGrid->GetIdentifiers());
       ListOfLines->AddAll(TheGrid->GetCuts());
       ListOfLines->R__FOR_EACH(KVIDentifier, SetLineColor)(SelectedColor);
+      ListOfLines->R__FOR_EACH(KVIDentifier, SetMarkerColor)(SelectedColor);
       //      }
       selectmode = false;
    }
@@ -2106,8 +2107,14 @@ void KVIDGridEditor::ScaleCurvature(Int_t Sign)
 void KVIDGridEditor::ResetColor(KVIDentifier* Ident)
 {
    if (!TheGrid) return;
-   if (!(TheGrid->GetCuts()->Contains(Ident))) Ident->SetLineColor(kBlack);
-   else Ident->SetLineColor(kRed);
+   if (!(TheGrid->GetCuts()->Contains(Ident))) {
+      Ident->SetLineColor(kBlack);
+      Ident->SetMarkerColor(kBlack);
+   }
+   else {
+      Ident->SetLineColor(kRed);
+      Ident->SetMarkerColor(kRed);
+   }
    return;
 }
 
@@ -2263,6 +2270,32 @@ Bool_t KVIDGridEditor::HandleKey(Int_t, Int_t py)
          UpdateViewer();
          break;
 
+      case kKey_x:
+         ChangeZoomRatio(-1);
+         UpdateViewer();
+         break;
+
+      case kKey_y:
+         ChangeZoomRatio(1);
+         UpdateViewer();
+         break;
+
+      case kKey_m:
+         if (fPointStyle == 4) {
+            fPointStyle = 20;
+            fPointSize = 1.;
+         }
+         else {
+            fPointStyle = 4;
+            fPointSize = .8;
+         }
+         TheGrid->GetIdentifiers()->Execute("SetMarkerStyle", Form("%d", fPointStyle));
+         TheGrid->GetCuts()->Execute("SetMarkerStyle", Form("%d", fPointStyle));
+         TheGrid->GetIdentifiers()->Execute("SetMarkerSize", Form("%lf", fPointSize));
+         TheGrid->GetCuts()->Execute("SetMarkerSize", Form("%lf", fPointSize));
+         UpdateViewer();
+         break;
+
       case kKey_z:
          label = (TPaveLabel*)lplabel3->FindObject("Select");
          color = label->GetFillColor();
@@ -2281,13 +2314,21 @@ Bool_t KVIDGridEditor::HandleKey(Int_t, Int_t py)
          venermode = !venermode;
          break;
 
-      case kKey_c:
-         SetLogz();
-         UpdateViewer();
+      case kKey_Plus:
+         if (TheHisto) {
+            TheHisto->SetMinimum(TheHisto->GetMinimum() + 1);
+            UpdateViewer();
+         }
+         break;
+      case kKey_Minus:
+         if (TheHisto) {
+            TheHisto->SetMinimum(TMath::Max(0, (int)TheHisto->GetMinimum() - 1));
+            UpdateViewer();
+         }
          break;
 
-      case kKey_x:
-         Unzoom();
+      case kKey_c:
+         SetLogz();
          UpdateViewer();
          break;
 
@@ -2345,6 +2386,24 @@ void KVIDGridEditor::MoveHor(Int_t sign)
 }
 
 //________________________________________________________________
+void KVIDGridEditor::ChangeZoomRatio(Int_t sign)
+{
+   if (!TheHisto) return;
+
+   TAxis* axis = 0;
+   if (sign < 0) axis = TheHisto->GetXaxis();
+   else       axis = TheHisto->GetYaxis();
+
+   Int_t XX1 = axis->GetFirst();
+   Int_t XX2 = axis->GetLast();
+
+   Int_t dX = (Int_t) - 1 * (XX1 - XX2) * 0.1;
+
+   axis->SetRange(XX1 + dX, XX2 - dX);
+   UpdateViewer();
+}
+
+//________________________________________________________________
 void KVIDGridEditor::MoveVert(Int_t sign)
 {
    if (!TheHisto) return;
@@ -2386,8 +2445,7 @@ void KVIDGridEditor::SetPointStyle(int pstyle)
 {
    fPointStyle = pstyle;
    TheGrid->GetIdentifiers()->Execute("SetMarkerStyle", Form("%d", fPointStyle));
-   //   KVList* ll = TheGrid->GetIdentifiers();
-//   for(int ii=0; ii<ll->GetSize(); ii++) ((TGraph*)ll->At(0))->SetMarkerStyle(fPointStyle);
+   TheGrid->GetCuts()->Execute("SetMarkerStyle", Form("%d", fPointStyle));
    fPad->Modified();
    fPad->Update();
 }
@@ -2396,8 +2454,7 @@ void KVIDGridEditor::SetPointSize(double psize)
 {
    fPointSize = psize;
    TheGrid->GetIdentifiers()->Execute("SetMarkerSize", Form("%lf", fPointSize));
-//   KVList* ll = TheGrid->GetIdentifiers();
-//   for(int ii=0; ii<ll->GetSize(); ii++) ((TGraph*)ll->At(0))->SetMarkerSize(fPointSize);
+   TheGrid->GetCuts()->Execute("SetMarkerSize", Form("%lf", fPointSize));
    fPad->Modified();
    fPad->Update();
 }

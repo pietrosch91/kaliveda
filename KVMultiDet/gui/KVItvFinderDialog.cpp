@@ -220,7 +220,7 @@ KVItvFinderDialog::KVItvFinderDialog(KVIDZAFromZGrid* gg, TH2* hh)//:fSpectrum(7
    fCustomView->Display(((KVIDZAFromZGrid*)fGrid)->GetIntervalSets());
    fPad->cd();
 
-   LinearizeHisto(60);
+   LinearizeHisto(100);
    fLinearHisto->SetLineColor(kBlack);
    fLinearHisto->SetFillColor(kGreen + 1);
    fLinearHisto->Draw("hist");

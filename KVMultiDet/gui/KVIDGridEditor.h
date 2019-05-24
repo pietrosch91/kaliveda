@@ -189,6 +189,7 @@ protected:
    TH2* FindInCanvases(const Char_t* name);
    void RecurseFileStructureFindHistos(TString& hist_names, TDirectory* the_directory);
 
+   void ChangeZoomRatio(Int_t sign);
 public:
 
    KVIDGridEditor();
