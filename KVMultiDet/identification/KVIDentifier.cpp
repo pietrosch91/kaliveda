@@ -446,9 +446,9 @@ Int_t KVIDentifier::InsertPoint()
    //Ajout du nouveau point
    SetPoint(ifound, newX, newY);
 
-   Print("");
+//   Print("");
 
-   gPad->Modified();
+   if (gPad) gPad->Modified();
 
    return ifound;
 }
@@ -569,6 +569,78 @@ Int_t KVIDentifier::RemoveFirstPoint()
    return fNpoints - 1;
 
 }
+
+//______________________________________________________________________________
+Int_t KVIDentifier::RemoveLastPoint()
+{
+   // Remove the first point
+   // The KVIDentifier has to have at least 2 points
+   if (!GetEditable()) return -2;
+   if (fNpoints < 2) return -3;
+
+   RemovePoint(GetN() - 1);
+   gPad->Modified();
+   return fNpoints - 1;
+}
+
+Int_t KVIDentifier::IncreaseNumberOfPoints()
+{
+   if (!GetEditable()) return -2;
+   if (fNpoints < 2) return -1;
+
+   Int_t nNpoints = (fNpoints - 1) * 2 + 1;
+   Double_t* nX = new Double_t[nNpoints];
+   Double_t* nY = new Double_t[nNpoints];
+
+   for (int ii = 0; ii < nNpoints; ii++) {
+      if (!(ii % 2)) {
+         nX[ii] = fX[ii / 2];
+         nY[ii] = fY[ii / 2];
+      }
+      else {
+         nX[ii] = 0.5 * (fX[(ii - 1) / 2] + fX[(ii + 1) / 2]);
+         nY[ii] = Eval(nX[ii], 0, "S");
+      }
+   }
+
+   Set(0);
+   for (int ii = 0; ii < nNpoints; ii++) SetPoint(ii, nX[ii], nY[ii]);
+
+   delete[] nX;
+   delete[] nY;
+
+   if (gPad) gPad->Modified();
+
+   return fNpoints;
+}
+
+//Int_t KVIDentifier::DecreaseNumberOfPoints()
+//{
+//   if (!GetEditable()) return -2;
+//   if(fNpoints<2) return -1;
+
+//   Int_t nNpoints = (fNpoints%2)?(fNpoints/2):((fNpoints+1)/2);
+//   Double_t *nX = new Double_t[nNpoints-1];
+//   Double_t *nY = new Double_t[nNpoints-1];
+
+//   nX[0] = fX[0];
+//   nY[0] = fY[0];
+
+//   for(int ii=1; ii<nNpoints-1; ii++) {
+//      nX[ii] = fX[ii*2];
+//      nY[ii] = fY[ii*2];
+//   }
+
+//   Set(0);
+//   for(int ii=0; ii<nNpoints; ii++) SetPoint(ii,nX[ii],nY[ii]);
+
+//   delete[] nX;
+//   delete[] nY;
+
+//   if(gPad) gPad->Modified();
+
+//   return fNpoints;
+//}
 
 //______________________________________________________________________________
 Double_t KVIDentifier::GetPID() const
