@@ -144,6 +144,7 @@ public:
    static KVExpDB* MakeDataBase(const Char_t* name, const Char_t* datasetdir);
 
    ULong64_t GetTotalEvents(int first_run, int last_run = -1) const;
+   ULong64_t GetTotalEvents(const KVString& system) const;
 
    ClassDef(KVExpDB, 2) //base class to describe database of an experiment
 };

@@ -417,6 +417,23 @@ ULong64_t KVExpDB::GetTotalEvents(int first_run, int last_run) const
    return total;
 }
 
+ULong64_t KVExpDB::GetTotalEvents(const KVString& system) const
+{
+   // Return total number of events for given system
+
+   if (!GetSystem(system)) {
+      Error("GetTotalEvents", "No system with name : %s", system.Data());
+      return 0;
+   }
+   TIter it(GetSystem(system)->GetRuns());
+   ULong64_t total = 0;
+   KVDBRun* dbr;
+   while ((dbr = (KVDBRun*)it())) {
+      total += dbr->GetEvents();
+   }
+   return total;
+}
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVExpDB::GetDBEnv(const Char_t* type) const
