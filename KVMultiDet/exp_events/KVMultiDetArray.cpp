@@ -1454,7 +1454,8 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
       if (dbps->HasParameter("CalibClass")) {
 
          KVNameValueList class_options;
-         KVString clop = dbps->GetStringParameter("CalibOptions");
+         KVString clop;
+         if (dbps->HasParameter("CalibOptions")) clop = dbps->GetStringParameter("CalibOptions");
          if (clop != "") {
             clop.Begin(",");
             while (!clop.End()) {
@@ -1608,9 +1609,8 @@ void KVMultiDetArray::AnalyseGroupAndReconstructEvent(KVReconstructedEvent* rece
    // and working inwards. Calls KVReconstructedEvent::AnalyseDetectors
 
    for (Int_t il = grp->GetNumberOfDetectorLayers(); il > 0; il--) {
-      TList* dets = grp->GetDetectorsInLayer(il);
-      recev->AnalyseDetectors(dets);
-      delete dets;
+      unique_ptr<TList> dets(grp->GetDetectorsInLayer(il));
+      recev->AnalyseDetectors(dets.get());
    }
    //perform first-order coherency analysis (set fAnalStatus for each particle)
    KVReconstructedNucleus::AnalyseParticlesInGroup(grp);
@@ -3300,7 +3300,8 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
       }
    }
 
-   KVString clop = options.GetStringValue("CalibOptions");
+   KVString clop;
+   if (options.HasParameter("CalibOptions")) clop = options.GetStringValue("CalibOptions");
 
    KVNumberList run_list = db->GetRunList();
    if (options.GetTStringValue("RunList") != "")

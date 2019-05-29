@@ -296,7 +296,7 @@ void KVGeoDetectorNode::BuildTrajectoriesForwards(TSeqCollection* list)
    if (!GetNDetsInFront()) return;
 
    nextT.Reset();
-   TList* newTrajectories = new TList;
+   TList newTrajectories;
    while ((traj = (KVGeoDNTrajectory*)nextT())) {
       KVGeoDNTrajectory baseTraj(*traj);
       // for each trajectory in list
@@ -312,14 +312,13 @@ void KVGeoDetectorNode::BuildTrajectoriesForwards(TSeqCollection* list)
          if (node_num == 1) node->BuildTrajectoriesForwards(list);
          else {
             KVGeoDNTrajectory* newTraj = new KVGeoDNTrajectory(baseTraj);
-            newTrajectories->Add(newTraj);
-            node->BuildTrajectoriesForwards(newTrajectories);
+            newTrajectories.Add(newTraj);
+            node->BuildTrajectoriesForwards(&newTrajectories);
          }
          node_num++;
       }
    }
-   if (newTrajectories->GetEntries()) {
-      list->AddAll(newTrajectories);
+   if (newTrajectories.GetEntries()) {
+      list->AddAll(&newTrajectories);
    }
-   delete newTrajectories;
 }

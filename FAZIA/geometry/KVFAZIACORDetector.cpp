@@ -45,53 +45,16 @@ KVFAZIACORDetector::~KVFAZIACORDetector()
 //________________________________________________________________
 void KVFAZIACORDetector::SetCalibrators()
 {
-   //Set up calibrators for this detector. Call once name has been set.
-   //test to check that there is not already defined calibrators
-   //
+   // Change CSI calibrator to KVLightEnergyCsI
+
    if (GetListOfCalibrators())
       return;
 
-   TString sf = "";
+   KVFAZIADetector::SetCalibrators();
 
    if (fIdentifier == kCSI) {
-      fChannelToEnergy = new KVLightEnergyCsI(this);
-      fChannelToEnergy->SetName(GetName());
-      fChannelToEnergy->SetType("Channel-Energy");
-
+      KVCalibrator* fzcal = new KVLightEnergyCsI(this);
+      fzcal->SetType("Channel-Energy");
+      if (!ReplaceCalibrator("Channel-Energy", fzcal)) delete fzcal;
    }
-   else {
-      fChannelToEnergy = new KVFAZIACalibrator(GetName(), "Channel-Energy");
-      fChannelToEnergy->SetDetector(this);
-      sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Energy", "");
-      if (sf == "") {
-         Warning("SetCalibrators", "No formula defined for Calibration Channel-Energy");
-      }
-      else {
-         ((KVFAZIACalibrator*)fChannelToEnergy)->SetFunction(sf.Data());
-      }
-   }
-
-   fChannelToVolt = new KVFAZIACalibrator(GetName(), "Channel-Volt");
-   fChannelToVolt->SetDetector(this);
-   sf = gEnv->GetValue("FAZIADetector.Calib.Channel-Volt", "");
-   if (sf == "") {
-      Warning("SetCalibrators", "No formula defined for Calibration Channel-Volt");
-   }
-   else {
-      ((KVFAZIACalibrator*)fChannelToVolt)->SetFunction(sf.Data());
-   }
-
-   fVoltToEnergy = new KVFAZIACalibrator(GetName(), "Volt-Energy");
-   fVoltToEnergy->SetDetector(this);
-   sf = gEnv->GetValue("FAZIADetector.Calib.Volt-Energy", "");
-   if (sf == "") {
-      Warning("SetCalibrators", "No formula defined for Calibration Volt-Energy");
-   }
-   else {
-      ((KVFAZIACalibrator*)fVoltToEnergy)->SetFunction(sf.Data());
-   }
-
-   AddCalibrator(fChannelToEnergy);
-   AddCalibrator(fChannelToVolt);
-   AddCalibrator(fVoltToEnergy);
 }

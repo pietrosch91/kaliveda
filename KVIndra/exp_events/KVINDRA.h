@@ -70,6 +70,13 @@ public:
 
 private:
    UChar_t fTrigger;           //multiplicity trigger used for acquisition
+   KVList fOwnedACQParams;     //! to clean up acquisition parameters belonging to the array, not to detectors
+
+   void AddArrayACQParam(KVACQParam* p)
+   {
+      fOwnedACQParams.Add(p);
+      AddACQParam(p);
+   }
 
 protected:
    KVHashList* fChIo;              //->List Of ChIo of INDRA

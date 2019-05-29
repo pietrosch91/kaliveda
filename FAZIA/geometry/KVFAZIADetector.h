@@ -441,6 +441,7 @@ public:
    Double_t GetSetupParameter(const Char_t* parname);
 
    void RefreshCalibratorPointers();
+   Bool_t AddCalibrator(KVCalibrator* cal);
 
 
    ClassDef(KVFAZIADetector, 1) //Base class for FAZIA detector

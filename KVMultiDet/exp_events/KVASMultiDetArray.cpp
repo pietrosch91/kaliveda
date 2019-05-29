@@ -476,13 +476,12 @@ void KVASMultiDetArray::GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_l
    //each IDTelescope is added only once (i.e. check it is not already in the
    //list).
 
-   TList* det_lay;
    for (int lay = grp->GetNumberOfDetectorLayers(); lay > 0; lay--) {
 
-      det_lay = grp->GetDetectorsInLayer(lay);
-      if (det_lay) {
+      unique_ptr<TList> det_lay(grp->GetDetectorsInLayer(lay));
+      if (det_lay.get()) {
 
-         TIter next_det(det_lay);
+         TIter next_det(det_lay.get());
          KVDetector* det;
 
          while ((det = (KVDetector*) next_det())) {
@@ -496,7 +495,7 @@ void KVASMultiDetArray::GetIDTelescopesForGroup(KVGroup* grp, TCollection* tel_l
                GetAlignedIDTelescopesForDetector(det, 0);
             }
          }
-         delete det_lay;
+
       }
    }
 }

@@ -165,6 +165,7 @@ void KVIDTelescope::Initialize(void)
       if ((valid = gDataSet->GetDataSetEnv(Form("%s.MassID.Validity", GetLabel()), "")) != "") {
          valid.ReplaceAll("Z", "_NUC_->GetZ()");
          valid.ReplaceAll("A", "_NUC_->GetA()");
+         SafeDelete(fMassIDValidity);
          fMassIDValidity = new KVParticleCondition(valid);
       }
    }

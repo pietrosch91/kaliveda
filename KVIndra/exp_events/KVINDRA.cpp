@@ -335,7 +335,7 @@ void KVINDRA::Build(Int_t run)
 
    SetACQParams();
 
-   SetCalibrators();
+   //SetCalibrators();
 
    SetIdentifications();
 
@@ -387,36 +387,36 @@ void KVINDRA::SetArrayACQParams()
    // the status of the DAQ trigger event by event (access through GetTriggerInfo()).
 
    KVACQParam* ste = new KVACQParam("STAT_EVE");
-   AddACQParam(ste);
+   AddArrayACQParam(ste);
    KVACQParam* dec = new KVACQParam("R_DEC");
-   AddACQParam(dec);
+   AddArrayACQParam(dec);
    KVACQParam* conf = new KVACQParam("CONFIG");
-   AddACQParam(conf);
+   AddArrayACQParam(conf);
    fSelecteur = new KVINDRATriggerInfo;
    fSelecteur->SetSTAT_EVE_PAR(ste);
    fSelecteur->SetR_DEC_PAR(dec);
    fSelecteur->SetVXCONFIG_PAR(conf);
 
-   AddACQParam(new KVACQParam("PILA_01_PG"));
-   AddACQParam(new KVACQParam("PILA_01_GG"));
-   AddACQParam(new KVACQParam("PILA_02_PG"));
-   AddACQParam(new KVACQParam("PILA_02_GG"));
-   AddACQParam(new KVACQParam("PILA_03_PG"));
-   AddACQParam(new KVACQParam("PILA_03_GG"));
-   AddACQParam(new KVACQParam("PILA_04_PG"));
-   AddACQParam(new KVACQParam("PILA_04_GG"));
-   AddACQParam(new KVACQParam("PILA_05_PG"));
-   AddACQParam(new KVACQParam("PILA_05_GG"));
-   AddACQParam(new KVACQParam("PILA_06_PG"));
-   AddACQParam(new KVACQParam("PILA_06_GG"));
-   AddACQParam(new KVACQParam("PILA_07_PG"));
-   AddACQParam(new KVACQParam("PILA_07_GG"));
-   AddACQParam(new KVACQParam("PILA_08_PG"));
-   AddACQParam(new KVACQParam("PILA_08_GG"));
-   AddACQParam(new KVACQParam("SI_PIN1_PG"));
-   AddACQParam(new KVACQParam("SI_PIN1_GG"));
-   AddACQParam(new KVACQParam("SI_PIN2_PG"));
-   AddACQParam(new KVACQParam("SI_PIN2_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_01_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_01_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_02_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_02_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_03_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_03_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_04_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_04_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_05_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_05_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_06_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_06_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_07_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_07_GG"));
+   AddArrayACQParam(new KVACQParam("PILA_08_PG"));
+   AddArrayACQParam(new KVACQParam("PILA_08_GG"));
+   AddArrayACQParam(new KVACQParam("SI_PIN1_PG"));
+   AddArrayACQParam(new KVACQParam("SI_PIN1_GG"));
+   AddArrayACQParam(new KVACQParam("SI_PIN2_PG"));
+   AddArrayACQParam(new KVACQParam("SI_PIN2_GG"));
 }
 
 //_________________________________________________________________________________________

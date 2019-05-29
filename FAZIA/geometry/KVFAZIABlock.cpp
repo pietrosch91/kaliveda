@@ -140,8 +140,8 @@ KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
 // Mag=100.000139
 // Theta=1.808104
 // Phi = -135.014124
-   TVector3* placement = new TVector3(-2.231625, -2.230525, 99.950350);
-   TVector3* Centre = new TVector3();
+   TVector3 placement(-2.231625, -2.230525, 99.950350);
+   TVector3 Centre;
 
    TGeoRotation rot1, rot2;
    TGeoTranslation trans;
@@ -160,12 +160,12 @@ KVFAZIABlock::KVFAZIABlock() : TGeoVolumeAssembly("STRUCT_BLOCK")
 
    for (Int_t nq = 1; nq <= 4; nq += 1) {
 
-      Centre->SetXYZ(placement->X()*tx[nq - 1], placement->Y()*ty[nq - 1], placement->Z());
+      Centre.SetXYZ(placement.X()*tx[nq - 1], placement.Y()*ty[nq - 1], placement.Z());
 
-      theta = Centre->Theta() * TMath::RadToDeg();
-      phi = Centre->Phi() * TMath::RadToDeg();
+      theta = Centre.Theta() * TMath::RadToDeg();
+      phi = Centre.Phi() * TMath::RadToDeg();
 
-      trans_z = Centre->Mag() + thick_si1 / 2.;
+      trans_z = Centre.Mag() + thick_si1 / 2.;
 
       rot2.SetAngles(phi + 90., theta, 0.);
       rot1.SetAngles(-1.*phi, 0., 0.);

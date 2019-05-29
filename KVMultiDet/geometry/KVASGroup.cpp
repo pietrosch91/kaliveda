@@ -320,14 +320,11 @@ UInt_t KVASGroup::GetDetectorLayer(KVDetector* det)
 {
    //Find the "detector layer" to which this detector belongs
 
-   TList* list;
    for (UInt_t i = 1; i <= GetNumberOfDetectorLayers(); i++) {
-      list = GetDetectorsInLayer(i);
+      unique_ptr<TList> list(GetDetectorsInLayer(i));
       if (list->FindObject(det)) {
-         delete list;
          return i;
       }
-      delete list;
    }
    return 0;
 }
@@ -351,9 +348,9 @@ TList* KVASGroup::GetAlignedDetectors(KVDetector* det, UChar_t dir)
 
    if (dir == kForwards) {
       for (UInt_t lay = first_layer; lay <= last_layer; lay++) {
-         TList* dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
+         unique_ptr<TList> dets(GetDetectorsInLayer(lay));
+         if (dets.get()) {
+            TIter next(dets.get());
             KVDetector* d2;
             while ((d2 = (KVDetector*) next())) {
                if (((KVTelescope*)d2->GetParentStructure("TELESCOPE"))->IsOverlappingWith(
@@ -361,15 +358,14 @@ TList* KVASGroup::GetAlignedDetectors(KVDetector* det, UChar_t dir)
                   tmp->Add(d2);
                }
             }
-            delete dets;
          }
       }
    }
    else {
       for (UInt_t lay = last_layer; lay >= first_layer; lay--) {
-         TList* dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
+         unique_ptr<TList> dets(GetDetectorsInLayer(lay));
+         if (dets.get()) {
+            TIter next(dets.get());
             KVDetector* d2;
             while ((d2 = (KVDetector*) next())) {
                if (((KVTelescope*)d2->GetParentStructure("TELESCOPE"))->
@@ -377,16 +373,12 @@ TList* KVASGroup::GetAlignedDetectors(KVDetector* det, UChar_t dir)
                   tmp->Add(d2);
                }
             }
-            delete dets;
          }
       }
    }
 
    return tmp;
 }
-//_________________________________________________________________________________
-
-
 
 //_________________________________________________________________________________
 

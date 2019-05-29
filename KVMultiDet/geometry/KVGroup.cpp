@@ -63,6 +63,8 @@ TList* KVGroup::GetDetectorsInLayer(UInt_t lay)
 {
    // lay=1 : create and fill list with detectors closest to target
    // lay=GetNumberOfDetectorLayers() : detectors furthest from target
+   //
+   // Delete TList after use!
 
    TList* dets = new TList;
    TIter next(GetDetectors());
