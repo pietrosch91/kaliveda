@@ -1,9 +1,9 @@
 # alpha calibration for INDRA silicons rings 8/9
 # All silicons had maximum gain (8*sqrt(2))
-RunList:                                 1000-199999
 Signal:                                  Volts
 CalibType:                               Volt-Energy
-SI_0801:-8.40153,445.704    
+CalibClass:                              VoltEnergy
+SI_0801:-8.40153,445.704
 SI_0802:-7.71126,427.745    
 SI_0803:-8.18276,434.038    
 SI_0804:-8.50887,457.172    

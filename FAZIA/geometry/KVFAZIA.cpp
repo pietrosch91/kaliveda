@@ -159,7 +159,7 @@ void KVFAZIA::PerformClosedROOTGeometryOperations(Int_t run)
    // make sure that the expected number of detectors get imported!
    imp.ImportGeometry(fImport_dTheta, fImport_dPhi, fImport_ThetaMin, fImport_PhiMin, fImport_ThetaMax, fImport_PhiMax);
 
-   SetCalibrators();
+   //SetCalibrators();
    SetIdentifications();
 
    SetDetectorThicknesses();

@@ -1,6 +1,5 @@
 # Electronic calibration generated using runs 11 & 12
 # All silicons had maximum gain (8*sqrt(2))
-RunList:                                 1000-199999
 Signal:                                  PG
 CalibType:                               Channel-Volt PG
 CalibClass:                              FunctionCal

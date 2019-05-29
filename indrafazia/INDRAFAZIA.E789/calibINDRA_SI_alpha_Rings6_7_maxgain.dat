@@ -3,7 +3,8 @@
 RunList:                                 1000-64999
 Signal:                                  Volts
 CalibType:                               Volt-Energy
-SI_0601:-3.12856,195.679       
+CalibClass:                              VoltEnergy
+SI_0601:-3.12856,195.679
 SI_0603:-2.92243,197.843       
 SI_0604:-2.91384,197.802       
 SI_0605:-3.01692,197.783       

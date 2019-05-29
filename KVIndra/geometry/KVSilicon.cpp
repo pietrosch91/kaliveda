@@ -394,9 +394,9 @@ Double_t KVSilicon::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
 
 void KVSilicon::RefreshCalibratorPointers()
 {
-   fVoltE = (KVVoltEnergy*) GetCalibrator("Volt-Energy");
-   fChVoltPG  = (KVChannelVolt*) GetCalibrator("Channel-Volt PG");
-   fChVoltGG  = (KVChannelVolt*) GetCalibrator("Channel-Volt GG");
+   fVoltE = GetCalibrator("Volt-Energy");
+   fChVoltPG  = GetCalibrator("Channel-Volt PG");
+   fChVoltGG  = GetCalibrator("Channel-Volt GG");
    fPHD  = (KVPulseHeightDefect*) GetCalibrator("Pulse Height Defect");
 }
 

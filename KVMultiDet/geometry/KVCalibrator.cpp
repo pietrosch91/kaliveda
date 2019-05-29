@@ -104,7 +104,7 @@ void KVCalibrator::Print(Option_t*) const
 {
    //Print a description of the calibration object, including a list of its parameters
    cout << "_________________________________________________" << endl
-        << "KVCalibrator :" << endl
+        << ClassName() << " :" << endl
         << "  Name : " << GetName() << endl
         << "  Type : " << GetType() << endl
         << "  Number of Parameters : " << GetNumberParams() << endl
