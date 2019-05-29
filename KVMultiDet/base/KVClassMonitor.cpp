@@ -87,6 +87,14 @@ void KVClassMonitor::SetInitStatistics()
    }
 }
 
+std::map<string, int>& KVClassMonitor::GetListOfChanges() const
+{
+   // Return list of classes whose count changed in last call to Check()
+   // Each parameter (classname) has a value corresponding to the change (+ or -)
+
+   return fChanges;
+}
+
 KVClassMonitor* KVClassMonitor::GetInstance()
 {
    // Return pointer to unique instance of class monitor class
@@ -105,6 +113,7 @@ void KVClassMonitor::Check()
    // update class instance statistics
    // print warning for every class whose number has increased
    Info("Check", "Checking class instance statistics");
+   fChanges.clear();
    gObjectTable->UpdateInstCount();
    TIter next(gROOT->GetListOfClasses());
    TClass* cl;
@@ -114,6 +123,7 @@ void KVClassMonitor::Check()
       if (n != old) {
          if (n > old) Warning("Check", "%s +%d     (%d --> %d)", cl->GetName(), n - old, old, n);
          else Warning("Check", "%s -%d     (%d --> %d)", cl->GetName(), old - n, old, n);
+         fChanges[cl->GetName()] = (n - old);
       }
       fClassStats.SetValue(cl->GetName(), n);
    }

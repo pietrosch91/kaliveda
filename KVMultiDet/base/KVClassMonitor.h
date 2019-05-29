@@ -5,6 +5,8 @@
 #define __KVCLASSMONITOR_H
 
 #include "KVBase.h"
+#include <map>
+#include <string>
 #include "TEnv.h"
 
 class KVClassMonitor : public KVBase {
@@ -13,14 +15,16 @@ class KVClassMonitor : public KVBase {
    TEnv fClassStats;//! store class instance statistics
    TEnv fClassStatsInit;//! intitial class instance statistics
    static Bool_t fDisableCheck;//! disable static DoCheck() method
+   mutable std::map<std::string, int> fChanges; //! list of classes whose number changed in last Check()
 
    KVClassMonitor();
 public:
    virtual ~KVClassMonitor();
 
-   virtual void Check();
-   virtual void CompareToInit();
-   virtual void SetInitStatistics();
+   void Check();
+   void CompareToInit();
+   void SetInitStatistics();
+   std::map<std::string, int>& GetListOfChanges() const;
 
    static KVClassMonitor* GetInstance();
 
