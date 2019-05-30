@@ -87,7 +87,7 @@ void KVClassMonitor::SetInitStatistics()
    }
 }
 
-std::map<string, int>& KVClassMonitor::GetListOfChanges() const
+std::map<std::string, int>& KVClassMonitor::GetListOfChanges() const
 {
    // Return list of classes whose count changed in last call to Check()
    // Each parameter (classname) has a value corresponding to the change (+ or -)
