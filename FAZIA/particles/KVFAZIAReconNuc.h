@@ -53,6 +53,11 @@ public:
    virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
 
    virtual void Calibrate();
+   virtual void CalibrateSi1();
+   virtual void CalibrateSi2();
+   virtual void CalibrateCsI();
+   virtual void CalibrateCsI_Light();
+   virtual void CalibrateCsI_Heavy();
 
    Float_t GetEnergySI1()
    {

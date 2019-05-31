@@ -61,6 +61,7 @@ Bool_t KVFAZIAIDSiCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_
    //perform identification
    Double_t si2 = (y < 0. ? GetIDMapY() : y);
    Double_t csi = (x < 0. ? GetIDMapX() : x);
+   // std::cout << "Inside KVFAZIAIDSiCsI::IDentify csi=" << csi << " si2=" << si2 << "\n";
 
    //test if line below proton and si threshold are there
    //if yes test the position of the point respect to
@@ -101,11 +102,12 @@ void KVFAZIAIDSiCsI::Initialize()
    // This method MUST be called once before any identification is attempted.
    // Initialisation of grid is performed here.
    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
-
+//  printf("in KVFAZIAIDSiCsI::Initialize()\n");
    TheGrid = (KVIDZAGrid*) GetIDGrid();
    fSi2 = (KVFAZIADetector*)GetDetector(1);
    fCsI = (KVFAZIADetector*)GetDetector(2);
    if (TheGrid) {
+      //printf("Grid Found\n");
       SetHasMassID(TheGrid->IsOnlyZId());
       TheGrid->Initialize();
       fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");

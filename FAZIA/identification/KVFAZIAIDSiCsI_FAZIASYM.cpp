@@ -3,6 +3,8 @@
 
 #include "KVFAZIAIDSiCsI_FAZIASYM.h"
 #include "KVDataSet.h"
+//#include <cstdio>
+//#include <cstdlib>
 
 ClassImp(KVFAZIAIDSiCsI_FAZIASYM)
 
@@ -62,6 +64,7 @@ Bool_t KVFAZIAIDSiCsI_FAZIASYM::Identify(KVIdentificationResult* idr, Double_t x
    Double_t si2 = (y < 0. ? GetIDMapY() : y);
    Double_t csi = (x < 0. ? GetIDMapX() : x);
 
+   //std::cout << "Inside KVFAZIAIDSiCsI_FAZIASYM::IDentify csi=" << csi << " si2=" << si2 << "\n";
    //test if line below proton and si threshold are there
    //if yes test the position of the point respect to
    //these lines
@@ -73,26 +76,24 @@ Bool_t KVFAZIAIDSiCsI_FAZIASYM::Identify(KVIdentificationResult* idr, Double_t x
    if (fBelowProton) {
       if (fBelowProton->TestPoint(csi, si2)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
       else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-   }
-   else {
+   } else {
       idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
    }
 
    if (TheGrid->IsIdentifiable(csi, si2)) {
-      // cout << "Identifico con TheGrid" << endl;
+      // std::cout << "Identifico con TheGrid\n";
       TheGrid->Identify(csi, si2, idr);
       //  cout << "Ho identificato con TheGrid" << endl;
       //   printf ("The Grid: %d %d %f\n", idr->Z, idr->A, idr->PID);
 
       //utilizzo TheGrid_lcp per identificare nuovamente Z=1 e Z=2
       if (TheGrid_lcp->IsIdentifiable(csi, si2) && idr->Z <= 2 && idr->Z >= 0) {
-         //cout << "Identifico con TheGrid_lcp" << endl;
+         //std::cout << "Identifico con TheGrid_lcp\n";
          TheGrid_lcp->Identify(csi, si2, idr);
          // cout << "Ho identificato con TheGrid_lcp" << endl;
          //printf ("The Grid_lcp: %d %d %f\n", idr->Z, idr->A, idr->PID);
       }
-   }
-   else {
+   } else {
       idr->IDOK = kFALSE;
       idr->IDquality = KVIDZAGrid::kICODE8;
    }
@@ -114,33 +115,31 @@ void KVFAZIAIDSiCsI_FAZIASYM::Initialize()
    // This method MUST be called once before any identification is attempted.
    // Initialisation of grid is performed here.
    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
-
+   //std::cout << "Inizialize FAZIASYM SiCsI" << std::endl;
    //TheGrid = (KVIDZAGrid*) GetIDGrid();
    TheGrid = (KVIDZAGrid*) GetListOfIDGrids()->At(0);
    TheGrid_lcp = (KVIDZAGrid*) GetListOfIDGrids()->At(1);
    fSi2 = (KVFAZIADetector*)GetDetector(1);
    fCsI = (KVFAZIADetector*)GetDetector(2);
    if (TheGrid) {
-      //   cout << "Inizializzo TheGrid" << endl;
+      // std::cout << "Inizializzo TheGrid" << std::endl;
       SetHasMassID(TheGrid->IsOnlyZId());
       TheGrid->Initialize();
       fBelowProton = (KVIDCutContour*)TheGrid->GetCut("PIEDESTAL");//fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
       SetBit(kReadyForID);
-   }
-   else {
+   } else {
       ResetBit(kReadyForID);
    }
 
    if (TheGrid_lcp) {
-      //  cout << "Inizializzo TheGrid_lcp" << endl;
+      //std::cout << "Inizializzo TheGrid_lcp" << std::endl;
       SetHasMassID(TheGrid_lcp->IsOnlyZId());
       TheGrid_lcp->Initialize();
       fBelowProton = (KVIDCutContour*)TheGrid->GetCut("PIEDESTAL");//fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid_lcp->GetCut("threshold");
       SetBit(kReadyForID);
-   }
-   else {
+   } else {
       ResetBit(kReadyForID);
    }
 
@@ -163,7 +162,6 @@ void KVFAZIAIDSiCsI_FAZIASYM::SetIdentificationStatus(KVReconstructedNucleus* n)
    Bool_t okmass = (n->GetZ() <= 14) || (n->GetZ() < 19 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
-   }
-   else
+   } else
       n->SetZ(n->GetZ());
 }
