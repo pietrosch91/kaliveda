@@ -131,6 +131,8 @@ void KVMultiDetArray::init()
 
    //all detectors belong to us
    SetOwnsDetectors();
+
+   fHandledRawData = false;
 }
 
 //___________________________________________________________________________________
@@ -253,12 +255,10 @@ Int_t KVMultiDetArray::try_all_singleID_telescopes(KVDetector* d, TCollection* l
    // Returns number of generated telescopes
 
    TString uri = d->GetType();
-   //printf("In try_all_singleID_telescopes 1 %s\n",uri.Data());
    Int_t ntels = 0;
    if (!(ntels += try_upper_and_lower_singleIDtelescope(uri, d, l))) {
       Int_t d_thick = TMath::Nint(d->GetThickness());
       uri += d_thick;
-      printf("In try_all_singleID_telescopes 2 %s\n", uri.Data());
       ntels += try_upper_and_lower_singleIDtelescope(uri, d, l);
    }
    return ntels;
@@ -280,10 +280,10 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    // In addition, if a dataset is set (gDataSet!=nullptr) we try also for dataset-specific
    // plugins:
    //
-   //       [dataset].[de-type]-[e-type]
+   //       [dataset].[de-type][thickness]-[e-type][thickness]
    //       [dataset].[de-type][thickness]-[e-type]
    //       [dataset].[de-type]-[e-type][thickness]
-   //       [dataset].[de-type][thickness]-[e-type][thickness]
+   //       [dataset].[de-type]-[e-type]
    //
    // if no plugin is found, we return a KVIDTelescope base class object
    //
@@ -294,26 +294,21 @@ Int_t KVMultiDetArray::try_all_doubleID_telescopes(KVDetector* de, KVDetector* e
    TString de_thick = Form("%d", TMath::Nint(de->GetThickness()));
    TString e_thick = Form("%d", TMath::Nint(e->GetThickness()));
 
-   TString uri = de_type + "-" + e_type;
-   // printf("In try_all_doubleID_telescopes 1 %s\n",uri.Data());
+   TString uri = de_type + de_thick + "-" + e_type + e_thick;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    uri = de_type + de_thick + "-" + e_type;
-   // printf("In try_all_doubleID_telescopes 2 %s\n",uri.Data());
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    uri = de_type + "-" + e_type + e_thick;
-   //  printf("In try_all_doubleID_telescopes 3 %s\n",uri.Data());
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
-   uri = de_type + de_thick + "-" + e_type + e_thick;
-   // printf("In try_all_doubleID_telescopes 4 %s\n",uri.Data());
+   uri = de_type + "-" + e_type;
    if (try_upper_and_lower_doubleIDtelescope(uri, de, e, l)) return 1;
 
    // default id telescope object
    KVIDTelescope* idt = new KVIDTelescope;
    uri = de_type + "-" + e_type;
-   // printf("In try_all_doubleID_telescopes 5 %s\n",uri.Data());
    idt->SetLabel(uri);
    // set type as "[DEtype]-[Etype]" where "[*type]" is type of DE/E detectors
    idt->SetType(Form("%s-%s", de_type.Data(), e_type.Data()));
@@ -363,7 +358,6 @@ bool KVMultiDetArray::try_a_singleIDtelescope(TString uri, KVDetector* d, TColle
    if (gDataSet) {
       // try with dataset name
       duri.Prepend(Form("%s.", fDataSet.Data()));
-      //printf("In try_a_singleIDtelescope 1 %s\n",duri.Data());
       KVIDTelescope* idt;
       if ((idt = KVIDTelescope::MakeIDTelescope(duri))) {
          set_up_single_stage_telescope(d, idt, l);
@@ -393,7 +387,6 @@ bool KVMultiDetArray::try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDet
    if (gDataSet) {
       // try with dataset name
       duri.Prepend(Form("%s.", fDataSet.Data()));
-      // printf("In try_a_doubleIDtelescope 1 %s\n",duri.Data());
       KVIDTelescope* idt;
       if ((idt = KVIDTelescope::MakeIDTelescope(duri))) {
          set_up_telescope(de, e, idt, l);
@@ -402,7 +395,6 @@ bool KVMultiDetArray::try_a_doubleIDtelescope(TString uri, KVDetector* de, KVDet
    }
    // look for default version
    KVIDTelescope* idt;
-//  printf("In try_a_singleIDtelescope 2 %s\n",uri.Data());
    if ((idt = KVIDTelescope::MakeIDTelescope(uri))) {
       set_up_telescope(de, e, idt, l);
       return true;
@@ -419,7 +411,8 @@ void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelesc
    idt->AddDetector(e);
    if (de->GetGroup()) {
       idt->SetGroup(de->GetGroup());
-   } else {
+   }
+   else {
       idt->SetGroup(e->GetGroup());
    }
    // if telescope already exists, we delete this new version and add a reference to
@@ -428,7 +421,8 @@ void KVMultiDetArray::set_up_telescope(KVDetector* de, KVDetector* e, KVIDTelesc
    if (p) {
       l->Add(p);
       delete idt;
-   } else {
+   }
+   else {
       fIDTelescopes->Add(idt);
       l->Add(idt);
    }
@@ -446,7 +440,8 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector* det, KVIDTelesco
    if (p) {
       l->Add(p);
       delete idt;
-   } else {
+   }
+   else {
       fIDTelescopes->Add(idt);
       l->Add(idt);
    }
@@ -509,17 +504,20 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
             recon_nuc->SetIsIdentified();//to stop looking anymore & to allow identification of other particles in same group
             if (idtelstop) idtelstop->SetIDCode(recon_nuc, idtelstop->GetBadIDCode());
             else recon_nuc->SetIsOK(kFALSE);
-         } else if (recon_nuc->GetStatus() == 3) {
+         }
+         else if (recon_nuc->GetStatus() == 3) {
             //stopped in first member
             recon_nuc->SetIsIdentified();
             nchanged++;
-         } else if (recon_nuc->GetStatus() == 2) {
+         }
+         else if (recon_nuc->GetStatus() == 2) {
             // pile-up in first stage of telescopes
             recon_nuc->SetIsIdentified();
             if (idtelstop && idtelstop->IsReadyForID()) idtelstop->SetIDCode(recon_nuc, idtelstop->GetMultiHitFirstStageIDCode());
             else recon_nuc->SetIsOK(kFALSE);
             nchanged++;
-         } else if (recon_nuc->GetStatus() == 0) {
+         }
+         else if (recon_nuc->GetStatus() == 0) {
             // try to "identify" the particle
             TIter nxtidt(recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification());
             idtelstop = (KVIDTelescope*)nxtidt();
@@ -534,7 +532,8 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
                   recon_nuc->SetIsCalibrated();
                   idtelstop->SetIdentificationStatus(recon_nuc);
                   break;
-               } else {
+               }
+               else {
                   Int_t nseg = recon_nuc->GetNSegDet();
                   recon_nuc->SetNSegDet(TMath::Max(nseg - 1, 0));
                   //if there are other unidentified particles in the group and NSegDet is < 2
@@ -678,7 +677,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
       //Create the list where fired groups will be stored
       //for reconstruction
       fHitGroups = new KVDetectorEvent;
-   } else {
+   }
+   else {
       //Clear the multidetector before a new filter process
       fHitGroups->Clear();
    }
@@ -711,19 +711,22 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("SUPERHEAVY");
-      } else if (!fNavigator->IsTracking() && (part->GetZ() == 0)) {
+      }
+      else if (!fNavigator->IsTracking() && (part->GetZ() == 0)) {
          // when tracking is activated, we follow neutron trajectories
          // if not, we don't even bother trying
          det_stat.SetValue("UNDETECTED", "NEUTRON");
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NEUTRON");
-      } else if (_part->GetKE() < 1.e-3) {
+      }
+      else if (_part->GetKE() < 1.e-3) {
          det_stat.SetValue("UNDETECTED", "NO ENERGY");
 
          part->AddGroup("UNDETECTED");
          part->AddGroup("NO ENERGY");
-      } else {
+      }
+      else {
 
          //Double_t eLostInTarget=0;
          if (fTarget && part->GetZ()) {
@@ -744,7 +747,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
          if ((fFilterType != kFilterType_Geo) && _part->GetKE() < 1.e-3) {
             // unless we are doing a simple geometric filter, particles which
             // do not have the energy to leave the target are not detected
-         } else {
+         }
+         else {
             if (!(nvl = DetectParticle(_part))) {
                if (part->GetZ() == 0) {
                   // tracking
@@ -752,14 +756,16 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NEUTRON");
-               } else {
+               }
+               else {
                   det_stat.SetValue("UNDETECTED", "NO HIT");
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NO HIT");
                }
 
-            } else if (nvl->GetNpar() == 0) {
+            }
+            else if (nvl->GetNpar() == 0) {
 
                if (part->GetZ() == 0) {
                   // tracking
@@ -767,7 +773,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("NEUTRON");
-               } else {
+               }
+               else {
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("DEAD ZONE");
 
@@ -775,7 +782,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                }
                delete nvl;
                nvl = 0;
-            } else {
+            }
+            else {
                Int_t nbre_nvl = nvl->GetNpar();
                KVString LastDet(nvl->GetNameAt(nbre_nvl - 1));
                last_det = GetDetector(LastDet.Data());
@@ -792,12 +800,14 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                            ntrav += 1;
                         else if (dd->IsSmallerThan(last_det))
                            ntrav += 1;
-                     } else {
+                     }
+                     else {
                         if (dd->IsSmallerThan(last_det))
                            ntrav += 1;
                      }
                   }
-               } else {
+               }
+               else {
                   ntrav = ldet->GetEntries();
                }
 
@@ -832,7 +842,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
 
                   part->AddGroup("UNDETECTED");
                   part->AddGroup("GEOMETRY INCOHERENCY");
-               } else {
+               }
+               else {
 
                   //On recupere les telescopes d identification
                   //associe au dernier detecteur touche
@@ -848,19 +859,22 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                      //
                      last_det->GetHits()->Remove(_part);
                      //Warning("DetectEvent","threshold ...");
-                  } else {
+                  }
+                  else {
                      part->AddGroup("DETECTED");
                      det_stat.SetValue("DETECTED", "OK");
                      fHitGroups->AddGroup(last_det->GetGroup());
 
                      if (lidtel->GetEntries() > 0) {
                         //Il y a possibilite d identification
-                     } else if (last_det->GetEnergy() > 0) {
+                     }
+                     else if (last_det->GetEnergy() > 0) {
                         //Il n'y a pas de possibilite d'identification
                         //arret dans le premier etage de detection
                         det_stat.SetValue("DETECTED", "INCOMPLETE");
                         part->AddGroup("INCOMPLETE");
-                     } else {
+                     }
+                     else {
                         Warning("DetectEvent", "Cas non prevu ....");
                         printf("last_det->GetName()=%s, lidtel->GetEntries()=%d, last_det->GetEnergy()=%lf\n",
                                last_det->GetName(),
@@ -888,7 +902,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                            part->AddGroup("UNDETECTED");
                            part->AddGroup("GEOMETRY INCOHERENCY");
                            //Warning("DetectEvent","Fuite ......");
-                        } else if (nbre_nvl) {
+                        }
+                        else if (nbre_nvl) {
                            //----
                            // Punch Through,
                            // La particule est trop energetique, elle a traversee
@@ -953,7 +968,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   KVNumberList ppp(un.GetStringValue(detname));
                   ppp.Add(part_index);
                   un.SetValue(detname, ppp.AsString());
-               } else {
+               }
+               else {
                   un.SetValue(detname, Form("%d", part_index));
                }
             }
@@ -1083,14 +1099,16 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
                   if (!part->BelongsToGroup("INCOMPLETE")) {
                      idt->SetIDCode(recon_nuc, idt->GetIDCode());
                      idt->SetIdentificationStatus(recon_nuc);
-                  } else {
+                  }
+                  else {
                      idt->SetIDCode(recon_nuc, idt->GetZminCode());
                   }
                   recon_nuc->SetECode(idt->GetECode());
                   //recon_nuc->SetIsIdentified();
                   //recon_nuc->SetIsCalibrated();
                }
-            } else { /*if(part->BelongsToGroup("INCOMPLETE"))*/
+            }
+            else {   /*if(part->BelongsToGroup("INCOMPLETE"))*/
                // for particles stopping in 1st member of a telescope, there is no "identifying telescope"
                KVIDTelescope* idt = (KVIDTelescope*)last_det->GetIDTelescopes()->First();
                if (idt) idt->SetIDCode(recon_nuc, idt->GetZminCode());
@@ -1116,7 +1134,8 @@ void KVMultiDetArray::DetectEvent(KVEvent* event, KVReconstructedEvent* rec_even
             KVReconstructedNucleus::AnalyseParticlesInGroup(grp_tch);
          }
          //for(int i=1;i<=rec_event->GetMult();i++) cout << i << " Z=" << rec_event->GetParticle(i)->GetZ()<<" status="<<rec_event->GetParticle(i)->GetStatus() <<endl;
-      } while (nchanged);
+      }
+      while (nchanged);
 
       return;
    }
@@ -1199,7 +1218,8 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus* part)
                   Error("DetectParticle_TGEO",
                         "Cannot find detector %s corresponding to particle energy loss %s",
                         det_name.Data(), pname.Data());
-               } else {
+               }
+               else {
                   Double_t de = param->GetDouble();
                   if (!NVL) NVL = new KVNameValueList;
                   NVL->SetValue(curDet->GetName(), de);
@@ -1319,7 +1339,8 @@ void KVMultiDetArray::AddACQParam(KVACQParam* par)
    }
    if (par) {
       fACQParams->Add(par);
-   } else
+   }
+   else
       Warning("AddACQParam", "Null pointer passed as argument");
 }
 
@@ -1421,12 +1442,49 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
    TIter nxt_link(run_links);
    KVDBParameterSet* dbps;
    while ((dbps = (KVDBParameterSet*)nxt_link())) {
+
       KVDetector* det = GetDetector(dbps->GetName());
       if (!det) {
          Warning("SetCalibratorParameters", "Got parameters for unknown detector: %s", dbps->GetName());
          continue;
       }
       KVCalibrator* cal = det->GetCalibrator(dbps->GetTitle());
+      // Check if calibrator has right class if one was specified in parameter set
+      // This also allows to create the calibrator if it does not exist
+      if (dbps->HasParameter("CalibClass")) {
+
+         KVNameValueList class_options;
+         KVString clop;
+         if (dbps->HasParameter("CalibOptions")) clop = dbps->GetStringParameter("CalibOptions");
+         if (clop != "") {
+            clop.Begin(",");
+            while (!clop.End()) {
+               KVString clopp = clop.Next(true);
+               clopp.Begin("=");
+               KVString par(clopp.Next(true)), val(clopp.Next(true));
+               class_options.SetValue(par, val);
+            }
+         }
+         // make sure calibrator exists & is of right class
+         // if not we replace it
+         if (cal) {
+            if (dbps->GetStringParameter("CalibClass") != cal->ClassName()) {
+               // detector has calibrator of wrong class
+               cal = KVCalibrator::MakeCalibrator(dbps->GetStringParameter("CalibClass"));
+               cal->SetType(dbps->GetTitle());
+               if (clop != "") cal->SetOptions(class_options);
+               det->ReplaceCalibrator(dbps->GetTitle(), cal);
+            }
+         }
+         else {
+            // detector had no calibrator of right type
+            cal = KVCalibrator::MakeCalibrator(dbps->GetStringParameter("CalibClass"));
+            cal->SetType(dbps->GetTitle());
+            if (clop != "") cal->SetOptions(class_options);
+            det->AddCalibrator(cal);
+         }
+      }
+
       if (!cal) {
          Warning("SetCalibratorParameters", "Detector %s has no calibrator of type: %s", dbps->GetName(), dbps->GetTitle());
          continue;
@@ -1434,6 +1492,7 @@ void KVMultiDetArray::SetCalibratorParameters(KVDBRun* r, const TString& myname)
       if (dbps->GetParamNumber() > cal->GetNumberParams()) {
          Warning("SetCalibratorParameters", "Wrong number of parameters (%d) for calibrator %s for detector %s : should be %d",
                  dbps->GetParamNumber(), dbps->GetTitle(), dbps->GetName(), cal->GetNumberParams());
+         dbps->Print();
          continue;
       }
       for (int i = 0; i < dbps->GetParamNumber(); ++i) {
@@ -1456,7 +1515,8 @@ void KVMultiDetArray::SetPedestalParameters(KVDBRun* r, const TString& myname)
    if (run_links) {
       Info("SetPedestalParameters", "For array %s in table %s", GetName(), tabname.Data());
       Info("SetPedestalParameters", "Found %d pedestals for this run", run_links->GetEntries());
-   } else {
+   }
+   else {
       return;
    }
    TIter nxt_link(run_links);
@@ -1469,23 +1529,6 @@ void KVMultiDetArray::SetPedestalParameters(KVDBRun* r, const TString& myname)
       }
       par->SetPedestal(dbps->GetParameter(0));
    }
-}
-
-//_________________________________________________________________________________
-
-void KVMultiDetArray::UpdateCalibrators()
-{
-   //This method can be used to update the calibrations of the detectors of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the class(es) which is now obsolete.
-   //The existing calibrator objects (read in from the file) are first removed from the array's
-   //detectors, and then SetCalibrators() is called in order to set new calibrators as defined
-   //in the current version of the class(es).
-   //In order to set the parameters of the new calibrators for a given run,
-   //SetParameters or SetRunCalibrationParameters must be called after this method.
-
-   const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, RemoveCalibrators)();
-   SetCalibrators();
 }
 
 //_________________________________________________________________________________
@@ -1520,7 +1563,8 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, const TSeqCollect
             if ((grp = det->GetGroup()) && grp->GetParents()->Contains(this)) detev->AddGroup(grp);
          }
       }
-   } else {
+   }
+   else {
       //loop over groups
       unique_ptr<KVSeqCollection> fGroups(GetStructures()->GetSubListWithType("GROUP"));
 
@@ -1565,9 +1609,8 @@ void KVMultiDetArray::AnalyseGroupAndReconstructEvent(KVReconstructedEvent* rece
    // and working inwards. Calls KVReconstructedEvent::AnalyseDetectors
 
    for (Int_t il = grp->GetNumberOfDetectorLayers(); il > 0; il--) {
-      TList* dets = grp->GetDetectorsInLayer(il);
-      recev->AnalyseDetectors(dets);
-      delete dets;
+      unique_ptr<TList> dets(grp->GetDetectorsInLayer(il));
+      recev->AnalyseDetectors(dets.get());
    }
    //perform first-order coherency analysis (set fAnalStatus for each particle)
    KVReconstructedNucleus::AnalyseParticlesInGroup(grp);
@@ -1664,7 +1707,8 @@ void KVMultiDetArray::DetectParticleIn(const Char_t* detname,
       KVNameValueList* nvl = 0;
       kvp->SetMomentum(kvp->GetEnergy(), kvd->GetRandomDirection("random"));
       if ((nvl = DetectParticle(kvp))) delete nvl;
-   } else {
+   }
+   else {
       Error("DetectParticleIn", "Detector %s not found", detname);
    }
 }
@@ -1763,7 +1807,8 @@ KVMultiDetArray* KVMultiDetArray::MakeMultiDetector(const Char_t* dataset_name, 
       if (codes != "") mda->fAcceptECodes.Set(codes);
       // set dataset-dependent condition for seeding reconstructed nuclei
       mda->SetPartSeedCond(KVBase::GetDataSetEnv(dataset_name, Form("%s.ReconstructedNuclei.ParticleSeedCond", mda->GetName()), ""));
-   } else {
+   }
+   else {
       mda = gMultiDetArray;
       // database creation may not have set the right run
       if (run > -1) mda->SetParameters(run);
@@ -1900,50 +1945,6 @@ void KVMultiDetArray::SetIdentifications()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateIdentifications()
-{
-   //This method can be used to update the identifications of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the identification parameters which are now obsolete.
-   //We remove/destroy the existing identification parameters and replace them with the current versions.
-   //In order to set the parameters of the new identifications for a given run,
-   //SetParameters or SetRunIdentificationParameters must be called after this method.
-
-   //remove existing identification objects/parameters
-   fIDTelescopes->R__FOR_EACH(KVIDTelescope, RemoveIdentificationParameters)();
-
-   //reset identifications
-   SetIdentifications();
-}
-
-//_________________________________________________________________________________
-
-void KVMultiDetArray::UpdateIDTelescopes()
-{
-   //This method can be used to update the identification telescopes of a KVMultiDetArray
-   //object which has been read back from a ROOT file, and was possibly written with an old
-   //version of the classes which are now obsolete, or for which new KVIDTelescope classes
-   //are now available.
-   //In order to set the parameters of the new identifications for a given run,
-   //SetParameters or SetRunIdentificationParameters must be called after this method.
-
-   //destroy old ID telescopes
-   fIDTelescopes->Delete();
-   //now read list of groups and create list of ID telescopes
-   KVGroup* grp;
-   KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
-
-   TIter ngrp(fGroups);
-   while ((grp = (KVGroup*) ngrp())) {
-      GetIDTelescopesForGroup(grp, fIDTelescopes);
-   }
-   delete fGroups;
-   //reset identifications
-   SetIdentifications();
-}
-
-//_________________________________________________________________________________
-
 void KVMultiDetArray::InitializeIDTelescopes()
 {
    // Calls Initialize() method of each identification telescope (see KVIDTelescope
@@ -1952,6 +1953,27 @@ void KVMultiDetArray::InitializeIDTelescopes()
    TIter next(fIDTelescopes);
    KVIDTelescope* idt;
    while ((idt = (KVIDTelescope*)next())) idt->Initialize();
+}
+
+Bool_t KVMultiDetArray::ReadGridsFromAsciiFile(const Char_t* grids) const
+{
+   // Read all identification grids from the file and add them to the IDGridManager object
+   // used by this array. This method sets up the links between each grid and the
+   // IDtelescope(s) it is to be used for, unlike calling
+   //
+   //    gIDGridManager->ReadAsciiFile(grids)
+   //
+   // which does not.
+   //
+   // Returns kFALSE if there is a problem reading the file
+
+   if (gIDGridManager->ReadAsciiFile(grids)) {
+      TIter next(gIDGridManager->GetLastReadGrids());
+      KVIDGraph* gr;
+      while ((gr = (KVIDGraph*)next())) FillListOfIDTelescopes(gr);
+      return kTRUE;
+   }
+   return kFALSE;
 }
 
 //_________________________________________________________________________________
@@ -2033,7 +2055,8 @@ TList* KVMultiDetArray::GetStatusOfIDTelescopes()
    if (!fStatusIDTelescopes) {
       fStatusIDTelescopes = new TList;
       fStatusIDTelescopes->SetOwner(kTRUE);
-   } else {
+   }
+   else {
       fStatusIDTelescopes->Delete();
    }
    if (!fIDTelescopes || !fIDTelescopes->GetEntries()) return fStatusIDTelescopes;
@@ -2110,7 +2133,8 @@ TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
    if (!fCalibStatusDets) {
       fCalibStatusDets = new TList;
       fCalibStatusDets->SetOwner(kTRUE);
-   } else {
+   }
+   else {
       fCalibStatusDets->Delete();
    }
    if (!GetDetectors()->GetEntries()) return fCalibStatusDets;
@@ -2270,7 +2294,8 @@ void KVMultiDetArray::SetDetectorThicknesses()
          Double_t thick = thickdat.GetValue(det->GetName(), 0.0);
          det->SetThickness(thick);
          //Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
-      } else {
+      }
+      else {
          Char_t i = 0;
          TString absname;
          absname.Form("%s.Abs%d", det->GetName(), (Int_t)i);
@@ -2448,7 +2473,8 @@ void KVMultiDetArray::GetAlignedIDTelescopesForDetector(KVDetector* det, TCollec
 
          GetIDTelescopes(det1, det2, list);
       }
-   } else {
+   }
+   else {
       //The following line is in case there are no detectors aligned
       //with 'det', but 'det' acts as an IDTelescope all by itself.
       //In this case we expect KVMultiDetArray::GetIDTelescopes
@@ -2593,7 +2619,8 @@ void KVMultiDetArray::SetPresent(KVDetector* det, Bool_t present)
          gr->Remove(det);
          GetIDTelescopesForGroup(gr, GetListOfIDTelescopes());
 
-      } else {
+      }
+      else {
          Warning("SetPresent", "Method implemented only in case detector is alone in telescope");
       }
    }
@@ -2639,7 +2666,8 @@ void KVMultiDetArray::SetDetecting(KVDetector* det, Bool_t detecting)
       KVGroup* gr = det->GetGroup();
       PrepareModifGroup(gr, det);
       GetIDTelescopesForGroup(gr, GetListOfIDTelescopes());
-   } else {
+   }
+   else {
       KVGroup* gr = GetGroupWithAngles(det->GetTheta(), det->GetPhi());
       PrepareModifGroup(gr, det);
       GetIDTelescopesForGroup(gr, GetListOfIDTelescopes());
@@ -2699,7 +2727,8 @@ void KVMultiDetArray::Draw(Option_t* option)
          if (!opt.End()) {
             KVNumberList zlist(opt.Next());
             GetNavigator()->DrawTracks(&zlist);
-         } else
+         }
+         else
             GetNavigator()->DrawTracks();
       }
 #ifdef WITH_OPENGL
@@ -2709,7 +2738,8 @@ void KVMultiDetArray::Draw(Option_t* option)
       view->SetSmoothLines(kTRUE);
       view->SetSmoothPoints(kTRUE);
 #endif
-   } else Error("Draw", "Only ROOT geometries can be viewed");
+   }
+   else Error("Draw", "Only ROOT geometries can be viewed");
 
 }
 
@@ -2869,7 +2899,8 @@ void KVMultiDetArray::RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniq
             }
          }
       }
-   } else if (N->GetNTraj() == 1) {
+   }
+   else if (N->GetNTraj() == 1) {
       // single-trajectory node.
       // work along trajectory adding nodes to group
       KVGeoDNTrajectory* traj = (KVGeoDNTrajectory*)N->GetTrajectories()->First();
@@ -2881,7 +2912,8 @@ void KVMultiDetArray::RecursiveTrajectoryClustering(KVGeoDetectorNode* N, KVUniq
          detectors_of_group.Add(node);
          RecursiveTrajectoryClustering(node, tried_trajectories, multitraj_nodes, detectors_of_group);
       }
-   } else {
+   }
+   else {
       // orphan node? single-detector array?
       detectors_of_group.Add(N);
    }
@@ -3012,6 +3044,7 @@ void KVMultiDetArray::prepare_to_handle_new_raw_data()
    while ((acqpar = (KVACQParam*)it())) acqpar->Clear();
    fReconParameters.Clear();
    fFiredACQParams.Clear();
+   fHandledRawData = false;
 }
 
 void KVMultiDetArray::PerformClosedROOTGeometryOperations(Int_t)
@@ -3052,20 +3085,23 @@ Bool_t KVMultiDetArray::HandleRawDataEvent(KVRawDataReader* rawdata)
    // ready to be copied to the reconstructed event
 
    prepare_to_handle_new_raw_data();
-   bool ok = false;
+   if (rawdata->GetDataFormat() == "MFM") {
 #ifdef WITH_MFM
-   if (rawdata->GetDataFormat() == "MFM") ok = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
-   else
+      fHandledRawData = handle_raw_data_event_mfmfile((KVMFMDataFileReader&)(*rawdata));
 #endif
+   }
+   else if (rawdata->GetDataFormat() == "PROTOBUF") {
 #ifdef WITH_PROTOBUF
-      if (rawdata->GetDataFormat() == "PROTOBUF") ok = handle_raw_data_event_protobuf((KVProtobufDataReader&)(*rawdata));
-      else
+      fHandledRawData = handle_raw_data_event_protobuf((KVProtobufDataReader&)(*rawdata));
 #endif
-         if (rawdata->GetDataFormat() == "EBYEDAT") ok = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
-   if (ok) {
+   }
+   else if (rawdata->GetDataFormat() == "EBYEDAT") {
+      fHandledRawData = handle_raw_data_event_ebyedat((KVGANILDataReader&)(*rawdata));
+   }
+   if (fHandledRawData) {
       copy_fired_parameters_to_recon_param_list();
    }
-   return ok;
+   return fHandledRawData;
 }
 
 #ifdef WITH_MFM
@@ -3092,7 +3128,7 @@ Bool_t KVMultiDetArray::HandleRawDataBuffer(MFMBufferReader& bufrdr)
 void KVMultiDetArray::SetRawDataFromReconEvent(KVNameValueList& l)
 {
    // Take values 'ACQPAR.[array_name].[par_name]' in the parameter list and use them to set
-   // values of raw acquisition parameters
+   // values of raw acquisition parameters (EBYEDAT)
 
    int N = l.GetNpar();
    for (int i = 0; i < N; ++i) {
@@ -3157,7 +3193,8 @@ unique_ptr<KVFileReader> KVMultiDetArray::GetKVFileReader(KVExpDB* db, const Cha
    if (!fr->OpenFileToRead(fp.Data())) {
       Error(meth, "Error in opening file %s", fp.Data());
       fr.reset(nullptr);
-   } else
+   }
+   else
       Info(meth, "Reading %s file", fp.Data());
    return fr;
 }
@@ -3200,6 +3237,30 @@ void KVMultiDetArray::ReadPedestalFiles(KVExpDB* db)
 
 void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTable* calib_table)
 {
+   // Read a calibration file with the format
+   //
+   //RunList:                                 0-999999
+   //Signal:                                  PG
+   //CalibType:                               Channel-Volt PG
+   //CalibClass:                              FunctionCal
+   //CalibOptions:                            func=pol3,min=0,max=1
+   //[detector]: 0.0,0.261829,0.0
+   //[detector]: 0.1,0.539535,1.2
+   //
+   //The [RunList] is optional: if not given, the calibration will be applied to all runs in the database.
+   //If different parameters are required for different sets of runs, they should be written in different
+   //files (all of which are listed in CalibrationFiles.dat or [array].CalibrationFiles.dat).
+   //
+   //The [CalibClass] is optional: if given, it should correspond to a KVCalibrator plugin.
+   //If any detector has a calibrator of type [CalibType] which is not of the given class
+   //it will be replaced with a new calibrator corresponding to the plugin.
+   //
+   //The [CalibOptions] is optional: if [CalibClass] is given, list in [CalibOptions] will be used
+   //to complete set-up of any new calibrator objects by calling the KVCalibrator::SetOptions(const KVNameValueList&)
+   //method. [CalibOptions] should hold a comma-separated list of 'parameter=value' pairs which will be used
+   //to fill a KVNameValueList for the method call. See the SetOptions(const KVNameValueList&) method of the
+   //specific class to see which options should/can be given.
+
 
    TString fullpath = "";
    if (!SearchKVFile(filename, fullpath, fDataSet)) {
@@ -3210,38 +3271,69 @@ void KVMultiDetArray::ReadCalibFile(const Char_t* filename, KVExpDB* db, KVDBTab
    Info("ReadCalibFile", "file : %s found", fullpath.Data());
    TEnv env;
    env.ReadFile(fullpath, kEnvAll);
-   TIter next(env.GetTable());
-   TEnvRec* rec = 0;
-   KVDBParameterSet* par = 0;
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
 
-   TString ssignal = "";
-   TString stype = "";
+   // read options from file
+   KVNameValueList options;
+   KVString opt_list = "RunList Signal CalibType CalibClass CalibOptions";
+   opt_list.Begin(" ");
+   while (!opt_list.End()) {
+      KVString opt = opt_list.Next();
+      options.SetValue(opt, env.GetValue(opt, ""));
+   }
 
-   while ((rec = (TEnvRec*)next())) {
-      TString sname(rec->GetName());
-      if (sname == "Signal") {
-         ssignal = rec->GetValue();
-      } else if (sname == "CalibType") {
-         stype = rec->GetValue();
-      } else if (sname == "RunList") {
-         default_run_list.Set(rec->GetValue());
-      } else {
-         KVString lval(rec->GetValue());
-         par = new KVDBParameterSet(sname.Data(), stype.Data(), lval.GetNValues(","));
-         Int_t np = 0;
-         lval.Begin(",");
-         while (!lval.End()) {
-            par->SetParameter(np++, lval.Next().Atof());
-         }
-         calib_table->AddRecord(par);
-         db->LinkRecordToRunRange(par, default_run_list);
+   if (options.GetTStringValue("Signal") == "") {
+      Error("ReadCalibFile", "No signal defined");
+      return;
+   }
+   if (options.GetTStringValue("CalibType") == "") {
+      Error("ReadCalibFile", "No calibration type defined");
+      return;
+   }
+   Bool_t check_class(options.GetTStringValue("CalibClass") != "");
+   TString calibrator_class;
+   if (check_class) {
+      TPluginHandler* ph = LoadPlugin("KVCalibrator", options.GetStringValue("CalibClass"));
+      if (ph) calibrator_class = ph->GetClass();
+      else {
+         Error("ReadCalibFile", "No calibrator plugin of type %s", options.GetStringValue("CalibClass"));
+         return;
       }
    }
 
-   if (ssignal == "") Error("ReadCalibFile", "No signal defined");
-   if (stype == "") Error("ReadCalibFile", "No calibration type defined");
+   KVString clop;
+   if (options.HasParameter("CalibOptions")) clop = options.GetStringValue("CalibOptions");
+
+   KVNumberList run_list = db->GetRunList();
+   if (options.GetTStringValue("RunList") != "")
+      run_list.Set(options.GetTStringValue("RunList"));
+
+   TIter next(env.GetTable());
+   TEnvRec* rec = 0;
+   KVDBParameterSet* par = 0;
+
+   while ((rec = (TEnvRec*)next())) {
+
+      TString sname(rec->GetName());
+      KVDetector* det = GetDetector(sname);
+      if (!det) continue;
+
+      KVString lval(rec->GetValue());
+      par = new KVDBParameterSet(sname.Data(), options.GetStringValue("CalibType"), lval.GetNValues(","));
+      if (check_class) {
+         // put infos on required calibrator class into database so that it can be replaced
+         // as needed in SetCalibratorParameters
+         par->SetParameter("CalibClass", options.GetStringValue("CalibClass"));
+         if (clop != "") par->SetParameter("CalibOptions", options.GetStringValue("CalibOptions"));
+      }
+      Int_t np = 0;
+      lval.Begin(",");
+      while (!lval.End()) {
+         par->SetParameter(np++, lval.Next().Atof());
+      }
+      calib_table->AddRecord(par);
+      db->LinkRecordToRunRange(par, run_list);
+
+   }
 }
 
 void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDBTable* pedestal_table)
@@ -3259,21 +3351,21 @@ void KVMultiDetArray::ReadPedestalFile(const Char_t* filename, KVExpDB* db, KVDB
    TIter next(env.GetTable());
    TEnvRec* rec = 0;
    KVDBParameterSet* par = 0;
-   KVNumberList default_run_list;
-   default_run_list.SetMinMax(db->GetFirstRunNumber(), db->GetLastRunNumber());
+   KVNumberList run_list = db->GetRunList();
 
    while ((rec = (TEnvRec*)next())) {
 
       TString sname(rec->GetName());
 
       if (sname == "RunList") {
-         default_run_list.Set(rec->GetValue());
-      } else {
+         run_list.Set(rec->GetValue());
+      }
+      else {
          KVString lval(rec->GetValue());
          par = new KVDBParameterSet(sname.Data(), "Pedestal", 1);
          par->SetParameter(0, lval.Atof());
          pedestal_table->AddRecord(par);
-         db->LinkRecordToRunRange(par, default_run_list);
+         db->LinkRecordToRunRange(par, run_list);
       }
    }
 }
@@ -3289,7 +3381,8 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmfile(MFMBufferReader& mfmreader
 
    if (mfmreader.IsFrameReadMerge()) {
       return handle_raw_data_event_mfmmergeframe(mfmreader.GetMergeManager());
-   } else {
+   }
+   else {
       return handle_raw_data_event_mfmframe(mfmreader.GetFrameRead());
    }
    return kFALSE;
@@ -3331,9 +3424,12 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
 {
    // General method for reading raw data in MFM-encapsulated ebyedat format
    // Values of all KVACQParam objects appearing in the event are updated
-   // (first set all parameter values to (UShort_t)-1).
    // Fills list of hit acquisition parameters.
    // Returns kTRUE if at least one parameter belonging to the array is present.
+   //
+   // Any unknown parameters in the event (i.e. ones for which no KVACQParam object
+   // has been defined) are written in the fReconParameters list with names
+   //    "ACQPAR.[array name].[parameter name]"
 
    uint16_t val;
    string lab;
@@ -3347,6 +3443,8 @@ Bool_t KVMultiDetArray::handle_raw_data_event_mfmframe_ebyedat(const MFMEbyedatF
          fFiredACQParams.Add(acqpar);
          ok = kTRUE;
       }
+      else
+         fReconParameters.SetValue(Form("ACQPAR.%s.%s", GetName(), lab.c_str()), val);
    }
 
    return ok;

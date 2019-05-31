@@ -288,7 +288,8 @@ public:
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning fRealZ" << std::endl;
          return fRealZ;
-      } else {
+      }
+      else {
          //debug
          //std::cout << "KVReconstructedNucleus::GetRealZ() returning GetZ() because fRealZ=" << fRealZ << std::endl;
          return (Float_t) GetZ();
@@ -360,8 +361,7 @@ public:
       //         if(GetIdentificationResult(i)){ // always true }
       KVIdentificationResult* id = nullptr;
       if (i) id = (KVIdentificationResult*)fIDResults.ConstructedAt(i - 1);
-      //printf("id=%p\n", id);
-      if (id != nullptr) id->SetNumber(i);
+      id->SetNumber(i);
       return id;
    }
    Int_t GetNumberOfIdentificationResults() const
@@ -446,6 +446,8 @@ public:
    void SetReconstructionTrajectory(const KVReconNucTrajectory* t);
    void CopyAndMoveReferences(const KVReconstructedNucleus*);
    void PrintStatusString() const;
+
+   Bool_t InArray(const TString&) const;
 
    ClassDef(KVReconstructedNucleus, 17)  //Nucleus detected by multidetector array
 };

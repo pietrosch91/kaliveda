@@ -58,7 +58,8 @@ KVUpDater* KVUpDater::MakeUpDater(const Char_t* uri, KVMultiDetArray* a)
    KVUpDater* upd = 0;
    if (!(ph = KVBase::LoadPlugin("KVUpDater", uri))) {
       upd = new KVUpDater;
-   } else {
+   }
+   else {
       upd = (KVUpDater*) ph->ExecPlugin(0);
    }
    upd->fDataSet = uri;
@@ -121,9 +122,7 @@ void KVUpDater::SetIdentificationParameters(UInt_t run)
 
    cout << "Setting identification parameters of multidetector array for run " << run << ":" <<
         endl;
-   //fArray->GetListOfIDTelescopes()->Print();
    SetIDGrids(run);
-
    Info("SetIdentificationParameters", "Now");
    fArray->InitializeIDTelescopes();
 }
