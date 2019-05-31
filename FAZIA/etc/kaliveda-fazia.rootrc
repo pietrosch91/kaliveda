@@ -701,4 +701,4 @@ FAZIAPRE.Q3.PZCorrection:  		  0
 #LNS_2012.ReconstructedEventClassName:   KVINDRAReconEvent
 #LNS_2012.DataSet.RunFileClass.raw:    TFile
 
-+Plugin.KVCalibrator: FAZIA KVFAZIACalibrator FAZIAcalibration "KVFAZIACalibrator()"
++Plugin.KVCalibrator: FAZIA  KVFAZIACalibrator   FAZIAcalibration "KVFAZIACalibrator()"
