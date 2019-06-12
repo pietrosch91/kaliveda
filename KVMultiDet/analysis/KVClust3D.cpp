@@ -74,10 +74,12 @@ KVClust3D::KVClust3D(const char* name, const char* title, Int_t nbinsx, const Do
 KVClust3D::~KVClust3D()
 {
    // Destructor
+   /*
    delete fCluster;
    delete fVoisins;
    delete fNcells;
    delete fPop;
+   */
 }
 
 //____________________________________________________________________________//
@@ -235,7 +237,8 @@ void KVClust3D::Clusterize()
                fCluster->SetBinContent(nx, ny, nz, 1);
                NCellsTot += 1;
                PopTot += GetBinContent(nx, ny, nz);
-            } else {
+            }
+            else {
                fCluster->SetBinContent(nx, ny, nz, 0);
             }
          }
@@ -260,11 +263,13 @@ void KVClust3D::Clusterize()
                                  fNcells->AddAt(1 + fNcells->At(idx), idx);
                                  fPop->AddAt(GetBinContent(nxv, nyv, nzv) + fPop->At(idx), idx);
                                  fCluster->SetBinContent(nxv, nyv, nzv, idx);
-                              } else {
+                              }
+                              else {
                                  // clusters idx et idxv sont voisins
                                  fVoisins->Fill(TMath::Min(idx, idxv), TMath::Max(idx, idxv));
                               }
-                           } else {
+                           }
+                           else {
                               //cellule vide
                               //? SetBinContent(nxv,nyv,nzv,0);
                               //fCluster->SetBinContent(nxv,nyv,nzv,0);
@@ -274,7 +279,8 @@ void KVClust3D::Clusterize()
                   }
                   if (ncv == 0)
                      printf("gros pb de coherence ... cluster %1.0lf declare avec une cellule isolee\n", fCluster->GetBinContent(nx, ny, nz));
-               } else if (idx == 1) { //cellule pas encore affectee
+               }
+               else if (idx == 1) {   //cellule pas encore affectee
                   Int_t ncv = -1;
                   KVNumberList nl;
                   for (Int_t nxv = nx - fNvoisins; nxv <= nx + fNvoisins; nxv += 1) { //on boucle sur les cellules voisines
@@ -285,7 +291,8 @@ void KVClust3D::Clusterize()
                               if (idxv > 1) { // la cellule appartient a un cluster
                                  //cellule voisine appartenant a un cluster deja identifie
                                  nl.Add(idxv);
-                              } else {
+                              }
+                              else {
 
                               }
                               ncv += 1;
@@ -349,7 +356,8 @@ void KVClust3D::Clusterize()
                            }
                         }
                      }
-                  } else {
+                  }
+                  else {
                      if (IsLonelyCellsAreKept()) {
                         Ntemp += 1;
                         if (Ntemp > 999)
@@ -362,12 +370,14 @@ void KVClust3D::Clusterize()
                         fNcells->AddAt(1 + fNcells->At(Ntemp), Ntemp);
                         fPop->AddAt(GetBinContent(nx, ny, nz) + fPop->At(Ntemp), Ntemp);
                         fCluster->SetBinContent(nx, ny, nz, Ntemp);
-                     } else {
+                     }
+                     else {
                         fCluster->SetBinContent(nx, ny, nz, 0);
                      }
                   }
                }
-            } else {
+            }
+            else {
 
             }
          }
