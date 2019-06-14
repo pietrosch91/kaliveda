@@ -21,7 +21,7 @@ KVFAZIAIDSiCsI_FAZIASYM::KVFAZIAIDSiCsI_FAZIASYM()
    SetType("Si-CsI");
    fBelowProton = 0;
    fSiThreshold = 0;
-   cout << "Allocating new telescope of type KVFAZIAIDSiCsI_FAZIASYM\n";
+   printf("Allocating new telescope of type KVFAZIAIDSiCsI_FAZIASYM\n");
 }
 
 KVFAZIAIDSiCsI_FAZIASYM::~KVFAZIAIDSiCsI_FAZIASYM()
