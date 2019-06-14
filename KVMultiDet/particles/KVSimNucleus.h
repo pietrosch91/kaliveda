@@ -42,6 +42,40 @@ public:
       return position;
    }
 
+   Double_t GetRx() const
+   {
+      return position.X();
+   }
+   Double_t GetRy() const
+   {
+      return position.Y();
+   }
+   Double_t GetRz() const
+   {
+      return position.Z();
+   }
+   Double_t GetRmag() const
+   {
+      return position.Mag();
+   }
+
+   Double_t GetLx() const
+   {
+      return angmom.X();
+   }
+   Double_t GetLy() const
+   {
+      return angmom.Y();
+   }
+   Double_t GetLz() const
+   {
+      return angmom.Z();
+   }
+   Double_t GetLmag() const
+   {
+      return angmom.Mag();
+   }
+
    void SetAngMom(Double_t lx, Double_t ly, Double_t lz);
    void SetSpin(Double_t x, Double_t y, Double_t z)
    {
