@@ -225,7 +225,7 @@ void KVFAZIAReconNuc::Identify()
       TIter next(idt_list);
 
       while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
-         cout << "Attempting identification with telescope " << idt->GetName() << " : ";
+         cout << "Attempting identification with telescope " << idt->GetName() << " ( " << idt->GetType << " ) : ";
          if (StoppedInSI1() && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
          if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
 
