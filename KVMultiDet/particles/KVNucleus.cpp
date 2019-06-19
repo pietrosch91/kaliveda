@@ -464,11 +464,12 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
    //mt = KVNucleus::kVedaMass
    //__________________________
    //Veda - A calculated using the formula
-   //      fA = (Int_t)(1.867*fZ+.016*fZ*fZ-1.07E-4*fZ*fZ*fZ) + 1;
+   //      fA = TMath::Nint(1.867*fZ+.016*fZ*fZ-1.07E-4*fZ*fZ*fZ);
    //      This corresponds to the amass.f subroutine of the old INDRA Veda
-   //      calibration programme. This formula was supposed to represent
-   //      the Z-dependence of isotope masses in the beta-stability valley,
-   //      but is in fact a rather poor approximation, especially for large Z.
+   //      calibration programme. These are the masses used in the first
+   //      INDRA campaigns.
+   //      For light nuclei (Z<6) the values are given (not calculated) and
+   //         correspond to: p, alpha, 6Li, 8Be, 10B.
    //
    //mt = KVNucleus::kBetaMass
    //_________________________
@@ -502,16 +503,19 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
          A = 4;
          break;
       case 3:
-         A = 7;
+         A = (mt == kVedaMass ? 6 : 7);
          break;
       case 4:
-         A = 9;
+         A = (mt == kVedaMass ? 8 : 9);
          break;
       case 5:
-         A = 11;
+         A = (mt == kVedaMass ? 10 : 11);
          break;
       default:
-         A = (Int_t) KVNucleus::GetRealAFromZ(Z, mt) + 1;
+         if (mt == kVedaMass)
+            A = TMath::Nint(KVNucleus::GetRealAFromZ(Z, mt));
+         else
+            A = (Int_t) KVNucleus::GetRealAFromZ(Z, mt) + 1;
    }
    return A;
 }
