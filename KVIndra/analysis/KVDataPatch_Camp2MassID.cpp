@@ -34,7 +34,8 @@ KVDataPatch_Camp2MassID::~KVDataPatch_Camp2MassID()
 void KVDataPatch_Camp2MassID::ApplyToParticle(KVNucleus* n)
 {
    KVINDRAReconNuc* irn = dynamic_cast<KVINDRAReconNuc*>(n);
-   if (irn->IsAMeasured() && (!irn->GetCodes().TestIDCode(kIDCode_CsI) || irn->GetRingNumber() == 1)) {
+   if (irn->GetRingNumber() == 1) {
+      //phoswich
       irn->SetAMeasured(kFALSE);
    }
    if (!irn->IsAMeasured()) {
