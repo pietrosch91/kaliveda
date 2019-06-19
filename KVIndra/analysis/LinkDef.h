@@ -24,4 +24,5 @@
 #pragma link C++ class KVDataPatch_INDRA_camp5_PHDcorrection+;
 #pragma link C++ class KVDataPatch_CorrectEtalonModuleIDCode+;
 #pragma link C++ class KVDataPatch_Camp2MassID+;
+#pragma link C++ class KVDataPatch_Camp1MassID+;
 #endif
