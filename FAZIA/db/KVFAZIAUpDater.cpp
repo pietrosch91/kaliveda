@@ -106,8 +106,8 @@ void KVFAZIAUpDater::SetCalibrations(KVDBRun* dbrun)
             delete[] params;
          }
          cal->SetStatus(1);
-         printf("%s\n", det->GetName());
-         cal->Print();
+         // printf("%s\n", det->GetName());
+         //cal->Print();
       }
    }
 
