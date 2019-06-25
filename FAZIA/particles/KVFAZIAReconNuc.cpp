@@ -213,8 +213,8 @@ void KVFAZIAReconNuc::Identify()
    // This continues until a successful identification is achieved or there are no more ID telescopes to try.
    // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-   //cout << "Dentro il mio Identify" << endl;
-
+   // cout << "Dentro il mio Identify" << endl;
+   // cout << "Stopped In " << GetStoppingDetector()->GetLabel() << "\n";
    KVList* idt_list = GetStoppingDetector()->GetIDTelescopes();
    KVIdentificationResult* IDR = 0;
    Int_t idnumber = 1;
@@ -225,7 +225,7 @@ void KVFAZIAReconNuc::Identify()
       TIter next(idt_list);
 
       while ((idt = (KVIDTelescope*) next())) { // && !IsIdentified()) {
-
+         //  cout << "Attempting identification with telescope " << idt->GetName() << " ( " << idt->GetType() << " ) : ";
          if (StoppedInSI1() && !strcmp(idt->GetType(), "Si-Si")) continue; // why ?
          if (StoppedInSI2() && !strcmp(idt->GetType(), "Si-CsI")) continue; // why ?
 
@@ -233,6 +233,7 @@ void KVFAZIAReconNuc::Identify()
          IDR->SetName(idt->GetName());
          IDR->SetType(idt->GetType());
          if (idt->IsReadyForID()) { // is telescope able to identify for this run ?
+            // cout << "IDOK\n";
             IDR->IDattempted = kTRUE;
             IDR->IDOK = kFALSE;
             idt->Identify(IDR);
@@ -251,6 +252,7 @@ void KVFAZIAReconNuc::Identify()
             }
          }
          else {
+            // cout << "NOID!!!!!\n";
             IDR->IDattempted = kFALSE;
          }
          idnumber += 1;

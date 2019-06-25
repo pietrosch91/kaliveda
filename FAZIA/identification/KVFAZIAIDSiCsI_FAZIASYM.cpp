@@ -21,7 +21,7 @@ KVFAZIAIDSiCsI_FAZIASYM::KVFAZIAIDSiCsI_FAZIASYM()
    SetType("Si-CsI");
    fBelowProton = 0;
    fSiThreshold = 0;
-
+   // printf("Allocating new telescope of type KVFAZIAIDSiCsI_FAZIASYM\n");
 }
 
 KVFAZIAIDSiCsI_FAZIASYM::~KVFAZIAIDSiCsI_FAZIASYM()
@@ -73,7 +73,8 @@ Bool_t KVFAZIAIDSiCsI_FAZIASYM::Identify(KVIdentificationResult* idr, Double_t x
    if (fBelowProton) {
       if (fBelowProton->TestPoint(csi, si2)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
       else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-   } else {
+   }
+   else {
       idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
    }
 
@@ -90,7 +91,8 @@ Bool_t KVFAZIAIDSiCsI_FAZIASYM::Identify(KVIdentificationResult* idr, Double_t x
          // cout << "Ho identificato con TheGrid_lcp" << endl;
          //printf ("The Grid_lcp: %d %d %f\n", idr->Z, idr->A, idr->PID);
       }
-   } else {
+   }
+   else {
       idr->IDOK = kFALSE;
       idr->IDquality = KVIDZAGrid::kICODE8;
    }
@@ -125,7 +127,8 @@ void KVFAZIAIDSiCsI_FAZIASYM::Initialize()
       fBelowProton = (KVIDCutContour*)TheGrid->GetCut("PIEDESTAL");//fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid->GetCut("threshold");
       SetBit(kReadyForID);
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
 
@@ -136,7 +139,8 @@ void KVFAZIAIDSiCsI_FAZIASYM::Initialize()
       fBelowProton = (KVIDCutContour*)TheGrid->GetCut("PIEDESTAL");//fBelowProton = (KVIDCutLine*)TheGrid->GetCut("PIEDESTAL");
       fSiThreshold = (KVIDCutLine*)TheGrid_lcp->GetCut("threshold");
       SetBit(kReadyForID);
-   } else {
+   }
+   else {
       ResetBit(kReadyForID);
    }
 
@@ -159,6 +163,7 @@ void KVFAZIAIDSiCsI_FAZIASYM::SetIdentificationStatus(KVReconstructedNucleus* n)
    Bool_t okmass = (n->GetZ() <= 14) || (n->GetZ() < 19 && gRandom->Uniform() < fMassIDProb->Eval(n->GetZ()));
    if (okmass) {
       n->SetAMeasured();
-   } else
+   }
+   else
       n->SetZ(n->GetZ());
 }
