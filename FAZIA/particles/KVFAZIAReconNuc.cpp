@@ -480,11 +480,15 @@ void KVFAZIAReconNuc::Calibrate()
    for (Int_t ii = 0; ii < ntot; ii += 1) eloss[ii] = 0;
    TIter next(GetDetectorList());
    KVFAZIADetector* det = 0;
+   KVIDTelescope* idt = GetIdentifyingTelescope();
    Int_t ndet = 0;
    Int_t ndet_calib = 0;
    Double_t etot = 0;
+   int detname = 0;
+
 
    while ((det = (KVFAZIADetector*)next())) {
+      detname = det->GetBlockNumber() * 100 + det->GetQuartetNumber() * 10 + det->GetTelescopeNumber();
       if (det->IsCalibrated() && GetZ() <= 2) {
          if (det->GetIdentifier() == KVFAZIADetector::kCSI) {
 
@@ -530,6 +534,8 @@ void KVFAZIAReconNuc::Calibrate()
    if (ndet == ndet_calib) {
       Double_t E_targ = 0;
       SetEnergy(etot);
+      SetECode(0);
+
 
       if (IsAMeasured()) {
          Double_t etot_avatar = 0;
@@ -541,28 +547,74 @@ void KVFAZIAReconNuc::Calibrate()
             etot_avatar += temp;
             chi2 += TMath::Power((eloss[ntot - 1 - nn] - temp) / eloss[ntot - 1 - nn], 2.);
             avatar.SetKE(avatar.GetKE() - temp);
-            if (det->GetIdentifier() == KVFAZIADetector::kSI1)      error_si1 = (fESI1 - temp) / fESI1;
-            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) error_si2 = (fESI2 - temp) / fESI2;
+            if (det->GetIdentifier() == KVFAZIADetector::kSI1)      eESI1 = (fESI1 - temp);// / fESI1;
+            else if (det->GetIdentifier() == KVFAZIADetector::kSI2) eESI2 = (fESI2 - temp);// / fESI2;
+            else if (det->GetIdentifier() == KVFAZIADetector::kCSI) eECSI = (fECSI - temp);// / fECSI;
          }
 
          chi2 /= ndet;
 
-         if ((avatar.GetKE() / GetKE()) > 0.0) {
-            punch_through = kTRUE;
-         }
-         else if (chi2 > 10.) {
-            incoherency = kTRUE;
-         }
-         else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
-            if (StoppedInCSI() && (fECSI / etot) < 0.03) pileup = kTRUE;
-            else check_error = kTRUE;
-         }
-         else {
-            // if(avatar.GetZ()==15 && avatar.GetA()==32 && detname==242  && sono_dentro==1) {cout << "CODE 0!!!!!!\n\n\n\n"; getchar();}
-            //chi2 /= ndet;
-         }
+         int idtype = GetIdentificationResult(idt->GetTitle())->IDcode;
 
+         error_si1 = eESI1 / fESI1;
+         error_si2 = eESI2 / fESI2;
+
+
+
+         if (GetZ() > 0) {
+            //if (punch_through)   SetECode(2);
+            //if (incoherency)     SetECode(3);
+            //if (check_error)     SetECode(5);
+            //if (pileup)          SetECode(4);
+            if ((avatar.GetKE() / GetKE()) > 0.0) SetECode(2);
+            else if (chi2 > 10.) SetECode(3);
+            else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
+               if (StoppedInCSI() && (fECSI / etot) < 0.03) SetECode(4);
+               else SetECode(5);
+            }
+
+            //--
+            //Condizioni di Sandro per Z=1 per CsI
+            //--
+            if (GetZ() == 1) {
+               if (idtype == 11) SetECode(1); //per p, d, t
+
+               if (idtype == 12) {
+                  if (GetA() == 1) {
+                     if (TMath::Abs(error_si2) > 0.5) SetECode(5);
+                     else SetECode(1);
+                  }
+                  if (GetA() == 2) {
+                     if (TMath::Abs(error_si2) > 0.4) SetECode(5);
+                     else SetECode(1);
+                  }
+                  if (GetA() == 3) SetECode(1);
+               }
+
+               if (idtype == 23) {
+                  if (GetA() == 1) {
+                     if (TMath::Abs(error_si2) > 4) SetECode(5);
+                     else SetECode(1);
+                  }
+                  if (GetA() == 2) {
+                     if (TMath::Abs(error_si2) > 1.2) SetECode(5);
+                     else SetECode(1);
+                  }
+                  if (GetA() == 3) {
+                     if (TMath::Abs(error_si2) > 1.) SetECode(5);
+                     else SetECode(1);
+                  }
+               }
+               if (idtype == 33) {
+                  SetECode(1);
+               }
+            }
+            //if(GetZ()==2) if(idtype==23) SetECode(1); //alfa trattate come Z>2; Z>2 vanno in ndet!=ncalib, perche le csi calib sono solo per Z=1, Z=2
+
+         }
       }
+
+
       if (GetZ() && GetEnergy() > 0) {
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          SetTargetEnergyLoss(E_targ);
@@ -572,12 +624,6 @@ void KVFAZIAReconNuc::Calibrate()
       SetEnergy(E_tot);
       // set particle momentum from telescope dimensions (random)
       GetAnglesFromStoppingDetector();
-      SetECode(0);
-      if (punch_through)   SetECode(2);
-      if (incoherency)     SetECode(3);
-      if (check_error)     SetECode(5); //
-      if (pileup)          SetECode(4); //
-
       SetIsCalibrated();
    }
    else {
