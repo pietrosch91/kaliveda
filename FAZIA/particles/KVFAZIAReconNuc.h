@@ -48,6 +48,25 @@ public:
    void Print(Option_t* option = "") const;
    virtual void Identify();
 
+   Float_t eECSI;// scarto rispetto all'energia rilasciata in csi
+   Float_t eESI1;// scarto rispetto all'energia rilasciata in si1
+   Float_t eESI2;// scarto rispetto all'energia rilasciata in si2
+
+   Float_t GetErrorEnergySI1()
+   {
+      return eESI1;
+   };
+
+   Float_t GetErrorEnergySI2()
+   {
+      return eESI2;
+   };
+
+   Float_t GetErrorEnergyCSI()
+   {
+      return eECSI;
+   };
+
    virtual Bool_t CoherencySi(KVIdentificationResult& theID);
    virtual Bool_t CoherencySiSi(KVIdentificationResult& theID);
    virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
