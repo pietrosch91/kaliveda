@@ -34,7 +34,12 @@ protected:
 
    Bool_t fCoherent;
    Bool_t fPileup;
-
+private:
+   void CalibrateSi1();
+   void CalibrateSi2();
+   void CalibrateCsI(Bool_t override_light = false);
+   void CalibrateCsI_Heavy();
+   void CalibrateCsI_Light();
 public:
 
    KVFAZIAReconNuc();
@@ -72,6 +77,7 @@ public:
    virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
 
    virtual void Calibrate();
+   virtual void Calibrate_Modular(Bool_t override_light = false);
 
    Float_t GetEnergySI1()
    {
