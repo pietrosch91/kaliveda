@@ -2,7 +2,7 @@
 #  E(MeV) = KVLightEnergyCsI (old INDRA formula)
 #  <signal>-<block_number><quartet_number><telescope_number>: <a1>,<a2>,<Ed>,<a4>
 #
-RunList:     
+RunList:     4532-7063
 Signal:   Q3
 CalibType:             Channel-Energy
 CSI-11: 5.078103,0.200508,8.899228,0.000000
