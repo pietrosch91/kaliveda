@@ -520,11 +520,13 @@ int KVFAZIAReconNuc::ECodeRefinementZ1_Pietro(int idtype, double error_si1, doub
          if (GetA() == 3) SetECode(1);
       }
       if (idtype == 23) {
-         if (TMath::Abs(eESI2 / fESI2) < 1 && TMath::Abs(eESI2 / (fESI2 - eESI2)) < 1 && TMath::Abs(eESI1 / (fESI1 - eESI1)) < 1) SetECode(1);
+         if (GetSI2()->GetQ2Amplitude() < 1) SetECode(5);
+         else if (TMath::Abs(eESI2 / fESI2) < 1 && TMath::Abs(eESI2 / (fESI2 - eESI2)) < 1 && TMath::Abs(eESI1 / (fESI1 - eESI1)) < 1) SetECode(1);
          else SetECode(5);
       }
       if (idtype == 33) {
-         if (TMath::Abs(eESI2 / (fESI2 - eESI2)) < 9 && TMath::Abs(eESI1 / (fESI1 - eESI1)) < 9) SetECode(1);
+         if (GetSI2()->GetQ2Amplitude() < 1) SetECode(5);
+         else if (TMath::Abs(eESI2 / (fESI2 - eESI2)) < 9 && TMath::Abs(eESI1 / (fESI1 - eESI1)) < 9) SetECode(1);
          else SetECode(5);
       }
    }
