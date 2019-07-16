@@ -941,8 +941,8 @@ void KVFAZIAReconNuc::CheckEnergyConsistencyCsI()
       //if (incoherency)     SetECode(3);
       //if (check_error)     SetECode(5);
       //if (pileup)          SetECode(4);
-      if ((avatar.GetKE() / GetKE()) > 0.0) SetECode(2);
-      else if (chi2 > 10.) SetECode(3);
+      //if ((avatar.GetKE() / GetKE()) > 0.0) SetECode(2);
+      if (chi2 > 10.) SetECode(3);
       else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
          if (StoppedInCSI() && (fECSI / etot) < 0.03) SetECode(4);
          else SetECode(5);
