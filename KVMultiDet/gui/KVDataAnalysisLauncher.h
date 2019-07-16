@@ -168,6 +168,7 @@ public:
    void UserClassSelected(char*);
    virtual void SelectAll(void);
    virtual void DeselectAll(void);
+   virtual void InvertSel(void);
    virtual void Process(void);
    virtual void EnterRunlist(void);
 

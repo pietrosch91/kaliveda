@@ -59,6 +59,10 @@ public:
    {
       ((KVLVContainer*)GetContainer())->UnSelectAll();
    }
+   virtual void InvertSel()
+   {
+      ((KVLVContainer*)GetContainer())->InvertSelection();
+   }
    virtual void RemoveAll()
    {
       ((KVLVContainer*)GetContainer())->RemoveAll();

@@ -168,7 +168,8 @@ void KVGFileList::AddFile(void)
    if (!fileName.Length()) {
       if (Char_t* fn = this->GetFileFromDialog()) {
          fileName = fn;
-      } else {
+      }
+      else {
          fileName = "";
       }
    }
@@ -253,7 +254,8 @@ Bool_t KVGFileList::CanAdd(const Char_t* fn)
                    Form("The file \"%s\" does not exist. Nothing added.",
                         fn),
                    kMBIconExclamation);
-   } else {
+   }
+   else {
       TString fname = fn;
       if (!fname.EndsWith(".so")) {
          ok = kFALSE;
@@ -347,7 +349,8 @@ Bool_t KVGDirectoryList::CanAdd(const Char_t* fn)
                    Form("The directory \"%s\" does not exist. Nothing added.",
                         fn),
                    kMBIconExclamation);
-   } else {
+   }
+   else {
       if (!(fs.fMode & kS_IFDIR)) {
          ok = kFALSE;
          new TGMsgBox(gClient->GetRoot(), this,
@@ -532,6 +535,13 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow* p, UInt_t w, UInt
                  "KVDataAnalysisLauncher",
                  this,
                  "DeselectAll()");
+   cfSelAll->AddFrame(bout, eX);
+   bout = new TGTextButton(cfSelAll, "Invert Sel");
+   bout->SetToolTipText("Invert Selection", TTDELAY);
+   bout->Connect("Clicked()",
+                 "KVDataAnalysisLauncher",
+                 this,
+                 "InvertSel()");
    cfSelAll->AddFrame(bout, eX);
    bout = new TGTextButton(cfSelAll, "Runlist");
    bout->SetToolTipText("Enter list of runs to analyse.", TTDELAY);
@@ -737,7 +747,8 @@ void KVDataAnalysisLauncher::SetDataSetList(Char_t* repository)
 
    if (ds.Length()) {
       SetDataSet(ds.Data());
-   } else {
+   }
+   else {
       SetTask();
    }
 
@@ -780,7 +791,8 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t* dataset)
 
    if (ds.Length()) {
       SetTask(ds.Data());
-   } else {
+   }
+   else {
       SetSystem();
    }
 }
@@ -792,7 +804,8 @@ KVDataSetAnalyser* KVDataAnalysisLauncher::GetDataAnalyser(KVDataAnalysisTask* t
 
    if (!task) {
       if (!ia) ia = new KVDataSetAnalyser;
-   } else {
+   }
+   else {
       if (ia) delete ia;
       ia = (KVDataSetAnalyser*)KVDataAnalyser::GetAnalyser(task->GetDataAnalyser());
       if (!ia) ia = new KVDataSetAnalyser;
@@ -816,7 +829,8 @@ void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
    if (!task->WithUserClass()) {
       //no user class required
       DisableUserClassList();
-   } else {
+   }
+   else {
       //user class required
       EnableUserClassList();
    }
@@ -834,7 +848,8 @@ void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
    }
    if (ds.Length()) {
       SetSystem(ds.Data());
-   } else {
+   }
+   else {
       SetRunsList();
    }
 }
@@ -873,11 +888,13 @@ void KVDataAnalysisLauncher::SetRunsList()
       if (system) {
          // user has chosen a system
          SetResource("System", system->GetName());
-      } else {
+      }
+      else {
          // user chose "All" for system
          SetResource("System", "All");
       }
-   } else {
+   }
+   else {
       // no systems defined for dataset
       SetResource("System", "Unknown");
    }
@@ -918,6 +935,14 @@ void KVDataAnalysisLauncher::DeselectAll(void)
 }
 
 //__________________________________________
+void KVDataAnalysisLauncher::InvertSel(void)
+{
+   // Deselect all runs currently in the displayed list of runs
+   lvRuns->InvertSel();
+   UpdateListOfSelectedRuns();
+}
+
+//__________________________________________
 void KVDataAnalysisLauncher::Process(void)
 {
    // Run the analysis task
@@ -945,7 +970,8 @@ void KVDataAnalysisLauncher::Process(void)
    if (listOfRuns.GetNValues()) {
       datan->SetRuns(listOfRuns, kFALSE);
       datan->SetFullRunList(listOfRuns);
-   } else {
+   }
+   else {
       WarningBox("Empty Run List", "The list of runs to process is empty.");
       return;
    }
@@ -974,14 +1000,16 @@ void KVDataAnalysisLauncher::Process(void)
             if (WarningBox("Compilation failed", "Please correct mistakes in user analysis class", kTRUE)) EditUserClassFiles();
             return;
          }
-      } else {
+      }
+      else {
          delete ia;
          ia = 0;
          checkCompilation = kTRUE;
          WarningBox("No User Class", "Please enter the user analysis class name.");
          return;
       }
-   } else if (strcmp(task->GetUserBaseClass(), "")) {
+   }
+   else if (strcmp(task->GetUserBaseClass(), "")) {
       //task with default "user" class (i.e. UserClass=no but UserClass.BaseClass!="")
       datan->SetUserClass(task->GetUserBaseClass(), kFALSE);
    }
@@ -1010,7 +1038,8 @@ void KVDataAnalysisLauncher::Process(void)
       gBatchSystem->Clear();
       gBatchSystem->SetBatchSystemParameters(fBatchParameters);
       datan->SetBatchSystem(gBatchSystem);
-   } else {
+   }
+   else {
       datan->SetBatchSystem(nullptr);
    }
    datan->Run();
@@ -1023,7 +1052,8 @@ const Char_t* KVDataAnalysisLauncher::GetRepository(void)
 {
    if (TGTextLBEntry* e = (TGTextLBEntry*)cbRepository->GetSelectedEntry()) {
       return e->GetText()->GetString();
-   } else {
+   }
+   else {
       return "";
    }
 }
@@ -1033,7 +1063,8 @@ const Char_t* KVDataAnalysisLauncher::GetDataSet(void)
 {
    if (TGTextLBEntry* e = (TGTextLBEntry*)cbDataSet->GetSelectedEntry()) {
       return e->GetText()->GetString();
-   } else {
+   }
+   else {
       return "";
    }
 }
@@ -1043,7 +1074,8 @@ const Char_t* KVDataAnalysisLauncher::GetTask(void)
 {
    if (TGTextLBEntry* e = (TGTextLBEntry*)cbTask->GetSelectedEntry()) {
       return e->GetText()->GetString();
-   } else {
+   }
+   else {
       return "";
    }
 }
@@ -1078,7 +1110,8 @@ void KVDataAnalysisLauncher::SetRepository(const Char_t* r)
       cbRepository->Select(i, kFALSE);
 #endif
       SetDataSetList((Char_t*)r);
-   } else {
+   }
+   else {
       SetDataSet();
    }
 }
@@ -1096,7 +1129,8 @@ void KVDataAnalysisLauncher::SetDataSet(const Char_t* r)
       cbDataSet->Select(-1);
       SetResource("Repository", "");
       SetTask();
-   } else {
+   }
+   else {
       TGLBEntry* e = 0;
       if ((e = cbDataSet->FindEntry(r))) {
          Int_t i = e->EntryId();
@@ -1106,7 +1140,8 @@ void KVDataAnalysisLauncher::SetDataSet(const Char_t* r)
          cbDataSet->Select(i, kFALSE);
 #endif
          SetTaskList((Char_t*)r);
-      } else {
+      }
+      else {
          SetTask();
       }
    }
@@ -1125,7 +1160,8 @@ void KVDataAnalysisLauncher::SetTask(const Char_t* r)
       cbTask->Select(-1);
       SetResource("DataSet", "");
       SetSystem();
-   } else {
+   }
+   else {
       TGLBEntry* e = 0;
       if ((e = cbTask->FindEntry(r))) {
          Int_t i = e->EntryId();
@@ -1135,7 +1171,8 @@ void KVDataAnalysisLauncher::SetTask(const Char_t* r)
          cbTask->Select(i, kFALSE);
 #endif
          SetSystemList(i);
-      } else {
+      }
+      else {
          SetSystem();
       }
    }
@@ -1152,7 +1189,8 @@ void KVDataAnalysisLauncher::SetSystem(const Char_t* r)
       DisableUserClassList();
       SetRuns();
       lvRuns->RemoveAll();
-   } else {
+   }
+   else {
       lvSystems->ActivateItemWithColumnData("System", r);
       SystemSelectionChanged();
    }
@@ -1174,7 +1212,8 @@ void KVDataAnalysisLauncher::SetRuns(const Char_t* r)
       ClearListOfSelectedRuns();
       SetResource("Trigger", "All");
       SetResource("RunsList", "");
-   } else {
+   }
+   else {
       listOfRuns.SetList(r);
       listOfRuns.Inter(listOfSystemRuns);
 
@@ -1277,7 +1316,8 @@ void KVDataAnalysisLauncher::RemoveAll(TGComboBox* box)
    if (box->GetSelectedEntry()) {
       ((TGTextLBEntry*)box->GetSelectedEntry())->SetTitle("");
       fClient->NeedRedraw(box->GetSelectedEntry());
-   } else {
+   }
+   else {
       box->GetTextEntry()->SetTitle("");
       fClient->NeedRedraw(box->GetTextEntry());
    }
@@ -1481,16 +1521,19 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString& cur_
          // translate title to name for task
          KVDataAnalysisTask* tsk = gDataSet->GetAnalysisTask(tmp.Data());
          if (tsk) res.Form(".%s", tsk->GetName());
-      } else if (!strcmp(resource->GetName(), "System")) {
+      }
+      else if (!strcmp(resource->GetName(), "System")) {
          // use SystemBatchName
          res.Form(".%s", SystemBatchName());
-      } else if (!strcmp(resource->GetName(), "Trigger")) {
+      }
+      else if (!strcmp(resource->GetName(), "Trigger")) {
          // turn "M > 4" into "M4"
          tmp.ReplaceAll(" ", "");
          tmp.ReplaceAll(">", "");
          tmp.ReplaceAll("=", "");
          res.Form(".%s", tmp.Data());
-      } else {
+      }
+      else {
          res.Form(".%s", GetResource(resource->GetName()));
       }
       saved_res += res;
@@ -1590,7 +1633,8 @@ void KVDataAnalysisLauncher::UserClassSelected(char* class_name)
    if (strcmp("", class_name)) {
       btEditClass->SetEnabled(kTRUE);
       GetDataAnalyser()->SetUserClass(class_name, kFALSE);
-   } else btEditClass->SetEnabled(kFALSE);
+   }
+   else btEditClass->SetEnabled(kFALSE);
    checkCompilation = kTRUE;
 }
 
@@ -1667,7 +1711,8 @@ const Char_t* KVDataAnalysisLauncher::GetUserClass()
 
    if (TGTextLBEntry* e = (TGTextLBEntry*)cbUserClass->GetSelectedEntry()) {
       return e->GetText()->GetString();
-   } else {
+   }
+   else {
       return "";
    }
 }
