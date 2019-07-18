@@ -509,18 +509,19 @@ int KVFAZIAReconNuc::ECodeRefinementZ1_Pietro(int idtype, double error_si1, doub
    if (GetZ() == 1) {
       if (idtype == 11) SetECode(1); //per p, d, t
       if (idtype == 12) {
-         if (GetA() == 1) {
-            if (TMath::Abs(error_si2) > 0.5) SetECode(5);
-            else SetECode(1);
-         }
+         if (GetSI1)->GetQ1Amplitude() < 1) SetECode(10);
+            if (GetA() == 1) {
+               if (TMath::Abs(error_si2) > 0.5) SetECode(5);
+               else SetECode(1);
+            }
          if (GetA() == 2) {
             if (TMath::Abs(error_si2) > 0.4) SetECode(5);
             else SetECode(1);
          }
          if (GetA() == 3) SetECode(1);
-      }
+         }
       if (idtype == 23) {
-         if (GetSI2()->GetQ2Amplitude() < 1) SetECode(5);
+         if (GetSI2()->GetQ2Amplitude() < 1) SetECode(10);
          else if (TMath::Abs(eESI2 / fESI2) < 1 && TMath::Abs(eESI2 / (fESI2 - eESI2)) < 1 && TMath::Abs(eESI1 / (fESI1 - eESI1)) < 1) SetECode(1);
          else SetECode(5);
       }
@@ -809,8 +810,8 @@ void KVFAZIAReconNuc::CheckEnergyConsistencySi1()
       //if (check_error)     SetECode(5);
       //if (pileup)          SetECode(4);
       if ((avatar.GetKE() / GetKE()) > 0.0) SetECode(2); //still residual energy after stopping layer, punch through error
-      else if (chi2 > 10.) SetECode(3);
-      else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) SetECode(5);
+      //else if (chi2 > 10.) SetECode(3);
+      else if (TMath::Abs(error_si1) > 0.15) SetECode(5);
 
       //--
       //Condizioni di Sandro per Z=1 per CsI
@@ -870,15 +871,10 @@ void KVFAZIAReconNuc::CheckEnergyConsistencySi2()
       //if (check_error)     SetECode(5);
       //if (pileup)          SetECode(4);
       if ((avatar.GetKE() / GetKE()) > 0.0) SetECode(2);
-      else if (chi2 > 10.) SetECode(3);
-      else if (TMath::Abs(error_si1) > 0.15 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 0.15) {
-         if (StoppedInCSI() && (fECSI / etot) < 0.03) SetECode(4);
-         else SetECode(5);
+      // else if (chi2 > 10.) SetECode(3);
+      else if (TMath::Abs(error_si1) > 0.5 || TMath::Abs(error_si1) + TMath::Abs(error_si2) > 8) {
+         SetECode(5);
       }
-
-      //--
-      //Condizioni di Sandro per Z=1 per CsI
-      //--
       if (GetZ() == 1) {
          ECodeRefinementZ1_Pietro(idtype, error_si1, error_si2);
       }
