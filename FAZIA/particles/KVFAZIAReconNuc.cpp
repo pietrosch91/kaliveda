@@ -1395,10 +1395,12 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          Double_t E_targ = 0;
          fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
          SetEnergy(fECSI + fESI1 + fESI2);
-         SetECode(1);
+
 
          CheckEnergyConsistencyCsI();
 
+         //Force ECode to 5 because it is not reliable
+         SetECode(5);
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          Double_t E_tot = GetEnergy() + E_targ;
          SetIsCalibrated();
@@ -1421,8 +1423,11 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          fESI2 = GetSI2()->GetELostByParticle(&avatar);
          //  fECSI=Eres-fESI2;
          SetEnergy(fECSI + fESI2 + fESI1);
-         SetECode(8);
+
          CheckEnergyConsistencyCsI();
+
+         //Force ecode because calib is not reliable
+         SetECode(8);
 
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          Double_t E_tot = GetEnergy() + E_targ;
