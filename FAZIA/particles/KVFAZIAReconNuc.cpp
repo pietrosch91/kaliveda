@@ -1470,12 +1470,13 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(1);
          CheckEnergyConsistencyCsI();
+         SetECode(5;
 
-         E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-         Double_t E_tot = GetEnergy() + E_targ;
-         SetIsCalibrated();
-         SetEnergy(E_tot);
-         GetAnglesFromStoppingDetector();
+                  E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+                  Double_t E_tot = GetEnergy() + E_targ;
+                  SetIsCalibrated();
+                  SetEnergy(E_tot);
+                  GetAnglesFromStoppingDetector();
       }
       else if (Si1Calib) {   //recover Esi2 and ECSI from ESi1
          if (!IsAMeasured()) {
@@ -1496,6 +1497,7 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          SetECode(6);
 
          CheckEnergyConsistencyCsI();
+         SetECode(6);
 
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          Double_t E_tot = GetEnergy() + E_targ;
