@@ -2,7 +2,7 @@
 #  E(MeV) = a0 + a1*channel + a2*channel*channel
 #  <signal>-<block_number><quartet_number><telescope_number>: <a0>,<a1>,<a2>
 #
-RunList:                                 40-776
+RunList:                                 40-1002
 Signal:                                  Q2
 CalibType:                               Channel-Energy
 SI2-11: 0.185505,0.268586,0.0
