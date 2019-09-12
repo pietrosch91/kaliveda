@@ -140,6 +140,11 @@ public:
       return fECSI;
    };
 
+   Float_t GetEnergyCSISYM()
+   {
+      return fECSIPIETRO;
+   };
+
    KVFAZIADetector* Get(const Char_t* label) const;
    KVFAZIADetector* GetSI1() const;
    KVFAZIADetector* GetSI2() const;
