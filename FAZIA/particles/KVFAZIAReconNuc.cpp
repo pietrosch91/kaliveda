@@ -50,6 +50,7 @@ void KVFAZIAReconNuc::init()
    if (gDataSet)
       SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVFAZIAReconNuc.MassFormula", Double_t(kEALMass))));
    fECSI = fESI1 = fESI2 = 0.;
+   fECSIPIETRO = -1;
    eECSI = eESI1 = eESI2 = 0;
    aECSI = aESI1 = aESI2 = 0;
    fEpattern = 0;
@@ -967,6 +968,7 @@ void KVFAZIAReconNuc::Calibrate_Modular(Bool_t override_light)
 
 void KVFAZIAReconNuc::CalibrateSi1()
 {
+   fECSIPIETRO = -1;
    // Perform energy calibration of (previously identified) particle
    KVNucleus avatar;
    //printf("start Calibrate\n");
@@ -998,6 +1000,15 @@ void KVFAZIAReconNuc::CalibrateSi1()
    }
    ndet += 1;
 
+   if (!IsAMeasured()) {
+      if (GetZ() == 1)       SetA(1);
+      else if (GetZ() == 2)  SetA(4);
+      else if (GetZ() == 20) SetA(48);
+      else {
+         SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+      }
+   }
+
    //If Silicon is calibrated
    if (ndet == ndet_calib) {
       Double_t E_targ = 0;
@@ -1022,7 +1033,7 @@ void KVFAZIAReconNuc::CalibrateSi1()
 void KVFAZIAReconNuc::CalibrateSi2()
 {
    // Perform energy calibration of (previously identified) particle
-
+   fECSIPIETRO = -1;
    KVNucleus avatar;
    //printf("start Calibrate\n");
    Int_t ntot = GetDetectorList()->GetEntries(); //->2
@@ -1067,6 +1078,16 @@ void KVFAZIAReconNuc::CalibrateSi2()
       ndet += 1;
    }
 
+   if (!IsAMeasured()) {
+      if (GetZ() == 1)       SetA(1);
+      else if (GetZ() == 2)  SetA(4);
+      else if (GetZ() == 20) SetA(48);
+      else {
+         SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+      }
+   }
+
+
    if (ndet == ndet_calib) { //Everything OK
       Double_t E_targ = 0;
       SetEnergy(etot);
@@ -1089,14 +1110,6 @@ void KVFAZIAReconNuc::CalibrateSi2()
       if (Si1Calib) {
          //try to recover Si2 Energy loss from Si1
          //Assign mass if not present
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          fESI2 = GetSI1()->GetEResFromDeltaE(GetZ(), GetA(), fESI1);
          SetEnergy(fESI1 + fESI2);
@@ -1115,14 +1128,6 @@ void KVFAZIAReconNuc::CalibrateSi2()
          GetAnglesFromStoppingDetector();
       }
       else {
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          fESI1 = GetSI2()->GetDeltaEFromERes(GetZ(), GetA(), fESI2);
          SetEnergy(fESI1 + fESI2);
@@ -1205,19 +1210,19 @@ void KVFAZIAReconNuc::CalibrateCsI_Heavy()
       ndet += 1;
    }
 
-   if (ndet_calib == 2) { //this means both Si1 and Si2 are calibrated
-
-      if (!IsAMeasured()) {
-         if (GetZ() == 1)       SetA(1);
-         else if (GetZ() == 2)  SetA(4);
-         else if (GetZ() == 20) SetA(48);
-         else {
-            SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-         }
+   if (!IsAMeasured()) {
+      if (GetZ() == 1)       SetA(1);
+      else if (GetZ() == 2)  SetA(4);
+      else if (GetZ() == 20) SetA(48);
+      else {
+         SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
       }
+   }
 
+   if (ndet_calib == 2) { //this means both Si1 and Si2 are calibrated
       Double_t E_targ = 0;
       fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+      fECSIPIETRO = fECSI;
       SetEnergy(fECSI + fESI1 + fESI2);
       SetECode(1);
 
@@ -1231,16 +1236,9 @@ void KVFAZIAReconNuc::CalibrateCsI_Heavy()
    }
    else if (ndet_calib == 1) {   //ndet
       if (Si2Calib) { //recover Esi1 and EcsI from Esi2
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+         fECSIPIETRO = fECSI;
          fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(1);
@@ -1254,20 +1252,12 @@ void KVFAZIAReconNuc::CalibrateCsI_Heavy()
          GetAnglesFromStoppingDetector();
       }
       else {   //recover Esi2 and ECSI from ESi1
-         if (!IsAMeasured()) {
-
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          Double_t Eres = GetSI1()->GetEResFromDeltaE(GetZ(), GetA(), fESI1);
          avatar.SetZAandE(GetZ(), GetA(), Eres);
          fESI2 = GetSI2()->GetELostByParticle(&avatar);
          fECSI = Eres - fESI2;
+         fECSIPIETRO = fECSI;
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(6);
 
@@ -1358,6 +1348,14 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
       ndet += 1;
    }
 
+   if (!IsAMeasured()) {
+      if (GetZ() == 1)       SetA(1);
+      else if (GetZ() == 2)  SetA(4);
+      else if (GetZ() == 20) SetA(48);
+      else {
+         SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
+      }
+   }
 
    if (ndet == ndet_calib) {
       Double_t E_targ = 0;
@@ -1366,6 +1364,7 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
 
       CheckEnergyConsistencyCsI();
 
+      fECSIPIETRO = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
       if (GetZ() && GetEnergy() > 0) {
          E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
          SetTargetEnergyLoss(E_targ);
@@ -1379,21 +1378,13 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
    }
    else if (ndet_calib == 2) {
       if (!CsICalib) {
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
-
          Double_t E_targ = 0;
          fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
          SetEnergy(fECSI + fESI1 + fESI2);
 
 
          CheckEnergyConsistencyCsI();
+         fECSIPIETRO = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
 
          //Force ECode to 5 because it is not reliable
          SetECode(5);
@@ -1404,19 +1395,11 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          GetAnglesFromStoppingDetector();
       }
       else if (!Si2Calib) {
-         if (!IsAMeasured()) {
-
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          Double_t Eres = GetSI1()->GetEResFromDeltaE(GetZ(), GetA(), fESI1);
          avatar.SetZAandE(GetZ(), GetA(), Eres);
          fESI2 = GetSI2()->GetELostByParticle(&avatar);
+         fECSIPIETRO = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
          //  fECSI=Eres-fESI2;
          SetEnergy(fECSI + fESI2 + fESI1);
 
@@ -1432,16 +1415,9 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          GetAnglesFromStoppingDetector();
       }
       else {
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
+         fECSIPIETRO = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(1);
 
@@ -1456,16 +1432,9 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
    }
    else if (ndet_calib == 1) {
       if (Si2Calib) { //recover Esi1 and EcsI from Esi2
-         if (!IsAMeasured()) {
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          fECSI = GetSI2()->GetEResFromDeltaE(GetZ(), GetA(), fESI2);
+         fECSIPIETRO = fECSI;
          fESI1 = GetSI1()->GetDeltaEFromERes(GetZ(), GetA(), fESI2 + fECSI);
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(1);
@@ -1479,20 +1448,12 @@ void KVFAZIAReconNuc::CalibrateCsI_Light()
          GetAnglesFromStoppingDetector();
       }
       else if (Si1Calib) {   //recover Esi2 and ECSI from ESi1
-         if (!IsAMeasured()) {
-
-            if (GetZ() == 1)       SetA(1);
-            else if (GetZ() == 2)  SetA(4);
-            else if (GetZ() == 20) SetA(48);
-            else {
-               SetA(1.04735 + 1.99941 * GetZ() + 0.00683224 * TMath::Power(GetZ(), 2.));
-            }
-         }
          Double_t E_targ = 0;
          Double_t Eres = GetSI1()->GetEResFromDeltaE(GetZ(), GetA(), fESI1);
          avatar.SetZAandE(GetZ(), GetA(), Eres);
          fESI2 = GetSI2()->GetELostByParticle(&avatar);
          fECSI = Eres - fESI2;
+         fECSIPIETRO = fECSI;
          SetEnergy(fECSI + fESI2 + fESI1);
          SetECode(6);
 

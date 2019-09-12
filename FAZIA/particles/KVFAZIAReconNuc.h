@@ -31,6 +31,7 @@ protected:
    Float_t fECSI;//csi contribution to energy
    Float_t fESI1;//si1 contribution to energy
    Float_t fESI2;//si2 contribution to energy
+   Float_t fECSIPIETRO; //ECSI obtained from Si1 Si2
 
    Int_t fEpattern;
 
